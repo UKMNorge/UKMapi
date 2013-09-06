@@ -796,13 +796,13 @@
 						AND `k`.`idfylke` = '".$this->info['fylke_id']."'
 						GROUP BY `smartukm_band`.`b_id`
 						ORDER BY `b_name` ASC";
-			
-			foreach($this->info['kommuner'] as $t => $k)
-				$where .= " (`b_season` = '".$this->info['season']."' "
-								."AND `b_status` = '".$status."' "
-								."AND `b_kommune` = '".$k['id']."') OR";
-			$where = substr($where,0,strlen($where)-3);
-			
+			if(is_array($this->info['kommuner'])) {
+				foreach($this->info['kommuner'] as $t => $k)
+					$where .= " (`b_season` = '".$this->info['season']."' "
+									."AND `b_status` = '".$status."' "
+									."AND `b_kommune` = '".$k['id']."') OR";
+				$where = substr($where,0,strlen($where)-3);
+			}
 			return "SELECT ".$get."
 					FROM `smartukm_band`
 					WHERE ".$where."
@@ -823,6 +823,7 @@
 			## Looper alle innslag fra kommunen med den gitte statusen
 			$qry = new SQL($this->_load_innslag_qry($kommune, $status,$felt,$videresendte));
 			$res = $qry->run();
+			if($res)
 			while($set = mysql_fetch_assoc($res)) {
 				## Hopper over hvis innslaget er logget avmeldt (og status tilfeldigvis glemt oppdatert (bug høsten 2011))
 				if(!$this->_load_innslag_clean($set))
