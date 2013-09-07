@@ -17,7 +17,7 @@ class statistikk {
 	
 
 	public function getTotal($season) {
-            $query_persons = "SELECT count(`p_id`) as `persons` FROM `ukm_statistics`
+            $query_persons = "SELECT count(`stat_id`) as `persons` FROM `ukm_statistics`
                                 WHERE `season`=#season AND `f_id` != 21";
             $query_bands = "SELECT COUNT(DISTINCT `b_id`) as `bands` FROM `ukm_statistics` 
                             WHERE `season`=#season AND `f_id` != 21";
