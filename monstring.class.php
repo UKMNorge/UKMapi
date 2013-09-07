@@ -1,4 +1,6 @@
 <?php
+require_once 'UKM/sql.class.php';
+require_once 'UKM/statistikk.class.php';
 	class tidligere_monstring {
 		public function __construct($pl_id, $season){
 			$this->returnSeason = $season;
@@ -925,8 +927,13 @@
 		}
 
 		public function statistikk() {
-			if($this->get('type')=='kommune')
-				$this->statistikk = new statistikk($this->info['kommuner']);
+			if($this->get('type')=='kommune') {
+                            $kommune_id = array();
+                            foreach ($this->info['kommuner'] as $key => $value) {
+                                $kommune_id[] = $value['id'];
+                            }
+                            $this->statistikk = new statistikk($kommune_id, false);
+                        }
 		}
 
 
