@@ -5,8 +5,9 @@ class statistikk {
 	var $data = false;
 	public function __construct($kommuneArray, $fylkeID) {
                 if ($kommuneArray == false)
-                    $kommuneArray = array();
-		$this->kommuner = $kommuneArray;
+                    $this->kommuner = array();
+                else
+                    $this->kommuner = $kommuneArray;
                 $this->fylkeID = $fylkeID;
                                 
                 if ($kommuneArray == false && $fylkeID == false)
@@ -62,14 +63,14 @@ class statistikk {
             $sql = new SQL($query_pl_missing, array('season'=>(int)$season,
                                                     'fylkeID'=>(int)$this->fylkeID,
                                                     'kommune' => $this->kommuneArray[0],
-                                                    'kommuner' => implode(',', $this->kommuneArray)));
+                                                    'kommuner' => implode(',', $this->kommuner)));
             $missing += (int)$sql->run('field', 'missing');
             var_dump($missing);
             
             // Persons
             $sql = new SQL($query_persons, array('season'=>(int)$season,
                                                  'fylkeID'=>(int)$this->fylkeID,
-                                                 'kommuner' => implode(',', $this->kommuneArray)));
+                                                 'kommuner' => implode(',', $this->kommuner)));
             $persons = (int)$sql->run('field', 'persons');
             
             $persons += $missing;
