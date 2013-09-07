@@ -82,7 +82,7 @@ class statistikk {
             $bands = (int)$sql->run('field', 'bands');
             
             var_dump($persons);
-            //var_dump($bands);
+            var_dump($bands);
 	}
 
 	public function getCategory($season) {
