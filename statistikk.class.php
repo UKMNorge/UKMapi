@@ -4,6 +4,8 @@ require_once('UKM/monstring.class.php');
 class statistikk {
 	var $data = false;
 	public function __construct($kommuneArray, $fylkeID) {
+                if ($kommuneArray == false)
+                    $kommuneArray = array();
 		$this->kommuner = $kommuneArray;
                 $this->fylkeID = $fylkeID;
                                 
