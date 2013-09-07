@@ -64,6 +64,7 @@ class statistikk {
                                                     'fylkeID'=>(int)$this->fylkeID,
                                                     'kommune' => $this->kommuneArray[0],
                                                     'kommuner' => implode(',', $this->kommuner)));
+            echo $sql->debug();
             $missing += (int)$sql->run('field', 'missing');
             var_dump($missing);
             
