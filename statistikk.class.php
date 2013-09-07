@@ -8,12 +8,15 @@ class statistikk {
                     $this->kommuner = array();
                 else
                     $this->kommuner = $kommuneArray;
+                
                 $this->fylkeID = $fylkeID;
                                 
                 if ($kommuneArray == false && $fylkeID == false)
                     $this->type = 'land';
+                
                 else if ($kommuneArray == false)
                     $this->type = 'fylke';
+                
                 else
                     $this->type = 'kommune';
 	}
@@ -47,6 +50,7 @@ class statistikk {
                                 array('season' => (int)$season, 'fylkeID' => (int)$this->fylkeID));
                 $missing = $sql->run('field', 'missing');
             }
+            
             // Kommune
             else if ($this->type == 'kommune') {
                 $query_persons .= ' AND `k_id` IN (#kommuner)';
@@ -56,6 +60,7 @@ class statistikk {
                                     WHERE `rel`.`k_id` = #kommune
                                     AND `place`.`season` = #season LIMIT 1";
             }
+            
             // Land
             else {
                 $missing = 0;
