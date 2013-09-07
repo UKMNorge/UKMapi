@@ -800,19 +800,21 @@ require_once 'UKM/statistikk.class.php';
 						ORDER BY `b_name` ASC";
 			if(is_array($this->info['kommuner'])) {
 				foreach($this->info['kommuner'] as $t => $k) {
-					// PRE 2011 DID NOT USE BAND SEASON FIELD
-					if($this->info['season'] <= 2011) {
-						$where .= " (`b_status` = '".$status."' "
+					$where .= " (`b_season` = '".$this->info['season']."' "
+									."AND `b_status` = '".$status."' "
 									."AND `b_kommune` = '".$k['id']."') OR";
-	
-					} else {
-						$where .= " (`b_season` = '".$this->info['season']."' "
-										."AND `b_status` = '".$status."' "
-										."AND `b_kommune` = '".$k['id']."') OR";
-					}
 				}
 				$where = substr($where,0,strlen($where)-3);
 			}
+
+			// PRE 2011 DID NOT USE BAND SEASON FIELD
+			if($this->info['season'] <= 2011) {
+				return "SELECT ". $get ."
+						FROM `smartukm_band` AS `band`
+						JOIN `smartukm_rel_pl_b` AS `pl_b` ON (`pl_b`.`b_id` = `band`.`b_id`)
+						WHERE `pl_b`.`pl_id` = '#plid'";
+			}
+
 			return "SELECT ".$get."
 					FROM `smartukm_band`
 					WHERE ".$where."
