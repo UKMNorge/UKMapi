@@ -47,7 +47,7 @@ class statistikk {
             else if ($this->type == 'kommune') {
                 $query_persons .= ' AND `k_id` IN (#kommuner)';
                 $query_bands .= ' AND `k_id` IN (#kommuner)';
-                $query_pl_missing = "SELECT `pl_missing` FROM `smartukm_place` as `place`
+                $query_pl_missing = "SELECT `pl_missing` as `missing` FROM `smartukm_place` as `place`
                                     JOIN `smartukm_rel_pl_k` as `rel` ON `rel`.`pl_id` = `place`.`pl_id`
                                     WHERE `rel`.`k_id` = #kommune
                                     AND `place`.`season` = #season LIMIT 1";
@@ -64,7 +64,7 @@ class statistikk {
                                                     'fylkeID'=>(int)$this->fylkeID,
                                                     'kommune' => $this->kommuner[0],
                                                     'kommuner' => implode(',', $this->kommuner)));
-            echo $sql->debug();
+
             $missing += (int)$sql->run('field', 'missing');
             var_dump($missing);
             
