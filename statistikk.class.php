@@ -31,6 +31,7 @@ class statistikk {
                     JOIN `smartukm_rel_pl_k` AS `rel` ON (`rel`.`pl_id` = `pl`.`pl_id`) 
                     JOIN `smartukm_kommune` AS `kommune` ON (`kommune`.`id` = `rel`.`k_id`) 
                     WHERE `kommune`.`idfylke` = #fylkeID 
+                    AND `pl_missing` > 0
                     AND `pl`.`season` = #season 
                     GROUP BY `pl`.`pl_id`) AS `temptable`";
                 
@@ -54,7 +55,7 @@ class statistikk {
             $sql = new SQL($query_pl_missing, array('season'=>(int)$season,
                                                     'fylkeID'=>(int)$this->fylkeID));
             $missing += (int)$sql->run('field', 'missing');
-            var_dump($missing);
+            //var_dump($missing);
             
             // Persons
             $sql = new SQL($query_persons, array('season'=>(int)$season,
@@ -68,8 +69,8 @@ class statistikk {
                                                 'fylkeID'=>(int)$this->fylkeID));
             $bands = (int)$sql->run('field', 'bands');
             
-            var_dump($persons);
-            //var_dump($bands);
+            //var_dump($persons);
+            var_dump($bands);
 	}
 
 	public function getCategory($season) {
