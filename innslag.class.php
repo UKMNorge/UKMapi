@@ -259,6 +259,9 @@ class innslag {
 						ORDER BY `log_id` DESC",
 						array('bid'=>$this->info['b_id']));
 		$this->info['time_status_8'] = $qry->run('field','log_time');
+
+		if(empty($this->info['time_status_8']))
+			$this->info['time_status_8'] = $this->info['b_subscr_time'];
 	}
 	
 	public function tittellos(){
