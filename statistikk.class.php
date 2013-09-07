@@ -42,7 +42,12 @@ class statistikk {
             }
             // Kommune
             else if ($this->type == 'kommune') {
-                
+                $query_persons .= ' AND `k_id` IN (#kommuner)';
+                $query_bands .= ' AND `k_id` IN (#kommuner)';
+                $query_pl_missing = "SELECT `pl_missing` FROM `smartukm_place` as `place`
+                                    JOIN `smartukm_rel_pl_k` as `rel` ON `rel`.`pl_id` = `place`.`pl_id`
+                                    WHERE `rel`.`k_id` = #kommune
+                                    AND `place`.`season` = #season LIMIT 1";
             }
             // Land
             else {
@@ -53,13 +58,16 @@ class statistikk {
             
             // PL_missing
             $sql = new SQL($query_pl_missing, array('season'=>(int)$season,
-                                                    'fylkeID'=>(int)$this->fylkeID));
+                                                    'fylkeID'=>(int)$this->fylkeID,
+                                                    'kommune' => $this->kommuneArray[0],
+                                                    'kommuner' => implode(',', $this->kommuneArray)));
             $missing += (int)$sql->run('field', 'missing');
-            //var_dump($missing);
+            var_dump($missing);
             
             // Persons
             $sql = new SQL($query_persons, array('season'=>(int)$season,
-                                                 'fylkeID'=>(int)$this->fylkeID));
+                                                 'fylkeID'=>(int)$this->fylkeID,
+                                                 'kommuner' => implode(',', $this->kommuneArray)));
             $persons = (int)$sql->run('field', 'persons');
             
             $persons += $missing;
@@ -69,8 +77,8 @@ class statistikk {
                                                 'fylkeID'=>(int)$this->fylkeID));
             $bands = (int)$sql->run('field', 'bands');
             
-            //var_dump($persons);
-            var_dump($bands);
+            var_dump($persons);
+            //var_dump($bands);
 	}
 
 	public function getCategory($season) {
