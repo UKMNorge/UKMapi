@@ -78,7 +78,8 @@ class statistikk {
             
             // Bands
             $sql = new SQL($query_bands, array('season'=>(int)$season,
-                                                'fylkeID'=>(int)$this->fylkeID));
+                                                'fylkeID'=>(int)$this->fylkeID,
+                                                'kommuner' => implode(',', $this->kommuner)));
             $bands = (int)$sql->run('field', 'bands');
             
             var_dump($persons);
