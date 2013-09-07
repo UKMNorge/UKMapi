@@ -812,8 +812,7 @@ require_once 'UKM/statistikk.class.php';
 				$qry = "SELECT ". $get ."
 						FROM `smartukm_band` AS `band`
 						JOIN `smartukm_rel_pl_b` AS `pl_b` ON (`pl_b`.`b_id` = `band`.`b_id`)
-						WHERE `pl_b`.`pl_id` = '#plid'";
-				var_dump($qry);
+						WHERE `pl_b`.`pl_id` = '".$this->get('pl_id')."'";
 				return $qry;
 			}
 
