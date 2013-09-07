@@ -18,7 +18,11 @@ class statistikk {
                     $this->type = 'kommune';
 	}
 	
-
+        /**
+         * Get total persons and bands
+         * @param type $season the season requested
+         * @return array (persons,bands)
+         */
 	public function getTotal($season) {
             $query_persons = "SELECT count(`stat_id`) as `persons` FROM `ukm_statistics`
                                 WHERE `season`=#season AND `f_id` != 21";
@@ -66,7 +70,6 @@ class statistikk {
                                                     'kommuner' => implode(',', $this->kommuner)));
 
             $missing += (int)$sql->run('field', 'missing');
-            var_dump($missing);
             
             // Persons
             $sql = new SQL($query_persons, array('season'=>(int)$season,
@@ -81,9 +84,8 @@ class statistikk {
                                                 'fylkeID'=>(int)$this->fylkeID,
                                                 'kommuner' => implode(',', $this->kommuner)));
             $bands = (int)$sql->run('field', 'bands');
-            
-            var_dump($persons);
-            var_dump($bands);
+                        
+            return array('persons'=>$persons, 'bands'=>$bands);
 	}
 
 	public function getCategory($season) {
