@@ -923,7 +923,12 @@
 			#}
 			return $bands;
 		}
-		
+
+		public function statistikk() {
+			if($this->get('type')=='kommune')
+				$this->statistikk = new statistikk($this->info['kommuner']);
+		}
+
 
 		public function statistikk_pameldte($other_season=false,$today_selected_year=false) {
 			$select_season = ($other_season ? $other_season : $this->g('season'));
