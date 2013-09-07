@@ -18,31 +18,50 @@ class statistikk {
 
 	public function getTotal($season) {
             $query_persons = "SELECT count(`p_id`) as `persons` FROM `ukm_statistics`
-                                WHERE `season`=#season AND `f_id` < 21";
+                                WHERE `season`=#season AND `f_id` != 21";
             $query_bands = "SELECT COUNT(DISTINCT `b_id`) as `bands` FROM `ukm_statistics` 
-                            WHERE `season`=#season AND `f_id` < 21";
+                            WHERE `season`=#season AND `f_id` != 21";
             
+            // Fylke
             if ($this->type == 'fylke') {
                 $query_persons .= ' AND `f_id` =#fylkeID';
                 $query_bands .= ' AND `f_id` =#fylkeID';
+                $query_pl_missing = "SELECT SUM(`missing2`) AS `missing` FROM 
+                    (SELECT SUM(`pl_missing`) AS `missing2`, `pl_name` FROM `smartukm_place` AS `pl` 
+                    JOIN `smartukm_rel_pl_k` AS `rel` ON (`rel`.`pl_id` = `pl`.`pl_id`) 
+                    JOIN `smartukm_kommune` AS `kommune` ON (`kommune`.`id` = `rel`.`k_id`) 
+                    WHERE `kommune`.`idfylke` = #fylkeID 
+                    AND `pl`.`season` = #season 
+                    GROUP BY `pl`.`pl_id`) AS `temptable`";
+                
+                $sql = new SQL("SELECT SUM(`pl_missing`) as `missing` FROM `smartukm_place`
+                                        WHERE `season`=#season AND `pl_fylke` = #fylkeID",
+                                array('season' => (int)$season, 'fylkeID' => (int)$this->fylkeID));
+                $missing = $sql->run('field', 'missing');
             }
+            // Kommune
             else if ($this->type == 'kommune') {
                 
             }
+            // Land
             else {
+                $missing = 0;
                 $query_pl_missing = "SELECT SUM(`pl_missing`) as `missing` FROM `smartukm_place`
-                                        WHERE `season`=#season AND `pl_fylke` < 21";
+                                        WHERE `season`=#season AND `pl_fylke` != 21";
             }
             
             // PL_missing
             $sql = new SQL($query_pl_missing, array('season'=>(int)$season,
                                                     'fylkeID'=>(int)$this->fylkeID));
-            $persons = (int)$sql->run('field', 'missing');
+            $missing += (int)$sql->run('field', 'missing');
+            var_dump($missing);
             
             // Persons
             $sql = new SQL($query_persons, array('season'=>(int)$season,
                                                  'fylkeID'=>(int)$this->fylkeID));
-            $persons += (int)$sql->run('field', 'persons');
+            $persons = (int)$sql->run('field', 'persons');
+            
+            $persons += $missing;
             
             // Bands
             $sql = new SQL($query_bands, array('season'=>(int)$season,
@@ -50,7 +69,7 @@ class statistikk {
             $bands = (int)$sql->run('field', 'bands');
             
             var_dump($persons);
-            var_dump($bands);
+            //var_dump($bands);
 	}
 
 	public function getCategory($season) {
