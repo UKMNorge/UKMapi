@@ -62,7 +62,7 @@ class statistikk {
             // PL_missing
             $sql = new SQL($query_pl_missing, array('season'=>(int)$season,
                                                     'fylkeID'=>(int)$this->fylkeID,
-                                                    'kommune' => $this->kommuneArray[0],
+                                                    'kommune' => $this->kommuner[0],
                                                     'kommuner' => implode(',', $this->kommuner)));
             echo $sql->debug();
             $missing += (int)$sql->run('field', 'missing');
