@@ -27,7 +27,7 @@ class statistikk {
                 $query_persons .= ' AND `f_id` =#fylkeID';
                 $query_bands .= ' AND `f_id` =#fylkeID';
                 $query_pl_missing = "SELECT SUM(`missing2`) AS `missing` FROM 
-                    (SELECT SUM(`pl_missing`) AS `missing2`, `pl_name` FROM `smartukm_place` AS `pl` 
+                    (SELECT `pl_missing` AS `missing2`, `pl_name` FROM `smartukm_place` AS `pl` 
                     JOIN `smartukm_rel_pl_k` AS `rel` ON (`rel`.`pl_id` = `pl`.`pl_id`) 
                     JOIN `smartukm_kommune` AS `kommune` ON (`kommune`.`id` = `rel`.`k_id`) 
                     WHERE `kommune`.`idfylke` = #fylkeID 
