@@ -153,6 +153,9 @@ class statistikk {
 				}
 			} 
 		}
+		
+		var_dump($qry);
+		var_dump($subcat_qry);
 
 		return $array;
 
