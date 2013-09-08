@@ -151,6 +151,8 @@ class statistikk {
 				$subcat_result = $sql2->run();
 				// var_dump($sql->debug());
 				
+				echo($sql2->debug());
+				
 				while ($sr = mysql_fetch_assoc($subcat_result)) {
 					if ($sr['subcat'] == "")
 						$array['annet'] += $sr['count'];
