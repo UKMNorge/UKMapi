@@ -134,6 +134,7 @@ class statistikk {
 									'fylkeID'=>(int)$this->fylkeID,
 									'kommuner' => implode(',', $this->kommuner)));
 		$result = $sql->run();
+		var_dump($sql->debug());
 		
 		$array = array();
 		while ($r = mysql_fetch_assoc($result)) {
@@ -145,6 +146,8 @@ class statistikk {
 										'fylkeID'=>(int)$this->fylkeID,
 										'kommuner' => implode(',', $this->kommuner)));
 				$subcat_result = $sql->run();
+				var_dump($sql->debug());
+				
 				while ($sr = mysql_fetch_assoc($result)) {
 					if ($sr['subcat'] == "")
 						$array['annet'] += $sr['count'];
@@ -154,9 +157,6 @@ class statistikk {
 			} 
 		}
 		
-		echo($qry);
-		echo($subcat_qry);
-
 		return $array;
 
 //test-queries
