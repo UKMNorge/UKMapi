@@ -111,7 +111,7 @@ class statistikk {
 				
 		// finner telling for subkategorier i Scene
 		$subcat_qry = "SELECT `subcat`,COUNT(*) AS count FROM `ukm_statistics`".
-				" WHERE `season` =#season AND `bt_id = 1`";
+				" WHERE `season` =#season AND `bt_id` = 1";
 		
 		
 		if ($this->type == 'kommune') {
