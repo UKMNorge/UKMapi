@@ -138,6 +138,7 @@ class statistikk {
 		
 		$array = array();
 		while ($r = mysql_fetch_assoc($result)) {
+			var_dump($r);
 			$array['bt_'.$r['bt_id']] = $r['count'];
 			
 			//subkategorier
@@ -157,7 +158,7 @@ class statistikk {
 			} 
 		}
 		
-		var_dump($array);
+		// var_dump($array);
 		
 		return $array;
 
