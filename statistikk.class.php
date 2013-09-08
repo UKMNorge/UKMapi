@@ -111,5 +111,9 @@ class statistikk {
 		               
 //		var_dump($res);
 	}
+	
+	public function getTargetGroup($season) {
+		return rand(1000,3000);
+	}
 }
 ?>
