@@ -141,8 +141,8 @@ class statistikk {
 			$array['bt_'.$i] = 0;
 		}
 		
-		echo($sql->debug());
-		echo("<br />\n");
+		//echo($sql->debug());
+		
 		while ($r = mysql_fetch_assoc($result)) {
 			// var_dump($r);
 			$array['bt_'.$r['bt_id']] = $r['count'];
@@ -155,7 +155,7 @@ class statistikk {
 				$subcat_result = $sql2->run();
 				// var_dump($sql->debug());
 				
-				echo($sql2->debug());
+				// echo($sql2->debug());
 				
 				while ($sr = mysql_fetch_assoc($subcat_result)) {
 					if ($sr['subcat'] == "")
