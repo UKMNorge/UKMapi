@@ -1,4 +1,6 @@
 <?php
+echo 'IN MONSTRING:';
+debug_print_backtrace();
 require_once 'UKM/sql.class.php';
 require_once 'UKM/statistikk.class.php';
 	class tidligere_monstring {
