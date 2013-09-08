@@ -157,6 +157,8 @@ class statistikk {
 			} 
 		}
 		
+		var_dump($array);
+		
 		return $array;
 
 //test-queries
