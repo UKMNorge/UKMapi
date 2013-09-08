@@ -185,14 +185,15 @@ class statistikk {
 	public function getStatArrayBand($season) {
 			if (!$this->type) return array();
 			
-			// Finner telling for hver bandtype (kategori)
-			$qry = "SELECT `bt_id`, COUNT(*) as count FROM `ukm_statistics`".
-					" WHERE `season` =#season AND `bt_id`>0";
+			// Finner telling for hver person (kategori)
+			$qry = "SELECT `bt_id`, COUNT(*) AS count FROM".
+						" (SELECT `bt_id` FROM `ukm_statistics`".
+						" WHERE `season` =#season AND `bt_id`>0";
 					
 			// finner telling for subkategorier i Scene
-			$subcat_qry = "SELECT `subcat`,COUNT(*) AS count FROM `ukm_statistics`".
-					" WHERE `season` =#season AND `bt_id` = 1";
-			
+			$subcat_qry =	"SELECT `subcat`, COUNT(*) AS count FROM".
+								" (select `subcat` from `ukm_statistics`".
+								" WHERE `season` =#season AND `bt_id`=1";
 			
 			if ($this->type == 'kommune') {
 				$qry .= " AND k_id IN #kommuner";
@@ -206,8 +207,13 @@ class statistikk {
 				$subcat_qry .=" AND `f_id` != 21";
 			} 
 			
-			$qry .= " GROUP BY `bt_id` ORDER BY `bt_id` asc; "; // asc er ikke viktig.
-			$subcat_qry .= " GROUP BY `subcat` ORDER BY `subcat` desc;"; // desc ER viktig!
+			
+			$qry .= 	" AND `bt_id` > 0 GROUP BY `p_id` ORDER BY `p_id` asc)".
+					" AS `temp_table` GROUP BY `bt_id` ORDER BY `bt_id` asc;";
+			
+			$subcat_qry .= 		" GROUP BY `p_id` ORDER BY `p_id` asc)".
+							" AS `temp_table` GROUP BY `subcat`".
+							" ORDER BY `subcat` desc;"; // desc ER viktig!
 
 			// stats
 			$sql = new SQL($qry, array('season'=>(int)$season,
@@ -245,7 +251,6 @@ class statistikk {
 			}
 			
 			return $array;
-			
 		}
 	
 	
