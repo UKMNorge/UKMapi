@@ -950,7 +950,7 @@ require_once 'UKM/statistikk.class.php';
             } else {
 	            $this->statistikk->setLand();
             }
-            return $this->statistikk();
+            return $this->statistikk;
 		}
 
 
