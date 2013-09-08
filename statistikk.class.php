@@ -1,10 +1,11 @@
 <?php
-require_once('UKM/monstring.class.php');
+require_once 'UKM/sql.class.php';
 
 class statistikk {
 	var $data = false;
 	var $type = false;
 	var $fylkeID = false;
+	var $kommuner = array();
 	
 	public function __construct(){}
 	
@@ -207,6 +208,10 @@ class statistikk {
 		$res = $sql->run('array');
 		               
 //		var_dump($res);
+	}
+	
+	public function getTargetGroup($season) {
+		return rand(1000,3000);
 	}
 }
 ?>

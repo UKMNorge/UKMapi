@@ -387,7 +387,7 @@ class innslag {
 	}
 
 	private function _load_related_items() {
-		UKM_loader('api/related.class');
+		require_once('UKM/related.class.php');
 		$rel = new related($this->info['b_id']);
 		$rel = $rel->get();
 		if(is_array($rel))
@@ -494,7 +494,7 @@ class innslag {
 
 	
 	public function bilde($width=120,$size='thumbnail',$wrap=true) {
-		UKM_loader('api/related.class');
+		require_once('UKM/related.class.php');
 
 		$rel = new related($this->info['b_id']);
 		$img = $rel->getLastImage($size);
@@ -584,8 +584,7 @@ class innslag {
 
 	////
 	private function _load_titler($pl_id,$forwardToPLID=false,$uavhengig_av_monstring=false) {
-		if(function_exists('UKM_loader'))
-			UKM_loader('api/tittel.class');
+		require_once('UKM/tittel.class.php');
 			
 		$this->titler = array();
 		$place = new monstring($pl_id);
