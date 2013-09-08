@@ -137,10 +137,14 @@ class statistikk {
 		// var_dump($sql->debug());
 		
 		$array = array();
+		for ($i = 1; $i <= 10; $i++) {
+			$array['bt_'.$i] = 0;
+		}
+		
 		echo($sql->debug());
 		echo("<br />\n");
 		while ($r = mysql_fetch_assoc($result)) {
-			var_dump($r);
+			// var_dump($r);
 			$array['bt_'.$r['bt_id']] = $r['count'];
 			
 			//subkategorier
