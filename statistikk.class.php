@@ -5,6 +5,7 @@ class statistikk {
 	var $data = false;
 	var $type = false;
 	var $fylkeID = false;
+	var $kommuner = array();
 	
 	public function __construct(){}
 	
