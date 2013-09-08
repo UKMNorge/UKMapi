@@ -154,8 +154,8 @@ class statistikk {
 			} 
 		}
 		
-		var_dump($qry);
-		var_dump($subcat_qry);
+		echo($qry);
+		echo($subcat_qry);
 
 		return $array;
 
