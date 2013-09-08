@@ -102,7 +102,7 @@ class statistikk {
 	
 	// Jim liker ikke denne
 	// henter personer
-	public function getUglyStatArrayPerson($season) {
+	public function getStatArrayPerson($season) {
 		if (!$this->type) return array();
 		
 		$missing = 0;
