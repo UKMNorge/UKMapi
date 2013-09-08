@@ -937,13 +937,20 @@ require_once 'UKM/statistikk.class.php';
 		}
 
 		public function statistikk() {
+            $this->statistikk = new statistikk();
+
 			if($this->get('type')=='kommune') {
-                            $kommune_id = array();
-                            foreach ($this->info['kommuner'] as $key => $value) {
-                                $kommune_id[] = $value['id'];
-                            }
-                            $this->statistikk = new statistikk($kommune_id, false);
-                        }
+                $kommune_id = array();
+                foreach ($this->info['kommuner'] as $key => $value) {
+                    $kommune_id[] = $value['id'];
+                }
+                $this->statistikk->setKommune($kommune_id);
+            } elseif($this->get('type')) {
+				$this->statistikk->setFylke($this->get('pl_fylke'));
+            } else {
+	            $this->statistikk->setLand();
+            }
+            return $this->statistikk();
 		}
 
 
