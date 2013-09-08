@@ -185,11 +185,9 @@ class statistikk {
 			} 
 		}
 
+		return $array;
 
-
-
-
-
+//test-queries
 // select COUNT(*),`bt_id` from `ukm_statistics` where `season` = 2009 AND `f_id` = 2 AND `bt_id` > 0 GROUP BY `bt_id` ORDER BY `bt_id` asc;
 // test-spørring: select * from `ukm_statistics` where `f_id` = 2 and `season` = 2009 and `bt_id` = 1;
 
