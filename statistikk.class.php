@@ -1,5 +1,5 @@
 <?php
-require_once('UKM/monstring.class.php');
+//require_once('UKM/monstring.class.php');
 
 class statistikk {
 	var $data = false;
