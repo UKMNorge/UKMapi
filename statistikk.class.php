@@ -137,6 +137,8 @@ class statistikk {
 		// var_dump($sql->debug());
 		
 		$array = array();
+		echo($sql->debug());
+		echo("<br />\n");
 		while ($r = mysql_fetch_assoc($result)) {
 			var_dump($r);
 			$array['bt_'.$r['bt_id']] = $r['count'];
