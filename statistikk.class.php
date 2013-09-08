@@ -166,6 +166,10 @@ class statistikk {
 			} 
 		}
 		
+		
+		
+		
+		
 		// var_dump($array);
 		
 		return $array;
@@ -177,6 +181,72 @@ class statistikk {
 		// 1377		
 		
 	}
+	
+	public function getStatArrayBand($season) {
+			if (!$this->type) return array();
+			
+			// Finner telling for hver bandtype (kategori)
+			$qry = "SELECT `bt_id`, COUNT(*) as count FROM `ukm_statistics`".
+					" WHERE `season` =#season AND `bt_id`>0";
+					
+			// finner telling for subkategorier i Scene
+			$subcat_qry = "SELECT `subcat`,COUNT(*) AS count FROM `ukm_statistics`".
+					" WHERE `season` =#season AND `bt_id` = 1";
+			
+			
+			if ($this->type == 'kommune') {
+				$qry .= " AND k_id IN #kommuner";
+				$subcat_qry = " and k_id IN #kommuner";
+				
+			} else if ($this->type == 'fylke') {
+				$qry .= " AND `f_id` =#fylkeID";
+				$subcat_qry .=" AND `f_id` =#fylkeID";
+			} else if ($this->type == 'land') {
+				$qry .= " AND `f_id` != 21";
+				$subcat_qry .=" AND `f_id` != 21";
+			} 
+			
+			$qry .= " GROUP BY `bt_id` ORDER BY `bt_id` asc; "; // asc er ikke viktig.
+			$subcat_qry .= " GROUP BY `subcat` ORDER BY `subcat` desc;"; // desc ER viktig!
+
+			// stats
+			$sql = new SQL($qry, array('season'=>(int)$season,
+										'fylkeID'=>(int)$this->fylkeID,
+										'kommuner' => implode(',', $this->kommuner)));
+			$result = $sql->run();
+			// var_dump($sql->debug());
+			
+			$array = array();
+			for ($i = 1; $i <= 10; $i++) {
+				$array['bt_'.$i] = 0;
+			}
+			
+			// echo($sql->debug());
+			
+			while ($r = mysql_fetch_assoc($result)) {
+				// var_dump($r);
+				$array['bt_'.$r['bt_id']] = $r['count'];
+				
+				//subkategorier
+				if($r['bt_id'] == 1) {
+					$sql2 = new SQL($subcat_qry, array('season'=>(int)$season,
+											'fylkeID'=>(int)$this->fylkeID,
+											'kommuner' => implode(',', $this->kommuner)));
+					$subcat_result = $sql2->run();
+					// var_dump($sql->debug());
+					
+					while ($sr = mysql_fetch_assoc($subcat_result)) {
+						if ($sr['subcat'] == "")
+							$array['annet'] += $sr['count'];
+						else
+							$array[$sr['subcat']] = $sr['count'];
+					}
+				} 
+			}
+			
+			return $array;
+			
+		}
 	
 	
 	private function _load($season) {
