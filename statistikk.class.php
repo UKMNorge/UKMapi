@@ -51,6 +51,7 @@ class statistikk {
                                 array('season' => (int)$season, 'fylkeID' => (int)$this->fylkeID));
                 $missing = $sql->run('field', 'missing');
             }
+            
             // Kommune
             else if ($this->type == 'kommune') {
                 $query_persons .= ' AND `k_id` IN (#kommuner)';
@@ -60,6 +61,7 @@ class statistikk {
                                     WHERE `rel`.`k_id` = #kommune
                                     AND `place`.`season` = #season LIMIT 1";
             }
+            
             // Land
             else {
                 $missing = 0;
