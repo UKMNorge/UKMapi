@@ -1,5 +1,4 @@
 <?php
-if(!class_exists('monstring')) {
 require_once 'UKM/sql.class.php';
 require_once 'UKM/statistikk.class.php';
 	class tidligere_monstring {
@@ -1369,5 +1368,4 @@ $test = new SQL("SELECT `s_id` AS `personer`
 			return $svar;
 		}
 	}
-}
 ?>
