@@ -145,13 +145,13 @@ class statistikk {
 			
 			//subkategorier
 			if($r['bt_id'] == 1) {
-				$sql = new SQL($subcat_qry, array('season'=>(int)$season,
+				$sql2 = new SQL($subcat_qry, array('season'=>(int)$season,
 										'fylkeID'=>(int)$this->fylkeID,
 										'kommuner' => implode(',', $this->kommuner)));
-				$subcat_result = $sql->run();
+				$subcat_result = $sql2->run();
 				// var_dump($sql->debug());
 				
-				while ($sr = mysql_fetch_assoc($result)) {
+				while ($sr = mysql_fetch_assoc($subcat_result)) {
 					if ($sr['subcat'] == "")
 						$array['annet'] += $sr['count'];
 					else
