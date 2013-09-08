@@ -1155,7 +1155,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 		## @return Array med kontaktobjekter
 		############################################
 		public function kontakter() {
-			UKM_loader('api/kontakt.class');
+			require_once('UKM/kontakt.class.php');
 			$sql = new SQL("SELECT `ab_id` AS `id`, `pl_ab_id`
 							FROM `smartukm_rel_pl_ab`
 							WHERE `pl_id` = '#plid'
@@ -1173,7 +1173,8 @@ $test = new SQL("SELECT `s_id` AS `personer`
 		## @return Array med kontaktobjekter
 		############################################
 		public function kontakter_pamelding() {
-			UKM_loader('api/kontakt.class|pamelding/contact');
+			require_once('UKM/kontakt.class.php');
+			UKM_loader('pamelding/contact');
 			if($this->info['type']=='kommune') {
 				foreach($this->info['kommuner'] as $k_id => $kommune) {
 					$contacts[$kommune['name']] = 
