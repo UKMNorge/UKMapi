@@ -3,19 +3,23 @@ require_once('UKM/monstring.class.php');
 
 class statistikk {
 	var $data = false;
-	public function __construct($kommuneArray, $fylkeID) {
-                if ($kommuneArray == false)
-                    $this->kommuner = array();
-                else
-                    $this->kommuner = $kommuneArray;
-                $this->fylkeID = $fylkeID;
-                                
-                if ($kommuneArray == false && $fylkeID == false)
-                    $this->type = 'land';
-                else if ($kommuneArray == false)
-                    $this->type = 'fylke';
-                else
-                    $this->type = 'kommune';
+	var $type = false;
+	var $fylkeID = false;
+	
+	public function __construct(){}
+	
+	public function setKommune($kommuneArray) {
+		$this->type = 'kommune';
+		$this->kommuner = $kommuneArray;
+	}
+	
+	public function setFylke($fylkeID) {
+		$this->type = 'fylke';
+		$this->fylkeID = $fylkeID;
+	}
+	
+	public function setLand(){
+		$this->type = 'land';
 	}
 	
         /**
