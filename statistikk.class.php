@@ -116,7 +116,7 @@ class statistikk {
 		
 		if ($this->type == 'kommune') {
 			$qry .= " AND `k_id` IN (#kommuner)";
-			$subcat_qry = " AND `k_id` IN (#kommuner)";
+			$subcat_qry .= " AND `k_id` IN (#kommuner)";
 			
 		} else if ($this->type == 'fylke') {
 			$qry .= " AND `f_id` =#fylkeID";
@@ -153,9 +153,7 @@ class statistikk {
 										'fylkeID'=>(int)$this->fylkeID,
 										'kommuner' => implode(',', $this->kommuner)));
 				$subcat_result = $sql2->run();
-				// var_dump($sql->debug());
-				
-				 echo($sql2->debug());
+				//echo($sql2->debug());
 				
 				while ($sr = mysql_fetch_assoc($subcat_result)) {
 					if ($sr['subcat'] == "")
