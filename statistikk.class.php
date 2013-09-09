@@ -30,9 +30,9 @@ class statistikk {
          */
 	public function getTotal($season) {
             $query_persons = "SELECT count(`stat_id`) as `persons` FROM `ukm_statistics`
-                                WHERE `season`=#season AND `f_id` != 21";
+                                WHERE `season`=#season AND `f_id` < 21";
             $query_bands = "SELECT COUNT(DISTINCT `b_id`) as `bands` FROM `ukm_statistics` 
-                            WHERE `season`=#season AND `f_id` != 21";
+                            WHERE `season`=#season AND `f_id` < 21";
             
             // Fylke
             if ($this->type == 'fylke') {
@@ -67,7 +67,7 @@ class statistikk {
             else {
                 $missing = 0;
                 $query_pl_missing = "SELECT SUM(`pl_missing`) as `missing` FROM `smartukm_place`
-                                        WHERE `season`=#season AND `pl_fylke` != 21";
+                                        WHERE `season`=#season AND `pl_fylke` < 21";
             }
             
             // PL_missing
@@ -122,8 +122,8 @@ class statistikk {
 			$qry .= " AND `f_id` =#fylkeID";
 			$subcat_qry .=" AND `f_id` =#fylkeID";
 		} else if ($this->type == 'land') {
-			$qry .= " AND `f_id` != 21";
-			$subcat_qry .=" AND `f_id` != 21";
+			$qry .= " AND `f_id` < 21";
+			$subcat_qry .=" AND `f_id` < 21";
 		} 
 		
 		$qry .= " GROUP BY `bt_id` ORDER BY `bt_id` asc; "; // asc er ikke viktig.
@@ -201,8 +201,8 @@ class statistikk {
 				$qry .= " AND `f_id` =#fylkeID";
 				$subcat_qry .=" AND `f_id` =#fylkeID";
 			} else if ($this->type == 'land') {
-				$qry .= " AND `f_id` != 21";
-				$subcat_qry .=" AND `f_id` != 21";
+				$qry .= " AND `f_id` < 21";
+				$subcat_qry .=" AND `f_id` < 21";
 			} 
 			
 			
