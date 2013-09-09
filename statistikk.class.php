@@ -106,17 +106,17 @@ class statistikk {
 		if (!$this->type) return array();
 		
 		// Finner telling for hver bandtype (kategori)
-		$qry = "SELECT `bt_id`, COUNT(*) as count FROM `ukm_statistics`".
+		$qry = "SELECT `bt_id`, COUNT(*) as `count` FROM `ukm_statistics`".
 				" WHERE `season` =#season AND `bt_id`>0";
 				
 		// finner telling for subkategorier i Scene
-		$subcat_qry = "SELECT `subcat`,COUNT(*) AS count FROM `ukm_statistics`".
+		$subcat_qry = "SELECT `subcat`,COUNT(*) AS `count` FROM `ukm_statistics`".
 				" WHERE `season` =#season AND `bt_id` = 1";
 		
 		
 		if ($this->type == 'kommune') {
-			$qry .= " AND k_id IN #kommuner";
-			$subcat_qry = " and k_id IN #kommuner";
+			$qry .= " AND `k_id` IN (#kommuner)";
+			$subcat_qry = " and `k_id` IN (#kommuner)";
 			
 		} else if ($this->type == 'fylke') {
 			$qry .= " AND `f_id` =#fylkeID";
@@ -141,7 +141,7 @@ class statistikk {
 			$array['bt_'.$i] = 0;
 		}
 		
-		echo($sql->debug());
+		//echo($sql->debug());
 		
 		while ($r = mysql_fetch_assoc($result)) {
 			// var_dump($r);
