@@ -141,7 +141,7 @@ class statistikk {
 			$array['bt_'.$i] = 0;
 		}
 		
-		//echo($sql->debug());
+		echo($sql->debug());
 		
 		while ($r = mysql_fetch_assoc($result)) {
 			// var_dump($r);
