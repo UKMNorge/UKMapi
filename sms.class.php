@@ -103,7 +103,6 @@ class SMS {
 														  'tr_recipient' => $recipient));
 		$transaction_recipient_update->add('tr_status', $status);
 		$transaction_recipient_update->run();
-		echo $transaction_recipient_update->debug();
 	}
 	
 	private function _sveve($recipient) {
