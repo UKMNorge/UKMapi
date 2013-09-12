@@ -55,6 +55,9 @@ class SMS {
 		}
 		
 		$this->_credits();
+		
+		var_dump($this);
+		
 		return $this->credits;
 	}
 	
