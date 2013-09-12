@@ -165,7 +165,7 @@ class SMS {
 		
 	}
 	
-	private function _validate_from($from) {
+	private function _validate_from() {
 		if($this->from != $this->from_dirty)
 			$this->_error('Invalid characters in from-name (Entered "'.$this->from_dirty.'" should be "'.$this->from.'")');
 	}
