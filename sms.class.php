@@ -22,7 +22,7 @@ class SMS {
 	var $from = '';
 	var $from_dirty = '';
 
-	public function __construct($system_id, $user_id, $pl_id) {
+	public function __construct($system_id, $user_id, $pl_id=0) {
 		$this->id_system= $system_id;
 		$this->id_user	= $user_id;		
 		$this->id_place = $pl_id;
@@ -225,7 +225,7 @@ class SMS {
 			return false;
 		}
 		
-		if((int)$this->id_place == 0) {
+		if($this->id_system == 'wordpress' && (int)$this->id_place == 0) {
 			$this->_error('Missing place ID');
 			return false;
 		}
