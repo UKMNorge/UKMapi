@@ -200,7 +200,7 @@ class SMS {
 
 	private function _is_mobile($int) {
 		//if( !4-serien && !9-serien) {
-		if( !(40000000 > $int && $int < 50000000) && !(90000000 > $int && $int < 100000000))
+		if( !(40000000 > $int && $int < 50000000) || !(90000000 > $int && $int < 100000000))
 			return false;
 
 		if( in_array($int, $this->bogus) )
