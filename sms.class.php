@@ -6,6 +6,7 @@
 //
 
 require_once('UKM/sql.class.php');
+error_reporting(E_ALL);
 
 class SMS {
 	static $price = 0.40;
