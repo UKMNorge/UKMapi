@@ -1217,6 +1217,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 		}
 		
 		public function hovedkontakt($kommune_id, $object=false) {		
+			require_once('UKM/kontakt.class.php');
 			## FELLESMØNSTRING
 			if($this->fellesmonstring()) {
 				$pl_contact = "SELECT `smartukm_contacts`.`id`, `name`,`tlf`,`email`,`picture`,`facebook`
@@ -1256,7 +1257,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 				$pl_contact = $pl_contact->run('array');
 			}
 
-			return $object ? $pl_contact['id'] : $pl_contact;
+			return $object ? $pl_contact['id'] : new kontakt($pl_contact['id']);
 		}
 		##########################################################################################
 		##						  FUNKSJONER RELATERT TIL VIDERESENDING							##
