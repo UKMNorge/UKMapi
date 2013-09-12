@@ -9,8 +9,8 @@ require_once('UKM/sql.class.php');
 error_reporting(E_ALL);
 
 class SMS {
-	static $price = 0.40;
-	static $bogus = array(44444444, 99999999);
+	var $price = 0.40;
+	var $bogus = array(44444444, 99999999);
 	
 	var $error = false;
 	var $error_messages = array();
