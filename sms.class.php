@@ -108,6 +108,7 @@ class SMS {
 	}
 	
 	private function _sveve_parse($response) {
+		$response = json_encode( (array) simplexml_load_string($response) );
 		var_dump($response);
 	}
 
