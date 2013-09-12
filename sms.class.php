@@ -63,7 +63,7 @@ class SMS {
 	}
 	
 	public function ok($echo=true) {
-		$this->report();
+		var_dump($this->report());
 		$this->_create_transaction();		
 		$this->_add_recipients();
 		$this->sendSMS($echo);
