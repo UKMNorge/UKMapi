@@ -109,11 +109,14 @@ class SMS {
 	
 	private function _sveve_parse($response) {
 		$response = simplexml_load_string($response);
-		echo '<h1>RESPONSE[]</h1>';
-		var_dump($response->response);
-		
+		$response = $response->response;
+
 		if(isset($response->errors))
 			echo '!!ERROR!!';
+
+		if(isset($response['errors']))
+			echo '!!!!ERROR!!!!';
+
 		var_dump($response);
 	}
 
