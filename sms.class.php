@@ -88,25 +88,23 @@ class SMS {
 
 		return $sms_result;
 	}
-		
+	
 	private function _sent($recipient) {
-		$transaction_recipient_update = new SQLins('log_sms_transaction_recipients',
-													array('t_id', $this->transaction_id,
-														  'tr_recipient', $recipient));
-		$transaction_recipient_update->add('tr_status', 'sent');
-		$transaction_recipient_update->run();
-		echo $transaction_recipient_update->debug();
+		$this->_send_status($recipient, 'sent');
 	}
-
+	
 	private function _not_sent($recipient) {
+		$this->_send_status($recipient, 'error');
+	}
+	
+	private function _send_status($recipient, $status) {
 		$transaction_recipient_update = new SQLins('log_sms_transaction_recipients',
-													array('t_id', $this->transaction_id,
-														  'tr_recipient', $recipient));
-		$transaction_recipient_update->add('tr_status', 'error');
+													array('t_id' => $this->transaction_id,
+														  'tr_recipient' => $recipient));
+		$transaction_recipient_update->add('tr_status', $status);
 		$transaction_recipient_update->run();
 		echo $transaction_recipient_update->debug();
 	}
-
 	
 	private function _sveve($recipient) {
 		$url = 'http://www.sveve.no/SMS/SendSMS'
