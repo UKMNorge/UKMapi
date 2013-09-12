@@ -5,6 +5,7 @@
 // $SMS->text($message)->to($recipients_csv_or_single)->from($sender)->ok();
 //
 
+require_once('UKMconfig.inc.php');
 require_once('UKM/sql.class.php');
 require_once('UKM/curl.class.php');
 error_reporting(E_ALL);
