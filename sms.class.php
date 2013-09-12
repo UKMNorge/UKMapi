@@ -190,12 +190,14 @@ class SMS {
 		
 			// Remove empty or not norwegian phone
 			if($recipient == 0 || strlen($recipient) != 8) {
+				echo "REMOVED: $recipient: not 8 long<br />";
 				unset($this->recipients[$key]);
 				continue;
 			}
 			
 			// Remove not mobile
 			if(!$this->_is_mobile($recipient)) {
+				echo "REMOVED: $recipient: not mobile<br />";
 				unset($this->recipients[$key]);
 				continue;
 			}
@@ -204,7 +206,7 @@ class SMS {
 
 	private function _is_mobile($int) {
 		//if( !4-serien && !9-serien) {
-		if( !(40000000 > $int && $int < 50000000) || !(90000000 > $int && $int < 100000000))
+		if ( !(90000000 < $int && $int < 99999999) && !(40000000 < $int && $int < 50000000) )		
 			return false;
 
 		if( in_array($int, $this->bogus) )
