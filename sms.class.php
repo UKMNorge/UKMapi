@@ -12,7 +12,7 @@ class SMS {
 	static $bogus = array(44444444, 99999999);
 	
 	var $error = false;
-	var error_messages = array();
+	var $error_messages = array();
 
 	var $transaction_id;
 	var $sender_id = false;
