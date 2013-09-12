@@ -173,6 +173,7 @@ class SMS {
 	}
 		
 	private function _validate_recipients() {
+		return true;
 		if(sizeof($this->recipients)==0) {
 			$this->_error('No recipients added');
 		}
