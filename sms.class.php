@@ -58,19 +58,17 @@ class SMS {
 		
 		$this->_credits();
 		
-		var_dump($this);
-		
 		return $this->credits;
 	}
 	
-	public function ok($echo=true) {
-		var_dump($this->report());
+	public function ok() {
+		$this->report();
 		$this->_create_transaction();		
 		$this->_add_recipients();
-		$this->sendSMS($echo);
+		$this->sendSMS();
 	}
 	
-	public function sendSMS($echo=true) {	
+	public function sendSMS() {	
 		// !! !! !!
 		// SHOULD BULK-SEND 10 AT A TIME
 		// !! !! !!
@@ -85,8 +83,6 @@ class SMS {
 		
 		if($sms_result)
 			$this->_sent($recipient);
-		elseif($echo)
-			'ERROR: '. $sms_result;
 		
 		return $sms_result;
 	}
@@ -104,7 +100,7 @@ class SMS {
 			.  '?user='.UKM_SVEVE_ACCOUNT
 			.  '&to='.$recipient
 			.  '&from='.$this->from
-			.  '&msg='.urlencode(utf8_encode($this->message));
+			.  '&msg='.urlencode($this->message);
 			
 		$curl = new UKMCURL();
 		$curl->request($url);
@@ -176,7 +172,6 @@ class SMS {
 	}
 		
 	private function _validate_recipients() {
-		var_dump($this);
 		if(sizeof($this->recipients)==0) {
 			$this->_error('No recipients added');
 		}
@@ -192,14 +187,14 @@ class SMS {
 		
 			// Remove empty or not norwegian phone
 			if($recipient == 0 || strlen($recipient) != 8) {
-				echo "REMOVED: $recipient: not 8 long<br />";
+//				echo "REMOVED: $recipient: not 8 long<br />";
 				unset($this->recipients[$key]);
 				continue;
 			}
 			
 			// Remove not mobile
 			if(!$this->_is_mobile($recipient)) {
-				echo "REMOVED: $recipient: not mobile<br />";
+//				echo "REMOVED: $recipient: not mobile<br />";
 				unset($this->recipients[$key]);
 				continue;
 			}
