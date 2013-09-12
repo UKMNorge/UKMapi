@@ -133,7 +133,7 @@ class SMS {
 		$transaction->add('t_action',	'sendte_sms_for');
 		
 		$transaction_res = $transaction->run();
-		$this->transaction_id = $transaction_res->insid();
+		$this->transaction_id = $transaction->insid();
 		
 		return $this->transaction_id;
 	}
