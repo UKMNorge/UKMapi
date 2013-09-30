@@ -25,4 +25,39 @@ class ambassador {
 		$this->link = '//facebook.com/profile.php?id='.$this->faceID;
 		$this->image = '//graph.facebook.com/'.$this->faceID.'/picture';
 	}
+	
+	
+	public function sendInvite($phone, $pl_id) {
+		$pass =   chr(rand(97,122)) 
+				. chr(rand(97,122))
+				. rand(0,9)
+				. rand(0,9)
+				. strtoupper(chr(rand(65,90)))
+				. strtoupper(chr(rand(65,90)))
+				;
+					
+		$qry = new SQLins('ukm_ambassador_personal_invite');
+		$qry->add('invite_phone', $phone);
+		$qry->add('invite_code', $pass);
+		$qry->add('invite_confirmed', 'false');
+		$qry->add('pl_id', $pl_id);
+		$res = $qry->run();
+		
+		if($res==-1)
+			return array('phone' => $phone,
+						 'success' => false,
+						 'message' => 'Personen er allerede invitert');
+		
+		$message = 'Hei!
+	Vi håper at du vil bli ambassadør for UKM. Du gjør så mye eller lite du vil :)
+	Svar UKM AMB for å motta mer informasjon!
+	Hilsen UKM Norge';
+		
+		require_once('UKM/sms.class.php');
+		$SMS = new SMS('ambassador', false);
+		$SMS->text($message)->to($phone)->from(1963)->ok();
+		return array('phone' => $phone,
+					 'success' => $res['error'] ? false : true,
+					 'message' => $res['error'] ? $r['message'] : 'sendt');
+	}
 }
