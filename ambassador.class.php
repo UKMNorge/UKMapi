@@ -27,7 +27,7 @@ class ambassador {
 	}
 	
 	
-	public function sendInvite($phone, $pl_id) {
+	public function invite($phone, $pl_id) {
 		$pass =   chr(rand(97,122)) 
 				. chr(rand(97,122))
 				. rand(0,9)
