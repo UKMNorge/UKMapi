@@ -1000,10 +1000,7 @@ require_once 'UKM/statistikk.class.php';
 			## MIDLERTIDIG FIKS - MÅ INKLUDERE SEASON I REALTIME JOIN
 			## 01.11.2012
 			$table = 'smartukm_stat_realtime_join';
-			UKM_loader('private');
-#			if(UKM_private())
-#			$table = 'smartukm_stat_realtime';
-			
+
 			
 
 			$ureg = new SQL("SELECT `pl_missing`
@@ -1095,8 +1092,64 @@ $test = new SQL("SELECT `s_id` AS `personer`
 
 
 		########################################   PUBLIC  #######################################
-
-
+		public function ambassadorer() {
+			if(isset($this->ambassadorer)) {
+				return $this->ambassadorer;
+			}
+			require_once('UKM/ambassador.class.php');
+			$this->ambassadorer = array();
+			
+			if($this->type=='kommune') {
+				$kommuner = new SQL("SELECT `k_id`
+									FROM `smartukm_rel_pl_k`
+									WHERE `pl_id` = '#plid'
+									AND `season` = '#season'",
+									array('plid'=>get_option('pl_id'),
+										  'season'=>get_option('season')));
+				$kommuner = $kommuner->run();
+				while($r = mysql_fetch_assoc($kommuner)) {
+					$kommunearray[] = $r['k_id'];
+				}
+				
+				$kommuner = new SQL("SELECT `pl_id`
+									 FROM `smartukm_rel_pl_k`
+									 WHERE `k_id` IN ('".implode("','",$kommunearray)."')");
+				$kommuner = $kommuner->run();
+				while($r = mysql_fetch_assoc($kommuner)) {
+					$plarray[] = $r['pl_id'];
+				}
+				$pl_ids = "'".implode("','",$plarray)."'";
+			} else {
+				$kommuner = new SQL("SELECT `id` FROM `smartukm_kommune`
+									 WHERE `idfylke`='#fylke'",
+									 array('fylke'=>get_option('fylke')));
+				$kommuner = $kommuner->run();
+				$kommunearray = array();
+				while($r = mysql_fetch_assoc($kommuner)) {
+					$kommunearray[] = $r['id'];
+				}
+				$kommuner = new SQL("SELECT `pl_id`
+									 FROM `smartukm_rel_pl_k`
+									 WHERE `k_id` IN ('".implode("','",$kommunearray)."')");
+				$kommuner = $kommuner->run();
+				$plarray = array();
+				while($r = mysql_fetch_assoc($kommuner)) {
+					$plarray[] = $r['pl_id'];
+				}
+				$plarray[] = get_option('pl_id');
+				$pl_ids = "'".implode("','",$plarray)."'";
+			}
+			$qry = new SQL("SELECT * FROM `ukm_ambassador`
+						    WHERE `pl_id` IN (".$pl_ids.")
+						    ORDER BY `amb_firstname`,
+							`amb_lastname` ASC"
+							);
+			$res = $qry->run();
+			while($r = mysql_fetch_assoc($res)) {
+				$this->ambassadorer[] = new ambassador($r['amb_faceID']);
+			}
+			return $this->ambassadorer;
+		}
 		
 		############################################
 		## Henter ut informasjon om en spesifikk forestilling
