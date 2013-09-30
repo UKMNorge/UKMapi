@@ -22,7 +22,7 @@ class ambassador {
 			$this->$newkey = is_string($val) ? utf8_encode($val) : $val;
 		}
 		
-		$this->facelink = '//facebook.com/profile.php?id='.$this->faceID;
-		$this->picture = '//graph.facebook.com/'.$this->faceID.'/picture';
+		$this->link = '//facebook.com/profile.php?id='.$this->faceID;
+		$this->image = '//graph.facebook.com/'.$this->faceID.'/picture';
 	}
 }
