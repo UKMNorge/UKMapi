@@ -1,7 +1,8 @@
 <?php
+require_once('UKM/monstring.class.php');
 
 class ambassador {
-	public function __construct($face_id) {
+	public function __construct($face_id=false) {
 		$qry = new SQL("SELECT * FROM `ukm_ambassador`
 					    WHERE `amb_faceID` = '#faceid'
 					    ORDER BY `amb_firstname`,
@@ -9,11 +10,16 @@ class ambassador {
 						,
 						array('faceid' => $face_id));
 		$res = $qry->run('array');
-		if(!$res)
+		if(!$res && !$face_id)
 			return false;
+		
+		$place = new monstring($res['pl_id']);
+		$this->season = $place->get('season');
+		$this->monstring = $place->get('pl_name');
+		
 		foreach($res as $key => $val) {
 			$newkey = str_replace('amb_','',$key);
-			$this->$newkey = $val;
+			$this->$newkey = is_string($val) ? utf8_encode($val) : $val;
 		}
 		
 		$this->facelink = '//facebook.com/profile.php?id='.$this->faceID;
