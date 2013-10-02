@@ -27,18 +27,14 @@ class UKMmail {
 	}
 	
 	public function ok() {
-		if(empty($this->subject)) {
-			$this->error = 'Missing subject!';
-			return false;
-		}
-		if(empty($this->message)) {
-			$this->error = 'Missing message body';
-			return false;
-		}
-		if(empty($this->recipients)) {
-			$this->error = 'Missing recipients';
-			return false;
-		}
+		if(empty($this->subject))
+			return 'Missing subject!';
+
+		if(empty($this->message))
+			return 'Missing message body';
+
+		if(empty($this->recipients))
+			return 'Missing recipients';
 			
 		$mail = new PHPMailer(true);
 		$mail->IsSMTP();
