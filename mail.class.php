@@ -12,6 +12,14 @@ class UKMmail {
 	}
 	
 	public function message( $text ) {
+		if (!preg_match('!!u', $text))
+			$text = utf8_encode($text);
+
+		if(strlen($text) != strlen(strip_tags($text))) {
+			nl2br($this->_find_links($text));
+		}
+
+
 		$this->text( $text );
 		return $this;
 	}
@@ -22,6 +30,9 @@ class UKMmail {
 	}
 	
 	public function subject( $subject ) {
+		if (!preg_match('!!u', $subject))
+			$subject = utf8_encode($subject);
+			
 		$this->subject = $subject;
 		return $this;
 	}
@@ -38,6 +49,7 @@ class UKMmail {
 			
 		$mail = new PHPMailer(true);
 		$mail->IsSMTP();
+		$mail->CharSet = 'UTF-8';
 		try {
 			$mail->SMTPAuth   = true; 
 			$mail->SMTPSecure = "";
@@ -67,5 +79,30 @@ class UKMmail {
 			return 'Mailer: '. $e->getMessage(); //Boring error messages from anything else!
 		}
 	return true;
+	}
+	
+	private function _find_links($text) {
+		return  preg_replace(
+			array(
+			'/(?(?=<a[^>]*>.+<\/a>)
+			     (?:<a[^>]*>.+<\/a>)
+			     |
+			     ([^="\']?)((?:https?|ftp|bf2|):\/\/[^<> \n\r]+)
+			 )/iex',
+			'/<a([^>]*)target="?[^"\']+"?/i',
+			'/<a([^>]+)>/i',
+			'/(^|\s)(www.[^<> \n\r]+)/iex',
+			'/(([_A-Za-z0-9-]+)(\\.[_A-Za-z0-9-]+)*@([A-Za-z0-9-]+)
+			(\\.[A-Za-z0-9-]+)*)/iex'
+			),
+			array(
+			"stripslashes((strlen('\\2')>0?'\\1<a href=\"\\2\">\\2</a>\\3':'\\0'))",
+			'<a\\1',
+			'<a\\1 target="_blank">',
+			"stripslashes((strlen('\\2')>0?'\\1<a href=\"http://\\2\">\\2</a>\\3':'\\0'))",
+			"stripslashes((strlen('\\2')>0?'<a href=\"mailto:\\0\">\\0</a>':'\\0'))"
+			),
+			$text
+		);
 	}
 }
