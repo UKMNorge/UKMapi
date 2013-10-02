@@ -1459,7 +1459,19 @@ $test = new SQL("SELECT `s_id` AS `personer`
 			elseif($this->get('type') == 'land')
 				$this->info['link'] = 'http://ukm.no/festivalen/';
 			else
-				$this->info['link'] = 'http://ukm.no/'.preg_replace('/[^a-z]+/', '', strtolower($this->get('fylke_name'))).'/';
+				$this->info['link'] = 'http://ukm.no/'.preg_replace('/[^a-z]+/', '', $this->_sanitize_nordic($this->get('fylke_name')).'/';
+		}
+		
+		private function _sanitize_nordic($text) {
+			$text = htmlentities($text);
+	
+			$ut = array('&Aring;','&aring;','&Aelig;','&aelig;','&Oslash;','&oslash;','&Atilde;','&atilde','Ocedil','ocedil');
+			$inn= array('A','a','A','a','O','o','O','o','O','o');
+			$text = str_replace($ut, $inn, $text);
+			
+			$text = preg_replace("/[^A-Za-z0-9-]/","",$text);
+		
+			return strtolower($text);
 		}
 	}
 ?>
