@@ -7,29 +7,22 @@ class UKMmail {
 	
 	
 	public function text( $text ) {
+	
+		if (!preg_match('!!u', $text))
+			$text = utf8_encode($text);
+
+		if(strlen($text) != strlen(strip_tags($text))) {
+			$text = $this->_find_links($text);
+			$text = nl2br($text);
+		}
+	
+	
 		$this->message = $text;
 		return $this;
 	}
 	
 	public function message( $text ) {
-		if (!preg_match('!!u', $text))
-			$text = utf8_encode($text);
-
-		var_dump($text);
-		var_dump(strlen($text));
-		var_dump(strlen(strip_tags($text)));
-
-		if(strlen($text) != strlen(strip_tags($text))) {
-			var_dump($text);
-			$text = $this->_find_links($text);
-			$text = nl2br($text);
-			
-			var_dump($text);
-		}
-
-
-		$this->text( $text );
-		return $this;
+		return $this->text( $text );
 	}
 	
 	public function to( $to ) {
