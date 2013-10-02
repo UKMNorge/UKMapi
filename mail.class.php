@@ -1,7 +1,7 @@
 <?php
 require_once('UKM/mail/class.phpmailer.php');
 
-class mail {
+class UKMmail {
 	public function __construct() {
 	}
 	
