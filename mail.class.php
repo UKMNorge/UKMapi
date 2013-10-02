@@ -27,6 +27,7 @@ class UKMmail {
 	}
 	
 	public function ok() {
+		var_dump($this);
 		if(empty($this->subject))
 			return 'Missing subject!';
 
