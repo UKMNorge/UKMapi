@@ -8,18 +8,22 @@ class UKMmail {
 	
 	public function text( $text ) {
 		$this->message = $text;
+		return $this;
 	}
 	
 	public function message( $text ) {
 		$this->text( $text );
+		return $this;
 	}
 	
 	public function to( $to ) {
 		$this->recipients = $to;
+		return $this;
 	}
 	
 	public function subject( $subject ) {
 		$this->subject = $subject;
+		return $this;
 	}
 	
 	public function ok() {
@@ -61,6 +65,6 @@ class UKMmail {
 		} catch (Exception $e) {
 			return $e->getMessage(); //Boring error messages from anything else!
 		}
-
+	return true;
 	}
 }
