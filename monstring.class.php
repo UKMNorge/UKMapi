@@ -1459,7 +1459,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 			elseif($this->get('type') == 'land')
 				$this->info['link'] = 'http://ukm.no/festivalen/';
 			else
-				$this->info['link'] = preg_replace('/[^a-z]+/', '', strtolower($this->get('fylke_name')));
+				$this->info['link'] = 'http://ukm.no/'.preg_replace('/[^a-z]+/', '', strtolower($this->get('fylke_name'))).'/';
 		}
 	}
 ?>
