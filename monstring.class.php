@@ -169,6 +169,7 @@ require_once 'UKM/statistikk.class.php';
 			}
 			$this->_fellesmonstring();
 			$this->info['calendar'] = false;
+			$this->_link();
 		}
 		
 		############################################
@@ -1450,6 +1451,15 @@ $test = new SQL("SELECT `s_id` AS `personer`
 					$svar[$r['q_id']] = utf8_encode($r['answer']);
 				}
 			return $svar;
+		}
+		
+		private function _link() {
+			if($this->get('type') == 'kommune')
+				$this->info['link'] = 'http://ukm.no/pl'.$this->get('pl_id').'/';
+			elseif($this->get('type') == 'land')
+				$this->info['link'] = 'http://ukm.no/festivalen/';
+			else
+				$this->info['link'] = preg_replace('/[^a-z]+/', '', strtolower($this->get('fylke_name')));
 		}
 	}
 ?>
