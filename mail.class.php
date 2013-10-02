@@ -17,7 +17,7 @@ class UKMmail {
 	}
 	
 	public function to( $to ) {
-		$this->recipients = $to;
+		$this->recipients = explode(',', $to);
 		return $this;
 	}
 	
@@ -27,7 +27,6 @@ class UKMmail {
 	}
 	
 	public function ok() {
-		var_dump($this);
 		if(empty($this->subject))
 			return 'Missing subject!';
 
@@ -49,18 +48,23 @@ class UKMmail {
 			$mail->AddReplyTo(UKM_MAIL_REPLY, UKM_MAIL_FROMNAME);
 			$mail->SetFrom(UKM_MAIL_FROM, UKM_MAIL_FROMNAME);
 	
-			$mail->AddAddress($recipient);
-			$mail->Subject = $subject;
+			foreach($this->recipients as $recipient) 
+				$mail->AddAddress($recipient);
+				
+			$mail->Subject = $this->subject;
+
+			$mail->MsgHTML($this->message);
 	
 			#  $mail->AltBody = 'To view the message, please use an HTML compatible email viewer!'; 
 			// optional - MsgHTML will create an alternate automatically
-			$mail->MsgHTML($body);
+
 			$mail->Send();
+			
 			return true;
 		} catch (phpmailerException $e) {
-			return $e->errorMessage(); //Pretty error messages from PHPMailer
+			return 'Mailer: '. $e->errorMessage(); //Pretty error messages from PHPMailer
 		} catch (Exception $e) {
-			return $e->getMessage(); //Boring error messages from anything else!
+			return 'Mailer: '. $e->getMessage(); //Boring error messages from anything else!
 		}
 	return true;
 	}
