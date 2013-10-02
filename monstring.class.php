@@ -1465,7 +1465,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 		}
 		
 		private function _sanitize_nordic($text) {
-			$text = htmlentities($text);
+			$text = htmlentities( $this->_SMAS_encoding( $text ) );
 	
 			$ut = array('&Aring;','&aring;','&Aelig;','&aelig;','&Oslash;','&oslash;','&Atilde;','&atilde','Ocedil','ocedil');
 			$inn= array('A','a','A','a','O','o','O','o','O','o');
@@ -1474,6 +1474,22 @@ $test = new SQL("SELECT `s_id` AS `personer`
 			$text = preg_replace("/[^A-Za-z0-9-]/","",$text);
 		
 			return strtolower($text);
+		}
+		
+		private function _SMAS_encoding($content) {
+			$characterEncoding = mb_detect_encoding($content."a", 'UTF-8, UTF-16, ISO-8859-1, ISO-8859-15, Windows-1252, ASCII');
+			switch ($characterEncoding) {
+			 case "UTF-8":
+			   $content = utf8_decode($content);
+			   break;
+			 case "ISO-8859-1":
+			   break;
+			 default:
+			   $content = mb_convert_encoding($content,$characterEncoding);
+			   break;
+			   
+			}
+			return $content;	
 		}
 	}
 ?>
