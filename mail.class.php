@@ -16,7 +16,7 @@ class UKMmail {
 			$text = utf8_encode($text);
 
 		if(strlen($text) != strlen(strip_tags($text))) {
-			nl2br($this->_find_links($text));
+			$text = nl2br($this->_find_links($text));
 		}
 
 
