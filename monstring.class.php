@@ -1458,8 +1458,10 @@ $test = new SQL("SELECT `s_id` AS `personer`
 				$this->info['link'] = 'http://ukm.no/pl'.$this->get('pl_id').'/';
 			elseif($this->get('type') == 'land')
 				$this->info['link'] = 'http://ukm.no/festivalen/';
-			else
-				$this->info['link'] = 'http://ukm.no/'.preg_replace('/[^a-z]+/', '', $this->_sanitize_nordic($this->get('fylke_name')).'/';
+			else {
+				$fylkename = $this->_sanitize_nordic( $this->get('fylke_name') );
+				$this->info['link'] = 'http://ukm.no/'. $fylkename .'/';
+			}
 		}
 		
 		private function _sanitize_nordic($text) {
