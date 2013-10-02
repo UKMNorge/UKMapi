@@ -11,11 +11,16 @@ class UKMmail {
 		if (!preg_match('!!u', $text))
 			$text = utf8_encode($text);
 
+		var_dump($text);
+		var_dump(strlen($text));
+		var_dump(strlen(strip_tags($text)));	
+
 		if(strlen($text) != strlen(strip_tags($text))) {
 			$text = $this->_find_links($text);
 			$text = nl2br($text);
 		}
 	
+		var_dump($text);
 	
 		$this->message = $text;
 		return $this;
