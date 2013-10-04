@@ -1,4 +1,5 @@
 <?php
+//sync
 require_once 'UKM/sql.class.php';
 require_once 'UKM/statistikk.class.php';
 	class tidligere_monstring {
