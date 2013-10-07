@@ -86,6 +86,7 @@ require_once 'UKM/statistikk.class.php';
 		var $band_types_allowed = false;
 		
 		public function update($field, $post_key=false) {
+			require_once('UKM/inc/ukmlog.inc.php');
 			if(!$post_key)
 				$post_key = $field;
 /*
