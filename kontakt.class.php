@@ -30,10 +30,10 @@ class kontakt {
 				$test->headersOnly();
 				$response = $test->request($this->info['picture']);
 				
-				var_dump($test);
-				var_dump($response);
-
-				$this->info['image'] = $this->info['picture'];
+				if($response == 200) 
+					$this->info['image'] = $this->info['picture'];
+				else
+					$this->info['image'] = 'http://grafikk.ukm.no/placeholder/person.jpg';
 			}
 		}
 		
