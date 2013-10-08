@@ -30,6 +30,8 @@ class kontakt {
 				$test->headersOnly();
 				$response = $test->request($this->info['picture']);
 				
+				var_dump($response);
+				
 				if($response == 200) 
 					$this->info['image'] = $this->info['picture'];
 				else
