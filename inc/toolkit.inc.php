@@ -36,12 +36,14 @@ function contact_mail($mail,$nicename=false) {
 
 
 
+/*
 if(function_exists('is_admin') && is_admin()) {
 	## GUI FOR Å HÅNDTERE NAVIGASJON I ADMIN-SIDER
 	require_once('navigation.inc.php');
 	require_once('ico.inc.php');
 	require_once('gui.inc.php');
 }
+*/
 
 ################################################################
 #              FUNCTION TO INCLUDE ALL API'S                   #
