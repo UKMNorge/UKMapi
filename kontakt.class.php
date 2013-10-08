@@ -22,7 +22,7 @@ class kontakt {
 		
 		private function image() {
 			if(empty($this->info['picture']) || is_numeric($this->info['picture']))
-				$this->info['image'] = 'http://ico.ukm.no/placeholder_person_300.png';
+				$this->info['image'] = 'http://grafikk.ukm.no/placeholder/person-300.png';
 			else 
 				$this->info['image'] = $this->info['picture'];
 		}
