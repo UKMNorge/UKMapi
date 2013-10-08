@@ -3,7 +3,7 @@
 class UKMCURL {
 	var $timeout = 6;
 	var $headers = false;
-	var $content = false;
+	var $content = true;
 	
 	public function __construct() {
 
@@ -27,7 +27,7 @@ class UKMCURL {
 		curl_setopt($this->curl, CURLOPT_REFERER, $_SERVER['PHP_SELF']);
 		curl_setopt($this->curl, CURLOPT_USERAGENT, "UKMNorge API");
 		curl_setopt($this->curl, CURLOPT_HEADER, $this->headers);
-		curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, $this->content);
+		curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($this->curl, CURLOPT_TIMEOUT, $this->timeout);
 
 		
