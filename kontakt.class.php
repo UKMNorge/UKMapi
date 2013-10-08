@@ -20,10 +20,11 @@ class kontakt {
 			$this->info[$key] = $value;
 		}
 		
-		private function image() {
+		private function image() {		
 			if(empty($this->info['picture']) || is_numeric($this->info['picture']))
 				$this->info['image'] = 'http://grafikk.ukm.no/placeholder/person.jpg';
 			else {
+				require_once('UKM/curl.class.php');
 				// check existence
 				$test = new UKMCURL();
 				$test->headersOnly();
