@@ -22,7 +22,7 @@ class kontakt {
 		
 		private function image() {		
 			if(empty($this->info['picture']) || is_numeric($this->info['picture']))
-				$this->info['image'] = 'http://grafikk.ukm.no/placeholder/person.jpg';
+				$this->info['image'] = $this->defaultImage();
 			else {
 				require_once('UKM/curl.class.php');
 				// check existence
@@ -33,12 +33,12 @@ class kontakt {
 				if($response == 200) 
 					$this->info['image'] = $this->info['picture'];
 				else
-					$this->info['image'] = 'http://grafikk.ukm.no/placeholder/person.jpg';
+					$this->info['image'] = $this->defaultImage();
 			}
 		}
 		
 		public function defaultImage() {
-			return 'http://ico.ukm.no/placeholder_person_300.png';
+			return 'http://grafikk.ukm.no/placeholder/person.jpg';
 				
 		}
 		
