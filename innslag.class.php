@@ -1,5 +1,6 @@
 <?php
 require_once('UKM/person.class.php');
+require_once('UKM/inc/ukmlog.inc.php');
 function create_innslag($bt_id, $season, $pl_id, $kommune, $contact=false){
 	$tittellos = in_array($bt_id, array(4,5,8,9,10));
 	
