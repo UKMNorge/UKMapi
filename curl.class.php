@@ -3,13 +3,20 @@
 class UKMCURL {
 	var $timeout = 6;
 	var $headers = false;
-
+	var $content = false;
+	
 	public function __construct() {
 
 	}
 	
 	public function timeout($timeout) {
 		$this->timeout = $timeout;
+	}
+	
+	public function headersOnly() {
+		$this->headers = true;
+		$this->content = false;
+		$this->timeout(2);
 	}
 
 	public function request($url) {
@@ -20,7 +27,7 @@ class UKMCURL {
 		curl_setopt($this->curl, CURLOPT_REFERER, $_SERVER['PHP_SELF']);
 		curl_setopt($this->curl, CURLOPT_USERAGENT, "UKMNorge API");
 		curl_setopt($this->curl, CURLOPT_HEADER, $this->headers);
-		curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, $this->content);
 		curl_setopt($this->curl, CURLOPT_TIMEOUT, $this->timeout);
 
 		
@@ -28,9 +35,11 @@ class UKMCURL {
 			curl_setopt($this->curl, CURLOPT_PORT, $this->port);
 			
 		$this->result = curl_exec($this->curl);
-		$this->_analyze();
+	
+		if($this->content)
+			$this->_analyze();
+	
 		curl_close($this->curl);
-		
 	}
 	
 	private function _analyze() {
