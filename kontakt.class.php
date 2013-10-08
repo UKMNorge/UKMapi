@@ -26,11 +26,17 @@ class kontakt {
 			else {
 				require_once('UKM/curl.class.php');
 				// check existence
+/*
 				$test = new UKMCURL();
 				$test->headersOnly();
 				$test->request($this->info['picture']);
+*/
 				
-				var_dump($test);
+//				var_dump($test);
+
+$r = http_head($this->info['picture'], array('timeout' => 10), $info); 
+print_r($r); 
+print_r($info);  
 				$this->info['image'] = $this->info['picture'];
 			}
 		}
