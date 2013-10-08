@@ -30,6 +30,11 @@ class UKMCURL {
 		curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($this->curl, CURLOPT_TIMEOUT, $this->timeout);
 
+		// Get only headers
+		if(!$this->content) {
+			curl_setopt($ch, CURLOPT_HEADER, 1); 
+		}
+
 		
 		if(isset($this->port))
 			curl_setopt($this->curl, CURLOPT_PORT, $this->port);
@@ -38,6 +43,8 @@ class UKMCURL {
 	
 		if($this->content)
 			$this->_analyze();
+		else
+			return curl_getinfo($ch, CURLINFO_HTTP_CODE);
 	
 		curl_close($this->curl);
 	}
