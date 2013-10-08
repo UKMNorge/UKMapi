@@ -32,7 +32,7 @@ class UKMCURL {
 
 		// Get only headers
 		if(!$this->content) {
-			curl_setopt($ch, CURLOPT_HEADER, 1); 
+			curl_setopt($this->curl, CURLOPT_HEADER, 1); 
 		}
 
 		
@@ -44,7 +44,7 @@ class UKMCURL {
 		if($this->content)
 			$this->_analyze();
 		else
-			return curl_getinfo($ch, CURLINFO_HTTP_CODE);
+			return curl_getinfo($this->curl, CURLINFO_HTTP_CODE);
 	
 		curl_close($this->curl);
 	}
