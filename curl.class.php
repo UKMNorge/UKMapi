@@ -33,6 +33,7 @@ class UKMCURL {
 		// Get only headers
 		if(!$this->content) {
 			curl_setopt($this->curl, CURLOPT_HEADER, 1); 
+			curl_setopt($this->curl, CURLOPT_NOBODY, 1); 
 		}
 
 		
