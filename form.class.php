@@ -6,9 +6,6 @@ Author: UKM Norge / M Mandal
 Version: 2.2
 */
 
-
-die('KONTAKT UKM NORGE: Burde kanskje skrives om, eller er det for omfattende');
-
 class form {
 	var $form;
 	var $hidden;
