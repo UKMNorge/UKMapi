@@ -23,8 +23,15 @@ class kontakt {
 		private function image() {
 			if(empty($this->info['picture']) || is_numeric($this->info['picture']))
 				$this->info['image'] = 'http://grafikk.ukm.no/placeholder/person.jpg';
-			else 
+			else {
+				// check existence
+				$test = new UKMCURL();
+				$test->headersOnly();
+				$test->request($this->info['picture']);
+				
+				var_dump($test);
 				$this->info['image'] = $this->info['picture'];
+			}
 		}
 		
 		public function defaultImage() {
