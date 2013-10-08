@@ -29,17 +29,13 @@ class kontakt {
 				$test = new UKMCURL();
 				$test->headersOnly();
 				$response = $test->request($this->info['picture']);
-				
-				echo $this->get('id').': '. $response.' => ';
 			
 				if($response == 200) {
-					echo 'OK';
 					$this->info['image'] = $this->info['picture'];
 				} else {
-					echo 'DEFAULT';
 					$this->info['image'] = $this->defaultImage();
 				}
-				echo '<br /><br />';
+				$this->info['picture'] = $this->info['image'];
 			}
 		}
 		
