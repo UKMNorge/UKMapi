@@ -1,5 +1,5 @@
 <?php
-define('PHPWORD_BASE_PATH','');
+define('PHPWORD_BASE_PATH','/usr/local/lib/');
 error_reporting(E_ALL);
 require_once('PHPWord/PHPWord.php');
 error_reporting(E_ALL);
