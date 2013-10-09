@@ -1,8 +1,6 @@
 <?php
 define('PHPWORD_BASE_PATH','/usr/local/lib/php/');
-error_reporting(E_ALL);
 require_once('PHPWord/PHPWord.php');
-error_reporting(E_ALL);
 global $PHPWord;
 
 $PHPWord = new PHPWord();
