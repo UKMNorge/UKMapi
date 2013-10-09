@@ -1,4 +1,5 @@
 <?php
+define('PHPWORD_BASE_PATH','');
 error_reporting(E_ALL);
 require_once('PHPWord/PHPWord.php');
 error_reporting(E_ALL);
