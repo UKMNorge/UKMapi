@@ -53,6 +53,7 @@ class person {
 		$innslag->addPerson($this->info['p_id']);
 		
 		$this->person($this->info['p_id'], $b_id);
+		$innslag->statistikk_oppdater();
 	}
 	
 	public function unrelate($b_id) {
@@ -60,6 +61,7 @@ class person {
 		$res = $innslag->removePerson($this->info['p_id']);
 		
 		$this->person($this->info['p_id'], $b_id);
+		$innslag->statistikk_oppdater();
 		return $res;
 	}
 
@@ -259,6 +261,27 @@ class person {
 			return false;
 		return new person($p_id);
 	}
+	
+	
+	function kjonn() {
+		$first_name = $this->get("p_firstname");
+		$first_name = split(" ", str_replace("-", " ", $first_name) );
+		$first_name = $first_name[0];
+		
+		$qry = "SELECT `kjonn`
+				FROM `ukm_navn`
+				WHERE `navn` = '" . $first_name ."' ";
+		
+		$qry = new SQL($qry);
+		$res = $qry->run('field','kjonn');
+		
+		if ($res == null)
+			$res = 'unknown';
+		
+		return $res;	
+	}
+
+	
 }
 
 ?>

@@ -490,6 +490,8 @@ class innslag {
 						  't_id'=>$tittel));
 		$slett_relasjon->run();				
 #		return $slettedeRelasjoner;
+
+		$this->statistikk_oppdater();
 		return true;
 	}
 
@@ -732,4 +734,78 @@ class innslag {
 		$this->info['warnings'] = ucfirst(implode(', ', $warning));
 	}
 	////
+	
+	
+	
+	public function statistikk_oppdater() {
+	
+		$sqldel = new SQLdel('ukm_statistics',
+							 array('season' => $this->get('season'),
+							 	   'b_id' => $this->get('b_id')));
+		echo $sqldel->debug();
+		
+		if($this->get('b_status')==8) {
+			foreach ($this->personer() as $p) { // behandle hver person
+				$person = new person($p["p_id"]);
+				
+				$time = $this->get('time_status_8');
+				
+				if (strlen($time) <= 1) {
+					$time = $this->get('season')."-01-01T00:00:01Z";
+				} else {
+					$time = date("Y-m-d\TH:i:s\Z" , $this->get('time_status_8'));
+				}
+				
+				$kommuneID = $this->get("kommuneID");
+				$fylkeID = $this->get("fylkeID");
+				
+				// PRE 2011 does not contain kommune in database.
+				// Fake by selecting first kommune of mønstring
+				if(empty($kommuneID)) {
+					$kommuneID = $monstring->info['kommuner'][0]['id'];
+					$fylkeID = $monstring->get('fylke_id');
+				}
+				
+				$stats_info = array(
+					"b_id" => $this->get("b_id"), // innslag-id
+					"p_id" => $person->get("p_id"), // person-id
+					"k_id" => $kommuneID, // kommune-id
+					"f_id" => $fylkeID, // fylke-id
+					"bt_id" => $this->get("bt_id"), // innslagstype-id
+					"subcat" => $this->get("b_kategori"), // underkategori
+					"age" => $person->getAge() == '25+' ? 0 : $person->getAge(), // alder
+					"sex" => $person->kjonn(), // kjonn
+					"time" =>  $time, // tid ved registrering
+					"fylke" => false, // dratt pa fylkesmonstring?
+					"land" => false, // dratt pa festivalen?
+					"season" => $this->get('season') // sesong
+				);
+				
+				// faktisk lagre det 
+				$qry = "SELECT * FROM `ukm_statistics`" .
+						" WHERE `b_id` = '" . $stats_info["b_id"] . "'" .
+						" AND `p_id` = '" . $stats_info["p_id"] . "'" .
+						" AND `k_id` = '" . $stats_info["k_id"] . "'"  .
+						" AND `season` = '" . $stats_info["season"] . "'";
+				$sql = new SQL($qry);
+				
+				// Sjekke om ting skal settes inn eller oppdateres
+				if (mysql_num_rows($sql->run()) > 0)
+					$sql_ins = new SQLins('ukm_statistics', array(
+						"b_id" => $stats_info["b_id"], // innslag-id
+						"p_id" => $stats_info["p_id"], // person-id
+						"k_id" => $stats_info["k_id"], // kommune-id
+						"season" => $stats_info["season"], // kommune-id
+					) );
+				else 
+					$sql_ins = new SQLins("ukm_statistics");
+				
+				// Legge til info i insert-sporringen
+				foreach ($stats_info as $key => $value) {
+					$sql_ins->add($key, $value);
+				}
+				echo $sql_ins->debug();
+			}
+		}
+	}
 }
