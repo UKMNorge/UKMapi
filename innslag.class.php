@@ -807,7 +807,7 @@ class innslag {
 				foreach ($stats_info as $key => $value) {
 					$sql_ins->add($key, $value);
 				}
-				echo $sql_ins->run();
+				$sql_ins->run();
 			}
 		}
 	}
