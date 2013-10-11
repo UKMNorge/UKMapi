@@ -744,6 +744,7 @@ class innslag {
 							 	   'b_id' => $this->get('b_id')));
 		echo $sqldel->debug();
 		
+		$this->loadGEO();
 		if($this->get('b_status')==8) {
 			foreach ($this->personer() as $p) { // behandle hver person
 				$person = new person($p["p_id"]);
