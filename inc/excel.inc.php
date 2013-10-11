@@ -2,6 +2,8 @@
 require_once('PHPExcel/PHPExcel.php');
 require_once('PHPExcel/IOFactory.php');
 
+$objPHPExcel = new PHPExcel();
+
 if(!function_exists('i2a')) {
 	function i2a($a) {
 		return ($a-->26?chr(($a/26+25)%26+ord('A')):'').chr($a%26+ord('A'));
