@@ -742,7 +742,7 @@ class innslag {
 		$sqldel = new SQLdel('ukm_statistics',
 							 array('season' => $this->get('b_season'),
 							 	   'b_id' => $this->get('b_id')));
-		echo $sqldel->debug();
+		$sqldel->run();
 		
 		$this->loadGEO();
 		if($this->get('b_status')==8) {
@@ -807,7 +807,7 @@ class innslag {
 				foreach ($stats_info as $key => $value) {
 					$sql_ins->add($key, $value);
 				}
-				echo $sql_ins->debug();
+				echo $sql_ins->run();
 			}
 		}
 	}
