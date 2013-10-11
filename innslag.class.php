@@ -740,7 +740,7 @@ class innslag {
 	public function statistikk_oppdater() {
 	
 		$sqldel = new SQLdel('ukm_statistics',
-							 array('season' => $this->get('season'),
+							 array('season' => $this->get('b_season'),
 							 	   'b_id' => $this->get('b_id')));
 		echo $sqldel->debug();
 		
@@ -751,7 +751,7 @@ class innslag {
 				$time = $this->get('time_status_8');
 				
 				if (strlen($time) <= 1) {
-					$time = $this->get('season')."-01-01T00:00:01Z";
+					$time = $this->get('b_season')."-01-01T00:00:01Z";
 				} else {
 					$time = date("Y-m-d\TH:i:s\Z" , $this->get('time_status_8'));
 				}
@@ -762,8 +762,10 @@ class innslag {
 				// PRE 2011 does not contain kommune in database.
 				// Fake by selecting first kommune of mønstring
 				if(empty($kommuneID)) {
+/*
 					$kommuneID = $monstring->info['kommuner'][0]['id'];
 					$fylkeID = $monstring->get('fylke_id');
+*/
 				}
 				
 				$stats_info = array(
@@ -778,7 +780,7 @@ class innslag {
 					"time" =>  $time, // tid ved registrering
 					"fylke" => false, // dratt pa fylkesmonstring?
 					"land" => false, // dratt pa festivalen?
-					"season" => $this->get('season') // sesong
+					"season" => $this->get('b_season') // sesong
 				);
 				
 				// faktisk lagre det 
