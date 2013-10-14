@@ -150,7 +150,8 @@ class tv {
 		} elseif(strpos($width, 'px') !== false) {
 			$sizetype = 'px';
 		} else {
-			$sizetype = '';
+			$sizetype = 'px';
+			$width .= 'px';
 		}
 		$width = (int) ceil(str_replace($sizetype, '', $width));
 		$height = (int) floor($width / $this->ratio);
