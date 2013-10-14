@@ -173,7 +173,7 @@ class tv {
 					. '<meta property="video:actor" content="http://facebook.com/UKMNorge">'
 					. '<meta property="video:tag" content="UKM-TV UKM UKM Norge">'
 					.'<link rel="alternate" type="application/json+oembed"'
-						.' href="http://oembed.ukm.no/?url='.$this->full_url.'" title="UKM-TV oEmbed" />';
+						.' href="http://oembed.ukm.no/?url='.urlencode($this->full_url).'" title="UKM-TV oEmbed" />';
 	}
 	
 	private function _url() {
