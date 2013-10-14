@@ -1,4 +1,5 @@
 <?php
+require_once('UKM/sql.class.php');
 require_once('UKM/person.class.php');
 require_once('UKM/inc/ukmlog.inc.php');
 function create_innslag($bt_id, $season, $pl_id, $kommune, $contact=false){
