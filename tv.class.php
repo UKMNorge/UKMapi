@@ -171,7 +171,9 @@ class tv {
 					. '<meta property="og:title" content="'.$this->title.'">'
 					. '<meta property="og:description" content="Fra '. $this->set .'">'
 					. '<meta property="video:actor" content="http://facebook.com/UKMNorge">'
-					. '<meta property="video:tag" content="UKM-TV UKM UKM Norge">';
+					. '<meta property="video:tag" content="UKM-TV UKM UKM Norge">'
+					.'<link rel="alternate" type="application/json+oembed"'
+						.' href="http://oembed.ukm.no/?url='.$this->full_url.'" title="UKM-TV oEmbed" />';
 	}
 	
 	private function _url() {
