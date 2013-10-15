@@ -1262,12 +1262,10 @@ $test = new SQL("SELECT `s_id` AS `personer`
 			UKM_loader('pamelding/contact');
 			if($this->info['type']=='kommune') {
 				foreach($this->info['kommuner'] as $k_id => $kommune) {
-					$contacts[$kommune['name']] = 
-						new kontakt(getContact($this->info['pl_id'], $kommune['id'], true));
+					$contacts[$kommune['name']] = $this->hovedkontakt($kommune['id'], true);
 				}
 			} else {
-				$contacts[] = 
-					new kontakt(getContact($this->info['pl_id'], 0, true));			
+				$contacts[] = $this->hovedkontakt($kommune['id'], true);
 			}
 			return $contacts;
 		}
