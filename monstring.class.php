@@ -86,7 +86,6 @@ require_once 'UKM/statistikk.class.php';
 		var $band_types_allowed = false;
 		
 		public function update($field, $post_key=false) {
-			require_once('UKM/inc/ukmlog.inc.php');
 			if(!$post_key)
 				$post_key = $field;
 /*
@@ -1270,7 +1269,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 			return $contacts;
 		}
 		
-		public function hovedkontakt($kommune_id, $object=false) {		
+		public function hovedkontakt($kommune_id, $object=false) {
 			require_once('UKM/kontakt.class.php');
 			## FELLESMØNSTRING
 			if($this->fellesmonstring()) {
@@ -1311,7 +1310,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 				$pl_contact = $pl_contact->run('array');
 			}
 
-			return $object ? $pl_contact['id'] : new kontakt($pl_contact['id']);
+			return $object ? new kontakt($pl_contact['id']) : $pl_contact['id'];
 		}
 		##########################################################################################
 		##						  FUNKSJONER RELATERT TIL VIDERESENDING							##
