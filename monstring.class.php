@@ -1483,8 +1483,8 @@ $test = new SQL("SELECT `s_id` AS `personer`
 			$text = strip_tags( strtolower($text) );
 			
 			// Replace nordic with a,o,a
-			$text = str_replace(array('æ','ø','å','&aelig;','&oslash;','&aring'),
-								array('a','o','a','a','o','a'),
+			$text = str_replace(array('Æ','Ø','Å','æ','ø','å','&aelig;','&oslash;','&aring'),
+								array('a','o','a','a','o','a','a','o','a'),
 								$text);
 			// Remove html entities
 			$text = preg_replace('/&#?[a-z0-9]{2,8};/i', '', $text);
