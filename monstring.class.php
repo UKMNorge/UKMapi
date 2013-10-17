@@ -1475,6 +1475,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 				$this->url = 'festivalen';
 			else
 				$this->url = 'pl'. $this->get('pl_id');
+			$this->info['url'] = $this->url;
 		}
 		
 		private function _sanitize_nordic($text) {
