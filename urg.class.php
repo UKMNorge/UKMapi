@@ -17,7 +17,7 @@ class urg {
 		$name = explode(' ', $this->navn);
 		$ant_names = sizeof($name);
 		if($ant_names == 3)
-			$firstname = $name[0];
+			$firstname = array($name[0]);
 		else
 			$firstname = array_splice($name, 0, round($ant_names/2));
 		
