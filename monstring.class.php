@@ -1478,15 +1478,18 @@ $test = new SQL("SELECT `s_id` AS `personer`
 		}
 		
 		private function _sanitize_nordic($text) {
-//			$text = htmlentities( $this->_SMAS_encoding( $text ) );
+			// Remove tags and make lowercase
+			$text = strip_tags( strtolower($text) );
 			
-//			var_dump($text);
-	
-			$ut = array('&Aring;','&aring;','&Aelig;','&aelig;','&Oslash;','&oslash;','&Atilde;','&atilde','Ocedil','ocedil');
-			$inn= array('A','a','A','a','O','o','O','o','O','o');
-			$text = str_replace($ut, $inn, $text);
+			// Replace nordic with a,o,a
+			$text = str_replace(array('æ','ø','å','&aelig;','&oslash;','&aring'),
+								array('a','o','a','a','o','a'),
+								$text);
+			// Remove html entities
+			$text = preg_replace('/&#?[a-z0-9]{2,8};/i', '', $text);
 			
-			return preg_replace('/[^a-z-]+/','', strtolower($text) );
+			// Return only a-z-
+			return preg_replace('/[^a-z-]+/','', $text );
 		}
 		
 		private function _SMAS_encoding($content) {
