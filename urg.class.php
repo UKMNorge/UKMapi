@@ -38,7 +38,5 @@ class urg {
 		$this->facebook->image->square_small 	= $this->facebook->image->raw .'?width=50&height=50';
 		$this->facebook->image->normal  		= $this->facebook->image->raw .'';
 		$this->facebook->image->large  			= $this->facebook->image->raw .'?type=large';
-		
-		var_dump($this);
 	}
 }
