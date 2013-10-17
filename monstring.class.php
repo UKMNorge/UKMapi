@@ -1478,7 +1478,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 		}
 		
 		private function _sanitize_nordic($text) {
-			$text = htmlentities( $this->_SMAS_encoding( $text ) );
+//			$text = htmlentities( $this->_SMAS_encoding( $text ) );
 			
 			var_dump($text);
 	
