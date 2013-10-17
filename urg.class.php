@@ -7,7 +7,7 @@ class urg {
 						array('id' => $id));
 		$res = $sql->run('array');
 		foreach($res as $key => $val) {
-			$newkey = str_replace('urg_','', $key);
+			$newkey = str_replace(array('urg_','-'),'', $key);
 			if(is_string($val))
 				$this->$newkey = utf8_encode($val);
 			else
@@ -28,5 +28,6 @@ class urg {
 		$this->facebook->image->normal  		= $this->facebook->image->raw .'';
 		$this->facebook->image->large  			= $this->facebook->image->raw .'?type=large';
 		
+		var_dump($this);
 	}
 }
