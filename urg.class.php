@@ -18,5 +18,9 @@ class urg {
 		$this->image = 'http://graph.facebook.com/'
 					.  str_replace('profile.php?id=','',$this->facebook)
 					.  '/picture?type=large';
+					
+		$this->facebook = new StdClass;
+		$this->facebook->username = $res['urg_facebook'];
+		$this->facebook->link = '//facebook.com/'. $this->facebook->username;
 	}
 }
