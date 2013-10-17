@@ -1453,6 +1453,10 @@ $test = new SQL("SELECT `s_id` AS `personer`
 		}
 		
 		private function _link() {
+			$this->_url();
+			$this->info['link'] = '//ukm.no/'. $this->url;
+			$this->link = $this->info['link'];
+/*
 			if($this->get('type') == 'kommune')
 				$this->info['link'] = 'http://ukm.no/pl'.$this->get('pl_id').'/';
 			elseif($this->get('type') == 'land')
@@ -1461,6 +1465,16 @@ $test = new SQL("SELECT `s_id` AS `personer`
 				$fylkename = $this->_sanitize_nordic( $this->get('fylke_name') );
 				$this->info['link'] = 'http://ukm.no/'. $fylkename .'/';
 			}
+*/
+		}
+		
+		private function _url() {
+			if($this->get('type') == 'fylke')
+				$this->url = $this->_sanitize_nordic($this->get('fylke_name'));
+			elseif($this->get('type')=='land')
+				$this->url = 'festivalen';
+			else
+				$this->url = 'pl'. $this->get('pl_id');
 		}
 		
 		private function _sanitize_nordic($text) {
@@ -1479,14 +1493,11 @@ $test = new SQL("SELECT `s_id` AS `personer`
 			$characterEncoding = mb_detect_encoding($content."a", 'UTF-8, UTF-16, ISO-8859-1, ISO-8859-15, Windows-1252, ASCII');
 			switch ($characterEncoding) {
 			 case "UTF-8":
-			   $content = utf8_decode($content);
-			   break;
+			   return utf8_decode($content);
 			 case "ISO-8859-1":
 			   break;
 			 default:
-			   $content = mb_convert_encoding($content,$characterEncoding);
-			   break;
-			   
+			   return mb_convert_encoding($content,$characterEncoding);
 			}
 			return $content;	
 		}
