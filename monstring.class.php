@@ -1470,7 +1470,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 		
 		private function _url() {
 			if($this->get('type') == 'fylke')
-				$this->url = $this->_sanitize_nordic($this->get('fylke_name'));
+				$this->url = preg_replace('/[^a-z]+/', '', strtolower($this->get('fylke_name')));//$this->_sanitize_nordic($this->get('fylke_name'));
 			elseif($this->get('type')=='land')
 				$this->url = 'festivalen';
 			else
