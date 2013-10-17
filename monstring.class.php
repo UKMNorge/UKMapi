@@ -1470,7 +1470,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 		
 		private function _url() {
 			if($this->get('type') == 'fylke')
-				$this->url = preg_replace('/[^a-z]+/', '', strtolower($this->get('fylke_name')));//$this->_sanitize_nordic($this->get('fylke_name'));
+				$this->url = $this->_sanitize_nordic($this->get('fylke_name'));
 			elseif($this->get('type')=='land')
 				$this->url = 'festivalen';
 			else
@@ -1484,9 +1484,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 			$inn= array('A','a','A','a','O','o','O','o','O','o');
 			$text = str_replace($ut, $inn, $text);
 			
-			$text = preg_replace("/[^A-Za-z0-9-]/","",$text);
-		
-			return strtolower($text);
+			return preg_replace('/[^a-z]+/','', strtolower($text) );
 		}
 		
 		private function _SMAS_encoding($content) {
