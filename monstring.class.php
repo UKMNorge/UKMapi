@@ -1480,7 +1480,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 		private function _sanitize_nordic($text) {
 //			$text = htmlentities( $this->_SMAS_encoding( $text ) );
 			
-			var_dump($text);
+//			var_dump($text);
 	
 			$ut = array('&Aring;','&aring;','&Aelig;','&aelig;','&Oslash;','&oslash;','&Atilde;','&atilde','Ocedil','ocedil');
 			$inn= array('A','a','A','a','O','o','O','o','O','o');
