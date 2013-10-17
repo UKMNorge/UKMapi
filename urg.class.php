@@ -16,7 +16,10 @@ class urg {
 		
 		$name = explode(' ', $this->navn);
 		$ant_names = sizeof($name);
-		$firstname = array_splice($name, 0, round($ant_names/2));
+		if($ant_names == 3)
+			$firstname = $name[0];
+		else
+			$firstname = array_splice($name, 0, round($ant_names/2));
 		
 		$this->name = $this->navn;
 		$this->first_name = implode(' ', $firstname);
