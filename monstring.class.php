@@ -1454,7 +1454,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 		
 		private function _link() {
 			$this->_url();
-			$this->info['link'] = '//ukm.no/'. $this->url;
+			$this->info['link'] = '//ukm.no/'. $this->url.'/';
 			$this->link = $this->info['link'];
 /*
 			if($this->get('type') == 'kommune')
