@@ -14,6 +14,14 @@ class urg {
 				$this->$newkey = $val;
 		}
 		
+		$name = explode(' ', $this->navn);
+		$ant_names = sizeof($name);
+		$firstname = array_splice($name, 0, round($ant_names/2));
+		
+		$this->name = $this->navn;
+		$this->first_name = implode(' ', $firstname);
+		$this->last_name = str_replace($this->first_name, '', $this->name);
+		
 				
 		$this->facebook = new StdClass;
 		$this->facebook->username = $res['urg_facebook'];
