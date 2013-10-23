@@ -9,8 +9,9 @@ class ambassador {
 							ON (`amb`.`amb_id` = `skjorte`.`amb_id`)
 							WHERE `amb_faceID` = '#faceid'",
 				array('faceid' => $face_id));
-		var_dump($qry);
+
 		$res = $qry->run('array');
+		var_dump($res);
 		if(!$res && !$face_id)
 			return false;
 		
