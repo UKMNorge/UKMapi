@@ -5,13 +5,13 @@ class ambassador {
 	public function __construct($face_id=false) {
 		$qry = new SQL("SELECT  *
 						FROM `ukm_ambassador` AS `amb`
-						JOIN `ukm_ambassador_skjorte` AS `skjorte`
+						LEFT JOIN `ukm_ambassador_skjorte` AS `skjorte`
 							ON (`amb`.`amb_id` = `skjorte`.`amb_id`)
 							WHERE `amb_faceID` = '#faceid'",
 				array('faceid' => $face_id));
 
 		$res = $qry->run('array');
-		var_dump($res);
+
 		if(!$res && !$face_id)
 			return false;
 		
