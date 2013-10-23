@@ -3,10 +3,10 @@ require_once('UKM/monstring.class.php');
 
 class ambassador {
 	public function __construct($face_id=false) {
-		$qry = new SQL("SELECT * FROM `ukm_ambassador`
+		$qry = new SQL("SELECT * FROM `ukm_ambassador` AS `amb`
 					    WHERE `amb_faceID` = '#faceid'
-					    ORDER BY `amb_firstname`,
-						`amb_lastname` ASC"
+					    LEFT JOIN `ukm_ambassador_skjorte` AS `skjorte`
+					    	ON (`amb`.`amb_id` = `skjorte`.`amb_id`)"
 						,
 						array('faceid' => $face_id));
 		$res = $qry->run('array');
