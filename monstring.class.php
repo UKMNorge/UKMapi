@@ -1106,8 +1106,8 @@ $test = new SQL("SELECT `s_id` AS `personer`
 									FROM `smartukm_rel_pl_k`
 									WHERE `pl_id` = '#plid'
 									AND `season` = '#season'",
-									array('plid'=>get_option('pl_id'),
-										  'season'=>get_option('season')));
+									array('plid'=>$this->get('pl_id'),
+										  'season'=>$this->get('season')));
 				$kommuner = $kommuner->run();
 				while($r = mysql_fetch_assoc($kommuner)) {
 					$kommunearray[] = $r['k_id'];
@@ -1124,7 +1124,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 			} else {
 				$kommuner = new SQL("SELECT `id` FROM `smartukm_kommune`
 									 WHERE `idfylke`='#fylke'",
-									 array('fylke'=>get_option('fylke')));
+									 array('fylke'=>$this->get('fylke_id')));
 				$kommuner = $kommuner->run();
 				$kommunearray = array();
 				while($r = mysql_fetch_assoc($kommuner)) {
@@ -1138,7 +1138,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 				while($r = mysql_fetch_assoc($kommuner)) {
 					$plarray[] = $r['pl_id'];
 				}
-				$plarray[] = get_option('pl_id');
+//				$plarray[] = get_option('pl_id');
 				$pl_ids = "'".implode("','",$plarray)."'";
 			}
 			$qry = new SQL("SELECT * FROM `ukm_ambassador`
