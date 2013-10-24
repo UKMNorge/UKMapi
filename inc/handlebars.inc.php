@@ -6,7 +6,7 @@ function HANDLEBARS($templatefolder, $prefix='') {
 	
 	$id = 'handlebars-'. ( empty($prefix) ? '' : $prefix .'-' );
 
-	$templates = glob($directory . "*.handlebars.html");
+	$templates = glob($templatefolder . "*.handlebars.html");
 	
 	var_dump($templatefolder);
 	var_dump($templates);
