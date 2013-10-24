@@ -4,7 +4,7 @@ function HANDLEBARS($templatefolder, $prefix='') {
 	
 	$id = 'handlebars-'. ( empty($prefix) ? '' : $prefix .'-' );
 
-	$templates = glob($directory . "*.handlebars.js");
+	$templates = glob($directory . "*.handlebars.html");
 	foreach($templates as $template) {
 		if($template != '.' && $template != '..') {
 			$SCRIPT .= '<script id="'. $id . $template .'" type="text/x-handlebars-template">'
