@@ -2,7 +2,7 @@
 function HANDLEBARS($templatefolder, $prefix='') {
 	$SCRIPT = '';
 	
-	$templatefolder .'/handlebars/';
+	$templatefolder .= '/handlebars/';
 	
 	$id = 'handlebars-'. ( empty($prefix) ? '' : $prefix .'-' );
 
