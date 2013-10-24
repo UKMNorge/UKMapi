@@ -12,9 +12,9 @@ function HANDLEBARS($templatefolder, $prefix='') {
 	var_dump($templates);
 	foreach($templates as $template) {
 		if($template != '.' && $template != '..') {
-			$SCRIPT .= 'script id="'. $id . $template .'" type="text/x-handlebars-template">'
+			$SCRIPT .= '<script id="'. $id . basename($template) .'" type="text/x-handlebars-template">'
 					. file_get_contents( $template )
-					. '/script>';
+					. '</script>';
 		}	
 	}
 	return $SCRIPT;
