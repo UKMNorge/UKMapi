@@ -44,10 +44,15 @@ class UKMCURL {
 	
 		if($this->content)
 			$this->_analyze();
-		else
-			return curl_getinfo($this->curl, CURLINFO_HTTP_CODE);
+		else {
+			$info = curl_getinfo($this->curl, CURLINFO_HTTP_CODE);
+			curl_close($this->curl);
+			return $info;
+		}
 	
 		curl_close($this->curl);
+		
+		return $this->data;
 	}
 	
 	private function _analyze() {
