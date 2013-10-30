@@ -107,15 +107,17 @@ function video_calc_data($algorithm, $res) {
 			$titler = $inn->titler($pl->get('pl_id'));
 			if(!isset($titler[0])) {
 				$tittel = '';
+				$tittelparentes = '';
 			} else {
 				$tittel = $titler[0]->g('tittel');
+				$tittelparentes = $titler[0]->g('parentes');
 			}
 			$post_meta = unserialize($res['post_meta']);
 			
 			if(empty($post_meta['file']))
 				continue;
 			
-			$data['description']= $titler[0]->g('parentes');
+			$data['description']= $tittelparentes;
 			$data['img']		= video_calc_img($post_meta);
 			$data['file']		= $post_meta['file'];
 			$data['category']	= utf8_encode($kategori);
