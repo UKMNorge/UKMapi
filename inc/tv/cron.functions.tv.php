@@ -5,11 +5,12 @@ $looped_videos = array();
 function tv_update($data) {
 	global $looped_videos;
 	if(is_array($data) && !in_array($data['file'], $looped_videos)) {
+		echo 'test';
 		$test = new SQL("SELECT `tv_id`
 						 FROM `ukm_tv_files`
 						 WHERE `tv_file` = '#file'",
 						 array('file' => $data['file']));
-#		echo $test->debug();
+		echo $test->debug();
 		$tv_id = $test->run('field', 'tv_id');
 		
 		if($tv_id && is_numeric($tv_id) )
