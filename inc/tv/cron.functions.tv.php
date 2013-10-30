@@ -121,7 +121,7 @@ function video_calc_data($algorithm, $res) {
 			$data['img']		= video_calc_img($post_meta);
 			$data['file']		= $post_meta['file'];
 			$data['category']	= utf8_encode($kategori);
-			$data['title']		= utf8_encode($inn->g('b_name')) .' - '. utf8_encode($titler[0]->g('tittel'));
+			$data['title']		= utf8_encode($inn->g('b_name')) .' - '. utf8_encode($tittel);
 			$data['b_id']		= $inn->g('b_id');
 			$data['tags']		= video_calc_tag($inn, $res['pl_type'], $pl->g('pl_id'));
 			#echo '<h2>'. utf8_decode($inn->g('b_name')).'</h2>';
