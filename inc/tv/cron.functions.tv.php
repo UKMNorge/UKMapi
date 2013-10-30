@@ -405,14 +405,14 @@ function video_calc_monstring($b_id, $pl_type, $kommune, $season) {
 			return array('pl' => $land->monstring_get(),
 						 'kategori' => 'UKM-Festivalen '.$season);
 		default:
-			$kommune = new SQL("SELECT `kommune`.`name`
+			$kommune = new SQL("SELECT `kommune`.`name`, `kommune`.`id`
 							  FROM `smartukm_kommune` AS `kommune`
 							  WHERE `kommune`.`id` = '#kommune'
 							  ",
 							  array('kommune' => $kommune));
 #			echo $kommune->debug();
 			$kommune = $kommune->run('array');
-			$monstring = new kommune_monstring($kommune, $season);
+			$monstring = new kommune_monstring($kommune['id'], $season);
 			return array('pl' => $monstring->monstring_get(),
 						 'kategori' => utf8_encode($kommune['name']).' '.$season);
 	}
