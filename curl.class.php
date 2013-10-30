@@ -4,6 +4,7 @@ class UKMCURL {
 	var $timeout = 6;
 	var $headers = false;
 	var $content = true;
+	var $postdata = false;
 	
 	public function __construct() {
 
@@ -11,6 +12,10 @@ class UKMCURL {
 	
 	public function timeout($timeout) {
 		$this->timeout = $timeout;
+	}
+	
+	public function post($postdata) {
+		$this->postdata = $postdata;
 	}
 	
 	public function headersOnly() {
@@ -29,6 +34,13 @@ class UKMCURL {
 		curl_setopt($this->curl, CURLOPT_HEADER, $this->headers);
 		curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($this->curl, CURLOPT_TIMEOUT, $this->timeout);
+
+		// Is this a post-request?
+		if( $this->postdata ) {
+			curl_setopt($this->curl, CURLOPT_POST, true);
+			curl_setopt($this->curl, CURLOPT_POSTFIELDS, $this->postdata);
+		}
+
 
 		// Get only headers
 		if(!$this->content) {
