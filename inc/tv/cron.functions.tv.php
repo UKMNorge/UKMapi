@@ -105,12 +105,13 @@ function video_calc_data($algorithm, $res) {
 			$pl = $monstring['pl'];
 			$kategori = $monstring['kategori'];
 			$titler = $inn->titler($pl->get('pl_id'));
-			if(!isset($titler[0]))
-				continue;
-			$tittel = $titler[0]->g('tittel');
+			if(!isset($titler[0])) {
+				$tittel = '';
+			} else {
+				$tittel = $titler[0]->g('tittel');
+			}
 			$post_meta = unserialize($res['post_meta']);
-
-var_dump($post_meta);			
+			
 			if(empty($post_meta['file']))
 				continue;
 			
