@@ -101,9 +101,7 @@ function video_calc_data($algorithm, $res) {
 			return $data;
 		case 'wp_related':
 			$inn = new innslag($res['b_id']);
-			var_dump($inn);
 			$monstring = video_calc_monstring($res['b_id'], $res['pl_type'], $res['b_kommune'], $res['b_season']);
-			var_dump($monstring);
 			$pl = $monstring['pl'];
 			$kategori = $monstring['kategori'];
 			$titler = $inn->titler($pl->get('pl_id'));
@@ -111,7 +109,8 @@ function video_calc_data($algorithm, $res) {
 				continue;
 			$tittel = $titler[0]->g('tittel');
 			$post_meta = unserialize($res['post_meta']);
-			
+
+var_dump($post_meta);			
 			if(empty($post_meta['file']))
 				continue;
 			
