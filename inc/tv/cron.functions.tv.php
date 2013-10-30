@@ -3,9 +3,9 @@ global $looped_videos;
 $looped_videos = array();
 
 function tv_update($data) {
+var_dump($data);
 	global $looped_videos;
 	if(is_array($data) && !in_array($data['file'], $looped_videos)) {
-		echo 'test';
 		$test = new SQL("SELECT `tv_id`
 						 FROM `ukm_tv_files`
 						 WHERE `tv_file` = '#file'",
