@@ -24,8 +24,6 @@ if(!class_exists('SQL')) {
 				if (get_magic_quotes_gpc())
 					$val = stripslashes($val);
 				$this->connect();
-				if(!is_string( $val ) )
-					debug_print_backtrace();
 				$sql = str_replace('#'.$key, mysql_real_escape_string(trim(strip_tags($val))), $sql);
 			}
 			$this->sql = $sql;
