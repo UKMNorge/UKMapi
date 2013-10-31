@@ -1100,9 +1100,8 @@ $test = new SQL("SELECT `s_id` AS `personer`
 			}
 			require_once('UKM/ambassador.class.php');
 			$this->ambassadorer = array();
-			
-			if($this->type=='kommune') {
-				echo 'test kommune';
+
+			if($this->get('type')=='kommune') {
 				$kommuner = new SQL("SELECT `k_id`
 									FROM `smartukm_rel_pl_k`
 									WHERE `pl_id` = '#plid'
