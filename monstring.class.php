@@ -1102,6 +1102,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 			$this->ambassadorer = array();
 			
 			if($this->type=='kommune') {
+				echo 'test kommune';
 				$kommuner = new SQL("SELECT `k_id`
 									FROM `smartukm_rel_pl_k`
 									WHERE `pl_id` = '#plid'
