@@ -12,6 +12,11 @@ class tv_files {
 		$this->object = $object;
 		
 		switch($this->type) {
+			case 'place': 
+				$this->qry = "SELECT * FROM `ukm_tv_files`
+						WHERE `tv_tags` LIKE '%|pl_#plid|%'";
+				$this->vars = array( 'plid' => $object );
+				break;
 			case 'band':
 				$this->qry ="SELECT `tv_id`
 							 FROM `ukm_tv_files`
