@@ -1,4 +1,10 @@
 <?php
+
+require_once('UKM/sql.class.php');
+require_once('UKM/monstring.class.php');
+require_once('UKM/innslag.class.php');
+require_once('UKM/person.class.php');
+
 global $looped_videos;
 $looped_videos = array();
 
