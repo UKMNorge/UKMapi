@@ -129,7 +129,7 @@ class tv {
 		$this->file_path = substr($this->file, 0, $lastslash);
 		$this->file_name = substr($this->file, $lastslash+1);
 
-		$this->file_orig 	= $this->file_path . $this->file_name;
+		$this->file_orig 	= $this->file_path .'/'. $this->file_name;
 		$this->file_720p 	= str_replace('.mp4', '_720p.mp4', $this->file_orig);
 		$this->file_mobile 	= str_replace('.mp4', '_mobile.mp4', $this->file_orig);
 		$UKMCURL->request($this->storageurl
