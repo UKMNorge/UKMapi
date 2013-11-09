@@ -9,6 +9,6 @@ function TWIG($template, $dataarray, $templatefolder) {
 }
 
 function TWIGrender($template, $dataarray) {
-	return TWIG($template, $dataarray, str_replace('/twig/','', TWIG_PATH));
+	return TWIG($template.'.twig.html', $dataarray, str_replace('/twig/','', TWIG_PATH));
 }
 ?>
