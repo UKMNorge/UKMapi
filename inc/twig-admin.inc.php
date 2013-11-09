@@ -7,4 +7,8 @@ function TWIG($template, $dataarray, $templatefolder) {
 
 	return $twig->render($template, $dataarray);
 }
+
+function TWIGrender($template, $dataarray) {
+	return TWIG($template, $dataarray, str_replace('/twig/','', TWIG_PATH));
+}
 ?>
