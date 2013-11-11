@@ -24,13 +24,13 @@ function validateBand($bid) {
             $test_5 = participants($band);
             ## CHECK TITLES
 			if($band['b_kategori'] == "Dans"||$band['b_kategori'] == 'dans'||$band['b_kategori']=='dance')
-	            $test_6 = titles($band, array('t_name','t_coreography','t_time'));			
+	            $test_6 = titles($band, array('t_name','t_coreography','t_time'), 'danser');			
 			elseif($band['b_kategori'] == "litteratur"||$band['b_kategori'] == 'litterature')
-	            $test_6 = titles($band, array('t_name','t_time'));
+	            $test_6 = titles($band, array('t_name','t_time'), 'titler');
 			elseif($band['b_kategori'] == "teater"||$band['b_kategori'] == 'theatre')
-	            $test_6 = titles($band, array('t_name','t_titleby','t_time'));
+	            $test_6 = titles($band, array('t_name','t_titleby','t_time'), 'stykker');
 			elseif(strpos($band['b_kategori'],'annet') !== false)
-				$test_6 = titles($band, array('t_name', 't_time'));
+				$test_6 = titles($band, array('t_name', 't_time'), 'titler');
 			else 
 	            $test_6 = titles($band, array('t_name','t_musicby','t_time'));
 			## CHECK TECHNICAL DEMANDS
@@ -144,25 +144,38 @@ function validateBand($bid) {
 ###########################################################
 ########     TITLES							 ##############
 ###########################################################
-function titles($b, $fields) {
+function titles($b, $fields, $tittelnavn = 'titler') {
 	$header = '<strong>Titler:</strong><br />';
 	
 	# FETCH ALL FIELDS
 	$qry = new SQL("SELECT * FROM `#table` WHERE `b_id` = '#b_id'", 
 					   array('table'=>$b['bt_form'], 'b_id'=>$b['the_real_b_id']));
 	$res = $qry->run();
-	## IF NO TITLES, RETURN
-	if(mysql_num_rows($res)==0)
-		return $header . ' Det er ikke lagt til noen titler';
 
-	$missing = '';
 	# FIND TITLE KEY
 	switch($b['bt_id']) {
-		case 1:		$titleKey = 't_name';		break;
-		case 2:		$titleKey = 't_v_title';	break;
-		case 3: 	$titleKey = 't_e_title';	break;
-		default:	$titleKey = 't_o_function';	break;
+		case 1:
+			$titleKey = 't_name';
+			$tittelnavn = 'l&aring;ter';
+			break;
+		case 2:
+			$titleKey = 't_v_title';
+			$tittelnavn = 'filmer';
+			break;
+		case 3:
+			$titleKey = 't_e_title';
+			$tittelnavn = 'kunstverk';
+			break;
+		default:
+			$titleKey = 't_o_function';
+			break;
 	}
+
+	## IF NO TITLES, RETURN
+	if(mysql_num_rows($res)==0)
+		return $header . ' Det er ikke lagt til noen '.$tittelnavn;
+
+	$missing = '';
 	
 	## LOOP ALL TITLES
 	while($title = mysql_fetch_assoc($res)) {
