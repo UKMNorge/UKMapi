@@ -144,7 +144,7 @@ function validateBand($bid) {
 ###########################################################
 ########     TITLES							 ##############
 ###########################################################
-function titles($b, $fields, $tittelnavn = 'titler') {
+function titles($b, $fields, $tittelnavn=false) {
 	$header = '<strong>Titler:</strong><br />';
 	
 	# FETCH ALL FIELDS
@@ -156,21 +156,28 @@ function titles($b, $fields, $tittelnavn = 'titler') {
 	switch($b['bt_id']) {
 		case 1:
 			$titleKey = 't_name';
+			if(!$tittelnavn)
 			$tittelnavn = 'l&aring;ter';
 			break;
 		case 2:
 			$titleKey = 't_v_title';
+			if(!$tittelnavn)
 			$tittelnavn = 'filmer';
 			break;
 		case 3:
 			$titleKey = 't_e_title';
+			if(!$tittelnavn)
 			$tittelnavn = 'kunstverk';
 			break;
 		default:
+			if(!$tittelnavn)
 			$titleKey = 't_o_function';
 			break;
 	}
 
+	if(!$tittelnavn)
+		$tittelnavn = 'titler';
+		
 	## IF NO TITLES, RETURN
 	if(mysql_num_rows($res)==0)
 		return $header . ' Det er ikke lagt til noen '.$tittelnavn;
