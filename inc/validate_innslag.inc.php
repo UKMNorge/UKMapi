@@ -145,7 +145,6 @@ function validateBand($bid) {
 ########     TITLES							 ##############
 ###########################################################
 function titles($b, $fields, $tittelnavn=false) {
-	$header = '<strong>Titler:</strong><br />';
 	
 	# FETCH ALL FIELDS
 	$qry = new SQL("SELECT * FROM `#table` WHERE `b_id` = '#b_id'", 
@@ -177,7 +176,9 @@ function titles($b, $fields, $tittelnavn=false) {
 
 	if(!$tittelnavn)
 		$tittelnavn = 'titler';
-		
+	
+	$header = '<strong>'.ucfirst($tittelnavn).':</strong><br />';
+
 	## IF NO TITLES, RETURN
 	if(mysql_num_rows($res)==0)
 		return $header . ' Det er ikke lagt til noen '.$tittelnavn;
