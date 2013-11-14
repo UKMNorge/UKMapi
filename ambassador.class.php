@@ -31,6 +31,8 @@ class ambassador {
 	}
 	
 	public function delete() {
+		if(empty($this->faceID) || !$this->faceID || (int)$this->faceID == 0)
+			return false;
 		$sql = new SQLins('ukm_ambassador', array('face_ID' => $this->faceID));
 		$sql->add('deleted', 'true');
 		echo $sql->debug();
