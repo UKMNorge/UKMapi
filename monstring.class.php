@@ -1143,6 +1143,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 			}
 			$qry = new SQL("SELECT * FROM `ukm_ambassador`
 						    WHERE `pl_id` IN (".$pl_ids.")
+						    AND `deleted` = 'false'
 						    ORDER BY `amb_firstname`,
 							`amb_lastname` ASC"
 							);
