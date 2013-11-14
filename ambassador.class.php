@@ -31,7 +31,7 @@ class ambassador {
 	}
 	
 	public function delete() {
-		$sql = new SQLdel('ukm_ambassador', array('face_ID' => $this->faceID));
+		$sql = new SQLins('ukm_ambassador', array('face_ID' => $this->faceID));
 		$sql->add('deleted', 'true');
 		echo $sql->debug();
 	}
