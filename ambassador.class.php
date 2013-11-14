@@ -33,6 +33,7 @@ class ambassador {
 	}
 	
 	public function delete() {
+		var_dump($this);
 		if(empty($this->faceID))
 			return false;
 		$sql = new SQLins('ukm_ambassador', array('face_ID' => $this->faceID));
