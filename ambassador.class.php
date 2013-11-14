@@ -20,7 +20,7 @@ class ambassador {
 			$this->season = $place->get('season');
 			$this->monstring = $place->get('pl_name');
 			
-			if(!$res)
+			if(!is_array($res))
 				return false;
 			foreach($res as $key => $val) {
 				$newkey = str_replace('amb_','',$key);
