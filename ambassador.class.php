@@ -30,6 +30,12 @@ class ambassador {
 		}
 	}
 	
+	public function delete() {
+		$sql = new SQLdel('ukm_ambassador', array('face_ID' => $this->faceID));
+		$sql->add('deleted', 'true');
+		echo $sql->debug();
+	}
+	
 	
 	public function invite($phone, $pl_id) {
 		$pass =   chr(rand(97,122)) 
