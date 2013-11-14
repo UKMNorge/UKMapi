@@ -20,6 +20,8 @@ class ambassador {
 			$this->season = $place->get('season');
 			$this->monstring = $place->get('pl_name');
 			
+			if(!$res)
+				return false;
 			foreach($res as $key => $val) {
 				$newkey = str_replace('amb_','',$key);
 				$this->$newkey = is_string($val) ? utf8_encode($val) : $val;
@@ -35,7 +37,7 @@ class ambassador {
 			return false;
 		$sql = new SQLins('ukm_ambassador', array('face_ID' => $this->faceID));
 		$sql->add('deleted', 'true');
-		echo $sql->debug();
+		return $sql->run();
 	}
 	
 	
