@@ -40,7 +40,6 @@ class ambassador {
 		return $sql->run();
 	}
 	
-	
 	public function invite($phone, $pl_id) {
 		$pass =   chr(rand(97,122)) 
 				. chr(rand(97,122))

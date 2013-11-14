@@ -28,6 +28,10 @@ if(!class_exists('SQL')) {
 			}
 			$this->sql = $sql;
 		}
+		
+		function charset($set='utf8') {
+			mysql_set_charset( $set, $this->db );
+		}
 		function connect() {
 			$this->db = mysql_connect(UKM_DB_HOST, UKM_DB_USER, UKM_DB_PASSWORD) or die(mysql_error());
 			if (!$this->db) die($ERR);
@@ -93,7 +97,11 @@ if(!class_exists('SQLdel')) {
 			$this->sql = 'DELETE FROM `'.$table.'` WHERE '.$wheres.';';
 			$this->connect();
 		}
-		
+
+		function charset($set='UTF-8') {
+			mysql_set_charset( $set, $this->db );
+		}
+
 		function connect() {
 			$this->db = @mysql_connect(UKM_DB_HOST, UKM_DB_WRITE_USER, UKM_DB_PASSWORD) or die(mysql_error());
 			if (!$this->db) die($ERR);
@@ -137,7 +145,11 @@ if(!class_exists('SQLins')) {
 				$this->update = false;	
 			}
 		}
-		
+
+		function charset($set='UTF-8') {
+			mysql_set_charset( $set, $this->db );
+		}
+
 		function add($key, $val) {
 			$this->keys[] = $key;
 			$this->vals[] = $val;
