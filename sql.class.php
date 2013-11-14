@@ -29,8 +29,8 @@ if(!class_exists('SQL')) {
 			$this->sql = $sql;
 		}
 		
-		function charset($set='utf8') {
-			mysql_set_charset( $set, $this->db );
+		function charset($set='UTF-8') {
+			$this->charset = $set;
 		}
 		function connect() {
 			$this->db = mysql_connect(UKM_DB_HOST, UKM_DB_USER, UKM_DB_PASSWORD) or die(mysql_error());
@@ -44,6 +44,9 @@ if(!class_exists('SQL')) {
 		
 		function run($what='resource', $name='') {
 			$this->connect();
+			if(isset($this->charset)) {
+				mysql_set_charset( $this->charset, $this->db );
+			}
 			if($this->error)
 				$temp = mysql_query($this->sql, $this->db) or die(mysql_error());
 			else
@@ -99,7 +102,7 @@ if(!class_exists('SQLdel')) {
 		}
 
 		function charset($set='UTF-8') {
-			mysql_set_charset( $set, $this->db );
+			$this->charset = $set;
 		}
 
 		function connect() {
@@ -115,6 +118,9 @@ if(!class_exists('SQLdel')) {
 		function run($run=true) {
 			if(!$run)
 				return $this->sql.'<br />';
+			if(isset($this->charset)) {
+				mysql_set_charset( $this->charset, $this->db );
+			}
 			$qry = mysql_query($this->sql, $this->db);
 			//echo mysql_error();
 			return mysql_affected_rows();
@@ -147,7 +153,7 @@ if(!class_exists('SQLins')) {
 		}
 
 		function charset($set='UTF-8') {
-			mysql_set_charset( $set, $this->db );
+			$this->charset = $set;
 		}
 
 		function add($key, $val) {
@@ -160,6 +166,9 @@ if(!class_exists('SQLins')) {
 		}
 		
 		function run($run=true) {
+			if(isset($this->charset)) {
+				mysql_set_charset( $this->charset, $this->db );
+			}
 			$keylist = $vallist = '';
 			if($this->update) {
 				## init query
