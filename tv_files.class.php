@@ -151,6 +151,7 @@ class tv_files {
 				@arsort($videos);
 				
 				$this->videos = $this->video_ids = array();
+				if(is_array($videos))
 				foreach($videos as $id => $score) {
 					$this->video_ids[] = $id;
 				}
