@@ -499,7 +499,7 @@ require_once 'UKM/statistikk.class.php';
 		}
 		
                 public function pameldingsikoner() {
-                    UKM_loader('pamelding/config');
+                    //UKM_loader('pamelding/config');
                     $BANDTYPES = $this->getAllBandTypesDetailed();
 
                     ## SJEKKER OM MAN HAR LASTET INN LISTEN OVER TILLATTE TYPER INNSLAG
