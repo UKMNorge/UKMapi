@@ -522,7 +522,7 @@ require_once 'UKM/statistikk.class.php';
                         if(!isset($this->band_types_allowed[$bt['bt_id']]))
                             continue;
                         
-                        $data['tittel'][] = $bt;
+                        $data['ikoner_tittel'][] = $bt;
                     }
                     
                     ########
@@ -533,7 +533,7 @@ require_once 'UKM/statistikk.class.php';
                         if(!isset($this->band_types_allowed[$bt['bt_id']]))
                             continue;
                         
-                        $data['tittel_los'][] = $bt;
+                        $data['ikoner_tittel_los'][] = $bt;
                     }
                     return $data;
                 }
