@@ -498,6 +498,46 @@ require_once 'UKM/statistikk.class.php';
 			return $return;
 		}
 		
+                public function pameldingsikoner() {
+                    UKM_loader('pamelding/config');
+                    $BANDTYPES = $this->getAllBandTypesDetailed();
+
+                    ## SJEKKER OM MAN HAR LASTET INN LISTEN OVER TILLATTE TYPER INNSLAG
+                    if(!$this->band_types_allowed)
+                            $this->_load_bandTypes();
+                    
+                    ########
+                    #### TYPE "VANLIGE INNSLAG"
+                    ########
+
+                    ########
+                    #### FINN KOMMUNE(R ) I MØNSTRINGEN
+                    if(sizeof($this->info['kommuner'])==1)
+                            $kommune = $this->info['kommuner'][0]['id'];
+
+                    $data = array();
+                    ## LOOPER ALLE "VANLIGE" TYPER INNSLAG
+                    foreach($BANDTYPES['regular'] as $i => $bt) {
+                        ## HVIS TYPEN IKKE ER TILLATT, HOPP OVER
+                        if(!isset($this->band_types_allowed[$bt['bt_id']]))
+                            continue;
+                        
+                        $data['tittel'][] = $bt;
+                    }
+                    
+                    ########
+                    #### TYPE "ANDRE INNSLAG" - JOBBE MED UKM
+                    ########
+                    foreach($BANDTYPES['work'] as $i => $bt) {
+                        ## HVIS TYPEN IKKE ER TILLATT, HOPP OVER
+                        if(!isset($this->band_types_allowed[$bt['bt_id']]))
+                            continue;
+                        
+                        $data['tittel_los'][] = $bt;
+                    }
+                    return $data;
+                }
+                
 		############################################
 		## Returner en liste over alle påmeldingsikoner for tillatte typer innslag
 		############################################
