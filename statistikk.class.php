@@ -29,7 +29,8 @@ class statistikk {
          * @return array (persons,bands)
          */
 	public function getTotal($season) {
-            $query_persons = "SELECT count(`stat_id`) as `persons` FROM `ukm_statistics`
+           $missing = 0;
+           $query_persons = "SELECT count(`stat_id`) as `persons` FROM `ukm_statistics`
                                 WHERE `season`=#season AND `f_id` < 21";
             $query_bands = "SELECT COUNT(DISTINCT `b_id`) as `bands` FROM `ukm_statistics` 
                             WHERE `season`=#season AND `f_id` < 21";
@@ -65,7 +66,6 @@ class statistikk {
             
             // Land
             else {
-                $missing = 0;
                 $query_pl_missing = "SELECT SUM(`pl_missing`) as `missing` FROM `smartukm_place`
                                         WHERE `season`=#season AND `pl_fylke` < 21";
             }
