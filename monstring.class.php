@@ -723,8 +723,8 @@ require_once 'UKM/statistikk.class.php';
                                             'ico_url'=>'http://ico.ukm.no/pamelding/litteratur.png', 
                                             'title'=>'Har du skrevet historien om deg selv i atten bind? Eller p&aring to linjer? Har du en korttekst i SMS-format? Klikk her');
 			$BANDTYPES['regular'][] = array('bt_id'=>1, 
-                                            'name'=>'Annet p&aring; scenen', '
-                                            ico'=>'annet', 
+                                            'name'=>'Annet p&aring; scenen',
+                                            'ico'=>'annet', 
                                             'ico_url'=>'http://ico.ukm.no/pamelding/annet.png', 
                                             'title'=>'Driver du med en form for scenekunst som ikke passer i de andre kategoriene? Sjonglering? Flammesluking? Slangetemming? Klikk her');
 		
