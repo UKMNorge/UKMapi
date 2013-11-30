@@ -1060,6 +1060,7 @@ require_once 'UKM/statistikk.class.php';
                 foreach ($this->info['kommuner'] as $key => $value) {
                     $kommune_id[] = $value['id'];
                 }
+                var_dump($kommune_id);
                 $this->statistikk->setKommune($kommune_id);
             } elseif($this->get('type')) {
 				$this->statistikk->setFylke($this->get('pl_fylke'));
