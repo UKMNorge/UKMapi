@@ -542,7 +542,7 @@ require_once 'UKM/statistikk.class.php';
 		## Returner en liste over alle påmeldingsikoner for tillatte typer innslag
 		############################################
 		public function getSubscriptionIcons($deadlines=true, $clickable=true) {
-			UKM_loader('pamelding/config');
+			//UKM_loader('pamelding/config');
 			$BANDTYPES = $this->getAllBandTypesDetailed();
 			
 			## SJEKKER OM MAN HAR LASTET INN LISTEN OVER TILLATTE TYPER INNSLAG
