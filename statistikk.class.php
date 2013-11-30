@@ -83,7 +83,7 @@ class statistikk {
                                                  'fylkeID'=>(int)$this->fylkeID,
                                                  'kommuner' => implode(',', $this->kommuner)));
             $persons = (int)$sql->run('field', 'persons');
-            
+            var_dump($persons);
             $persons += $missing;
             
             // Bands
