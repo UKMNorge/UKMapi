@@ -1351,13 +1351,13 @@ $test = new SQL("SELECT `s_id` AS `personer`
 		############################################
 		public function kontakter_pamelding() {
 			require_once('UKM/kontakt.class.php');
-			UKM_loader('pamelding/contact');
+//			UKM_loader('pamelding/contact');
 			if($this->info['type']=='kommune') {
 				foreach($this->info['kommuner'] as $k_id => $kommune) {
 					$contacts[$kommune['name']] = $this->hovedkontakt($kommune['id'], true);
 				}
 			} else {
-				$contacts[] = $this->hovedkontakt($kommune['id'], true);
+				$contacts[] = $this->hovedkontakt(0, true);
 			}
 			return $contacts;
 		}
