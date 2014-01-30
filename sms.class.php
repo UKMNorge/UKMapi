@@ -95,6 +95,13 @@ class SMS {
 	
 	private function _not_sent($recipient) {
 		$this->_send_status($recipient, 'error');
+		if( isset($this->sveve_parsed_response->errors->fatal) ) {
+			$this->_error('SVEVE ERROR: '. $this->sveve_parsed_response->errors->fatal );
+		} elseif( isset($this->sveve_parsed_response->errors->error) ) {
+			$this->_error('SVEVE ERROR: '. $this->sveve_parsed_response->errors->error );
+		} else {
+			$this->_error('SVEVE ERROR: Ukjent feil oppsto');
+		}		
 	}
 	
 	private function _send_status($recipient, $status) {
@@ -120,6 +127,8 @@ class SMS {
 	private function _sveve_parse($response) {
 		$response = simplexml_load_string($response);
 		$response = $response->response;
+		
+		$this->sveve_parsed_response = $response;
 
 		if(isset($response->errors))
 			return false;
@@ -163,7 +172,7 @@ class SMS {
 		if(strlen($this->message) <= 160)
 			$this->num_textmessages = -1;
 		else
-			$this->num_textmessages = round(strlen($this->message) / 154);
+			$this->num_textmessages = -1 * round(strlen($this->message) / 154);
 	}
 	
 	private function _clean($string, $allowed='A-Za-z0-9-') {
@@ -230,22 +239,22 @@ class SMS {
 	
 	private function _validate_message() {
 		if(empty($this->message))
-			$this->_error('Message is empty');
+			$this->_error('Meldingen er tom');
 	}
 	
 	private function _validate_sender() {
 		if(empty($this->id_system) || !$this->id_system) {
-			$this->_error('Unknown system ID');
+			$this->_error('Ukjent system-ID');
 			return false;
 		}
 		
 		if($this->id_system == 'wordpress' && empty($this->id_user)) {
-			$this->_error('Unknown user ID');
+			$this->_error('Ukjent bruker-ID');
 			return false;
 		}
 		
 		if($this->id_system == 'wordpress' && (int)$this->id_place == 0) {
-			$this->_error('Missing place ID');
+			$this->_error('Mangler mønstrings-ID (pl_id)');
 			return false;
 		}
 	}
