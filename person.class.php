@@ -141,13 +141,16 @@ class person {
 		return $this->getAge();
 	}
 	
-	public function getAge() {
+	public function getAge($monstring=false) {
 		if($this->info['p_dob'] == 0)
 			return '25+';
 		$start_ts = $this->info['p_dob'];
 		if(function_exists('get_site_option'))
 			$end_ts = get_site_option( 'ukm_pl_start' );
 
+		if($monstring && get_class($monstring) == 'monstring') {
+			$end_ts = $monstring->get('pl_start');
+		}
 		if(!$end_ts)
 			$end_ts = time();
 
