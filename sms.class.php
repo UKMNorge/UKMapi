@@ -193,12 +193,12 @@ class SMS {
 	
 	private function _validate_from() {
 		if($this->from != $this->from_dirty)
-			$this->_error('Invalid characters in from-name (Entered "'.$this->from_dirty.'" should be "'.$this->from.'")');
+			$this->_error('Ugyldige tegn i avsender-navn. (Skrevet inn: "'.$this->from_dirty.'" skulle vært "'.$this->from.'")');
 	}
 		
 	private function _validate_recipients() {
 		if(sizeof($this->recipients)==0) {
-			$this->_error('No recipients added');
+			$this->_error('Ingen mottakere lagt til');
 		}
 		array_unique($this->recipients);
 
