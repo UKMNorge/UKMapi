@@ -98,7 +98,7 @@ class SMS {
 		if( isset($this->sveve_parsed_response->errors->fatal) ) {
 			$this->_error('SVEVE ERROR: '. $this->sveve_parsed_response->errors->fatal );
 		} elseif( isset($this->sveve_parsed_response->errors->error) ) {
-			$this->_error('SVEVE ERROR: '. $this->sveve_parsed_response->errors->error );
+			$this->_error('SVEVE ERROR: '. $this->sveve_parsed_response->errors->error->message );
 		} else {
 			$this->_error('SVEVE ERROR: Ukjent feil oppsto');
 		}		
