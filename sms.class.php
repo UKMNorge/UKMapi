@@ -95,6 +95,9 @@ class SMS {
 	
 	private function _not_sent($recipient) {
 		$this->_send_status($recipient, 'error');
+		if($_SERVER['REMOTE_ADDR'] == '81.0.146.162')
+			var_dump( $this->sveve_parsed_response);
+			
 		if( isset($this->sveve_parsed_response->errors->fatal) ) {
 			$this->_error('SVEVE ERROR: '. $this->sveve_parsed_response->errors->fatal );
 		} elseif( isset($this->sveve_parsed_response->errors->error) ) {
