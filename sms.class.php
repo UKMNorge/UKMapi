@@ -118,7 +118,7 @@ class SMS {
 	private function _sveve($recipient) {
 		$url = 'http://www.sveve.no/SMS/SendSMS'
 			.  '?user='.UKM_SVEVE_ACCOUNT
-			.  '&to='.$recipient
+			.  '&to='.(int)$recipient
 			.  '&from='.$this->from
 			.  '&msg='.urlencode($this->message);
 		if($_SERVER['REMOTE_ADDR']=='81.0.146.162')
