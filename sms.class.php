@@ -38,7 +38,7 @@ class SMS {
 	
 	public function to($recipients) {
 		if(!empty($recipients)) {
-			$this->recipients = array_merge( $this->recipients, explode(',', strip_tags($recipients)) );
+			$this->recipients = array_merge( $this->recipients, explode(',', strip_tags(str_replace(' ','', $recipients))) );
 		}
 		
 		return $this;
