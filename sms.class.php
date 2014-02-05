@@ -121,7 +121,8 @@ class SMS {
 			.  '&to='.$recipient
 			.  '&from='.$this->from
 			.  '&msg='.urlencode($this->message);
-			
+		if($_SERVER['REMOTE_ADDR']=='81.0.146.162')
+			var_dump($url);
 		$curl = new UKMCURL();
 		$curl->request($url);
 		return $curl->result;
