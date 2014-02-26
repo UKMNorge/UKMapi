@@ -434,7 +434,7 @@ class innslag {
 		$sql = new SQL("SELECT * 
 						FROM `ukm_playback`
 						WHERE `b_id` = '#bid'",
-					   array('bid' => $this->g('b_id')
+					   array('bid' => $this->g('b_id'))
 					  );
 		$res = $sql->run()
 
