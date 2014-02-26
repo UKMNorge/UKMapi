@@ -412,6 +412,43 @@ class innslag {
 			$this->items['tv'][$tv->id] = $tv;
 		}
 	}
+	####################################################################################
+	## FUNKSJONER FOR PLAY-/SINGBACKFILER (IKKE OFFENTLIG TILGJENGELIGE FILER)
+	####################################################################################
+	public function playback() {
+		if( !isset( $this->playback ) )
+			$this->_load_playback();
+		return $this->playback;
+	}
+	
+	public function har_playback() {
+		if( !isset( $this->playback ) )
+			$this->_load_playback();
+		
+		return sizeof( $this->playback ) > 0;
+	}
+	
+	private function _load_playback() {
+		$this->playback = array();
+
+		$sql = new SQL("SELECT * 
+						FROM `ukm_playback`
+						WHERE `b_id` = '#bid'",
+					   array('bid' => $this->g('b_id')
+					  );
+		$res = $sql->run()
+
+		if( $res ) {
+			while( $r = mysql_fetch_assoc( $res ) ) {
+				$this->playback[] = (object) $r;
+			}
+		}
+	}
+
+	####################################################################################
+	## 
+	####################################################################################
+
 	
 	public function videresend($videresendFra, $videresendTil, $tittel = 0) {
 		if ($videresendFra == 0 || $videresendTil == 0)
