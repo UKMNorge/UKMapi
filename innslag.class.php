@@ -436,7 +436,7 @@ class innslag {
 						WHERE `b_id` = '#bid'",
 					   array('bid' => $this->g('b_id'))
 					  );
-		$res = $sql->run()
+		$res = $sql->run();
 
 		if( $res ) {
 			while( $r = mysql_fetch_assoc( $res ) ) {
