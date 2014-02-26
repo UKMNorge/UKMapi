@@ -440,7 +440,12 @@ class innslag {
 
 		if( $res ) {
 			while( $r = mysql_fetch_assoc( $res ) ) {
-				$this->playback[] = (object) $r;
+				$pb = new stdClass();
+				foreach( $r as $key => $val ) {
+					$new_key = str_replace('pb_', '', $key );
+					$pb->$new_key = $val;
+				}
+				$this->playback[] = $pb;
 			}
 		}
 	}
