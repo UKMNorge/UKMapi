@@ -443,7 +443,7 @@ class innslag {
 				$pb = new stdClass();
 				foreach( $r as $key => $val ) {
 					$new_key = str_replace('pb_', '', $key );
-					$pb->$new_key = $val;
+					$pb->$new_key = utf8_encode($val);
 				}
 				$this->playback[] = $pb;
 			}
