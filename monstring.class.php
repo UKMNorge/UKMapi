@@ -795,98 +795,25 @@ require_once 'UKM/statistikk.class.php';
 		## Finner alle innslag som deltar i mønstringen
 		############################################
 		private function load_innslag() {
-			## LOKALMØNSTRING
-			
-			##### ENDRET april 2012, 
-			##### usikker på om vi trenger en egen for land - husk å fjerne den i tilfelle!!!
-			if(true){#$this->info['type'] == 'kommune'||$this->info['type']=='fylke') {
-			##### ENDRET april 2012 slutt
-			
-				## Loop alle kommuner, og finn innslag fra disse	
-				#if(is_array($this->info['kommuner'])) {
-				#	foreach($this->info['kommuner'] as $trash => $k_id) {
-						$bands = $this->_load_innslag_loop(false,8);
-						for($i=0; $i<sizeof($bands); $i++) {
-							$set = $bands[$i];
-							if($this->g('type')=='land')
-								$geonokkel = utf8_encode($set['fylke']);
-							else
-								$geonokkel = utf8_encode($set['kommune']);#$k_id['id'];
-							$set['b_name'] = utf8_encode($set['b_name']);
-							$infos = array('b_id'=>$set['b_id'],
-										   'b_status'=>$set['b_status'],
-										   'bt_id'=>$set['bt_id'],
-										   'bt_form'=>$set['bt_form'],
-										   'b_name'=>$set['b_name']
-										   );
-							$this->innslag[] = 	$this->innslag_alpha[] 
-											 =	$this->innslag_bid[$set['b_id']]
-											 =	$this->innslag_bt[$set['bt_id']][] 
-											 =  $this->innslag_geo[$geonokkel][$set['b_id']] = $infos;
-						}					
-					/*	
-						#######################################################################################################################
-						OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS
-						
-													BYTTET UT JANUAR 2012 FOR Å HA BEDRE KONTROLL MED KONTROLLVERKTØY,
-														OG Å BRUKE NØYAKTIG SAMME BEREGNING FOR ANDRE STATUS'ER
-						
-						OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS OBS
-						#######################################################################################################################
-						$qry = $this->_load_innslag_qry($k_id['id'],8);
-						$SQL = new SQL($qry);
-						$res = $SQL->run();
-						#$res = $wpdb->get_results($qry,'ARRAY_A');
-						while($set = mysql_fetch_assoc($res)) {
-							$avmeldtest = new SQL("SELECT `log_id` FROM `ukmno_smartukm_log`
-												   WHERE `log_b_id` = '#bid'
-												   AND `log_code` = '23'
-												   LIMIT 1",
-												   array('bid'=>$set['b_id']));
-							$avmeldtest= $avmeldtest->run('field', 'log_id');
-							if(is_numeric($avmeldtest) && $avmeldtest > 0)
-								continue;
-							$set['b_name'] = utf8_encode($set['b_name']);
-							$infos = array('b_id'=>$set['b_id'],
-										   'b_status'=>$set['b_status'],
-										   'bt_id'=>$set['bt_id'],
-										   'b_name'=>$set['b_name']);
-							$this->innslag[$k_id['id']][] = $this->innslag_alpha[] = 
-							$this->innslag_bid[$set['b_id']] = $this->innslag_bt[$set['bt_id']][] = $infos;
-						}
-					*/
-					#}
-#				}
-			}/*
- elseif($this->info['type'] == 'land') {
-				## Loop alle kommuner, og finn innslag fra disse
-				$qry = "SELECT `b_kommune`, `smartukm_band`.`b_id`, `bt_id`, `b_status`, `b_name` FROM `smartukm_band`
-						JOIN `smartukm_rel_pl_b` ON (`smartukm_rel_pl_b`.`b_id` = `smartukm_band`.`b_id`)
-						WHERE `smartukm_rel_pl_b`.`pl_id` = '".$this->info['pl_id']."'
-						GROUP BY `smartukm_band`.`b_id`
-						ORDER BY `b_name` ASC";
-				$SQL = new SQL($qry);
-				$res = $SQL->run();
-				while($set = mysql_fetch_assoc($res)) {			
-					$avmeldtest = new SQL("SELECT `log_id` FROM `ukmno_smartukm_log`
-										   WHERE `log_b_id` = '#bid'
-										   AND `log_code` = '23'
-										   LIMIT 1",
-										   array('bid'=>$set['b_id']));
-					$avmeldtest= $avmeldtest->run('field', 'log_id');
-					if(is_numeric($avmeldtest) && $avmeldtest > 0)
-						continue;
-						
-					$set['b_name'] = utf8_encode($set['b_name']);
-					$infos = array('b_id'=>$set['b_id'],
-								   'b_status'=>$set['b_status'],
-								   'bt_id'=>$set['bt_id'],
-								   'b_name'=>$set['b_name']);
-					$this->innslag[$set['b_kommune']][] = $this->innslag_alpha[] = 
-					$this->innslag_bid[$set['b_id']] = $this->innslag_bt[$set['bt_id']][] = $infos;
-				}
-			}
-*/
+			$bands = $this->_load_innslag_loop(false,8);
+			for($i=0; $i<sizeof($bands); $i++) {
+				$set = $bands[$i];
+				if($this->g('type')=='land')
+					$geonokkel = utf8_encode($set['fylke']);
+				else
+					$geonokkel = utf8_encode($set['kommune']);#$k_id['id'];
+				$set['b_name'] = utf8_encode($set['b_name']);
+				$infos = array('b_id'=>$set['b_id'],
+							   'b_status'=>$set['b_status'],
+							   'bt_id'=>$set['bt_id'],
+							   'bt_form'=>$set['bt_form'],
+							   'b_name'=>$set['b_name']
+							   );
+				$this->innslag[] = 	$this->innslag_alpha[] 
+								 =	$this->innslag_bid[$set['b_id']]
+								 =	$this->innslag_bt[$set['bt_id']][] 
+								 =  $this->innslag_geo[$geonokkel][$set['b_id']] = $infos;
+			}					
 		}
 		
 		private function _load_innslag_qry($kommune, $status,$felt=false,$videresendte=false) {
