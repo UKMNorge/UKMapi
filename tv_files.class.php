@@ -6,6 +6,7 @@ class tv_files {
 	var $executed = false;
 	var $loaded = false;
 	var $internal_pointer = -1;
+	var $limit = false;
 	
 	public function __construct($type, $object=false) {
 		$this->type = $type;
