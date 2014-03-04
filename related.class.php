@@ -79,6 +79,7 @@ class related {
 	}
 	
 	public function get() {
+		$ret = null;
 		$get = new SQL("SELECT * FROM `#table`
 						WHERE `b_id` = '#bid'",
 						array('table'=>$this->table,
@@ -103,10 +104,18 @@ class related {
 	}
 	
 	private function loadAuthor($meta) {
-		$aut = $meta['author'];
+		if( isset( $meta['author'] ) ) {
+			$aut = $meta['author'];
+		} else {
+			$aut = '';
+		}
 		if(!isset($this->authors[$aut])) {
 			$user_info = get_userdata($aut);
-			$name = ucwords($user_info->display_name);			
+			if( is_object( $user_info->display_name ) ) {
+				$name = ucwords($user_info->display_name);			
+			} else {
+				$name = '';
+			}
 		} else {
 			$name = $this->authors[$aut];
 		}
