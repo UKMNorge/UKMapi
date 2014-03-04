@@ -111,7 +111,7 @@ class related {
 		}
 		if(!isset($this->authors[$aut])) {
 			$user_info = get_userdata($aut);
-			if( is_object( $user_info->display_name ) ) {
+			if( is_object( $user_info ) ) {
 				$name = ucwords($user_info->display_name);			
 			} else {
 				$name = '';
