@@ -367,6 +367,29 @@ require_once 'UKM/statistikk.class.php';
 		
 			return $this->g('calendar');
 		}
+		
+		public function dager() {
+			$start = explode('.', date('d.m.Y.H.i', $this->g('pl_start')));
+			$stop = explode('.', date('d.m.Y.H.i', $this->g('pl_stop')));
+			
+			$maned = $start[1];
+			$ar	   = $start[2];
+			
+			if($stop[0] >= $start[0]) {
+				for($i=$start[0]-1; $i<$stop[0]; $i++)
+					$days[($i+1).'.'.$maned] = date('N', mktime(0,0,0,$maned, $i+1, $ar));
+					
+				return sizeof($days);
+			## Sluttdato er mindre enn startdato, ergo er sluttdato neste måned!
+			} else {
+				for($i=$start[0]-1; $i<cal_days_in_month(CAL_GREGORIAN, $maned, $ar); $i++)
+					$days[($i+1).'.'.$maned] = date('N', mktime(0,0,0,$maned, $i+1, $ar));
+				for($i=0; $i<$stop[0]; $i++) 
+					$days[($i+1).'.'.$maned+1] = date('N', mktime(0,0,0,$maned+1, $i+1, $ar));
+				
+				return sizeof($days);
+			}
+		}
 
 		##########################################################################################
 		##		INNSLAGSTYPER (BAND TYPES), OG HVILKE SOM ER TILLATT FOR DENNE MØNSTRINGEN		##
@@ -1249,6 +1272,15 @@ $test = new SQL("SELECT `s_id` AS `personer`
 		############################################
 		## Henter ut informasjon om en spesifikk forestilling
 		############################################
+		public function har_program() {
+			$concertsSql = new SQL( 'SELECT `c_id`
+							    	 FROM `smartukm_concert` 
+							    	 WHERE `pl_id` = ' . $this->info['pl_id'] . '
+							    	 LIMIT 1 ' );
+			$res = $concertsSql->run();
+			return mysql_num_rows( $res ) > 0;
+		}
+		
 		public function forestilling( $c_id ){
 			return $this->concert( $c_id );
 		}
