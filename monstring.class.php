@@ -805,7 +805,7 @@ require_once 'UKM/statistikk.class.php';
 				## Loop alle kommuner, og finn innslag fra disse	
 				#if(is_array($this->info['kommuner'])) {
 				#	foreach($this->info['kommuner'] as $trash => $k_id) {
-						$bands = $this->_load_innslag_loop($k_id['id'],8);
+						$bands = $this->_load_innslag_loop(false,8);
 						for($i=0; $i<sizeof($bands); $i++) {
 							$set = $bands[$i];
 							if($this->g('type')=='land')
