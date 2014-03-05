@@ -865,6 +865,7 @@ require_once 'UKM/statistikk.class.php';
 						GROUP BY `smartukm_band`.`b_id`
 						ORDER BY `b_name` ASC";
 			if(is_array($this->info['kommuner'])) {
+				$where = '';
 				foreach($this->info['kommuner'] as $t => $k) {
 					$where .= " (`b_season` = '".$this->info['season']."' "
 									."AND `b_status` = '".$status."' "
@@ -875,14 +876,18 @@ require_once 'UKM/statistikk.class.php';
 
 			// PRE 2011 DID NOT USE BAND SEASON FIELD
 			if($this->info['season'] <= 2011) {
-				return "SELECT ". $get ."
+				return "SELECT ". $get .", `bt`.`bt_form`, `k`.`name` AS `kommune`
 						FROM `smartukm_band`
+						JOIN `smartukm_band_type` AS `bt` ON (`bt`.`bt_id` = `smartukm_band`.`bt_id`)
 						JOIN `smartukm_rel_pl_b` AS `pl_b` ON (`pl_b`.`b_id` = `smartukm_band`.`b_id`)
+						LEFT JOIN `smartukm_kommune` AS `k` ON (`k`.`id`=`smartukm_band`.`b_kommune`)
 						WHERE `pl_b`.`pl_id` = '".$this->get('pl_id')."'";
 			}
 
-			return "SELECT ".$get."
+			return "SELECT ".$get.", `bt`.`bt_form`, `k`.`name` AS `kommune`
 					FROM `smartukm_band`
+					JOIN `smartukm_band_type` AS `bt` ON (`bt`.`bt_id` = `smartukm_band`.`bt_id`)
+					LEFT JOIN `smartukm_kommune` AS `k` ON (`k`.`id`=`smartukm_band`.`b_kommune`)
 					WHERE ".$where."
 					GROUP BY `smartukm_band`.`b_id`
 					ORDER BY `b_name` ASC";
