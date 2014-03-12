@@ -1539,9 +1539,33 @@ $test = new SQL("SELECT `s_id` AS `personer`
 		}
 		
 		private function _url() {
-			if($this->get('type') == 'fylke')
-				$this->url = $this->_sanitize_nordic($this->get('fylke_name'));
-			elseif($this->get('type')=='land')
+			if($this->get('type') == 'fylke') {
+				#$this->url = $this->_sanitize_nordic($this->get('fylke_name'));
+				switch( $this->info['pl_fylke'] ) {
+					case 1:		$this->url = 'ostfold';			break;
+					case 2:		$this->url = 'akershus';		break;
+					case 3:		$this->url = 'oslo';			break;
+					case 4:		$this->url = 'hedmark';			break;
+					case 5:		$this->url = 'oppland';			break;
+					case 6:		$this->url = 'buskerud';		break;
+					case 7:		$this->url = 'vestfold';		break;
+					case 8:		$this->url = 'telemark';		break;
+					case 9:		$this->url = 'aust-agder';		break;
+					case 10:	$this->url = 'vest-agder';		break;
+					case 11:	$this->url = 'rogaland';		break;
+					case 12:	$this->url = 'hordaland';		break;
+					case 14:	$this->url = 'sognogfjordane';	break;
+					case 15:	$this->url = 'moreogromsdal';	break;
+					case 16:	$this->url = 'sor-trondelag';	break;
+					case 17:	$this->url = 'nord-trondelag';	break;
+					case 18:	$this->url = 'nordland';		break;
+					case 19:	$this->url = 'troms';			break;
+					case 20:	$this->url = 'finnmark';		break;
+					case 21:	$this->url = 'testfylke';		break;
+					case 30:	$this->url = 'troms';			break;
+					case 32:	$this->url = 'gjester';			break;
+				}
+			} elseif($this->get('type')=='land')
 				$this->url = 'festivalen';
 			else
 				$this->url = 'pl'. $this->get('pl_id');
