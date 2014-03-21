@@ -526,12 +526,23 @@ class innslag {
 			#$slettedeRelasjoner[] = $this->g('b_id');
 		}
 		
-		$slett_relasjon = new SQLdel('smartukm_fylkestep',
-					array('pl_id'=>$videresendTil,
-						  'pl_from'=>$videresendFra,
-						  'b_id'=>$this->g('b_id'),
-						  't_id'=>$tittel));
-		$slett_relasjon->run();				
+		if( $tittel == 0 ) {
+			$slett_relasjon = new SQLdel('smartukm_fylkestep',
+											array('pl_id'=>$videresendTil,
+												  'pl_from'=>$videresendFra,
+												  'b_id'=>$this->g('b_id')
+												 )
+										);
+		} else {
+			$slett_relasjon = new SQLdel('smartukm_fylkestep',
+											array('pl_id'=>$videresendTil,
+												  'pl_from'=>$videresendFra,
+												  'b_id'=>$this->g('b_id'),
+												  't_id'=>$tittel
+												 )
+										);
+		}
+		$slett_relasjon->run();
 #		return $slettedeRelasjoner;
 
 		$this->statistikk_oppdater();
