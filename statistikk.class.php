@@ -71,9 +71,10 @@ class statistikk {
             }
             
             // PL_missing
+            $kommuner_array_2014 = isset( $this->kommuner[0] ) ? $this->kommuner[0] : false;
             $sql = new SQL($query_pl_missing, array('season'=>(int)$season,
                                                     'fylkeID'=>(int)$this->fylkeID,
-                                                    'kommune' => $this->kommuner[0],
+                                                    'kommune' => $kommuner_array_2014,
                                                     'kommuner' => implode(',', $this->kommuner)));
 
             $missing += (int)$sql->run('field', 'missing');
