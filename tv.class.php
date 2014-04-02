@@ -6,7 +6,7 @@ class tv {
 	var $embedurl 	= 'http://embed.ukm.no/';
 	
 	var $storageurl = 'http://video.ukm.no/';
-	var $storageurl = 'http://video2.ukm.no/';
+	var $storageurl2 = 'http://video2.ukm.no/';
 
 	
 	public function __construct($tv_id,$cron_id=false) {
