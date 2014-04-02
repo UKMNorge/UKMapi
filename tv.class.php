@@ -138,9 +138,8 @@ class tv {
 						.'&path='.urlencode($this->file_path));
 		
 		if(!empty($UKMCURL->data)) {
-			$status = json_decode( $UKMCURL->data );
-			var_dump( $status );
-			$this->file = $status->filepath;
+			var_dump( $UKMCURL );
+			$this->file = $UKMCURL->filepath;
 		}
 			
 	}
