@@ -6,6 +6,7 @@ class tv {
 	var $embedurl 	= 'http://embed.ukm.no/';
 	
 	var $storageurl = 'http://video.ukm.no/';
+	var $storageurl = 'http://video2.ukm.no/';
 
 	
 	public function __construct($tv_id,$cron_id=false) {
@@ -137,8 +138,27 @@ class tv {
 						.'?file='.$this->file_name
 						.'&path='.urlencode($this->file_path));
 		
+		// Hvis video.ukm.no svarer
 		if(!empty($UKMCURL->data)) {
+			$result = $UKMCURL->data;
+		// Hvis video.ukm.no ikke svarer, fake negativ respons
+		} else {
+			$result = (object) array('found'=>false);
+		}
+		
+		// Hvis den er funnet på video.ukm.no
+		if( $result->found ) {
 			$this->file = $UKMCURL->data->filepath;
+		// Let videre etter filen
+		} else {
+			$UKMCURL->request($this->storageurl2
+								.'find.php'
+								.'?file='.$this->file_name
+								.'&path='.urlencode($this->file_path));
+			$result = $UKMCURL->data;
+			if( $result->found ) {
+				$this->file = $UKMCURL->data->filepath;
+			}
 		}
 			
 	}
