@@ -137,12 +137,9 @@ class tv {
 						.'?file='.$this->file_name
 						.'&path='.urlencode($this->file_path));
 		
-		if( $_SERVER['REMOTE_ADDR'] == '81.0.146.162' ) {
-			var_dump( $UKMCURL );
-		}
-		
 		if(!empty($UKMCURL->data)) {
 			$status = json_decode( $UKMCURL->data );
+			var_dump( $status );
 			$this->file = $status->filepath;
 		}
 			
