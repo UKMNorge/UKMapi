@@ -8,6 +8,7 @@ class tv {
 	var $storageurl = 'http://video.ukm.no/';
 	var $storageurl2 = 'http://video2.ukm.no/';
 
+	var $activeStorage = null;
 	
 	public function __construct($tv_id,$cron_id=false) {
 		// If created by an cron_id ($tv_id = false)
@@ -148,6 +149,7 @@ class tv {
 		
 		// Hvis den er funnet på video.ukm.no
 		if( $result->found ) {
+			$this->activeStorage = $this->storageurl;
 			$this->file = $UKMCURL->data->filepath;
 		// Let videre etter filen
 		} else {
@@ -157,6 +159,7 @@ class tv {
 								.'&path='.urlencode($this->file_path));
 			$result = $UKMCURL->data;
 			if( $result->found ) {
+				$this->activeStorage = $this->storageurl2;
 				$this->file = $UKMCURL->data->filepath;
 			}
 		}
