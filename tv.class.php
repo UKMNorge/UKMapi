@@ -138,8 +138,7 @@ class tv {
 						.'&path='.urlencode($this->file_path));
 		
 		if(!empty($UKMCURL->data)) {
-			var_dump( $UKMCURL );
-			$this->file = $UKMCURL->filepath;
+			$this->file = $UKMCURL->data->filepath;
 		}
 			
 	}
