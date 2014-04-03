@@ -14,6 +14,10 @@ class UKMCURL {
 		$this->timeout = $timeout;
 	}
 	
+	public function port( $port ) {
+		$this->port = $port;
+	}
+	
 	public function post($postdata) {
 		$this->postdata = $postdata;
 	}
