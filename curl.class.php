@@ -54,7 +54,6 @@ class UKMCURL {
 
 		
 		if(isset($this->port)) {
-			echo 'CURL PORT!';
 			curl_setopt($this->curl, CURLOPT_PORT, $this->port);
 		}
 		$this->result = curl_exec($this->curl);
