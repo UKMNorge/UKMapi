@@ -57,6 +57,9 @@ class UKMCURL {
 			curl_setopt($this->curl, CURLOPT_PORT, $this->port);
 		}
 		$this->result = curl_exec($this->curl);
+		if( $_SERVER['REMOTE_ADDR'] == '195.204.59.92' ) {
+		var_dump( $this->curl );
+		}
 	
 		if($this->content)
 			$this->_analyze();
