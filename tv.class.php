@@ -159,6 +159,7 @@ class tv {
 								.'find.php'
 								.'?file='.$this->file_name
 								.'&path='.urlencode($this->file_path));
+			var_dump( $UKMCURL );
 			$result = $UKMCURL->data;
 			if( $result->found ) {
 				$this->activeStorage = '2';
