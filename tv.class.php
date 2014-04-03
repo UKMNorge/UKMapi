@@ -223,6 +223,15 @@ class tv {
 		
 		// IMAGE
 		// Sjekk om bildet faktisk finnes (curl sjekk http response == 404 eller ikke)
+		global $UKMCURL;
+		$UKMCURL->headersOnly();
+		$UKMCURL->request( $this->storageurl.$this->img );
+		
+		$res = $UKMCURL->data;
+		
+		if( $_SERVER['REMOTE_ADDR'] == '195.204.59.119' ) {
+			var_dump( $UKMCURL );
+		}
 /*
 		if( image_exists $this->image_url) {
 			$this->image_url = $this->storageurl.$this->img;			
