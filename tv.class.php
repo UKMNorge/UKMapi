@@ -161,8 +161,8 @@ class tv {
 								.'?file='.$this->file_name
 								.'&path='.urlencode($this->file_path));
 			$result = $UKMCURL->data;
-			var_dump( $result );
-			var_dump( $UKMCURL );
+			//var_dump( $result );
+			//var_dump( $UKMCURL );
 			if( $result->found ) {
 				$this->activeStorage = '2';
 				$this->file = $UKMCURL->data->filepath;
