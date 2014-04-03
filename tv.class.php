@@ -222,6 +222,16 @@ class tv {
 		$this->embed_url = $this->embedurl.$this->url;
 		
 		// IMAGE
+		// Sjekk om bildet faktisk finnes (curl sjekk http response == 404 eller ikke)
+/*
+		if( image_exists $this->image_url) {
+			$this->image_url = $this->storageurl.$this->img;			
+		} else {
+			$this->image_url = $this->storageurl2.$this->img;
+		}
+*/
+
+
 		$this->image_url = $this->storageurl.$this->img;
 		
 		// SET
