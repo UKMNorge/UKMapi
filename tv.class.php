@@ -222,9 +222,17 @@ class tv {
 		$this->embed_url = $this->embedurl.$this->url;
 		
 		// IMAGE
-
-			$this->image_url = $this->storageurl.$this->img;
-
+		// Sjekk om bildet faktisk finnes (curl sjekk http response == 404 eller ikke)
+		global $UKMCURL;
+		$UKMCURL = new UKMCURL();
+		$UKMCURL->headersOnly();
+		$res = $UKMCURL->request( $this->storageurl.$this->img );
+		
+		if( $res == 404 ) {
+		$this->image_url = 'http://video2.ukm.no:88/'.$this->img;
+		} else {
+		$this->image_url = $this->storageurl.$this->img;
+		}
 		
 		
 		// SET
