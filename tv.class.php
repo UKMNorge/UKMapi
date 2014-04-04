@@ -157,7 +157,7 @@ class tv {
 		} else {
 			$UKMCURL = new UKMCURL();
 			//$UKMCURL->port(88);
-			$UKMCURL->request($this->storageurl2.'/'
+			$UKMCURL->request($this->storageurl2
 								.'find.php'
 								.'?file='.$this->file_name
 								.'&path='.urlencode($this->file_path));
