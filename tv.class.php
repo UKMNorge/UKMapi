@@ -156,7 +156,7 @@ class tv {
 		// Let videre etter filen
 		} else {
 			$UKMCURL = new UKMCURL();
-			$UKMCURL->port(88);
+			//$UKMCURL->port(88);
 			$UKMCURL->request('http://'.$this->storageIP2.'/'
 								.'find.php'
 								.'?file='.$this->file_name
