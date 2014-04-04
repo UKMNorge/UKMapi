@@ -129,6 +129,7 @@ class tv {
 	// Get the storage server file infos
 	public function videofile(){
 		global $UKMCURL;
+		$UKMCURL = new UKMCURL();
 		$lastslash = strrpos($this->file, '/');
 		$this->file_path = substr($this->file, 0, $lastslash);
 		$this->file_name = substr($this->file, $lastslash+1);
@@ -224,7 +225,7 @@ class tv {
 		// IMAGE
 		// Sjekk om bildet faktisk finnes (curl sjekk http response == 404 eller ikke)
 		global $UKMCURL;
-		$UKMCURL = new UKMCURL();
+
 		$UKMCURL->headersOnly();
 		$res = $UKMCURL->request( $this->storageurl.$this->img );
 		
