@@ -230,7 +230,7 @@ class tv {
 		$res = $UKMCURL->request( $this->storageurl.$this->img );
 		
 		if( $res == 404 ) {
-		$this->image_url = 'http://video2.ukm.no:88/'.$this->img;
+		$this->image_url = 'http://video2.ukm.no/'.$this->img;
 		} else {
 		$this->image_url = $this->storageurl.$this->img;
 		}
