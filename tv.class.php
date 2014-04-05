@@ -142,6 +142,10 @@ class tv {
 						.'?file='.$this->file_name
 						.'&path='.urlencode($this->file_path));
 		
+		if( $_SERVER['REMOTE_ADDR'] == '195.159.198.178' ) {
+			var_dump( $UKMCURL );		
+		}
+		
 		// Hvis video.ukm.no svarer
 		if(!empty($UKMCURL->data)) {
 			$result = $UKMCURL->data;
