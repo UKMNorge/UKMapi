@@ -290,6 +290,7 @@ class forestilling {
 				$inn->videresendte(get_option('pl_id'));
 			$this->info['total_varighet'] += (int)$inn->varighet($this->g('pl_id'));
 		}
+		return $this->info['total_varighet'];
 	}
 	
 	public function tid(){
