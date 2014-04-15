@@ -211,6 +211,20 @@ class person {
 		return utf8_encode($this->info[$key]);	
 	}
 	
+	public function videresendt( $pl_to_id ) {
+		$videresendt = new SQL("SELECT *
+					FROM `smartukm_fylkestep_p`
+					WHERE `pl_id` = '#pl_id'
+					AND `b_id` = '#b_id'
+					AND `p_id` = '#p_id'",
+					array('pl_id'=>$pl_to_id,
+					      'b_id'=>$this->g('b_id'),
+					      'p_id'=>$this->g('p_id')
+					      );
+		$videresendt = $videresendt->run();
+		return !mysql_num_rows($videresendt) == 0;
+	}
+	
 	public function videresend($videresendFra, $videresendTil) {
 		if (!($this->g('b_id') > 0) || !($videresendFra > 0) || !($videresendTil > 0))
 			return false;
