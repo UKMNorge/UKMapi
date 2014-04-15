@@ -114,6 +114,20 @@ class tittel {
 		$this->_detaljer();
 	}
 	
+	public function videresendt( $pl_to_id ) {
+		$videresendt = new SQL("SELECT *
+					FROM `smartukm_fylkestep`
+					WHERE `pl_id` = '#pl_id'
+					AND `b_id` = '#b_id'
+					AND `t_id` = '#t_id'",
+					array('pl_id'=>$pl_to_id,
+					      'b_id'=>$this->b_id,
+					      't_id'=>$this->t_id)
+				       );
+		$videresendt = $videresendt->run();
+		return !mysql_num_rows($videresendt) == 0;
+	}
+	
 	private function _detaljer(){
 		$this->detaljer = substr($this->parentes, 1, strlen($this->parentes)-2);
 	}
