@@ -220,7 +220,8 @@ class person {
 					array('pl_id'=>$pl_to_id,
 					      'b_id'=>$this->g('b_id'),
 					      'p_id'=>$this->g('p_id')
-					      );
+					      )
+				       );
 		$videresendt = $videresendt->run();
 		return !mysql_num_rows($videresendt) == 0;
 	}
