@@ -653,10 +653,24 @@ class innslag {
 			while($r = mysql_fetch_assoc($res)){
 				/// LUK UT TITLER HVIS FYLKESMØNSTRING
 				if($place->g('type')=='fylke' && !$uavhengig_av_monstring) {
-					$videresendt = new SQL("SELECT * FROM `smartukm_fylkestep`
-											WHERE `b_id` = '#bid'
-											AND `t_id` = '#tid'",
-											array('bid'=>$this->g('b_id'), 'tid'=>$r['t_id']));
+					if( $forwardToPLID ) {
+						$videresendt = new SQL("SELECT * FROM `smartukm_fylkestep`
+												WHERE `b_id` = '#bid'
+												AND `t_id` = '#tid'
+												AND `pl_id` = '#plto'
+												AND `pl_from` = '#plfrom'",
+												array(	'bid'=>$this->g('b_id'),
+														'tid'=>$r['t_id'],
+														'plto' => $forwardToPLID,
+														'plfrom' => $pl_id
+													)
+											);
+					} else {
+						$videresendt = new SQL("SELECT * FROM `smartukm_fylkestep`
+												WHERE `b_id` = '#bid'
+												AND `t_id` = '#tid'",
+												array('bid'=>$this->g('b_id'), 'tid'=>$r['t_id']));
+					}
 					$videresendt = $videresendt->run();
 					if(mysql_num_rows($videresendt)==0)
 						continue;
