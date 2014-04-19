@@ -204,7 +204,7 @@ if(!class_exists('SQLins')) {
 		}
 		
 		function connect() {
-			$this->db = @mysql_connect(UKM_DB_HOST, UKM_DB_WRITE_USER, UKM_DB_PASSWORD) or die($ERR);
+			$this->db = @mysql_connect(UKM_DB_HOST, UKM_DB_WRITE_USER, UKM_DB_PASSWORD) or die('MySQL connect error');
 			if (!$this->db) die($ERR);
 			mysql_select_db(UKM_DB_NAME,$this->db);
 		}
