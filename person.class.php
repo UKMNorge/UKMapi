@@ -211,22 +211,37 @@ class person {
 		return utf8_encode($this->info[$key]);	
 	}
 	
-	public function videresendt( $pl_to_id ) {
-		$videresendt = new SQL("SELECT *
-					FROM `smartukm_fylkestep_p`
-					WHERE `pl_id` = '#pl_id'
-					AND `b_id` = '#b_id'
-					AND `p_id` = '#p_id'",
-					array('pl_id'=>$pl_to_id,
-					      'b_id'=>$this->g('b_id'),
-					      'p_id'=>$this->g('p_id')
-					      )
-				       );
+	public function videresendt( $pl_to_id, $tittel=false ) {
+		if( $tittel ) {
+			$videresendt = new SQL("SELECT *
+									FROM `smartukm_fylkestep_p`
+									WHERE `pl_id` = '#pl_id'
+									AND `b_id` = '#b_id'
+									AND `p_id` = '#p_id'
+									AND `t_ids` LIKE '%#tittel%'",
+									array('pl_id'=>$pl_to_id,
+									      'b_id'=>$this->g('b_id'),
+									      'p_id'=>$this->g('p_id'),
+									      'tittel' => '|t_'. $tittel .'|'
+									      )
+								       );
+		} else {
+			$videresendt = new SQL("SELECT *
+									FROM `smartukm_fylkestep_p`
+									WHERE `pl_id` = '#pl_id'
+									AND `b_id` = '#b_id'
+									AND `p_id` = '#p_id'",
+									array('pl_id'=>$pl_to_id,
+									      'b_id'=>$this->g('b_id'),
+									      'p_id'=>$this->g('p_id')
+									      )
+								       );
+		}
 		$videresendt = $videresendt->run();
 		return !mysql_num_rows($videresendt) == 0;
 	}
 	
-	public function videresend($videresendFra, $videresendTil) {
+	public function videresend($videresendFra, $videresendTil, $tittel) {
 		if (!($this->g('b_id') > 0) || !($videresendFra > 0) || !($videresendTil > 0))
 			return false;
 						
@@ -247,21 +262,62 @@ class person {
 			$videresend_person->add('pl_from', $videresendFra);
 			$videresend_person->add('b_id', $this->g('b_id'));
 			$videresend_person->add('p_id', $this->g('p_id'));
+			$videresend_person->add('t_ids', '|t_'. $tittel.'|');
 			$videresend_person->run();
+		} else {
+			$row = mysql_fetch_assoc( $test_relasjon );
+			$new_t_ids = $row['t_ids'] . '|t_'. $tittel .'|';
+			$videresend_person = new SQLins('smartukm_fylkestep_p', 
+											array('pl_id' => $videresendTil,
+												  'pl_from' => $videresendFra,
+												  'b_id' => $this->g('b_id'),
+												  'p_id' => $this->g('p_id')
+												 )
+											);
+			$videresend_person->add('t_ids', $new_t_ids);
+			$videresend_person->run();
+			
 		}
 		return true;
 	}
 	
-	public function avmeld($videresendFra, $videresendTil) {
+	public function avmeld($videresendFra, $videresendTil, $tittel) {
 		if (!($this->g('b_id') > 0) || !($videresendFra > 0) || !($videresendTil > 0))
 			return false;
 
-		$videresend_person = new SQLdel('smartukm_fylkestep_p', 
-										array('pl_id'=>$videresendTil,
-											  'pl_from'=>$videresendFra,
-											  'b_id'=>$this->g('b_id'),
-											  'p_id'=>$this->g('p_id')));
-		$res = $videresend_person->run();
+		$test_relasjon = new SQL("SELECT * FROM `smartukm_fylkestep_p`
+								  WHERE `pl_id` = '#plid'
+								  AND `b_id` = '#bid'
+							      AND `pl_from` = '#pl_from'
+								  AND `p_id` = '#p_id'",
+								  array('plid'=>$videresendTil, 
+								  		'bid'=>$this->g('b_id'), 
+										'p_id'=>$this->g('p_id'), 
+										'pl_from'=>$videresendFra));
+		$test_relasjon = $test_relasjon->run();
+		$row = mysql_fetch_assoc( $test_relasjon );
+		$new_t_ids = str_replace('|t_'. $tittel .'|','', $row['t_ids']);
+				
+		// Hvis vedkommende ikke følger noen titler, fjern fra fylkestep
+		if( empty( $new_t_ids ) ) {
+			$videresend_person = new SQLdel('smartukm_fylkestep_p', 
+											array('pl_id'=>$videresendTil,
+												  'pl_from'=>$videresendFra,
+												  'b_id'=>$this->g('b_id'),
+												  'p_id'=>$this->g('p_id')));
+			$res = $videresend_person->run();
+		// Vedkommende følger en eller flere andre titler, fjern denne fra lista.
+		} else {
+			$videresend_person = new SQLins('smartukm_fylkestep_p', 
+											array('pl_id' => $videresendTil,
+												  'pl_from' => $videresendFra,
+												  'b_id' => $this->g('b_id'),
+												  'p_id' => $this->g('p_id')
+												 )
+											);
+			$videresend_person->add('t_ids', $new_t_ids);
+			$videresend_person->run();
+		}
 		return true;
 	}
 	
