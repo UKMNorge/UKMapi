@@ -18,18 +18,27 @@ class person {
 			UKMlog('smartukm_participant',$field,$post_key,$this->info['p_id']);
 		}
 		else {
+			if( isset( $this->info['b_id'] ) && is_numeric( $this->info['b_id'] ) && $this->info['b_id'] > 0 ) {
+				if( $b_id > 0 && $b_id != $this->info['b_id'] ) {
+					$use_b_id = $b_id;
+				} else {
+					$use_b_id = $this->info['b_id'];
+				}
+			} else {
+				$use_b_id = $b_id;
+			}
 			$test = new SQL("SELECT `p_id` FROM `smartukm_rel_b_p`
 							 WHERE `p_id` = '#pid'
 							 AND `b_id` = '#bid'",
 							 array('pid' => $this->info['p_id'],
-							 	   'bid' => $b_id));
+							 	   'bid' => $use_b_id));
 			$test = $test->run();
 			if(mysql_num_rows( $test ) == 0) {
 				$qry = new SQLins('smartukm_rel_b_p');
 				$qry->add('p_id', $this->info['p_id']);
-				$qry->add('b_id', $b_id);
+				$qry->add('b_id', $use_b_id);
 			} else {
-				$qry = new SQLins('smartukm_rel_b_p', array('p_id'=>$this->info['p_id'], 'b_id'=>$b_id));
+				$qry = new SQLins('smartukm_rel_b_p', array('p_id'=>$this->info['p_id'], 'b_id'=>$use_b_id));
 			}
 			UKMlog('smartukm_rel_b_p',$field,$post_key,$this->info['p_id']);
 		}
