@@ -158,7 +158,7 @@ class tittel {
 	}
 	
 	private function _utstilling($r) {
-		$this->tittel = $r['t_e_title'];
+		$this->tittel = utf8_encode($r['t_e_title']);
 		$this->type = $r['t_e_type'];
 		$this->teknikk = $r['t_e_technique'];
 		$this->format = $r['t_e_format'];
