@@ -133,59 +133,59 @@ class tittel {
 	}
 	
 	public function g($key) {
-		return utf8_encode($this->$key);
+		return $this->$key;
 	}
 	
 	private function _scene($r) {
-		$this->tittel = $r['t_name'];
-		$this->tekst_av = $r['t_titleby'];
+		$this->tittel = utf8_encode($r['t_name']);
+		$this->tekst_av = utf8_encode($r['t_titleby']);
 		if($this->tekst_av=='instrumental')
 			$this->tekst_av = '';
-		$this->melodi_av = $r['t_musicby'];
-		$this->koreografi = $r['t_coreography'];
+		$this->melodi_av = utf8_encode($r['t_musicby']);
+		$this->koreografi = utf8_encode($r['t_coreography']);
 		$this->varighet = (int) $r['t_time'];
 		
 		$this->parentes = '(';
 		if($this->melodi_av == $this->tekst_av && !empty($this->melodi_av))
-			$this->parentes .= 'Tekst og melodi: '.$this->tekst_av.'';
+			$this->parentes .= 'Tekst og melodi: '.utf8_encode($this->tekst_av).'';
 		else{
 			if(!empty($this->tekst_av))
-				$this->parentes .= 'Tekst: '. $this->tekst_av;
+				$this->parentes .= 'Tekst: '. utf8_encode($this->tekst_av);
 			if(!empty($this->melodi_av))
-				$this->parentes .= (!empty($this->tekst_av) ? ' - ':''). 'Melodi: '. $this->melodi_av;
+				$this->parentes .= (!empty($this->tekst_av) ? ' - ':''). 'Melodi: '. utf8_encode($this->melodi_av);
 		}
 		$this->parentes .= ')';		
 	}
 	
 	private function _utstilling($r) {
 		$this->tittel = utf8_encode($r['t_e_title']);
-		$this->type = $r['t_e_type'];
-		$this->teknikk = $r['t_e_technique'];
-		$this->format = $r['t_e_format'];
-		$this->beskrivelse = $r['t_e_comments'];
+		$this->type = utf8_encode($r['t_e_type']);
+		$this->teknikk = utf8_encode($r['t_e_technique']);
+		$this->format = utf8_encode($r['t_e_format']);
+		$this->beskrivelse = utf8_encode($r['t_e_comments']);
 		$this->varighet = 0;
 
 		$this->parentes = '(';
 			if(!empty($this->type))
-				$this->parentes .= 'Type: '. $this->type;
+				$this->parentes .= 'Type: '. utf8_encode($this->type);
 			if(!empty($this->tekst_av))
-				$this->parentes .= 'Teknikk: '. $this->teknikk;
+				$this->parentes .= 'Teknikk: '. utf8_encode($this->teknikk);
 		$this->parentes .= ')';
 	}
 	
 	private function _film($r) {
-		$this->tittel = $r['t_v_title'];
-		$this->format = $r['t_v_format'];
+		$this->tittel = utf8_encode($r['t_v_title']);
+		$this->format = utf8_encode($r['t_v_format']);
 		$this->varighet = (int) $r['t_v_time'];
-		$this->parentes = '('.$r['t_v_format'].')';
+		$this->parentes = '('.utf8_encode($r['t_v_format']).')';
 	}
 	
 	private function _annet($r) {
-		$this->tittel = $r['t_o_function'];
-		$this->erfaring = $r['t_o_experience'];
-		$this->kommentar = $r['t_o_comments'];
+		$this->tittel = utf8_encode($r['t_o_function']);
+		$this->erfaring = utf8_encode($r['t_o_experience']);
+		$this->kommentar = utf8_encode($r['t_o_comments']);
 		$this->varighet = 0;
-		$this->parentes = '('.$r['t_o_comments'].')';
+		$this->parentes = '('.utf8_encode($r['t_o_comments']).')';
 	}
 
 	private function _secondtominutes($sec) {
