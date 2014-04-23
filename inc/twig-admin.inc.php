@@ -3,7 +3,13 @@ function TWIG($template, $dataarray, $templatefolder, $debug=false) {
 	require_once('Twig/Autoloader.php');
 	Twig_Autoloader::register();
 	$loader = new Twig_Loader_Filesystem($templatefolder.'/twig/');
-	$twig = new Twig_Environment($loader, array('debug' => $debug));
+	
+	$environment = array('debug' => $debug);
+	if( defined('TWIG_CACHE_PATH') ) {
+		$environment['cache'] = TWIG_CACHE_PATH;
+	}
+	$twig = new Twig_Environment($loader, $environment);
+	
 	
 	// or a simple PHP function
 	$filter = new Twig_SimpleFilter('dato', 'TWIG_date');
