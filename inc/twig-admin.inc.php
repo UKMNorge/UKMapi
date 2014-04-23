@@ -7,6 +7,7 @@ function TWIG($template, $dataarray, $templatefolder, $debug=false) {
 	$environment = array('debug' => $debug);
 	if( defined('TWIG_CACHE_PATH') ) {
 		$environment['cache'] = TWIG_CACHE_PATH;
+		$environment['auto_reload'] = true;
 	}
 	$twig = new Twig_Environment($loader, $environment);
 	
