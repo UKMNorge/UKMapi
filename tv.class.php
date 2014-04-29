@@ -8,7 +8,7 @@ class tv {
 	var $storageurl = 'http://video.ukm.no/';
 	var $storageIP	= '212.125.231.33';
 	var $storageurl2 = 'http://video2.ukm.no/';
-	var $storageIP2	= '195.18.146.12';
+	var $storageIP2	= '81.0.146.165';
 	
 	var $activeStorage = '';
 	
