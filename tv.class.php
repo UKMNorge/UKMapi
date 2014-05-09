@@ -224,7 +224,7 @@ class tv {
 		
 		// IMAGE
 		// Sjekk om bildet faktisk finnes (curl sjekk http response == 404 eller ikke)
-		global $UKMCURL;
+		/*global $UKMCURL;
 		$UKMCURL = new UKMCURL();
 		$UKMCURL->headersOnly();
 		$res = $UKMCURL->request( $this->storageurl.$this->img );
@@ -234,6 +234,8 @@ class tv {
 		} else {
 		$this->image_url = $this->storageurl.$this->img;
 		}
+		*/
+		$this->image_url = $this->storageurl.$this->img;
 		
 		
 		// SET
