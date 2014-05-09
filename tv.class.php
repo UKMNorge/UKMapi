@@ -102,10 +102,12 @@ class tv {
 	}
 	
 	public function size() {
-		list($width, $height) = @getimagesize($this->image_url);
+		/*list($width, $height) = @getimagesize($this->image_url);
 		if(!is_numeric($width) || !is_numeric($height))
 			return 'Beklager, en feil har oppstått';
-		$this->ratio = $width / $height;
+		$this->ratio = $width / $height;*/
+		// Manuell 16:9 for ytelse
+		$this->ratio = 1.77777777777778;
 		
 		if($width > 930) {
 			$width = 930;
