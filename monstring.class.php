@@ -390,6 +390,36 @@ require_once 'UKM/statistikk.class.php';
 				return sizeof($days);
 			}
 		}
+		public function netter() {
+			if( isset( $this->netter ) ) {
+				return $this->netter;
+			}
+			$netter = array();
+			
+			$start = (int)$this->g('pl_start');
+			$stop  = (int)$this->g('pl_stop');
+			
+			$num_dager = floor( ($stop - $start) /(60*60*24));
+			
+			$crnt = new stdClass();
+			$crnt->dag = (int)date('d', $start);
+			$crnt->mnd= (int)date('m', $start);
+			$crnt->ar  = (int)date('Y', $start);
+			
+			for( $i=0; $i < $num_dager+1; $i++ ) {	
+				if( $crnt->dag > cal_days_in_month( CAL_GREGORIAN, $crnt->mnd, $crnt->ar ) ) {
+					$crnt->dag = 1;
+					$crnt->mnd++;
+				}
+				$crnt->timestamp = strtotime( $crnt->dag.'-'.$crnt->mnd.'-'.$crnt->ar );
+				$netter[] = clone $crnt;
+			
+				$crnt->dag++;
+			}
+			$this->netter = $netter;
+			return $this->netter;
+		}
+
 
 		##########################################################################################
 		##		INNSLAGSTYPER (BAND TYPES), OG HVILKE SOM ER TILLATT FOR DENNE MØNSTRINGEN		##
