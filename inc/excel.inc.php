@@ -189,7 +189,11 @@ function excond($celle) {
 
 function exWrite($objPHPExcel,$filename) {
 	$filename = $filename .'.xlsx';
-	$internal = '/home/ukmno/public_html/temp/phpexcel/';
+	if( defined('EXCEL_WRITE_PATH') ) {
+		$internal = EXCEL_WRITE_PATH;
+	} else {
+		$internal = '/home/ukmno/public_html/temp/phpexcel/';
+	}
 	$external = 'http://ukm.no/UKM/subdomains/download/?folder=phpexcel&filename='.urlencode($filename);
 	$external = 'http://download.ukm.no/?folder=phpexcel&filename='.urlencode($filename);
 
@@ -198,5 +202,25 @@ function exWrite($objPHPExcel,$filename) {
 	$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
 	$objWriter->save($internal.$filename);
 	return $external;
+}
+
+function exInit() {
+	global $objPHPExcel;
+	$objPHPExcel = new PHPExcel($docTitle='Dokument uten navn', $orientation='portrait');
+	exorientation($orientation);
+
+	$objPHPExcel->getProperties()->setCreator('UKM Norges arrangørsystem');
+	$objPHPExcel->getProperties()->setLastModifiedBy('UKM Norges arrangørsystem');
+	$objPHPExcel->getProperties()->setTitle($docTitle);
+	$objPHPExcel->getProperties()->setKeywords($docTitle);
+
+	## Sett standard-stil
+	$objPHPExcel->getDefaultStyle()->getFont()->setName('Calibri');
+	$objPHPExcel->getDefaultStyle()->getFont()->setSize(12);
+
+	####################################################################################
+	## OPPRETTER ARK
+	$objPHPExcel->setActiveSheetIndex(0);
+	$objPHPExcel->setActiveSheetIndex(0)->getTabColor()->setRGB('A0CF67');
 }
 ?>
