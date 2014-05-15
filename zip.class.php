@@ -1,6 +1,6 @@
 <?php
 class zip {
-	var debug = false;
+	var $debug = false;
 	public function __construction($destination, $overwrite) {
 		$this->destination = $destination;
 		$this->overwrite = $overwrite;
