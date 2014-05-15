@@ -108,6 +108,8 @@ class tv {
 		$this->ratio = $width / $height;*/
 		// Manuell 16:9 for ytelse
 		$this->ratio = 1.77777777777778;
+		$width = 1280;
+		$height = 720;
 		
 		if($width > 930) {
 			$width = 930;
