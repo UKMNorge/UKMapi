@@ -10,8 +10,8 @@ function TWIGjs($templatefolder, $prefix='') {
 	
 	foreach($templates as $template) {
 		if($template != '.' && $template != '..') {
-			$templateID = str_replace(array('.twig.html','_'),
-									  array('', ''),
+			$templateID = str_replace(array('.twig.html','_','.'),
+									  array('', '','_'),
 									  basename($template)
 									 );
 			$SCRIPT .= '<script type="text/javascript">'
