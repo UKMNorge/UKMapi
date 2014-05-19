@@ -399,7 +399,14 @@ require_once 'UKM/statistikk.class.php';
 			$start = (int)$this->g('pl_start');
 			$stop  = (int)$this->g('pl_stop');
 			
-			$num_dager = floor( ($stop - $start) /(60*60*24));
+			if( date('m', $start ) < date('m', $stop ) ) {
+				$dager_ny_mnd = date('d', $stop);
+				$dager_forrige_mnd = cal_days_in_month( CAL_GREGORIAN, date('m', $start), date('Y', $start)) - date('d', $start);
+				$num_dager = $dager_ny_mnd + $dager_forrige_mnd;
+			} else {
+				$num_dager = date('d',$stop) - date('d',$start);
+			}
+//			$num_dager = floor( ($stop - $start) /(60*60*24));
 			
 			$crnt = new stdClass();
 			$crnt->dag = (int)date('d', $start);
