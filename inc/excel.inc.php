@@ -1,4 +1,5 @@
 <?php
+set_include_path ( '/usr/local/lib/php/' );
 require_once('PHPExcel/PHPExcel.php');
 require_once('PHPExcel/IOFactory.php');
 
