@@ -54,6 +54,7 @@ function word_init($name,$orientation='portrait') {
 	$PHPWord->addParagraphStyle('p_bold', array('spaceAfter'=>0, 'spaceBefore'=>0));
 	
 	$PHPWord->addParagraphStyle('p_center', array('spaceAfter'=>0, 'spaceBefore'=>0, 'align'=>'center'));
+	$PHPWord->addParagraphStyle('right', array('spaceAfter'=>0, 'spaceBefore'=>0, 'align'=>'right'));
 			
 	$PHPWord->addParagraphStyle('p_grp', array('align'=>'left', 'spaceAfter'=>300));
 	$PHPWord->addParagraphStyle('p_h1', array('align'=>'left', 'spaceAfter'=>100));
