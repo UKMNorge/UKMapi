@@ -68,6 +68,10 @@ function word_init($name,$orientation='portrait') {
 	$PHPWord->addFontStyle('f_h4', array('size'=>10, 'align'=>'left', 'bold'=>true));
 	$PHPWord->addFontStyle('f_bold', array('bold'=>true, 'spaceAfter'=>0, 'spaceBefore'=>0));
 	
+	$PHPWord->addParagraphStyle('p_h1_center', array('align'=>'center', 'spaceAfter'=>100));
+	$PHPWord->addFontStyle('f_h1_center', array('size'=>16, 'align'=>'center', 'bold'=>true));
+
+
 	$PHPWord->addParagraphStyle('p_rapportIkonSpacer', array('spaceBefore'=>3000));
 	$PHPWord->addParagraphStyle('p_rapportIkonSpacerLandscape', array('spaceBefore'=>1500));
 	$PHPWord->addParagraphStyle('p_rapport', array('align'=>'center', 'spaceBefore'=>400));
