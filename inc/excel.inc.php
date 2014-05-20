@@ -1,8 +1,7 @@
 <?php
-/*set_include_path ( '/usr/local/lib/php' );
-require_once('/usr/local/lib/php/PHPExcel/PHPExcel.php');
+require_once('PHPExcel/PHPExcel.php');
 require_once('PHPExcel/IOFactory.php');
-*/
+
 $objPHPExcel = new PHPExcel();
 
 if(!function_exists('i2a')) {
