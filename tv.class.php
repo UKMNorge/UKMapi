@@ -7,7 +7,7 @@ class tv {
 	
 	var $storageurl = 'http://video.ukm.no/';
 	var $storageIP	= '212.125.231.33';
-	var $storageurl2 = 'http://video2.ukm.no/';
+	var $storageurl2 = 'http://video2.ukm.no';
 	var $storageIP2	= '81.0.146.165';
 	
 	var $activeStorage = '';
@@ -162,7 +162,7 @@ class tv {
 			$UKMCURL = new UKMCURL();
 			$UKMCURL->port(88);
 			$UKMCURL->request($this->storageurl2
-								.'find.php'
+								.'/find.php'
 								.'?file='.$this->file_name
 								.'&path='.urlencode($this->file_path));
 			$result = $UKMCURL->data;
