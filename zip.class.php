@@ -9,7 +9,7 @@ class zip {
 
 		$this->folder = ZIP_WRITE_PATH;
 		$this->destination = $this->folder. $destination;
-		$this->download = 'http://download.ukm.no/'. basename($this->destination);
+		$this->download = 'http://download.ukm.no/zip/'. basename($this->destination);
 	
 		if(!file_exists($this->folder))
 			mkdir($this->folder);
