@@ -1,13 +1,15 @@
 <?php
 class zip {
 	var $debug = false;
-	public function __construction($destination, $overwrite) {
+	public function __construct($destination, $overwrite) {
+		$destination = preg_replace("[^A-Za-z0-9?!]", "_", $destination);
+	
 		$this->destination = $destination;
 		$this->overwrite = $overwrite;
-		
-		die('KONTAKT UKM NORGE: FEIL HOMEDIR!');
-		$this->folder = UKM_HOME.'../temp/zip/';
-		$this->destination = $folder.$destination;
+
+		$this->folder = ZIP_WRITE_PATH;
+		$this->destination = $this->folder. $destination;
+		$this->download = 'http://download.ukm.no/'. $this->destination;
 	
 		if(!file_exists($this->folder))
 			mkdir($this->folder);
@@ -24,6 +26,10 @@ class zip {
 		$this->files[$file] = $nicename;
 	}
 	
+	
+	public function compress() {
+		return $this->run();
+	}
 	public function run() {
 		$valid_files = array();
 		if(is_array($this->files)) {
@@ -46,7 +52,7 @@ class zip {
 				$zip->addFile($file,$name);
 			}
 			$zip->close();
-			return $destination;
+			return $this->download;
 	  	}
 		return $debug ? 'Fant ingen filer &aring; komprimere...' : false;
 	}
