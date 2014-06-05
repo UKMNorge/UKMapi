@@ -2,14 +2,14 @@
 class zip {
 	var $debug = false;
 	public function __construct($destination, $overwrite) {
-		$destination = preg_replace("[^A-Za-z0-9?!]", "_", $destination);
+		$destination = preg_replace("[^A-Za-z0-9?!]", "_", $destination).'.zip';
 	
 		$this->destination = $destination;
 		$this->overwrite = $overwrite;
 
 		$this->folder = ZIP_WRITE_PATH;
 		$this->destination = $this->folder. $destination;
-		$this->download = 'http://download.ukm.no/'. $this->destination;
+		$this->download = 'http://download.ukm.no/'. basename($this->destination);
 	
 		if(!file_exists($this->folder))
 			mkdir($this->folder);
