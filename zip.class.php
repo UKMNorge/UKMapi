@@ -1,6 +1,8 @@
 <?php
 class zip {
 	var $debug = false;
+	var $tryCatch = false;
+	
 	var $maxNumFiles = 250;
 	var $maxSizeFile = 52428800; // 50MB
 	var $maxSizeTotal = 314572800; // 300MB
@@ -22,29 +24,42 @@ class zip {
 			mkdir($this->folder);
 			
 		if(file_exists($this->destination) && !$this->overwrite)
-			return $this->debug ? 'Fil finnes, overskriver ikke' : false;
+			return $this->_error('Fil finnes, overskriver ikke', 10);
+	}
+	
+	public function tryCatchAdd() {
+		$this->tryCatch = true;
 	}
 	
 	public function debugMode() {
 		$this->debug = true;
 	}
 	
+	private function _error( $code, $message) {
+		if( $this->debug )
+			return $message;
+		if( $this->tryCatch ) {
+			throw new Exception( $message, $code );
+		}
+		return false;
+	}
+	
 	public function add($file, $nicename) {
 		if( file_exists($file) ) {
 			$size = filesize( $file );
 			if( $this->maxSizeFile > $size ) {
-				return $this->debug ? 'Filen er for stor '. ($this->maxSizeFile / (1024*1024)).'MB' : false;
+				return $this->_error('Filen er for stor '. ($this->maxSizeFile / (1024*1024)) .'MB', 20);
 			}
 	
 			$this->countSize += $size;
 			if( $this->countSize > $maxSizeTotal ) {
-				return $this->debug ? 'Total størrelse for filer overskrider '. ($this->maxSizeTotal / (1024*1024)).'MB' : false;
+				return $this->_error('Total størrelse for filer overskrider '. ($this->maxSizeTotal / (1024*1024)).'MB', 21);
 			}
 		
 			$this->files[$file] = $nicename;
 			return true;
 		}
-		return $this->debug ? 'Filen eksisterer ikke!' : false;
+		return $this->_error('Filen eksisterer ikke!', 22);
 	}
 	
 	public function run() {
@@ -58,22 +73,22 @@ class zip {
 					if( is_readable( $file ) ) {
 						$valid_files[$file] = $name;
 					} else {
-						return $this->debug ? ('Fil ikke lesbar: '. $file) : false;
+						return $this->_error('Fil ikke lesbar: '. $file, 23);
 					}
 	    		} else {
-	    			return $this->debug ? ('Fil finnes ikke: '. $file) : false;
+	    			return $this->_error('Fil finnes ikke: '. $file, 22);
 	    		}
 			}
 		}
 		if(count($valid_files)) {
 			if( sizeof( $valid_files ) > $this->maxNumFiles ) {
-				return $this->debug ? 'Du prøver å legge til for mange filer (maks '. $this->maxNumFiles.')' : false;
+				return $this->_error('Du prøver å legge til for mange filer (maks '. $this->maxNumFiles.')', 40);
 			}
 			$zip = new ZipArchive();
 	    	$open = $zip->open($this->destination, $this->overwrite ? ZIPARCHIVE::OVERWRITE : ZIPARCHIVE::CREATE);
 
 			if($open !== true) {
-	      		return $this->debug ? $this->_ZipStatusString($open) : false;
+	      		return $this->_error($this->_ZipStatusString($open), 11);
 			}
 			foreach($valid_files as $file => $name) {
 				$zip->addFile($file,$name);
@@ -82,7 +97,7 @@ class zip {
 
 			return $this->download;
 	  	}
-		return $this->debug ? 'Ingen filer lagt til i komprimeringsliste' : false;
+		return $this->_error('Ingen filer lagt til i komprimeringsliste', 1);
 	}
 	
 	private function _ZipStatusString( $status ){
