@@ -31,6 +31,7 @@ class zip {
 		return $this->compress();
 	}
 	public function compress() {
+		return 'TEST';
 		$valid_files = array();
 		if(is_array($this->files)) {
 			foreach($this->files as $file => $name) {
