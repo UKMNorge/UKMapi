@@ -54,7 +54,11 @@ class zip {
 			}
 			echo 'Legg til filer '. count($valid_files);
 			$added_filenames = array();
+			$count = 0;
 			foreach($valid_files as $file => $name) {
+				$count++;
+				if( $count > 3)
+					continue;
 				$name = preg_replace('/[^A-Za-z0-9-.\/]/', "_", $name);		
 				if( in_array($name, $added_filenames) ) {
 					die('To filer med samme navn = error');
