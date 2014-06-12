@@ -35,7 +35,11 @@ class zip {
 		if(is_array($this->files)) {
 			foreach($this->files as $file => $name) {
 				if(file_exists($file)) {
-					$valid_files[$file] = $name;
+					if( is_readable( $file ) ) {
+						$valid_files[$file] = $name;
+					} else {
+						return $this->debug ? ('Fil ikke lesbar: '. $file) : false;
+					}
 	    		} else {
 	    			return $this->debug ? ('Fil finnes ikke: '. $file) : false;
 	    		}
