@@ -33,8 +33,9 @@ class zip {
 	public function compress() {
 		$valid_files = array();
 		if(is_array($this->files)) {
-		die('ready');
 			foreach($this->files as $file => $name) {
+						die('ready');
+
 				if(file_exists($file)) {
 					$valid_files[$file] = $name;
 	    		} else {
