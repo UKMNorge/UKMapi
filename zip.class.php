@@ -61,7 +61,7 @@ class zip {
 				}
 				$added_filenames[] = $name;
 				echo 'DO ADD: '. $file .' AS '. $name .'<br />';
-				$zip->addFile($file,$name);
+				#$zip->addFile($file,$name);
 			}
 			$zip->close();
 
