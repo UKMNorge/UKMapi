@@ -35,7 +35,6 @@ class zip {
 		if(is_array($this->files)) {
 			foreach($this->files as $file => $name) {
 				if(file_exists($file)) {
-					die('ready 1');
 					$valid_files[$file] = $name;
 	    		} else {
 	    			die('ready 2');
