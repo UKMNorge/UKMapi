@@ -10,6 +10,8 @@ class zip {
 	var $countFiles = 0;
 	var $countSize = 0;
 	
+	var $files = array();
+	
 	public function __construct($destination, $overwrite) {
 		$destination = str_replace(' ','_', preg_replace("[^A-Za-z0-9?!]", "_", $destination).'.zip');
 	
@@ -35,7 +37,7 @@ class zip {
 		$this->debug = true;
 	}
 	
-	private function _error( $code, $message) {
+	private function _error( $message, $code ) {
 		if( $this->debug )
 			return $message;
 		if( $this->tryCatch ) {
@@ -47,12 +49,12 @@ class zip {
 	public function add($file, $nicename) {
 		if( file_exists($file) ) {
 			$size = filesize( $file );
-			if( $this->maxSizeFile > $size ) {
+			if( $size > $this->maxSizeFile ) {
 				return $this->_error('Filen er for stor '. ($this->maxSizeFile / (1024*1024)) .'MB', 20);
 			}
 	
 			$this->countSize += $size;
-			if( $this->countSize > $maxSizeTotal ) {
+			if( $this->countSize > $this->maxSizeTotal ) {
 				return $this->_error('Total størrelse for filer overskrider '. ($this->maxSizeTotal / (1024*1024)).'MB', 21);
 			}
 		
