@@ -53,9 +53,10 @@ class zip {
 			if($open !== true) {
 	      		return $this->debug ? $this->_ZipStatusString($open) : false;
 			}
-			die('Legg til filer '. count($valid_files));
+			echo 'Legg til filer '. count($valid_files);
 			foreach($valid_files as $file => $name) {
-				$res = $zip->addFile($file,$name);
+				echo $file .'<br />';
+				$res = @$zip->addFile($file,$name);
 				var_dump( $res );
 			}
 			$zip->close();
