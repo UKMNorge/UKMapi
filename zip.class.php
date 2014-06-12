@@ -24,6 +24,7 @@ class zip {
 	
 	public function add($file, $nicename) {
 		$this->files[$file] = $nicename;
+		return file_exists($file);
 	}
 	
 	
