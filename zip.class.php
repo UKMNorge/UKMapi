@@ -31,14 +31,13 @@ class zip {
 		return $this->compress();
 	}
 	public function compress() {
-		echo 'COMPRESS';
 		$valid_files = array();
 		if(is_array($this->files)) {
 			foreach($this->files as $file => $name) {
 				if(file_exists($file)) {
 					$valid_files[$file] = $name;
 	    		} else {
-	    			return $this->debug ? 'Fil finnes ikke: '. $file : 'BOOL false';#false;
+	    			return $this->debug ? 'Fil finnes ikke: '. $file : false;
 	    		}
 			}
 		}
