@@ -32,6 +32,7 @@ class zip {
 		return $this->run();
 	}
 	public function run() {
+	die('CREATE ZIP');
 		$valid_files = array();
 		if(is_array($this->files)) {
 			foreach($this->files as $file => $name) {
@@ -44,6 +45,7 @@ class zip {
 			}
 		}
 		
+		die('OPEN ZIP');
 		if(count($valid_files)) {
 	    	$zip = new ZipArchive();
 	    	$open = $zip->open($this->destination, $this->overwrite ? ZIPARCHIVE::OVERWRITE : ZIPARCHIVE::CREATE);
