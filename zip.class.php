@@ -50,7 +50,7 @@ class zip {
 		if( file_exists($file) ) {
 			$size = filesize( $file );
 			if( $size > $this->maxSizeFile ) {
-				return $this->_error('Filen er for stor '. ($size/(1024*14024)) .'MB mot maks '. ($this->maxSizeFile / (1024*1024)) .'MB', 20);
+				return $this->_error('Filen er for stor '. ($size/(1024*1024)) .'MB mot maks '. ($this->maxSizeFile / (1024*1024)) .'MB', 20);
 			}
 	
 			$this->countSize += $size;
