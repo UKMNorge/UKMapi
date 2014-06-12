@@ -415,6 +415,10 @@ class innslag {
 	####################################################################################
 	## FUNKSJONER FOR PLAY-/SINGBACKFILER (IKKE OFFENTLIG TILGJENGELIGE FILER)
 	####################################################################################
+	public function playbackToString() {
+		return $this->har_playback() ? 'HAR PLAYBACK' : 'nei';
+	}
+
 	public function playback() {
 		if( !isset( $this->playback ) )
 			$this->_load_playback();
