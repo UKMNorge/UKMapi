@@ -3,9 +3,9 @@ class zip {
 	var $debug = false;
 	var $tryCatch = false;
 	
-	var $maxNumFiles = 25;
-	var $maxSizeFile = 83886080; // 80MB
-	var $maxSizeTotal = 314572800; // 300MB
+	var $maxNumFiles = 250;
+	var $maxSizeFile = 104857600; // 100MB
+	var $maxSizeTotal = 1572864000; // 1500MB
 	
 	var $countFiles = 0;
 	var $countSize = 0;
