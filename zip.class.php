@@ -1,7 +1,13 @@
 <?php
 class zip {
 	var $debug = false;
-	var $maxNumFiles = 3;
+	var $maxNumFiles = 250;
+	var $maxSizeFile = 52428800; // 50MB
+	var $maxSizeTotal = 314572800; // 300MB
+	
+	var $countFiles = 0;
+	var $countSize = 0;
+	
 	public function __construct($destination, $overwrite) {
 		$destination = str_replace(' ','_', preg_replace("[^A-Za-z0-9?!]", "_", $destination).'.zip');
 	
@@ -24,8 +30,21 @@ class zip {
 	}
 	
 	public function add($file, $nicename) {
-		$this->files[$file] = $nicename;
-		return file_exists($file);
+		if( file_exists($file) ) {
+			$size = filesize( $file );
+			if( $this->maxSizeFile > $size ) {
+				return $this->debug ? 'Filen er for stor '. ($this->maxSizeFile / (1024*1024)).'MB' : false;
+			}
+	
+			$this->countSize += $size;
+			if( $this->countSize > $maxSizeTotal ) {
+				return $this->debug ? 'Total størrelse for filer overskrider '. ($this->maxSizeTotal / (1024*1024)).'MB' : false;
+			}
+		
+			$this->files[$file] = $nicename;
+			return true;
+		}
+		return $this->debug ? 'Filen eksisterer ikke!' : false;
 	}
 	
 	public function run() {
@@ -47,17 +66,16 @@ class zip {
 			}
 		}
 		if(count($valid_files)) {
+			if( sizeof( $valid_files ) > $this->maxNumFiles ) {
+				return $this->debug ? 'Du prøver å legge til for mange filer (maks '. $this->maxNumFiles.')' : false;
+			}
 			$zip = new ZipArchive();
 	    	$open = $zip->open($this->destination, $this->overwrite ? ZIPARCHIVE::OVERWRITE : ZIPARCHIVE::CREATE);
 
 			if($open !== true) {
 	      		return $this->debug ? $this->_ZipStatusString($open) : false;
 			}
-			$count = 0;
 			foreach($valid_files as $file => $name) {
-				$count++;
-				if( $count > $this->maxNumFiles)
-					continue;
 				$zip->addFile($file,$name);
 			}
 			$zip->close();
