@@ -53,7 +53,6 @@ class zip {
 	      		return $this->debug ? $this->_ZipStatusString($open) : false;
 			}
 			echo 'Legg til filer '. count($valid_files);
-			die();
 			foreach($valid_files as $file => $name) {
 				$name = preg_replace("[^A-Za-z0-9?!]", "_", $name);
 				echo 'DO ADD: '. $file .' AS '. $name .'<br />';
