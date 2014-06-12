@@ -61,7 +61,11 @@ class zip {
 				}
 				$added_filenames[] = $name;
 				echo 'DO ADD: '. $file .' AS '. $name .'<br />';
-				#$zip->addFile($file,$name);
+				try {
+					$zip->addFile($file,$name);
+				} catch( Exception $e ) {
+					die('EN ERROR OPPSTO');
+				}
 			}
 			$zip->close();
 
