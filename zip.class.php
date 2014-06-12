@@ -50,12 +50,12 @@ class zip {
 		if( file_exists($file) ) {
 			$size = filesize( $file );
 			if( $size > $this->maxSizeFile ) {
-				return $this->_error('Filen er for stor '. round(($size/(1024*1024)),1) .'MB mot maks '. ($this->maxSizeFile / (1024*1024)) .'MB', 20);
+				return $this->_error('Filen er for stor '. round(($size/(1024*1024)),1) .'MB mot maks '. floor(($this->maxSizeFile / (1024*1024))) .'MB', 20);
 			}
 	
 			$this->countSize += $size;
 			if( $this->countSize > $this->maxSizeTotal ) {
-				return $this->_error('Total størrelse for filer overskrider '. ($this->maxSizeTotal / (1024*1024)).'MB', 21);
+				return $this->_error('Total størrelse for filer overskrider '. floor(($this->maxSizeTotal / (1024*1024))).'MB', 21);
 			}
 		
 			$this->files[$file] = $nicename;
