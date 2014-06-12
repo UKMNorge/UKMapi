@@ -55,8 +55,8 @@ class zip {
 			}
 			echo 'Legg til filer '. count($valid_files);
 			foreach($valid_files as $file => $name) {
-				echo $file .'<br />';
-				$res = @$zip->addFile($file,$name);
+				$name = preg_replace("[^A-Za-z0-9?!]", "_", $name);
+				$res = $zip->addFile($file,$name);
 				var_dump( $res );
 			}
 			$zip->close();
