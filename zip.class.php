@@ -34,11 +34,11 @@ class zip {
 		$valid_files = array();
 		if(is_array($this->files)) {
 			foreach($this->files as $file => $name) {
-						die('ready');
-
 				if(file_exists($file)) {
+					die('ready 1');
 					$valid_files[$file] = $name;
 	    		} else {
+	    			die('ready 2');
 	    			return $this->debug ? 'Fil finnes ikke: '. $file : false;
 	    		}
 			}
