@@ -38,6 +38,7 @@ class zip {
 					if( is_readable( $file ) ) {
 						$valid_files[$file] = $name;
 					} else {
+						die('ARGH');
 						return $this->debug ? ('Fil ikke lesbar: '. $file) : false;
 					}
 	    		} else {
