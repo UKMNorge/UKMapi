@@ -38,7 +38,6 @@ class zip {
 					if( is_readable( $file ) ) {
 						$valid_files[$file] = $name;
 					} else {
-						die('ARGH');
 						return $this->debug ? ('Fil ikke lesbar: '. $file) : false;
 					}
 	    		} else {
@@ -57,8 +56,8 @@ class zip {
 			die();
 			foreach($valid_files as $file => $name) {
 				$name = preg_replace("[^A-Za-z0-9?!]", "_", $name);
-				$res = $zip->addFile($file,$name);
-				var_dump( $res );
+				echo 'DO ADD: '. $file .' AS '. $name .'<br />';
+				#$res = $zip->addFile($file,$name);
 			}
 			$zip->close();
 
