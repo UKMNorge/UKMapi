@@ -27,7 +27,7 @@ class playback {
 	}
 	
 	public function download() {
-		$this->download = $this->url . $this->id .'/'. $this->id .'/';
+		$this->download = $this->url . $this->pl_id .'/'. $this->id .'/';
 		return $this->download;
 	}
 	
