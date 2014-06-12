@@ -45,8 +45,7 @@ class zip {
 		if(count($valid_files)) {
 			$zip = new ZipArchive();
 	    	$open = $zip->open($this->destination, $this->overwrite ? ZIPARCHIVE::OVERWRITE : ZIPARCHIVE::CREATE);
-	    	var_dump( $open );
-	    	die('Noe har ikke skjedd');
+
 			if($open !== true) {
 	      		return $this->debug ? $this->_ZipStatusString($open) : false;
 			}
@@ -54,6 +53,7 @@ class zip {
 				$zip->addFile($file,$name);
 			}
 			$zip->close();
+			die( 'test');
 			return $this->download;
 	  	}
 		return $this->debug ? 'Ingen filer lagt til i komprimeringsliste' : false;
