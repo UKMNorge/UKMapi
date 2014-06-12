@@ -64,12 +64,8 @@ class zip {
 					die('To filer med samme navn = error');
 				}
 				$added_filenames[] = $name;
-				echo 'DO ADD: '. $file .' AS '. $name .'<br />';
-				try {
-					$zip->addFile($file,$name);
-				} catch( Exception $e ) {
-					die('EN ERROR OPPSTO');
-				}
+#				echo 'DO ADD: '. $file .' AS '. $name .'<br />';
+				$zip->addFile($file,$name);
 			}
 			$zip->close();
 
