@@ -46,7 +46,6 @@ class zip {
 	    		}
 			}
 		}
-		die('Nå burde alt være OK...');
 		if(count($valid_files)) {
 			$zip = new ZipArchive();
 	    	$open = $zip->open($this->destination, $this->overwrite ? ZIPARCHIVE::OVERWRITE : ZIPARCHIVE::CREATE);
@@ -54,6 +53,7 @@ class zip {
 			if($open !== true) {
 	      		return $this->debug ? $this->_ZipStatusString($open) : false;
 			}
+			die('Legg til filer '. count($valid_files));
 			foreach($valid_files as $file => $name) {
 				$res = $zip->addFile($file,$name);
 				var_dump( $res );
