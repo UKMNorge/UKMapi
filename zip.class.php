@@ -33,6 +33,7 @@ class zip {
 	public function compress() {
 		$valid_files = array();
 		if(is_array($this->files)) {
+		die('ready');
 			foreach($this->files as $file => $name) {
 				if(file_exists($file)) {
 					$valid_files[$file] = $name;
@@ -41,7 +42,6 @@ class zip {
 	    		}
 			}
 		}
-		die('ready');
 		if(count($valid_files)) {
 	    	$zip = new ZipArchive();
 	    	$open = $zip->open($this->destination, $this->overwrite ? ZIPARCHIVE::OVERWRITE : ZIPARCHIVE::CREATE);
