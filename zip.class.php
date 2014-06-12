@@ -41,9 +41,10 @@ class zip {
 	    		}
 			}
 		}
-		die('Noe har ikke skjedd');
+
 		if(count($valid_files)) {
-	    	$zip = new ZipArchive();
+			die('Noe har ikke skjedd');
+			$zip = new ZipArchive();
 	    	$open = $zip->open($this->destination, $this->overwrite ? ZIPARCHIVE::OVERWRITE : ZIPARCHIVE::CREATE);
 			if($open !== true) {
 	      		return $this->debug ? $this->_ZipStatusString($open) : false;
