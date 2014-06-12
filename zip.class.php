@@ -54,7 +54,7 @@ class zip {
 			$zip->close();
 			return $this->download;
 	  	}
-		return $debug ? 'Fant ingen filer &aring; komprimere...' : false;
+		return $this->debug ? 'Fant ingen filer &aring; komprimere...' : false;
 	}
 	
 	private function _ZipStatusString( $status ){
