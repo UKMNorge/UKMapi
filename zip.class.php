@@ -50,7 +50,8 @@ class zip {
 	      		return $this->debug ? $this->_ZipStatusString($open) : false;
 			}
 			foreach($valid_files as $file => $name) {
-#				$zip->addFile($file,$name);
+				$res = $zip->addFile($file,$name);
+				var_dump( $res );
 			}
 			$zip->close();
 
