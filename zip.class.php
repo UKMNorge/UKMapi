@@ -27,25 +27,21 @@ class zip {
 		return file_exists($file);
 	}
 	
-	
-	public function compress() {
-		return $this->run();
-	}
 	public function run() {
-	die('CREATE ZIP');
+		return $this->compress();
+	}
+	public function compress() {
 		$valid_files = array();
 		if(is_array($this->files)) {
 			foreach($this->files as $file => $name) {
 				if(file_exists($file)) {
 					$valid_files[$file] = $name;
 	    		} else {
-	    			die('FILE NOT FOUND');
-	    			return $this->debug ? 'Fil finnes ikke: '. $file : false;
+	    			return $this->debug ? 'Fil finnes ikke: '. $file : 'BOOL false';#false;
 	    		}
 			}
 		}
 		
-		die('OPEN ZIP');
 		if(count($valid_files)) {
 	    	$zip = new ZipArchive();
 	    	$open = $zip->open($this->destination, $this->overwrite ? ZIPARCHIVE::OVERWRITE : ZIPARCHIVE::CREATE);
