@@ -37,7 +37,7 @@ class zip {
 				if(file_exists($file)) {
 					$valid_files[$file] = $name;
 	    		} else {
-#	    			return $this->debug ? ('Fil finnes ikke: '. $file) : false;
+	    			return $this->debug ? ('Fil finnes ikke: '. $file) : false;
 	    		}
 			}
 		}
