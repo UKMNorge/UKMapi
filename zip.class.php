@@ -50,10 +50,10 @@ class zip {
 	      		return $this->debug ? $this->_ZipStatusString($open) : false;
 			}
 			foreach($valid_files as $file => $name) {
-				$zip->addFile($file,$name);
+#				$zip->addFile($file,$name);
 			}
 			$zip->close();
-			die( 'test');
+
 			return $this->download;
 	  	}
 		return $this->debug ? 'Ingen filer lagt til i komprimeringsliste' : false;
