@@ -1,6 +1,7 @@
 <?php
 class zip {
 	var $debug = false;
+	var $maxNumFiles = 3;
 	public function __construct($destination, $overwrite) {
 		$destination = str_replace(' ','_', preg_replace("[^A-Za-z0-9?!]", "_", $destination).'.zip');
 	
@@ -52,19 +53,11 @@ class zip {
 			if($open !== true) {
 	      		return $this->debug ? $this->_ZipStatusString($open) : false;
 			}
-			echo 'Legg til filer '. count($valid_files);
-			$added_filenames = array();
 			$count = 0;
 			foreach($valid_files as $file => $name) {
 				$count++;
-				if( $count > 3)
+				if( $count > $this->maxNumFiles)
 					continue;
-				$name = preg_replace('/[^A-Za-z0-9-.\/]/', "_", $name);		
-				if( in_array($name, $added_filenames) ) {
-					die('To filer med samme navn = error');
-				}
-				$added_filenames[] = $name;
-#				echo 'DO ADD: '. $file .' AS '. $name .'<br />';
 				$zip->addFile($file,$name);
 			}
 			$zip->close();
