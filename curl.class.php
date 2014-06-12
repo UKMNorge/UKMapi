@@ -37,8 +37,9 @@ class UKMCURL {
 		return $this->request( $url );
 	}
 
-	public function json() {
+	public function json($object) {
 		$this->json = true;	
+		$this->json_data = json_encode( $object );
 		return $this;
 	}
 	
@@ -57,6 +58,18 @@ class UKMCURL {
 		if(!$this->content) {
 			curl_setopt($this->curl, CURLOPT_HEADER, 1); 
 			curl_setopt($this->curl, CURLOPT_NOBODY, 1); 
+		}
+		
+		if( $this->json ) {
+			curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, "POST");
+			curl_setopt($this->curl, CURLOPT_POSTFIELDS, $this->json_data);
+			curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($this->curl, CURLOPT_HTTPHEADER,
+				array(
+					    'Content-Type: application/json',
+					    'Content-Length: ' . strlen($this->json_data)
+				    )
+			);                                                                                                                   
 		}
 		
 		// Use custom port
