@@ -429,9 +429,10 @@ class innslag {
 	}
 	
 	private function _load_playback() {
+		require_once('UKM/playback.class.php');
 		$this->playback = array();
 
-		$sql = new SQL("SELECT * 
+		$sql = new SQL("SELECT `pb_id` 
 						FROM `ukm_playback`
 						WHERE `b_id` = '#bid'",
 					   array('bid' => $this->g('b_id'))
@@ -440,12 +441,7 @@ class innslag {
 
 		if( $res ) {
 			while( $r = mysql_fetch_assoc( $res ) ) {
-				$pb = new stdClass();
-				foreach( $r as $key => $val ) {
-					$new_key = str_replace('pb_', '', $key );
-					$pb->$new_key = utf8_encode($val);
-				}
-				$this->playback[] = $pb;
+				$this->playback[] = new playback( $r['pb_id'] );
 			}
 		}
 	}
