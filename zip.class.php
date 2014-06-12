@@ -47,7 +47,7 @@ class zip {
 	    	$zip = new ZipArchive();
 	    	$open = $zip->open($this->destination, $this->overwrite ? ZIPARCHIVE::OVERWRITE : ZIPARCHIVE::CREATE);
 			if($open !== true) {
-	      		return $debug ? $this->_ZipStatusString($open) : false;
+	      		return $this->debug ? $this->_ZipStatusString($open) : false;
 			}
 			foreach($valid_files as $file => $name) {
 				$zip->addFile($file,$name);
