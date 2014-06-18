@@ -109,21 +109,21 @@ class forestilling {
 	}
 	
 	private function _reCount($order) {
-		echo '<h1>Re-count order: '. $order .' '. $this->g('c_name') .' ('. $this->g('c_id') .')</h1>';
+		#echo '<h1>Re-count order: '. $order .' '. $this->g('c_name') .' ('. $this->g('c_id') .')</h1>';
 		$sql = new SQL("SELECT *
 						FROM `smartukm_rel_b_c`
 						WHERE `c_id` = '#c_id'
 						ORDER BY `#order` ASC",
 					array('c_id'=>$this->g('c_id'), 'order' => $order)
 					);
-		echo '<strong>'. $sql->debug() .'</strong><br />';
+		#echo '<strong>'. $sql->debug() .'</strong><br />';
 		$res = $sql->run();
 		
 		$count = 0;
 		while( $r = mysql_fetch_assoc( $res ) ) {
 			$update = new SQLins('smartukm_rel_b_c', array('c_id' => $this->g('c_id'), 'bc_id' => $r['bc_id']));
 			$update->add($order, $count);
-			echo '<br />';
+			#echo $update->debug();#. '<br />';
 			$update->run();
 			$count++;
 		}				
