@@ -214,10 +214,14 @@ class person {
 		return $this->get($key);
 	}
 	## Returnerer verdien til attributten (key)
-	public function get($key) {
+	public function get($key, $encode = true) {
 		if ($key == 'p_phone' && $this->info[$key] == 0)
 			return '';
-		return utf8_encode($this->info[$key]);	
+			
+        if($encode)
+		    return utf8_encode($this->info[$key]);	
+		    
+        return $this->info[$key];
 	}
 	
 	public function videresendt( $pl_to_id, $tittel=false ) {
