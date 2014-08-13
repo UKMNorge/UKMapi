@@ -186,6 +186,9 @@ require_once 'UKM/statistikk.class.php';
 		############################################
 		public function g($key) {return $this->get($key);}
 		public function get($key) {
+		    if( !isset( $this->info[$key] ) ) {
+    		    return false;
+		    }
 			return is_array($this->info[$key]) 
 					? $this->info[$key]
 					: utf8_encode($this->info[$key]);
@@ -1635,6 +1638,15 @@ $test = new SQL("SELECT `s_id` AS `personer`
 			   return mb_convert_encoding($content,$characterEncoding);
 			}
 			return $content;	
+		}
+		
+		public function har_ukmtv() {
+        	$sql = new SQL("SELECT `tv_id` FROM `ukm_tv_files`
+        					WHERE `tv_tags` LIKE '%|pl_#plid|%'
+        					LIMIT 1",
+        					array('plid' => $this->g('pl_id')) );
+        	$res = $sql->run();
+        	return mysql_num_rows( $res ) > 0;
 		}
 	}
 ?>
