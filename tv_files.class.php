@@ -15,7 +15,8 @@ class tv_files {
 		switch($this->type) {
 			case 'place': 
 				$this->qry = "SELECT * FROM `ukm_tv_files`
-						WHERE `tv_tags` LIKE '%|pl_#plid|%'";
+						WHERE `tv_tags` LIKE '%|pl_#plid|%'
+						ORDER BY `tv_title` ASC";
 				$this->vars = array( 'plid' => $object );
 				break;
 			case 'band':
@@ -25,6 +26,9 @@ class tv_files {
 							 AND `tv_deleted` = 'false'";
 				$this->vars = array( 'bid' => $object );
 				break;
+            // Person is a tag, so set correct format, and continue over to tag
+            case 'person':
+                $object = 'p_'. $object;
 			case 'tag':
 				$this->qry = "SELECT `tv_id`
 							FROM `ukm_tv_files`
@@ -182,6 +186,13 @@ class tv_files {
 			}
 		}
 	}
+
+    public function getVideos() {
+        if( !isset( $this->videos ) ) {
+            return array();
+        }
+        return $this->videos;
+    }
 
 	public function fetch($limit=false) {
 		if(!$this->executed) {
