@@ -1,18 +1,14 @@
 <?php
+require_once('UKMconfig.inc.php');
 require_once('UKM/curl.class.php');
 require_once('UKM/sql.class.php');
 class tv {
-	var $tvurl	 	= 'http://tv.ukm.no/';
-	var $embedurl 	= 'http://embed.ukm.no/';
-	
-	var $storageurl = 'http://video.ukm.no/';
-	var $storageIP	= '212.125.231.33';
-	var $storageurl2 = 'http://video2.ukm.no';
-	var $storageIP2	= '81.0.146.165';
-	
-	var $activeStorage = '';
-	
 	public function __construct($tv_id,$cron_id=false) {
+    	$this->tvurl	 	= 'http://tv.'. UKM_HOSTNAME .'/';
+    	$this->embedurl 	= 'http://embed.'. UKM_HOSTNAME .'/';
+    	$this->storageurl = 'http://video.'. UKM_HOSTNAME .'/'; // Wowza streaming server
+    	$this->storageserver = 'http://video.'. UKM_HOSTNAME .'/'; // Used by cache servers to request files
+
 		// If created by an cron_id ($tv_id = false)
 		if($cron_id) {
 			// Videoreportasje
@@ -141,7 +137,9 @@ class tv {
 		$this->file_orig 	= $this->file_path .'/'. $this->file_name;
 		$this->file_720p 	= str_replace('.mp4', '_720p.mp4', $this->file_orig);
 		$this->file_mobile 	= str_replace('.mp4', '_mobile.mp4', $this->file_orig);
-		$UKMCURL->request($this->storageurl
+		$this->file_image 	= str_replace('.mp4', '.jpg', $this->file_orig);
+		$this->file_smil 	= str_replace('.mp4', '.smil', $this->file_orig);
+/*		$UKMCURL->request($this->storageurl
 						.'find.php'
 						.'?file='.$this->file_name
 						.'&path='.urlencode($this->file_path));
@@ -160,7 +158,7 @@ class tv {
 		// Let videre etter filen
 		} else {
 			$UKMCURL = new UKMCURL();
-			$UKMCURL->port(88);
+			$UKMCURL->port(80);
 			$UKMCURL->request($this->storageurl2
 								.'/find.php'
 								.'?file='.$this->file_name
@@ -173,7 +171,7 @@ class tv {
 				$this->file = $UKMCURL->data->filepath;
 			}
 		}
-			
+*/			
 	}
 	
 	public function iframe($width='920px') {
@@ -220,13 +218,15 @@ class tv {
 		if(!$dashpos)
 			$dashpos = strlen($this->title);
 		
-		$url_string = $this->_safeURL(substr($this->title, 0, $dashpos));
+		$this->title_urlsafe = $this->_safeURL(substr($this->title, 0, $dashpos));
+		
+		$url_string = $this->title_urlsafe;
 		
 		$this->url = $url_string.'/'.$this->id;
 		$this->full_url = $this->tvurl.$this->url;
 		$this->embed_url = $this->embedurl.$this->url;
 		
-		// IMAGE
+/*		// IMAGE
 		// Sjekk om bildet faktisk finnes (curl sjekk http response == 404 eller ikke)
 		global $UKMCURL;
 		$UKMCURL = new UKMCURL();
@@ -234,12 +234,12 @@ class tv {
 		$res = $UKMCURL->request( $this->storageurl.$this->img );
 		
 		if( $res == 404 ) {
-		$this->image_url = 'http://video2.ukm.no:88/'.$this->img;
+		$this->image_url = 'http://video2.ukm.no/'.$this->img;
 		} else {
 		$this->image_url = $this->storageurl.$this->img;
 		}
-		
-		//$this->image_url = $this->storageurl.$this->img;
+*/		
+		$this->image_url = $this->storageurl.$this->img;
 		
 		
 		// SET
@@ -255,4 +255,85 @@ class tv {
 		$string = str_replace(' ','-', $string);
 		return preg_replace('/[^a-z0-9A-Z-_]+/', '', $string);
 	}
+	
+	
+	public function sendToCache() {
+    	// Find cache with current file
+        $cache = $this->_getCacheServer();        
+        // Found one or more active cache servers with file
+        if( is_array( $cache ) ) {
+            $this->storageurl = 'http://'. $cache['ip'];
+            $this->_url();
+        } else {
+            $this->_sendFileToCache();
+        }	
+	}
+	
+	private function _getCacheServer() {
+    	$SQL = new SQL("SELECT *
+    	                FROM `ukm_tv_caches_caches_with_files` AS `cwf`
+    	                JOIN `ukm_tv_caches_caches` AS `c` ON (`c`.`id` = `cwf`.`cache_id`)
+    	                WHERE `cwf`.`cron_id` = '#cron_id'
+    	                AND `c`.`status` = 'ok'
+    	                AND `c`.`last_heartbeat` > DATE_SUB(now(), INTERVAL 5 MINUTE)
+    	                ORDER BY RAND()
+    	                LIMIT 1",
+    	                array('cron_id' => $this->cron_id));
+        return $SQL->run('array');
+	}
+	
+	private function _sendFileToCache() {
+    	$cache = $this->_getRandomCache();
+    	
+    	if( is_array( $cache ) ) {         
+            $files = array( 'HD' => $this->file_720p,
+                            'MOB'=> $this->file_mobile,
+                            'IMG'=> $this->file_image,
+                          /*'SMIL'=>$this->file_smil, */
+                          );
+            // CALC APPROX PACKAGE FILE SIZE
+            $curl = new UKMCURL();
+            $curl->timeout( 2 );
+            $curl->headersOnly();
+            $curl->request( $this->storageserver . $this->file_720p );
+            var_dump( $curl );
+            #$size_hd = $curl->something;
+            $curl = new UKMCURL();
+            $curl->timeout( 2 );
+            $curl->headersOnly();
+            $curl->request( $this->storageserver . $this->file_mobile );
+            var_dump( $curl );
+            #$size_mobile = $curl->something;
+            
+            $package_size = $size_hd + $size_mobile + 512; // HD + MOBILE + Approx image ( usually < 100kb) + SMIL (usually 1kb)
+             
+            $POSTdata = array( 'url' => $files,
+                               'localpath' => $this->file_path,
+                               'size' => $package_size,
+                               'cron_id' => $this->cron_id,
+                             );
+            
+    		$curl = new UKMCURL();
+    		$curl->timeout(2);
+    		$curl->post( $POSTdata );
+    		$res = $UKMCURL->request( 'http://'. $cache['ip'] .'getFile.php' );
+    		
+    		// HANDLE RESULT
+    		
+    	} else {
+        	#error_log('No active cache atm');
+    	}
+	}
+	
+	private function _getRandomCache() {
+        $SQL = new SQL("SELECT *
+    	                FROM `ukm_tv_caches_caches`
+    	                WHERE `status` = 'ok'
+    	                AND `last_heartbeat` > DATE_SUB(now(), INTERVAL 5 MINUTE)
+    	                ORDER BY RAND()
+    	                LIMIT 1",
+    	                array('cron_id' => $this->cron_id));
+        return $SQL->run('array');
+	}
 }
+
