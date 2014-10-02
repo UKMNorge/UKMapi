@@ -828,6 +828,11 @@ class innslag {
 				$kommuneID = $this->get("kommuneID");
 				$fylkeID = $this->get("fylkeID");
 				
+				$gjestekommune = str_replace((string) $fylkeID, '', (string) $kommuneID);
+				if( $gjestekommune == '90' ) {
+    				continue;
+				}
+				
 				// PRE 2011 does not contain kommune in database.
 				// Fake by selecting first kommune of mønstring
 				if(empty($kommuneID)) {
