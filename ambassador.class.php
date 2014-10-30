@@ -37,9 +37,9 @@ class ambassador {
 		}
 	}
 	
-	public function updateFacebookId( $faceID, $faceIDAppEncrypted ) {
-		$qry = new SQLins('ukm_ambassador', array('amb_faceID' => $faceID) );
-		$qry->add('amb_faceID', $faceIDAppEncrypted);
+	public function updateFacebookId( $currentID, $newID ) {
+		$qry = new SQLins('ukm_ambassador', array('amb_faceID' => $currentID) );
+		$qry->add('amb_faceID', $newID);
 		$res = $qry->run();
 		return $res;
 	}
