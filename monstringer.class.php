@@ -51,5 +51,16 @@
 			#return $wpdb->get_col($query);	
 		}
 		
+		public function etter_fylke(){/* returnerer en liste med alle fylkesmønstringer */
+			$query ="SELECT `pl_id`, `pl_name`
+					 FROM `smartukm_place`
+					 WHERE `season` = '#season'
+					 AND `pl_fylke` != '0'
+					 ORDER BY `pl_name` ASC";
+			$qry = new SQL($query, array('season'=>$this->season));
+			return $qry->run();
+			#return $wpdb->get_col($query);	
+		}
+		
 	}
 ?>
