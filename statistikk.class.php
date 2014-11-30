@@ -31,9 +31,15 @@ class statistikk {
 	public function getTotal($season) {
            $missing = 0;
            $query_persons = "SELECT count(`stat_id`) as `persons` FROM `ukm_statistics`
-                                WHERE `season`=#season AND `f_id` < 21";
+                                WHERE `season`='#season'
+                                AND `f_id` < 21
+                                AND `time` NOT LIKE '#season-11-%'
+                                AND `time` NOT LIKE '#season-10-%'";
             $query_bands = "SELECT COUNT(DISTINCT `b_id`) as `bands` FROM `ukm_statistics` 
-                            WHERE `season`=#season AND `f_id` < 21";
+                            WHERE `season`='#season'
+                            AND `f_id` < 21
+                            AND `time` NOT LIKE '#season-11-%'
+                            AND `time` NOT LIKE '#season-10-%'";
             
             // Fylke
             if ($this->type == 'fylke') {
