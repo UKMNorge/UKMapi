@@ -1464,7 +1464,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 		########################################  PRIVATE  #######################################
 		private function _fellesmonstring(){
 			$this->info['fellesmonstring'] = false;
-			if($this->info['type']=='kommune' && sizeof($this->info['kommuner']) > 1)
+			if($this->info['type']=='kommune' && isset($this->info|'kommuner']) && sizeof($this->info['kommuner']) > 1)
 				$this->info['fellesmonstring'] = true;
 		}
 		
