@@ -115,6 +115,13 @@ class innslag {
 		$_POST['b_status'] = 99;
 		UKMlog('smartukm_band','b_status','b_status',$this->g('b_id'));
 		
+		$deleteFromStat = new SQLdel('ukm_statistics', 
+									array('season' => $this->g('b_season'),
+										  'b_id' => $this->g('b_id')
+										  )
+									);
+		$deleteFromStat->run();
+
 		return ($res===1);
 	}
 	
