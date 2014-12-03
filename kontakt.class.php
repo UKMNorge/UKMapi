@@ -24,17 +24,19 @@ class kontakt {
 			if(empty($this->info['picture']) || is_numeric($this->info['picture']))
 				$this->info['image'] = $this->defaultImage();
 			else {
-				require_once('UKM/curl.class.php');
+			/*	require_once('UKM/curl.class.php');
 				// check existence
 				$test = new UKMCURL();
 				$test->headersOnly();
 				$response = $test->request($this->info['picture']);
 			
 				if($response == 200) {
+			*/
 					$this->info['image'] = $this->info['picture'];
-				} else {
+			/*	} else {
 					$this->info['image'] = $this->defaultImage();
 				}
+			*/
 				$this->info['picture'] = $this->info['image'];
 			}
 		}
