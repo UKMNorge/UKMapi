@@ -89,9 +89,6 @@ class statistikk {
             $sql = new SQL($query_persons, array('season'=>(int)$season,
                                                  'fylkeID'=>(int)$this->fylkeID,
                                                  'kommuner' => implode(',', $this->kommuner)));
-            if( isset($_GET['debug']) ) {
-                echo $sql->debug();
-	    }
             $persons = (int)$sql->run('field', 'persons');
             $persons += $missing;
             
