@@ -434,8 +434,10 @@ function video_calc_tag_standalone($res) {
 		   
 	if($type == 'kommune') {
 		$kommuner = $place->g('kommuner');
-		foreach($kommuner as $k_info) {
-			$tags .= '|k_'.$k_info['id'].'|';
+		if( is_array( $kommuner ) ) {
+			foreach($kommuner as $k_info) {
+				$tags .= '|k_'.$k_info['id'].'|';
+			}
 		}
 	}
 	$tags .= '|f_'.$place->g('fylke_id').'|';
