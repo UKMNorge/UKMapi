@@ -64,6 +64,7 @@
 			while($r = mysql_fetch_assoc($res)) {
 				$liste[$r['pl_id']] = utf8_encode($r['pl_name']);
 			}
+			return $liste;
 		}
 		
 		public function etter_fylke(){/* returnerer en liste med alle fylkesmønstringer */
@@ -82,6 +83,7 @@
 			while($r = mysql_fetch_assoc($res)) {
 				$liste[$r['pl_id']] = utf8_encode($r['pl_name']);
 			}
+			return $liste;
 		}
 	}
 ?>
