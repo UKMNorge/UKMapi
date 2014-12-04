@@ -1349,6 +1349,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 		## @return Array med kontaktobjekter
 		############################################
 		public function kontakter() {
+			$liste = array();
 			require_once('UKM/kontakt.class.php');
 			$sql = new SQL("SELECT `ab_id` AS `id`, `pl_ab_id`
 							FROM `smartukm_rel_pl_ab`
