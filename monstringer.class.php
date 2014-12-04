@@ -27,6 +27,8 @@
 			return $places;
 		}
 		
+		
+		
 		public function kommuneliste($fylke, $season) {
 			$qry = new SQL("SELECT `t_k`.`name` AS `kommune`,
 								   `rel`.`pl_id`
@@ -57,6 +59,13 @@
 			#return $wpdb->get_col($query);	
 		}
 		
+		public function etter_kommune_array() {
+			$res = $this->etter_kommune();
+			while($r = mysql_fetch_assoc($res)) {
+				$liste[$r['pl_id']] = utf8_encode($r['pl_name']);
+			}
+		}
+		
 		public function etter_fylke(){/* returnerer en liste med alle fylkesmønstringer */
 			$query ="SELECT `pl_id`, `pl_name`
 					 FROM `smartukm_place`
@@ -67,6 +76,12 @@
 			return $qry->run();
 			#return $wpdb->get_col($query);	
 		}
-		
+	
+		public function etter_fylke_array() {
+			$res = $this->etter_fylke();
+			while($r = mysql_fetch_assoc($res)) {
+				$liste[$r['pl_id']] = utf8_encode($r['pl_name']);
+			}
+		}
 	}
 ?>
