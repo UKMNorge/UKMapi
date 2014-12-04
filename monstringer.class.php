@@ -4,7 +4,10 @@
 			$this->season = $season;
 		}
 		
-		public function etter_sesong($season){/* returnerer en liste over alle places i for et gitt år */
+		public function etter_sesong($season=false){/* returnerer en liste over alle places i for et gitt år */
+			if(!$sesong) {
+				$sesong = $this->season;
+			}
 			$query ="SELECT `pl_id`, `pl_name`
 					 FROM `smartukm_place`
 					 WHERE `season` = '#season'
@@ -14,7 +17,10 @@
 			#return $wpdb->get_col($query);	
 		}
 		
-		public function selectArray($sesong) {
+		public function selectArray($sesong=false) {
+			if(!$sesong) {
+				$sesong = $this->season;
+			}
 			$monstringer = $this->etter_sesong($sesong);
 			while($r = mysql_fetch_assoc($monstringer))
 				$places[$r['pl_id']] = utf8_encode($r['pl_name']);
