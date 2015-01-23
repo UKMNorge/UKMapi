@@ -1,8 +1,4 @@
 <?php
-if( !defined('UKM_HOSTNAME') ) {
-define('UKM_HOSTNAME', 'ukm.no');
-}
-//sync
 require_once 'UKM/sql.class.php';
 require_once 'UKM/statistikk.class.php';
 	class tidligere_monstring {
@@ -551,7 +547,7 @@ require_once 'UKM/statistikk.class.php';
 			
 			foreach($this->info['kommuner'] as $kname => $k)
 				$return .=' &nbsp; &nbsp; &nbsp; ' 
-						. '<a href="http://pamelding.'.UKM_HOSTNAME.'/'
+						. '<a href="http://pamelding.'.(defined('UKM_HOSTNAME')?UKM_HOSTNAME:'ukm.no').'/'
 				  		. 'quickstart.php?steg=#STEG#&type=#TYPE#&plid=#PLID#'
 				  		. '&kommune='.$k['id']
 				  		. '" style="text-decoration:none; color: #000;">'
@@ -648,7 +644,7 @@ require_once 'UKM/statistikk.class.php';
 					  		. ');" '
 					  		. 'style="text-decoration:none; color: #000;">';
 				else
-					$link = '<a href="http://pamelding.'.UKM_HOSTNAME.'/'
+					$link = '<a href="http://pamelding.'.(defined('UKM_HOSTNAME')?UKM_HOSTNAME:'ukm.no').'/'
 								  		. 'quickstart.php?steg=kontaktperson'
 								  		. '&type='.$bt['ico']
 								  		. '&kommune='.$kommune
@@ -714,7 +710,7 @@ require_once 'UKM/statistikk.class.php';
 					  		. ');" '
 					  		. 'style="text-decoration:none; color: #000;">';
 				else
-					$link = '<a href="http://pamelding.'.UKM_HOSTNAME.'/'
+					$link = '<a href="http://pamelding.'.(defined('UKM_HOSTNAME')?UKM_HOSTNAME:'ukm.no').'/'
 					  		. 'quickstart.php?steg=profilside_enk'
 					  		. '&type='.$bt['ico']
 					  		. '&kommune='.$kommune
@@ -1568,7 +1564,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 		
 		private function _link() {
 			$this->_url();
-			$this->info['link'] = '//'.UKM_HOSTNAME.'/'. $this->url.'/';
+			$this->info['link'] = '//'.(defined('UKM_HOSTNAME')?UKM_HOSTNAME:'ukm.no').'/'. $this->url.'/';
 			$this->link = $this->info['link'];
 /*
 			if($this->get('type') == 'kommune')
