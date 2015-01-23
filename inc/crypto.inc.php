@@ -1,3 +1,5 @@
+<?php
+
 /* Compares two strings in constant time, to avoid timing attacks */
 function constant_time_compare($str1, $str2) {
 	$res = $str1 ^ $str2;
