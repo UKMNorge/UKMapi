@@ -4,18 +4,18 @@ require_once('UKM/curl.class.php');
 require_once('UKM/sql.class.php');
 
 class tv {
-	var $tvurl	 	= 'http://tv.'. UKM_HOSTNAME .'/';
-	var $embedurl 	= 'http://embed.'. UKM_HOSTNAME .'/';
+	var $tvurl	 	= '';
+	var $embedurl 	= '';
 	
-	var $storageurl = 'http://video.'. UKM_HOSTNAME .'/';
+	var $storageurl = '';
 	var $storageIP	= '212.125.231.33';
-	var $storageurl2 = 'http://video2.'. UKM_HOSTNAME .'/';
-	var $storageIP2	= '81.0.146.164';
-	
-	var $activeStorage = '';
 	
 	public function __construct($tv_id,$cron_id=false) {
-		// If created by an cron_id ($tv_id = false)
+		$this->tvurl = 'http://tv.'. UKM_HOSTNAME .'/';
+		$this->embedurl = 'http://embed.'. UKM_HOSTNAME .'/';
+		$this->storageurl = 'http://video.'. UKM_HOSTNAME .'/';
+
+		// If created by a cron_id ($tv_id = false)
 		if($cron_id) {
 			// Videoreportasje
 			$qry = new SQL("SELECT `video_file` 
@@ -32,6 +32,7 @@ class tv {
 				$tv_id = $qry->run('field','file');				
 			}
 		}
+
 		// Fetch video data (included set and category infos)
 		$qry = new SQL("SELECT `file`.*,
 							   `cat`.`c_id` AS `set_id`,
@@ -74,6 +75,14 @@ class tv {
 		$this->_url();
 		$this->_meta();
 		$this->_ext();
+	}
+
+	public function getCacheIP() {
+		$sql = new SQL("SELECT `ip`
+						FROM `ukm_tv_caches_caches`
+						ORDER BY RAND()
+						LIMIT 1");
+		return $sql->run('field', 'ip');
 	}
 	
 	public function delete() {
@@ -132,6 +141,7 @@ class tv {
 					</a>
 				</div>';
 	}
+
 	// Get the storage server file infos
 	public function videofile(){
 		global $UKMCURL;
@@ -148,39 +158,13 @@ class tv {
 						.'?file='.$this->file_name
 						.'&path='.urlencode($this->file_path));
 		
-		// Hvis video.ukm.no svarer
-		if(!empty($UKMCURL->data)) {
-			$result = $UKMCURL->data;
-		// Hvis video.ukm.no ikke svarer, fake negativ respons
-		} else {
-			$result = (object) array('found'=>false);
-		}
-		
-		// Hvis den er funnet på video.ukm.no
-		if( $result->found ) {
-			$this->file = $UKMCURL->data->filepath;
-		// Let videre etter filen
-		} else {
-			$UKMCURL = new UKMCURL();
-			$UKMCURL->port(80);
-			$UKMCURL->request($this->storageurl2
-								.'/find.php'
-								.'?file='.$this->file_name
-								.'&path='.urlencode($this->file_path));
-			$result = $UKMCURL->data;
-			//var_dump( $result );
-			//var_dump( $UKMCURL );
-			if( $result->found ) {
-				$this->activeStorage = '2';
-				$this->file = $UKMCURL->data->filepath;
-			}
-		}
-			
+		$this->file = $UKMCURL->data->filepath;
 	}
 	
 	public function iframe($width='920px') {
 		return $this->embedcode($width);
 	}
+
 	public function embedcode($width='920px') {
 		$this->size();
 		if(!is_numeric($this->ratio))
@@ -231,20 +215,7 @@ class tv {
 		$this->embed_url = $this->embedurl.$this->url;
 		
 		// IMAGE
-		// Sjekk om bildet faktisk finnes (curl sjekk http response == 404 eller ikke)
-		global $UKMCURL;
-		$UKMCURL = new UKMCURL();
-		$UKMCURL->headersOnly();
-		$res = $UKMCURL->request( $this->storageurl.$this->img );
-		
-		if( $res == 404 ) {
-		$this->image_url = 'http://video2.'. UKM_HOSTNAME .'/'.$this->img;
-		} else {
 		$this->image_url = $this->storageurl.$this->img;
-		}
-		
-		//$this->image_url = $this->storageurl.$this->img;
-		
 		
 		// SET
 		$this->set_url = $this->tvurl.'samling/'.$this->set;
