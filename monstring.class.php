@@ -1,7 +1,4 @@
 <?php
-if( !defined('UKM_HOSTNAME') ) {
-define('UKM_HOSTNAME', 'ukm.no');
-}
 //sync
 require_once 'UKM/sql.class.php';
 require_once 'UKM/statistikk.class.php';
@@ -551,7 +548,7 @@ require_once 'UKM/statistikk.class.php';
 			
 			foreach($this->info['kommuner'] as $kname => $k)
 				$return .=' &nbsp; &nbsp; &nbsp; ' 
-						. '<a href="http://pamelding.'.UKM_HOSTNAME.'/'
+						. '<a href="http://pamelding.ukm.no/'
 				  		. 'quickstart.php?steg=#STEG#&type=#TYPE#&plid=#PLID#'
 				  		. '&kommune='.$k['id']
 				  		. '" style="text-decoration:none; color: #000;">'
@@ -648,7 +645,7 @@ require_once 'UKM/statistikk.class.php';
 					  		. ');" '
 					  		. 'style="text-decoration:none; color: #000;">';
 				else
-					$link = '<a href="http://pamelding.'.UKM_HOSTNAME.'/'
+					$link = '<a href="http://pamelding.ukm.no/'
 								  		. 'quickstart.php?steg=kontaktperson'
 								  		. '&type='.$bt['ico']
 								  		. '&kommune='.$kommune
@@ -714,7 +711,7 @@ require_once 'UKM/statistikk.class.php';
 					  		. ');" '
 					  		. 'style="text-decoration:none; color: #000;">';
 				else
-					$link = '<a href="http://pamelding.'.UKM_HOSTNAME.'/'
+					$link = '<a href="http://pamelding.ukm.no/'
 					  		. 'quickstart.php?steg=profilside_enk'
 					  		. '&type='.$bt['ico']
 					  		. '&kommune='.$kommune
@@ -1568,16 +1565,16 @@ $test = new SQL("SELECT `s_id` AS `personer`
 		
 		private function _link() {
 			$this->_url();
-			$this->info['link'] = '//'.UKM_HOSTNAME.'/'. $this->url.'/';
+			$this->info['link'] = '//ukm.no/'. $this->url.'/';
 			$this->link = $this->info['link'];
 /*
 			if($this->get('type') == 'kommune')
-				$this->info['link'] = 'http://'.UKM_HOSTNAME.'/pl'.$this->get('pl_id').'/';
+				$this->info['link'] = 'http://ukm.no/pl'.$this->get('pl_id').'/';
 			elseif($this->get('type') == 'land')
-				$this->info['link'] = 'http://'.UKM_HOSTNAME.'/festivalen/';
+				$this->info['link'] = 'http://ukm.no/festivalen/';
 			else {
 				$fylkename = $this->_sanitize_nordic( $this->get('fylke_name') );
-				$this->info['link'] = 'http://'.UKM_HOSTNAME.'/'. $fylkename .'/';
+				$this->info['link'] = 'http://ukm.no/'. $fylkename .'/';
 			}
 */
 		}
