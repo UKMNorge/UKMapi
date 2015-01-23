@@ -1,13 +1,15 @@
 <?php
+require_once('UKMconfig.inc.php');
 require_once('UKM/curl.class.php');
 require_once('UKM/sql.class.php');
+
 class tv {
-	var $tvurl	 	= 'http://tv.ukm.no/';
-	var $embedurl 	= 'http://embed.ukm.no/';
+	var $tvurl	 	= 'http://tv.'. UKM_HOSTNAME .'/';
+	var $embedurl 	= 'http://embed.'. UKM_HOSTNAME .'/';
 	
-	var $storageurl = 'http://video.ukm.no/';
+	var $storageurl = 'http://video.'. UKM_HOSTNAME .'/';
 	var $storageIP	= '212.125.231.33';
-	var $storageurl2 = 'http://video2.ukm.no/';
+	var $storageurl2 = 'http://video2.'. UKM_HOSTNAME .'/';
 	var $storageIP2	= '81.0.146.164';
 	
 	var $activeStorage = '';
@@ -212,7 +214,7 @@ class tv {
 					. '<meta property="video:actor" content="http://facebook.com/UKMNorge">'
 					. '<meta property="video:tag" content="UKM-TV UKM UKM Norge">'
 					.'<link rel="alternate" type="application/json+oembed"'
-						.' href="http://oembed.ukm.no/?url='.urlencode($this->full_url).'" title="UKM-TV oEmbed" />';
+						.' href="http://oembed.'. UKM_HOSTNAME .'/?url='.urlencode($this->full_url).'" title="UKM-TV oEmbed" />';
 	}
 	
 	private function _url() {
@@ -236,7 +238,7 @@ class tv {
 		$res = $UKMCURL->request( $this->storageurl.$this->img );
 		
 		if( $res == 404 ) {
-		$this->image_url = 'http://video2.ukm.no/'.$this->img;
+		$this->image_url = 'http://video2.'. UKM_HOSTNAME .'/'.$this->img;
 		} else {
 		$this->image_url = $this->storageurl.$this->img;
 		}
