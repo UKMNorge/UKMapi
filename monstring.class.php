@@ -333,7 +333,13 @@ require_once 'UKM/statistikk.class.php';
 		public function subscribable($deadline = 'pl_deadline') {
 			return $this->info[$deadline] > time();
 		}
-		
+
+		############################################
+		## Er mønstringen aktiv akkurat nå? (BOOL)
+		############################################
+		public function aktiv() {
+			return (time() > $this->info['pl_start']) && (time() < $this->info['pl_stop']);
+		}
 
 		############################################
 		## Når starter mønstringen? KLARTEKST!
@@ -350,7 +356,7 @@ require_once 'UKM/statistikk.class.php';
 		}
 
 		############################################
-		## Når slutter mønstringen? KLARTEKST!
+		## Er mønstringen avsluttet? (BOOL)
 		############################################
 		public function ferdig() {
 			return $this->info['pl_stop'] < time();
