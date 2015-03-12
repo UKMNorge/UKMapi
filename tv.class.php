@@ -100,6 +100,8 @@ class tv {
 	public function getCacheIP() {
 		$sql = new SQL("SELECT `ip`
 						FROM `ukm_tv_caches_caches`
+						WHERE `last_heartbeat` >= NOW() - INTERVAL 3 MINUTE
+							AND `status` = 'ok'
 						ORDER BY RAND()
 						LIMIT 1");
 		return $sql->run('field', 'ip');
