@@ -76,7 +76,27 @@ class tv {
 		$this->_meta();
 		$this->_ext();
 	}
-
+	public function tag( $tag ) {
+		if( !isset( $this->tagObject ) ) {
+			$this->_loadTags();
+		}
+		if( isset( $this->tagObject->$tag ) ) {
+			return $this->tagObject->$tag;
+		}
+		return false;
+	}
+	private function _loadTags() {
+		$this->tagObject = new stdClass();
+		$tags = str_replace('||','|', $this->tags);
+		$tags = explode('|', $tags);
+		foreach( $tags as $string ) {
+			if( strpos($string,'_') === false ) {
+				continue;
+			}
+			$tag = explode('_', $string);
+			$this->tagObject->$tag[0] = $tag[1];
+		}
+	}
 	public function getCacheIP() {
 		$sql = new SQL("SELECT `ip`
 						FROM `ukm_tv_caches_caches`
