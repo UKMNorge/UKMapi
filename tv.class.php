@@ -229,8 +229,10 @@ class tv {
 			$dashpos = strlen($this->title);
 		
 		$this->title_urlsafe = $this->_safeURL(substr($this->title, 0, $dashpos));
-		
-		$url_string = $this->title_urlsafe;
+		if( empty( $this->title_urlsafe ) ) {
+                	$this->title_urlsafe = 'Ukjent';
+                }
+                $url_string = $this->title_urlsafe;
 		
 		$this->url = $url_string.'/'.$this->id;
 		$this->full_url = $this->tvurl.$this->url;
