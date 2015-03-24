@@ -9,6 +9,7 @@ global $looped_videos;
 $looped_videos = array();
 
 function tv_update($data) {
+	error_log('CRON:TV_UPDATE: Init');
 	global $looped_videos;
 	if(is_array($data) && !in_array($data['file'], $looped_videos)) {
 		$test = new SQL("SELECT `tv_id`
@@ -18,29 +19,36 @@ function tv_update($data) {
 		#echo $test->debug();
 		$tv_id = $test->run('field', 'tv_id');
 		
-		if($tv_id && is_numeric($tv_id) )
+		if($tv_id && is_numeric($tv_id) ) {
+			error_log('CRON:TV_UPDATE: Eksisterende fil funnet (TVID: '. $tv_id .')');
 			$ins = new SQLins('ukm_tv_files', array('tv_id' => $tv_id));
-		else
+		} else {
+			error_log('CRON:TV_UPDATE: Registrer som ny fil');
 			$ins = new SQLins('ukm_tv_files');
-		
+		}
 		tv_clean_description($data['description']);
 		
 		$ins->add('tv_title', str_replace("'", "\'", $data['title']));
 		$ins->add('tv_file', $data['file']);
 		$ins->add('tv_img', $data['img']);
-		$ins->add('tv_category', $data['category']);
+		$ins->add('tv_category', str_replace("'", "\'", $data['category']));
 		$ins->add('tv_tags', $data['tags']);
-		$ins->add('tv_description', $data['description']);
+		$ins->add('tv_description', str_replace("'", "\'", $data['description']));
 		$ins->add('b_id', $data['b_id']);	
 		$res = $ins->run();
+		error_log('CRON:TV_UPDATE: SQL: '. $ins->debug());
+
 		
 		if(!isset($tv_id)||!is_numeric($tv_id))
 			$tv_id = $ins->insid();
 	
+		error_log('CRON:TV_UPDATE: Update category');
 		tv_category_update($data['category']);
+		error_log('CRON:TV_UPDATE: Update tags');
 		tv_person_update($data['tags'], $tv_id);
 		$looped_videos[] = $data['file'];
 	}
+	error_log('CRON:TV_UPDATE: Completed');
 }
 
 function tv_clean_description(&$desc) {
