@@ -1,78 +1,7 @@
 <?php
 require_once 'UKM/sql.class.php';
 require_once 'UKM/statistikk.class.php';
-	class tidligere_monstring {
-		public function __construct($pl_id, $season){
-			$this->returnSeason = $season;
-			$search_pl_id = $pl_id;
-			$sok = true;
-			while($sok) {
-				$qry = new SQL("SELECT *
-								FROM `smartukm_rel_pl_pl`
-								WHERE `pl_new` = '#new'",
-								array('season'=>$season,
-									  'new'=>$search_pl_id));
-				$res = $qry->run();
-				if(mysql_num_rows($res)==0)
-					$sok = false;
-				while($r = mysql_fetch_assoc($res)){
-					$this->seasons[(int)$r['season']] = $r['pl_new'];
-					$this->seasons[(int)$r['season']-1] = $r['pl_old'];
-					$search_pl_id = $r['pl_old'];
-				}
-			}
-		}
-		public function monstring_get() {
-			if(!isset($this->seasons[$this->returnSeason]))
-				return false;
-			return new monstring($this->seasons[$this->returnSeason]);
-		}
-	}
-
-	class kommune_monstring{
-		public function __construct($kommune,$season) {
-			$qry = new SQL("SELECT `pl_id`
-							FROM `smartukm_rel_pl_k`
-							WHERE `k_id` = '#kommune'
-							AND `season` = '#season'",
-						array('kommune'=>$kommune,'season'=>$season));
-			$this->pl_id = $qry->run('field','pl_id');
-		}
-		
-		public function monstring_get() {
-			return new monstring($this->pl_id);
-		}
-	}
-
-	class fylke_monstring{
-		public function __construct($fylke,$season) {
-			$qry = new SQL("SELECT `pl_id`
-							FROM `smartukm_place`
-							WHERE `pl_fylke` = '#fylke'
-							AND `season` = '#season'",
-						array('fylke'=>$fylke,'season'=>$season));
-			$this->pl_id = $qry->run('field','pl_id');
-		}
-		
-		public function monstring_get() {
-			return new monstring($this->pl_id);
-		}
-	}
-	class landsmonstring{
-		public function __construct($season) {
-			$qry = new SQL("SELECT `pl_id`
-							FROM `smartukm_place`
-							WHERE `pl_fylke` = '123456789'
-							AND `pl_kommune` = '123456789'
-							AND `season` = '#season'",
-						array('season'=>$season));
-			$this->pl_id = $qry->run('field','pl_id');
-		}
-		
-		public function monstring_get() {
-			return new monstring($this->pl_id);
-		}
-	}
+require_once 'UKM/monstring_tidligere.class.php';
 
 
 	## MØNSTRINGSOBJEKTET
@@ -880,6 +809,19 @@ require_once 'UKM/statistikk.class.php';
 				for($i=0; $i<sizeof($felt); $i++)
 					$get .= '`'.$felt[$i].'`, ';
 			$get = substr($get,0,strlen($get)-2);
+
+			// PRE 2011 DID NOT USE BAND SEASON FIELD
+			if($this->info['season'] <= 2011) {
+				return "SELECT ". $get .", `bt`.`bt_form`, `k`.`name` AS `kommune`
+						FROM `smartukm_band`
+						JOIN `smartukm_band_type` AS `bt` ON (`bt`.`bt_id` = `smartukm_band`.`bt_id`)
+						JOIN `smartukm_rel_pl_b` AS `pl_b` ON (`pl_b`.`b_id` = `smartukm_band`.`b_id`)
+						LEFT JOIN `smartukm_kommune` AS `k` ON (`k`.`id`=`smartukm_band`.`b_kommune`)
+						WHERE `pl_b`.`pl_id` = '".$this->get('pl_id')."'
+						AND `b_status` = '". $status ."'";
+			}
+
+
 			// Brukes hvis vi søker videresendte fra min mønstring til en annen
 			if($videresendte)
 				return "SELECT ".$get.", `bt`.`bt_form`, `k`.`name` AS `kommune`
@@ -929,16 +871,6 @@ require_once 'UKM/statistikk.class.php';
 									."AND `b_kommune` = '".$k['id']."') OR";
 				}
 				$where = substr($where,0,strlen($where)-3);
-			}
-
-			// PRE 2011 DID NOT USE BAND SEASON FIELD
-			if($this->info['season'] <= 2011) {
-				return "SELECT ". $get .", `bt`.`bt_form`, `k`.`name` AS `kommune`
-						FROM `smartukm_band`
-						JOIN `smartukm_band_type` AS `bt` ON (`bt`.`bt_id` = `smartukm_band`.`bt_id`)
-						JOIN `smartukm_rel_pl_b` AS `pl_b` ON (`pl_b`.`b_id` = `smartukm_band`.`b_id`)
-						LEFT JOIN `smartukm_kommune` AS `k` ON (`k`.`id`=`smartukm_band`.`b_kommune`)
-						WHERE `pl_b`.`pl_id` = '".$this->get('pl_id')."'";
 			}
 
 			return "SELECT ".$get.", `bt`.`bt_form`, `k`.`name` AS `kommune`
