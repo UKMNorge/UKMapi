@@ -175,12 +175,22 @@ class tv {
 		$this->file_orig 	= $this->file_path .'/'. $this->file_name;
 		$this->file_720p 	= str_replace('.mp4', '_720p.mp4', $this->file_orig);
 		$this->file_mobile 	= str_replace('.mp4', '_mobile.mp4', $this->file_orig);
-		$UKMCURL->request($this->storageurl
-						.'find.php'
-						.'?file='.$this->file_name
-						.'&path='.urlencode($this->file_path));
-		
-		$this->file = $UKMCURL->data->filepath;
+		if( $this->file_exists_720p ) {
+			$this->file = $this->file_720p;			
+		} else {
+			$UKMCURL->request($this->storageurl
+							.'find.php'
+							.'?file='.$this->file_name
+							.'&path='.urlencode($this->file_path));
+			
+			$this->file = $UKMCURL->data->filepath;
+			
+			if( strpos( $this->file, '720p' ) !== false ) {
+				$SQL = new SQLins('ukm_tv_files', array('tv_id' => $this->id ) );
+				$SQL->add('file_exist_720p', 1);
+				echo $SQL->debug();
+			}
+		}
 	}
 	
 	public function iframe($width='920px') {
