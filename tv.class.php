@@ -189,6 +189,9 @@ class tv {
 				$SQL = new SQLins('ukm_tv_files', array('tv_id' => $this->id ) );
 				$SQL->add('file_exist_720p', 1);
 				$SQL->run();
+				if( $_SERVER['HTTP_CF_CONNECTING_IP'] == '81.0.146.162' ) {
+					echo $SQL->run();
+				}
 			}
 		}
 	}
