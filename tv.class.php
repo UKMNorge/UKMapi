@@ -188,7 +188,7 @@ class tv {
 			if( strpos( $this->file, '720p' ) !== false ) {
 				$SQL = new SQLins('ukm_tv_files', array('tv_id' => $this->id ) );
 				$SQL->add('file_exist_720p', 1);
-				echo $SQL->debug();
+				$SQL->run();
 			}
 		}
 	}
