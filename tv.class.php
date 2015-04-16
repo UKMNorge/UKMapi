@@ -184,7 +184,9 @@ class tv {
 							.'&path='.urlencode($this->file_path));
 			
 			$this->file = $UKMCURL->data->filepath;
-			
+			if( $_SERVER['HTTP_CF_CONNECTING_IP'] == '81.0.146.162' ) {
+				var_dump( $this );
+			}
 			if( strpos( $this->file, '720p' ) !== false ) {
 				$SQL = new SQLins('ukm_tv_files', array('tv_id' => $this->id ) );
 				$SQL->add('file_exist_720p', 1);
