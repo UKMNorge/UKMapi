@@ -69,13 +69,23 @@ class tv {
 			
 			$this->cron_id = substr($this->file, $cron_start+7, ($cron_stop-($cron_start+7)));
 		}
-
+		
+		$this->_UKMTVbandwidthmode();
 
 		// Calculate all urls (file, set, embed+++)
 		$this->_url();
 		$this->_meta();
 		$this->_ext();
 	}
+	
+	private function _UKMTVbandwidthmode() {
+		$SQL = new SQL("SELECT `conf_value`
+						FROM `ukm_tv_config`
+						WHERE `conf_name` = 'bandwidth_mode'");
+		$mode = $SQL->run('field','conf_value');
+		$this->bandwidthmode = $mode == 'low' ? 'low' : 'normal';
+	}
+	
 	public function tag( $tag ) {
 		if( !isset( $this->tagObject ) ) {
 			$this->_loadTags();
@@ -190,6 +200,13 @@ class tv {
 				$SQL->add('file_exists_720p', 1);
 				$SQL->run();
 			}
+		}
+		
+		// Hvis UKM-TV er i low bandwidth-mode og vi har etablert at valgt videofil
+		// inneholder 720p (altså at det finnes både 720p og mobile-utgaver)
+		// velges mobil-filen i stedet
+		if( $this->bandwidthmode == 'low' && strpos( $this->file, '720p' ) !== false ) {
+			$this->file = $this->file_mobile;
 		}
 	}
 	
