@@ -104,6 +104,17 @@ class tv_files {
 					$this->vars = array( 'timer' => $object);
 				}
 				break;
+			case 'popular_from_plid':
+				// OBJECT MUST BE PL_ID
+				$this->qry = "SELECT `t_play`.`tv_id`, COUNT(`t_play`.`tv_id`) AS `plays`
+								FROM `ukm_tv_plays` AS `t_play`
+								JOIN `ukm_tv_files` AS `t_tv` ON (`t_tv`.`tv_id` = `t_play`.`tv_id`)
+								WHERE `tv_tags` LIKE '%|pl_#plid|%'
+								GROUP BY `t_play`.`tv_id`
+								ORDER BY `plays` DESC
+								LIMIT #limit";
+				$this->vars = array( 'plid' => $object);
+				break;
 			case 'search':
 				// SEARCH FOR TITLE AND BAND NAME (TV TITLE)
 				$search = str_replace(',', ' ', $object);
