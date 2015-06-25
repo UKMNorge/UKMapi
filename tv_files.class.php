@@ -7,6 +7,11 @@ class tv_files {
 	var $loaded = false;
 	var $internal_pointer = -1;
 	var $limit = false;
+	var $debug = false;
+	
+	public function debug() {
+		$this->debug = true;
+	}
 	
 	public function __construct($type, $object=false) {
 		$this->type = $type;
@@ -27,6 +32,17 @@ class tv_files {
 				$this->vars = array( 'bid' => $object );
 				break;
             // Person is a tag, so set correct format, and continue over to tag
+			case 'popular_from_plid':
+				// OBJECT MUST BE PL_ID
+				$this->qry = "SELECT `t_play`.`tv_id`, COUNT(`t_play`.`tv_id`) AS `plays`
+								FROM `ukm_tv_plays` AS `t_play`
+								JOIN `ukm_tv_files` AS `t_tv` ON (`t_tv`.`tv_id` = `t_play`.`tv_id`)
+								WHERE `tv_tags` LIKE '%|pl_#plid|%'
+								GROUP BY `t_play`.`tv_id`
+								ORDER BY `plays` DESC
+								LIMIT #limit";
+				$this->vars = array( 'plid' => $object);
+				break;
             case 'person':
                 $object = 'p_'. $object;
 			case 'tag':
@@ -103,17 +119,6 @@ class tv_files {
 									LIMIT #limit";
 					$this->vars = array( 'timer' => $object);
 				}
-				break;
-			case 'popular_from_plid':
-				// OBJECT MUST BE PL_ID
-				$this->qry = "SELECT `t_play`.`tv_id`, COUNT(`t_play`.`tv_id`) AS `plays`
-								FROM `ukm_tv_plays` AS `t_play`
-								JOIN `ukm_tv_files` AS `t_tv` ON (`t_tv`.`tv_id` = `t_play`.`tv_id`)
-								WHERE `tv_tags` LIKE '%|pl_#plid|%'
-								GROUP BY `t_play`.`tv_id`
-								ORDER BY `plays` DESC
-								LIMIT #limit";
-				$this->vars = array( 'plid' => $object);
 				break;
 			case 'search':
 				// SEARCH FOR TITLE AND BAND NAME (TV TITLE)
@@ -244,6 +249,9 @@ class tv_files {
 		// FETCH VIDEOS AND STORE IN ARRAY
 		$this->sql = new SQL($this->qry, $this->vars);
 		$result = $this->sql->run();
+		if( $this->debug ) {
+			echo $this->sql->debug();
+		}
 		if($result) {
 			while($r = mysql_fetch_assoc($result)) {
 				if($this->type=='featured')
