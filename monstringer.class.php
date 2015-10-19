@@ -1,4 +1,5 @@
 <?php
+	require_once('UKM/sql.class.php');
 	class monstringer{
 		public function monstringer($season=false){
 			$this->season = $season;
