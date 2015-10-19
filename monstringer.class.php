@@ -20,8 +20,8 @@
 						WHERE `rel_pl_k`.`season` = '#season'
 						
 						ORDER BY `fylke`.`name` ASC, `kommune`.`name` ASC";
-			$res = $query->run( $query, array('season'=>$this->season) );
-			
+			$query = new SQL( $query, array('season'=>$this->season) );
+			$res = $query->run();
 			$list = array();
 			
 			while( $row = mysql_fetch_assoc( $res ) ) {
