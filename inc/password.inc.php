@@ -10694,8 +10694,6 @@ $pass_words = array(
 "navnedag",
 "navneskilt",
 "navnlos",
-"nazist",
-"nazistisk",
 "nebb",
 "nebbtang",
 "Nebraska",

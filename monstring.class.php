@@ -1550,7 +1550,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 			$this->info['url'] = $this->url;
 		}
 		
-		private function _sanitize_nordic($text) {
+		public function _sanitize_nordic($text) {
 			// Remove tags and make lowercase
 			$text = strip_tags( strtolower($text) );
 			
@@ -1565,7 +1565,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 			return preg_replace('/[^a-z-]+/','', $text );
 		}
 		
-		private function _SMAS_encoding($content) {
+		public function _SMAS_encoding($content) {
 			$characterEncoding = mb_detect_encoding($content."a", 'UTF-8, UTF-16, ISO-8859-1, ISO-8859-15, Windows-1252, ASCII');
 			switch ($characterEncoding) {
 			 case "UTF-8":

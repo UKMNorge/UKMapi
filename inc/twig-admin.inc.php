@@ -32,8 +32,11 @@ function TWIGrender($template, $dataarray, $debug=false) {
 }
 
 function TWIG_date($time, $format) {
+	if( is_string( $time ) && !is_numeric( $time ) ) {
+		$time = strtotime($time);
+	}
 	$date = date($format, $time);
-	
+
 	return str_replace(array('Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday',
 							 'Mon','Tue','Wed','Thu','Fri','Sat','Sun',
 							 'January','February','March','April','May','June',
