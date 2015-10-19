@@ -3,6 +3,60 @@
 		public function monstringer($season=false){
 			$this->season = $season;
 		}
+		public function alle_kommuner_med_lokalmonstringer() {
+			$query = "SELECT `pl`.`pl_id`,
+							   `pl`.`pl_name`,
+							   `kommune`.`id` AS `k_id`,
+							   `kommune`.`name` AS `k_name`,
+							   `fylke`.`id` AS `f_id`,
+							   `fylke`.`name` AS `f_name`
+							   
+						FROM `smartukm_kommune` AS `kommune`
+						JOIN `smartukm_fylke` AS `fylke` ON (`fylke`.`id` = `kommune`.`idfylke`)
+						
+						JOIN `smartukm_rel_pl_k` AS `rel_pl_k` ON (`rel_pl_k`.`k_id` = `kommune`.`id`)
+						JOIN `smartukm_place` AS `pl` ON (`pl`.`pl_id` = `rel_pl_k`.`pl_id`)
+						
+						WHERE `rel_pl_k`.`season` = '#season'
+						
+						ORDER BY `fylke`.`name` ASC, `kommune`.`name` ASC";
+			$res = $query->run( $query, array('season'=>$this->season) );
+			
+			$list = array();
+			
+			while( $row = mysql_fetch_assoc( $res ) ) {
+				// Fylket er ikke lagt til i listen
+				if( !isset( $list[ $row['f_id'] ] ) ) {
+					$fylke = new stdClass();
+					$fylke->id = $row['f_id'];
+					$fylke->name = utf8_encode( $row['f_name'] );
+					$fylke->monstringer = array();
+
+					$list[ $row['f_id'] ] = $fylke;
+				// Fylket er allerede lagt til i listen
+				} else {
+					$fylke = $list[ $row['f_id'] ];
+				}
+				
+				// Mønstringen er ikke tidligere registrert i fylket
+				if( !isset( $fylke->monstringer[ $row['pl_id'] ] ) ) {
+					$monstring = new stdClass();
+					$monstring->fellesmonstring = false;
+					$monstring->name = $row['pl_name'];
+					$monstring->kommuner = array();
+					
+					$fylke->monstringer[ $row['pl_id'] ] = $monstring;
+				} else {
+					$monstring = $fylke->monstringer[ $row['pl_id'] ];
+					$monstring->fellesmonstring = true;
+				}
+				
+				$monstring->kommuner[ $row['k_id'] ] = $row['k_name'];
+			}
+			
+			return $list;
+		}
+
 		
 		public function etter_sesong($season=false){/* returnerer en liste over alle places i for et gitt år */
 			if(!$sesong) {
