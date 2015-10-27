@@ -136,7 +136,9 @@ if(!class_exists('SQLins')) {
 	class SQLins {
 		var $wheres = ' WHERE ';
 		var $db;
-		
+		var $keys = array();
+		var $vals = array();
+
 		function SQLins($table, $where=array()) {
 			$this->table = $table;
 			## IF THIS IS A UPDATE-QUERY

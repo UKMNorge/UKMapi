@@ -16,11 +16,13 @@ class person {
 		}
 		
 		$sql_participant = new SQLins('smartukm_participant', array('p_id' => $this->info['p_id'] ) );
-
+	
+		$counter = 0;
 		foreach( $this->save_new as $key => $val ) {
 			if( $this->save_old[ $key ] == $val ) {
 				continue;
 			}
+			$counter++;
 			// Participant-tabellen
 			if( strpos( $key, 'p_' ) === 0 ) {
 				// LOG
@@ -35,13 +37,17 @@ class person {
 				// SQL relation table smartukm_rel_b_p
 				$sql_instrument = new SQLins('smartukm_rel_b_p', array('p_id' => $this->info['p_id'], 'b_id' => $this->info['b_id'] ));
 				// LOG
-				$this->_log( 'instrument', $value );
+				$this->_log( 'instrument', $val );
 				// Add to query and run
-				$sql_instrument->add( 'instrument', $value );
+				$sql_instrument->add( 'instrument', $val );
+				echo 'sql_i:'. $sql_instrument->debug();
 				$sql_instrument->run();
 			}
 		}
-		$sql_participant->run();
+		if($counter > 0) {
+			echo 'sql_p: '. $sql_participant->debug();
+			$sql_participant->run();
+		}
 	}
 	
 	private function _log( $field, $newValue ) {
@@ -74,10 +80,18 @@ class person {
 	}
 	
 	private function _log_action( $field ) {
+switch( $field ) {
+	case 'instrument':
+	$table = 'smartukm_rel_b_p';
+	break;
+	default:
+	$table = 'smartukm_participant';
+	break;
+}
 		$actionQ = new SQL("SELECT `log_action_id`
 						FROM `log_actions` 
 						WHERE `log_action_identifier` = '#identifier'",
-						array('identifier'=>'smartukm_participant|'.$field));
+						array('identifier'=>$table.'|'.$field));
 		$actionID = $actionQ->run('field','log_action_id');
 		
 	    if( empty( $actionID ) ) {
@@ -239,6 +253,7 @@ class person {
 				$this->info['p_lastname'] = '';
 				$this->info['p_id'] = false;
 				$this->info['name'] = null; //Empty anyway, hvorfor fylle inn?
+				$this->info['p_phone'] = 0;
 			}
 		}
 		
@@ -309,8 +324,11 @@ class person {
 	}
 	
 	public function set($key, $value){
-		$this->info[ $key ] = $value;
+		if(!array_key_exists($key, $this->info)) {
+			$this->info[$key] = null;
+		}
 		$this->save_old[ $key ] = $this->info[ $key ];
+		$this->info[ $key ] = $value;
 		$this->save_new[ $key ] = $value;
 		
 	}

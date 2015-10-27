@@ -297,7 +297,7 @@ class innslag {
 	}
 	
 	private function _time_status_8() {
-		if(!in_array($this->info['bt_id'], array(1,2,3,6,7))) {
+		if(array_key_exists('bt_id', $this->info) || !in_array($this->info['bt_id'], array(1,2,3,6,7))) {
 			$this->info['time_status_8'] = $this->info['b_subscr_time'];
 			return;
 		}
@@ -315,7 +315,12 @@ class innslag {
 	
 	public function tittellos(){
 		//var_dump($this->info);
-		return !in_array($this->info['bt_id'], array(1,2,3,6,7));
+		if (array_key_exists('bt_id', $this->info)) {
+			return !in_array($this->info['bt_id'], array(1,2,3,6,7));
+		}
+		else {
+			return 1;
+		}
 	}
 	
 	####################################################################################
