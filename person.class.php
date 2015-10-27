@@ -1,19 +1,94 @@
 <?php
 require_once('UKM/sql.class.php');
-
+use Exception;
+@æsadpok
 class person {
 	
 	private $info = array();
+	private $save_old = array();
+	private $save_new = array();
 
 	// Skrevet ny høst 2015 for bruk av UKMAPIBundle
-	public function lagre() {
-		$qry = new SQLins('smartukm_participant', array('p_id'=>$this->info['p_id']));
-		foreach( $this->info as $key => $val ) {
-			if( strpos( $key, 'p_') === 0 ) {
-				$qry->add( $key, $val );
+	public function lagre( $system_id, $user_id, $pl_id ) {
+		$this->_log_id( $system_id, $user_id, $pl_id );
+		
+		if( !is_numeric( $this->info['p_id'] ) ) {
+			throw new Exception('Cannot save unknown participant!');
+		}
+		
+		$sql_participant = new SQLins('smartukm_participant', array('p_id' => $this->info['p_id'] ) );
+
+		foreach( $this->save_new as $key => $val ) {
+			// Participant-tabellen
+			if( strpos( $key, 'p_' ) === 0 ) {
+				// LOG
+				$this->_log( $key, $val );
+				// Add to query and run
+				$sql_participant->add( $key, $val );		
+			} elseif( $key == 'instrument' ) {
+				// Dependencies
+				if( !is_numeric( $this->info['b_id'] ) ) {
+					throw new Exception('Cannot save instrument of P'. $this->info['p_id'] .' in unknown "innslag"');
+				}
+				// SQL relation table smartukm_rel_b_p
+				$sql_instrument = new SQLins('smartukm_rel_b_p', array('p_id' => $this->info['p_id'], 'b_id' => $this->info['b_id'] ));
+				// LOG
+				$this->_log( 'instrument', $value );
+				// Add to query and run
+				$sql_instrument->add( 'instrument', $value );
+				$sql_instrument->run();
 			}
 		}
+		$sql_participant->run();
+	}
+	
+	private function _log( $field, $newValue ) {
+		// Finn log action ID
+		$action = $this->_log_action( $field );
+		// ActionID består av 1-2-sifret tall objektID konkatenert med 2-sifret ActionID
+		// 101 = objekt 1, action 1
+		$object = substr($action, 0, (strlen($action)-2));
+		
+	    $qry = new SQLins('log_log');
+	    $qry->add('log_u_id', $this->log_user_id);
+	    $qry->add('log_system_id', $this->log_system_id);
+	    $qry->add('log_action', $action);
+	    $qry->add('log_object', $object);
+	    $qry->add('log_the_object_id', $this->info['p_id']);
+	    $qry->add('log_pl_id', $this->log_pl_id);
+		
+		$res = $qry->run();
+		$log_id = $qry->insid();
+		
+		if( !is_numeric( $log_id ) ) {
+			throw new Exception('Cannot save participant due to log error');
+		}
+		// Logg ny verdi
+		$qry = new SQLins('log_value');
+		$qry->add('log_id', $log_id);
+		$qry->add('log_value', $newValue );
 		$qry->run();
+		
+	}
+	
+	private function _log_action( $field ) {
+		$actionQ = new SQL("SELECT `log_action_id`
+						FROM `log_actions` 
+						WHERE `log_action_identifier` = '#identifier'",
+						array('identifier'=>'smartukm_participant|'.$field));
+		$actionID = $actionQ->run('field','log_action_id');
+		
+	    if( empty( $actionID ) ) {
+		    throw new Exception('LOG FAILED. Object update failed due to missing '. $field .' log action error');
+	    }
+		
+		return $actionID;
+	}
+	
+	private function _log_id( $system_id, $user_id, $pl_id ) {
+		$this->log_system_id = $system_id;
+		$this->log_user_id = $user_id;
+		$this->log_pl_id = $pl_id;
 	}
 		
 	public function update($field, $post_key=false, $b_id=false) {
@@ -232,7 +307,10 @@ class person {
 	}
 	
 	public function set($key, $value){
-		$this->info[$key] = $value;
+		$this->info[ $key ] = $value;
+		$this->save_old[ $key ] = $this->info[ $key ];
+		$this->save_new[ $key ] = $value;
+		
 	}
 	
 	public function g($key) {
