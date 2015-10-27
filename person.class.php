@@ -18,6 +18,9 @@ class person {
 		$sql_participant = new SQLins('smartukm_participant', array('p_id' => $this->info['p_id'] ) );
 
 		foreach( $this->save_new as $key => $val ) {
+			if( $this->save_old[ $key ] == $val ) {
+				continue;
+			}
 			// Participant-tabellen
 			if( strpos( $key, 'p_' ) === 0 ) {
 				// LOG
