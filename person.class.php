@@ -1,7 +1,6 @@
 <?php
 require_once('UKM/sql.class.php');
-use Exception;
-@æsadpok
+
 class person {
 	
 	private $info = array();
