@@ -174,15 +174,18 @@ if(!class_exists('SQLins')) {
 				for($i=0; $i<sizeof($this->keys); $i++) {
 					$sql .= "`".$this->keys[$i]."` = '".$this->vals[$i]."', ";
 				}
+			
 				$sql = substr($sql, 0, (strlen($sql)-2));
 	
 				## add where
 				$sql .= $this->wheres;	
 			} else {
 				## set the new values
-				for($i=0; $i<sizeof($this->keys); $i++) {
-					$keylist .= '`'.$this->keys[$i].'`, ';
-					$vallist .= "'".$this->vals[$i]."', ";
+				if (isset($this->keys) && is_array($this->keys)) {
+					for($i=0; $i<sizeof($this->keys); $i++) {
+						$keylist .= '`'.$this->keys[$i].'`, ';
+						$vallist .= "'".$this->vals[$i]."', ";
+					}
 				}
 				$keylist = substr($keylist, 0, (strlen($keylist)-2));
 				$vallist = substr($vallist, 0, (strlen($vallist)-2));

@@ -768,8 +768,11 @@ require_once 'UKM/monstring_tidligere.class.php';
                 
                 // Not just the ico-name, but also the path (used in TWIG-design)
                 public function getAllBandTypesDetailedNew() {
+			$bandTypes = $this->getAllBandTypesDetailed();
 			
-            return $this->getAllBandTypesDetailed();
+			$bandTypes['regular'][0]['ico'] = 'film';
+			$bandTypes['regular'][2]['ico'] = 'musikk';
+			return $bandTypes;
 		}
 		
 		##########################################################################################

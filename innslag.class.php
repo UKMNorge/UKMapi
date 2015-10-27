@@ -2,6 +2,8 @@
 require_once('UKM/sql.class.php');
 require_once('UKM/person.class.php');
 require_once('UKM/inc/ukmlog.inc.php');
+require_once('UKM/monstring.class.php');
+
 function create_innslag($bt_id, $season, $pl_id, $kommune, $contact=false){
 	$tittellos = in_array($bt_id, array(4,5,8,9,10));
 	
@@ -37,6 +39,28 @@ function create_innslag($bt_id, $season, $pl_id, $kommune, $contact=false){
 	$relres = $rel->run();
 	
 	return $b_id;
+}
+
+function getBandtypeID($type) {
+	switch($type) {
+		case 'musikk':
+		case 'dans':
+		case 'teater':
+		case 'litteratur':
+		case 'scene': 			$bt_id = 1; break;
+		case 'film':
+		case 'video': 			$bt_id = 2; break;
+		case 'utstilling': 		$bt_id = 3; break;
+		case 'konferansier': 	$bt_id = 4; break;
+		case 'nettredaksjon': 	$bt_id = 5; break;
+		case 'matkultur':		$bt_id = 6; break;
+		case 'arrangor': 		$bt_id = 8; break;
+		case 'sceneteknikk': 	$bt_id = 9; break;
+		case 'annet': 			$bt_id = 1; break;
+		default:				$bt_id = false;
+	}
+
+	return $bt_id;
 }
 
 class innslag {
@@ -125,6 +149,20 @@ class innslag {
 		return ($res===1);
 	}
 	
+	public function lagre() {
+		$qry = new SQLins("smartukm_band", array('b_id' => $this->info['b_id'] ) );
+	
+		if( is_array( $this->lagre ) ) {
+			foreach( $this->lagre as $key => $value ) {
+				$qry->add( $key, $value );	
+			}
+		}
+		#echo $qry->debug();
+		
+		$qry->run();
+		$this->lagre = array();
+	}
+
 	## Henter et innslags innebygde attributter fra b_id
 	public function innslag($b_id, $onlyifsubscribed=true) {
 		$qry = "SELECT `smartukm_band`.*, 
@@ -140,7 +178,8 @@ class innslag {
 				;
 		$sql = new SQL($qry);
 		$res = $sql->run('array');
-		#$res = $wpdb->get_row($qry,'ARRAY_A');
+		#echo $sql->debug();
+#$res = $wpdb->get_row($qry,'ARRAY_A');
 		
 		$this->info = $res;
 		$this->b_id = $this->id = $this->info['b_id'];
@@ -158,6 +197,7 @@ class innslag {
 	## OBS: Lagrer ikke!
 	public function set($key, $value){
 		$this->info[$key] = $value;
+		$this->lagre[$key] = $value;
 	}
 	
 	## Returnerer verdien til attributten (key)
@@ -274,6 +314,7 @@ class innslag {
 	}
 	
 	public function tittellos(){
+		//var_dump($this->info);
 		return !in_array($this->info['bt_id'], array(1,2,3,6,7));
 	}
 	

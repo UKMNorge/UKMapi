@@ -18,11 +18,12 @@
 						JOIN `smartukm_rel_pl_k` AS `rel_pl_k` ON (`rel_pl_k`.`k_id` = `kommune`.`id`)
 						JOIN `smartukm_place` AS `pl` ON (`pl`.`pl_id` = `rel_pl_k`.`pl_id`)
 						
-						WHERE `rel_pl_k`.`season` = '#season'
+						WHERE `rel_pl_k`.`season` = '#season' AND `fylke`.`id` < 21
 						
 						ORDER BY `fylke`.`name` ASC, `kommune`.`name` ASC";
 			$query = new SQL( $query, array('season'=>$this->season) );
 			$res = $query->run();
+			//echo $query->debug();
 			$list = array();
 			
 			while( $row = mysql_fetch_assoc( $res ) ) {
@@ -43,16 +44,19 @@
 				if( !isset( $fylke->monstringer[ $row['pl_id'] ] ) ) {
 					$monstring = new stdClass();
 					$monstring->fellesmonstring = false;
-					$monstring->name = $row['pl_name'];
+					$monstring->id = $row['pl_id'];
+					$monstring->k_id = $row['k_id'];
+					$monstring->name = utf8_encode($row['pl_name']);
 					$monstring->kommuner = array();
 					
 					$fylke->monstringer[ $row['pl_id'] ] = $monstring;
 				} else {
 					$monstring = $fylke->monstringer[ $row['pl_id'] ];
 					$monstring->fellesmonstring = true;
+					$monstring->k_id = false;
 				}
 				
-				$monstring->kommuner[ $row['k_id'] ] = $row['k_name'];
+				$monstring->kommuner[ $row['k_id'] ] = utf8_encode( $row['k_name']);
 			}
 			
 			return $list;

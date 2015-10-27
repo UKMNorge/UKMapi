@@ -1,9 +1,21 @@
 <?php
+require_once('UKM/sql.class.php');
 
 class person {
 	
 	private $info = array();
-	
+
+	// Skrevet ny høst 2015 for bruk av UKMAPIBundle
+	public function lagre() {
+		$qry = new SQLins('smartukm_participant', array('p_id'=>$this->info['p_id']));
+		foreach( $this->info as $key => $val ) {
+			if( strpos( $key, 'p_') === 0 ) {
+				$qry->add( $key, $val );
+			}
+		}
+		$qry->run();
+	}
+		
 	public function update($field, $post_key=false, $b_id=false) {
 		if(!$post_key)
 			$post_key = $field;
@@ -139,8 +151,20 @@ class person {
 				
 			$qry = new SQL($qry);	
 			//var_dump($qry->debug());
-			$this->info = $qry->run( 'array' );
+			$res = $qry->run( 'array' );
+
+			if ($res) 
+				{
+				$this->info = $res;
+			}
+			else {
+				$this->info['p_firstname'] = '';
+				$this->info['p_lastname'] = '';
+				$this->info['p_id'] = false;
+				$this->info['name'] = null; //Empty anyway, hvorfor fylle inn?
+			}
 		}
+		
 		$this->info['p_firstname'] = ucwords($this->info['p_firstname']);
 		$this->info['p_lastname'] = ucwords($this->info['p_lastname']);
 		$this->info['p_id'] = $p_id;
@@ -151,6 +175,7 @@ class person {
 	}
 	
 	public function getAge($monstring=false) {
+		$end_ts = false;
 		if($this->info['p_dob'] == 0)
 			return '25+';
 		$start_ts = $this->info['p_dob'];
