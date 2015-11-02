@@ -1,4 +1,5 @@
 <?php
+require_once('UKM/sql.class.php');
 function validateBand($bid) {
 	global $SEASON;
 

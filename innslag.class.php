@@ -70,7 +70,8 @@ class innslag {
 	var $items_loaded = false;
 	var $personer = array();
 	var $items = array();
-	
+	var $warnings = array();
+
 	
 	public function update($field, $post_key=false, $force = false) {
 		if(!$post_key)
@@ -151,15 +152,31 @@ class innslag {
 	
 	public function lagre() {
 		$qry = new SQLins("smartukm_band", array('b_id' => $this->info['b_id'] ) );
+		$count = 0;
+
+		$td_qry = new SQLins("smartukm_technical", array('b_id' => $this->info['b_id']));
+		$td_count = 0;
 	
 		if( is_array( $this->lagre ) ) {
 			foreach( $this->lagre as $key => $value ) {
-				$qry->add( $key, $value );	
+				if(strpos($key, 'td_') === 0) {
+					$td_qry->add($key, $value);
+					$td_count++;
+				}
+				else {
+					$qry->add( $key, $value );	
+					$count++;
+				}
 			}
 		}
-		#echo $qry->debug();
-		
-		$qry->run();
+		if ($td_count>0) {
+			$td_qry->run();
+		}
+
+		if ($count > 0) {
+			$qry->run();
+		}
+
 		$this->lagre = array();
 	}
 
@@ -816,7 +833,10 @@ class innslag {
 		return time() > (7*24*3600 + $this->g('b_subscr_time'));
 	}
 	
-	
+	public function warning_array($pl_id) {
+		$this->_load_warnings($pl_id);
+		return $this->warnings;
+	}
 	public function warnings($pl_id) {
 		if(!isset($this->info['warnings']))
 			$this->_load_warnings($pl_id);
@@ -851,7 +871,8 @@ class innslag {
 		
 		$place = new monstring($pl_id);
 		$forestillinger = $place->forestillinger();
-
+		// Legg til arrayet med varsler i klassearrayet.
+		$this->warnings = $warning;
 		$this->info['warnings'] = ucfirst(implode(', ', $warning));
 	}
 	////
