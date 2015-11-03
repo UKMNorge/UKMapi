@@ -1,6 +1,4 @@
 <?php
-use SQLins;
-use SQL;
 
 require_once('UKM/sql.class.php');
 
