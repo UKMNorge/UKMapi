@@ -1,4 +1,9 @@
 <?php
+use SQLins;
+use SQL;
+
+require_once('UKM/sql.class.php');
+
 class tittel {
 	
 	public function videresend($videresendFra, $videresendTil) {
@@ -74,16 +79,19 @@ class tittel {
 		$this->tableFields['smartukm_titles_scene']['melodi_av'] = 't_musicby';
 		$this->tableFields['smartukm_titles_scene']['koreografi'] = 't_coreography';
 		$this->tableFields['smartukm_titles_scene']['varighet'] = 't_time';
+		$this->tableFields['smartukm_titles_scene']['season'] = 'season';
 		
 		$this->tableFields['smartukm_titles_exhibition']['tittel'] = 't_e_title';
 		$this->tableFields['smartukm_titles_exhibition']['type'] = 't_e_type';
 		$this->tableFields['smartukm_titles_exhibition']['beskrivelse'] = 't_e_comments';
 		$this->tableFields['smartukm_titles_exhibition']['teknikk'] = 't_e_technique';
+		$this->tableFields['smartukm_titles_exhibition']['season'] = 'season';
 		
 		$this->tableFields['smartukm_titles_video']['tittel'] = 't_v_title';
 		$this->tableFields['smartukm_titles_video']['varighet'] = 't_v_time';	
 		$this->tableFields['smartukm_titles_video']['format'] = 't_v_format';		
 		$this->tableFields['smartukm_titles_video']['beskrivelse'] = 't_v_comments';
+		$this->tableFields['smartukm_titles_video']['season'] = 'season';
 
 		
 		$this->t_id = $t_id;
@@ -135,6 +143,30 @@ class tittel {
 	public function g($key) {
 		return $this->$key;
 	}
+	
+	public function set( $key, $value ) {
+		$this->$key = $value;
+		$this->lagre[$key] = $value;
+	}
+	
+	public function lagre() {
+		$qry = new SQLins($this->form, array('t_id' => $this->t_id ) );
+		$count = 0;
+	
+		if( is_array( $this->lagre ) ) {
+			foreach( $this->lagre as $key => $value ) {
+				$qry->add( $this->tableFields[$this->form][ $key ], $value );	
+				$count++;
+			}
+		}
+		if ($count > 0) {
+			$qry->run();
+		}
+		$this->lagre = array();
+		
+		$qry->run();
+	}
+
 	
 	private function _scene($r) {
 		$this->tittel = utf8_encode($r['t_name']);
