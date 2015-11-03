@@ -4,7 +4,8 @@
 		public function monstringer($season=false){
 			$this->season = $season;
 		}
-		public function alle_kommuner_med_lokalmonstringer() {
+		public function alle_kommuner_med_lokalmonstringer($inkluder_testfylke=false) {
+			$fylkelimit = $inkluder_testfylke ? 22 : 21;
 			$query = "SELECT `pl`.`pl_id`,
 							   `pl`.`pl_name`,
 							   `kommune`.`id` AS `k_id`,
@@ -18,10 +19,10 @@
 						JOIN `smartukm_rel_pl_k` AS `rel_pl_k` ON (`rel_pl_k`.`k_id` = `kommune`.`id`)
 						JOIN `smartukm_place` AS `pl` ON (`pl`.`pl_id` = `rel_pl_k`.`pl_id`)
 						
-						WHERE `rel_pl_k`.`season` = '#season' AND `fylke`.`id` < 21
+						WHERE `rel_pl_k`.`season` = '#season' AND `fylke`.`id` < #fylkelimit 
 						
 						ORDER BY `fylke`.`name` ASC, `kommune`.`name` ASC";
-			$query = new SQL( $query, array('season'=>$this->season) );
+			$query = new SQL( $query, array('season'=>$this->season, 'fylkelimit'=>$fylkelimit) );
 			$res = $query->run();
 			//echo $query->debug();
 			$list = array();
