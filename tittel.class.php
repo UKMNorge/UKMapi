@@ -3,7 +3,9 @@
 require_once('UKM/sql.class.php');
 
 class tittel {
-	
+
+	var $t_id = false;
+
 	public function videresend($videresendFra, $videresendTil) {
 		if((int)$videresendFra==0 || (int)$videresendTil==0)
 			return false;
