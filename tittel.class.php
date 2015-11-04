@@ -139,9 +139,16 @@ class tittel {
 	}
 	
 	public function g($key) {
-		return $this->$key;
+		return $this->get($key);
 	}
-	
+
+	public function get($key) {
+		if(is_array($this->$key))
+			return $this->$key;
+			
+		return $this->$key;	
+	}
+
 	public function set( $key, $value ) {
 		$this->$key = $value;
 		$this->lagre[$key] = $value;
@@ -177,12 +184,12 @@ class tittel {
 		
 		$this->parentes = '(';
 		if($this->melodi_av == $this->tekst_av && !empty($this->melodi_av))
-			$this->parentes .= 'Tekst og melodi: '.utf8_encode($this->tekst_av).'';
+			$this->parentes .= 'Tekst og melodi: '.$this->tekst_av.'';
 		else{
 			if(!empty($this->tekst_av))
-				$this->parentes .= 'Tekst: '. utf8_encode($this->tekst_av);
+				$this->parentes .= 'Tekst: '. $this->tekst_av;
 			if(!empty($this->melodi_av))
-				$this->parentes .= (!empty($this->tekst_av) ? ' - ':''). 'Melodi: '. utf8_encode($this->melodi_av);
+				$this->parentes .= (!empty($this->tekst_av) ? ' - ':''). 'Melodi: '. $this->melodi_av;
 		}
 		$this->parentes .= ')';		
 	}
