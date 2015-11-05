@@ -147,6 +147,7 @@ if(!class_exists('SQLins')) {
 				foreach($where as $key => $val) {
 					$this->wheres .= "`".$key."`='".$val."' AND ";
 				}
+				// Remove last 5 chars (' AND ')
 				$this->wheres = substr($this->wheres, 0, (strlen($this->wheres)-5));
 			## IF THIS IS A INSERT-ARRAY
 			} else {
@@ -174,7 +175,8 @@ if(!class_exists('SQLins')) {
 				$sql = 'UPDATE `'.$this->table.'` SET ';
 				## set new values
 				for($i=0; $i<sizeof($this->keys); $i++) {
-					$sql .= "`".$this->keys[$i]."` = '".$this->vals[$i]."', ";
+					$val = mysql_real_escape_string(trim(strip_tags($this->vals[$i])));
+					$sql .= "`".$this->keys[$i]."` = '".$val."', ";
 				}
 			
 				$sql = substr($sql, 0, (strlen($sql)-2));
