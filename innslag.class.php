@@ -63,6 +63,22 @@ function getBandtypeID($type) {
 	return $bt_id;
 }
 
+function getBandTypeFromID($id) {
+	switch($id) {
+		case 1: 	$type = 'scene';				break;
+		case 2: 	$type = 'video';				break;
+		case 3: 	$type = 'utstilling';			break;
+		case 4: 	$type = 'konferansier';			break;
+		case 5: 	$type = 'nettredaksjon';		break;
+		case 6: 	$type = 'matkultur';			break;
+		case 8: 	$type = 'arrangor';				break;
+		case 9: 	$type = 'sceneteknikk';			break;
+		default: 	$type = 'annet';				break;
+	}
+
+	return $type;
+}
+
 class innslag {
 	## Attributtkontainer
 	var $info = array();
