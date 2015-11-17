@@ -1102,7 +1102,6 @@ class innslag {
 		} else {
 			$status = 8;
 		}
-
 		## CHECK THE VALIDATION OF THE BAND
 		$updated = new SQL("UPDATE `smartukm_band` 
 						   SET `b_status` = '#status',
@@ -1113,7 +1112,10 @@ class innslag {
 								 'b_id'=>$bid
 								 )
 						   );
+		// echo $updated->debug() . '<br>';
 		$updated = $updated->run();
+		// var_dump($updated);
+		// die();
 		if($status == 8 && (int)$band['b_status'] < 8) {
 			if(function_exists('logIt')) { 
 				logIt($bid, 22, (int)$band['b_status']);
@@ -1170,7 +1172,7 @@ class innslag {
 
 		## IF NO TITLES, RETURN
 		if(mysql_num_rows($res)==0)
-			return array('titler' => 'tittel.mangler');
+			return array('titler' => array('tittel.mangler'));
 
 		$missing = array();
 		
@@ -1214,7 +1216,7 @@ class innslag {
 	    $participants = $participants->run();
 		## IF NO PARTICIPANTS
 		if(mysql_num_rows($participants)==0)
-			return array('innslag' => 'innslag.ingendeltakere');
+			return array('innslag' => array('innslag.ingendeltakere'));
 			//return $header. ' Det er ingen deltakere i innslaget';
 
 		## LOOP FOR PARTICIPANTS
