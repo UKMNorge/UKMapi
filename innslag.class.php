@@ -1043,7 +1043,7 @@ class innslag {
 	            ## CHECK PARTICIPANTS
 	            $test_5 = $this->participants($band);
 	            ## CHECK TITLES
-	            $test_6 = $this->titles($band, array('t_e_title','t_e_type','t_e_technique'));
+	            $test_6 = $this->titles($band, array('t_e_title','t_e_type'));
 				## CHECK TECHNICAL DEMANDS
 				$test_1 = true;
 				break;
