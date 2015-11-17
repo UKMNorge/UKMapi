@@ -1091,7 +1091,7 @@ class innslag {
 				if($$check !== true) {
 					//$textFeedback .= str_replace('<br />', "\r\n", $$check) . "\r\n";
 					if (is_array($$check)) {
-						$feedback = array_merge($feedback, $$check);
+						$feedback = array_merge_recursive($feedback, $$check);
 					}
 					else {
 						$feedback[] = $$check;
@@ -1170,7 +1170,7 @@ class innslag {
 
 		## IF NO TITLES, RETURN
 		if(mysql_num_rows($res)==0)
-			return 'tittel.mangler';
+			return array('titler' => 'tittel.mangler');
 
 		$missing = array();
 		
@@ -1196,7 +1196,7 @@ class innslag {
 		## IF NOTHING WRONG, RETURN TRUE
 		if(empty($missing)) return true;
 		
-		return $missing;
+		return array('titler' => $missing);
 	}	
 
 	###########################################################
@@ -1214,7 +1214,7 @@ class innslag {
 	    $participants = $participants->run();
 		## IF NO PARTICIPANTS
 		if(mysql_num_rows($participants)==0)
-			return 'innslag.ingendeltakere';
+			return array('innslag' => 'innslag.ingendeltakere');
 			//return $header. ' Det er ingen deltakere i innslaget';
 
 		## LOOP FOR PARTICIPANTS
@@ -1248,17 +1248,20 @@ class innslag {
 	  	
 	    if(empty($whatmissing)) return true;
 	    
-	    return $whatmissing;
+	    return $whatmissing; // Denne returneres kun til participants, så trenger ikke å wrappes i et array!
 	}
 
 	###########################################################
 	########     CHECK NAME OF BAND				 ##############
 	###########################################################
 	function name($band) {
-	  	if(empty($band['b_name'])) 								return 'innslag.navn';
+		$whatmissing = array();
+	  	if(empty($band['b_name'])) 								$whatmissing[] = 'innslag.navn';
 		
-	    return true;
-	}
+	    if(empty($whatmissing)){
+		    return true;	
+		}
+	    return array('innslag' => $whatmissing);	}
 
 	###########################################################
 	########     CHECK NAME AND SJANGER FOR BAND ##############
@@ -1271,28 +1274,37 @@ class innslag {
 		if(empty($wrong)){
 		    return true;	
 		}
-		return $wrong;
+		return array('innslag' => $wrong);
 	}
 
 	###########################################################
 	########     CHECK DESCRIPTION				 ##############
 	###########################################################
 	function description($band) {
-		if(empty($band['td_konferansier']))						return 'innslag.beskrivelse';
-	    elseif(strlen($band['td_konferansier']) < 20)			return 'innslag.beskrivelseLengde';
-	   	elseif($band['td_konferansier'] == 'innslag.beskrivelseLengde') return 'innslag.beskrivelse';
-	    return true;
+		$whatmissing = array();
+		if(empty($band['td_konferansier']))						$whatmissing[] = 'innslag.beskrivelse';
+	    elseif(strlen($band['td_konferansier']) < 20)			$whatmissing[] = 'innslag.beskrivelseLengde';
+	   	elseif($band['td_konferansier'] == 'innslag.beskrivelseLengde') $whatmissing[] = 'innslag.beskrivelse';
+	    
+	    if(empty($whatmissing)){
+		    return true;	
+		}
+	    return array('innslag' => $whatmissing);
 	}
 
 	###########################################################
 	########     CHECK TECHNICAL DEMANDS		 ##############
 	###########################################################
 	function technical($band) {
+		$whatmissing = array();
 		global $lang;
-		if(empty($band['td_demand']))							return 'td.mangler';
-	    elseif(strlen($band['td_demand']) < 5)					return 'td.lengde';
+		if(empty($band['td_demand']))							$whatmissing[] = 'td.mangler';
+	    elseif(strlen($band['td_demand']) < 5)					$whatmissing[] = 'td.lengde';
 		
-	    return true;
+		if(empty($whatmissing)){
+		    return true;	
+		}
+	    return array('teknisk' => $whatmissing);
 	}
 
 	###########################################################
@@ -1335,8 +1347,7 @@ class innslag {
 	    	$whatmissing[] = 'kontakt.postnummer';
 	  	
 	    if(empty($whatmissing)) return true;
-	    
-	    return $whatmissing;
+	    return array('kontakt' => $whatmissing);
 	}
 
 	###########################################################
