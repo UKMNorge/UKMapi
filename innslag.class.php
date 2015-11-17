@@ -1015,7 +1015,19 @@ class innslag {
 				else 
 		            $test_6 = $this->titles($band, array('t_name','t_musicby','t_time'));
 				## CHECK TECHNICAL DEMANDS
-				$test_1 = $this->technical($band);
+				switch($band['b_kategori']) {
+					case 'utstilling': #nødvendig? utstilling er jo case 2 under?
+					case 'film':
+					case 'dans':
+					case 'litterature':
+					case 'litteratur':
+						$test_1 = true;
+						$test_1 = true;
+						break;
+					default:
+						$test_1 = $this->technical($band);		
+				}	
+				
 	            break;
 			## VIDEO
 	    	case 2: 
@@ -1034,7 +1046,7 @@ class innslag {
 				break;
 			## EXHIBITION
 	    	case 3: 
-	            ## CHECK NAME AND SJANGER
+	            ## CHECK NAME
 	            $test_2 = $this->name($band);       
 	            ## CHECK DESCRIPTION
 	            $test_3 = $this->description($band);
