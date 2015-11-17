@@ -1285,7 +1285,7 @@ class innslag {
 	function description($band) {
 		$whatmissing = array();
 		if(empty($band['td_konferansier']))						$whatmissing[] = 'innslag.beskrivelse';
-	    elseif(strlen($band['td_konferansier']) < 20)			$whatmissing[] = 'innslag.beskrivelseLengde';
+	    elseif(strlen($band['td_konferansier']) < 5)			$whatmissing[] = 'innslag.beskrivelseLengde';
 	   	elseif($band['td_konferansier'] == 'innslag.beskrivelseLengde') $whatmissing[] = 'innslag.beskrivelse';
 	    
 	    if(empty($whatmissing)){
