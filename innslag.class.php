@@ -1115,18 +1115,24 @@ class innslag {
 			$status = 8;
 		}
 		## CHECK THE VALIDATION OF THE BAND
-		$updated = new SQL("UPDATE `smartukm_band` 
-						   SET `b_status` = '#status',
-						   `b_status_text` = '#text'
-						   WHERE `b_id` = '#b_id'",
-						   array('status'=>($status>$band['b_status']?$status:$band['b_status']),
-								 'text'=>'Deprecated in UKMdelta',
-								 'b_id'=>$bid
-								 )
-						   );
+		// $updated = new SQL("UPDATE `smartukm_band` 
+		// 				   SET `b_status` = '#status',
+		// 				   `b_status_text` = '#text'
+		// 				   WHERE `b_id` = '#b_id'",
+		// 				   array('status'=>($status>$band['b_status']?$status:$band['b_status']),
+		// 						 'text'=>'Deprecated in UKMdelta',
+		// 						 'b_id'=>$bid
+		// 						 )
+		// 				   );
+
+		$updated = new SQLins('smartukm_band', array('b_id' => $bid));
+		$updated->add('b_status', $status);
+		$updated->add('b_status_text', 'UKMdelta - tekst kommer');
 		// echo $updated->debug() . '<br>';
 		$updated = $updated->run();
+
 		// var_dump($updated);
+		// echo '<br>';
 		// die();
 		if($status == 8 && (int)$band['b_status'] < 8) {
 			if(function_exists('logIt')) { 
