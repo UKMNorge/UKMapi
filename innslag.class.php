@@ -1018,7 +1018,6 @@ class innslag {
 				switch($band['b_kategori']) {
 					case 'utstilling': #nødvendig? utstilling er jo case 2 under?
 					case 'film':
-					case 'dans':
 					case 'litterature':
 					case 'litteratur':
 						$test_1 = true;
