@@ -1039,7 +1039,7 @@ class innslag {
 	            ## CHECK PARTICIPANTS
 	            $test_5 = $this->participants($band);
 	            ## CHECK TITLES
-				$test_6 = $this->titles($band, array('t_v_title','t_v_format','t_v_time'));
+				$test_6 = $this->titles($band, array('t_v_title','t_v_time'));
 				## CHECK TECNICAL
 				$test_1 = true;
 				break;
