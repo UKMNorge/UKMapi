@@ -1207,7 +1207,7 @@ class innslag {
 					elseif($b['b_kategori']=='annet' && in_array($fields[$i],array('t_musicby','t_titleby','t_coreography')))
 						continue;
 		
-					$missing[] = $title[$titleKey].$fields[$i];
+					$missing[] = array($title[$titleKey], array("tittel.".$fields[$i]));//$title[$titleKey].$fields[$i];
 					break;
 				}
 			}
