@@ -40,12 +40,12 @@ class person {
 				$this->_log( 'instrument', $val );
 				// Add to query and run
 				$sql_instrument->add( 'instrument', $val );
-				echo 'sql_i:'. $sql_instrument->debug();
+				//echo 'sql_i:'. $sql_instrument->debug();
 				$sql_instrument->run();
 			}
 		}
 		if($counter > 0) {
-			echo 'sql_p: '. $sql_participant->debug();
+			//echo 'sql_p: '. $sql_participant->debug();
 			$sql_participant->run();
 		}
 	}
