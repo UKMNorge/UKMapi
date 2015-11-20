@@ -210,10 +210,13 @@ class tittel {
 		$this->varighet = 0;
 
 		$this->parentes = '(';
+
 			if(!empty($this->type))
-				$this->parentes .= 'Type: '. utf8_encode($this->type);
+				# fjernet utf8_encode fordi det gjøres over
+				$this->parentes .= 'Type: '. $this->type;
 			if(!empty($this->tekst_av))
-				$this->parentes .= 'Teknikk: '. utf8_encode($this->teknikk);
+				# fjernet utf8_encode fordi det gjøres over
+				$this->parentes .= 'Teknikk: '. $this->teknikk;
 		$this->parentes .= ')';
 	}
 	
