@@ -1015,7 +1015,18 @@ class innslag {
 				else 
 		            $test_6 = $this->titles($band, array('t_name','t_musicby','t_time'));
 				## CHECK TECHNICAL DEMANDS
-				$test_1 = $this->technical($band);
+				switch($band['b_kategori']) {
+					case 'utstilling': #nødvendig? utstilling er jo case 2 under?
+					case 'film':
+					case 'litterature':
+					case 'litteratur':
+						$test_1 = true;
+						$test_1 = true;
+						break;
+					default:
+						$test_1 = $this->technical($band);		
+				}	
+				
 	            break;
 			## VIDEO
 	    	case 2: 
@@ -1028,13 +1039,13 @@ class innslag {
 	            ## CHECK PARTICIPANTS
 	            $test_5 = $this->participants($band);
 	            ## CHECK TITLES
-				$test_6 = $this->titles($band, array('t_v_title','t_v_format','t_v_time'));
+				$test_6 = $this->titles($band, array('t_v_title','t_v_time'));
 				## CHECK TECNICAL
 				$test_1 = true;
 				break;
 			## EXHIBITION
 	    	case 3: 
-	            ## CHECK NAME AND SJANGER
+	            ## CHECK NAME
 	            $test_2 = $this->name($band);       
 	            ## CHECK DESCRIPTION
 	            $test_3 = $this->description($band);
@@ -1102,18 +1113,26 @@ class innslag {
 		} else {
 			$status = 8;
 		}
-
 		## CHECK THE VALIDATION OF THE BAND
-		$updated = new SQL("UPDATE `smartukm_band` 
-						   SET `b_status` = '#status',
-						   `b_status_text` = '#text'
-						   WHERE `b_id` = '#b_id'",
-						   array('status'=>($status>$band['b_status']?$status:$band['b_status']),
-								 'text'=>'Deprecated in UKMdelta',
-								 'b_id'=>$bid
-								 )
-						   );
+		// $updated = new SQL("UPDATE `smartukm_band` 
+		// 				   SET `b_status` = '#status',
+		// 				   `b_status_text` = '#text'
+		// 				   WHERE `b_id` = '#b_id'",
+		// 				   array('status'=>($status>$band['b_status']?$status:$band['b_status']),
+		// 						 'text'=>'Deprecated in UKMdelta',
+		// 						 'b_id'=>$bid
+		// 						 )
+		// 				   );
+
+		$updated = new SQLins('smartukm_band', array('b_id' => $bid));
+		$updated->add('b_status', $status);
+		$updated->add('b_status_text', 'UKMdelta - tekst kommer');
+		// echo $updated->debug() . '<br>';
 		$updated = $updated->run();
+
+		// var_dump($updated);
+		// echo '<br>';
+		// die();
 		if($status == 8 && (int)$band['b_status'] < 8) {
 			if(function_exists('logIt')) { 
 				logIt($bid, 22, (int)$band['b_status']);
@@ -1170,7 +1189,7 @@ class innslag {
 
 		## IF NO TITLES, RETURN
 		if(mysql_num_rows($res)==0)
-			return array('titler' => 'tittel.mangler');
+			return array('titler' => array('tittel.mangler'));
 
 		$missing = array();
 		
@@ -1188,7 +1207,7 @@ class innslag {
 					elseif($b['b_kategori']=='annet' && in_array($fields[$i],array('t_musicby','t_titleby','t_coreography')))
 						continue;
 		
-					$missing[] = $title[$titleKey].$fields[$i];
+					$missing[] = array($title[$titleKey], array("tittel.".$fields[$i]));//$title[$titleKey].$fields[$i];
 					break;
 				}
 			}
@@ -1214,7 +1233,7 @@ class innslag {
 	    $participants = $participants->run();
 		## IF NO PARTICIPANTS
 		if(mysql_num_rows($participants)==0)
-			return array('innslag' => 'innslag.ingendeltakere');
+			return array('innslag' => array('innslag.ingendeltakere'));
 			//return $header. ' Det er ingen deltakere i innslaget';
 
 		## LOOP FOR PARTICIPANTS
@@ -1283,7 +1302,7 @@ class innslag {
 	function description($band) {
 		$whatmissing = array();
 		if(empty($band['td_konferansier']))						$whatmissing[] = 'innslag.beskrivelse';
-	    elseif(strlen($band['td_konferansier']) < 20)			$whatmissing[] = 'innslag.beskrivelseLengde';
+	    elseif(strlen($band['td_konferansier']) < 5)			$whatmissing[] = 'innslag.beskrivelseLengde';
 	   	elseif($band['td_konferansier'] == 'innslag.beskrivelseLengde') $whatmissing[] = 'innslag.beskrivelse';
 	    
 	    if(empty($whatmissing)){
