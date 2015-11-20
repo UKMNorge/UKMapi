@@ -199,6 +199,10 @@ class tittel {
 			if(!empty($this->melodi_av))
 				$this->parentes .= (!empty($this->tekst_av) ? ' - ':''). 'Melodi: '. $this->melodi_av;
 		}
+		
+		if (!empty($this->koreografi)) {
+			$this->parentes .= 'Koreografi: '.$this->koreografi;
+		}
 		$this->parentes .= ')';		
 	}
 	
