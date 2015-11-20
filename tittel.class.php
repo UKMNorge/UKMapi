@@ -82,7 +82,7 @@ class tittel {
 		$this->tableFields['smartukm_titles_scene']['season'] = 'season';
 		$this->tableFields['smartukm_titles_scene']['instrumental'] = 't_instrumental';
 		$this->tableFields['smartukm_titles_scene']['selvlaget'] = 't_selfmade';
-
+		$this->tableFields['smartukm_titles_scene']['litterature_read'] = 't_litterature_read';
 		
 		$this->tableFields['smartukm_titles_exhibition']['tittel'] = 't_e_title';
 		$this->tableFields['smartukm_titles_exhibition']['type'] = 't_e_type';
@@ -188,6 +188,7 @@ class tittel {
 		$this->varighet = (int) $r['t_time'];
 		$this->selvlaget = $r['t_selfmade'];
 		$this->instrumental = $r['t_instrumental'];
+		$this->litterature_read = $r['t_litterature_read'];
 		
 		$this->parentes = '(';
 		if($this->melodi_av == $this->tekst_av && !empty($this->melodi_av))
