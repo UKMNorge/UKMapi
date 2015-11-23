@@ -54,6 +54,27 @@ require_once('UKM/monstring.class.php');
 			return $this->monstring;
 		}
 	}
+	
+	class postnummer_monstring( $postnummer, $season ) {
+		public function __construct( $postnummer, $season ) {
+			$kommune_id = new SQL("SELECT `k_id`
+								   FROM `smartukm_postalplace`
+								   WHERE `postalcode` = '#postnummer'",
+								   array('postnummer'=>$postnummer));
+			$kommune_id = $kommune_id->run('field', 'k_id');
+
+			if( is_numeric($kommune_id) && $kommune_id > 0 ) {
+				$monstring = new kommune_monstring( $kommune_id, $season );
+				$this->monstring = $monstring->monstring_get();
+			} else {
+				$this->monstring = false;
+			}
+		}
+		
+		public function monstring_get() {
+			return $this->monstring;
+		}
+	}
 
 	class postnummer_monstring {
 		public function __construct( $postnummer, $season ) {
