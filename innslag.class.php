@@ -88,7 +88,26 @@ class innslag {
 	var $items = array();
 	var $warnings = array();
 
-	
+	// Ny funksjon nov 2015
+	// Henter et mønstringsobjekt for innslaget.
+	var $lokalmonstring = false;
+	public function min_lokalmonstring( ) {
+		if( !isset($this->info['kommuneID'] ) ) {
+			$this->loadGEO();
+		}
+		
+		require_once('UKM/monstring.class.php');
+		require_once('UKM/monstring_tidligere.class.php');
+		
+		$k_id = $this->get('kommuneID');
+		$season = $this->get('season');
+		
+		$monstring = new kommune_monstring( $k_id, $season );
+		$this->lokalmonstring = $monstring->monstring_get();
+		
+		return $this->lokalmonstring;
+	}
+
 	public function update($field, $post_key=false, $force = false) {
 		if(!$post_key)
 			$post_key = $field;
