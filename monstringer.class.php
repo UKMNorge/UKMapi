@@ -19,8 +19,9 @@
 						JOIN `smartukm_rel_pl_k` AS `rel_pl_k` ON (`rel_pl_k`.`k_id` = `kommune`.`id`)
 						JOIN `smartukm_place` AS `pl` ON (`pl`.`pl_id` = `rel_pl_k`.`pl_id`)
 						
-						WHERE `rel_pl_k`.`season` = '#season' AND `fylke`.`id` < #fylkelimit 
-						
+						WHERE `rel_pl_k`.`season` = '#season' 
+						AND `fylke`.`id` < #fylkelimit 
+						AND `kommune`.`id` < '3002'
 						ORDER BY `fylke`.`name` ASC, `kommune`.`name` ASC";
 			$query = new SQL( $query, array('season'=>$this->season, 'fylkelimit'=>$fylkelimit) );
 			$res = $query->run();
