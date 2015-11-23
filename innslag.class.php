@@ -100,7 +100,7 @@ class innslag {
 		require_once('UKM/monstring_tidligere.class.php');
 		
 		$k_id = $this->get('kommuneID');
-		$season = $this->get('season');
+		$season = $this->get('b_season');
 		
 		$monstring = new kommune_monstring( $k_id, $season );
 		$this->lokalmonstring = $monstring->monstring_get();
