@@ -55,7 +55,7 @@ require_once('UKM/monstring.class.php');
 		}
 	}
 	
-	class postnummer_monstring( $postnummer, $season ) {
+	class postnummer_monstring {
 		public function __construct( $postnummer, $season ) {
 			$kommune_id = new SQL("SELECT `k_id`
 								   FROM `smartukm_postalplace`
