@@ -1357,8 +1357,11 @@ class innslag {
 		if(empty($b['p_lastname']) && strlen($b['p_lastname']) < 3)
 	    	$whatmissing[] = 'kontakt.etternavn';
 
-		if(empty($b['p_email']) || !validEmail($b['p_email']))	
-	    	$whatmissing[] = 'kontakt.epost';
+		if(empty($b['p_email'])) {
+			$whatmissing[] = 'kontakt.epost.mangler';
+		}
+ 		else if(!validEmail($b['p_email']))	
+	    		$whatmissing[] = 'kontakt.epost.ikkegyldig';
 
 	    if(empty($b['p_phone']) || strlen($b['p_phone'])!==8)
 	    	$whatmissing[] = 'kontakt.telefon';
