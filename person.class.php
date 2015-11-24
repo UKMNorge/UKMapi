@@ -8,7 +8,7 @@ class person {
 	private $save_new = array();
 
 	// Skrevet ny høst 2015 for bruk av UKMAPIBundle
-	public function lagre( $system_id, $user_id, $pl_id ) {
+	public function lagre( $system_id, $user_id, $pl_id=null ) {
 		$this->_log_id( $system_id, $user_id, $pl_id );
 		
 		if( !is_numeric( $this->info['p_id'] ) ) {
