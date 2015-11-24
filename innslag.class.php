@@ -378,6 +378,17 @@ class innslag {
 	####################################################################################
 	## FUNKSJONER RELATERT TIL PERSONER I INNSLAGET
 	####################################################################################
+	public function harPerson( $p_id ) {
+		$alle_personer = $this->personer();
+		
+		foreach( $alle_personer as $person ) {
+			if( $p_id == $person['p_id'] ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	## Returnerer en liste over innslags-ID'er. Hvis listen ikke er laget, last den inn
 	public function kontaktperson() {
 		if(!isset($this->kontaktperson))

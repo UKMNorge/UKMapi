@@ -298,6 +298,18 @@ require_once 'UKM/monstring_tidligere.class.php';
 			return $this->_startstop('pl_deadline'.($hvilken==2?'2':''));
 		}
 
+		############################################
+		## Sjekk om en innslagstype er tillatt på mønstringen
+		############################################
+		public function bandTypeAllowed( $bt_id ) {
+			if( !isset( $this->band_types_allowed ) or empty( $this->band_types_allowed ) ) {
+				$this->_load_bandTypes();
+			}
+	        	return isset($this->band_types_allowed[ $bt_id ] );
+		}
+
+
+
 		public function calendar() {
 			if(!$this->g('calendar'))
 				$this->_load_calendar();
@@ -738,31 +750,32 @@ require_once 'UKM/monstring_tidligere.class.php';
                                         'ico_url'=>'http://ico.ukm.no/pamelding/matkultur.png', 
                                         'ico_url_gray'=>'http://ico.ukm.no/pamelding/matkultur_gray.png', 
                                         'title'=>'Lyst til &aring; imponere et dommerpanel med din egen kokkelering? Klikk her');
-			$BANDTYPES['work'][] = array('bt_id'=>5, 
-                                         'name'=>'Nettredaksjon / Videoproduksjon', 
-                                         'ico'=>'nettredaksjon', 
-                                         'ico_url'=>'http://ico.ukm.no/pamelding/nettredaksjon.png', 
-                                         'ico_url_gray'=>'http://ico.ukm.no/pamelding/nettredaksjon_gray.png', 
-                                         'title'=>'Har du lyst til &aring; jobbe som journalist under m&oslash;nstringen? Eller til &aring; v&aelig;re kameramann under en forestilling? Eller produsere hele showet? Klikk her og finn ut hvilke muligheter som finnes p&aring; din m&oslash;nstring!');
 			$BANDTYPES['work'][] = array('bt_id'=>4, 
                                          'name'=>'Konferansier', 
                                          'ico'=>'konferansier', 
                                          'ico_url'=>'http://ico.ukm.no/pamelding/konferansier.png', 
                                          'ico_url_gray'=>'http://ico.ukm.no/pamelding/konferansier_gray.png', 
                                          'title'=>'Ikke redd for &aring; prate i store forsamlinger? Lyst til &aring; gj&oslash;re det med mikrofon og publikum i din hule h&aring;nd? Klikk her');
+			$BANDTYPES['work'][] = array('bt_id'=>5, 
+                                         'name'=>'UKM Media', 
+                                         'ico'=>'nettredaksjon', 
+                                         'ico_url'=>'http://ico.ukm.no/pamelding/nettredaksjon.png', 
+                                         'ico_url_gray'=>'http://ico.ukm.no/pamelding/nettredaksjon_gray.png', 
+                                         'title'=>'Har du lyst til &aring; jobbe som journalist under m&oslash;nstringen? Eller til &aring; v&aelig;re kameramann under en forestilling? Eller produsere hele showet? Klikk her og finn ut hvilke muligheter som finnes p&aring; din m&oslash;nstring!');
 			$BANDTYPES['work'][] = array('bt_id'=>8, 
                                          'name'=>'Arrang&oslash;r', 
                                          'ico'=>'arrangor', 
                                          'ico_url'=>'http://ico.ukm.no/pamelding/arrangor.png', 
                                          'ico_url_gray'=>'http://ico.ukm.no/pamelding/arrangor_gray.png', 
                                          'title'=>'Lyst til &aring; bidra til &aring; lage m&oslash;nstring sammen med din lokale arrang&oslash;r? Klikk her');
+/*
 			$BANDTYPES['work'][] = array('bt_id'=>9, 
                                          'name'=>'Sceneteknikk', 
                                          'ico'=>'sceneteknikk', 
                                          'ico_url'=>'http://ico.ukm.no/pamelding/sceneteknikk.png', 
                                          'ico_url_gray'=>'http://ico.ukm.no/pamelding/sceneteknikk_gray.png', 
                                          'title'=>'Liker du deg bedre bak scenen enn p&aring;? Har du lyst til &aring; bygge scene og rigge lyd og lys sammen med profesjonelle folk? Klikk her');
-			
+*/
 			return $BANDTYPES;
 		}
                 
