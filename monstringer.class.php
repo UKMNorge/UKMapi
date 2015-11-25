@@ -22,6 +22,7 @@
 						WHERE `rel_pl_k`.`season` = '#season' 
 						AND `fylke`.`id` < #fylkelimit 
 						AND `kommune`.`id` < '3002'
+						AND `kommune`.`name` != 'Gjester'
 						ORDER BY `fylke`.`name` ASC, `kommune`.`name` ASC";
 			$query = new SQL( $query, array('season'=>$this->season, 'fylkelimit'=>$fylkelimit) );
 			$res = $query->run();
