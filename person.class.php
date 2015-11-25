@@ -29,7 +29,7 @@ class person {
 				$this->_log( $key, $val );
 				// Add to query and run
 				$sql_participant->add( $key, $val );		
-			} elseif( $key == 'instrument' ) {
+			} elseif( strpos($key, 'instrument') === 0 ) {
 				// Dependencies
 				if( !is_numeric( $this->info['b_id'] ) ) {
 					throw new Exception('Cannot save instrument of P'. $this->info['p_id'] .' in unknown "innslag"');
@@ -39,7 +39,7 @@ class person {
 				// LOG
 				$this->_log( 'instrument', $val );
 				// Add to query and run
-				$sql_instrument->add( 'instrument', $val );
+				$sql_instrument->add( $key, $val );
 				//echo 'sql_i:'. $sql_instrument->debug();
 				$sql_instrument->run();
 			}
@@ -219,8 +219,17 @@ switch( $field ) {
 			return;
 		
 		if(is_numeric($b_id)) {
-			$qry = "SELECT `smartukm_participant`.`p_id`, `p_firstname`, `p_lastname`, 
-							`instrument`, `p_dob`, `p_phone`, `p_postnumber`, `p_adress`, `p_email`, `p_kommune` 
+			$qry = "SELECT `smartukm_participant`.`p_id`,
+					 `p_firstname`,
+					 `p_lastname`,
+					 `instrument`,
+					 `instrument_object`,
+					 `p_dob`,
+					 `p_phone`,
+					 `p_postnumber`,
+					 `p_adress`,
+					 `p_email`,
+					 `p_kommune` 
 					FROM `smartukm_participant`
 					LEFT JOIN `smartukm_rel_b_p` ON (`smartukm_rel_b_p`.`p_id` = `smartukm_participant`.`p_id`)
 					WHERE `smartukm_rel_b_p`.`b_id` = ".$b_id."
