@@ -88,6 +88,71 @@ class innslag {
 	var $items = array();
 	var $warnings = array();
 
+	// Nye funksjoner nov 2015 for UKMdelta
+	private function _log( $field, $newValue ) {
+		// Finn log action ID
+		$action = $this->_log_action( $field );
+		// ActionID består av 1-2-sifret tall objektID konkatenert med 2-sifret ActionID
+		// 101 = objekt 1, action 1
+		$object = substr($action, 0, (strlen($action)-2));
+		
+	    $qry = new SQLins('log_log');
+	    $qry->add('log_u_id', $this->log_user_id);
+	    $qry->add('log_system_id', $this->log_system_id);
+	    $qry->add('log_action', $action);
+	    $qry->add('log_object', $object);
+	    $qry->add('log_the_object_id', $this->info['b_id']);
+	    $qry->add('log_pl_id', $this->log_pl_id);
+		
+		$res = $qry->run();
+		$log_id = $qry->insid();
+		
+		if( !is_numeric( $log_id ) ) {
+			throw new Exception('Kan ikke lagre endringene i innslaget på grunn av logg-feil!');
+		}
+		// Logg ny verdi
+		$qry = new SQLins('log_value');
+		$qry->add('log_id', $log_id);
+		$qry->add('log_value', $newValue );
+		$qry->run();
+		
+	}
+	
+	private function _log_action( $field ) {
+		// Hvis td_ er først i $field-variabelen
+		if (strpos($field, 'td_') === 0) {
+			$table = 'smartukm_technical';
+		}
+		else {
+			$table = 'smartukm_band';
+		}
+		// switch( $field ) {
+		// 	case 'td_konferansier':
+		// 		$table = '';
+		// 	break;
+		// 	default:
+		// 		$table = 'smartukm_band';
+		// 	break;
+		// }
+		$actionQ = new SQL("SELECT `log_action_id`
+						FROM `log_actions` 
+						WHERE `log_action_identifier` = '#identifier'",
+						array('identifier'=>$table.'|'.$field));
+		$actionID = $actionQ->run('field','log_action_id');
+		
+	    if( empty( $actionID ) ) {
+		    throw new Exception('LOG FAILED. Object update failed due to missing '. $field .' log action error');
+	    }
+		
+		return $actionID;
+	}
+	
+	private function _log_id( $system_id, $user_id, $pl_id ) {
+		$this->log_system_id = $system_id;
+		$this->log_user_id = $user_id;
+		$this->log_pl_id = $pl_id;
+	}
+
 	// Ny funksjon nov 2015
 	// Henter et mønstringsobjekt for innslaget.
 	var $lokalmonstring = false;
@@ -166,14 +231,17 @@ class innslag {
 		return $qry->run();
 	}
 	
-	public function delete() {		
+	public function delete($system_id, $user_id, $pl_id) {		
+		$this->_log_id($system_id, $user_id, $pl_id);
+		// Logg slettingen
+		$this->_log('delete', time());
 		$qry = new SQLins('smartukm_band', array('b_id'=>$this->g('b_id')));
 		$qry->add('b_status', 99);
 		$res = $qry->run();
 		#echo $qry->debug();
 		
-		$_POST['b_status'] = 99;
-		UKMlog('smartukm_band','b_status','b_status',$this->g('b_id'));
+		#$_POST['b_status'] = 99;
+		#UKMlog('smartukm_band','b_status','b_status',$this->g('b_id'));
 		
 		$deleteFromStat = new SQLdel('ukm_statistics', 
 									array('season' => $this->g('b_season'),
