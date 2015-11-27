@@ -238,6 +238,7 @@ switch( $field ) {
 					ORDER BY `smartukm_participant`.`p_firstname`, `smartukm_participant`.`p_lastname` ASC";
 				
 			$qry = new SQL($qry);
+			#echo $qry->debug();
 			$this->info = $qry->run( 'array' );
 			if ($this->info !== false)
 				$this->info['b_id'] = $b_id;

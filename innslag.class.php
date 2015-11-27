@@ -7,9 +7,8 @@ require_once('UKM/monstring.class.php');
 function create_innslag($bt_id, $season, $pl_id, $kommune, $contact=false){
 	$tittellos = in_array($bt_id, array(4,5,8,9,10));
 	
+
 #	if($tittellos && !$contact)
-		
-	
 
 	$band = new SQLins('smartukm_band');
 	$band->add('b_season', $season);
@@ -32,6 +31,7 @@ function create_innslag($bt_id, $season, $pl_id, $kommune, $contact=false){
 	$tech->add('pl_id', $pl_id);
 	$techres = $tech->run();
 	
+
 	$rel = new SQLins('smartukm_rel_pl_b');
 	$rel->add('pl_id', $pl_id);
 	$rel->add('b_id', $b_id);
@@ -92,9 +92,21 @@ class innslag {
 	private function _log( $field, $newValue ) {
 		// Finn log action ID
 		$action = $this->_log_action( $field );
+		
+		// var_dump($field);
+		// var_dump($newValue);
+
 		// ActionID består av 1-2-sifret tall objektID konkatenert med 2-sifret ActionID
 		// 101 = objekt 1, action 1
 		$object = substr($action, 0, (strlen($action)-2));
+
+		// var_dump($this->log_user_id);
+		// var_dump($this->log_system_id);
+		// var_dump($action);
+		// var_dump($object);
+		// var_dump($this->info['b_id']);
+		// var_dump($this->log_pl_id);
+		
 		
 	    $qry = new SQLins('log_log');
 	    $qry->add('log_u_id', $this->log_user_id);
@@ -184,6 +196,7 @@ class innslag {
 			$qry = new SQLins('smartukm_technical', array('b_id'=>$this->info['b_id']));
 			if (!$force)
 				UKMlog('smartukm_technical',$field,$post_key,$this->info['b_id']);
+				
 		}
 		// Alt annet
 		else {
@@ -223,12 +236,17 @@ class innslag {
 	}
 	
 	public function removePerson($p_id) {
+		// , $system_id = 'innslag.class', $user_id = null, $pl_id = null
+		// $this->_log_id($system_id, $user_id, $pl_id);
+		// $this->_log();
+
 		$qry = new SQLdel('smartukm_rel_b_p', 
 							array('b_id'=>$this->info['b_id'], 
 								  'p_id'=>$p_id, 
 								  'season'=>$this->g('b_season'), 
 								  'b_p_year'=>$this->g('b_season')));
 		return $qry->run();
+
 	}
 	
 	public function delete($system_id, $user_id, $pl_id) {		
@@ -253,7 +271,12 @@ class innslag {
 		return ($res===1);
 	}
 	
-	public function lagre() {
+	public function lagre($system_id = 'innslag.class', $user_id = 0, $pl_id = null) {
+		
+		// Initialiser logging
+		$pl_id = $this->min_lokalmonstring()->get('pl_id');
+		$this->_log_id($system_id, $user_id, $pl_id);
+
 		$qry = new SQLins("smartukm_band", array('b_id' => $this->info['b_id'] ) );
 		$count = 0;
 
@@ -264,10 +287,12 @@ class innslag {
 			foreach( $this->lagre as $key => $value ) {
 				if(strpos($key, 'td_') === 0) {
 					$td_qry->add($key, $value);
+					$this->_log($key, $value);
 					$td_count++;
 				}
 				else {
-					$qry->add( $key, $value );	
+					$qry->add( $key, $value );
+					$this->_log($key, $value);	
 					$count++;
 				}
 			}
