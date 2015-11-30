@@ -1331,7 +1331,7 @@ class innslag {
 						continue;
 		
 					## Added utf8_encode because this doesn't use it. :/
-					$missing[] = array(utf8_encode($title[$titleKey]), array(utf8_encode("tittel.".$fields[$i])));//$title[$titleKey].$fields[$i];
+					$missing[] = array($title['t_id'], array(utf8_encode("tittel.".$fields[$i])));//$title[$titleKey].$fields[$i];
 					break;
 				}
 			}
@@ -1364,7 +1364,7 @@ class innslag {
 		while($p = mysql_fetch_assoc($participants)) {
 	    	$test = $this->participant($p);
 	        if($test !== true) {
-	        	$whatwrong[] = array($p['p_firstname'].' '.$p['p_lastname'], $test);
+	        	$whatwrong[] = array($p['p_id'], $test);
 	        }
 		}
 	    
