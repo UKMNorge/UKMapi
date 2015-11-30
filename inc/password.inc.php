@@ -8784,7 +8784,7 @@ $pass_words = array(
 "kullsur",
 "kulminere",
 "kulmule",
-"kult",
+#"kult",
 "kultivert",
 "kultur",
 "kulturelt",

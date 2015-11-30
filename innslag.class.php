@@ -38,6 +38,9 @@ function create_innslag($bt_id, $season, $pl_id, $kommune, $contact=false){
 	$rel->add('season', $season);
 	$relres = $rel->run();
 	
+	$innslag = new innslag( $b_id, false );
+	$innslag->statistikk_oppdater();
+		
 	return $b_id;
 }
 
@@ -225,6 +228,8 @@ class innslag {
 		$qry->add('b_p_year', $this->g('b_season'));
 		$res = $qry->run();
 		
+		$this->statistikk_oppdater();
+		
 #		UKM_loader('private');
 #		if(UKM_private()){
 		if($this->info['b_contact'] == 0) {
@@ -245,7 +250,9 @@ class innslag {
 								  'p_id'=>$p_id, 
 								  'season'=>$this->g('b_season'), 
 								  'b_p_year'=>$this->g('b_season')));
-		return $qry->run();
+		$res = $qry->run();
+		$this->statistikk_oppdater();
+		return $res;
 
 	}
 	
@@ -306,6 +313,7 @@ class innslag {
 		}
 
 		$this->lagre = array();
+		$this->statistikk_oppdater();
 	}
 
 	## Henter et innslags innebygde attributter fra b_id
@@ -966,6 +974,7 @@ class innslag {
 		return $q.'m '.$r.'s';
 	}
 	
+	// Gjelder admin
 	public function editable() {
 		if($this->g('b_status')==8)
 			return true;
