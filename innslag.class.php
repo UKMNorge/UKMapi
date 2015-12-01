@@ -926,12 +926,12 @@ class innslag {
 	
 	
 	public function statistikk_oppdater() {
-	
+		error_log('STATISTIKK '. $this->get('b_id') .': init');
 		$sqldel = new SQLdel('ukm_statistics',
 							 array('season' => $this->get('b_season'),
 							 	   'b_id' => $this->get('b_id')));
 		$sqldel->run();
-		
+                error_log('STATISTIKK '. $this->get('b_id') .': del-qry: '. $sqldel->debug());		
 		$this->loadGEO();
 		if($this->get('b_status')==8) {
 			foreach ($this->personer() as $p) { // behandle hver person
@@ -984,7 +984,7 @@ class innslag {
 						" AND `k_id` = '" . $stats_info["k_id"] . "'"  .
 						" AND `season` = '" . $stats_info["season"] . "'";
 				$sql = new SQL($qry);
-				
+                error_log('STATISTIKK '. $this->get('b_id') .': sel-qry: '. $sql->debug());
 				// Sjekke om ting skal settes inn eller oppdateres
 				if (mysql_num_rows($sql->run()) > 0)
 					$sql_ins = new SQLins('ukm_statistics', array(
@@ -1000,7 +1000,9 @@ class innslag {
 				foreach ($stats_info as $key => $value) {
 					$sql_ins->add($key, $value);
 				}
+		                error_log('STATISTIKK '. $this->get('b_id') .': ins-qry: '. $sql_ins->debug());          
 				$sql_ins->run();
+
 			}
 		}
 	}
