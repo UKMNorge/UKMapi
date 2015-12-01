@@ -1254,11 +1254,15 @@ class innslag {
 		// 						 )
 		// 				   );
 
-		$updated = new SQLins('smartukm_band', array('b_id' => $bid));
-		$updated->add('b_status', $status);
-		$updated->add('b_status_text', 'UKMdelta - tekst kommer');
-		// echo $updated->debug() . '<br>';
-		$updated = $updated->run();
+		$this->set('b_status', ($status>$band['b_status']?$status:$band['b_status']));
+		$this->set('b_status_text', 'UKMdelta - tekst kommer');
+		$this->lagre('validateBand2', 0, 0);
+
+		// $updated = new SQLins('smartukm_band', array('b_id' => $bid));
+		// $updated->add('b_status', ($status>$band['b_status']?$status:$band['b_status']));
+		// $updated->add('b_status_text', 'UKMdelta - tekst kommer');
+		// // echo $updated->debug() . '<br>';
+		// $updated = $updated->run();
 
 		// var_dump($updated);
 		// echo '<br>';
