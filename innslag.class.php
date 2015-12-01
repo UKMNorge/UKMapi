@@ -7,9 +7,8 @@ require_once('UKM/monstring.class.php');
 function create_innslag($bt_id, $season, $pl_id, $kommune, $contact=false){
 	$tittellos = in_array($bt_id, array(4,5,8,9,10));
 	
+
 #	if($tittellos && !$contact)
-		
-	
 
 	$band = new SQLins('smartukm_band');
 	$band->add('b_season', $season);
@@ -32,12 +31,16 @@ function create_innslag($bt_id, $season, $pl_id, $kommune, $contact=false){
 	$tech->add('pl_id', $pl_id);
 	$techres = $tech->run();
 	
+
 	$rel = new SQLins('smartukm_rel_pl_b');
 	$rel->add('pl_id', $pl_id);
 	$rel->add('b_id', $b_id);
 	$rel->add('season', $season);
 	$relres = $rel->run();
 	
+	$innslag = new innslag( $b_id, false );
+	$innslag->statistikk_oppdater();
+		
 	return $b_id;
 }
 
@@ -88,6 +91,83 @@ class innslag {
 	var $items = array();
 	var $warnings = array();
 
+	// Nye funksjoner nov 2015 for UKMdelta
+	private function _log( $field, $newValue ) {
+		// Finn log action ID
+		$action = $this->_log_action( $field );
+		
+		// var_dump($field);
+		// var_dump($newValue);
+
+		// ActionID består av 1-2-sifret tall objektID konkatenert med 2-sifret ActionID
+		// 101 = objekt 1, action 1
+		$object = substr($action, 0, (strlen($action)-2));
+
+		// var_dump($this->log_user_id);
+		// var_dump($this->log_system_id);
+		// var_dump($action);
+		// var_dump($object);
+		// var_dump($this->info['b_id']);
+		// var_dump($this->log_pl_id);
+		
+		
+	    $qry = new SQLins('log_log');
+	    $qry->add('log_u_id', $this->log_user_id);
+	    $qry->add('log_system_id', $this->log_system_id);
+	    $qry->add('log_action', $action);
+	    $qry->add('log_object', $object);
+	    $qry->add('log_the_object_id', $this->info['b_id']);
+	    $qry->add('log_pl_id', $this->log_pl_id);
+		
+		$res = $qry->run();
+		$log_id = $qry->insid();
+		
+		if( !is_numeric( $log_id ) ) {
+			throw new Exception('Kan ikke lagre endringene i innslaget på grunn av logg-feil!');
+		}
+		// Logg ny verdi
+		$qry = new SQLins('log_value');
+		$qry->add('log_id', $log_id);
+		$qry->add('log_value', $newValue );
+		$qry->run();
+		
+	}
+	
+	private function _log_action( $field ) {
+		// Hvis td_ er først i $field-variabelen
+		if (strpos($field, 'td_') === 0) {
+			$table = 'smartukm_technical';
+		}
+		else {
+			$table = 'smartukm_band';
+		}
+		// switch( $field ) {
+		// 	case 'td_konferansier':
+		// 		$table = '';
+		// 	break;
+		// 	default:
+		// 		$table = 'smartukm_band';
+		// 	break;
+		// }
+		$actionQ = new SQL("SELECT `log_action_id`
+						FROM `log_actions` 
+						WHERE `log_action_identifier` = '#identifier'",
+						array('identifier'=>$table.'|'.$field));
+		$actionID = $actionQ->run('field','log_action_id');
+		
+	    if( empty( $actionID ) ) {
+		    throw new Exception('LOG FAILED. Object update failed due to missing '. $field .' log action error');
+	    }
+		
+		return $actionID;
+	}
+	
+	private function _log_id( $system_id, $user_id, $pl_id ) {
+		$this->log_system_id = $system_id;
+		$this->log_user_id = $user_id;
+		$this->log_pl_id = $pl_id;
+	}
+
 	// Ny funksjon nov 2015
 	// Henter et mønstringsobjekt for innslaget.
 	var $lokalmonstring = false;
@@ -119,6 +199,7 @@ class innslag {
 			$qry = new SQLins('smartukm_technical', array('b_id'=>$this->info['b_id']));
 			if (!$force)
 				UKMlog('smartukm_technical',$field,$post_key,$this->info['b_id']);
+				
 		}
 		// Alt annet
 		else {
@@ -147,6 +228,8 @@ class innslag {
 		$qry->add('b_p_year', $this->g('b_season'));
 		$res = $qry->run();
 		
+		$this->statistikk_oppdater();
+		
 #		UKM_loader('private');
 #		if(UKM_private()){
 		if($this->info['b_contact'] == 0) {
@@ -158,22 +241,32 @@ class innslag {
 	}
 	
 	public function removePerson($p_id) {
+		// , $system_id = 'innslag.class', $user_id = null, $pl_id = null
+		// $this->_log_id($system_id, $user_id, $pl_id);
+		// $this->_log();
+
 		$qry = new SQLdel('smartukm_rel_b_p', 
 							array('b_id'=>$this->info['b_id'], 
 								  'p_id'=>$p_id, 
 								  'season'=>$this->g('b_season'), 
 								  'b_p_year'=>$this->g('b_season')));
-		return $qry->run();
+		$res = $qry->run();
+		$this->statistikk_oppdater();
+		return $res;
+
 	}
 	
-	public function delete() {		
+	public function delete($system_id, $user_id, $pl_id) {		
+		$this->_log_id($system_id, $user_id, $pl_id);
+		// Logg slettingen
+		$this->_log('delete', time());
 		$qry = new SQLins('smartukm_band', array('b_id'=>$this->g('b_id')));
 		$qry->add('b_status', 99);
 		$res = $qry->run();
 		#echo $qry->debug();
 		
-		$_POST['b_status'] = 99;
-		UKMlog('smartukm_band','b_status','b_status',$this->g('b_id'));
+		#$_POST['b_status'] = 99;
+		#UKMlog('smartukm_band','b_status','b_status',$this->g('b_id'));
 		
 		$deleteFromStat = new SQLdel('ukm_statistics', 
 									array('season' => $this->g('b_season'),
@@ -185,7 +278,12 @@ class innslag {
 		return ($res===1);
 	}
 	
-	public function lagre() {
+	public function lagre($system_id = 'innslag.class', $user_id = 0, $pl_id = null) {
+		
+		// Initialiser logging
+		$pl_id = $this->min_lokalmonstring()->get('pl_id');
+		$this->_log_id($system_id, $user_id, $pl_id);
+
 		$qry = new SQLins("smartukm_band", array('b_id' => $this->info['b_id'] ) );
 		$count = 0;
 
@@ -196,10 +294,12 @@ class innslag {
 			foreach( $this->lagre as $key => $value ) {
 				if(strpos($key, 'td_') === 0) {
 					$td_qry->add($key, $value);
+					$this->_log($key, $value);
 					$td_count++;
 				}
 				else {
-					$qry->add( $key, $value );	
+					$qry->add( $key, $value );
+					$this->_log($key, $value);	
 					$count++;
 				}
 			}
@@ -213,6 +313,7 @@ class innslag {
 		}
 
 		$this->lagre = array();
+		$this->statistikk_oppdater();
 	}
 
 	## Henter et innslags innebygde attributter fra b_id
@@ -873,6 +974,7 @@ class innslag {
 		return $q.'m '.$r.'s';
 	}
 	
+	// Gjelder admin
 	public function editable() {
 		if($this->g('b_status')==8)
 			return true;
@@ -1240,7 +1342,7 @@ class innslag {
 						continue;
 		
 					## Added utf8_encode because this doesn't use it. :/
-					$missing[] = array(utf8_encode($title[$titleKey]), array(utf8_encode("tittel.".$fields[$i])));//$title[$titleKey].$fields[$i];
+					$missing[] = array($title['t_id'], array(utf8_encode("tittel.".$fields[$i])));//$title[$titleKey].$fields[$i];
 					break;
 				}
 			}
@@ -1273,7 +1375,7 @@ class innslag {
 		while($p = mysql_fetch_assoc($participants)) {
 	    	$test = $this->participant($p);
 	        if($test !== true) {
-	        	$whatwrong[] = array($p['p_firstname'].' '.$p['p_lastname'], $test);
+	        	$whatwrong[] = array($p['p_id'], $test);
 	        }
 		}
 	    
