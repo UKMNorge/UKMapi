@@ -176,7 +176,7 @@ if(!class_exists('SQLins')) {
 				## set new values
 				for($i=0; $i<sizeof($this->keys); $i++) {
 					$val = mysql_real_escape_string(trim(strip_tags($this->vals[$i])));
-					$sql .= "`".$this->keys[$i]."` = '".$val."', ";
+					$sql .= "`".$this->keys[$i]."` = '".$this->vals[$i]."', ";
 				}
 			
 				$sql = substr($sql, 0, (strlen($sql)-2));
