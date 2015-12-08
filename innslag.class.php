@@ -1137,7 +1137,8 @@ class innslag {
 				if($band['b_kategori'] == "Dans"||$band['b_kategori'] == 'dans'||$band['b_kategori']=='dance')
 		            $test_6 = $this->titles($band, array('t_name','t_coreography','t_time'), 'danser');			
 				elseif($band['b_kategori'] == "litteratur"||$band['b_kategori'] == 'litterature')
-		            $test_6 = $this->titles($band, array('t_name','t_time'), 'titler');
+		            $test_6 = $this->titles($band, array('t_name'), 'titler');
+		           #$test_6 = $this->titles($band, array('t_name','t_time'), 'titler');
 				elseif($band['b_kategori'] == "teater"||$band['b_kategori'] == 'theatre')
 		            $test_6 = $this->titles($band, array('t_name','t_titleby','t_time'), 'stykker');
 				elseif(strpos($band['b_kategori'],'annet') !== false)
