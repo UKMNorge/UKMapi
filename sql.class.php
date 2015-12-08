@@ -169,6 +169,11 @@ if(!class_exists('SQLins')) {
 		}
 		
 		function run($run=true) {
+			$this->connect();
+			if(isset($this->charset)) {
+				mysql_set_charset( $this->charset, $this->db );
+			}
+
 			$keylist = $vallist = '';
 			if($this->update) {
 				## init query
@@ -197,10 +202,6 @@ if(!class_exists('SQLins')) {
 				$sql = 'INSERT INTO `'.$this->table.'` ('.$keylist.') VALUES ('.$vallist.');';
 			}
 				
-			$this->connect();
-			if(isset($this->charset)) {
-				mysql_set_charset( $this->charset, $this->db );
-			}
 
 			if(!$run) return $sql.'<br />';
 					#'<div class="widefat" style="margin: 12px; margin-top: 18px; width: 730px;padding:10px; background: #f1f1f1;">'.$sql.'</div>';
