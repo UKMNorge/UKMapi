@@ -60,15 +60,22 @@ class ambassador {
 		$create->add('amb_email', 		$email);
 		$create->add('amb_gender', 		$gender);
 		$create->add('pl_id', 			$pl_id);
+		echo $create->debug();
 		$res = $create->run();
-			
+		echo $res;
+	
 		// OPPDATER INVITASJONEN
 		$invite = new SQLins('ukm_ambassador_personal_invite', array('invite_phone'=>$phone));
 		$invite->add('invite_confirmed', 'used');
 		$resinvite = $invite->run();
 		
+
+		//echo '<br>In create()';
+		//var_dump($this);
 		$this->__construct( $faceID );
 		
+		//echo '<br>';
+		//var_dump($this);
 		return $this;
 	}
 	public function setAddress( $address, $postalcode, $postalplace ) {
