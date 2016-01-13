@@ -1,7 +1,7 @@
 <?php
 
 class UKMCURL {
-	var $timeout = 6;
+	var $timeout = 15;
 	var $headers = false;
 	var $content = true;
 	var $postdata = false;
@@ -79,7 +79,7 @@ class UKMCURL {
 		
 		// Execute
 		$this->result = curl_exec($this->curl);
-		
+		#if ($this->result == false) echo curl_error($this->curl);
 		// Default, return content of processed request
 		if($this->content) {
 			$this->_analyze();
@@ -92,7 +92,7 @@ class UKMCURL {
 	
 		// Close connection
 		curl_close($this->curl);
-		
+
 		return $this->data;
 	}
 	

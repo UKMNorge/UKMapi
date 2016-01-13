@@ -107,7 +107,9 @@ class ambassador {
 	public function getEmail() {
 		return $this->email;
 	}
-	
+	public function getShirtSent() {
+		return $this->sendt;
+	}
 	public function getPlid() {
 		return $this->pl_id;
 	}
