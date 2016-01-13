@@ -60,9 +60,9 @@ class ambassador {
 		$create->add('amb_email', 		$email);
 		$create->add('amb_gender', 		$gender);
 		$create->add('pl_id', 			$pl_id);
-		echo $create->debug();
+		#echo $create->debug();
 		$res = $create->run();
-		echo $res;
+		#echo $res;
 	
 		// OPPDATER INVITASJONEN
 		$invite = new SQLins('ukm_ambassador_personal_invite', array('invite_phone'=>$phone));
