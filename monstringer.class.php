@@ -67,8 +67,8 @@
 
 		
 		public function etter_sesong($season=false){/* returnerer en liste over alle places i for et gitt år */
-			if(!$sesong) {
-				$sesong = $this->season;
+			if(!$season) {
+				$season = $this->season;
 			}
 			$query ="SELECT `pl_id`, `pl_name`
 					 FROM `smartukm_place`
