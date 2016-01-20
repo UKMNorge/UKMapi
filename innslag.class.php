@@ -1,4 +1,3 @@
-
 <?php
 require_once('UKM/sql.class.php');
 require_once('UKM/person.class.php');
