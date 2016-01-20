@@ -96,6 +96,10 @@ class tittel {
 		$this->tableFields['smartukm_titles_video']['beskrivelse'] = 't_v_comments';
 		$this->tableFields['smartukm_titles_video']['season'] = 'season';
 
+		$this->tableFields['smartukm_titles_other']['tittel'] = 't_o_function';
+		$this->tableFields['smartukm_titles_other']['erfaring'] = 't_o_experience';
+		$this->tableFields['smartukm_titles_other']['kommentar'] = 't_o_comments';
+
 		
 		$this->t_id = $t_id;
 		

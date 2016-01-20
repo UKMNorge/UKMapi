@@ -1,3 +1,4 @@
+
 <?php
 require_once('UKM/sql.class.php');
 require_once('UKM/person.class.php');
@@ -1200,6 +1201,7 @@ class innslag {
 	            ## CHECK PARTICIPANTS
 	            $test_5 = $this->participants($band);
 	            ## CHECK TITLES
+			#$test_6 = true;
 	            $test_6 = $this->titles($band, array('t_o_function','t_o_comments'));
 				## CHECK TECHNICAL DEMANDS
 				$test_1 = true;
