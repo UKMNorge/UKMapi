@@ -154,6 +154,7 @@ class tv_files {
 				$qry = new SQL("SELECT `tv_id`, `p_name`,
 								MATCH (`p_name`) AGAINST('#title') AS `score`
 								FROM `ukm_tv_persons`
+								LEFT JOIN `ukm_tv_files` AS `tv` ON (`tv`.`tv_id` = `p`.`tv_id`)
 								WHERE $where
 								AND `tv_deleted` = 'false'
 								",
