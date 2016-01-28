@@ -149,14 +149,14 @@ class tv_files {
 				if(false){#substr_count($search, ' ') == 0) {
 					$where = " `p_name` LIKE '%#title%'";
 				} else {
-					$where = "MATCH (`p_name`) AGAINST('#title' IN BOOLEAN MODE)";
+					$where = "MATCH (`p`.`p_name`) AGAINST('#title' IN BOOLEAN MODE)";
 				}
-				$qry = new SQL("SELECT `tv_id`, `p_name`,
-								MATCH (`p_name`) AGAINST('#title') AS `score`
-								FROM `ukm_tv_persons`
+				$qry = new SQL("SELECT `p`.`tv_id`, `p_name`,
+								MATCH (`p`.`p_name`) AGAINST('#title') AS `score`
+								FROM `ukm_tv_persons` AS `p`
 								LEFT JOIN `ukm_tv_files` AS `tv` ON (`tv`.`tv_id` = `p`.`tv_id`)
 								WHERE $where
-								AND `tv_deleted` = 'false'
+								AND `tv`.`tv_deleted` = 'false'
 								",
 								array( 'title' => '+'.$object) );
 				$res = $qry->run();
