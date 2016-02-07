@@ -281,4 +281,17 @@ class tv {
 		$string = str_replace(' ','-', $string);
 		return preg_replace('/[^a-z0-9A-Z-_]+/', '', $string);
 	}
+	public function getPlayCount() {
+		if( !isset( $this->playCount) ) {
+			$this->_loadPlayCount();
+		}		
+		return $this->playCount;
+	}
+	private function _loadPlayCount() {
+		$sql = new SQL("SELECT `plays`
+						FROM `ukm_tv_plays_cache`
+						WHERE `tv_id` = '#tvid'",
+						array('tvid' => $this->tv_id ) );
+		$this->playCount = $sql->run('field', 'plays');
+	}
 }
