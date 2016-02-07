@@ -207,6 +207,9 @@ if(!class_exists('SQLins')) {
 					#'<div class="widefat" style="margin: 12px; margin-top: 18px; width: 730px;padding:10px; background: #f1f1f1;">'.$sql.'</div>';
 			else{
 				$qry = mysql_query(utf8_decode($sql), $this->db);
+				if (false === $qry) {
+					error_log('SQL.class: '.mysql_error());
+				}
 				return mysql_affected_rows();
 			}
 		}

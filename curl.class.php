@@ -5,7 +5,9 @@ class UKMCURL {
 	var $headers = false;
 	var $content = true;
 	var $postdata = false;
+	var $requestType = "GET";
 	var $json = false;
+	var $headerList = array();
 	
 	public function __construct() {
 
@@ -25,7 +27,16 @@ class UKMCURL {
 		$this->postdata = $postdata;
 		return $this;
 	}
+
+	// To be used if request type is different than GET or POST
+	public function requestType($reqType) {
+		$this->requestType = $reqType;
+	}
 	
+	public function addHeader($header) {
+		$this->headerList[] = $header;
+	}
+
 	public function headersOnly() {
 		$this->headers = true;
 		$this->content = false;
@@ -46,12 +57,17 @@ class UKMCURL {
 	public function request($url) {
 		$this->url = $url;
 		
+		//curl_setopt($this->curl, CURLOPT_VERBOSE, true);
+
 		$this->_init();
 		
 		// Is this a post-request?
 		if( $this->postdata ) {
 			curl_setopt($this->curl, CURLOPT_POST, true);
 			curl_setopt($this->curl, CURLOPT_POSTFIELDS, $this->postdata);
+		}
+		else {
+			curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, $this->requestType);
 		}
 
 		// Get only headers
@@ -60,23 +76,30 @@ class UKMCURL {
 			curl_setopt($this->curl, CURLOPT_NOBODY, 1); 
 		}
 		
+		// Set extra headers	
+		if (!empty($this->headerList)) {
+			curl_setopt($this->curl, CURLOPT_HTTPHEADER, $this->headerList);
+		}
+
 		if( $this->json ) {
-			curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, "POST");
+			if ($this->requestType == "GET") {
+				// Hvis request-type ikke er endret fra standard
+				curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, "POST");
+			}
 			curl_setopt($this->curl, CURLOPT_POSTFIELDS, $this->json_data);
-			curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
-			curl_setopt($this->curl, CURLOPT_HTTPHEADER,
-				array(
-					    'Content-Type: application/json',
-					    'Content-Length: ' . strlen($this->json_data)
-				    )
-			);                                                                                                                   
+			#curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
+
+			// Force headers to be json
+			$this->headerList[] = 'Content-Type: application/json';
+			$this->headerList[] = 'Content-Length: ' . strlen($this->json_data);
+			curl_setopt($this->curl, CURLOPT_HTTPHEADER, $this->headerList);	
 		}
 		
 		// Use custom port
 		if(isset($this->port)) {
 			curl_setopt($this->curl, CURLOPT_PORT, $this->port);
 		}
-		
+		//var_dump($this);
 		// Execute
 		$this->result = curl_exec($this->curl);
 		#if ($this->result == false) echo curl_error($this->curl);
