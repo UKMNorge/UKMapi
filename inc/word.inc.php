@@ -18,9 +18,34 @@ function woCell(&$table, $width, $text, $style=false){
 	woText($c, $text, $style);
 }
 
+function woListItem(&$section, $text, $depth=0, $fontStyle='f_p', $listStyle=PHPWord_Style_ListItem::TYPE_BULLET_FILLED, $pStyle='p_p') {
+	$text = utf8_decode($text);
+	// ListStyle - Constants from PHPWord_Style_ListItem
+	/*
+	TYPE_NUMBER	7	
+	TYPE_NUMBER_NESTED	8	
+	TYPE_ALPHANUM	9	
+	TYPE_BULLET_FILLED	3	
+	TYPE_BULLET_EMPTY	5	
+	TYPE_SQUARE_FILLED	1
+	*/
+	
+	#$list = new PHPWord_Section_ListItem($text, $depth, $fontStyle, $listStyle, $pStyle);
+	#$section->addListItem($list);
+	$section->addListItem($text, $depth, $fontStyle, $listStyle, $pStyle);
+	var_dump($section);
+}
+
 function woWrite($filename){
 	$filename = $filename .'.docx';
-	$internal = '/home/ukmno/public_html/temp/phpword/';
+	
+	if (UKM_HOSTNAME == 'ukm.dev') {
+		#$internal = WORD_WRITE_PATH;
+		$internal = '/tmp/';
+	}
+	else {
+		$internal = '/home/ukmno/public_html/temp/phpword/';
+	}
 	$external = 'http://ukm.no/UKM/subdomains/download/?folder=phpword&filename='.urlencode($filename);
 	$external = 'http://download.ukm.no/?folder=phpword&filename='.urlencode($filename);
 	global $PHPWord;
