@@ -2,6 +2,8 @@
 require_once 'UKM/sql.class.php';
 require_once('UKM/curl.class.php');
 
+
+# Denne klassen er et interface mot CloudFlare, ferdig konfigurert for UKMs systemer.
 class cloudflare {
 	private $URL = UKM_CLOUDFLARE_URL;
 	private $ukmno_zone = UKM_CLOUDFLARE_UKMNO_ZONE;
