@@ -42,6 +42,10 @@ class tv_files {
 								ORDER BY `plays` DESC
 								LIMIT #limit";
 				$this->vars = array( 'plid' => $object);
+				if( isset( $_GET['debug'] ) ) {
+					echo 'SQL:';
+					echo $this->qry;	
+				}
 				break;
             case 'person':
                 $object = 'p_'. $object;
