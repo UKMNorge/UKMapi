@@ -70,14 +70,15 @@ class UKMmail {
 			#  $mail->AltBody = 'To view the message, please use an HTML compatible email viewer!'; 
 			// optional - MsgHTML will create an alternate automatically
 
-			$mail->Send();
-			
+			$res = $mail->Send();
+			return $res;
 			return true;
 		} catch (phpmailerException $e) {
 			return 'Mailer: '. $e->errorMessage(); //Pretty error messages from PHPMailer
 		} catch (Exception $e) {
 			return 'Mailer: '. $e->getMessage(); //Boring error messages from anything else!
 		}
+	error_log('mail.class.php: Failed to return or catch exception!');
 	return true;
 	}
 	

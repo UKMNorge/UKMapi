@@ -183,7 +183,7 @@ class tittel {
 
 	
 	private function _scene($r) {
-		$this->tittel = utf8_encode($r['t_name']);
+		$this->tittel = utf8_encode(stripslashes($r['t_name']));
 		$this->tekst_av = utf8_encode($r['t_titleby']);
 		if($this->tekst_av=='instrumental')
 			$this->tekst_av = '';
@@ -211,7 +211,7 @@ class tittel {
 	}
 	
 	private function _utstilling($r) {
-		$this->tittel = utf8_encode($r['t_e_title']);
+		$this->tittel = utf8_encode(stripslashes($r['t_e_title']));
 		$this->type = utf8_encode($r['t_e_type']);
 		$this->teknikk = utf8_encode($r['t_e_technique']);
 		$this->format = utf8_encode($r['t_e_format']);
@@ -230,14 +230,14 @@ class tittel {
 	}
 	
 	private function _film($r) {
-		$this->tittel = utf8_encode($r['t_v_title']);
+		$this->tittel = utf8_encode(stripslashes($r['t_v_title']));
 		$this->format = utf8_encode($r['t_v_format']);
 		$this->varighet = (int) $r['t_v_time'];
 		$this->parentes = '('.utf8_encode($r['t_v_format']).')';
 	}
 	
 	private function _annet($r) {
-		$this->tittel = utf8_encode($r['t_o_function']);
+		$this->tittel = utf8_encode(stripslashes($r['t_o_function']));
 		$this->erfaring = utf8_encode($r['t_o_experience']);
 		$this->kommentar = utf8_encode($r['t_o_comments']);
 		$this->varighet = 0;

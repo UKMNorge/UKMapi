@@ -21,8 +21,13 @@ class playback {
 		$this->ext();
 	}
 	
+	public function relative_file() {
+		$this->relative_file = 'upload/data/'. $this->season .'/'. $this->pl_id . '/'. $this->file;
+		return $this->relative_file;
+	}
+	
 	public function local_file() {
-		$this->local_file = $this->home . 'upload/data/'. $this->season .'/'. $this->pl_id . '/'. $this->file;
+		$this->local_file = $this->home . $this->relative_file();
 		return $this->local_file;
 	}
 	

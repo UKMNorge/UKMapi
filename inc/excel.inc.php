@@ -1,6 +1,8 @@
 <?php
 require_once('PHPExcel/PHPExcel.php');
-require_once('PHPExcel/IOFactory.php');
+if (UKM_HOSTNAME != 'ukm.dev') {
+	require_once('PHPExcel/IOFactory.php');
+}
 
 $objPHPExcel = new PHPExcel();
 
