@@ -12,8 +12,11 @@ function TWIG($template, $dataarray, $templatefolder, $debug=false) {
 	$twig = new Twig_Environment($loader, $environment);
 	
 	
-	// or a simple PHP function
+	// Add dato-filter
 	$filter = new Twig_SimpleFilter('dato', 'TWIG_date');
+	$twig->addFilter($filter);
+	// Add filesize-filter
+	$filter = new Twig_SimpleFilter('filesize', 'TWIGfilesize');
 	$twig->addFilter($filter);
 
 	// Set language to French
@@ -24,11 +27,14 @@ function TWIG($template, $dataarray, $templatefolder, $debug=false) {
 	if($debug)
 		$twig->addExtension(new Twig_Extension_Debug());
 
+	$template = $template . (strpos($template,'.html.twig')===false ? '.twig.html' : '');
+	$template = str_replace('.twig.html.twig.html','.twig.html', str_replace(':',DIRECTORY_SEPARATOR,$template));
+	
 	return $twig->render($template, $dataarray);
 }
 
 function TWIGrender($template, $dataarray, $debug=false) {
-	return TWIG($template.'.twig.html', $dataarray, str_replace('/twig/','', TWIG_PATH), $debug);
+	return TWIG($template, $dataarray, str_replace('/twig/','', TWIG_PATH), $debug);
 }
 
 function TWIG_date($time, $format) {
@@ -50,5 +56,10 @@ function TWIG_date($time, $format) {
 					  		'jan','feb','mar','apr','mai','jun',
 					  		'jul','aug','sep','okt','nov','des'), 
 					  $date);
+}
+
+function TWIGfilesize( $size, $precision = 2 ) {
+    for($i = 0; ($size / 1024) > 0.9; $i++, $size /= 1024) {}
+    return round($size, $precision).['B','kB','MB','GB','TB','PB','EB','ZB','YB'][$i];
 }
 ?>
