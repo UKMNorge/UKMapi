@@ -27,11 +27,14 @@ function TWIG($template, $dataarray, $templatefolder, $debug=false) {
 	if($debug)
 		$twig->addExtension(new Twig_Extension_Debug());
 
+	$template = $template . (strpos($template,'.html.twig')===false ? '.twig.html' : '');
+	$template = str_replace('.twig.html.twig.html','.twig.html', str_replace(':',DIRECTORY_SEPARATOR,$template));
+	
 	return $twig->render($template, $dataarray);
 }
 
 function TWIGrender($template, $dataarray, $debug=false) {
-	return TWIG($template.'.twig.html', $dataarray, str_replace('/twig/','', TWIG_PATH), $debug);
+	return TWIG($template, $dataarray, str_replace('/twig/','', TWIG_PATH), $debug);
 }
 
 function TWIG_date($time, $format) {
