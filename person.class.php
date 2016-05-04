@@ -214,12 +214,87 @@ switch( $field ) {
 			$this->info = array_merge($this->info, $geo);
 	}
 	
-	public function person($p_id, $b_id=false) {
-		if ($p_id == false && is_numeric($p_id))
+	public function __construct( $p_id, $b_id = false) {
+		if( false == $p_id || 0 == $p_id ) {
+			$this->info['p_id'] = false;
 			return;
+		}
 		
-		if(is_numeric($b_id)) {
-			$qry = "SELECT `smartukm_participant`.`p_id`,
+		// Hvis vi har Band ID, last inn fra database med band id
+		if( is_numeric( $b_id ) ) {
+			$this->_loadByPIDAndBID($p_id, $b_id);
+		}
+		
+		// Hvis vi ikke har Band ID, eller innlasting med Band ID feilet
+		if( !$this->info || !$b_id ) {
+			$this->_loadByPID( $p_id );
+		}
+		
+		// Korriger data for tegnsett og andre småfix
+		$this->_postLoadFix($p_id);
+	}
+
+
+### Kommentert ut fordi det vil kunne finnes flere med samme tlfnr i tabellen.
+/*	
+public function getByPhone( $phone, $b_id=false ) {
+		$p_id = $this->_getPIDFromPhone( $phone );
+		$this->__construct( $p_id, $b_id );
+	}
+	private function _getPIDFromPhone( $phone ) {
+		# HVA GJØR VI NÅR DET FINNES FLERE MED SAMME TLF?
+		$sql = new SQL("SELECT `p_id` FROM `smartukm_participant`
+						WHERE `p_phone` = '#phone'",
+						array('phone' => $phone)
+					);
+		return $sql->run('field', 'p_id');
+	}
+	
+	*/
+
+	public function innslag() {
+		$sql = new SQL("SELECT * FROM `smartukm_rel_b_p` WHERE `p_id` = '#pid'",
+					   array('pid' => $this->info['p_id'])
+					   );
+		$res = $sql->run();
+		$innslag = array();
+		while( $r = mysql_fetch_assoc( $res ) ) {
+			$innslag[] = $r['b_id'];
+		}
+		
+		return $innslag;
+	}
+
+	public function isValid() {
+		return is_numeric($this->info['p_id']) && $this->info['p_id'] > 0;
+	}
+	
+
+	private function _loadByPID( $p_id ) {
+		$qry = "SELECT `smartukm_participant`.`p_id`, `p_firstname`, `p_lastname`, `p_dob`, `p_phone`, `p_adress`,
+			`p_postnumber`, `p_email`, `p_kommune` FROM `smartukm_participant`
+			WHERE `smartukm_participant`.`p_id` = ".$p_id."
+			GROUP BY `smartukm_participant`.`p_id` 
+			ORDER BY `smartukm_participant`.`p_firstname`, `smartukm_participant`.`p_lastname` ASC";
+			
+		$qry = new SQL($qry);	
+		//var_dump($qry->debug());
+		$res = $qry->run( 'array' );
+		if ($res) 
+			{
+			$this->info = $res;
+		}
+		else {
+			$this->info['p_firstname'] = '';
+			$this->info['p_lastname'] = '';
+			$this->info['p_id'] = false;
+			$this->info['name'] = null; //Empty anyway, hvorfor fylle inn?
+			$this->info['p_phone'] = 0;
+		}
+	}
+	
+	private function _loadByPIDAndBID( $p_id, $b_id ) {
+		$qry = "SELECT `smartukm_participant`.`p_id`,
 					 `p_firstname`,
 					 `p_lastname`,
 					 `instrument`,
@@ -240,38 +315,18 @@ switch( $field ) {
 			$qry = new SQL($qry);
 			#echo $qry->debug();
 			$this->info = $qry->run( 'array' );
-			if ($this->info !== false)
+			if ($this->info !== false) {
 				$this->info['b_id'] = $b_id;
-		}
-		if (!$this->info || !$b_id) {
-			$qry = "SELECT `smartukm_participant`.`p_id`, `p_firstname`, `p_lastname`, `p_dob`, `p_phone`, `p_adress`,
-				`p_postnumber`, `p_email`, `p_kommune` FROM `smartukm_participant`
-				WHERE `smartukm_participant`.`p_id` = ".$p_id."
-				GROUP BY `smartukm_participant`.`p_id` 
-				ORDER BY `smartukm_participant`.`p_firstname`, `smartukm_participant`.`p_lastname` ASC";
-				
-			$qry = new SQL($qry);	
-			//var_dump($qry->debug());
-			$res = $qry->run( 'array' );
-
-			if ($res) 
-				{
-				$this->info = $res;
 			}
-			else {
-				$this->info['p_firstname'] = '';
-				$this->info['p_lastname'] = '';
-				$this->info['p_id'] = false;
-				$this->info['name'] = null; //Empty anyway, hvorfor fylle inn?
-				$this->info['p_phone'] = 0;
-			}
-		}
-		
+	}
+	
+	private function _postLoadFix($p_id) {
 		$this->info['p_firstname'] = ucwords($this->info['p_firstname']);
 		$this->info['p_lastname'] = ucwords($this->info['p_lastname']);
 		$this->info['p_id'] = $p_id;
 		$this->info['name'] = $this->info['p_firstname'] . ' ' . $this->info['p_lastname'];
 	}
+
 	public function alder() {
 		return $this->getAge();
 	}
