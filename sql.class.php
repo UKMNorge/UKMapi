@@ -138,6 +138,7 @@ if(!class_exists('SQLins')) {
 		var $db;
 		var $keys = array();
 		var $vals = array();
+		var $error = false;
 
 		function SQLins($table, $where=array()) {
 			$this->table = $table;
@@ -208,10 +209,15 @@ if(!class_exists('SQLins')) {
 			else{
 				$qry = mysql_query(utf8_decode($sql), $this->db);
 				if (false === $qry) {
-					error_log('SQL.class: '.mysql_error());
+					$this->error = mysql_error();
+					error_log('SQL.class: '. $this->error);
 				}
 				return mysql_affected_rows();
 			}
+		}
+		
+		public function error() {
+			return $this->error;
 		}
 		
 		function connect() {
