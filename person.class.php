@@ -164,7 +164,7 @@ switch( $field ) {
 		$innslag = new innslag($b_id);
 		$innslag->addPerson($this->info['p_id']);
 		
-		$innslag->person($this->info['p_id'], $b_id);
+#		$innslag->person($this->info['p_id'], $b_id);
 		$innslag->statistikk_oppdater();
 	}
 	
