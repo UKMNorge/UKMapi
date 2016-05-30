@@ -1,7 +1,7 @@
 <?php
 /* 
 Part of: UKM Norge core
-Description: SQL-klasse for bruk av SQL-sp¿rringer opp mot UKM-databasen.
+Description: SQL-klasse for bruk av SQL-spÂ¿rringer opp mot UKM-databasen.
 Author: UKM Norge / M Mandal 
 Version: 2.0 
 */
@@ -20,10 +20,10 @@ if(!class_exists('SQL')) {
 		function SQL($sql, $keyval=array()) {
 			$this->error = false;
 			global $db;
+			$this->connect();
 			foreach($keyval as $key => $val) {
 				if (get_magic_quotes_gpc())
 					$val = stripslashes($val);
-				$this->connect();
 				$sql = str_replace('#'.$key, mysql_real_escape_string(trim(strip_tags($val))), $sql);
 			}
 			$this->sql = $sql;
