@@ -48,7 +48,7 @@ class bilder {
 	private function _load() {
 		$this->bilder = array();
 		$SQL = new SQL("SELECT * FROM `#table`
-						LEFT JOIN `ukm_bilder` ON (`#table`.`post_id` = `ukm_bilder`.`id`)
+						JOIN `ukm_bilder` ON (`#table`.`post_id` = `ukm_bilder`.`id`)
 						WHERE `#table`.`b_id` = '#bid'
 						AND `post_type` = 'image'",
 						array('table'=>self::$table,
