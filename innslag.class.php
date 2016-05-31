@@ -89,6 +89,7 @@ class innslag {
 	*********************************************************************************************/
 	var $id = null;
 	var $navn = null;
+	var $type = null;
 
 	/*********************************************************************************************
 		API V1
@@ -358,6 +359,7 @@ class innslag {
 		// API V2
 		$this->setId( $res['b_id'] );
 		$this->setNavn( utf8_encode( $res['b_name'] ) );
+		$this->setType( $res['bt_id'], $res['b_kategori'] );
 	}
 
 	## Gi ny verdi (value) til attributten (key)
@@ -1668,6 +1670,20 @@ class innslag {
 		**/
 		public function getNavn() {
 			return $this->_getNewOrOld('navn', 'b_name');
+		}
+		
+		public function setType( $type, $kategori=false ) {
+			require_once('UKM/innslag_typer.class.php');
+			
+			if( 1 == $type && false == $kategori ) {
+				throw new Exception('INNSLAG: Scene-innslag må ha kategori for å kunne sette type');
+			}
+
+			$this->type = innslag_typer::getById( $type, $kategori );
+			return $this;
+		}
+		public function getType( ) {
+			return $this->type;
 		}
 
 }
