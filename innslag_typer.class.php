@@ -20,6 +20,12 @@ class innslag_typer {
 		switch( $id ) {
 			case 1:
 				switch( $kategori ) {
+					case 'musikk':
+						$data = array('id' => 1,
+									  'key' => 'musikk',
+									  'name' => 'Musikk',
+									  'icon' => 'http://ico.ukm.no/delta/delta-musikk-64.png');
+						break;
 					case 'dans':
 						$data = array('id' => 1,
 									  'key' => 'dans',
