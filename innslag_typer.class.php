@@ -26,7 +26,7 @@ class innslag_typer {
 									  'name' => 'Musikk',
 									  'icon' => 'http://ico.ukm.no/delta/delta-musikk-64.png',
 									  'har_filmer' => true,
-									  'har_titler' => false,
+									  'har_titler' => true,
 									  );
 						break;
 					case 'dans':
@@ -35,7 +35,7 @@ class innslag_typer {
 									  'name' => 'Dans',
 									  'icon' => 'http://ico.ukm.no/delta/delta-dans-64.png',
 									  'har_filmer' => true,
-									  'har_titler' => false,
+									  'har_titler' => true,
 									  );
 						break;
 					case 'teater':
@@ -44,7 +44,7 @@ class innslag_typer {
 									  'name' => 'Teater',
 									  'icon' => 'http://ico.ukm.no/delta/delta-teater-64.png',
 									  'har_filmer' => true,
-									  'har_titler' => false,
+									  'har_titler' => true,
 									  );
 						break;						
 					case 'litteratur':
@@ -53,7 +53,7 @@ class innslag_typer {
 									  'name' => 'Litteratur',
 									  'icon' => 'http://ico.ukm.no/delta/delta-litteratur-64.png',
 									  'har_filmer' => true,
-									  'har_titler' => false,
+									  'har_titler' => true,
 									  );
 						break;
 					default:
@@ -62,7 +62,7 @@ class innslag_typer {
 									  'name' => 'Annet',
 									  'icon' => 'http://ico.ukm.no/delta/delta-musikk-64.png',
 									  'har_filmer' => true,
-									  'har_titler' => false,
+									  'har_titler' => true,
 									  );
 				}
 				break;
@@ -72,7 +72,7 @@ class innslag_typer {
 							  'name' => 'Film',
 							  'icon' => 'http://ico.ukm.no/delta/delta-video-64.png',
 							  'har_filmer' => true,
-							  'har_titler' => false,
+							  'har_titler' => true,
 							  );
 				break;
 			case 3:
@@ -81,7 +81,7 @@ class innslag_typer {
 							  'name' => 'Utstilling',
 							  'icon' => 'http://ico.ukm.no/delta/delta-utstilling-64.png',
 							  'har_filmer' => false,
-							  'har_titler' => false,
+							  'har_titler' => true,
 							  );
 				break;
 			case 4:
@@ -90,7 +90,7 @@ class innslag_typer {
 							  'name' => 'Konferansier',
 							  'icon' => 'http://ico.ukm.no/delta/delta-konferansier-64.png',
 							  'har_filmer' => false,
-							  'har_titler' => true,
+							  'har_titler' => false,
 							  );
 				break;
 			case 5:
@@ -99,7 +99,7 @@ class innslag_typer {
 							  'name' => 'UKM Media',
 							  'icon' => 'http://ico.ukm.no/delta/delta-nettredaksjon-64.png',
 							  'har_filmer' => false,
-							  'har_titler' => true,
+							  'har_titler' => false,
 							  );
 				break;
 			case 6:
@@ -108,7 +108,7 @@ class innslag_typer {
 							  'name' => 'Matkultur',
 							  'icon' => 'http://ico.ukm.no/delta/delta-matkultur-64.png',
 							  'har_filmer' => true,
-							  'har_titler' => true,
+							  'har_titler' => false,
 							  );
 				break;
 			case 8:
@@ -118,7 +118,7 @@ class innslag_typer {
 							  'name' => 'Arrangør',
 							  'icon' => 'http://ico.ukm.no/delta/delta-arrangor-64.png',
 							  'har_filmer' => false,
-							  'har_titler' => true,
+							  'har_titler' => false,
 							  );
 				break;
 			default:
