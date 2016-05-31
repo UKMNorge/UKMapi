@@ -1,6 +1,8 @@
 <?php
 
 class forestilling {
+	var $id = null;
+	
 	public $info;
 	
 	public function __construct($c_id,$tekniskprove=false) {
@@ -391,6 +393,31 @@ class forestilling {
 		$news = get_post($news_id);
 		$news_image = get_the_post_thumbnail( $news_id );
 		return array('news'=>$news, 'news_image'=>$news_image, 'program'=>$program, 'innslag'=>$arrInnslag);
+	}
+	
+	
+	/******************************************************************************************************
+											API V2-funksjoner
+	******************************************************************************************************/
+		
+	/**
+	 * Sett ID
+	 *
+	 * @param integer id 
+	 *
+	 * @return $this
+	**/
+	public function setId( $id ) {
+		$this->id = $id;
+		$this->info['c_id'] = $id;
+		return $this;
+	}
+	/**
+	 * hent ID
+	 * @return integer $id
+	**/
+	public function getId() {
+		return null == $this->id ? $this->info['c_id'] : $this->id;
 	}
 }
 

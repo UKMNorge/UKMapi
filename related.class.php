@@ -4,17 +4,22 @@ class related {
 	var $authors;
 	
 	####
-	public function __construct($b_id,$album=0) {
+	public function __construct($b_id,$album=0, $pl_type=false, $season=false) {
 		global $blog_id;
 		$this->b_id = $b_id;
 		$this->album_id = $album;
 		$this->load_band();
 		
-		$this->pl_type = get_option('site_type');
-		$this->season  = get_option('season');
-		
-		$this->blog_id = $blog_id;
-		$this->blog_url = get_option('siteurl');
+		if( function_exists( 'get_option') ) {
+			$this->pl_type = get_option('site_type');
+			$this->season  = get_option('season');
+			$this->blog_id = $blog_id;
+			$this->blog_url = get_option('siteurl');
+		} else {
+			$this->pl_type = $pl_type;
+			$this->season = $season;
+		}
+				
 	}
 
 	###
@@ -110,9 +115,13 @@ class related {
 			$aut = '';
 		}
 		if(!isset($this->authors[$aut])) {
-			$user_info = get_userdata($aut);
-			if( is_object( $user_info ) ) {
-				$name = ucwords($user_info->display_name);			
+			if( function_exists('get_userdata') ) {
+				$user_info = get_userdata($aut);
+				if( is_object( $user_info ) ) {
+					$name = ucwords($user_info->display_name);
+				} else {
+					$name = '';
+				}
 			} else {
 				$name = '';
 			}

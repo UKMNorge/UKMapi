@@ -1602,5 +1602,30 @@ $test = new SQL("SELECT `s_id` AS `personer`
         	$res = $sql->run();
         	return mysql_num_rows( $res ) > 0;
 		}
+		
+		/******************************************************************************************************
+												API V2-funksjoner
+		******************************************************************************************************/
+			
+		/**
+		 * Sett ID
+		 *
+		 * @param integer id 
+		 *
+		 * @return $this
+		**/
+		public function setId( $id ) {
+			$this->id = $id;
+			$this->info['pl_id'] = $id;
+			return $this;
+		}
+		/**
+		 * hent ID
+		 * @return integer $id
+		**/
+		public function getId() {
+			return null == $this->id ? $this->info['pl_id'] : $this->id;
+		}
+
 	}
 ?>

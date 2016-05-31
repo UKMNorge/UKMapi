@@ -83,6 +83,16 @@ function getBandTypeFromID($id) {
 }
 
 class innslag {
+	
+	/*********************************************************************************************
+		API V2
+	*********************************************************************************************/
+	var $id = null;
+	var $navn = null;
+
+	/*********************************************************************************************
+		API V1
+	*********************************************************************************************/
 	## Attributtkontainer
 	var $info = array();
 	var $personer_loaded = false;
@@ -344,6 +354,10 @@ class innslag {
 		$this->__charset();
 		
 		$this->_time_status_8();
+		
+		// API V2
+		$this->setId( $res['b_id'] );
+		$this->setNavn( utf8_encode( $res['b_name'] ) );
 	}
 
 	## Gi ny verdi (value) til attributten (key)
@@ -593,10 +607,17 @@ class innslag {
 		
 		$this->personer_loaded = true;
 	}
+	
 
 	####################################################################################
 	## FUNKSJONER RELATERT TIL RELATERTE ELEMENTER I INNSLAGET
 	####################################################################################
+	public function getBilder() {
+		require_once('UKM/bilder.class.php');
+		$this->bilder = new bilder( $this->get('b_id') );
+		
+		return $this->bilder;
+	}
 	## Returnerer en liste over bilder, nyheter og videoer. Hvis listen ikke er laget, last den inn
 	public function related_items() {
 		if(!$this->items_loaded)
@@ -1575,6 +1596,79 @@ class innslag {
 	   }
 	   return $isValid;
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		/******************************************************************************************************
+												API V2-funksjoner
+		******************************************************************************************************/
+			
+		private function _getNewOrOld($new, $old) {
+			return null == $this->$new ? $this->info[$old] : $this->$new;
+		}
+		/**
+		 * Sett ID
+		 *
+		 * @param integer id 
+		 *
+		 * @return $this
+		**/
+		public function setId( $id ) {
+			$this->id = $id;
+			$this->info['b_id'] = $id;
+			return $this;
+		}
+		/**
+		 * Hent ID
+		 * @return integer $id
+		**/
+		public function getId() {
+			return $this->_getNewOrOld('id', 'b_id');
+		}
+		
+		
+		/**
+		 * Sett navn på innslag
+		 *
+		 * @param string $navn
+		 * @return $this
+		**/
+		public function setNavn( $navn ) {
+			$this->navn = $navn;
+			$this->info['b_name'] = utf8_decode($navn);
+			return $this;
+		}
+		
+		/**
+		 * Hent navn på innslag
+		 *
+		 * @return string $navn
+		**/
+		public function getNavn() {
+			return $this->_getNewOrOld('navn', 'b_name');
+		}
 
 }
 
