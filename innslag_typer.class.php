@@ -156,15 +156,15 @@ class innslag_type {
 	var $name = null;
 	var $icon = null;
 	var $har_filmer = false; # Kan det finnes noe i UKM-TV?
-	var $tittellos = false;
+	var $har_titler = false;
 	
-	public function __construct($id, $key, $name, $icon, $har_filmer, $tittellos) {
+	public function __construct($id, $key, $name, $icon, $har_filmer, $har_titler) {
 		$this->setId( $id );
 		$this->setKey( $key );
 		$this->setNavn( $name );
 		$this->setIcon( $icon );
 		$this->setHarFilmer( $har_filmer );
-		$this->setTittellos( $tittellos );
+		$this->setHarTitler( $har_titler );
 	}
 	
 	public function setId( $id ) {
@@ -208,12 +208,12 @@ class innslag_type {
 	}
 
 	
-	public function setTittellos( $tittellos ) {
-		$this->tittellos = $tittellos;
+	public function setHarTitler( $har_titler ) {
+		$this->har_titler = $har_titler;
 		return $this;
 	}
 	public function harTitler() {
-		return !$this->tittellos;
+		return $this->har_titler;
 	}
 }
 
