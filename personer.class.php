@@ -76,7 +76,7 @@ class personer {
 						FROM `smartukm_participant` AS `participant` 
 						JOIN `smartukm_rel_b_p` AS `relation` 
 							ON (`relation`.`p_id` = `participant`.`p_id`) 
-						INNER JOIN `smartukm_fylkestep_p`
+						LEFT JOIN `smartukm_fylkestep_p`
 							ON(`smartukm_fylkestep_p`.`b_id` = '#bid' AND `smartukm_fylkestep_p`.`p_id` = `participant`.`p_id`)
 						JOIN `smartukm_band` AS `band`
 							ON(`band`.`b_id` = `relation`.`b_id`)
