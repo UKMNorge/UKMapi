@@ -19,15 +19,15 @@ class kommune {
 		return $this->id;
 	}
 	
-	public function getName() {
+	public function getNavn() {
 		return $this->name;
 	}
 	
-	public function getNameNonUTF8() {
+	public function getNavnUtenUTF8() {
 		return $this->name_nonutf8;
 	}
 	
 	public function getFylke() {
-		return $this->fylke;
+		return fylker::getById( $this->fylke );
 	}
 }
