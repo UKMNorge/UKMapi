@@ -660,7 +660,8 @@ class person_v2 {
 	 * @return $this
 	**/
 	public function setFornavn( $fornavn ) {
-		$this->fornavn = $fornavn;
+		$this->fornavn = mb_convert_case($fornavn, MB_CASE_TITLE);
+		return $this;
 	}
 	/**
 	 * Hent Fornavn
@@ -678,7 +679,8 @@ class person_v2 {
 	 * @return $this
 	**/
 	public function setEtternavn( $etternavn ) {
-		$this->etternavn = $etternavn;
+		$this->etternavn = mb_convert_case($etternavn, MB_CASE_TITLE);
+		return $this;
 	}
 	/**
 	 * Hent Fornavn
