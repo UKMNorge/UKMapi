@@ -554,9 +554,244 @@ public function getByPhone( $phone, $b_id=false ) {
 			$res = 'unknown';
 		
 		return $res;	
-	}
-
-	
+	}	
 }
 
+class person_v2 {
+	var $id = null;
+	var $fornavn = null;
+	var $etternavn = null;
+	var $mobil = null;
+	var $instrument = null;
+	
+	var $videresendtTil = null;
+	
+	public function __construct( $person ) {
+		if( is_int( $person ) ) {
+			$this->_load_from_db( $person );
+		} elseif( is_array( $person ) ) {
+			$this->_load_from_array( $person );
+		} else {
+			throw new Exception('PERSON_V2: Object construction requires parameter $person as integer or array');
+		}
+	}
+	
+	private function _load_from_db( $person ) {
+		throw new Exception('PERSON_V2: Load from DB not implemented');
+	}
+	private function _load_from_array( $person ) {
+		$this->setId( $person['p_id'] );
+		$this->setFornavn( utf8_encode($person['p_firstname']) );
+		$this->setEtternavn( utf8_encode($person['p_lastname']) );
+		$this->setMobil( $person['p_phone'] );
+		$this->setFodselsdato( $person['p_dob'] );
+		if( isset( $person['instrument'] ) ) {
+			$this->setInstrument( utf8_encode($person['instrument']) );
+		}
+		
+		if( isset( $person['pl_ids'] ) ) {
+			$this->setVideresendtTil( explode(',', $person['pl_ids']) );
+		}
+		if( isset( $person['bt_id'] ) ) {
+			$this->_setBTID( $person['bt_id'] );
+		}
+	}
+	
+	/**
+	 * Er videresendt
+	 * Er personen videresendt til gitt mønstring?
+	 *
+	 * @param int $pl_id
+	 * @return bool
+	**/
+	public function erVideresendt( $pl_id ) {
+		if( null == $this->videresendtTil ){
+			throw new Exception( 'PERSON_V2: Kan ikke svare om person er videresendt '
+								.'på objekt som ikke er initiert med pl_ids (via collection?)');
+		}
+		if( 1 == $this->_getBTID() ) {
+			return true;
+		}
+		return in_array($pl_id, $this->videresendtTil );
+	}
+	
+	/**
+	 * Sett videresendt til
+	 *
+	 * @param array pl_ids
+	 * @return $this
+	**/
+	public function setVideresendtTil( $videresendtTil ) {
+		$this->videresendtTil = $videresendtTil;
+		return $this;
+	}
+	/**
+	 * Hent videresendt til
+	 * 
+	 * @return array $videresendtTil
+	**/
+	public function getVideresendtTil() {
+		return $this->videresendtTil;
+	}
+	
+	/**
+	 * Sett id
+	 *
+	 * @param integer $id
+	 * @return $this
+	**/
+	public function setId( $id ) {
+		$this->id = $id;
+		return $this;
+	}
+	/**
+	 * Hent Id
+	 *
+	 * @return int $id
+	**/
+	public function getId() {
+		return $this->id;
+	}
+	
+	/**
+	 * Sett fornavn
+	 *
+	 * @param string $fornavn
+	 * @return $this
+	**/
+	public function setFornavn( $fornavn ) {
+		$this->fornavn = $fornavn;
+	}
+	/**
+	 * Hent Fornavn
+	 *
+	 * @return string $fornavn
+	**/
+	public function getFornavn() {
+		return $this->fornavn;
+	}
+	
+	/**
+	 * Sett etternavn
+	 *
+	 * @param string $etternavn
+	 * @return $this
+	**/
+	public function setEtternavn( $etternavn ) {
+		$this->etternavn = $etternavn;
+	}
+	/**
+	 * Hent Fornavn
+	 *
+	 * @return string $fornavn
+	**/
+	public function getEtternavn() {
+		return $this->etternavn;
+	}
+	
+	/**
+	 * Hent fullt navn
+	 *
+	 * @return string CONCAT(getFornavn() + ' ' + getEtternavn())
+	**/
+	public function getNavn() {
+		return $this->getFornavn() .' '. $this->getEtternavn();
+	}
+	
+	/**
+	 * Sett mobil
+	 *
+	 * @param string $mobil
+	 * @return $this
+	**/
+	public function setMobil( $mobil ) {
+		$this->mobil = preg_replace("/[^0-9]/","", $mobil);
+		return $this;
+	}
+	/**
+	 * Hent mobil
+	 *
+	 * @return string $mobil
+	**/
+	public function getMobil() {
+		return $this->mobil;
+	}
+	
+	/**
+	 * Sett instrument
+	 *
+	 * @param string $instrument
+	 * @return $this
+	**/
+	public function setInstrument( $instrument ) {
+		$this->instrument = $instrument;
+		return $this;
+	}
+	/**
+	 * Hent instrument
+	 *
+	 * @return string $instrument
+	**/
+	public function getInstrument() {
+		return $this->instrument;
+	}
+
+	/**
+	 * Sett fødselsdato
+	 *
+	 * @param integer unixtime $fodselsdato
+	 * @return $this
+	**/
+	public function setFodselsdato( $fodselsdato ) {
+		$this->fodselsdato = $fodselsdato;
+		return $this;
+	}
+	/**
+	 * Hent fødselsdato
+	 *
+	 * @return integer unixtime $fodselsdato
+	**/
+	public function getFodselsdato() {
+		return $this->fodselsdato;
+	}
+	
+	/**
+	 * Hent alder
+	 *
+	 * @param $suffix=' år'
+	 *
+	 * @return string alder
+	**/
+	public function getAlder( $suffix=' år' ) {
+		if( 0 == $this->getFodselsdato() ) {
+			return '25+'. $suffix;
+		}
+		$birthdate = new DateTime();
+		$birthdate->setTimestamp( $this->getFodselsdato() );
+        $now = new DateTime('now');
+
+		return $birthdate->diff($now)->y . $suffix;
+	}
+	
+	/**
+	 * Set BT_ID (innslagstype)
+	 * Brukes for å definere om man er videresendt (BTID==1 gir videresendt uavhengig av database-relasjoner)
+	 *
+	 * @param int $bt_id
+	 * @return $this
+	**/
+	private function _setBTID( $bt_id ) {
+		$this->bt_id = $bt_id;
+		return $this;
+	}
+	/**
+	 * Hent BT_ID (innslagstype)
+	 * Brukes for å definere om man er videresendt (BTID==1 gir videresendt uavhengig av database-relasjoner)
+	 *
+	 * @return int $bt_id
+	**/
+	private function _getBTID() {
+		return $this->bt_id;
+	}
+}
 ?>
