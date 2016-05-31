@@ -396,7 +396,7 @@ class bilde {
 	private function _loadByID( $id ) {
 		$SQL = new SQL("SELECT * 
 						FROM `ukm_bilder`
-						JOIN `#table` ON (`#table`.`post_id` = `ukm_bilder`.`id` AND `#table`.`post_type` = 'image')
+						JOIN `#table` ON (`#table`.`post_id` = `ukm_bilder`.`wp_post` AND `#table`.`b_id` = `ukm_bilder`.`b_id`)
 						WHERE `ukm_bilder`.`id` = '#id'
 						",
 						array('table'=>self::$table,
