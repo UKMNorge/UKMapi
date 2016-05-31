@@ -1,147 +1,87 @@
 <?php
+require_once('UKM/fylke.class.php');
 	
 class fylker {
-	static $fylker;
-	static $fylker_by_id;
-	static $fylker_by_name;
+	static $fylker = null;
 	
 	// static classes in php does not use __construct (bah)
 	 private static function initialize() {
+		self::$fylker = array();
 		
-		$fylke = new stdClass();
-		$fylke->id = 2;
-		$fylke->link = 'akershus';
-		$fylke->name = 'Akershus';
-		self::$fylker[] = $fylke;		
-		
-		$fylke = new stdClass();
-		$fylke->id = 9;
-		$fylke->link = 'aust-agder';
-		$fylke->name = 'Aust-Agder';
-		self::$fylker[] = $fylke;		
-		
-		$fylke = new stdClass();
-		$fylke->id = 6;
-		$fylke->link = 'buskerud';
-		$fylke->name = 'Buskerud';
-		self::$fylker[] = $fylke;		
-		
-		$fylke = new stdClass();
-		$fylke->id = 20;
-		$fylke->link = 'finnmark';
-		$fylke->name = 'Finnmark';
-		self::$fylker[] = $fylke;		
-		
-		$fylke = new stdClass();
-		$fylke->id = 4;
-		$fylke->link = 'hedmark';
-		$fylke->name = 'Hedmark';
-		self::$fylker[] = $fylke;		
-		
-		$fylke = new stdClass();
-		$fylke->id = 12;
-		$fylke->link = 'hordaland';
-		$fylke->name = 'Hordaland';
-		self::$fylker[] = $fylke;		
-		
-		$fylke = new stdClass();
-		$fylke->id = 15;
-		$fylke->link = 'moreogromsdal';
-		$fylke->name = 'Møre og Romsdal';
-		self::$fylker[] = $fylke;		
-		
-		$fylke = new stdClass();
-		$fylke->id = 17;
-		$fylke->link = 'nord-trondelag';
-		$fylke->name = 'Nord-Trøndelag';
-		self::$fylker[] = $fylke;		
-		
-		$fylke = new stdClass();
-		$fylke->id = 18;
-		$fylke->link = 'nordland';
-		$fylke->name = 'Nordland';
-		self::$fylker[] = $fylke;		
-		
-		$fylke = new stdClass();
-		$fylke->id = 5;
-		$fylke->link = 'oppland';
-		$fylke->name = 'Oppland';
-		self::$fylker[] = $fylke;		
-		
-		$fylke = new stdClass();
-		$fylke->id = 3;
-		$fylke->link = 'oslo';
-		$fylke->name = 'Oslo';
-		self::$fylker[] = $fylke;		
-		
-		$fylke = new stdClass();
-		$fylke->id = 11;
-		$fylke->link = 'rogaland';
-		$fylke->name = 'Rogaland';
-		self::$fylker[] = $fylke;		
-		
-		$fylke = new stdClass();
-		$fylke->id = 14;
-		$fylke->link = 'sognogfjordane';
-		$fylke->name = 'Sogn og Fjordane';
-		self::$fylker[] = $fylke;		
-		
-		$fylke = new stdClass();
-		$fylke->id = 16;
-		$fylke->link = 'sor-trondelag';
-		$fylke->name = 'Sør-Trøndelag';
-		self::$fylker[] = $fylke;		
-		
-		$fylke = new stdClass();
-		$fylke->id = 8;
-		$fylke->link = 'telemark';
-		$fylke->name = 'Telemark';
-		self::$fylker[] = $fylke;		
-				
-		$fylke = new stdClass();
-		$fylke->id = 19;
-		$fylke->link = 'troms';
-		$fylke->name = 'Troms';
-		self::$fylker[] = $fylke;		
+		self::$fylker[2]	= new fylke(2, 'akershus', 'Akershus');
+		self::$fylker[9]	= new fylke(9, 'aust-agder', 'Aust-Agder');
+		self::$fylker[6]	= new fylke(6, 'buskerud', 'Buskerud');
+		self::$fylker[20]	= new fylke(20, 'finnmark', 'Finnmark');
+		self::$fylker[4]	= new fylke(4, 'hedmark', 'Hedmark');
+		self::$fylker[12]	= new fylke(12, 'hordaland', 'Hordaland');
+		self::$fylker[15]	= new fylke(15, 'moreogromsdal', 'Møre og Romsdal');
+		self::$fylker[17]	= new fylke(17, 'nord-trondelag', 'Nord-Trøndelag');
+		self::$fylker[18]	= new fylke(18, 'nordland', 'Nordland');
+		self::$fylker[5]	= new fylke(5, 'oppland', 'Oppland');
+		self::$fylker[3]	= new fylke(3, 'oslo', 'Oslo');
+		self::$fylker[11]	= new fylke(11, 'rogaland', 'Rogaland');
+		self::$fylker[14]	= new fylke(14, 'sognogfjordane', 'Sogn og Fjordane');
+		self::$fylker[16]	= new fylke(16, 'sor-trondelag', 'Sør-Trøndelag');
+		self::$fylker[8]	= new fylke(8, 'telemark', 'Telemark');
+		self::$fylker[19]	= new fylke(19, 'troms', 'Troms');
+		self::$fylker[10]	= new fylke(10, 'vest-agder', 'Vest-Agder');
+		self::$fylker[7]	= new fylke(7, 'vestfold', 'Vestfold');
+		self::$fylker[1]	= new fylke(1, 'ostfold', 'Østfold');
 
-		$fylke = new stdClass();
-		$fylke->id = 10;
-		$fylke->link = 'vest-agder';
-		$fylke->name = 'Vest-Agder';
-		self::$fylker[] = $fylke;		
-
-		$fylke = new stdClass();
-		$fylke->id = 7;
-		$fylke->link = 'vestfold';
-		$fylke->name = 'Vestfold';
-		self::$fylker[] = $fylke;		
-
-
-		foreach( self::$fylker as $fylke ) {
-			self::$fylker_by_id[ $fylke->id ] = $fylke;
-			self::$fylker_by_name[ $fylke->link ] = $fylke;
-		}		
+		self::$fylker[21]	= new fylke(21, 'testfylke', 'Testfylke');
 	}
 	
 	public static function getById( $id ) {
-		self::initialize();
-		if( !isset( self::$fylker_by_id[ $id ] ) ) {
-			throw new Exception('Prøvde å aksessere et fylke som ikke finnes (ID: '. $id .')');
+		if( null == self::$fylker ) {
+			self::initialize();
 		}
-		return self::$fylker_by_id[ $id ];
+		if( isset( self::$fylker[ $id ] ) ) {
+			return self::$fylker[ $id ];
+		}
+		
+		throw new Exception('Prøvde å aksessere et fylke som ikke finnes (ID: '. $id .')');
 	}
 	
 	public static function getByLink( $id ) {
-		self::initialize();
-		if( !isset( self::$fylker_by_id[ $id ] ) ) {
-			throw new Exception('Prøvde å aksessere et fylke som ikke finnes (ID: '. $id .')');
+		if( null == self::$fylker ) {
+			self::initialize();
 		}
-		return self::$fylker_by_name[ $id ];
+		
+		switch( $id ) {
+			case 'akershus':		return self::getById( 2 );
+			case 'aust-agder':		return self::getById( 9 );
+			case 'buskerud':		return self::getById( 6 );
+			case 'finnmark':		return self::getById( 20 );
+			case 'hedmark':			return self::getById( 4 );
+			case 'hordaland':		return self::getById( 12 );
+			case 'moreogromsdal':	return self::getById( 15 );
+			case 'nord-trondelag':	return self::getById( 17 );
+			case 'nordland':		return self::getById( 18 );
+			case 'oppland':			return self::getById( 5 );
+			case 'oslo':			return self::getById( 3 );
+			case 'rogaland':		return self::getById( 11 );
+			case 'sognogfjordane':	return self::getById( 14 );
+			case 'sor-trondelag':	return self::getById( 16 );
+			case 'telemark':		return self::getById( 8 );
+			case 'troms':			return self::getById( 19 );
+			case 'vest-agder':		return self::getById( 10 );
+			case 'vestfold':		return self::getById( 7 );
+			case 'ostfold':			return self::getById( 1 );
+			
+			case 'testfylke':		return self::getById( 21 );
+		}
+
+		throw new Exception('Prøvde å aksessere et fylke som ikke finnes (ID: '. $id .')');
 	}
 	
 	public static function getAll() {
 		self::initialize();
-		ksort( self::$fylker_by_name );
-		return self::$fylker_by_name;
+
+		$sortert = array();
+		foreach( self::$fylker as $fylke ) {
+			$sortert[ $fylke->getNavn() ] = $fylke;
+		}
+		ksort( $sortert );
+		return $sortert;
 	}
 }
