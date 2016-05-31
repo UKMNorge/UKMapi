@@ -164,8 +164,8 @@ switch( $field ) {
 		$innslag = new innslag($b_id);
 		$innslag->addPerson($this->info['p_id']);
 		
-		$this->person($this->info['p_id'], $b_id);
-		$innslag->statistikk_oppdater();
+#		$innslag->person($this->info['p_id'], $b_id);
+# gjøres av innslagsklassen		$innslag->statistikk_oppdater();
 	}
 	
 	public function unrelate($b_id) {
