@@ -24,74 +24,107 @@ class innslag_typer {
 						$data = array('id' => 1,
 									  'key' => 'musikk',
 									  'name' => 'Musikk',
-									  'icon' => 'http://ico.ukm.no/delta/delta-musikk-64.png');
+									  'icon' => 'http://ico.ukm.no/delta/delta-musikk-64.png',
+									  'har_filmer' => true,
+									  'har_titler' => false,
+									  );
 						break;
 					case 'dans':
 						$data = array('id' => 1,
 									  'key' => 'dans',
 									  'name' => 'Dans',
-									  'icon' => 'http://ico.ukm.no/delta/delta-dans-64.png');
+									  'icon' => 'http://ico.ukm.no/delta/delta-dans-64.png',
+									  'har_filmer' => true,
+									  'har_titler' => false,
+									  );
 						break;
 					case 'teater':
 						$data = array('id' => 1,
 									  'key' => 'teater',
 									  'name' => 'Teater',
-									  'icon' => 'http://ico.ukm.no/delta/delta-teater-64.png');
+									  'icon' => 'http://ico.ukm.no/delta/delta-teater-64.png',
+									  'har_filmer' => true,
+									  'har_titler' => false,
+									  );
 						break;						
 					case 'litteratur':
 						$data = array('id' => 1,
 									  'key' => 'litteratur',
 									  'name' => 'Litteratur',
-									  'icon' => 'http://ico.ukm.no/delta/delta-litteratur-64.png');
+									  'icon' => 'http://ico.ukm.no/delta/delta-litteratur-64.png',
+									  'har_filmer' => true,
+									  'har_titler' => false,
+									  );
 						break;
 					default:
 						$data = array('id' => 1,
 									  'key' => 'scene',
 									  'name' => 'Annet',
-									  'icon' => 'http://ico.ukm.no/delta/delta-musikk-64.png');
+									  'icon' => 'http://ico.ukm.no/delta/delta-musikk-64.png',
+									  'har_filmer' => true,
+									  'har_titler' => false,
+									  );
 				}
 				break;
 			case 2:
 				$data = array('id' => 2,
 							  'key' => 'video',
 							  'name' => 'Film',
-							  'icon' => 'http://ico.ukm.no/delta/delta-video-64.png');
+							  'icon' => 'http://ico.ukm.no/delta/delta-video-64.png',
+							  'har_filmer' => true,
+							  'har_titler' => false,
+							  );
 				break;
 			case 3:
 				$data = array('id' => 3,
 							  'key' => 'utstilling',
 							  'name' => 'Utstilling',
-							  'icon' => 'http://ico.ukm.no/delta/delta-utstilling-64.png');
+							  'icon' => 'http://ico.ukm.no/delta/delta-utstilling-64.png',
+							  'har_filmer' => false,
+							  'har_titler' => false,
+							  );
 				break;
 			case 4:
 				$data = array('id' => 4,
 							  'key' => 'konferansier',
 							  'name' => 'Konferansier',
-							  'icon' => 'http://ico.ukm.no/delta/delta-konferansier-64.png');
+							  'icon' => 'http://ico.ukm.no/delta/delta-konferansier-64.png',
+							  'har_filmer' => false,
+							  'har_titler' => true,
+							  );
 				break;
 			case 5:
 				$data = array('id' => 5,
 							  'key' => 'nettredaksjon',
 							  'name' => 'UKM Media',
-							  'icon' => 'http://ico.ukm.no/delta/delta-nettredaksjon-64.png');
+							  'icon' => 'http://ico.ukm.no/delta/delta-nettredaksjon-64.png',
+							  'har_filmer' => false,
+							  'har_titler' => true,
+							  );
 				break;
 			case 6:
 				$data = array('id' => 6,
 							  'key' => 'matkultur',
 							  'name' => 'Matkultur',
-							  'icon' => 'http://ico.ukm.no/delta/delta-matkultur-64.png');
+							  'icon' => 'http://ico.ukm.no/delta/delta-matkultur-64.png',
+							  'har_filmer' => true,
+							  'har_titler' => true,
+							  );
 				break;
 			case 8:
 			case 9:
 				$data = array('id' => 8,
 							  'key' => 'arrangor',
 							  'name' => 'Arrangør',
-							  'icon' => 'http://ico.ukm.no/delta/delta-arrangor-64.png');
+							  'icon' => 'http://ico.ukm.no/delta/delta-arrangor-64.png',
+							  'har_filmer' => false,
+							  'har_titler' => true,
+							  );
 				break;
 			default:
 				$data = array('id' => 'missing '. $id);
 		}
-		return new innslag_type( $data['id'], $data['key'], $data['name'], $data['icon'] );
+		return new innslag_type( $data['id'], $data['key'], $data['name'], $data['icon'], $data['har_filmer'], $data['har_titler'] );
 	}
 	
 	
@@ -122,12 +155,16 @@ class innslag_type {
 	var $key = null;
 	var $name = null;
 	var $icon = null;
+	var $har_filmer = false; # Kan det finnes noe i UKM-TV?
+	var $tittellos = false;
 	
-	public function __construct($id, $key, $name, $icon) {
+	public function __construct($id, $key, $name, $icon, $har_filmer, $tittellos) {
 		$this->setId( $id );
 		$this->setKey( $key );
 		$this->setNavn( $name );
 		$this->setIcon( $icon );
+		$this->setHarFilmer( $har_filmer );
+		$this->setTittellos( $tittellos );
 	}
 	
 	public function setId( $id ) {
@@ -160,6 +197,23 @@ class innslag_type {
 	}
 	public function getIcon() {
 		return $this->icon;
+	}
+	
+	public function setHarFilmer( $har_filmer ) {
+		$this->har_filmer = $har_filmer;
+		return $this;
+	}
+	public function harFilmer() {
+		return $this->har_filmer;
+	}
+
+	
+	public function setTittellos( $tittellos ) {
+		$this->tittellos = $tittellos;
+		return $this;
+	}
+	public function harTitler() {
+		return !$this->tittellos;
 	}
 }
 
