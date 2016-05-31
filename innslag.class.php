@@ -1,8 +1,11 @@
 <?php
 require_once('UKM/sql.class.php');
 require_once('UKM/person.class.php');
+require_once('UKM/personer.class.php');
 require_once('UKM/inc/ukmlog.inc.php');
 require_once('UKM/monstring.class.php');
+require_once('UKM/kommune.class.php');
+require_once('UKM/fylker.class.php');
 
 function create_innslag($bt_id, $season, $pl_id, $kommune, $contact=false){
 	$tittellos = in_array($bt_id, array(4,5,8,9,10));
@@ -90,6 +93,7 @@ class innslag {
 	var $id = null;
 	var $navn = null;
 	var $type = null;
+	var $beskrivelse = null;
 
 	/*********************************************************************************************
 		API V1
@@ -101,6 +105,7 @@ class innslag {
 	var $personer = array();
 	var $items = array();
 	var $warnings = array();
+	var $kommune = null;
 
 	// Nye funksjoner nov 2015 for UKMdelta
 	private function _log( $field, $newValue ) {
@@ -357,9 +362,12 @@ class innslag {
 		$this->_time_status_8();
 		
 		// API V2
+		$this->_loadPersoner();
 		$this->setId( $res['b_id'] );
 		$this->setNavn( utf8_encode( $res['b_name'] ) );
 		$this->setType( $res['bt_id'], $res['b_kategori'] );
+		$this->setBeskrivelse( $res['b_description'] );
+		$this->setKommune( $res['b_kommune'] );
 	}
 
 	## Gi ny verdi (value) til attributten (key)
@@ -614,12 +622,6 @@ class innslag {
 	####################################################################################
 	## FUNKSJONER RELATERT TIL RELATERTE ELEMENTER I INNSLAGET
 	####################################################################################
-	public function getBilder() {
-		require_once('UKM/bilder.class.php');
-		$this->bilder = new bilder( $this->get('b_id') );
-		
-		return $this->bilder;
-	}
 	## Returnerer en liste over bilder, nyheter og videoer. Hvis listen ikke er laget, last den inn
 	public function related_items() {
 		if(!$this->items_loaded)
@@ -1500,7 +1502,7 @@ class innslag {
 		if(empty($b['p_email'])) {
 			$whatmissing[] = 'kontakt.epost.mangler';
 		}
- 		else if(!validEmail($b['p_email']))	
+ 		else if(!$this->validEmail($b['p_email']))	
 	    		$whatmissing[] = 'kontakt.epost.ikkegyldig';
 
 	    if(empty($b['p_phone']) || strlen($b['p_phone'])!==8)
@@ -1626,6 +1628,50 @@ class innslag {
 		/******************************************************************************************************
 												API V2-funksjoner
 		******************************************************************************************************/
+		/**
+		 * Opprett personer-collection
+		 *
+		**/
+		private function _loadPersoner() {
+			$this->personer_collection = new personer( $this->getId() );
+			return $this;
+		}
+		/**
+		 * Hent personer i innslaget
+		 *
+		 * @return array $personer
+		**/
+		public function getPersoner() {
+			return $this->personer_collection;	
+		}
+		
+			
+		/**
+		 * Hent alle bilder tilknyttet innslaget
+		 *
+		 * @return array $bilder
+		**/
+		public function getBilder() {
+			require_once('UKM/bilder.class.php');
+			$this->bilder = new bilder( $this->get('b_id') );
+			
+			return $this->bilder;
+		}
+		
+		/**
+		 * Hent alle filmer fra UKM-TV (tilknyttet innslaget)
+		 *
+		 * @return array UKM-TV
+		**/
+		public function getFilmer() {
+			require_once('UKM/tv.class.php');
+			require_once('UKM/tv_files.class.php');
+			
+			$tv_files = new tv_files('band', $this->id);
+			while($tv = $tv_files->fetch()) {
+				$this->filmer[$tv->id] = $tv;
+			}
+		}
 			
 		private function _getNewOrOld($new, $old) {
 			return null == $this->$new ? $this->info[$old] : $this->$new;
@@ -1672,6 +1718,15 @@ class innslag {
 			return $this->_getNewOrOld('navn', 'b_name');
 		}
 		
+		/**
+		 * Sett type
+		 * Hvilken kategori faller innslaget inn under?
+		 *
+		 * @param integer $type
+		 * @param string $kategori
+		 *
+		 * @return $this;
+		**/
 		public function setType( $type, $kategori=false ) {
 			require_once('UKM/innslag_typer.class.php');
 			
@@ -1682,10 +1737,54 @@ class innslag {
 			$this->type = innslag_typer::getById( $type, $kategori );
 			return $this;
 		}
+		/**
+		 * Hent type
+		 * Hvilken kategori innslaget faller inn under
+		 *
+		 * @return innslag_type $type
+		**/
 		public function getType( ) {
 			return $this->type;
 		}
+		
+		/**
+		 * Sett beskrivelse av innslag
+		 *
+		 * @param beskrivelse
+		 * @return $this
+		**/
+		public function setBeskrivelse( $beskrivelse ) {
+			$this->beskrivelse = $beskrivelse;
+			return $this;
+		}
+		/**
+		 * Hent beskrivelse
+		 *
+		 * @return string $beskrivelse
+		**/
+		public function getBeskrivelse() {
+			return $this->beskrivelse;
+		}
+
+		
+		/**
+		 * Sett kommune
+		 *
+		 * @param kommune_id
+		 * @return $this
+		**/
+		public function setKommune( $kommune_id ) {
+			$this->kommune = new kommune( $kommune_id );
+			return $this;
+		}
+		/**
+		 * Hent kommune
+		 *
+		 * @return object $kommune
+		**/
+		public function getKommune() {
+			return $this->kommune;
+		}
+		 
 
 }
-
-
