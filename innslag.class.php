@@ -366,7 +366,7 @@ class innslag {
 		$this->setId( $res['b_id'] );
 		$this->setNavn( utf8_encode( $res['b_name'] ) );
 		$this->setType( $res['bt_id'], $res['b_kategori'] );
-		$this->setBeskrivelse( $res['b_description'] );
+		$this->setBeskrivelse( utf8_encode($res['b_description']) );
 		$this->setKommune( $res['b_kommune'] );
 	}
 
