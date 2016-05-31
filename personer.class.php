@@ -87,6 +87,9 @@ class personer {
 							`participant`.`p_lastname` ASC",
 						array('bid' => $this->_getBID() ));
 		$res = $SQL->run();
+		if( isset( $_GET['debug'] ) )  {
+			echo $SQL->debug();
+		}
 		while( $r = mysql_fetch_assoc( $res ) ) {
 			$person = new person_v2( $r );
 			$this->personer[ $person->getId() ] = $person;
