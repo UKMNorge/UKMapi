@@ -458,9 +458,14 @@ class bilde {
 			$data['mime-type'] = false;
 		}
 
-		// Beregn paths		
-		$data['path_int'] = 'wp-content/uploads/sites/'. $this->getBlogId() .'/';
-		$data['path_ext'] = 'http://'.UKM_HOSTNAME.'/wp-content/uploads/sites/'. $this->getBlogId() .'/';#$this->getBlogUrl().'/files/';
+		// Beregn paths	
+		if( UKM_HOSTNAME == 'ukm.no'  ) {
+			$basefolder = 'wp-content/blogs.dir/'. $this->getBlogId() .'/files/';
+		} else {
+			$basefolder = 'wp-content/uploads/sites/'. $this->getBlogId() .'/';
+		}
+		$data['path_int'] = $basefolder;
+		$data['path_ext'] = 'http://'. UKM_HOSTNAME .'/'. $basefolder;
 
 		// Opprett bilde
 		$this->sizes[ $id ] = new bilde_storrelse( $data );		
