@@ -46,7 +46,7 @@ class personer {
 	 * @return person_v2 $person
 	**/
 	public function getSingle() {
-		if( 1 < sizeof( $this->getAntall() ) ) {
+		if( 1 < $this->getAntall() ) {
 			throw new Exception( 'PERSON_V2: getSingle() er kun ment for bruk med tittelløse innslag som har ett personobjekt. '
 								.'Dette innslaget har '. $this->getAntall() .' personer');	
 		}
