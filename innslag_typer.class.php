@@ -3,9 +3,6 @@
 class innslag_typer {
 	
 	static function getById( $id, $kategori=false ) {
-		if( 1 == $id && false == $kategori ) {
-			throw new Exception('INNSLAG_TYPER: getById(1, $kategori) KREVER kategori!');
-		}
 		return self::_load( $id, $kategori );
 	}
 	
