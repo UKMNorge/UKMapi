@@ -106,6 +106,7 @@ class innslag {
 	var $items = array();
 	var $warnings = array();
 	var $kommune = null;
+	var $filmer = false;
 
 	// Nye funksjoner nov 2015 for UKMdelta
 	private function _log( $field, $newValue ) {
@@ -1664,13 +1665,16 @@ class innslag {
 		 * @return array UKM-TV
 		**/
 		public function getFilmer() {
-			require_once('UKM/tv.class.php');
-			require_once('UKM/tv_files.class.php');
-			
-			$tv_files = new tv_files('band', $this->id);
-			while($tv = $tv_files->fetch()) {
-				$this->filmer[$tv->id] = $tv;
+			if( !is_array( $this->filmer ) ) {
+				require_once('UKM/tv.class.php');
+				require_once('UKM/tv_files.class.php');
+				
+				$tv_files = new tv_files( 'band', $this->getId() );
+				while($tv = $tv_files->fetch()) {
+					$this->filmer[$tv->id] = $tv;
+				}
 			}
+			return $this->filmer;
 		}
 			
 		private function _getNewOrOld($new, $old) {
@@ -1731,7 +1735,7 @@ class innslag {
 			require_once('UKM/innslag_typer.class.php');
 			
 			if( 1 == $type && false == $kategori ) {
-				throw new Exception('INNSLAG: Scene-innslag må ha kategori for å kunne sette type');
+				throw new Exception('INNSLAG: Scene-innslag må ha kategori for å kunne sette type. BID:'. $this->getId() .' - '. $kategori);
 			}
 
 			$this->type = innslag_typer::getById( $type, $kategori );
