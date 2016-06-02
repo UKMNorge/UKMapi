@@ -1733,11 +1733,6 @@ class innslag {
 		**/
 		public function setType( $type, $kategori=false ) {
 			require_once('UKM/innslag_typer.class.php');
-			
-			if( 1 == $type && false == $kategori ) {
-				throw new Exception('INNSLAG: Scene-innslag må ha kategori for å kunne sette type. BID:'. $this->getId() .' - '. $kategori);
-			}
-
 			$this->type = innslag_typer::getById( $type, $kategori );
 			return $this;
 		}

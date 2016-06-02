@@ -14,9 +14,6 @@ class innslag_typer {
 	}
 	
 	static function _load( $id, $kategori=false ) {
-		if( 1 == $id && false == $kategori ) {
-			throw new Exception('INNSLAG_TYPER: _load(1, $kategori) KREVER kategori!');
-		}
 		switch( $id ) {
 			case 1:
 				switch( $kategori ) {
@@ -60,7 +57,7 @@ class innslag_typer {
 						$data = array('id' => 1,
 									  'key' => 'scene',
 									  'name' => 'Annet',
-									  'icon' => 'http://ico.ukm.no/delta/delta-musikk-64.png',
+									  'icon' => 'http://ico.ukm.no/delta/delta-annet-64.png',
 									  'har_filmer' => true,
 									  'har_titler' => true,
 									  );
