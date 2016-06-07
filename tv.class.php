@@ -207,6 +207,7 @@ class tv {
 		// velges mobil-filen i stedet
 		if( $this->bandwidthmode == 'low' && strpos( $this->file, '720p' ) !== false ) {
 			$this->file = $this->file_mobile;
+			$this->file_exists_smil = false;
 		}
 	}
 	
