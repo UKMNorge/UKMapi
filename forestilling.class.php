@@ -17,7 +17,7 @@ class forestilling_v2 extends forestilling {
 
 		parent::__construct($c_id,$tekniskprove);
 		$this->setId( $this->info['c_id'] );
-		$this->setNavn( $this->info['c_name'] );
+		$this->setNavn( utf8_encode( $this->info['c_name'] ) );
 		$this->setStart( $this->info['c_start'] );
 		$this->setMonstringId( $this->info['pl_id'] );
 	}
