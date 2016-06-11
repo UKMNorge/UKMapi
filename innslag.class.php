@@ -1,11 +1,13 @@
 <?php
 require_once('UKM/sql.class.php');
 require_once('UKM/person.class.php');
-require_once('UKM/personer.class.php');
+require_once('UKM/personer.collection.php');
 require_once('UKM/inc/ukmlog.inc.php');
 require_once('UKM/monstring.class.php');
 require_once('UKM/kommune.class.php');
 require_once('UKM/fylker.class.php');
+require_once('UKM/titler.collection.php');
+require_once('UKM/tittel.class.php');
 
 function create_innslag($bt_id, $season, $pl_id, $kommune, $contact=false){
 	$tittellos = in_array($bt_id, array(4,5,8,9,10));
@@ -86,18 +88,6 @@ function getBandTypeFromID($id) {
 }
 
 class innslag {
-	
-	/*********************************************************************************************
-		API V2
-	*********************************************************************************************/
-	var $id = null;
-	var $navn = null;
-	var $type = null;
-	var $beskrivelse = null;
-
-	/*********************************************************************************************
-		API V1
-	*********************************************************************************************/
 	## Attributtkontainer
 	var $info = array();
 	var $personer_loaded = false;
@@ -105,8 +95,6 @@ class innslag {
 	var $personer = array();
 	var $items = array();
 	var $warnings = array();
-	var $kommune = null;
-	var $filmer = false;
 
 	// Nye funksjoner nov 2015 for UKMdelta
 	private function _log( $field, $newValue ) {
@@ -361,14 +349,6 @@ class innslag {
 		$this->__charset();
 		
 		$this->_time_status_8();
-		
-		// API V2
-		$this->_loadPersoner();
-		$this->setId( $res['b_id'] );
-		$this->setNavn( utf8_encode( $res['b_name'] ) );
-		$this->setType( $res['bt_id'], $res['b_kategori'] );
-		$this->setBeskrivelse( utf8_encode($res['b_description']) );
-		$this->setKommune( $res['b_kommune'] );
 	}
 
 	## Gi ny verdi (value) til attributten (key)
@@ -429,7 +409,7 @@ class innslag {
 		$this->info['fylke'] = ($res['fylke']);
 		$this->info['fylkeID'] = $res['fylkeID'];
 				 
-	}
+	}	
 	
 	private function _loadKategoriogsjanger() {
 		$this->info['kategori'] = ($this->info['bt_id']==1 
@@ -1601,189 +1581,443 @@ class innslag {
 	   }
 	   return $isValid;
 	}
+}
 
+class innslag_v2 {
+	var $id = null;
+	var $navn = null;
+	var $type = null;
+	var $beskrivelse = null;
+	var $kommune_id = null;
+	var $kommune = null;
+	var $fylke = null;
+	var $filmer = false;
+	var $program = null;
+	var $kategori = null;
+	var $sjanger = null;
+	var $playback = null;
+	var $personer_collection = null;
 
+	public function __construct( $bid_or_row, $select_also_if_not_completed=false ) {
+		if( is_numeric( $bid_or_row ) ) {
+			$this->_loadByBID( $bid_or_row, $select_also_if_not_completed );
+		} else {
+			$this->_loadByRow( $bid_or_row );
+		}
+	}
+	
+	/**
+	 * Last inn objekt fra innslagsID
+	 *
+	 * @param integer b_id 
+	 * @return this;
+	 *
+	**/
+	private function _loadByBID( $b_id, $select_also_if_not_completed ) {
 
+		$SQL = new SQL("SELECT `smartukm_band`.*, 
+							   `td`.`td_demand`,
+							   `td`.`td_konferansier`
+						FROM `smartukm_band`
+						LEFT JOIN `smartukm_technical` AS `td` ON (`td`.`b_id` = `smartukm_band`.`b_id`)
+						WHERE `smartukm_band`.`b_id` = '#bid' 
+						#select_also_if_not_completed",
+					array('bid' => $b_id, 
+						 'select_also_if_not_completed' => ($select_also_if_not_completed ? "AND `smartukm_band`.`b_status` = 8" : '')
+						 )
+					);
+		$row = $SQL->run('array');
 
+		$this->_loadByRow( $row );
+		return $this;
+	}
+	/**
+	 * Last inn objekt fra databaserad
+	 *
+	 * @param database_row $row
+	 * @return $this;
+	**/
+	private function _loadByRow( $row ) {
+		$this->setId( $row['b_id'] );
+		$this->setNavn( utf8_encode( $row['b_name'] ) );
+		$this->setType( $row['bt_id'], $row['b_kategori'] );
+		$this->setBeskrivelse( utf8_encode($row['b_description']) );
+		$this->setKommune( $row['b_kommune'] );
+		$this->setKategori( utf8_decode( $row['b_kategori'] ) );
+		$this->setSjanger( (string) $row['b_sjanger'] );
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		/******************************************************************************************************
-												API V2-funksjoner
-		******************************************************************************************************/
-		/**
-		 * Opprett personer-collection
-		 *
-		**/
-		private function _loadPersoner() {
+		$this->_setSubscriptionTime( $row['b_subscr_time'] );
+		
+		return $this;
+	}
+	
+	/**
+	 * Hent personer i innslaget
+	 *
+	 * @return array $personer
+	**/
+	public function getPersoner() {
+		if( null == $this->personer_collection ) {
 			$this->personer_collection = new personer( $this->getId() );
-			return $this;
 		}
-		/**
-		 * Hent personer i innslaget
-		 *
-		 * @return array $personer
-		**/
-		public function getPersoner() {
-			return $this->personer_collection;	
-		}
+		return $this->personer_collection;	
+	}
+	
 		
-			
-		/**
-		 * Hent alle bilder tilknyttet innslaget
-		 *
-		 * @return array $bilder
-		**/
-		public function getBilder() {
-			require_once('UKM/bilder.class.php');
-			$this->bilder = new bilder( $this->get('b_id') );
-			
-			return $this->bilder;
-		}
+	/**
+	 * Hent alle bilder tilknyttet innslaget
+	 *
+	 * @return array $bilder
+	**/
+	public function getBilder() {
+		require_once('UKM/bilder.class.php');
+		$this->bilder = new bilder( $this->getId() );
 		
-		/**
-		 * Hent alle filmer fra UKM-TV (tilknyttet innslaget)
-		 *
-		 * @return array UKM-TV
-		**/
-		public function getFilmer() {
-			if( !is_array( $this->filmer ) ) {
-				require_once('UKM/tv.class.php');
-				require_once('UKM/tv_files.class.php');
-				
-				$tv_files = new tv_files( 'band', $this->getId() );
-				while($tv = $tv_files->fetch()) {
-					$this->filmer[$tv->id] = $tv;
-				}
+		return $this->bilder;
+	}
+	
+	/**
+	 * Hent alle filmer fra UKM-TV (tilknyttet innslaget)
+	 *
+	 * @return array UKM-TV
+	**/
+	public function getFilmer() {
+		if( !is_array( $this->filmer ) ) {
+			require_once('UKM/tv.class.php');
+			require_once('UKM/tv_files.class.php');
+			
+			$tv_files = new tv_files( 'band', $this->getId() );
+			while($tv = $tv_files->fetch()) {
+				$this->filmer[$tv->id] = $tv;
 			}
-			return $this->filmer;
 		}
-			
-		private function _getNewOrOld($new, $old) {
-			return null == $this->$new ? $this->info[$old] : $this->$new;
+		return $this->filmer;
+	}
+		
+	private function _getNewOrOld($new, $old) {
+		return null == $this->$new ? $this->info[$old] : $this->$new;
+	}
+	/**
+	 * Sett ID
+	 *
+	 * @param integer id 
+	 *
+	 * @return $this
+	**/
+	public function setId( $id ) {
+		$this->id = $id;
+		return $this;
+	}
+	/**
+	 * Hent ID
+	 * @return integer $id
+	**/
+	public function getId() {
+		return $this->id;
+	}
+	
+	
+	/**
+	 * Sett navn på innslag
+	 *
+	 * @param string $navn
+	 * @return $this
+	**/
+	public function setNavn( $navn ) {
+		$this->navn = $navn;
+		return $this;
+	}
+	/**
+	 * Hent navn på innslag
+	 *
+	 * @return string $navn
+	**/
+	public function getNavn() {
+		if( empty( $this->navn ) ) {
+			return 'Innslag uten navn';
 		}
-		/**
-		 * Sett ID
-		 *
-		 * @param integer id 
-		 *
-		 * @return $this
-		**/
-		public function setId( $id ) {
-			$this->id = $id;
-			$this->info['b_id'] = $id;
-			return $this;
+		return $this->navn;
+	}
+	
+	/**
+	 * Sett type
+	 * Hvilken kategori faller innslaget inn under?
+	 *
+	 * @param integer $type
+	 * @param string $kategori
+	 *
+	 * @return $this;
+	**/
+	public function setType( $type, $kategori=false ) {
+		require_once('UKM/innslag_typer.class.php');
+		$this->type = innslag_typer::getById( $type, $kategori );
+		return $this;
+	}
+	/**
+	 * Hent type
+	 * Hvilken kategori innslaget faller inn under
+	 *
+	 * @return innslag_type $type
+	**/
+	public function getType( ) {
+		return $this->type;
+	}
+	
+	
+	/**
+	 * Sett sesong
+	 *
+	 * @param int $seson
+	 * @return $this
+	**/
+	public function setSesong( $sesong ) {
+		$this->sesong = $sesong;
+		return $this;
+	}
+	/**
+	 * Hent sesong
+	 *
+	 * @return int $sesong
+	**/
+	public function getSesong() {
+		return $this->sesong;
+	}
+	
+	/**
+	 * Sett beskrivelse av innslag
+	 *
+	 * @param beskrivelse
+	 * @return $this
+	**/
+	public function setBeskrivelse( $beskrivelse ) {
+		$this->beskrivelse = $beskrivelse;
+		return $this;
+	}
+	/**
+	 * Hent beskrivelse
+	 *
+	 * @return string $beskrivelse
+	**/
+	public function getBeskrivelse() {
+		return $this->beskrivelse;
+	}
+
+	
+	/**
+	 * Sett kommune
+	 *
+	 * @param kommune_id
+	 * @return $this
+	**/
+	public function setKommune( $kommune_id ) {
+		$this->kommune_id = $kommune_id;
+		return $this;
+	}
+	/**
+	 * Hent kommune
+	 *
+	 * @return object $kommune
+	**/
+	public function getKommune() {
+		if( null == $this->kommune ) {
+			$this->kommune = new kommune( $this->kommune_id );
 		}
-		/**
-		 * Hent ID
-		 * @return integer $id
-		**/
-		public function getId() {
-			return $this->_getNewOrOld('id', 'b_id');
+		return $this->kommune;
+	}
+	
+	/**
+	 * Sett fylke
+	 * Skal ikke skje - sett alltid kommune!
+	 * 
+	**/
+	public function setFylke( $fylke_id ) {
+		throw new Exception('INNSLAG V2: setFylke() er ikke mulig. Bruk setKommune( $kommune_id )');
+	}
+	
+	/**
+	 * Hent fylke
+	 *
+	 * @return fylke
+	**/
+	public function getFylke() {
+		if( null == $this->fylke ) {
+			$this->fylke = $this->getKommune()->getFylke();
+		}
+		return $this->fylke;
+	}
+		
+	
+	/**
+	 * Set subscriptionTime
+	 *
+	 * @param unixtimestamp subscriptiontime
+	 * @return $this;
+	**/
+	public function _setSubscriptionTime( $unixtime ) {
+		$this->subscriptionTime = $unixtime;
+		return $this;
+	}
+	
+	/**
+	 * Sett innslagets kategori
+	 *
+	 * @param string $kategori
+	 * @return $this;
+	**/
+	public function setKategori( $kategori ) {
+		// Hvis scene-innslag, bruk detaljert info
+		if( 1 == $this->getType()->getId() ) {
+			$this->kategori = $this->getType()->getNavn();
+		}
+		$this->kategori = $kategori;
+		return $this;
+	}
+	/**
+	 * Hent innslagets kategori
+	 *
+	 * @return string $kategori
+	**/
+	public function getKategori() {
+		return $this->kategori;
+	}
+	
+	/** 
+	 * Sett innslagets sjanger
+	 * 
+	 * @param string $sjanger
+	 * @return $this
+	**/
+	public function setSjanger( $sjanger ) {
+		$this->sjanger = $sjanger;
+		return $this;
+	}
+	/**
+	 * Hent innslagets sjanger
+	 *
+	 * @return string $sjanger
+	**/
+	public function getSjanger() {
+		return $this->sjanger;
+	}
+	
+	/**
+	 * Hent innslagets kategori og sjanger som én streng
+	 * Hvis ett av feltene er tomme returneres kun det andre
+	 *
+	 * @return string $kategori ( - ) $sjanger
+	 *
+	**/
+	public function getKategoriOgSjanger() {
+		if( !empty( $this->getKategori() ) && !empty( $this->getSjanger() ) ) {
+			return $this->getKategori() .' - '. $this->getSjanger();	
 		}
 		
-		
-		/**
-		 * Sett navn på innslag
-		 *
-		 * @param string $navn
-		 * @return $this
-		**/
-		public function setNavn( $navn ) {
-			$this->navn = $navn;
-			$this->info['b_name'] = utf8_decode($navn);
-			return $this;
+		// En av de er tomme, returner "kun" den andre :)
+		return $this->getKategori() . $this->getSjanger();
+	}
+	
+	
+	/**
+	 * Sett kontaktperson ID
+	 *
+	 * @param object person
+	 * @return $this
+	**/
+	public function setKontaktpersonId( $person_id ) {
+		$this->kontaktperson_id = $person_id;
+		return $this;
+	}
+	/**
+	 * Hent kontaktpersonId
+	 *
+	 * @return int $kontaktpersonid
+	 *
+	**/
+	public function getKontaktpersonId() {
+		return $this->kontaktperson_id;
+	}
+	/**
+	 * Sett kontaktperson 
+	 *
+	 * @param $kontaktperson
+	 * @return $this
+	**/
+	public function setKontaktperson( $person ) {
+		$this->kontaktperson = $person;
+		return $this;
+	}
+	
+	/**
+	 * Hent kontaktperson
+	 *
+	 * @return object person $kontaktperson
+	**/
+	public function getKontaktperson() {
+		if( null == $this->kontaktperson ) {
+			$person = new person( $this->getKontaktpersonId() );
+			$this->setKontaktperson( $person );
 		}
-		
-		/**
-		 * Hent navn på innslag
-		 *
-		 * @return string $navn
-		**/
-		public function getNavn() {
-			return $this->_getNewOrOld('navn', 'b_name');
+		return $this->kontaktperson;
+	}
+	
+	/**
+	 * Hent playback
+	 *
+	 * @return playback_collection
+	 *
+	**/
+	public function getPlayback() {
+		if( null == $this->playback ) {
+			$this->playback = new playback_filer( $this->getId() );
 		}
-		
-		/**
-		 * Sett type
-		 * Hvilken kategori faller innslaget inn under?
-		 *
-		 * @param integer $type
-		 * @param string $kategori
-		 *
-		 * @return $this;
-		**/
-		public function setType( $type, $kategori=false ) {
-			require_once('UKM/innslag_typer.class.php');
-			$this->type = innslag_typer::getById( $type, $kategori );
-			return $this;
-		}
-		/**
-		 * Hent type
-		 * Hvilken kategori innslaget faller inn under
-		 *
-		 * @return innslag_type $type
-		**/
-		public function getType( ) {
-			return $this->type;
-		}
-		
-		/**
-		 * Sett beskrivelse av innslag
-		 *
-		 * @param beskrivelse
-		 * @return $this
-		**/
-		public function setBeskrivelse( $beskrivelse ) {
-			$this->beskrivelse = $beskrivelse;
-			return $this;
-		}
-		/**
-		 * Hent beskrivelse
-		 *
-		 * @return string $beskrivelse
-		**/
-		public function getBeskrivelse() {
-			return $this->beskrivelse;
+		return $this->playback;
+	}
+
+	/**
+	 * Hent påmeldingstidspunkt
+	 *
+	 * @return DateTime tidspunkt
+	**/
+	public function getSubscriptionTime() {
+		//
+		// OBS OBS OBS OBS OBS
+		//
+		// AVVIKER FRA V1-kode
+		// Pre UKMdelta var korrekt påloggingstidspunkt for tittelløse innslag
+		// lagret i loggen. Sjekker kun denne loggtabellen hvis innslaget ikke har 
+		// b_subscr_time
+
+		if( !empty( $this->subscriptionTime ) ) {
+			return DateTime::setTimestamp( $this->subscriptionTime );
 		}
 
-		
-		/**
-		 * Sett kommune
-		 *
-		 * @param kommune_id
-		 * @return $this
-		**/
-		public function setKommune( $kommune_id ) {
-			$this->kommune = new kommune( $kommune_id );
-			return $this;
+		$qry = new SQL("SELECT `log_time` FROM `ukmno_smartukm_log`
+						WHERE `log_b_id` = '#bid'
+						AND `log_code` = '22'
+						ORDER BY `log_id` DESC",
+						array('bid'=>$this->info['b_id']));
+		return $qry->run('field','log_time');
+	}
+	 
+	/**
+	 * Hent program for dette innslaget på gitt mønstring
+	 *
+	 * @param monstring $monstring
+	 * @return list program
+	 *
+	**/
+	public function getProgram( $monstring ) {
+		if( null == $this->program ) {
+			$this->program = new program( 'innslag', $this->getId() );
+			$this->program->setMonstringId( $monstring->getId() );
 		}
-		/**
-		 * Hent kommune
-		 *
-		 * @return object $kommune
-		**/
-		public function getKommune() {
-			return $this->kommune;
+		return $this->program;
+	}
+	
+	public function getTitler( $monstring ) {
+		if( null == $this->titler ) {
+			$this->titler = new titler( $this->getId(), $this->getType(), $monstring );
 		}
-		 
-
+		return $this->titler;
+	}
 }

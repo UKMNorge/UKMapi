@@ -612,7 +612,7 @@ class person_v2 {
 		if( 1 == $this->_getBTID() ) {
 			return true;
 		}
-		return in_array($pl_id, $this->videresendtTil );
+		return in_array($pl_id, $this->getVideresendtTil() );
 	}
 	
 	/**

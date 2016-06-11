@@ -2,6 +2,7 @@
 require_once 'UKM/sql.class.php';
 require_once 'UKM/statistikk.class.php';
 require_once 'UKM/monstring_tidligere.class.php';
+require_once 'UKM/innslag.collection.php';
 
 
 	## MØNSTRINGSOBJEKTET
@@ -12,6 +13,7 @@ require_once 'UKM/monstring_tidligere.class.php';
 		var $innslag_loaded = false;
 		var $innslag = array();
 		var $band_types_allowed = false;
+		
 		
 		public function update($field, $post_key=false) {
 			if(!$post_key)
@@ -1242,6 +1244,15 @@ $test = new SQL("SELECT `s_id` AS `personer`
 			return $this->concerts($order, $filter);
 		}
 		public function concerts( $order = 'c_start', $filter = true ) {
+			/** 
+			 * 
+			 * OBS OBS OBS
+			 * 
+			 *
+			 * Funksjonen kopiert over til V2 - endringer her må gjenspeiles i V2
+			 *
+			 *
+			**/
 			/* Henter ut konserter */
 			if( $filter === true )
 				$concertsSql = new SQL( 'SELECT `c_id`, `c_name`, `c_start`, `c_place`, `c_visible_detail` 
@@ -1602,30 +1613,408 @@ $test = new SQL("SELECT `s_id` AS `personer`
         	$res = $sql->run();
         	return mysql_num_rows( $res ) > 0;
 		}
-		
-		/******************************************************************************************************
-												API V2-funksjoner
-		******************************************************************************************************/
-			
-		/**
-		 * Sett ID
-		 *
-		 * @param integer id 
-		 *
-		 * @return $this
-		**/
-		public function setId( $id ) {
-			$this->id = $id;
-			$this->info['pl_id'] = $id;
-			return $this;
-		}
-		/**
-		 * hent ID
-		 * @return integer $id
-		**/
-		public function getId() {
-			return null == $this->id ? $this->info['pl_id'] : $this->id;
-		}
+}
 
+class monstring_v2 {
+	var $id = null;
+	var $type = null;
+	var $navn = null;
+	var $start = null;
+	var $start_datetime = null;
+	var $stop = null;
+	var $stop_datetime = null;
+	var $frist_1 = null;
+	var $frist_1_datetime = null;
+	var $frist_2 = null;
+	var $frist_2_datetime = null;
+	var $program = null;
+	var $kommuner_id = null;
+	var $kommuner = null;
+	var $sesong = null;
+	var $innslag = null;
+	
+	public function __construct( $id_or_row ) {
+
+		if( is_numeric( $id_or_row ) ) {
+			$this->_load_by_id( $id_or_row );
+		} elseif( is_array( $id_or_row ) ) {
+			$this->_load_by_row( $id_or_row );
+		} else {
+			throw new Exception('MONSTRING: Oppretting av objekt krever numerisk id eller databaserad');
+		}
+		
+	}		
+	
+	private function _load_by_id( $id ) {
+		$qry = new SQL("SELECT `place`.*,
+							GROUP_CONCAT(`kommuner`.`k_id`) AS `k_ids`
+						FROM `smartukm_place` AS `place`
+						LEFT JOIN `smartukm_rel_pl_k` AS `kommuner`
+							ON (`kommuner`.`pl_id` = `place`.`pl_id`)
+						WHERE `place`.`pl_id` = '#plid'", 
+					array('plid' => $id)
+					);
+		$res = $qry->run('array');
+		
+		$this->_load_by_row( $res );
 	}
+	
+	private function _load_by_row( $row ) {
+		if( !is_array( $row ) ) {
+			throw new Exception('MONSTRING: _load_by_row krever dataarray!');
+		}
+		// Beregn type
+		if( 0 == $row['pl_fylke'] ) {
+			$this->setType('kommune');
+		} elseif( 123456789 == $row['pl_fylke'] ) {
+			$this->setType('land');
+		} else {
+			$this->setType('fylke');
+		}
+		
+		
+		// Sett opp fylkesmønstringen
+		if( 'fylke' == $this->getType() ) {
+			$this->setFylke( $row['pl_fylke'] );
+		} elseif( 'land' == $this->getType() ) {
+			
+		} else {
+			$this->setKommuner( explode(',', $row['k_ids'] ) );
+		}
+		$this->setId( $row['pl_id'] );
+		$this->setNavn( $row['pl_name'] );
+		$this->setStart( $row['pl_start'] );
+		$this->setStop( $row['pl_stop'] );
+		$this->setFrist1( $row['pl_deadline'] );
+		$this->setFrist2( $row['pl_deadline2'] );
+		$this->setSesong( $row['season'] );
+	}
+	
+	
+		
+	/**
+	 * Sett ID
+	 *
+	 * @param integer id 
+	 *
+	 * @return $this
+	**/
+	public function setId( $id ) {
+		$this->id = $id;
+		return $this;
+	}
+	/**
+	 * hent ID
+	 * @return integer $id
+	**/
+	public function getId() {
+		return $this->id;
+	}		
+	
+	
+	/**
+	 * Sett type
+	 *
+	 * @param integer $type
+	 *
+	 * @return $this;
+	**/
+	public function setType( $type ) {
+		$this->type = $type;
+		return $this;
+	}
+	/**
+	 * Hent type
+	 *
+	 * @return innslag_type $type
+	**/
+	public function getType( ) {
+		return $this->type;
+	}
+	
+	/**
+	 * Sett navn
+	 *
+	 * @param string $navn
+	 *
+	 * @return $this
+	**/
+	public function setNavn( $navn ) {
+		$this->navn = $navn;
+		return $this;
+	}
+	/**
+	 * hent navn
+	 * @return string $navn
+	**/
+	public function getNavn() {
+		return $this->navn;
+	}
+	
+	/**
+	 * Sett start-tidspunkt
+	 *
+	 * @param unixtime $start
+	 * @return $this
+	**/
+	public function setStart( $unixtime ) {
+		$this->start = $unixtime;
+		return $this;
+	}
+	/**
+	 * Hent start-tidspunkt
+	 *
+	 * @return DateTime $start
+	**/
+	public function getStart() {
+		if( null == $this->start_datetime ) {
+			$this->start_datetime = new DateTime();
+			$this->start_datetime->setTimestamp( $this->start );
+		}
+		return $this->start_datetime;
+	}
+	
+	/**
+	 * Sett stopp-tidspunkt
+	 *
+	 * @param unixtime $stop
+	 * @return $this
+	**/
+	public function setStop( $unixtime ) {
+		$this->stop = $unixtime;
+		return $this;
+	}
+	/**
+	 * Hent stopp-tidspunkt
+	 *
+	 * @return DateTime $stop
+	**/
+	public function getStop() {
+		if( null == $this->stop_datetime ) {
+			$this->stop_datetime = new DateTime();
+			$this->stop_datetime->setTimestamp( $this->stop );
+		}
+		return $this->stop_datetime;
+	}
+	 
+	/**
+	 * Sett frist 1-tidspunkt
+	 *
+	 * @param unixtime $frist1
+	 * @return $this
+	**/
+	public function setFrist1( $unixtime ) {
+		$this->frist_1 = $unixtime;
+		return $this;
+	}
+	/**
+	 * Hent frist 1-tidspunkt
+	 *
+	 * @return DateTime $frist1
+	**/
+	public function getFrist1() {
+		if( null == $this->frist_1_datetime ) {
+			$this->frist_1_datetime = new DateTime();
+			$this->frist_1_datetime->setTimestamp( $this->frist_1 );
+		}
+		return $this->frist_1_datetime;
+	}	 
+	/**
+	 * Sett frist 2-tidspunkt
+	 *
+	 * @param unixtime $frist2
+	 * @return $this
+	**/
+	public function setFrist2( $unixtime ) {
+		$this->frist_2 = $unixtime;
+		return $this;
+	}
+	/**
+	 * Hent frist 2-tidspunkt
+	 *
+	 * @return DateTime $frist2
+	**/
+	public function getFrist2() {
+		if( null == $this->frist_2_datetime ) {
+			$this->frist_2_datetime = new DateTime();
+			$this->frist_2_datetime->setTimestamp( $this->frist_2 );
+		}
+		return $this->frist_2_datetime;
+	}
+	
+	
+	/**
+	 * Er dette en singelmønstring (altså ikke fellesmønstring
+	 *
+	 * return bool
+	**/
+	public function erSingelmonstring() {
+		return 1 == sizeof( $this->kommuner_id );
+	}
+	/**
+	 * Er dette en fellesmønstring 
+	 *
+	**/
+	public function erFellesmonstring() {
+		return 1 < sizeof( $this->kommuner_id );
+	}
+
+	
+	/**
+	 * Sett kommuner
+	 *
+	 * @param array $kommuner_id
+	 * @return $this
+	**/
+	public function setKommuner( $kommuner_id ) {
+		$this->kommuner_id = $kommuner_id;
+		return $this;
+	}
+	
+	/**
+	 * Hent kommune
+	 *
+	 * @return object $kommune
+	**/
+	public function getKommune() {
+		if( !$this->erSingelmonstring() ) {
+			throw new Exception('MONSTRING_V2: Kan ikke bruke getKommune på mønstringer med flere kommuner');
+		}
+		if( null == $this->kommune ) {
+			$this->kommune = new kommune( $this->kommune_id );
+		}
+		return $this->kommune;
+	}
+	
+	/**
+	 * Hent alle kommuner for en mønstring
+	 *
+	**/
+	public function getKommuner() {
+		if( null == $this->kommuner ) {
+			$this->kommuner = array();
+			foreach( $this->kommuner_id as $id ) {
+				$this->kommuner[] = new kommune( $id );
+			}
+		}
+		return $this->kommuner;
+	}
+
+	/**
+	 * Sett fylkeID
+	 *
+	 * @param int $fylke_id
+	 * @return $this
+	 * 
+	**/
+	public function setFylke( $fylke_id ) {
+		$this->fylke_id = $fylke_id;
+		return $this;
+	}
+	
+	/**
+	 * Sett sesong
+	 *
+	 * @param int $seson
+	 * @return $this
+	**/
+	public function setSesong( $sesong ) {
+		$this->sesong = $sesong;
+		return $this;
+	}
+	/**
+	 * Hent sesong
+	 *
+	 * @return int $sesong
+	**/
+	public function getSesong() {
+		return $this->sesong;
+	}
+	
+	/**
+	 * Hent fylke
+	 *
+	 * @return fylke
+	**/
+	public function getFylke() {
+		if( null == $this->fylke ) {
+			if( null == $this->fylke_id && 'kommune' == $this->getType() ) {
+				$first_kommune = array_shift( array_values( $this->getKommuner() ) );
+				$this->setFylke( $first_kommune->getFylke()->getId() );
+			}
+			$this->fylke = new fylke( $this->fylke_id );
+		}
+		return $this->fylke;
+	}
+	
+	/**
+	 * Hent program for gitt mønstring
+	 *
+	 * @return array forestilling.class
+	 *
+	**/
+	public function getProgram( $show_hidden_elements=false, $order_alpha=false ) {
+		if( null !== $this->program ) {
+			return $this->program;
+		}
+		
+		$order_by = (false == $order_alpha ) ? 'c_start' : 'c_name';
+		
+		$forestillinger = new forestillinger( 'monstring', $this->getId() );
+		
+		$this->_loadProgram();
+	}
+	
+	/**
+	 * Hent innslag påmeldt mønstringen
+	 *
+	 * @return innslag collection
+	**/
+	public function getInnslag() {
+		if( null == $this->innslag ) {
+			$this->innslag = new innslag_collection( 'monstring', $this->getId() );
+			$this->innslag->setContainerDataMonstring( $this->getId(), $this->getType(), $this->getSesong() );
+		}
+		return $this->innslag;
+	}
+	
+	/**
+	 * Hent lenke for mønstringen
+	 *
+	 * @return string url
+	**/
+	public function getLink() {
+		return '//'. UKM_HOSTNAME .'/'. $this->getPath() .'/';
+	}
+	
+	/**
+	 * Hent relativ path for mønstringen
+	 *
+	 * @return string relativ path til domenet
+	**/
+	public function getPath() {
+		if( 'fylke' == $this->getType() ) {
+			return $this->getFylke()->getLink();
+		} elseif( 'land' == $this->getType() ) {
+			return 'festivalen';
+		}
+		return 'pl'. $this->getId();		
+	}
+	
+	
+	private function _loadProgram() {
+		if( $filter === true )
+			$concertsSql = new SQL( 'SELECT `c_id`, `c_name`, `c_start`, `c_place`, `c_visible_detail` 
+							    	 FROM `smartukm_concert` 
+							    	 WHERE `c_visible_program` = true AND `pl_id` = ' . $this->info['pl_id'] . '
+							    	 ORDER BY ' . $order . ' ASC' );
+		else
+			$concertsSql = new SQL( 'SELECT `c_id`, `c_name`, `c_start`, `c_place`, `c_visible_detail`
+							    	 FROM `smartukm_concert` 
+							    	 WHERE `pl_id` = ' . $this->info['pl_id'] . '
+							    	 ORDER BY ' . $order . ' ASC' );
+		$concertsResult = $concertsSql->run();
+	}
+
+}
 ?>

@@ -376,7 +376,7 @@ class bilde {
 		}
 		
 		require_once('UKM/innslag.class.php');
-		$innslag = new innslag( $this->getInnslagId() );
+		$innslag = new innslag_v2( $this->getInnslagId() );
 		
 		// Innslaget finnes ikke
 		if( null == $innslag->getId() ) {

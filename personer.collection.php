@@ -5,6 +5,8 @@ class personer {
 	
 	var $b_id = null;
 	var $personer = null;
+	var $personer_videresendt = null;
+	var $personer_ikke_videresendt = null;
 	
 	public function __construct( $b_id ) {
 		$this->b_id = $b_id;
@@ -30,11 +32,34 @@ class personer {
 	 * @return bool
 	**/
 	public function getAllVideresendt( $pl_id ) {
-		foreach( $this->getAll() as $person ) {
-			if( $person->erVideresendt( $pl_id ) ) {
-				
+		if( null == $this->personer_videresendt ) {
+			$this->personer_videresendt = array();
+			foreach( $this->getAll() as $person ) {
+				if( $person->erVideresendt( $pl_id ) ) {
+					$this->personer_videresendt[] = $person;
+				}
 			}
 		}
+		return $this->personer_videresendt;
+	}
+
+	/**
+	 * getAllIkkeVideresendt
+	 * Hent alle personer i innslaget videresendt til gitt mønstring
+	 *
+	 * @param int $pl_id
+	 * @return bool
+	**/
+	public function getAllIkkeVideresendt( $pl_id ) {
+		if( null == $this->personer_ikke_videresendt ) {
+			$this->personer_ikke_videresendt = array();
+			foreach( $this->getAll() as $person ) {
+				if( !$person->erVideresendt( $pl_id ) ) {
+					$this->personer_ikke_videresendt[] = $person;
+				}
+			}
+		}
+		return $this->personer_ikke_videresendt;
 	}
 	
 	/**
@@ -63,6 +88,37 @@ class personer {
 	**/
 	public function getAntall() {
 		return sizeof( $this->getAll() );
+	}
+	
+	/**
+	 * harPerson
+	 * Er personen med i innslaget. OBS: Tar ikke høyde for videresending!
+	 *
+	 * @param object person
+	 * @return boolean
+	**/
+	public function harPerson( $har_person ) {
+		foreach( $this->getAll() as $person ) {
+			if( $person->getId() == $har_person->getId() ) {
+				return true;
+			}
+		}
+		return false;
+	}
+	/**
+	 * harVideresendtPerson
+	 * Er personen med i innslaget og videresendt til gitt mønstring?
+	 *
+	 * @param objekt person
+	 * @param int pl_id
+	 *
+	**/
+	public function harVideresendtPerson( $har_person, $pl_id ) {
+		foreach( $this->getAll() as $person ) {
+			if( $person->getId() == $har_person->getId() && $person->erVideresendt( $pl_id ) ) {
+				return true;
+			}
+		}
 	}
 	 	
 	private function _load() {

@@ -1,7 +1,161 @@
 <?php
+	
+class forestilling_v2 extends forestilling {
+	// Midlertidig hack i påvente av omskriving
+	var $id = null;
+	var $navn = null;
+	var $monstring_id = null;
+	var $monstring = null;
+	var $start = null;
+	var $start_datetime = null;
+
+
+	public function __construct($c_id,$tekniskprove=false) {
+		if( is_array( $c_id ) ) {
+			$c_id = $c_id['c_id'];
+		}
+
+		parent::__construct($c_id,$tekniskprove);
+		$this->setId( $this->info['c_id'] );
+		$this->setNavn( $this->info['c_name'] );
+		$this->setStart( $this->info['c_start'] );
+		$this->setMonstringId( $this->info['pl_id'] );
+	}
+	
+	
+	public function getAll() {
+		// TODO: FIX THIS
+		return $this->innslag();
+	}
+	
+	/**
+	 * Sett ID
+	 *
+	 * @param integer id 
+	 *
+	 * @return $this
+	**/
+	public function setId( $id ) {
+		$this->id = $id;
+		return $this;
+	}
+	/**
+	 * hent ID
+	 * @return integer $id
+	**/
+	public function getId() {
+		return $this->id;
+	}
+	
+	/**
+	 * Sett navn på innslag
+	 *
+	 * @param string $navn
+	 * @return $this
+	**/
+	public function setNavn( $navn ) {
+		$this->navn = $navn;
+		return $this;
+	}
+	/**
+	 * Hent navn på innslag
+	 *
+	 * @return string $navn
+	**/
+	public function getNavn() {
+		if( empty( $this->navn ) ) {
+			return 'Forestilling uten navn';
+		}
+		return $this->navn;
+	}
+	
+	/**
+	 * Sett mønstringsid (PLID)
+	 *
+	 * @param string $type
+	 * @return $this
+	**/
+	public function setMonstringId( $pl_id ) {
+		$this->monstring_id = $pl_id;
+		return $this;
+	}
+	/**
+	 * Hent mønstringsid (PLID)
+	 *
+	 * @param string $type
+	 * @return $this
+	**/
+	public function getMonstringId() {
+		return $this->monstring_id;
+	}
+	/**
+	 * Hent mønstring (objektet)
+	 *
+	 * @return monstring
+	**/
+	public function getMonstring() {
+		if( null == $this->monstring ) {
+			$this->monstring = new monstring_v2( $this->getMonstringId() );
+		}
+		return $this->monstring;
+	}
+	
+	/**
+	 * Hent direktelenke til hendelsen
+	 *
+	 * @return string url
+	**/
+	public function getLink() {
+		return $this->getMonstring()->getLink()
+				 .'program/?hendelse='
+				 . $this->getId();
+	}
+	
+	/**
+	 * Sett start-tidspunkt
+	 *
+	 * @param unixtime $start
+	 * @return $this
+	**/
+	public function setStart( $unixtime ) {
+		$this->start = $unixtime;
+		return $this;
+	}
+	/**
+	 * Hent start-tidspunkt
+	 *
+	 * @return DateTime $start
+	**/
+	public function getStart() {
+		if( null == $this->start_datetime ) {
+			$this->start_datetime = new DateTime();
+			$this->start_datetime->setTimestamp( $this->start );
+		}
+		return $this->start_datetime;
+	}
+
+	
+	/**
+	 * Hent nummer i rekken
+	 *
+	 * @param object innslag
+	**/
+	public function getNummer( $searchfor ) {
+		// TODO: BRUK FUNKSJON SOM RETURNERER INNSLAGSOBJEKTER, IKKE GAMMEL FUNKSJON
+		foreach( $this->getAll() as $order => $innslag ) {
+			if( $searchfor->getId() == $innslag['b_id'] ) {
+				return $order+1;
+			}
+		}
+		return false;
+	}
+
+}
 
 class forestilling {
-	var $id = null;
+	
+	
+	
 	
 	public $info;
 	
@@ -394,35 +548,7 @@ class forestilling {
 		$news_image = get_the_post_thumbnail( $news_id );
 		return array('news'=>$news, 'news_image'=>$news_image, 'program'=>$program, 'innslag'=>$arrInnslag);
 	}
-	
-	
-	/******************************************************************************************************
-											API V2-funksjoner
-	******************************************************************************************************/
-		
-	/**
-	 * Sett ID
-	 *
-	 * @param integer id 
-	 *
-	 * @return $this
-	**/
-	public function setId( $id ) {
-		$this->id = $id;
-		$this->info['c_id'] = $id;
-		return $this;
-	}
-	/**
-	 * hent ID
-	 * @return integer $id
-	**/
-	public function getId() {
-		return null == $this->id ? $this->info['c_id'] : $this->id;
-	}
 }
 
-class concert extends forestilling {
-	
-}
-
+class concert extends forestilling {}
 ?>

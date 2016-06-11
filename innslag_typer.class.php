@@ -14,6 +14,7 @@ class innslag_typer {
 		switch( $id ) {
 			case 1:
 				switch( $kategori ) {
+					case 'scene':
 					case 'musikk':
 						$data = array('id' => 1,
 									  'key' => 'musikk',
@@ -21,6 +22,7 @@ class innslag_typer {
 									  'icon' => 'http://ico.ukm.no/delta/delta-musikk-64.png',
 									  'har_filmer' => true,
 									  'har_titler' => true,
+									  'database_table' => 'smartukm_titles_scene',
 									  );
 						break;
 					case 'dans':
@@ -30,6 +32,7 @@ class innslag_typer {
 									  'icon' => 'http://ico.ukm.no/delta/delta-dans-64.png',
 									  'har_filmer' => true,
 									  'har_titler' => true,
+									  'database_table' => 'smartukm_titles_scene',
 									  );
 						break;
 					case 'teater':
@@ -39,6 +42,7 @@ class innslag_typer {
 									  'icon' => 'http://ico.ukm.no/delta/delta-teater-64.png',
 									  'har_filmer' => true,
 									  'har_titler' => true,
+									  'database_table' => 'smartukm_titles_scene',
 									  );
 						break;						
 					case 'litteratur':
@@ -48,6 +52,7 @@ class innslag_typer {
 									  'icon' => 'http://ico.ukm.no/delta/delta-litteratur-64.png',
 									  'har_filmer' => true,
 									  'har_titler' => true,
+									  'database_table' => 'smartukm_titles_scene',
 									  );
 						break;
 					default:
@@ -57,6 +62,7 @@ class innslag_typer {
 									  'icon' => 'http://ico.ukm.no/delta/delta-annet-64.png',
 									  'har_filmer' => true,
 									  'har_titler' => true,
+									  'database_table' => 'smartukm_titles_scene',
 									  );
 				}
 				break;
@@ -67,6 +73,7 @@ class innslag_typer {
 							  'icon' => 'http://ico.ukm.no/delta/delta-video-64.png',
 							  'har_filmer' => true,
 							  'har_titler' => true,
+							  'database_table' => 'smartukm_titles_video',
 							  );
 				break;
 			case 3:
@@ -76,6 +83,7 @@ class innslag_typer {
 							  'icon' => 'http://ico.ukm.no/delta/delta-utstilling-64.png',
 							  'har_filmer' => false,
 							  'har_titler' => true,
+							  'database_table' => 'smartukm_titles_exhibition',
 							  );
 				break;
 			case 4:
@@ -102,7 +110,8 @@ class innslag_typer {
 							  'name' => 'Matkultur',
 							  'icon' => 'http://ico.ukm.no/delta/delta-matkultur-64.png',
 							  'har_filmer' => true,
-							  'har_titler' => false,
+							  'har_titler' => true,
+							  'database_table' => 'smartukm_titles_other',
 							  );
 				break;
 			case 8:
