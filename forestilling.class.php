@@ -8,7 +8,7 @@ class forestilling_v2 extends forestilling {
 	var $monstring = null;
 	var $start = null;
 	var $start_datetime = null;
-
+	var $synlig_i_rammeprogram = null;
 
 	public function __construct($c_id,$tekniskprove=false) {
 		if( is_array( $c_id ) ) {
@@ -20,6 +20,7 @@ class forestilling_v2 extends forestilling {
 		$this->setNavn( utf8_encode( $this->info['c_name'] ) );
 		$this->setStart( $this->info['c_start'] );
 		$this->setMonstringId( $this->info['pl_id'] );
+		$this->setSynligRammeprogram( 'true' == $this->info['c_visible_program'] );
 	}
 	
 	
@@ -150,6 +151,25 @@ class forestilling_v2 extends forestilling {
 		return false;
 	}
 
+	/**
+	 * Skal forestillingen vises i rammeprogrammet?
+	 *
+	 * @return bool
+	**/
+	public function erSynligRammeprogram() {
+		return $this->synlig_i_rammeprogram;
+	}
+	
+	/**
+	 * Set om forestillingen skal vises i rammeprogrammet
+	 *
+	 * @param bool synlig
+	 * @return $this
+	**/
+	public function setSynligRammeprogram( $synlig ) {
+		$this->synlig_i_rammeprogram = $synlig;
+		return $this;
+	}
 }
 
 class forestilling {

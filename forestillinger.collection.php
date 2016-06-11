@@ -5,6 +5,7 @@ class forestillinger extends program {}
 
 class program {
 	var $forestillinger = null;
+	var $skjulte_forestillinger = null;
 	var $containerType = null;
 	var $containerObjectId = null;
 
@@ -24,6 +25,25 @@ class program {
 			$this->_load();
 		}
 		return $this->forestillinger;
+	}
+
+	public function getAllSkjulte() {
+		if( null == $this->forestillinger ) {
+			$this->_load();
+		}
+		return $this->skjulte_forestillinger;
+	}	
+	
+	public function getAllInkludertSkjulte() {
+		$alle = array();
+		if( is_array( $this->getAll() ) ) {
+			$alle = $this->getAll();
+		}
+		
+		if( is_array( $this->getAllSkjulte() ) ) {
+			$alle = array_merge( $alle, $this->getAllSkjulte() );
+		}
+		return $alle;
 	}
 
 	
@@ -64,7 +84,12 @@ class program {
 		}
 		while( $row = mysql_fetch_assoc( $res ) ) {
 			$forestilling = new forestilling_v2( $row );
-			$this->addForestilling( $forestilling );
+			if( $forestilling->erSynligRammeprogram() ) {
+				$this->addForestilling( $forestilling );
+			} else {
+				$this->addSkjultForestilling( $forestilling );
+			}
+			
 			
 			// GJØR NOE MED ORDER-FELTET!!
 		}
@@ -106,4 +131,21 @@ class program {
 		
 		return $this;
 	}
+
+	/**
+	 * legg til skjult forestilling
+	 *
+	 * @param $forestilling
+	 * @return $this
+	**/
+	public function addSkjultForestilling( $forestilling ) {
+		if( null == $this->skjulte_forestillinger ) {
+			$this->skjulte_forestillinger = array();
+		}
+		
+		$this->skjulte_forestillinger[] = $forestilling;
+		
+		return $this;
+	}
+
 }
