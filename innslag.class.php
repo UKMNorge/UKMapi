@@ -8,6 +8,7 @@ require_once('UKM/kommune.class.php');
 require_once('UKM/fylker.class.php');
 require_once('UKM/titler.collection.php');
 require_once('UKM/tittel.class.php');
+require_once('UKM/artikler.collection.php');
 
 function create_innslag($bt_id, $season, $pl_id, $kommune, $contact=false){
 	$tittellos = in_array($bt_id, array(4,5,8,9,10));
@@ -1597,6 +1598,7 @@ class innslag_v2 {
 	var $sjanger = null;
 	var $playback = null;
 	var $personer_collection = null;
+	var $artikler_collection = null;
 
 	public function __construct( $bid_or_row, $select_also_if_not_completed=false ) {
 		if( is_numeric( $bid_or_row ) ) {
@@ -1641,7 +1643,7 @@ class innslag_v2 {
 		$this->setId( $row['b_id'] );
 		$this->setNavn( utf8_encode( $row['b_name'] ) );
 		$this->setType( $row['bt_id'], $row['b_kategori'] );
-		$this->setBeskrivelse( utf8_encode($row['b_description']) );
+		$this->setBeskrivelse( stripslashes( utf8_encode($row['b_description']) ) );
 		$this->setKommune( $row['b_kommune'] );
 		$this->setKategori( utf8_decode( $row['b_kategori'] ) );
 		$this->setSjanger( (string) $row['b_sjanger'] );
@@ -1693,7 +1695,18 @@ class innslag_v2 {
 		}
 		return $this->filmer;
 	}
-		
+
+	/**
+	 * Hent relaterte artikler
+	 *
+	 * @return artikkel_collection
+	**/
+	public function getArtikler() {
+		if( null == $this->artikler_collection ) {
+			$this->artikler_collection = new artikler( $this->getId() );
+		}
+		return $this->artikler_collection;
+	}		
 	private function _getNewOrOld($new, $old) {
 		return null == $this->$new ? $this->info[$old] : $this->$new;
 	}

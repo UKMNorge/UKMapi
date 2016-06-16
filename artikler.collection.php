@@ -1,29 +1,29 @@
 <?php
 require_once('UKM/sql.class.php');
-require_once('UKM/bilde.class.php');
+require_once('UKM/artikkel.class.php');
 
-class bilder {
+class artikler {
 	
 	static $table = 'ukmno_wp_related';
 	var $b_id = false;
-	var $bilder = null;
+	var $artikler = null;
 
 	public function __construct( $b_id ) {
 		$this->b_id = $b_id;
 	}	
-
-	public function getAntall() {
-		return sizeof( $this->getAll() );
-	}
 	
 	/**
-	 * Alle bilder for gitt innslag
+	 * Alle artikler for gitt innslag
 	 */
 	public function getAll() {
-		if( null == $this->bilder ) {
+		if( null == $this->artikler ) {
 			$this->_load();
 		}
-		return $this->bilder;
+		return $this->artikler;
+	}
+	
+	public function getAntall() {
+		return sizeof( $this->getAll() );
 	}
 	
 	public function getAllFrom( $pl_type=false ) {
@@ -32,32 +32,31 @@ class bilder {
 		}
 		
 		$type_sorted = array();
-		foreach( $this->getAll() as $bilde ) {
-			if( $bilde->getMonstringType() == $pl_type ) {
-				$type_sorted[] = $bilde;
+		foreach( $this->artikler as $artikkel ) {
+			if( $artikkel->getMonstringType() == $pl_type ) {
+				$type_sorted[] = $artikkel;
 			}
 		}
 		return $type_sorted;
 	}
 	
 	/**
-	 * Finn siste bilde
+	 * Finn siste artikkel
 	 *
 	**/
 	public function getLast() {
-		$bilder_copy = copy( $this->bilder );
-		ksort( $bilder_copy );
-		$last = end( $bilder_copy );
-		unset( $bilder_copy );
+		$artikler_copy = copy( $this->artikler );
+		ksort( $artikler_copy );
+		$last = end( $artikler_copy );
+		unset( $artikler_copy );
 		return $last;
 	}
 	
 	private function _load() {
-		$this->bilder = array();
+		$this->artikler = array();
 		$SQL = new SQL("SELECT * FROM `#table`
-						JOIN `ukm_bilder` ON (`#table`.`post_id` = `ukm_bilder`.`wp_post` AND `#table`.`b_id` = `ukm_bilder`.`b_id`)
 						WHERE `#table`.`b_id` = '#bid'
-						AND `post_type` = 'image'",
+						AND `post_type` = 'post'",
 						array('table'=>self::$table,
 							  'bid'=>$this->b_id)
 						);
@@ -66,8 +65,8 @@ class bilder {
 			return false;
 		}		
 		while( $r = mysql_fetch_assoc( $get ) ) {
-			$bilde = new bilde( $r );
-			$this->bilder[ $bilde->getId() ] = $bilde;
+			$artikkel = new artikkel( $r );
+			$this->artikler[ $artikkel->getId() ] = $artikkel;
 		}
 	}
 }
