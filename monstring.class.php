@@ -1942,7 +1942,7 @@ class monstring_v2 {
 				$first_kommune = array_shift( array_values( $this->getKommuner() ) );
 				$this->setFylke( $first_kommune->getFylke()->getId() );
 			}
-			$this->fylke = new fylke( $this->fylke_id );
+			$this->fylke = fylker::getById( $this->fylke_id );
 		}
 		return $this->fylke;
 	}

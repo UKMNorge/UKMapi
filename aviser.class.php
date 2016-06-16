@@ -26,6 +26,10 @@ class aviser {
 		return true;
 	}
 	
+	public function reset() {
+		$this->aviser = array();
+	}
+	
 	public function getAllByFylke( $fylke_id ) {
 		$this->fylke = $fylke_id;
 		if( null == $this->aviser ) {
