@@ -563,6 +563,7 @@ class person_v2 {
 	var $etternavn = null;
 	var $mobil = null;
 	var $instrument = null;
+	var $epost = null;
 	
 	var $videresendtTil = null;
 	
@@ -577,13 +578,19 @@ class person_v2 {
 	}
 	
 	private function _load_from_db( $person ) {
-		throw new Exception('PERSON_V2: Load from DB not implemented');
+		$sql = new SQL("SELECT *
+						FROM `smartukm_participant`
+						WHERE `p_id` = '#pid'",
+						array('p_id' => $person ));
+		$res = $sql->run('array');
+		return $this->_load_from_array( $res );
 	}
 	private function _load_from_array( $person ) {
 		$this->setId( $person['p_id'] );
 		$this->setFornavn( utf8_encode($person['p_firstname']) );
 		$this->setEtternavn( utf8_encode($person['p_lastname']) );
 		$this->setMobil( $person['p_phone'] );
+		$this->setEpost( $person['p_email'] );
 		$this->setFodselsdato( $person['p_dob'] );
 		if( isset( $person['instrument'] ) ) {
 			$this->setInstrument( utf8_encode($person['instrument']) );
@@ -605,12 +612,12 @@ class person_v2 {
 	 * @return bool
 	**/
 	public function erVideresendt( $pl_id ) {
+		if( 1 == $this->_getBTID() ) {
+			return true;
+		}
 		if( null == $this->videresendtTil ){
 			throw new Exception( 'PERSON_V2: Kan ikke svare om person er videresendt '
 								.'på objekt som ikke er initiert med pl_ids (via collection?)');
-		}
-		if( 1 == $this->_getBTID() ) {
-			return true;
 		}
 		return in_array($pl_id, $this->getVideresendtTil() );
 	}
@@ -718,6 +725,26 @@ class person_v2 {
 	public function getMobil() {
 		return $this->mobil;
 	}
+	
+	/**
+	 * Sett e-post
+	 *
+	 * @param string $epost
+	 * @return $this
+	**/
+	public function setEpost( $epost ) {
+		$this->epost = $epost;
+		return $this;
+	}
+	/**
+	 * Hent e-post
+	 *
+	 * @return string $epost
+	**/
+	public function getEpost() {
+		return $this->epost;
+	}
+
 	
 	/**
 	 * Sett instrument
