@@ -616,7 +616,7 @@ class person_v2 {
 			return true;
 		}
 		if( null == $this->videresendtTil ){
-			throw new Exception( 'PERSON_V2: Kan ikke svare om person er videresendt '
+			throw new Exception( 'PERSON_V2 (p'. $this->getId() .'): Kan ikke svare om person er videresendt '
 								.'på objekt som ikke er initiert med pl_ids (via collection?)');
 		}
 		return in_array($pl_id, $this->getVideresendtTil() );
