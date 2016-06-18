@@ -612,7 +612,7 @@ class person_v2 {
 	 * @return bool
 	**/
 	public function erVideresendt( $pl_id ) {
-		if( 1 == $this->_getBTID() ) {
+		if( in_array( $this->_getBTID(), array(1,4,5,8,9)) ) {
 			return true;
 		}
 		if( null == $this->videresendtTil ){
