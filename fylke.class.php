@@ -34,4 +34,8 @@ class fylke {
 	public function getNavn() {
 		return $this->navn;
 	}
+	
+	public function __toString() {
+		return $this->getNavn();
+	}
 }

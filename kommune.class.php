@@ -28,6 +28,9 @@ class kommune {
 	}
 	
 	public function getFylke() {
-		return fylker::getById( $this->fylke );
+		return $this->fylke;
+	}
+	public function __toString() {
+		return $this->getNavn();
 	}
 }
