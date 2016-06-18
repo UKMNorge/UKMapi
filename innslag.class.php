@@ -1947,7 +1947,7 @@ class innslag_v2 {
 	 *
 	**/
 	public function getKontaktpersonId() {
-		return $this->kontaktperson_id;
+		return (int) $this->kontaktperson_id;
 	}
 	/**
 	 * Sett kontaktperson 
@@ -1967,7 +1967,7 @@ class innslag_v2 {
 	**/
 	public function getKontaktperson() {
 		if( null == $this->kontaktperson ) {
-			$person = new person( $this->getKontaktpersonId() );
+			$person = new person_v2( $this->getKontaktpersonId() );
 			$this->setKontaktperson( $person );
 		}
 		return $this->kontaktperson;
