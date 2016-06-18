@@ -592,14 +592,13 @@ class person_v2 {
 		$this->setMobil( $person['p_phone'] );
 		$this->setEpost( $person['p_email'] );
 		$this->setFodselsdato( $person['p_dob'] );
-		if( isset( $person['instrument'] ) ) {
+		if( array_key_exists('instrument', $person ) ) {
 			$this->setInstrument( utf8_encode($person['instrument']) );
 		}
-		
-		if( isset( $person['pl_ids'] ) ) {
+		if( array_key_exists('pl_ids', $person ) ) {
 			$this->setVideresendtTil( explode(',', $person['pl_ids']) );
 		}
-		if( isset( $person['bt_id'] ) ) {
+		if( array_key_exists('bt_id', $person ) ) {
 			$this->_setBTID( $person['bt_id'] );
 		}
 	}
