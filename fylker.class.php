@@ -35,8 +35,9 @@ class fylker {
 		if( null == self::$fylker ) {
 			self::initialize();
 		}
-		if( isset( self::$fylker[ $id ] ) ) {
-			return self::$fylker[ $id ];
+		
+		if( is_numeric( $id ) && isset( self::$fylker[ $id ] ) ) {
+			return self::$fylker[ (int) $id ];
 		}
 		
 		throw new Exception('Prøvde å aksessere et fylke som ikke finnes (ID: '. $id .')');
