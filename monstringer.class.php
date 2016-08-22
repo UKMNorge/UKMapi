@@ -147,5 +147,16 @@
 			}
 			return $liste;
 		}
+		
+		public function antall_uregistrerte() {
+			if( !$this->season ) {
+				throw new Exception('Requires $season-parameter @ __construct');
+			}
+			$query ="SELECT COUNT(`pl_id`) AS `count`
+					 FROM `smartukm_place`
+					 WHERE `season` = '#season'
+					 AND `pl_start` = '0'";
+			return $query->run('field', 'count');
+		}
 	}
 ?>
