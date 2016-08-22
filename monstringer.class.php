@@ -160,5 +160,17 @@
 
 			return $qry->run('field', 'count');
 		}
+		public function antall_registrerte() {
+			if( !$this->season ) {
+				throw new Exception('Requires $season-parameter @ __construct');
+			}
+			$query ="SELECT COUNT(`pl_id`) AS `count`
+					 FROM `smartukm_place`
+					 WHERE `season` = '#season'
+					 AND `pl_start` > '0'";
+			$qry = new SQL($query, array('season'=>$this->season));
+
+			return $qry->run('field', 'count');
+		}
 	}
 ?>
