@@ -156,7 +156,9 @@
 					 FROM `smartukm_place`
 					 WHERE `season` = '#season'
 					 AND `pl_start` = '0'";
-			return $query->run('field', 'count');
+			$qry = new SQL($query, array('season'=>$this->season));
+
+			return $qry->run('field', 'count');
 		}
 	}
 ?>
