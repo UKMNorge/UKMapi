@@ -1115,11 +1115,12 @@ class innslag {
 	##################
 	#	VALIDATION   #
 	##################
-	function validateBand2($bid) {
+	function validateBand2($bid = null) {
 		require_once('UKM/sql.class.php');
 		global $SEASON;
 		$feedback = array();
-
+		# Added 29.08.2016 - Object should always use it's own ID.
+		$bid = $this->id;
 	    $band = new SQL("SELECT *, `smartukm_band`.`b_id` AS `the_real_b_id` FROM `smartukm_band` 
 	                         JOIN `smartukm_participant` ON (`smartukm_participant`.`p_id` = `smartukm_band`.`b_contact`)
 	                         LEFT JOIN `smartukm_band_type` ON (`smartukm_band_type`.`bt_id` = `smartukm_band`.`bt_id`)
