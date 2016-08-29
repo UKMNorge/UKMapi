@@ -1633,6 +1633,8 @@ class monstring_v2 {
 	var $sesong = null;
 	var $innslag = null;
 	
+	var $attributes = null;
+	
 	public function __construct( $id_or_row ) {
 
 		if( is_numeric( $id_or_row ) ) {
@@ -1643,6 +1645,7 @@ class monstring_v2 {
 			throw new Exception('MONSTRING: Oppretting av objekt krever numerisk id eller databaserad');
 		}
 		
+		$this->attributes = array();	
 	}		
 	
 	private function _load_by_id( $id ) {
@@ -1682,7 +1685,7 @@ class monstring_v2 {
 			$this->setKommuner( explode(',', $row['k_ids'] ) );
 		}
 		$this->setId( $row['pl_id'] );
-		$this->setNavn( $row['pl_name'] );
+		$this->setNavn( utf8_encode($row['pl_name']) );
 		$this->setStart( $row['pl_start'] );
 		$this->setStop( $row['pl_stop'] );
 		$this->setFrist1( $row['pl_deadline'] );
@@ -1691,6 +1694,31 @@ class monstring_v2 {
 	}
 	
 	
+	/**
+	 * Sett attributt
+	 * Sett egenskaper som for enkelhets skyld kan følge mønstringen et lite stykke
+	 * Vil aldri kunne lagres
+	 *
+	 * @param string $key
+	 * @param $value
+	 *
+	 * @return innslag
+	**/
+	public function setAttr( $key, $value ) {
+		$this->attributes[ $key ] = $value;
+		return $this;
+	}
+	
+	/**
+	 * Hent attributt
+	 *
+	 * @param string $key
+	 *
+	 * @return value
+	**/
+	public function getAttr( $key ) {
+		return isset( $this->attributes[ $key ] ) ? $this->attributes[ $key ] : false;
+	}
 		
 	/**
 	 * Sett ID
