@@ -266,6 +266,13 @@ require_once 'UKM/innslag.collection.php';
 		}
 
 		############################################
+		## Er mønstringen åpnet for påmelding?
+		############################################
+		public function subscriptionOpened() {
+			return time() > $this->info['pl_deadline2'];
+		}
+
+		############################################
 		## Er mønstringen aktiv akkurat nå? (BOOL)
 		############################################
 		public function aktiv() {
