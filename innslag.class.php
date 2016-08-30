@@ -1600,6 +1600,9 @@ class innslag_v2 {
 	var $playback = null;
 	var $personer_collection = null;
 	var $artikler_collection = null;
+	
+	var $kontaktperson_id = null;
+	var $kontaktperson = null;
 
 	public function __construct( $bid_or_row, $select_also_if_not_completed=false ) {
 		if( is_numeric( $bid_or_row ) ) {
@@ -1648,7 +1651,7 @@ class innslag_v2 {
 		$this->setKommune( $row['b_kommune'] );
 		$this->setKategori( utf8_decode( $row['b_kategori'] ) );
 		$this->setSjanger( (string) $row['b_sjanger'] );
-
+		$this->setKontaktpersonId( $row['b_contact'] );
 		$this->_setSubscriptionTime( $row['b_subscr_time'] );
 		
 		return $this;

@@ -47,10 +47,12 @@ class innslag_collection {
 		return $this->containerType;
 	}
 	
-	public function setContainerDataMonstring( $pl_id, $pl_type, $sesong ) {
+	public function setContainerDataMonstring( $pl_id, $pl_type, $sesong, $fylke, $kommuner ) {
 		$this->setMonstringId( $pl_id );
 		$this->setMonstringType( $pl_type );
 		$this->setMonstringSesong( $sesong );
+		$this->setMonstringFylke( $fylke );
+		$this->setMonstringKommuner( $kommuner );
 		return $this;
 	}
 
@@ -67,14 +69,50 @@ class innslag_collection {
 	/**
 	 * Hent mønstringsid (PLID)
 	 *
-	 * @param string $type
 	 * @return $this
 	**/
 	public function getMonstringId() {
 		return $this->monstring_id;
 	}
 	
-		
+	/**
+	 * Sett mønstringens kommuner
+	 *
+	 * @param array $kommuner
+	 * @return $this
+	**/
+	public function setMonstringKommuner( $kommuner ) {
+		$this->monstring_kommuner = $kommuner;
+		return $this;
+	}
+	/**
+	 * Hent mønstringens kommuner
+	 *
+	 * @return array $kommuner
+	**/
+	public function getMonstringKommuner() {
+		return $this->monstring_kommuner;
+	}
+	
+	/**
+	 * Sett hvilket fylke mønstringen tilhører
+	 *
+	 * @param integer $fylke
+	 * @return $this
+	**/
+	public function setMonstringFylke( $fylke ) {
+		$this->monstring_fylke = $fylke;
+		return $this;
+	}
+	/**
+	 * Hent hvilket fylke mønstringen tilhører
+	 *
+	 * @return integer $fylke
+	**/
+	public function getMonstringFylke() {
+		return $this->monstring_fylke;
+	}
+	
 	/**
 	 * Sett mønstringstype
 	 *
@@ -118,6 +156,7 @@ class innslag_collection {
 		$this->innslag = array();
 		
 		$SQL = $this->_getQuery();
+#		echo $SQL->debug();
 		$res = $SQL->run();
 		if( !$res ) {
 			return array();
@@ -130,12 +169,34 @@ class innslag_collection {
 		}
 	}
 
-	private function _getQuery() {
+	private function _getQuery( $status=8 ) {
 		switch( $this->getContainerType() ) {
 			case 'monstring':
 				if( null == $this->getMonstringId() ) {
 					throw new Exception('innslag: Krever MønstringID for å hente mønstringens innslag');
 				}
+
+				// PRE 2011 DID NOT USE BAND SEASON FIELD
+				if( 2011 >= $this->getMonstringSesong() ) {
+					return new SQL("SELECT `band`.*, 
+										   `td`.`td_demand`,
+										   `td`.`td_konferansier`
+									FROM `smartukm_band` AS `band`
+									JOIN `smartukm_rel_pl_b` AS `pl_b` ON (`pl_b`.`b_id` = `band`.`b_id`)
+									LEFT JOIN `smartukm_technical` AS `td` ON (`td`.`b_id` = `band`.`b_id`) 
+									WHERE `pl_b`.`pl_id` = '#pl_id'
+										AND `b_status` = '#status'
+									GROUP BY `band`.`b_id`
+									ORDER BY `bt_id` ASC,
+											`band`.`b_name` ASC",
+								array(	'season' => $this->getMonstringSesong(),
+										'pl_id' => $this->getMonstringId(),
+										'status' => $status,
+									)
+								);
+				}
+				
+				// POST 2011
 				switch( $this->getMonstringType() ) {
 					case 'land':
 						return new SQL("SELECT `band`.*, 
@@ -144,20 +205,56 @@ class innslag_collection {
 										FROM `smartukm_fylkestep` AS `fs` 
 										JOIN `smartukm_band` AS `band` ON (`band`.`b_id` = `fs`.`b_id`)
 										LEFT JOIN `smartukm_technical` AS `td` ON (`td`.`b_id` = `band`.`b_id`) 
-										WHERE `band`.`b_season` = '#season'
+										WHERE   `band`.`b_season` = '#season'
 											AND `b_status` = '8'
 											AND `fs`.`pl_id` = '#pl_id'
 										GROUP BY `band`.`b_id`
 										ORDER BY `bt_id` ASC,
 												`band`.`b_name` ASC",
 									array(	'season' => $this->getMonstringSesong(),
-											'pl_id' => $this->getMonstringId()
+											'pl_id' => $this->getMonstringId(),
+											'status' => $status,
 										)
 									);
 					break;
-					default:
-						throw new Exception('INNSLAG_COLLECTION: Funksjonalitet for å hente innslag på '
-											.'fylkes- og lokalmønstringer ikke implementert');
+					case 'fylke':
+						return new SQL("SELECT `band`.*, 
+											   `td`.`td_demand`,
+											   `td`.`td_konferansier`
+										FROM `smartukm_fylkestep` AS `fs` 
+										JOIN `smartukm_band` AS `band` ON (`band`.`b_id` = `fs`.`b_id`)
+										LEFT JOIN `smartukm_technical` AS `td` ON (`td`.`b_id` = `band`.`b_id`) 
+										JOIN `smartukm_kommune` AS `k` ON (`k`.`id`=`band`.`b_kommune`)
+										WHERE   `b_season` = '#season'
+											AND `b_status` = '#status'
+											AND `k`.`idfylke` = '#fylke_id'
+										GROUP BY `band`.`b_id`
+										ORDER BY `bt_id` ASC,
+												 `band`.`b_name` ASC",
+									array(	'season' => $this->getMonstringSesong(),
+											'status' => $status,
+											'fylke_id' => $this->getMonstringFylke(),
+										)
+									);
+					break;	
+					default:			
+						return new SQL("SELECT `band`.*, 
+											   `td`.`td_demand`,
+											   `td`.`td_konferansier`
+										FROM `smartukm_band` AS `band`
+										JOIN `smartukm_rel_pl_b` AS `pl_b` ON (`pl_b`.`b_id` = `band`.`b_id`)
+										LEFT JOIN `smartukm_technical` AS `td` ON (`td`.`b_id` = `band`.`b_id`) 
+										WHERE   `b_season` = '#season'
+											AND `b_status` = '#status'
+											AND `b_kommune` IN ('". implode("','", $this->getMonstringKommuner() ) ."')
+										GROUP BY `band`.`b_id`
+										ORDER BY `bt_id` ASC,
+												 `band`.`b_name` ASC",
+									array(	'season' => $this->getMonstringSesong(),
+											'status' => $status
+											# IDs inputted directly to avoid escaping
+										)
+									);
 				}		
 			default:
 				throw new Exception('innslag: Har ikke støtte for '. $type .'-collection (#2)');

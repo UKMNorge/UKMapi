@@ -1926,10 +1926,12 @@ class monstring_v2 {
 	 *
 	**/
 	public function getKommuner() {
+		require_once('UKM/kommuner.collection.php');
+		
 		if( null == $this->kommuner ) {
-			$this->kommuner = array();
+			$this->kommuner = new kommuner();
 			foreach( $this->kommuner_id as $id ) {
-				$this->kommuner[] = new kommune( $id );
+				$this->kommuner->add( new kommune( $id ) );
 			}
 		}
 		return $this->kommuner;
@@ -1974,7 +1976,7 @@ class monstring_v2 {
 	public function getFylke() {
 		if( null == $this->fylke ) {
 			if( null == $this->fylke_id && 'kommune' == $this->getType() ) {
-				$first_kommune = array_shift( array_values( $this->getKommuner() ) );
+				$first_kommune = $this->getKommuner()->first();
 				$this->setFylke( $first_kommune->getFylke()->getId() );
 			}
 			$this->fylke = fylker::getById( $this->fylke_id );
@@ -2008,7 +2010,7 @@ class monstring_v2 {
 	public function getInnslag() {
 		if( null == $this->innslag ) {
 			$this->innslag = new innslag_collection( 'monstring', $this->getId() );
-			$this->innslag->setContainerDataMonstring( $this->getId(), $this->getType(), $this->getSesong() );
+			$this->innslag->setContainerDataMonstring( $this->getId(), $this->getType(), $this->getSesong(), $this->getFylke()->getId(), $this->getKommuner()->getIdArray() );
 		}
 		return $this->innslag;
 	}
@@ -2034,6 +2036,28 @@ class monstring_v2 {
 			return 'festivalen';
 		}
 		return 'pl'. $this->getId();		
+	}
+	
+	/**
+	 * Hent hvilke innslagstyper som kan være påmeldt denne møsntringen
+	 *
+	 * @return Collection innslagstyper 
+	**/
+	public function getInnslagTyper() {
+		if( null == $this->innslagTyper ) {
+			$this->innslagTyper = new innslag_typer();
+			$sql = new SQL("SELECT `bt_id`
+							FROM `smartukm_rel_pl_bt`
+							WHERE `pl_id` = '#pl_id'
+							ORDER BY `bt_id` ASC",
+						   array('pl_id'=> $this->getId() )
+						  );
+			$res = $sql->run();
+			while( $r = mysql_fetch_assoc( $res ) ) {
+				$this->innslagTyper->addById( $r['bt_id'] );
+			}
+		}
+		return $this->innslagTyper;
 	}
 	
 	
