@@ -1929,9 +1929,13 @@ class monstring_v2 {
 		require_once('UKM/kommuner.collection.php');
 		
 		if( null == $this->kommuner ) {
-			$this->kommuner = new kommuner();
-			foreach( $this->kommuner_id as $id ) {
-				$this->kommuner->add( new kommune( $id ) );
+			if( 'kommune' == $this->getType() ) {
+				$this->kommuner = new kommuner();
+				foreach( $this->kommuner_id as $id ) {
+					$this->kommuner->add( new kommune( $id ) );
+				}
+			} elseif( 'fylke' == $this->getType() ) {
+				$this->kommuner = $this->getFylke()->getKommuner();
 			}
 		}
 		return $this->kommuner;
@@ -2010,7 +2014,11 @@ class monstring_v2 {
 	public function getInnslag() {
 		if( null == $this->innslag ) {
 			$this->innslag = new innslag_collection( 'monstring', $this->getId() );
-			$this->innslag->setContainerDataMonstring( $this->getId(), $this->getType(), $this->getSesong(), $this->getFylke()->getId(), $this->getKommuner()->getIdArray() );
+			if( 'land' == $this->getType() ) {
+				$this->innslag->setContainerDataMonstring( $this->getId(), $this->getType(), $this->getSesong(), false, false );
+			} else {
+				$this->innslag->setContainerDataMonstring( $this->getId(), $this->getType(), $this->getSesong(), $this->getFylke()->getId(), $this->getKommuner()->getIdArray() );
+			}
 		}
 		return $this->innslag;
 	}

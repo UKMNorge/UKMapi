@@ -3,12 +3,22 @@ require_once('UKM/sql.class.php');
 require_once('UKM/fylker.class.php');
 	
 class kommune {
-	public function __construct( $id ) {
+	public function __construct( $kid_or_row ) {
+		if( is_numeric( $kid_or_row ) ) {
+			$this->_loadByID( $kid_or_row );
+		} else {
+			$this->_loadByRow( $kid_or_row );
+		}
+	}
+	private function _loadByID( $id ) {
 		$sql = new SQL("SELECT *
 						FROM `smartukm_kommune`
 						WHERE `id` = '#id'",
 					    array('id' => $id ) );
 		$res = $sql->run('array');
+		$this->_loadByRow( $res );
+	}
+	private function _loadByRow( $res ) {
 		$this->id = $res['id'];
 		$this->name = utf8_encode($res['name']);
 		$this->fylke = fylker::getById( $res['idfylke'] );
