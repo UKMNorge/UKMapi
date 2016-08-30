@@ -136,6 +136,9 @@ class tv_files {
 								",
 								array( 'title' => $object) );
 				$res = $qry->run();
+				if( isset($_GET['debug'] ) ) {
+					echo $qry->debug();
+				}
 				$i = 0;
 				if($res) {
 					while( $r = mysql_fetch_assoc( $res ) ) {
