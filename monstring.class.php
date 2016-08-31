@@ -1994,16 +1994,15 @@ class monstring_v2 {
 	 * @return array forestilling.class
 	 *
 	**/
-	public function getProgram( $show_hidden_elements=false, $order_alpha=false ) {
+	public function getProgram() {
 		if( null !== $this->program ) {
 			return $this->program;
 		}
-		
-		$order_by = (false == $order_alpha ) ? 'c_start' : 'c_name';
-		
-		$forestillinger = new forestillinger( 'monstring', $this->getId() );
-		
-		$this->_loadProgram();
+		require_once('UKM/forestillinger.collection.php');
+
+		$this->program = new forestillinger( 'monstring', $this->getId() );
+
+		return $this->program;
 	}
 	
 	/**
@@ -2067,21 +2066,5 @@ class monstring_v2 {
 		}
 		return $this->innslagTyper;
 	}
-	
-	
-	private function _loadProgram() {
-		if( $filter === true )
-			$concertsSql = new SQL( 'SELECT `c_id`, `c_name`, `c_start`, `c_place`, `c_visible_detail` 
-							    	 FROM `smartukm_concert` 
-							    	 WHERE `c_visible_program` = true AND `pl_id` = ' . $this->info['pl_id'] . '
-							    	 ORDER BY ' . $order . ' ASC' );
-		else
-			$concertsSql = new SQL( 'SELECT `c_id`, `c_name`, `c_start`, `c_place`, `c_visible_detail`
-							    	 FROM `smartukm_concert` 
-							    	 WHERE `pl_id` = ' . $this->info['pl_id'] . '
-							    	 ORDER BY ' . $order . ' ASC' );
-		$concertsResult = $concertsSql->run();
-	}
-
 }
 ?>

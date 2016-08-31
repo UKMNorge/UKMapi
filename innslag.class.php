@@ -2026,7 +2026,7 @@ class innslag_v2 {
 	public function getProgram( $monstring ) {
 		if( null == $this->program ) {
 			$this->program = new program( 'innslag', $this->getId() );
-			$this->program->setMonstringId( $monstring->getId() );
+			$this->program->setMonstringId( is_numeric( $monstring ) ? $monstring : $monstring->getId() );
 		}
 		return $this->program;
 	}

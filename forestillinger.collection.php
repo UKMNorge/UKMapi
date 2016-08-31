@@ -1,9 +1,11 @@
 <?php
-require_once('sql.class.php');
+require_once('UKM/sql.class.php');
+require_once('UKM/forestilling.class.php');
 
 class forestillinger extends program {}
 
 class program {
+	var $loaded = false;
 	var $forestillinger = null;
 	var $skjulte_forestillinger = null;
 	var $containerType = null;
@@ -21,18 +23,14 @@ class program {
 	}
 	
 	public function getAll() {
-		if( null == $this->forestillinger ) {
-			$this->_load();
-		}
+		$this->_load();
 		return $this->forestillinger;
 	}
 
 	public function getAllSkjulte() {
-		if( null == $this->forestillinger ) {
-			$this->_load();
-		}
+		$this->_load();
 		return $this->skjulte_forestillinger;
-	}	
+	}
 	
 	public function getAllInkludertSkjulte() {
 		$alle = array();
@@ -45,6 +43,17 @@ class program {
 		}
 		return $alle;
 	}
+	
+	public function getIdArray( $method='getAll' ) {
+		if( !in_array( $method, array('getAll', 'getAllSkjulte', 'getAllInkludertSkjulte') ) ) {
+			throw new Exception('PROGRAM: getIdArray fikk ugyldig metode-kall ('. $method .')');
+		}
+		$idArray = [];
+		foreach( $this->$method() as $hendelse ) {
+			$idArray[] = $hendelse->getId();
+		}
+		return $idArray;
+	}
 
 	
 	public function setContainerObjectId( $id ) {
@@ -56,7 +65,7 @@ class program {
 	}
 	
 	public function setContainerType( $type ) {
-		if( !in_array( $type, array('innslag' ) ) ) {
+		if( !in_array( $type, array('innslag','monstring' ) ) ) {
 			throw new Exception('FORESTILLINGER: Har ikke støtte for '. $type .'-collection');
 		}
 		$this->containerType = $type;
@@ -75,9 +84,14 @@ class program {
 	}
 	
 	public function _load() {
+		if( $this->loaded ) {
+			return true;
+		}
+
 		$this->forestillinger = array();
 		
 		$SQL = $this->_getQuery();
+#		echo $SQL->debug();
 		$res = $SQL->run();
 		if( !$res ) {
 			return array();
@@ -89,14 +103,26 @@ class program {
 			} else {
 				$this->addSkjultForestilling( $forestilling );
 			}
-			
-			
-			// GJØR NOE MED ORDER-FELTET!!
 		}
+		$this->loaded = true;
+		return true;
 	}
 
 	private function _getQuery() {
 		switch( $this->getContainerType() ) {
+			case 'monstring':
+				if( null == $this->getContainerObjectId() ) {
+					throw new Exception('FORESTILLINGER: Krever MønstringID (ContainerObjectId) for å hente mønstringens program');
+				}
+				
+				return new SQL( "SELECT *
+						    	 FROM `smartukm_concert` 
+						    	 WHERE `pl_id` = '#pl_id'
+						    	 ORDER BY #order ASC",
+						    array('pl_id' => $this->getContainerObjectId(),
+						     	  'order' => 'c_start'
+						     	 )
+						     );
 			case 'innslag':
 				if( null == $this->getMonstringId() ) {
 					throw new Exception('FORESTILLINGER: Krever MønstringID for å hente innslagets program');
