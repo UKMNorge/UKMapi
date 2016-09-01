@@ -1640,6 +1640,8 @@ class monstring_v2 {
 	var $sesong = null;
 	var $innslag = null;
 	
+	var $attributes = null;
+	
 	public function __construct( $id_or_row ) {
 
 		if( is_numeric( $id_or_row ) ) {
@@ -1650,6 +1652,7 @@ class monstring_v2 {
 			throw new Exception('MONSTRING: Oppretting av objekt krever numerisk id eller databaserad');
 		}
 		
+		$this->attributes = array();	
 	}		
 	
 	private function _load_by_id( $id ) {
@@ -1689,7 +1692,7 @@ class monstring_v2 {
 			$this->setKommuner( explode(',', $row['k_ids'] ) );
 		}
 		$this->setId( $row['pl_id'] );
-		$this->setNavn( $row['pl_name'] );
+		$this->setNavn( utf8_encode($row['pl_name']) );
 		$this->setStart( $row['pl_start'] );
 		$this->setStop( $row['pl_stop'] );
 		$this->setFrist1( $row['pl_deadline'] );
@@ -1698,6 +1701,31 @@ class monstring_v2 {
 	}
 	
 	
+	/**
+	 * Sett attributt
+	 * Sett egenskaper som for enkelhets skyld kan følge mønstringen et lite stykke
+	 * Vil aldri kunne lagres
+	 *
+	 * @param string $key
+	 * @param $value
+	 *
+	 * @return innslag
+	**/
+	public function setAttr( $key, $value ) {
+		$this->attributes[ $key ] = $value;
+		return $this;
+	}
+	
+	/**
+	 * Hent attributt
+	 *
+	 * @param string $key
+	 *
+	 * @return value
+	**/
+	public function getAttr( $key ) {
+		return isset( $this->attributes[ $key ] ) ? $this->attributes[ $key ] : false;
+	}
 		
 	/**
 	 * Sett ID
@@ -1898,10 +1926,16 @@ class monstring_v2 {
 	 *
 	**/
 	public function getKommuner() {
+		require_once('UKM/kommuner.collection.php');
+		
 		if( null == $this->kommuner ) {
-			$this->kommuner = array();
-			foreach( $this->kommuner_id as $id ) {
-				$this->kommuner[] = new kommune( $id );
+			if( 'kommune' == $this->getType() ) {
+				$this->kommuner = new kommuner();
+				foreach( $this->kommuner_id as $id ) {
+					$this->kommuner->add( new kommune( $id ) );
+				}
+			} elseif( 'fylke' == $this->getType() ) {
+				$this->kommuner = $this->getFylke()->getKommuner();
 			}
 		}
 		return $this->kommuner;
@@ -1946,7 +1980,7 @@ class monstring_v2 {
 	public function getFylke() {
 		if( null == $this->fylke ) {
 			if( null == $this->fylke_id && 'kommune' == $this->getType() ) {
-				$first_kommune = array_shift( array_values( $this->getKommuner() ) );
+				$first_kommune = $this->getKommuner()->first();
 				$this->setFylke( $first_kommune->getFylke()->getId() );
 			}
 			$this->fylke = fylker::getById( $this->fylke_id );
@@ -1960,16 +1994,15 @@ class monstring_v2 {
 	 * @return array forestilling.class
 	 *
 	**/
-	public function getProgram( $show_hidden_elements=false, $order_alpha=false ) {
+	public function getProgram() {
 		if( null !== $this->program ) {
 			return $this->program;
 		}
-		
-		$order_by = (false == $order_alpha ) ? 'c_start' : 'c_name';
-		
-		$forestillinger = new forestillinger( 'monstring', $this->getId() );
-		
-		$this->_loadProgram();
+		require_once('UKM/forestillinger.collection.php');
+
+		$this->program = new forestillinger( 'monstring', $this->getId() );
+
+		return $this->program;
 	}
 	
 	/**
@@ -1980,7 +2013,11 @@ class monstring_v2 {
 	public function getInnslag() {
 		if( null == $this->innslag ) {
 			$this->innslag = new innslag_collection( 'monstring', $this->getId() );
-			$this->innslag->setContainerDataMonstring( $this->getId(), $this->getType(), $this->getSesong() );
+			if( 'land' == $this->getType() ) {
+				$this->innslag->setContainerDataMonstring( $this->getId(), $this->getType(), $this->getSesong(), false, false );
+			} else {
+				$this->innslag->setContainerDataMonstring( $this->getId(), $this->getType(), $this->getSesong(), $this->getFylke()->getId(), $this->getKommuner()->getIdArray() );
+			}
 		}
 		return $this->innslag;
 	}
@@ -2008,20 +2045,26 @@ class monstring_v2 {
 		return 'pl'. $this->getId();		
 	}
 	
-	
-	private function _loadProgram() {
-		if( $filter === true )
-			$concertsSql = new SQL( 'SELECT `c_id`, `c_name`, `c_start`, `c_place`, `c_visible_detail` 
-							    	 FROM `smartukm_concert` 
-							    	 WHERE `c_visible_program` = true AND `pl_id` = ' . $this->info['pl_id'] . '
-							    	 ORDER BY ' . $order . ' ASC' );
-		else
-			$concertsSql = new SQL( 'SELECT `c_id`, `c_name`, `c_start`, `c_place`, `c_visible_detail`
-							    	 FROM `smartukm_concert` 
-							    	 WHERE `pl_id` = ' . $this->info['pl_id'] . '
-							    	 ORDER BY ' . $order . ' ASC' );
-		$concertsResult = $concertsSql->run();
+	/**
+	 * Hent hvilke innslagstyper som kan være påmeldt denne møsntringen
+	 *
+	 * @return Collection innslagstyper 
+	**/
+	public function getInnslagTyper() {
+		if( null == $this->innslagTyper ) {
+			$this->innslagTyper = new innslag_typer();
+			$sql = new SQL("SELECT `bt_id`
+							FROM `smartukm_rel_pl_bt`
+							WHERE `pl_id` = '#pl_id'
+							ORDER BY `bt_id` ASC",
+						   array('pl_id'=> $this->getId() )
+						  );
+			$res = $sql->run();
+			while( $r = mysql_fetch_assoc( $res ) ) {
+				$this->innslagTyper->addById( $r['bt_id'] );
+			}
+		}
+		return $this->innslagTyper;
 	}
-
 }
 ?>

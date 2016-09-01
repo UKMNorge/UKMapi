@@ -1,13 +1,40 @@
 <?php
+require_once('UKM/_collection.class.php');
+require_once('UKM/innslag_type.class.php');
 
-class innslag_typer {
-	
+class innslag_typer extends Collection {
+
+	static $all = null;
+	static $allScene = null;
+
+	public function addById( $id ) {
+		return $this->add( self::getById( $id ) );
+	}
+
 	static function getById( $id, $kategori=false ) {
 		return self::_load( $id, $kategori );
 	}
 	
 	static function getByName( $key ) {
 		return self::_load( self::_translate_key_to_id( $key ) );	
+	}
+	
+	static function getAll() {
+		if( null == self::$all ) {
+			foreach( array(1,2,3,4,5,6,8) as $id ) {
+				self::$all[] = self::getById( $id );
+			}
+		}
+		return self::$all;
+	}
+	
+	static function getAllScene() {
+		if( null == self::$allScene ) {
+			foreach( array('musikk','dans','teater','litteratur','annet') as $kategori ) {
+				self::$allScene[] = self::getById( 1, $kategori );
+			}
+		}
+		return self::$allScene;
 	}
 	
 	static function _load( $id, $kategori=false ) {
@@ -58,7 +85,7 @@ class innslag_typer {
 					default:
 						$data = array('id' => 1,
 									  'key' => 'scene',
-									  'name' => 'Annet',
+									  'name' => ($kategori == false ? 'Scene' : 'Annet'),
 									  'icon' => 'http://ico.ukm.no/delta/delta-annet-64.png',
 									  'har_filmer' => true,
 									  'har_titler' => true,
@@ -152,110 +179,3 @@ class innslag_typer {
 		return $bt_id;
 	}
 }
-
-class innslag_type {
-	var $id = null;
-	var $key = null;
-	var $name = null;
-	var $icon = null;
-	var $har_filmer = false; # Kan det finnes noe i UKM-TV?
-	var $har_titler = false;
-	
-	public function __construct($id, $key, $name, $icon, $har_filmer, $har_titler) {
-		$this->setId( $id );
-		$this->setKey( $key );
-		$this->setNavn( $name );
-		$this->setIcon( $icon );
-		$this->setHarFilmer( $har_filmer );
-		$this->setHarTitler( $har_titler );
-	}
-	
-	public function setId( $id ) {
-		$this->id = $id;
-		return $this;
-	}
-	public function getId() {
-		return $this->id;
-	}
-	
-	public function setKey( $key ) {
-		$this->key = $key;
-		return $this;
-	}
-	public function getKey() {
-		return $this->key;
-	}
-	
-	public function setNavn( $name ) {
-		$this->name = $name;
-		return $this;
-	}
-	public function getNavn() {
-		return $this->name;
-	}
-	
-	public function setIcon( $icon ) {
-		$this->icon = $icon;
-		return $this;
-	}
-	public function getIcon() {
-		return $this->icon;
-	}
-	
-	public function setHarFilmer( $har_filmer ) {
-		$this->har_filmer = $har_filmer;
-		return $this;
-	}
-	public function harFilmer() {
-		return $this->har_filmer;
-	}
-
-	
-	public function setHarTitler( $har_titler ) {
-		$this->har_titler = $har_titler;
-		return $this;
-	}
-	public function harTitler() {
-		return $this->har_titler;
-	}
-}
-
-/*
-function getBandtypeID($type) {
-	switch($type) {
-		case 'musikk':
-		case 'dans':
-		case 'teater':
-		case 'litteratur':
-		case 'scene': 			$bt_id = 1; break;
-		case 'film':
-		case 'video': 			$bt_id = 2; break;
-		case 'utstilling': 		$bt_id = 3; break;
-		case 'konferansier': 	$bt_id = 4; break;
-		case 'nettredaksjon': 	$bt_id = 5; break;
-		case 'matkultur':		$bt_id = 6; break;
-		case 'arrangor': 		$bt_id = 8; break;
-		case 'sceneteknikk': 	$bt_id = 9; break;
-		case 'annet': 			$bt_id = 1; break;
-		default:				$bt_id = false;
-	}
-
-	return $bt_id;
-}
-
-function getBandTypeFromID($id) {
-	switch($id) {
-		case 1: 	$type = 'scene';				break;
-		case 2: 	$type = 'video';				break;
-		case 3: 	$type = 'utstilling';			break;
-		case 4: 	$type = 'konferansier';			break;
-		case 5: 	$type = 'nettredaksjon';		break;
-		case 6: 	$type = 'matkultur';			break;
-		case 8: 	$type = 'arrangor';				break;
-		case 9: 	$type = 'sceneteknikk';			break;
-		default: 	$type = 'annet';				break;
-	}
-
-	return $type;
-}
-*/

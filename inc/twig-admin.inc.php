@@ -18,7 +18,10 @@ function TWIG($template, $dataarray, $templatefolder, $debug=false) {
 	// Add filesize-filter
 	$filter = new Twig_SimpleFilter('filesize', 'TWIGfilesize');
 	$twig->addFilter($filter);
-
+	// Add kroner-filter
+	$filter = new Twig_SimpleFilter('kroner', 'TWIGkroner');
+	$twig->addFilter($filter);
+	
 	// Set language to French
 	putenv('LC_ALL=nb_NO');
 	setlocale(LC_ALL, 'nb_NO');
@@ -33,6 +36,11 @@ function TWIG($template, $dataarray, $templatefolder, $debug=false) {
 	return $twig->render($template, $dataarray);
 }
 
+function TWIGkroner( $number, $decimals = 0, $decPoint = ',', $thousandsSep = ' ' ) {
+	$price = number_format($number, $decimals, $decPoint, $thousandsSep);
+	$price = ''.$price;
+	return $price;
+}
 function TWIGrender($template, $dataarray, $debug=false) {
 	return TWIG($template, $dataarray, str_replace('/twig/','', TWIG_PATH), $debug);
 }

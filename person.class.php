@@ -568,19 +568,22 @@ class person_v2 {
 	var $videresendtTil = null;
 	
 	public function __construct( $person ) {
-		if( is_int( $person ) ) {
+		if( is_numeric( $person ) ) {
 			$this->_load_from_db( $person );
 		} elseif( is_array( $person ) ) {
 			$this->_load_from_array( $person );
 		} else {
 			throw new Exception('PERSON_V2: Object construction requires parameter $person as integer or array');
 		}
+#		if( 0 == $this->id ) {
+#			throw new Exception('PERSON_V2: Innslag MÅ ha kontaktperson');
+#		}
 	}
 	
 	private function _load_from_db( $person ) {
 		$sql = new SQL("SELECT *
 						FROM `smartukm_participant`
-						WHERE `p_id` = '#pid'",
+						WHERE `p_id` = '#p_id'",
 						array('p_id' => $person ));
 		$res = $sql->run('array');
 		return $this->_load_from_array( $res );
