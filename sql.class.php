@@ -122,7 +122,7 @@ if(!class_exists('SQLdel')) {
 					mysql_select_db(UKM_DELTA_DB_NAME, $this->db);
 					break;
 				default:
-					$this->db = mysql_connect(UKM_DB_HOST, UKM_DB_USER, UKM_DB_PASSWORD) or die(mysql_error());
+					$this->db = mysql_connect(UKM_DB_HOST, UKM_DB_WRITE_USER, UKM_DB_PASSWORD) or die(mysql_error());
 					mysql_select_db(UKM_DB_NAME, $this->db);
 			}
 		}
@@ -246,7 +246,7 @@ if(!class_exists('SQLins')) {
 					mysql_select_db(UKM_DELTA_DB_NAME, $this->db);
 					break;
 				default:
-					$this->db = mysql_connect(UKM_DB_HOST, UKM_DB_USER, UKM_DB_PASSWORD) or die(mysql_error());
+					$this->db = mysql_connect(UKM_DB_HOST, UKM_DB_WRITE_USER, UKM_DB_PASSWORD) or die(mysql_error());
 					mysql_select_db(UKM_DB_NAME, $this->db);
 			}
 		}
