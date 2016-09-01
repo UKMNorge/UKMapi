@@ -2,10 +2,8 @@
 /* 
 Part of: UKM Norge core
 Description: SQL-klasse for bruk av SQL-sp¿rringer opp mot UKM-databasen.
-Author: UKM Norge / M Mandal
-Maintainer: UKM Norge / A Hustad
-Version: 3.0 
-Version 3 includes support for other databases, starting with UKMdelta.
+Author: UKM Norge / M Mandal 
+Version: 2.0 
 */
 
 ##################################################################################################################
@@ -19,10 +17,10 @@ if(!class_exists('SQL')) {
 		var $sql;
 		var $db;
 		
-		function SQL($sql, $keyval=array(), $db_name = null) {
+		function SQL($sql, $keyval=array()) {
 			$this->error = false;
 			global $db;
-			$this->connect($db_name);
+			$this->connect();
 			foreach($keyval as $key => $val) {
 				if (get_magic_quotes_gpc())
 					$val = stripslashes($val);
@@ -34,16 +32,10 @@ if(!class_exists('SQL')) {
 		function charset($set='UTF-8') {
 			$this->charset = $set;
 		}
-		function connect($db_name = null) {
-			switch ($db_name) {
-				case 'ukmdelta': 
-					$this->db = mysql_connect(UKM_DELTA_DB_HOST, UKM_DELTA_DB_USER, UKM_DELTA_DB_PASSWORD) or die(mysql_error());
-					mysql_select_db(UKM_DELTA_DB_NAME, $this->db);
-					break;
-				default:
-					$this->db = mysql_connect(UKM_DB_HOST, UKM_DB_USER, UKM_DB_PASSWORD) or die(mysql_error());
-					mysql_select_db(UKM_DB_NAME, $this->db);
-			}
+		function connect() {
+			$this->db = mysql_connect(UKM_DB_HOST, UKM_DB_USER, UKM_DB_PASSWORD) or die(mysql_error());
+			if (!$this->db) die($ERR);
+			mysql_select_db(UKM_DB_NAME,$this->db);	
 		}
 		
 		function error() {
@@ -51,9 +43,7 @@ if(!class_exists('SQL')) {
 		}
 		
 		function run($what='resource', $name='') {
-			if(!$this->db) {
-				$this->connect();
-			}
+			$this->connect();
 			if(isset($this->charset)) {
 				mysql_set_charset( $this->charset, $this->db );
 			}
@@ -92,7 +82,7 @@ if(!class_exists('SQLdel')) {
 		var $db;
 		var $sql;
 		
-		function SQLdel($table, $where=array(), $db_name = null) {
+		function SQLdel($table, $where=array()) {
 			$wheres = '';
 			$max = sizeof($where);
 			$i = 0;
@@ -108,23 +98,17 @@ if(!class_exists('SQLdel')) {
 			}
 			
 			$this->sql = 'DELETE FROM `'.$table.'` WHERE '.$wheres.';';
-			$this->connect($db_name);
+			$this->connect();
 		}
 
 		function charset($set='UTF-8') {
 			$this->charset = $set;
 		}
 
-		function connect($db_name = null) {
-			switch ($db_name) {
-				case 'ukmdelta': 
-					$this->db = mysql_connect(UKM_DELTA_DB_HOST, UKM_DELTA_DB_USER, UKM_DELTA_DB_PASSWORD) or die(mysql_error());
-					mysql_select_db(UKM_DELTA_DB_NAME, $this->db);
-					break;
-				default:
-					$this->db = mysql_connect(UKM_DB_HOST, UKM_DB_USER, UKM_DB_PASSWORD) or die(mysql_error());
-					mysql_select_db(UKM_DB_NAME, $this->db);
-			}
+		function connect() {
+			$this->db = @mysql_connect(UKM_DB_HOST, UKM_DB_WRITE_USER, UKM_DB_PASSWORD) or die(mysql_error());
+			if (!$this->db) die($ERR);
+			mysql_select_db(UKM_DB_NAME,$this->db);
 		}
 		
 		function debug() {
@@ -156,7 +140,7 @@ if(!class_exists('SQLins')) {
 		var $vals = array();
 		var $error = false;
 
-		function SQLins($table, $where=array(), $db_name = null) {
+		function SQLins($table, $where=array()) {
 			$this->table = $table;
 			## IF THIS IS A UPDATE-QUERY
 			if(sizeof($where) > 0) {
@@ -170,8 +154,6 @@ if(!class_exists('SQLins')) {
 			} else {
 				$this->update = false;	
 			}
-
-			$this->connect($db_name);
 		}
 
 		function charset($set='UTF-8') {
@@ -188,8 +170,7 @@ if(!class_exists('SQLins')) {
 		}
 		
 		function run($run=true) {
-			if(!$this->db)
-				$this->connect();
+			$this->connect();
 			if(isset($this->charset)) {
 				mysql_set_charset( $this->charset, $this->db );
 			}
@@ -239,16 +220,10 @@ if(!class_exists('SQLins')) {
 			return $this->error;
 		}
 		
-		function connect($db_name = null) {
-			switch ($db_name) {
-				case 'ukmdelta': 
-					$this->db = mysql_connect(UKM_DELTA_DB_HOST, UKM_DELTA_DB_USER, UKM_DELTA_DB_PASSWORD) or die(mysql_error());
-					mysql_select_db(UKM_DELTA_DB_NAME, $this->db);
-					break;
-				default:
-					$this->db = mysql_connect(UKM_DB_HOST, UKM_DB_USER, UKM_DB_PASSWORD) or die(mysql_error());
-					mysql_select_db(UKM_DB_NAME, $this->db);
-			}
+		function connect() {
+			$this->db = @mysql_connect(UKM_DB_HOST, UKM_DB_WRITE_USER, UKM_DB_PASSWORD) or die('MySQL connect error');
+			if (!$this->db) die($ERR);
+			mysql_select_db(UKM_DB_NAME,$this->db);
 		}
 		function insid() {
 			return mysql_insert_id( $this->db );
