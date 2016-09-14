@@ -591,7 +591,18 @@ class innslag {
 		$qry = $this->_load_personer_qry($extraJoin, $extraWhere);
 		
 		$qry = new SQL($qry);
+		if(is_super_admin()) {
+			echo '<pre>Query:<br>';
+			echo $qry->debug();
+			$qry->error();
+		}
 		$res = $qry->run();
+		if(is_super_admin()) {	
+			echo 'Result: <br>';
+			var_dump($res);
+			echo '</pre>';
+		}
+
 		#$res = $wpdb->get_results($qry,'ARRAY_A');
 		if($res&&mysql_num_rows($res)>0)
 			while($set = mysql_fetch_assoc($res))
