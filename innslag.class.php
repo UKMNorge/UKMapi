@@ -591,13 +591,13 @@ class innslag {
 		$qry = $this->_load_personer_qry($extraJoin, $extraWhere);
 		
 		$qry = new SQL($qry);
-		if(is_super_admin()) {
+		if(false) {
 			echo '<pre>Query:<br>';
 			echo $qry->debug();
 			$qry->error();
 		}
 		$res = $qry->run();
-		if(is_super_admin()) {	
+		if(false) {	
 			echo 'Result: <br>';
 			var_dump($res);
 			echo '</pre>';
