@@ -302,16 +302,16 @@ class tittel_v2 {
 		
 		switch( $this->getTable() ) {
 			case 'smartukm_titles_exhibition':
-				$this->_load_exhibition( $row );
+				$this->_load_utstilling( $row );
 				break;
 			case 'smartukm_titles_other':
-				$this->_load_other( $row );
+				$this->_load_annet( $row );
 				break;
 			case 'smartukm_titles_scene':
 				$this->_load_scene( $row );
 				break;
 			case 'smartukm_titles_video':
-				$this->_load_video( $row );
+				$this->_load_film( $row );
 				break;
 			default:
 				throw new Exception('TITTEL_V2: '. $this->getTable() .' not supported table type');

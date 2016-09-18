@@ -10,12 +10,14 @@ class program {
 	var $skjulte_forestillinger = null;
 	var $containerType = null;
 	var $containerObjectId = null;
-
+	var $rekkefolge = null;
+	
 	var $container_pl_id = null; // Brukes av container_type 'innslag'
 	
 	public function __construct($container_type, $container_object_id) {
 		$this->setContainerType( $container_type );
 		$this->setContainerObjectId( $container_object_id );
+		$this->rekkefolge = [];
 	}
 
 	public function getAntall() {
@@ -103,9 +105,29 @@ class program {
 			} else {
 				$this->addSkjultForestilling( $forestilling );
 			}
+			if( 'innslag' == $this->getContainerType() ) {
+				$this->setRekkefolge( $forestilling->getId(), $row['order'] );
+			}
 		}
 		$this->loaded = true;
 		return true;
+	}
+	
+	public function setRekkefolge( $forestilling_id, $order ) {
+		$this->rekkefolge[ $forestilling_id ] = $order;
+		return $this;
+	}
+	public function getRekkefolge( $forestilling ) {
+		if( is_numeric( $forestilling ) ) {
+			$id = $forestilling;
+		} else {
+			$id = $forestilling->getId();
+		}
+		
+		if( !isset( $this->rekkefolge[ $id ] ) ) {
+			throw new Exception('Innslaget er ikke med i denne hendelsen! ('. $id .')');
+		}
+		return $this->rekkefolge[ $id ];
 	}
 
 	private function _getQuery() {

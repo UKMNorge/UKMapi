@@ -591,18 +591,7 @@ class innslag {
 		$qry = $this->_load_personer_qry($extraJoin, $extraWhere);
 		
 		$qry = new SQL($qry);
-		if(false) {
-			echo '<pre>Query:<br>';
-			echo $qry->debug();
-			$qry->error();
-		}
 		$res = $qry->run();
-		if(false) {	
-			echo 'Result: <br>';
-			var_dump($res);
-			echo '</pre>';
-		}
-
 		#$res = $wpdb->get_results($qry,'ARRAY_A');
 		if($res&&mysql_num_rows($res)>0)
 			while($set = mysql_fetch_assoc($res))
@@ -2036,6 +2025,7 @@ class innslag_v2 {
 	**/
 	public function getProgram( $monstring ) {
 		if( null == $this->program ) {
+			require_once('UKM/forestillinger.collection.php');
 			$this->program = new program( 'innslag', $this->getId() );
 			$this->program->setMonstringId( is_numeric( $monstring ) ? $monstring : $monstring->getId() );
 		}

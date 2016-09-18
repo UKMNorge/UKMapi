@@ -3,6 +3,7 @@ require_once 'UKM/sql.class.php';
 require_once 'UKM/statistikk.class.php';
 require_once 'UKM/monstring_tidligere.class.php';
 require_once 'UKM/innslag.collection.php';
+require_once 'UKM/innslag_typer.class.php';
 
 
 	## MØNSTRINGSOBJEKTET

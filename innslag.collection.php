@@ -26,6 +26,22 @@ class innslag_collection {
 		}
 		return $this->innslag;
 	}
+	
+	public function getAllByType( $innslag_type ) {
+		if( 'innslag_type' != get_class( $innslag_type ) ) {
+			throw new Exception('innslag_collection::getAllByType() krever objekt av klassen innslag_type. Gitt '. get_class( $innslag_type ) );
+		}
+		
+		$selected_innslag = [];
+		foreach( $this->getAll() as $innslag ) {
+			if( $innslag->getType()->getId() == $innslag_type->getId() 
+				&& $innslag->getType()->getKey() == $innslag_type->getKey() )
+			{
+				$selected_innslag[] = $innslag;
+			}
+		}
+		return $selected_innslag;
+	}
 
 	
 	public function setContainerObjectId( $id ) {
