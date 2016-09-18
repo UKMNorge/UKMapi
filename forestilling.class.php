@@ -19,6 +19,7 @@ class forestilling_v2 extends forestilling {
 		$this->setId( $this->info['c_id'] );
 		$this->setNavn( utf8_encode( $this->info['c_name'] ) );
 		$this->setStart( $this->info['c_start'] );
+		$this->setSted( $this->info['c_place'] );
 		$this->setMonstringId( $this->info['pl_id'] );
 		$this->setSynligRammeprogram( 'true' == $this->info['c_visible_program'] );
 	}
@@ -68,6 +69,25 @@ class forestilling_v2 extends forestilling {
 			return 'Forestilling uten navn';
 		}
 		return $this->navn;
+	}
+	
+	/**
+	 * Sett navn på sted for hendelsen
+	 *
+	 * @param string $sted
+	 * @return $this
+	**/
+	public function setSted( $sted ) {
+		$this->sted = $sted;
+		return $this;
+	}
+	/**
+	 * Hent navn på sted for hendelsen
+	 *
+	 * @return string $sted
+	**/
+	public function getSted() {
+		return $this->sted;
 	}
 	
 	/**
