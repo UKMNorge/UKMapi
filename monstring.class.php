@@ -3,6 +3,7 @@ require_once 'UKM/sql.class.php';
 require_once 'UKM/statistikk.class.php';
 require_once 'UKM/monstring_tidligere.class.php';
 require_once 'UKM/innslag.collection.php';
+require_once 'UKM/innslag_typer.class.php';
 
 
 	## MØNSTRINGSOBJEKTET
@@ -1798,6 +1799,15 @@ class monstring_v2 {
 	}
 	
 	/**
+	 * erRegistrert
+	 *
+	 * @return bool
+	**/
+	public function erRegistrert() {
+		return $this->start > 0;
+	}
+
+	/**
 	 * Sett start-tidspunkt
 	 *
 	 * @param unixtime $start
@@ -1842,7 +1852,7 @@ class monstring_v2 {
 		}
 		return $this->stop_datetime;
 	}
-	 
+	
 	/**
 	 * Sett frist 1-tidspunkt
 	 *
