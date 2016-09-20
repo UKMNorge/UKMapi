@@ -1915,7 +1915,18 @@ class monstring_v2 {
 		return 1 < sizeof( $this->kommuner_id );
 	}
 
-	
+	/**
+	 * getAntallKommuner
+	 * Hent ut antall kommuner mønstringen har uten å laste inn objekter
+	 * 
+	 * @return integer
+	**/
+	public function getAntallKommuner() {
+		if( $this->getType() !== 'kommune' ) {
+			throw new Exception('MONSTRING_V2: getAntallKommuner kan kun kjøres på lokalmønstringer!');
+		}
+		return sizeof( $this->kommuner_id );
+	}
 	/**
 	 * Sett kommuner
 	 *
