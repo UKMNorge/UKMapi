@@ -1642,6 +1642,22 @@ class monstring_v2 {
 	
 	var $attributes = null;
 	
+	/**
+	 * getLoadQry
+	 * Brukes for å få standardiserte databaserader inn for 
+	 * generering via _load_by_row
+	 *
+	 * WHERE-selector og evt ekstra joins må legges på manuelt
+	**/
+	static function getLoadQry() {
+		return "SELECT `place`.*,
+					GROUP_CONCAT(`kommuner`.`k_id`) AS `k_ids`
+				FROM `smartukm_place` AS `place`
+				LEFT JOIN `smartukm_rel_pl_k` AS `kommuner`
+					ON (`kommuner`.`pl_id` = `place`.`pl_id`)
+				";
+	}
+	
 	public function __construct( $id_or_row ) {
 
 		if( is_numeric( $id_or_row ) ) {
@@ -1656,12 +1672,7 @@ class monstring_v2 {
 	}		
 	
 	private function _load_by_id( $id ) {
-		$qry = new SQL("SELECT `place`.*,
-							GROUP_CONCAT(`kommuner`.`k_id`) AS `k_ids`
-						FROM `smartukm_place` AS `place`
-						LEFT JOIN `smartukm_rel_pl_k` AS `kommuner`
-							ON (`kommuner`.`pl_id` = `place`.`pl_id`)
-						WHERE `place`.`pl_id` = '#plid'", 
+		$qry = new SQL( self::getLoadQry() . "WHERE `place`.`pl_id` = '#plid'",
 					array('plid' => $id)
 					);
 		$res = $qry->run('array');
