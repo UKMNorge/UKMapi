@@ -10,6 +10,23 @@ class monstringer_v2 {
 	}
 	
 	/**
+	 * utenGjester
+	 * fjerner mønstringen for gjestekommunen
+	 *
+	 * @param array monstringer (fra f.eks. getAllByFylke)
+	 * @return array monstringer
+	**/
+	public function utenGjester( $monstringer ) {
+		foreach( $monstringer as $array_pos => $monstring ) {
+			$gjestekommune = $monstring->getFylke()->getId() . '90';
+			if( $monstring->harKommune( $gjestekommune ) ) {
+				unset( $monstringer[ $array_pos ] );
+			}
+		}
+		return $monstringer;
+	}
+	
+	/**
 	 * Henter ut alle lokalmønstringer fra gitt fylke
 	 *
 	 * @param object $fylke
