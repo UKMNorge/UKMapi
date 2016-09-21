@@ -76,7 +76,6 @@ class monstringer_v2 {
 				  ORDER BY `place`.`pl_name` ASC";
 		$qry = new SQL( $query , array('season'=>$this->sesong));
 		$res = $qry->run();
-		echo $qry->debug();
 		if( $res ) {
 			while( $row = mysql_fetch_assoc( $res ) ) {
 				$monstringer[] = new monstring_v2( $row );
