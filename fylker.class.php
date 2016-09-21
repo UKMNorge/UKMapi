@@ -29,6 +29,8 @@ class fylker {
 		self::$fylker[1]	= new fylke(1, 'ostfold', 'Østfold');
 
 		self::$fylker[21]	= new fylke(21, 'testfylke', 'Testfylke');
+		self::$fylker[31]	= new fylke(31, 'internasjonalt', 'Internasjonalt');
+		self::$fylker[32]	= new fylke(32, 'gjester', 'Gjester');
 	}
 	
 	public static function getById( $id ) {
@@ -76,6 +78,21 @@ class fylker {
 	}
 	
 	public static function getAll() {
+		self::initialize();
+
+		$sortert = array();
+		foreach( self::$fylker as $fylke ) {
+			// Hopp over de falske fylkene på getAll
+			if( $fylke->getId() > 20 ) {
+				continue;
+			}
+			$sortert[ $fylke->getNavn() ] = $fylke;
+		}
+		ksort( $sortert );
+		return $sortert;
+	}
+	
+	public static function getAllInkludertFalske() {
 		self::initialize();
 
 		$sortert = array();
