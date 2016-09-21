@@ -2118,5 +2118,24 @@ class monstring_v2 {
 		}
 		return $this->innslagTyper;
 	}
+	
+	/**
+	 * getStatistikk
+	 * Hent et statistikkobjekt relatert til denne mønstringen
+	 *
+	 * @return statistikk
+	**/
+	public function getStatistikk() {
+		$this->statistikk = new statistikk();
+		
+		if('kommune' == $this->getType()) {
+			$this->statistikk->setKommune( $this->getKommuner()->getIdArray() );
+		} elseif('fylke' == $this->getType() ) {
+			$this->statistikk->setFylke( $this->getFylke()->getId() );
+		} else {
+			$this->statistikk->setLand();
+		}
+		return $this->statistikk;
+	}
 }
 ?>
