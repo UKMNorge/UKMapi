@@ -1701,7 +1701,11 @@ class monstring_v2 {
 		} elseif( 'land' == $this->getType() ) {
 			
 		} else {
-			$this->setKommuner( explode(',', $row['k_ids'] ) );
+			if( null == $row['k_ids'] ) {
+				$this->setKommuner( array() );
+			} else {
+				$this->setKommuner( explode(',', $row['k_ids'] ) );
+			}
 		}
 		$this->setId( $row['pl_id'] );
 		$this->setNavn( utf8_encode($row['pl_name']) );
