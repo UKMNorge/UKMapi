@@ -1927,6 +1927,22 @@ class monstring_v2 {
 		}
 		return sizeof( $this->kommuner_id );
 	}
+	
+	/**
+	 * harKommune
+	 * Sjekker om en mønstring har en gitt kommune uten å laste inn objekter
+	 *
+	 * @param integer / kommune-object
+	 * @return bool
+	**/
+	public function harKommune( $kommune ) {
+		if( is_numeric( $kommune ) ) {
+			$kommuneId = $kommune;
+		} else {
+			$kommuneId = $kommune->getId();
+		}
+		return in_array($kommuneId, $this->kommuner_id );
+	}
 	/**
 	 * Sett kommuner
 	 *
