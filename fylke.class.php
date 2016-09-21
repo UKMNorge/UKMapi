@@ -2,7 +2,7 @@
 class fylke {
 	var $id = null;
 	var $link = null;
-	var $name = null;
+	var $navn = null;
 	
 	public function __construct( $id, $link, $name ) {
 		$this->setId( $id );
