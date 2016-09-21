@@ -16,7 +16,11 @@ class kommune {
 						WHERE `id` = '#id'",
 					    array('id' => $id ) );
 		$res = $sql->run('array');
-		$this->_loadByRow( $res );
+		if( !is_array( $res ) ) {
+			$this->id = false;
+		} else {
+			$this->_loadByRow( $res );
+		}
 	}
 	private function _loadByRow( $res ) {
 		$this->id = $res['id'];
