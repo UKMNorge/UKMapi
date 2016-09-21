@@ -86,6 +86,23 @@ class fylke {
 		return $this->kommuner;
 	}
 	
+	/**
+	 * getKommunerUtenGjester
+	 * fjerner gjestekommunen fra kommune-lista og returnerer forøvrig getKommuner
+	 *
+	 * @return array kommuner
+	**/
+	public function getKommunerUtenGjester() {
+		$kommuner = [];
+		foreach( $this->getKommuner() as $kommune ) {
+			if( $kommune->getId() != ($this->getId().'90') ) {
+				$kommuner[] = $kommune;
+			}
+		}
+		return $kommuner;
+	}
+
+	
 	public function __toString() {
 		return $this->getNavn();
 	}
