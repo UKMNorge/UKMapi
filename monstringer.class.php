@@ -18,6 +18,11 @@ class monstringer_v2 {
 	**/
 	public function utenGjester( $monstringer ) {
 		foreach( $monstringer as $array_pos => $monstring ) {
+			if( 'kommune' != $monstring->getType() || $monstring->getAntallKommuner() == 0 ) {
+				continue;
+			}
+
+
 			$gjestekommune = $monstring->getFylke()->getId() . '90';
 			if( $monstring->harKommune( $gjestekommune ) ) {
 				unset( $monstringer[ $array_pos ] );
@@ -55,6 +60,30 @@ class monstringer_v2 {
 			}
 		}
 		return $monstringer;
+	}
+	
+	/**
+	 * getAllBySesong 
+	 * Henter alle mønstringer fra en gitt sesong
+	 *
+	 * @return array with monstring_v2-objects
+	**/
+	public function getAllBySesong() {
+		$monstringer = [];
+		$query =  monstring_v2::getLoadQry()
+				."WHERE `place`.`season` = '#season'
+				  GROUP BY `place`.`pl_id` 
+				  ORDER BY `place`.`pl_name` ASC";
+		$qry = new SQL( $query , array('season'=>$this->sesong));
+		$res = $qry->run();
+		echo $qry->debug();
+		if( $res ) {
+			while( $row = mysql_fetch_assoc( $res ) ) {
+				$monstringer[] = new monstring_v2( $row );
+			}
+		}
+		return $monstringer;
+
 	}
 	
 	
