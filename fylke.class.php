@@ -3,6 +3,8 @@ class fylke {
 	var $id = null;
 	var $link = null;
 	var $navn = null;
+	var $attributes = null;
+
 	
 	public function __construct( $id, $link, $name ) {
 		$this->setId( $id );
@@ -33,6 +35,33 @@ class fylke {
 	public function getNavn() {
 		return $this->navn;
 	}
+	
+	/**
+	 * Sett attributt
+	 * Sett egenskaper som for enkelhets skyld kan følge mønstringen et lite stykke
+	 * Vil aldri kunne lagres
+	 *
+	 * @param string $key
+	 * @param $value
+	 *
+	 * @return innslag
+	**/
+	public function setAttr( $key, $value ) {
+		$this->attributes[ $key ] = $value;
+		return $this;
+	}
+	
+	/**
+	 * Hent attributt
+	 *
+	 * @param string $key
+	 *
+	 * @return value
+	**/
+	public function getAttr( $key ) {
+		return isset( $this->attributes[ $key ] ) ? $this->attributes[ $key ] : false;
+	}
+
 	
 	public function getKommuner() {
 		if( null == $this->kommuner ) {
