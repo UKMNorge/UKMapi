@@ -1967,6 +1967,8 @@ class monstring_v2 {
 		if( !$this->erSingelmonstring() ) {
 			throw new Exception('MONSTRING_V2: Kan ikke bruke getKommune på mønstringer med flere kommuner');
 		}
+		// Quickfix 22.09.2016
+		return $this->getKommuner()->first();
 		if( null == $this->kommune ) {
 			$this->kommune = new kommune( $this->kommune_id );
 		}
