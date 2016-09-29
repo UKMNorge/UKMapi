@@ -3,6 +3,7 @@ require_once('UKM/fylke.class.php');
 	
 class fylker {
 	static $fylker = null;
+	static $logMethod = 'throw';
 	
 	// static classes in php does not use __construct (bah)
 	 private static function initialize() {
@@ -42,7 +43,8 @@ class fylker {
 			return self::$fylker[ (int) $id ];
 		}
 		
-		throw new Exception('Prøvde å aksessere et fylke som ikke finnes (ID: '. $id .')');
+		if('throw' == self::$logMethod)
+			throw new Exception('Prøvde å aksessere et fylke som ikke finnes (ID: '. $id .')');
 	}
 	
 	public static function getByLink( $id ) {
@@ -101,5 +103,9 @@ class fylker {
 		}
 		ksort( $sortert );
 		return $sortert;
+	}
+
+	public static function setLogMethod($method) {
+		self::$logMethod = $method;
 	}
 }
