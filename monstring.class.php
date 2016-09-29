@@ -1969,6 +1969,7 @@ class monstring_v2 {
 		}
 		// Quickfix 22.09.2016
 		return $this->getKommuner()->first();
+		
 		if( null == $this->kommune ) {
 			$this->kommune = new kommune( $this->kommune_id );
 		}
