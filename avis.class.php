@@ -48,6 +48,16 @@ class avis {
 		return $this->type;
 	}
 	
+	public function getFylke() {
+		return $this->getKommune()->getFylke();
+	}
+	public function getKommune() {
+		if( !isset( $this->kommuner[0] ) ) {
+			return false;
+		}
+		return $this->kommuner[0];
+	}
+	
 	public function getNedslagsfelt() {
 		$this->_loadNedslagsfelt();
 		
