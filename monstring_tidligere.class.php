@@ -95,6 +95,11 @@ require_once('UKM/monstring.class.php');
 		}
 	}
 
+	class fylke_monstring_v2 extends fylke_monstring {
+		public function monstring_get() {
+			return new monstring_v2( $this->pl_id );
+		}
+	}
 	class fylke_monstring{
 		public function __construct($fylke,$season) {
 			$qry = new SQL("SELECT `pl_id`
