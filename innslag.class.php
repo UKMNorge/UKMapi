@@ -591,18 +591,7 @@ class innslag {
 		$qry = $this->_load_personer_qry($extraJoin, $extraWhere);
 		
 		$qry = new SQL($qry);
-		if(false) {
-			echo '<pre>Query:<br>';
-			echo $qry->debug();
-			$qry->error();
-		}
 		$res = $qry->run();
-		if(false) {	
-			echo 'Result: <br>';
-			var_dump($res);
-			echo '</pre>';
-		}
-
 		#$res = $wpdb->get_results($qry,'ARRAY_A');
 		if($res&&mysql_num_rows($res)>0)
 			while($set = mysql_fetch_assoc($res))
@@ -1612,6 +1601,9 @@ class innslag_v2 {
 	var $personer_collection = null;
 	var $artikler_collection = null;
 	
+	var $avmeldbar = false;
+	var $advarsler = null;
+	
 	var $kontaktperson_id = null;
 	var $kontaktperson = null;
 
@@ -1640,7 +1632,7 @@ class innslag_v2 {
 						WHERE `smartukm_band`.`b_id` = '#bid' 
 						#select_also_if_not_completed",
 					array('bid' => $b_id, 
-						 'select_also_if_not_completed' => ($select_also_if_not_completed ? "AND `smartukm_band`.`b_status` = 8" : '')
+						 'select_also_if_not_completed' => ($select_also_if_not_completed ? '' : "AND `smartukm_band`.`b_status` = 8" )
 						 )
 					);
 		$row = $SQL->run('array');
@@ -1664,7 +1656,7 @@ class innslag_v2 {
 		$this->setSjanger( (string) $row['b_sjanger'] );
 		$this->setKontaktpersonId( $row['b_contact'] );
 		$this->_setSubscriptionTime( $row['b_subscr_time'] );
-		
+		$this->setStatus( $row['b_status'] );
 		return $this;
 	}
 	
@@ -1742,6 +1734,25 @@ class innslag_v2 {
 	**/
 	public function getId() {
 		return $this->id;
+	}
+	
+	/**
+	 * Sett status
+	 *
+	 * @param integer status 
+	 *
+	 * @return $this
+	**/
+	public function setStatus( $status ) {
+		$this->status = $status;
+		return $this;
+	}
+	/**
+	 * Hent status
+	 * @return integer $status
+	**/
+	public function getStatus() {
+		return $this->status;
 	}
 	
 	
@@ -1883,7 +1894,56 @@ class innslag_v2 {
 	**/
 	public function _setSubscriptionTime( $unixtime ) {
 		$this->subscriptionTime = $unixtime;
+		$this->_calcAvmeldbar();
 		return $this;
+	}
+	
+	/**
+	 * avmeldbar Periode - hvor lang tid har innslaget?
+	 * Hvor mange dager skal innslaget få for å fullføre sin påmelding?
+	 *
+	 * @return int dager
+	**/
+	public static function avmeldbarPeriode() {
+		return 5;
+	}
+	
+	/**
+	 * Skal innslaget være mulig å melde av?
+	 * De 5 første dagene bør innslaget få lov til å fullføre sin påmelding
+	 * uten at arrangører avmelder
+	 *
+	 * @param integer subscriptiontime as unixtime
+	 */
+	private function _calcAvmeldbar( ) {
+		if( time() > $this->getAvmeldbar() ) {
+			$this->avmeldbar = true;
+		} else {
+			$this->avmeldbar = false;
+		}
+		return $this;
+	}
+	
+	/**
+	 * Er innslaget være mulig å melde av?
+	 * De 5 første dagene bør innslaget få lov til å fullføre sin påmelding
+	 * uten at arrangører avmelder
+	 *
+	 * @return bool
+	 */
+	public function erAvmeldbar() {
+		return $this->avmeldbar;
+	}
+
+	/**
+	 * Er innslaget være mulig å melde av?
+	 * De 5 første dagene bør innslaget få lov til å fullføre sin påmelding
+	 * uten at arrangører avmelder
+	 *
+	 * @return bool
+	 */
+	public function getAvmeldbar() {
+		return $this->getSubscriptionTime()->getTimestamp() + (self::avmeldbarPeriode() * 24 * 60 * 60 );
 	}
 	
 	/**
@@ -2016,7 +2076,9 @@ class innslag_v2 {
 		// b_subscr_time
 
 		if( !empty( $this->subscriptionTime ) ) {
-			return DateTime::setTimestamp( $this->subscriptionTime );
+			$datetime = new DateTime();
+			$datetime->setTimestamp( $this->subscriptionTime );
+			return $datetime;
 		}
 
 		$qry = new SQL("SELECT `log_time` FROM `ukmno_smartukm_log`
@@ -2035,7 +2097,11 @@ class innslag_v2 {
 	 *
 	**/
 	public function getProgram( $monstring ) {
+		if( !is_object( $monstring ) || 'monstring_v2' != get_class( $monstring ) ) {
+			throw new Exception('INNSLAG_V2: Mønstring må være mønstrings-objekt! Gitt '. (is_object( $monstring ) ? get_class( $monstring ) : (is_array( $monstring )?'Array':'ukjent')));
+		}
 		if( null == $this->program ) {
+			require_once('UKM/forestillinger.collection.php');
 			$this->program = new program( 'innslag', $this->getId() );
 			$this->program->setMonstringId( is_numeric( $monstring ) ? $monstring : $monstring->getId() );
 		}
@@ -2047,5 +2113,39 @@ class innslag_v2 {
 			$this->titler = new titler( $this->getId(), $this->getType(), $monstring );
 		}
 		return $this->titler;
+	}
+	
+	private function _calcAdvarsler( $monstring) {
+		require_once('UKM/advarsler.collection.php');
+		
+		$this->advarsler = new advarsler();
+
+		// Har 0 personer
+		if( 0 == $this->getPersoner( $monstring )->getAntall()) {
+			$this->advarsler->add( new advarsel( advarsel::create('personer', 'Innslaget har ingen personer' ) ) );
+		}
+		// Utstilling har mer enn 3 verk
+		if( 'utstilling' == $this->getType()->getKey() && $this->getTitler( $monstring )->getAntall() > 3 ) {
+			$this->advarsler->add( new advarsel( advarsel::create('titler', 'Innslaget har mer enn 3 kunstverk') ) );
+		// Innslaget har mer enn 3 titler
+		} elseif( $this->getType()->harTitler() && $this->getTitler( $monstring )->getAntall() > 2 ) {
+			$this->advarsler->add( new advarsel( advarsel::create('titler', 'Innslaget har mer enn 2 titler' ) ) );
+		}
+		
+		// Innslaget har en varighet over 5 min
+		if( (5*60) < $this->getVarighet( $monstring )->getSekunder() ) {
+			$this->advarsler->add( new advarsel( advarsel::create('titler', 'Innslaget er lengre enn 5 minutter ') ) );
+		}
+	}
+	
+	public function getVarighet( $monstring ) {
+		return $this->getTitler( $monstring )->getVarighet();
+	}
+	
+	public function getAdvarsler( $monstring ) {
+		if( null == $this->advarsler ) {
+			$this->_calcAdvarsler( $monstring );
+		}
+		return $this->advarsler;
 	}
 }

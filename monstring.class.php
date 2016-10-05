@@ -1638,6 +1638,7 @@ class monstring_v2 {
 	var $program = null;
 	var $kommuner_id = null;
 	var $kommuner = null;
+	var $fylke = null;
 	var $sesong = null;
 	var $innslag = null;
 	
@@ -2116,7 +2117,13 @@ class monstring_v2 {
 						  );
 			$res = $sql->run();
 			while( $r = mysql_fetch_assoc( $res ) ) {
-				$this->innslagTyper->addById( $r['bt_id'] );
+				if( 1 == $r['bt_id'] ) {
+					foreach( innslag_typer::getAllScene() as $type ) {
+						$this->innslagTyper->add( $type );
+					}
+				} else {
+					$this->innslagTyper->addById( $r['bt_id'] );
+				}
 			}
 		}
 		return $this->innslagTyper;
@@ -2139,6 +2146,21 @@ class monstring_v2 {
 			$this->statistikk->setLand();
 		}
 		return $this->statistikk;
+	}
+	
+	public function erRegistrert() {
+		return $this->start > 0;
+	}
+	
+	public function erStartet() {
+		return time() > $this->getStart()->getTimestamp();
+	}
+	
+	public function erAktiv() {
+		return $this->erStartet() && !$this->erFerdig();
+	}
+	public function erFerdig() {
+		return time() > $this->getStop()->getTimestamp();
 	}
 }
 ?>

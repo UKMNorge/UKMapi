@@ -19,7 +19,7 @@ class innslag_typer extends Collection {
 		return self::_load( self::_translate_key_to_id( $key ) );	
 	}
 	
-	static function getAll() {
+	static function getAllTyper() {
 		if( null == self::$all ) {
 			foreach( array(1,2,3,4,5,6,8) as $id ) {
 				self::$all[] = self::getById( $id );
@@ -97,7 +97,7 @@ class innslag_typer extends Collection {
 				$data = array('id' => 2,
 							  'key' => 'video',
 							  'name' => 'Film',
-							  'icon' => 'http://ico.ukm.no/delta/delta-video-64.png',
+							  'icon' => 'http://ico.ukm.no/delta/delta-film-64.png',
 							  'har_filmer' => true,
 							  'har_titler' => true,
 							  'database_table' => 'smartukm_titles_video',
@@ -120,6 +120,8 @@ class innslag_typer extends Collection {
 							  'icon' => 'http://ico.ukm.no/delta/delta-konferansier-64.png',
 							  'har_filmer' => false,
 							  'har_titler' => false,
+							  'database_table' => false,
+
 							  );
 				break;
 			case 5:
@@ -129,6 +131,7 @@ class innslag_typer extends Collection {
 							  'icon' => 'http://ico.ukm.no/delta/delta-nettredaksjon-64.png',
 							  'har_filmer' => false,
 							  'har_titler' => false,
+							  'database_table' => false,
 							  );
 				break;
 			case 6:
@@ -149,12 +152,13 @@ class innslag_typer extends Collection {
 							  'icon' => 'http://ico.ukm.no/delta/delta-arrangor-64.png',
 							  'har_filmer' => false,
 							  'har_titler' => false,
+							  'database_table' => false,
 							  );
 				break;
 			default:
 				$data = array('id' => 'missing '. $id);
 		}
-		return new innslag_type( $data['id'], $data['key'], $data['name'], $data['icon'], $data['har_filmer'], $data['har_titler'] );
+		return new innslag_type( $data['id'], $data['key'], $data['name'], $data['icon'], $data['har_filmer'], $data['har_titler'], $data['database_table'] );
 	}
 	
 	

@@ -595,8 +595,12 @@ class person_v2 {
 		$this->setMobil( $person['p_phone'] );
 		$this->setEpost( $person['p_email'] );
 		$this->setFodselsdato( $person['p_dob'] );
+		$this->setKommune( $person['p_kommune'] );
 		if( array_key_exists('instrument', $person ) ) {
 			$this->setInstrument( utf8_encode($person['instrument']) );
+		}
+		if( array_key_exists('instrument_object', $person ) ) {
+			$this->setInstrumentObject( json_decode( $person['instrument_object'] ) );
 		}
 		if( array_key_exists('pl_ids', $person ) ) {
 			$this->setVideresendtTil( explode(',', $person['pl_ids']) );
@@ -766,6 +770,26 @@ class person_v2 {
 	public function getInstrument() {
 		return $this->instrument;
 	}
+	/**
+	 * Sett instrumentObject
+	 * Brukes av nettredaksjon + arrangør for å holde styr på undergrupper
+	 *
+	 * @param array $instrumentObject
+	 * @return $this
+	**/
+	public function setInstrumentObject( $instrumentArray ) {
+		$this->instrumentObject = $instrumentArray;
+		return $this;
+	}
+	/**
+	 * Hent instrumentObject
+	 * Brukes av nettredaksjon + arrangør for å holde styr på undergrupper
+	 *
+	 * @return array $instrumentObject
+	**/
+	public function getInstrumentObject() {
+		return $this->instrumentObject;
+	}
 
 	/**
 	 * Sett fødselsdato
@@ -803,6 +827,51 @@ class person_v2 {
 
 		return $birthdate->diff($now)->y . $suffix;
 	}
+	
+	
+	/**
+	 * Sett kommune
+	 *
+	 * @param kommune_id
+	 * @return $this
+	**/
+	public function setKommune( $kommune_id ) {
+		$this->kommune_id = $kommune_id;
+		return $this;
+	}
+	/**
+	 * Hent kommune
+	 *
+	 * @return object $kommune
+	**/
+	public function getKommune() {
+		if( null == $this->kommune ) {
+			$this->kommune = new kommune( $this->kommune_id );
+		}
+		return $this->kommune;
+	}
+	
+	/**
+	 * Sett fylke
+	 * Skal ikke skje - sett alltid kommune!
+	 * 
+	**/
+	public function setFylke( $fylke_id ) {
+		throw new Exception('PERSON V2: setFylke() er ikke mulig. Bruk setKommune( $kommune_id )');
+	}
+	
+	/**
+	 * Hent fylke
+	 *
+	 * @return fylke
+	**/
+	public function getFylke() {
+		if( null == $this->fylke ) {
+			$this->fylke = $this->getKommune()->getFylke();
+		}
+		return $this->fylke;
+	}
+
 	
 	/**
 	 * Set BT_ID (innslagstype)

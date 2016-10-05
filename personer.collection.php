@@ -24,6 +24,24 @@ class personer {
 		return $this->personer;
 	}
 	
+	
+	/**
+	 * getSingle
+	 * Hent én enkelt person fra innslaget. 
+	 * Er beregnet for tittelløse innslag, som aldri har mer enn én person
+	 * Kaster Exception hvis innslaget har mer enn én person
+	 *
+	 * @return person_v2 $person
+	**/
+	public function getSingle() {
+		if( 1 < $this->getAntall() ) {
+			throw new Exception( 'PERSON_V2: getSingle() er kun ment for bruk med tittelløse innslag som har ett personobjekt. '
+								.'Dette innslaget har '. $this->getAntall() .' personer');	
+		}
+		$all = $this->getAll();
+		return end( $all ); // and only...
+	}
+	
 	/**
 	 * getAllVideresendt
 	 * Hent alle personer i innslaget videresendt til gitt mønstring
@@ -61,23 +79,7 @@ class personer {
 		}
 		return $this->personer_ikke_videresendt;
 	}
-	
-	/**
-	 * getSingle
-	 * Hent én enkelt person fra innslaget. 
-	 * Er beregnet for tittelløse innslag, som aldri har mer enn én person
-	 * Kaster Exception hvis innslaget har mer enn én person
-	 *
-	 * @return person_v2 $person
-	**/
-	public function getSingle() {
-		if( 1 < $this->getAntall() ) {
-			throw new Exception( 'PERSON_V2: getSingle() er kun ment for bruk med tittelløse innslag som har ett personobjekt. '
-								.'Dette innslaget har '. $this->getAntall() .' personer');	
-		}
-		$all = $this->getAll();
-		return end( $all ); // and only...
-	}
+
 	
 	/**
 	 * getAntall
@@ -105,6 +107,23 @@ class personer {
 		}
 		return false;
 	}
+	
+	/**
+	 * getById
+	 * Finn en person med gitt ID
+	 *
+	 * @param integer id
+	 * @return person
+	**/
+	public function getById( $id ) {
+		foreach( $this->getAll() as $person ) {
+			if( $person->getId() == $id ) {
+				return $person;
+			}
+		}
+		throw new Exception('PERSONER_V2: Kunne ikke finne person '. $id .' i innslag '. $this->_getBID());
+	}
+	
 	/**
 	 * harVideresendtPerson
 	 * Er personen med i innslaget og videresendt til gitt mønstring?
@@ -127,6 +146,7 @@ class personer {
 		$SQL = new SQL("SELECT 
 							`participant`.*, 
 							`relation`.`instrument`,
+							`relation`.`instrument_object`,
 							GROUP_CONCAT(`smartukm_fylkestep_p`.`pl_id`) AS `pl_ids`,
 							`band`.`bt_id`
 						FROM `smartukm_participant` AS `participant` 

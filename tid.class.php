@@ -14,10 +14,14 @@ class tid {
 	}
 	
 	public function getSekunder() {
-		return $this->seconds;
+		return $this->sekunder;
 	}
 
 	public function getHumanShort() {
+		return $this->_getHuman('s', 'm');
+	}
+
+	public function getHuman() {
 		return $this->_getHuman('sek', 'min');
 	}
 	
@@ -27,8 +31,8 @@ class tid {
 	
 
 	private function _getHuman( $sek, $min ) {
-		$q = floor($sec / 60);
-		$r = $sec % 60;
+		$q = floor($this->sekunder / 60);
+		$r = $this->sekunder % 60;
 		
 		if ($q == 0)
 			return $r.' '.$sek;

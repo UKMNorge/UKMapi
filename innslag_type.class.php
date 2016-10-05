@@ -7,14 +7,16 @@ class innslag_type {
 	var $icon = null;
 	var $har_filmer = false; # Kan det finnes noe i UKM-TV?
 	var $har_titler = false;
+	var $tabell = false;
 	
-	public function __construct($id, $key, $name, $icon, $har_filmer, $har_titler) {
+	public function __construct($id, $key, $name, $icon, $har_filmer, $har_titler, $tabell) {
 		$this->setId( $id );
 		$this->setKey( $key );
 		$this->setNavn( $name );
 		$this->setIcon( $icon );
 		$this->setHarFilmer( $har_filmer );
 		$this->setHarTitler( $har_titler );
+		$this->setTabell( $tabell );
 	}
 	
 	public function setId( $id ) {
@@ -49,6 +51,18 @@ class innslag_type {
 		return $this->icon;
 	}
 	
+	public function setTabell($tabell) {
+		$this->tabell = $tabell;
+		return $this;
+	}
+	public function getTabell() {
+		return $this->tabell;
+	}
+	
+	public function harTid() {
+		return $this->getTabell() != false;
+	}
+	
 	public function setHarFilmer( $har_filmer ) {
 		$this->har_filmer = $har_filmer;
 		return $this;
@@ -64,5 +78,9 @@ class innslag_type {
 	}
 	public function harTitler() {
 		return $this->har_titler;
+	}
+	
+	public function __toString() {
+		return $this->getNavn();
 	}
 }

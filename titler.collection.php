@@ -1,4 +1,5 @@
 <?php
+require_once('UKM/tid.class.php');
 	
 class titler {
 	var $id = null;
@@ -7,6 +8,7 @@ class titler {
 	var $titler = null;
 	var $table = null;
 	var $table_field_title = null;
+	var $varighet = 0;
 		
 	public function __construct( $b_id, $type, $monstring ) {
 		$this->setId( $b_id );
@@ -18,8 +20,40 @@ class titler {
 		if( null == $this->titler ) {
 			$this->_load();
 		}
+		return $this->titler;
 	}
 	
+	public function getAntall() {
+		return sizeof( $this->getAll() );
+	}
+	
+	/**
+	 * get
+	 * Finn en tittel med gitt ID
+	 *
+	 * @param integer id
+	 * @return person
+	**/
+	public function get( $id ) {
+		foreach( $this->getAll() as $tittel ) {
+			if( $tittel->getId() == $id ) {
+				return $tittel;
+			}
+		}
+		throw new Exception('PERSONER_V2: Kunne ikke finne tittel '. $id .' i innslag '. $this->_getBID());
+	}
+	
+	public function setVarighet( $seconds ) {
+		$this->varighet = $seconds;
+		return $this;
+	}
+	public function getVarighet() {
+		$sek = 0;
+		foreach( $this->getAll() as $tittel ) {
+			$sek += $tittel->getVarighet()->getSekunder();
+		}
+		return new tid( $sek );
+	}
 	
 	private function _load() {
 		$this->titler = array();
@@ -57,6 +91,7 @@ class titler {
 		}
 		
 		if( $res ) {
+			$varighet = 0;
 			while( $row = mysql_fetch_assoc( $res ) ) {
 				// Hvis innslaget er pre 2014 og på landsmønstring jukser vi
 				// til at den har pl_ids for å få lik funksjonalitet videre
@@ -68,7 +103,9 @@ class titler {
 					}
 				}
 				// Legg til tittel i array
-				$this->titler[] = new tittel_v2( $row );
+				$tittel = new tittel_v2( $row, $this->getType()->getTabell() );
+				$this->titler[] = $tittel;
+				$varighet += $tittel->getVarighet();
 			}
 		}
 		
@@ -104,12 +141,12 @@ class titler {
 	 *
 	 * @return $this;
 	**/
-	public function setType( $type, $kategori=false ) {
-		require_once('UKM/innslag_typer.class.php');
-		$this->type = innslag_typer::getById( $type, $kategori );
+	public function setType( $type ) {#, $kategori=false ) {
+		#require_once('UKM/innslag_typer.class.php');
+		$this->type = $type; innslag_typer::getById( $type, $kategori );
 		
 		// Sett hvilken tabell som skal brukes
-		$this->setTable( $this->getType()->getTable() );
+		$this->setTable( $this->getType()->getTabell() );
 		
 		return $this;
 	}

@@ -11,4 +11,12 @@ class kommuner extends Collection {
 		return $array;
 	}
 	
+	public function getKeyValArray() {
+		$array = array();
+		foreach( $this as $kommune ) {
+			$array[ $kommune->getId() ] = $kommune->getNavn();
+		}
+		return $array;
+	}
+	
 }
