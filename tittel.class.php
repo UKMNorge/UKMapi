@@ -634,6 +634,23 @@ class tittel_v2 {
 	}
 	
 	/**
+	 * Sett om litteratur-innslaget skal leses opp
+	 *
+	 * @param bool
+	*/
+	public function setLitteraturLesOpp( $lesopp ) {
+		if( !is_bool( $lesopp ) ) {
+			throw new Exception('TITTEL_V2: Litteratur leses opp må angis som boolean');
+		}
+		$this->litteratur_read = $lesopp;
+		return $this;
+	}
+	
+	public function getLitteraturLesOpp() {
+		return $this->litteratur_read;
+	}
+	
+	/**
 	 * Populer objekt for utstilling-tittel
 	 *
 	 * @param databaserad

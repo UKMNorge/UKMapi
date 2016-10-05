@@ -18,6 +18,14 @@ abstract class Collection implements Iterator
 	    return false;
     }
     
+    public function getAll() {
+	    return $this->var;
+    }
+    
+    public function getAntall() {
+	    return sizeof( $this->var );
+    }
+    
     public function remove( $id ) {
 		if( false == $this->find( $id ) ) {
 			throw new Exception('Could not find '. $id );
