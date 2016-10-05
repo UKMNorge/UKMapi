@@ -1802,15 +1802,6 @@ class monstring_v2 {
 	public function getNavn() {
 		return $this->navn;
 	}
-	
-	/**
-	 * erRegistrert
-	 *
-	 * @return bool
-	**/
-	public function erRegistrert() {
-		return $this->start > 0;
-	}
 
 	/**
 	 * Sett start-tidspunkt
