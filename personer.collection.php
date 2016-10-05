@@ -107,6 +107,23 @@ class personer {
 		}
 		return false;
 	}
+	
+	/**
+	 * getById
+	 * Finn en person med gitt ID
+	 *
+	 * @param integer id
+	 * @return person
+	**/
+	public function getById( $id ) {
+		foreach( $this->getAll() as $person ) {
+			if( $person->getId() == $id ) {
+				return $person;
+			}
+		}
+		throw new Exception('PERSONER_V2: Kunne ikke finne person '. $id .' i innslag '. $this->_getBID());
+	}
+	
 	/**
 	 * harVideresendtPerson
 	 * Er personen med i innslaget og videresendt til gitt mønstring?

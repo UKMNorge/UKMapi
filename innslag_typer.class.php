@@ -19,7 +19,7 @@ class innslag_typer extends Collection {
 		return self::_load( self::_translate_key_to_id( $key ) );	
 	}
 	
-	static function getAll() {
+	static function getAllTyper() {
 		if( null == self::$all ) {
 			foreach( array(1,2,3,4,5,6,8) as $id ) {
 				self::$all[] = self::getById( $id );

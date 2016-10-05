@@ -1,4 +1,5 @@
 <?php
+require_once('UKM/tid.class.php');
 	
 class titler {
 	var $id = null;
@@ -19,6 +20,27 @@ class titler {
 		if( null == $this->titler ) {
 			$this->_load();
 		}
+		return $this->titler;
+	}
+	
+	public function getAntall() {
+		return sizeof( $this->getAll() );
+	}
+	
+	/**
+	 * get
+	 * Finn en tittel med gitt ID
+	 *
+	 * @param integer id
+	 * @return person
+	**/
+	public function get( $id ) {
+		foreach( $this->getAll() as $tittel ) {
+			if( $tittel->getId() == $id ) {
+				return $tittel;
+			}
+		}
+		throw new Exception('PERSONER_V2: Kunne ikke finne tittel '. $id .' i innslag '. $this->_getBID());
 	}
 	
 	public function setVarighet( $seconds ) {
@@ -26,7 +48,11 @@ class titler {
 		return $this;
 	}
 	public function getVarighet() {
-		return 0;
+		$sek = 0;
+		foreach( $this->getAll() as $tittel ) {
+			$sek += $tittel->getVarighet()->getSekunder();
+		}
+		return new tid( $sek );
 	}
 	
 	private function _load() {
