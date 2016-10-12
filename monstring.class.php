@@ -2112,8 +2112,13 @@ class monstring_v2 {
 					foreach( innslag_typer::getAllScene() as $type ) {
 						$this->innslagTyper->add( $type );
 					}
-				} else {
-					$this->innslagTyper->addById( $r['bt_id'] );
+				} else {					
+					if(9 == $r['bt_id']) {
+						$r['bt_id'] = 8;
+					}
+					if(!$this->innslagTyper->find($r['bt_id'] )) {
+						$this->innslagTyper->addById( $r['bt_id'] );
+					}
 				}
 			}
 		}
