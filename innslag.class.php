@@ -1608,6 +1608,9 @@ class innslag_v2 {
 	var $kontaktperson = null;
 
 	public function __construct( $bid_or_row, $select_also_if_not_completed=false ) {
+		if( null == $bid_or_row || empty( $bid_or_row ) ) {
+			throw new Exception('INNSLAG_V2: Konstruktør krever b_id som numerisk verdi eller array med innslag-data. Gitt '. var_export( $bid_or_row, true ) );
+		}
 		if( is_numeric( $bid_or_row ) ) {
 			$this->_loadByBID( $bid_or_row, $select_also_if_not_completed );
 		} else {

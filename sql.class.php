@@ -155,6 +155,10 @@ if(!class_exists('SQLins')) {
 		var $keys = array();
 		var $vals = array();
 		var $error = false;
+		
+		function hasChanges() {
+			return sizeof( $this->keys ) > 0;
+		}
 
 		function SQLins($table, $where=array(), $db_name = null) {
 			$this->table = $table;
