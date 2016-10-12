@@ -2136,7 +2136,7 @@ class innslag_v2 {
 		}
 		
 		// Innslaget har en varighet over 5 min
-		if( (5*60) < $this->getVarighet( $monstring )->getSekunder() ) {
+		if( $this->getType()->harTitler() && (5*60) < $this->getVarighet( $monstring )->getSekunder() ) {
 			$this->advarsler->add( new advarsel( advarsel::create('titler', 'Innslaget er lengre enn 5 minutter ') ) );
 		}
 	}
