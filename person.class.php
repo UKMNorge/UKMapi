@@ -562,7 +562,7 @@ class person_v2 {
 	var $fornavn = null;
 	var $etternavn = null;
 	var $mobil = null;
-	var $instrument = null;
+	var $rolle = null;
 	var $epost = null;
 	
 	var $videresendtTil = null;
@@ -573,7 +573,7 @@ class person_v2 {
 		} elseif( is_array( $person ) ) {
 			$this->_load_from_array( $person );
 		} else {
-			throw new Exception('PERSON_V2: Object construction requires parameter $person as integer or array');
+			throw new Exception('PERSON_V2: Oppretting krever parameter $person som numerisk id eller array, fikk '. gettype($person) .'.');
 		}
 #		if( 0 == $this->id ) {
 #			throw new Exception('PERSON_V2: Innslag MÅ ha kontaktperson');
@@ -597,10 +597,10 @@ class person_v2 {
 		$this->setFodselsdato( $person['p_dob'] );
 		$this->setKommune( $person['p_kommune'] );
 		if( array_key_exists('instrument', $person ) ) {
-			$this->setInstrument( utf8_encode($person['instrument']) );
+			$this->setRolle( utf8_encode($person['instrument']) );
 		}
 		if( array_key_exists('instrument_object', $person ) ) {
-			$this->setInstrumentObject( json_decode( $person['instrument_object'] ) );
+			$this->setRolleObject( json_decode( $person['instrument_object'] ) );
 		}
 		if( array_key_exists('pl_ids', $person ) ) {
 			$this->setVideresendtTil( explode(',', $person['pl_ids']) );
@@ -751,25 +751,76 @@ class person_v2 {
 		return $this->epost;
 	}
 
+	/**
+	 * Sett rolle (i.e. instrument for scene, film/flerkamera/tekst/foto for UKM Media osv)
+	 *
+	 * @param string $rolle
+	 * @return $this
+	 */
+	public function setRolle( $rolle ) {
+		if( is_array( $rolle ) ) {
+			$rolle_object = array();
+			$rolle_nicename = '';
+
+			foreach ($rolle as $key => $r) {
+				$rolle_object[] = $key;
+				$rolle_nicename = $r . ', ';
+			}
+
+			$person->setRolleObject($rolle_object);
+			$rolle = rtrim($rolle_nicename, ', ');
+		}
+
+		$this->rolle = $rolle;
+		return $this;
+	}
+
+	/**
+	 * Hent rolle (i.e. instrument for scene, film/flerkamera/tekst/foto for UKM Media osv)
+	 *
+	 * @return string $rolle
+	 */
+	public function getRolle() {
+		return $this->rolle;
+	}
+
+	/**
+	 * JSON-encodes på vei inn i databasen, vanlig array ellers.
+	 * @param array
+	 * @return $this
+	 */
+	public function setRolleObject( $rolleArray ) {
+		$this->rolleObject = $rolleArray;
+		return $this;
+	}
+
+	public function getRolleObject() {
+		return $this->rolleObject;
+	}
 	
 	/**
-	 * Sett instrument
+	 * Sett instrument. Alias of setRolle().
 	 *
 	 * @param string $instrument
 	 * @return $this
 	**/
 	public function setInstrument( $instrument ) {
-		$this->instrument = $instrument;
+		$this->setRolle($instrument);
 		return $this;
+
+		/*$this->instrument = $instrument;
+		return $this;*/
 	}
 	/**
-	 * Hent instrument
+	 * Hent instrument. Alias of getRolle().
 	 *
 	 * @return string $instrument
 	**/
 	public function getInstrument() {
-		return $this->instrument;
+		return $this->getRolle();
+		#return $this->instrument;
 	}
+
 	/**
 	 * Sett instrumentObject
 	 * Brukes av nettredaksjon + arrangør for å holde styr på undergrupper
@@ -778,7 +829,8 @@ class person_v2 {
 	 * @return $this
 	**/
 	public function setInstrumentObject( $instrumentArray ) {
-		$this->instrumentObject = $instrumentArray;
+		$this->setRolleObject($instrumentArray);
+		#$this->instrumentObject = $instrumentArray;
 		return $this;
 	}
 	/**
@@ -788,7 +840,8 @@ class person_v2 {
 	 * @return array $instrumentObject
 	**/
 	public function getInstrumentObject() {
-		return $this->instrumentObject;
+		return $this->getRolleObject();
+		#return $this->instrumentObject;
 	}
 
 	/**
