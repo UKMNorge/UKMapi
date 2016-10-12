@@ -15,6 +15,62 @@ class personer {
 	}
 	
 	/**
+	 * 
+	 * Relaterer en person til dette innslaget.
+	 *
+	 * @param write_person $person
+	 *
+	 * @return $this
+	 */
+	public function leggTil($person) {
+		$sql = new SQL("SELECT COUNT(*) 
+						FROM smartukm_rel_b_p 
+						WHERE 'b_id' = '#b_id' 
+							AND 'p_id' = '#p_id'",
+						array(	'b_id' => $this->_getBID(), 
+								'p_id' => $person->getId()) 
+						);
+		$exists = $sql->run('field', 'COUNT(*)');
+
+		if($exists) {
+			return true;
+		}
+
+		$sql = new SQLins("smartukm_rel_b_p");
+		$sql->add('b_id', $this->_getBID());
+		$sql->add('p_id', $person->getId());
+		/*$sql->add('b_p_year', $this->getSesong());
+		$sql->add('season', $this->getSesong());*/
+
+		$res = $sql->run();
+		if(false == $res)
+			return false;
+		return true;
+	}
+	
+	public function fjern($person) {
+		if('write_person' != get_class($person)) {
+			throw new Exception("PERSONER_V2: Kan ikke fjerne en person uten skriverettigheter fra et innslag.");
+		}
+		if(!is_numeric($person->getId()) ) {
+			throw new Exception("PERSONER_V2: Kan ikke slette en person fra et innslag uten en numerisk ID!");
+		}
+
+		if(null == $this->_getBID() || empty($this->_getBID()) ) {
+			throw new Exception("PERSONER_V2: Kan ikke slette med tom b_id.");
+		}
+
+		$sql = new SQLdel("smartukm_rel_b_p", 
+			array( 	'b_id' => $this->_getBID(),
+					'p_id' => $person->getId(),
+					));
+
+		$res = $sql->run();
+		return $res;
+	}
+
+
+	/**
 	 * getAll
 	 * Returner alle personer i innslaget
 	 *
