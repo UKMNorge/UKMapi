@@ -28,22 +28,35 @@ class write_innslag extends innslag_v2 {
 		}
 		$smartukm_band = new SQLins('smartukm_band', array('b_id'=>$this->getId()));
 		$smartukm_tech = new SQLins('smartukm_technical_demand', array('b_id'=>$this->getId()));
-		
+		$smartukm_rel_b_p = null;
+
 		foreach( $this->getChanges() as $change ) {
+			if( 411 == $change['action'] ) {
+				$person = $change['value'];
+				$change['value'] = $person->getRolle();
+				$smartukm_rel_b_p = new SQLins('smartukm_rel_b_p', array('b_id' => $this->getId(), 'p_id' => $person->getId()));
+				$tabell = 'smartukm_rel_b_p';
+				$smartukm_rel_b_p->add('instrument_object', json_encode($person->getRolleObject()) );
+			}
+			
 			$tabell = $change['tabell'];	#smartukm_band
 			$qry 	= $$tabell;				#$smartukm_band = SQLins
-			UKMlogger::log( $change['action'], $this->getId(), $change['value'] );
 			$qry->add( $change['felt'], $change['value'] );
+		
+			UKMlogger::log( $change['action'], $this->getId(), $change['value'] );
 		}
 		if( $smartukm_band->hasChanges() ) {
-			echo $qry->debug();
+			#echo $qry->debug();
 			$smartukm_band->run();
 		}
 		if( $smartukm_tech->hasChanges() ) {
 			$smartukm_tech->run();
 		}
+		if( null != $smartukm_rel_b_p) {
+			$smartukm_rel_b_p->run();
+		}
 	}
-	
+
 	private function _setLoaded() {
 		$this->loaded = true;
 		$this->_resetChanges();
@@ -89,6 +102,23 @@ class write_innslag extends innslag_v2 {
 		parent::setKommune( $kommune_id );
 	}	
 
+	/**
+	 * setRolle på person.
+	 *
+	 * @param write_person
+     * @param rolle string
+     *
+     * @return this
+	 */
+	public function setRolle( $person, $rolle ) {
+		if( 'write_person' != get_class($person) ) {
+			throw new Exception("INNSLAG_V2: setRolle krever skrivbart personobjekt (write_person).");
+		}
+
+		$person->setRolle($rolle);
+		$this->_change('smartukm_rel_b_p', 'instrument', 411, $person);
+		return $this;
+	}
 	
 	private function _resetChanges() {
 		$this->changes = [];
