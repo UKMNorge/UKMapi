@@ -22,6 +22,7 @@ class UKMlogger {
 		$sql->add( 'log_the_object_id', $object_id );
 
 		#$sql->add( 'log_time', $time ); // GJØRES AV MYSQL (DEFAULT: CURRENT_TIMESTAMP)
+		#echo $sql->debug();
 		$res = $sql->run();
 		$id = $sql->insid();
 		
