@@ -103,6 +103,23 @@ class write_innslag extends innslag_v2 {
 	}	
 
 	/**
+	 * setKontaktperson
+	 * @param write_person
+	 * @return $this
+	 */
+	public function setKontaktperson( $person ) {
+		if( 'write_person' != get_class($person) ) {
+			throw new Exception("INNSLAG_V2: Krever skrivbart personobjekt for å endre kontaktperson.");
+		}
+
+		$this->_change('smartukm_band', 'b_contact', 302, $person->getId());
+		parent::setKontaktperson($person);
+		parent::setKontaktpersonId($person->getId());
+
+		return $this;
+	}
+
+	/**
 	 * setRolle på person.
 	 *
 	 * @param write_person
