@@ -283,17 +283,27 @@ class tittel_v2 {
 	var $kommentar = null;
 	
 
-	public function __construct( $id, $table ) {
+	public function __construct( $id_or_row, $table ) {
+		if(null == $table) {
+			throw new Exception('TITTEL_V2: Kan ikke initiere uten tabell.');
+		}
+
 		$this->setTable( $table );
-		if( is_numeric( $id ) ) {
-			$this->_load_from_id( $id );
+		if( is_numeric( $id_or_row ) ) {
+			$this->_load_from_id( $id_or_row );
 		} else {
-			$this->_load_from_dbrow( $id );
+			$this->_load_from_dbrow( $id_or_row );
 		}
 	}
 	
 	private function _load_from_id( $id ) {
-		throw new Exception('TITTEL_V2: Load from DB not supported yet');
+		if(!in_array($this->getTable(), array('smartukm_titles_scene'))) {
+			throw new Exception('TITTEL_V2: Load from DB not supported yet for this type: '.$this->getTable());
+		}
+
+		$qry = new SQL("SELECT * FROM ".$this->getTable()." WHERE `t_id` = '#id'", array('id' => $id));
+		
+		$row = $qry->run('array');
 		$this->_load_from_dbrow( $row );
 	}
 	
