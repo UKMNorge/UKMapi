@@ -19,7 +19,7 @@ class write_person extends person_v2 {
 	 * @return integer unix timestamp.
 	 */
 	public static function fodselsdatoFraAlder($alder) {
-		return mktime(0,0,0,0,1,1, (int)date("Y") - (int)$alder);
+		return mktime(0,0,0,1,1, (int)date("Y") - (int)$alder);
 	}
 
 	/**
