@@ -223,7 +223,7 @@ class personer {
 			echo $SQL->debug();
 		}
 		if($res === false) {
-			throw new Exception("PERSONER_V2: Klarte ikke hente personer og roller - er databasen oppdatert?");
+			throw new Exception("PERSONER_V2: Klarte ikke hente personer og roller - kan databaseskjema være utdatert?");
 		}
 		while( $r = mysql_fetch_assoc( $res ) ) {
 			$person = new person_v2( $r );
