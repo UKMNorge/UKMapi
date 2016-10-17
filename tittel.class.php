@@ -287,6 +287,9 @@ class tittel_v2 {
 		if(null == $table) {
 			throw new Exception('TITTEL_V2: Kan ikke initiere uten tabell.');
 		}
+		if ( null == $id_or_row ) {
+			throw new Exception('TITTEL_V2: Kan ikke laste tittel uten id eller data.');
+		}
 
 		$this->setTable( $table );
 		if( is_numeric( $id_or_row ) ) {

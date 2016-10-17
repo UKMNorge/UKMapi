@@ -112,7 +112,50 @@ class titler {
 		return $this->titler;
 	}
 	
-	
+	/**
+	 * Fjerner tittelen helt fra en lokalmønstring.
+	 * TODO: Fjerner tittelen fra videresending hvis dette er fylkes eller landsmønstring.
+	 *
+	 * @param int $id 
+	 * @return $this
+	 */
+	public function fjern($tittel) {
+		if( 'write_tittel' != get_class($tittel) ) {
+			throw new Exception("TITLER: Fjerning av tittel krever skriverettigheter til tittelen!");
+		}
+
+		if( !is_numeric($tittel->getId()) ) {
+			throw new Exception("TITLER: Fjerning av en tittel krever at tittelen har en numerisk ID!");
+		}
+
+		switch( $this->getMonstring()->getType() ) {
+			case 'kommune':
+				$this->_fjernLokalTittel($tittel);
+				break;
+			default:
+				throw new Exception("TITLER: Fjerning av tittel er ikke implementert for denne mønstringstypen: ". $this->getMonstring()->getType() );
+		}
+
+		return $this;
+	}
+
+	private function _fjernLokalTittel($tittel) {
+		switch($tittel->getTable()) {
+			case 'smartukm_titles_scene':
+				$qry = new SQLdel( "smartukm_titles_scene", array('t_id' => $tittel->getId()) );
+				break;
+			default:
+				throw new Exception("TITLER: Fjerning av en tittel er kun implementert for scene-innslag");
+		}
+		
+		$res = $qry->run();
+		if($res == 1)
+			return true;
+		else 
+			throw new Exception("TITLER: Klarte ikke fjerne tittel " . $tittel->getTittel());
+			
+	}
+
 	/**
 	 * Sett ID
 	 *
@@ -143,7 +186,8 @@ class titler {
 	**/
 	public function setType( $type ) {#, $kategori=false ) {
 		#require_once('UKM/innslag_typer.class.php');
-		$this->type = $type; innslag_typer::getById( $type, $kategori );
+		$this->type = $type; 
+		#$this->type = innslag_typer::getById( $type );
 		
 		// Sett hvilken tabell som skal brukes
 		$this->setTable( $this->getType()->getTabell() );
@@ -209,6 +253,7 @@ class titler {
 
 		return $this;
 	}
+
 	/**
 	 * Hent tabellnavn
 	 *

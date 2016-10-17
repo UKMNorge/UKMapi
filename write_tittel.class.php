@@ -17,7 +17,6 @@ class write_tittel extends tittel_v2 {
 	var $loaded = false;
 
 	public function __construct( $b_id_or_row, $table) {
-		## TODO: SJEKK AT VI HAR BEGGE ARGUMENTER
 		parent::__construct( $b_id_or_row, $table );
 		$this->_setLoaded();
 	}
