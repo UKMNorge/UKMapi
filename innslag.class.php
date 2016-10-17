@@ -1,6 +1,7 @@
 <?php
 require_once('UKM/sql.class.php');
 require_once('UKM/person.class.php');
+require_once('UKM/write_person.class.php');
 require_once('UKM/personer.collection.php');
 require_once('UKM/inc/ukmlog.inc.php');
 require_once('UKM/monstring.class.php');
@@ -2045,7 +2046,12 @@ class innslag_v2 {
 	**/
 	public function getKontaktperson() {
 		if( null == $this->kontaktperson ) {
-			$person = new person_v2( $this->getKontaktpersonId() );
+			if( 'write_innslag' == get_class($this) ) {
+				$person = new write_person( $this->getKontaktpersonId() );
+			}
+			else {
+				$person = new person_v2( $this->getKontaktpersonId() );
+			}
 			$this->setKontaktperson( $person );
 		}
 		return $this->kontaktperson;
