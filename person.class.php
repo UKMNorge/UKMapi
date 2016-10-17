@@ -754,7 +754,7 @@ class person_v2 {
 	/**
 	 * Sett rolle (i.e. instrument for scene, film/flerkamera/tekst/foto for UKM Media osv)
 	 *
-	 * @param string $rolle
+	 * @param string|array $rolle
 	 * @return $this
 	 */
 	public function setRolle( $rolle ) {
@@ -764,10 +764,10 @@ class person_v2 {
 
 			foreach ($rolle as $key => $r) {
 				$rolle_object[] = $key;
-				$rolle_nicename = $r . ', ';
+				$rolle_nicename = $rolle_nicename . $r . ', ';
 			}
-
-			$person->setRolleObject($rolle_object);
+			
+			$this->setRolleObject($rolle_object);
 			$rolle = rtrim($rolle_nicename, ', ');
 		}
 
