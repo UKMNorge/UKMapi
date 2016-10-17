@@ -222,6 +222,9 @@ class personer {
 		if( isset( $_GET['debug'] ) )  {
 			echo $SQL->debug();
 		}
+		if($res === false) {
+			throw new Exception("PERSONER_V2: Klarte ikke hente personer og roller - er databasen oppdatert?");
+		}
 		while( $r = mysql_fetch_assoc( $res ) ) {
 			$person = new person_v2( $r );
 			$this->personer[ $person->getId() ] = $person;
