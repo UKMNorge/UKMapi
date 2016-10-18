@@ -1657,7 +1657,7 @@ class innslag_v2 {
 		$this->setBeskrivelse( stripslashes( utf8_encode($row['b_description']) ) );
 		$this->setKommune( $row['b_kommune'] );
 		$this->setKategori( utf8_decode( $row['b_kategori'] ) );
-		$this->setSjanger( (string) $row['b_sjanger'] );
+		$this->setSjanger( (string) utf8_encode($row['b_sjanger'] ));
 		$this->setKontaktpersonId( $row['b_contact'] );
 		$this->_setSubscriptionTime( $row['b_subscr_time'] );
 		$this->setStatus( $row['b_status'] );
