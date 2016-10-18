@@ -125,8 +125,18 @@ class write_tittel extends tittel_v2 {
 			return false;
 		}
 
-		$this->_change($this->tabell, 't_musicby', 506, $melodi_av);
+		$this->_change($this->tabell, 't_musicby', 507, $melodi_av);
 		parent::setMelodiAv( $selvlaget );
+		return true;
+	}
+
+	public function setKoreografiAv( $koreografi_av ) {
+		if( $this->_loaded() && $this->getKoreografiAv() == $koreografi_av ) {
+			return false;
+		}
+
+		$this->_change($this->tabell, 't_coreography', 508, $koreografi_av);
+		parent::setKoreografiAv( $koreografi_av );
 		return true;
 	}
 
