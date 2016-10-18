@@ -303,6 +303,55 @@ class innslag_collection {
 				throw new Exception('innslag: Har ikke støtte for '. $type .'-collection (#2)');
 		}
 	}
+
+
+	/**
+	 * meldAv - Melder av et innslag fra mønstringen.
+	 * @param write_innslag $innslag
+	 * @return bool
+	 */
+	public function meldAv($innslag) {
+		### Gjør litt validering, da.
+		if( 'write_innslag' != get_class($innslag) ) {
+			throw new Exception("INNSLAG_COLLECTION: Krever skrivbart innslagsobjekt for å kunne melde av fra mønstringen.");
+		}
+		if( 'monstring' != $this->getContainerType() ) {
+			throw new Exception("INNSLAG_COLLECTION: Kan ikke fjerne et innslag uten mønstring.");
+		}
+		if( !is_numeric( $innslag->getId() ) ) {
+			throw new Exception("INNSLAG_COLLECTION: Avmelding av innslag krever et innslag med numerisk ID.");
+		}
+		
+		if( !UKMlogger::ready() ) {
+			throw new Exception("INNSLAG_COLLECTION: Kan ikke melde av innslaget når loggeren ikke er klar.");
+		}
+
+		$monstring = new monstring_v2( $this->getContainerObjectId() );
+		if( $monstring->getType() !== 'kommune' ) {
+			throw new Exception("INNSLAG_COLLECTION: Avmelding av innslag er kun implementert for lokalmønstringer!");
+		}
+		if( !is_numeric( $monstring->getId() ) ) {
+			throw new Exception("INNSLAG_COLLECTION: Avmelding av innslag krever en mønstring med numerisk ID.");	
+		}
+		
+
+		$qry = new SQLdel("smartukm_rel_pl_b", array("b_id" => $innslag->getId(), 'pl_id' => $monstring->getId(), 'season' => $this->getMonstringSesong()) );
+		// TODO: Sjekk at den faktisk logger!
+		/**
+		INSERT INTO `log_actions` 
+			(`log_action_id`, `log_action_verb`, `log_action_element`, `log_action_datatype`, `log_action_identifier`, `log_action_printobject`)
+		VALUES
+			(601, 'meldte av', 'innslaget', 'int', 'smartukm_rel_pl_b|delete', 0);
+
+		*/
+		UKMlogger::log( 601, $innslag->getId(), $innslag->getId() );
+		$res = $qry->run();
+		if(1 == $res) {
+			return true;
+		}
+		throw new Exception("INNSLAG_COLLECTION: Klarte ikke å melde av innslaget.");
+	}
+
 	/**
 	 * legg til innslag
 	 *
