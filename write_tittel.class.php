@@ -22,7 +22,11 @@ class write_tittel extends tittel_v2 {
 	}
 
 	/**
- 	 *
+ 	 * Oppretter en ny tittel.
+ 	 * @param string $table - Tabellnavnet vi skal bruke.
+ 	 * @param int $b_id - Innslags-id som tittelen skal tilhøre.
+	 *
+ 	 * @return false or integer (insert-ID).
  	 */
 	public static function create( $table, $b_id ) {
 		if( !UKMlogger::ready() ) {
@@ -33,10 +37,13 @@ class write_tittel extends tittel_v2 {
 			case 'smartukm_titles_scene':
 				$qry = new SQLins('smartukm_titles_scene');
 				$action = 501;
-			break;
-
+				break;
+			case 'smartukm_titles_video':
+				$qry = new SQLins('smartukm_titles_video');
+				$action = 510; 
+				break;
 			default:
-				throw new Exception('WRITE_TITTEL: Kan kun opprette en ny tittel for scene. '.$table.' er ikke støttet enda.');
+				throw new Exception('WRITE_TITTEL: Kan kun opprette en ny tittel for scene eller video. '.$table.' er ikke støttet enda.');
 		}
 
 		$qry->add('b_id', $b_id);
@@ -73,9 +80,16 @@ class write_tittel extends tittel_v2 {
 	public function setTittel( $tittel ) {
 		if( $this->_loaded() && $this->getTittel() == $tittel ) {
 			return false;
+		}	
+
+		if( 'smartukm_titles_scene' == $this->getTable() ) {
+			$this->_change($this->tabell, 't_name', 502, $tittel);	
+		} 
+		elseif( 'smartukm_titles_video' == $this->getTable() ) {
+			$this->_change($this->tabell, 't_v_title', 511, $tittel);	
+		} 
 		}
 
-		$this->_change($this->tabell, 't_name', 502, $tittel);
 		parent::setTittel($tittel);
 		return true;
 	}
@@ -85,8 +99,24 @@ class write_tittel extends tittel_v2 {
 			return false;
 		}
 
-		$this->_change($this->tabell, 't_time', 503, $varighet);
+		if( $this->getTable() == 'smartukm_titles_video' ) {
+			$this->_change($this->tabell, 't_v_time', 512, $varighet);
+		}
+		elseif( $this->getTable() == 'smartukm_titles_scene' ) {
+			$this->_change($this->tabell, 't_time', 503, $varighet);
+		}
+
 		parent::setVarighet( $varighet );
+		return true;
+	}
+
+	public function setFormat( $format ) {
+		if( $this->_loaded() && $this->getFormat() == $format ) {
+			return false;
+		}
+
+		$this->_change($this->tabell, 't_v_format', 513, $format);
+		parent::setFormat( $format );
 		return true;
 	}
 
