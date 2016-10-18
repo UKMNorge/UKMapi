@@ -1667,7 +1667,7 @@ class monstring_v2 {
 		} elseif( is_array( $id_or_row ) ) {
 			$this->_load_by_row( $id_or_row );
 		} else {
-			throw new Exception('MONSTRING: Oppretting av objekt krever numerisk id eller databaserad');
+			throw new Exception('MONSTRING_V2: Oppretting av objekt krever numerisk id eller databaserad');
 		}
 		
 		$this->attributes = array();	
@@ -1684,7 +1684,7 @@ class monstring_v2 {
 	
 	private function _load_by_row( $row ) {
 		if( !is_array( $row ) ) {
-			throw new Exception('MONSTRING: _load_by_row krever dataarray!');
+			throw new Exception('MONSTRING_V2: _load_by_row krever dataarray!');
 		}
 		// Beregn type
 		if( 0 == $row['pl_fylke'] ) {
