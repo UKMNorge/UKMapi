@@ -300,7 +300,7 @@ class tittel_v2 {
 	}
 	
 	private function _load_from_id( $id ) {
-		if(!in_array($this->getTable(), array('smartukm_titles_scene', 'smartukm_titles_video'))) {
+		if(!in_array($this->getTable(), array('smartukm_titles_scene', 'smartukm_titles_video', 'smartukm_titles_exhibition'))) {
 			throw new Exception('TITTEL_V2: Load from DB not supported yet for this type: '.$this->getTable());
 		}
 

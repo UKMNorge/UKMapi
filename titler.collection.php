@@ -147,8 +147,11 @@ class titler {
 			case 'smartukm_titles_video':
 				$qry = new SQLdel( "smartukm_titles_video", array('t_id' => $tittel->getId()) );
 				break;
+			case 'smartukm_titles_exhibition':
+				$qry = new SQLdel( "smartukm_titles_exhibition", array( 't_id' => $tittel->getId()) );
+				break;
 			default:
-				throw new Exception("TITLER: Fjerning av en tittel er kun implementert for scene- eller video-innslag");
+				throw new Exception("TITLER: Fjerning av en tittel er kun implementert for scene-, video-, eller utstillings-innslag");
 		}
 		
 		$res = $qry->run();

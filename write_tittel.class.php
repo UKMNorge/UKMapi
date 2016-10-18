@@ -42,6 +42,10 @@ class write_tittel extends tittel_v2 {
 				$qry = new SQLins('smartukm_titles_video');
 				$action = 510; 
 				break;
+			case 'smartukm_titles_exhibition':
+				$qry = new SQLins('smartukm_titles_exhibition');
+				$action = 514;
+				break;
 			default:
 				throw new Exception('WRITE_TITTEL: Kan kun opprette en ny tittel for scene eller video. '.$table.' er ikke støttet enda.');
 		}
@@ -88,6 +92,8 @@ class write_tittel extends tittel_v2 {
 		elseif( 'smartukm_titles_video' == $this->getTable() ) {
 			$this->_change($this->tabell, 't_v_title', 511, $tittel);	
 		} 
+		elseif( 'smartukm_titles_exhibition' == $this->getTable() ) {
+			$this->_change($this->tabell, 't_e_title', 515, $tittel);
 		}
 
 		parent::setTittel($tittel);
@@ -117,6 +123,26 @@ class write_tittel extends tittel_v2 {
 
 		$this->_change($this->tabell, 't_v_format', 513, $format);
 		parent::setFormat( $format );
+		return true;
+	}
+
+	public function setType( $type ) {
+		if( $this->_loaded() && $this->getType() == $type ) {
+			return false;
+		}
+
+		$this->_change($this->tabell, 't_e_type', 516, $type);
+		parent::setType( $type );
+		return true;
+	}
+
+	public function setBeskrivelse( $beskrivelse ) {
+		if( $this->_loaded() && $this->getBeskrivelse() == $beskrivelse ) {
+			return false;
+		}
+
+		$this->_change($this->tabell, 't_e_comments', 517, $beskrivelse);
+		parent::setBeskrivelse( $beskrivelse );
 		return true;
 	}
 
