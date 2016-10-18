@@ -140,6 +140,16 @@ class write_tittel extends tittel_v2 {
 		return true;
 	}
 
+	public function setLitteraturLesOpp( $lese_opp ) {
+		if( $this->_loaded() && $this->getLitteraturLesOpp() == $lese_opp ) {
+			return false;
+		}
+
+		$this->_change($this->tabell, 't_litterature_read', 509, $lese_opp);
+		parent::setLitteraturLesOpp( $lese_opp );
+		return true;	
+	}
+
 	#### INTERNAL FUNCTIONS
 	public function getChanges() {
 		return $this->changes;
