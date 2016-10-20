@@ -52,12 +52,15 @@ class write_tittel extends tittel_v2 {
 
 		$qry->add('b_id', $b_id);
 		$res = $qry->run();
-		if( $res ) {
+		if( 1 == $res ) {
+			// ->insid() kan kun kjøres èn gang per insert, så denne må mellomlagres.
+			$id = $qry->insid();
 			// Logg oppretting av ny tittel for band $b_id med id insid();
-			UKMlogger::log( $action, $b_id, $qry->insid() );
-			return $qry->insid();
+			UKMlogger::log( $action, $b_id, $id );
+			return $id;
 		}
 		else {
+			throw new Exception("WRITE_TITTEL: Klarte ikke å opprette ny tittel.");
 			return false;
 		}
 	}
