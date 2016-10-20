@@ -47,7 +47,7 @@ class write_tittel extends tittel_v2 {
 				$action = 514;
 				break;
 			default:
-				throw new Exception('WRITE_TITTEL: Kan kun opprette en ny tittel for scene eller video. '.$table.' er ikke støttet enda.');
+				throw new Exception('WRITE_TITTEL: Kan kun opprette en ny tittel for scene, video eller utstilling. '.$table.' er ikke støttet enda.');
 		}
 
 		$qry->add('b_id', $b_id);
