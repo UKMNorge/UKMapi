@@ -1618,7 +1618,15 @@ class innslag_v2 {
 			$this->_loadByRow( $bid_or_row );
 		}
 	}
-	
+
+	public static function getLoadQuery() {
+		return "SELECT `smartukm_band`.*, 
+					   `td`.`td_demand`,
+					   `td`.`td_konferansier`
+				FROM `smartukm_band`
+				LEFT JOIN `smartukm_technical` AS `td` ON (`td`.`b_id` = `smartukm_band`.`b_id`)";
+	}
+
 	/**
 	 * Last inn objekt fra innslagsID
 	 *
@@ -1628,11 +1636,7 @@ class innslag_v2 {
 	**/
 	private function _loadByBID( $b_id, $select_also_if_not_completed ) {
 
-		$SQL = new SQL("SELECT `smartukm_band`.*, 
-							   `td`.`td_demand`,
-							   `td`.`td_konferansier`
-						FROM `smartukm_band`
-						LEFT JOIN `smartukm_technical` AS `td` ON (`td`.`b_id` = `smartukm_band`.`b_id`)
+		$SQL = new SQL(self::getLoadQuery()."
 						WHERE `smartukm_band`.`b_id` = '#bid' 
 						#select_also_if_not_completed",
 					array('bid' => $b_id, 
@@ -1652,6 +1656,9 @@ class innslag_v2 {
 	**/
 	private function _loadByRow( $row ) {
 		$this->setId( $row['b_id'] );
+		if( null == $this->getId() ) {
+			throw new Exception("INNSLAG_V2: Klarte ikke å laste inn innslagsdata");
+		}
 		$this->setNavn( utf8_encode( $row['b_name'] ) );
 		$this->setType( $row['bt_id'], $row['b_kategori'] );
 		$this->setBeskrivelse( stripslashes( utf8_encode($row['b_description']) ) );
@@ -2083,19 +2090,19 @@ class innslag_v2 {
 		// Pre UKMdelta var korrekt påloggingstidspunkt for tittelløse innslag
 		// lagret i loggen. Sjekker kun denne loggtabellen hvis innslaget ikke har 
 		// b_subscr_time
-
-		if( !empty( $this->subscriptionTime ) ) {
-			$datetime = new DateTime();
-			$datetime->setTimestamp( $this->subscriptionTime );
-			return $datetime;
+		if( empty( $this->subscriptionTime ) ) {
+			$qry = new SQL("SELECT `log_time` FROM `ukmno_smartukm_log`
+							WHERE `log_b_id` = '#bid'
+							AND `log_code` = '22'
+							ORDER BY `log_id` DESC",
+							array( 'bid' => $this->getId() ) );
+			$this->subscriptionTime = $qry->run('field','log_time');
 		}
+		
+		$datetime = new DateTime();
+		$datetime->setTimestamp( $this->subscriptionTime );
+		return $datetime;
 
-		$qry = new SQL("SELECT `log_time` FROM `ukmno_smartukm_log`
-						WHERE `log_b_id` = '#bid'
-						AND `log_code` = '22'
-						ORDER BY `log_id` DESC",
-						array('bid'=>$this->info['b_id']));
-		return $qry->run('field','log_time');
 	}
 	 
 	/**

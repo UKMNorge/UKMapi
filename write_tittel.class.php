@@ -28,36 +28,35 @@ class write_tittel extends tittel_v2 {
 	 *
  	 * @return false or integer (insert-ID).
  	 */
-	public static function create( $table, $b_id ) {
+	public static function create( $innslag ) {		
 		if( !UKMlogger::ready() ) {
 			throw new Exception('Logger is missing or incorrectly set up');
 		}
+		if( 'write_innslag' != get_class($innslag) ) {
+			throw new Exception('WRITE_TITTEL: Krever skrivbart innslag.');	
+		}
 
-		switch( $table ) {
+		$qry = new SQLins( $innslag->getType()->getTabell() );
+		switch( $innslag->getType()->getTabell() ) {
 			case 'smartukm_titles_scene':
-				$qry = new SQLins('smartukm_titles_scene');
 				$action = 501;
 				break;
 			case 'smartukm_titles_video':
-				$qry = new SQLins('smartukm_titles_video');
 				$action = 510; 
 				break;
 			case 'smartukm_titles_exhibition':
-				$qry = new SQLins('smartukm_titles_exhibition');
 				$action = 514;
 				break;
 			default:
 				throw new Exception('WRITE_TITTEL: Kan kun opprette en ny tittel for scene, video eller utstilling. '.$table.' er ikke støttet enda.');
 		}
 
-		$qry->add('b_id', $b_id);
+		$qry->add( 'b_id', $innslag->getId() );
 		$res = $qry->run();
 		if( 1 == $res ) {
-			// ->insid() kan kun kjøres èn gang per insert, så denne må mellomlagres.
-			$id = $qry->insid();
 			// Logg oppretting av ny tittel for band $b_id med id insid();
-			UKMlogger::log( $action, $b_id, $id );
-			return $id;
+			UKMlogger::log( $action, $innslag->getId(), $qry->insid() );
+			return $qry->insid();
 		}
 		else {
 			throw new Exception("WRITE_TITTEL: Klarte ikke å opprette ny tittel.");
