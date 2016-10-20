@@ -31,6 +31,53 @@ class forestilling_v2 extends forestilling {
 	}
 	
 	/**
+	 * Legger til et innslag i denne forestillingen
+	 * Burde muligens være i write_forestilling?
+	 * Og burde man ikke legge til en tittel, ikke et innslag??
+	 *
+	 * @param write_innslag $innslag
+	 * @return $this
+	 */
+	public function leggTilInnslag($innslag) {
+		if( 'write_innslag' != get_class($innslag) ) {
+			throw new Exception("FORESTILLING_v2: Krever skrivbart innslag for å legge til i forestilling.");
+		}
+
+		parent::leggtil( $innslag->getId() );
+
+		/*$qry = new SQLins("smartukm_rel_b_c");
+		$qry->add( "c_id", $this->getId() );
+		$qry->add( "b_id", $innslag->getId() );
+
+		throw new Exception( "FORESTILLING_v2: Debug: ".$qry->debug() );*/
+
+		return $this;
+	}
+
+	/**
+	 * Fjerner et innslag fra denne forestillingen
+	 * Burde muligens være i write_forestilling?
+	 *
+	 * @param write_innslag $innslag
+	 * @return $this
+	 */
+	public function fjernInnslag($innslag) {
+		if( 'write_innslag' != get_class($innslag) ) {
+			throw new Exception("FORESTILLING_v2: Krever skrivbart innslag for å fjerne fra forestilling.");
+		}
+
+		parent::fjern( $innslag->getId() );
+
+		/*$qry = new SQLins("smartukm_rel_b_c");
+		$qry->add( "c_id", $this->getId() );
+		$qry->add( "b_id", $innslag->getId() );
+
+		throw new Exception( "FORESTILLING_v2: Debug: ".$qry->debug() );*/
+
+		return $this;
+	}
+
+	/**
 	 * Sett ID
 	 *
 	 * @param integer id 
