@@ -42,6 +42,11 @@ class forestilling_v2 extends forestilling {
 		if( 'write_innslag' != get_class($innslag) ) {
 			throw new Exception("FORESTILLING_v2: Krever skrivbart innslag for å legge til i forestilling.");
 		}
+		if( !UKMlogger::ready() ) {
+			throw new Exception("FORESTILLING_v2: Loggeren er ikke klar enda.");
+		}
+
+		UKMlogger::log( 518, $this->getId(), $innslag->getId() );
 
 		parent::leggtil( $innslag->getId() );
 
@@ -65,6 +70,11 @@ class forestilling_v2 extends forestilling {
 		if( 'write_innslag' != get_class($innslag) ) {
 			throw new Exception("FORESTILLING_v2: Krever skrivbart innslag for å fjerne fra forestilling.");
 		}
+		if( !UKMlogger::ready() ) {
+			throw new Exception("FORESTILLING_v2: Loggeren er ikke klar enda.");
+		}
+
+		UKMlogger::log( 519, $this->getId(), $innslag->getId() );
 
 		parent::fjern( $innslag->getId() );
 
