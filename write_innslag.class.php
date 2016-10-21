@@ -22,6 +22,27 @@ class write_innslag extends innslag_v2 {
 		$this->_setLoaded();
 	}
 
+	public static function create( $k_id, $pl_id, $type, $navn, $contact ) {
+		if( !UKMlogger::ready() ) {
+			throw new Exception('Logger is missing or incorrect set up.');
+		}
+		if( !is_numeric($k_id) || !is_numeric($pl_id) ) {
+			throw new Exception("WRITE_INNSLAG: Krever numerisk kommune- og mønstrings-id.");
+		}
+		if( !in_array($type, array())) {
+			throw new Exception("WRITE_INNSLAG: Kan kun opprette nye musikkinnslag, ikke type ".$type);
+		}
+		if( 'write_person' != get_class($contact) ) {
+			throw new Exception("WRITE_INNSLAG: Krever skrivbar person, ikke ".$type);	
+		}
+		if( empty($navn) ) {
+			throw new Exception("WRITE_INNSLAG: Må ha innslagsnavn.");
+		}
+
+		throw new Exception("WRITE_INNSLAG: Ikke implementert.");
+	}	
+
+
 	public function save() {
 		if( !UKMlogger::ready() ) {
 			throw new Exception('Logger is missing or incorrect set up.');
