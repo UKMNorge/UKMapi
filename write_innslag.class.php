@@ -22,24 +22,74 @@ class write_innslag extends innslag_v2 {
 		$this->_setLoaded();
 	}
 
-	public static function create( $k_id, $pl_id, $type, $navn, $contact ) {
+	public static function create( $kommune, $monstring, $type, $navn, $contact ) {
 		if( !UKMlogger::ready() ) {
 			throw new Exception('Logger is missing or incorrect set up.');
 		}
-		if( !is_numeric($k_id) || !is_numeric($pl_id) ) {
-			throw new Exception("WRITE_INNSLAG: Krever numerisk kommune- og mønstrings-id.");
+		if( 'monstring_v2' != get_class($monstring) ) {
+			throw new Exception("WRITE_INNSLAG: Krever mønstrings-objekt, ikke ".get_class($monstring)."." );
 		}
-		if( !in_array($type, array())) {
-			throw new Exception("WRITE_INNSLAG: Kan kun opprette nye musikkinnslag, ikke type ".$type);
+		if( 'kommune' != get_class($kommune) ) {
+			throw new Exception("WRITE_INNSLAG: Krever kommune-objekt, ikke ".get_class($kommune)."." );
+		}
+		if( 'innslag_type' != get_class($type) ) {
+			throw new Exception("WRITE_INNSLAG: Krever at $type er av klassen innslag_type.");
 		}
 		if( 'write_person' != get_class($contact) ) {
-			throw new Exception("WRITE_INNSLAG: Krever skrivbar person, ikke ".$type);	
+			throw new Exception("WRITE_INNSLAG: Krever skrivbar person, ikke ".get_class($contact));	
 		}
 		if( empty($navn) ) {
 			throw new Exception("WRITE_INNSLAG: Må ha innslagsnavn.");
 		}
 
-		throw new Exception("WRITE_INNSLAG: Ikke implementert.");
+		if( !in_array($type->getKey(), array('scene', 'musikk') ) ) {
+			throw new Exception("WRITE_INNSLAG: Kan kun opprette innslag for musikk, ikke ".$type->getKey().".");	
+		}
+
+		## CREATE INNSLAG-SQL
+		$band = new SQLins('smartukm_band');
+		$band->add('b_season', $monstring->getSesong() );
+		$band->add('b_status', 8); ## Hvorfor får innslaget b_status 8???
+		$band->add('b_name', $navn);
+		$band->add('b_kommune', $kommune->getId());
+		$band->add('b_year', date('Y'));
+		$band->add('b_subscr_time', time());
+		$band->add('bt_id', $type->getId() );
+		$band->add('b_contact', $contact->getId() );
+
+		if( 1 == $type->getId() ) {
+			$band->add('b_kategori', $type->getKey() );
+		}
+
+		$bandres = $band->run();
+		if( 1 != $bandres ) {
+			throw new Exception("WRITE_INNSLAG: Klarte ikke å opprette et nytt innslag.");
+		}
+
+		$tech = new SQLins('smartukm_technical');
+		$tech->add('b_id', $band->insid() );
+		$tech->add('pl_id', $monstring->getId() );
+		
+		$techres = $tech->run();
+		if( 1 != $techres ) {
+			throw new Exception("WRITE_INNSLAG: Klarte ikke å opprette tekniske behov-rad i tabellen.");
+		}		
+
+		$rel = new SQLins('smartukm_rel_pl_b');
+		$rel->add('pl_id', $monstring->getId() );
+		$rel->add('b_id', $band->insid() );
+		$rel->add('season', $monstring->getSesong() );
+		
+		$relres = $rel->run();
+		if( 1 != $relres ) {
+			throw new Exception("WRITE_INNSLAG: Klarte ikke å melde på det nye innslaget til mønstringen.");
+		}
+
+		// TODO: Oppdater statistikk
+		#$innslag = new innslag( $b_id, false );
+		#$innslag->statistikk_oppdater();
+		
+		return $band->insid();
 	}	
 
 
