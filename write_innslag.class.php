@@ -42,14 +42,14 @@ class write_innslag extends innslag_v2 {
 			throw new Exception("WRITE_INNSLAG: Må ha innslagsnavn.");
 		}
 
-		if( !in_array($type->getKey(), array('scene', 'musikk') ) ) {
-			throw new Exception("WRITE_INNSLAG: Kan kun opprette innslag for musikk, ikke ".$type->getKey().".");	
+		if( !in_array($type->getKey(), array('scene', 'musikk', 'dans', 'teater', 'litteratur', 'film', 'video', 'utstilling', 'konferansier', 'nettredaksjon', 'arrangor') ) ) {
+			throw new Exception("WRITE_INNSLAG: Kan kun opprette innslag for sceneinnslag, ikke ".$type->getKey().".");	
 		}
 
 		## CREATE INNSLAG-SQL
 		$band = new SQLins('smartukm_band');
 		$band->add('b_season', $monstring->getSesong() );
-		$band->add('b_status', 8); ## Hvorfor får innslaget b_status 8???
+		$band->add('b_status', 8); ## Hvorfor får innslaget b_status 8 her???
 		$band->add('b_name', $navn);
 		$band->add('b_kommune', $kommune->getId());
 		$band->add('b_year', date('Y'));
