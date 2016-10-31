@@ -88,8 +88,7 @@ class write_innslag extends innslag_v2 {
 		// TODO: Oppdater statistikk
 		#$innslag = new innslag( $b_id, false );
 		#$innslag->statistikk_oppdater();
-		
-		return $band->insid();
+		return new write_innslag( (int)$band->insid() ); // Tror ikke cast er nødvendig, men det er gjort sånn i write_person.
 	}	
 
 
