@@ -55,6 +55,7 @@ class write_person extends person_v2 {
 			$sql->add('p_lastname', $etternavn);
 			$sql->add('p_phone', $mobil);
 			$sql->add('p_kommune', $kommune->getId());
+			$sql->add('p_dob', $fodselsdato);
 			#echo $sql->debug();
 			$res = $sql->run(); 
 
