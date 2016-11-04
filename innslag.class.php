@@ -2158,6 +2158,7 @@ class innslag_v2 {
 		return $this->getTitler( $monstring )->getVarighet();
 	}
 	
+	// TODO: Load valideringsadvarsler fra b_status_text
 	public function getAdvarsler( $monstring ) {
 		if( null == $this->advarsler ) {
 			$this->_calcAdvarsler( $monstring );
