@@ -89,7 +89,7 @@ class innslag_typer extends Collection {
 					default:
 						$data = array('id' => 1,
 									  'key' => 'scene',
-									  'name' => ($kategori == false ? 'Scene' : 'Annet'),
+									  'name' => ($kategori == false ? 'Scene' : 'Annet på scene'),
 									  'icon' => 'http://ico.ukm.no/delta/delta-annet-64.png',
 									  'har_filmer' => true,
 									  'har_titler' => true,
