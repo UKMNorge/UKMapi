@@ -124,6 +124,7 @@ class monstringer{
 		$res = $query->run();
 		//echo $query->debug();
 		$list = array();
+		$monstringer = array();
 		
 		while( $row = mysql_fetch_assoc( $res ) ) {
 			// Fylket er ikke lagt til i listen
@@ -142,7 +143,11 @@ class monstringer{
 			// Mønstringen er ikke tidligere registrert i fylket
 			if( !isset( $fylke->monstringer[ $row['pl_id'] ] ) ) {
 				$monstring = new stdClass();
-				$monstring->fellesmonstring = false;
+				if( in_array($row['pl_id'], $monstringer) ) {
+					$monstring->fellesmonstring = true;
+				} else { 
+					$monstring->fellesmonstring = false;
+				}
 				$monstring->id = $row['pl_id'];
 				$monstring->k_id = $row['k_id'];
 				$monstring->name = utf8_encode($row['pl_name']);
@@ -155,6 +160,7 @@ class monstringer{
 				$monstring->k_id = false;
 			}
 			
+			$monstringer[] = $row['pl_id'];
 			$monstring->kommuner[ $row['k_id'] ] = utf8_encode( $row['k_name']);
 		}
 		
