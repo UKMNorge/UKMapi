@@ -363,6 +363,10 @@ class innslag_collection {
 		if( !is_numeric( $monstring->getId() ) ) {
 			throw new Exception("INNSLAG_COLLECTION: Avmelding av innslag krever en mønstring med numerisk ID.");	
 		}
+
+		if( $innslag->erVideresendt() ) {
+			throw new Exception("INNSLAG_COLLECTION: Du kan ikke melde av et innslag som er videresendt før du har fjernet videresendingen.");
+		}
 		
 
 		$qry = new SQLdel("smartukm_rel_pl_b", array("b_id" => $innslag->getId(), 'pl_id' => $monstring->getId(), 'season' => $this->getMonstringSesong()) );
