@@ -1604,6 +1604,8 @@ class innslag_v2 {
 	
 	var $avmeldbar = false;
 	var $advarsler = null;
+
+	var $erVideresendt = null;
 	
 	var $kontaktperson_id = null;
 	var $kontaktperson = null;
@@ -2129,6 +2131,36 @@ class innslag_v2 {
 			$this->titler = new titler( $this->getId(), $this->getType(), $monstring );
 		}
 		return $this->titler;
+	}
+
+	/**
+	 * Sjekk om innslaget er videresendt fra lokalnivå.
+	 *
+	 * @return boolean
+	 */
+	public function erVideresendt() {
+		if( null != $this->erVideresendt ) {
+			return $this->erVideresendt;
+		}
+
+		$qry = new SQL("SELECT COUNT(*) FROM `smartukm_rel_pl_b` WHERE `b_id` = '#b_id'", 
+			array('b_id' => $this->getId() ) );
+		$res = $qry->run('field', 'COUNT(*)');
+		if( $res > 1 ) {
+			$this->erVideresendt = true;
+			return true;
+		}
+
+		$qry = new SQL("SELECT COUNT(*) FROM `smartukm_fylkestep` WHERE `b_id` = '#b_id'",
+			array('b_id' => $this->getId() ) );
+		$res = $qry->run('field', 'COUNT(*)');
+		if( $res > 0 ) {
+			$this->erVideresendt = true;
+			return true;
+		}
+
+		$this->erVideresendt = false;
+		return false;
 	}
 	
 	private function _calcAdvarsler( $monstring) {
