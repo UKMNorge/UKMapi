@@ -1231,7 +1231,7 @@ class innslag {
 				break;
 	    }
 	    
-		if($band['bt_id'] == (1 || 2 || 3 || 6 || 7)) {
+		if($band['bt_id'] == (1 ||2 || 3 || 6 || 7)) {
 			$textFeedback = '';
 			$status = 1;
 			for($i=1; $i<8; $i++) {
@@ -2143,11 +2143,16 @@ class innslag_v2 {
 		// Utstilling har mer enn 3 verk
 		if( 'utstilling' == $this->getType()->getKey() && $this->getTitler( $monstring )->getAntall() > 3 ) {
 			$this->advarsler->add( new advarsel( advarsel::create('titler', 'Innslaget har mer enn 3 kunstverk') ) );
+		// Utstilling har ingen verk
+		} elseif( 'utstilling' == $this->getType()->getKey() && $this->getTitler( $monstring )->getAntall() == 0) {
+			$this->advarsler->add( new advarsel( advarsel::create('titler', 'Innslaget har ingen kunstverk') ) );
 		// Innslaget har mer enn 3 titler
 		} elseif( $this->getType()->harTitler() && $this->getTitler( $monstring )->getAntall() > 2 ) {
 			$this->advarsler->add( new advarsel( advarsel::create('titler', 'Innslaget har mer enn 2 titler' ) ) );
-		}
-		
+		// Innslaget har ingen titler
+		} elseif( $this->getType()->harTitler() && $this->getTitler( $monstring )->getAntall() == 0) {
+			$this->advarsler->add( new advarsel( advarsel::create('titler', 'Innslaget har ingen titler, og derfor ingen varighet.') ) );
+		}		
 		// Innslaget har en varighet over 5 min
 		if( $this->getType()->harTitler() && (5*60) < $this->getVarighet( $monstring )->getSekunder() ) {
 			$this->advarsler->add( new advarsel( advarsel::create('titler', 'Innslaget er lengre enn 5 minutter ') ) );
