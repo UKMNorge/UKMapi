@@ -90,6 +90,7 @@ function getBandTypeFromID($id) {
 
 class innslag {
 	## Attributtkontainer
+	var $id = false;
 	var $info = array();
 	var $personer_loaded = false;
 	var $items_loaded = false;
@@ -343,13 +344,15 @@ class innslag {
 		$this->info = $res;
 		$this->b_id = $this->id = $this->info['b_id'];
 		
-		$this->_loadKategoriogsjanger();
-		
-		## Korrigerer innslagsnavnet hvis det skulle være noe galt
-		$this->correctName();
-		$this->__charset();
-		
-		$this->_time_status_8();
+		if( $this->id ) {
+    		$this->_loadKategoriogsjanger();
+    		
+    		## Korrigerer innslagsnavnet hvis det skulle være noe galt
+    		$this->correctName();
+    		$this->__charset();
+    		
+    		$this->_time_status_8();
+        }
 	}
 
 	## Gi ny verdi (value) til attributten (key)
