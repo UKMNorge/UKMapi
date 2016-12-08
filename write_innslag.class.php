@@ -244,6 +244,7 @@ class write_innslag extends innslag_v2 {
 	 *
 	 */
 	public function valider() {
+		return array();
 		$advarsler = array();
 		// Felles for alle:
 		$advarsler[] = $this->_validerInnslagsNavn();
@@ -255,7 +256,7 @@ class write_innslag extends innslag_v2 {
 		switch ( $this->getType()->getKey() ) {
 			case 'musikk':
 				$advarsler[] = $this->_validerSjanger();
-				$advarsler[] = $this->_validerTekniskeBehov();
+				$advarsler[] = $this->_validerTekniskeBehov();
 				break;
 			case 'scene':
 				break;
@@ -328,7 +329,7 @@ class write_innslag extends innslag_v2 {
 		if( empty( $kontaktperson->getEpost() ) ) {
 			$advarsler[] = advarsel::ny('kontaktperson', 'Kontaktpersonen mangler e-post-adresse', 'danger');
 		} else {
-			$advarsler[] = $this->_validerEpost($kontaktperson->getEpost();
+			$advarsler[] = $this->_validerEpost( $kontaktperson->getEpost() );
 		}
 
 		$mobil = $kontaktperson->getMobil();
@@ -349,7 +350,7 @@ class write_innslag extends innslag_v2 {
 			'12341234' == $mobil ||
 			'87654321' == $mobil ||
 			'23456789' == $mobil ||
-			'98765432' == $mobil ||
+			'98765432' == $mobil
 			) {
 			$advarsler[] = advarsel::ny('kontaktperson', 'Kontaktpersonen har et ugyldig mobilnummer', 'danger');
 		}
@@ -459,7 +460,7 @@ class write_innslag extends innslag_v2 {
 		if( empty( $deltaker->getFornavn() ) && strlen($deltaker->getFornavn()) < 3 ) {
 			$advarsler[] = advarsel::ny('person', 'En deltaker mangler fornavn', 'warning');	
 	    }
-		if( empty( $deltaker->getEtternavn() ) && strlen( $deltaker->getEtternavn() < 3 ) {
+		if( empty( $deltaker->getEtternavn() ) && strlen( $deltaker->getEtternavn() < 3 ) ) {
 			$advarsler[] = advarsel::ny('person', 'En deltaker mangler etternavn', 'warning');
 		}
 	    if( empty( $deltaker->getMobil() ) || strlen( $deltaker->getMobil() ) !== 8 ) {
@@ -488,6 +489,6 @@ class write_innslag extends innslag_v2 {
 		return $advarsel;
 	}
 
-	// TODO: Tittel-validering + 
+	// TODO: Tittel-validering + flere bandtyper
 
 }
