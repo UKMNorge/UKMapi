@@ -156,6 +156,8 @@ if(!class_exists('SQLins')) {
 		var $keys = array();
 		var $vals = array();
 		var $error = false;
+
+		var $_error_log = true;
 		
 		function hasChanges() {
 			return sizeof( $this->keys ) > 0;
@@ -190,6 +192,9 @@ if(!class_exists('SQLins')) {
 		
 		function debug() {
 			return $this->run(false);
+		}
+		function disableErrorLog() {
+    		$this->_error_log = false;
 		}
 		
 		function run($run=true) {
@@ -232,7 +237,7 @@ if(!class_exists('SQLins')) {
 					#'<div class="widefat" style="margin: 12px; margin-top: 18px; width: 730px;padding:10px; background: #f1f1f1;">'.$sql.'</div>';
 			else{
 				$qry = mysql_query(utf8_decode($sql), $this->db);
-				if (false === $qry) {
+				if (false === $qry && $this->_error_log) {
 					$this->error = mysql_error();
 					error_log('SQL.class: '. $this->error);
 				}
