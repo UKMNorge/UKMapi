@@ -156,7 +156,6 @@ if(!class_exists('SQLins')) {
 		var $keys = array();
 		var $vals = array();
 		var $error = false;
-
 		var $_error_log = true;
 		
 		function hasChanges() {
