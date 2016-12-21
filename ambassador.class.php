@@ -30,7 +30,7 @@ class ambassador {
 				$this->$newkey = is_string($val) ? utf8_encode($val) : $val;
 			}
 			
-			$this->link = '//facebook.com/profile.php?id='.$this->faceID;
+			$this->link = '//facebook.com/'.$this->faceID;
 			$this->image = '//graph.facebook.com/'. $this->faceID .'/picture?type=large';
 			$this->thumb = '//graph.facebook.com/'.$this->faceID.'/picture';
 
