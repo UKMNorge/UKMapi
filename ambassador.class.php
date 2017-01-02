@@ -4,6 +4,7 @@ require_once('UKM/sql.class.php');
 
 class ambassador {
 	var $ID = false;
+	var $pl_id = null;
 	
 	public function __construct($face_id=false) {
 		$qry = new SQL("SELECT  *
@@ -129,7 +130,9 @@ class ambassador {
 	public function getLink() {
 		return $this->link;
 	}
-	
+	public function getDeleted() {
+		return $this->deleted;
+	}	
 	public function delete() {
 		if(empty($this->faceID))
 			return false;
@@ -137,6 +140,22 @@ class ambassador {
 		$sql->add('deleted', 'true');
 		return $sql->run();
 	}
+
+	public function deaktiver() {
+		$this->delete();
+	}
+	public function aktiver() {
+		if(empty($this->faceID))
+			return false;
+		$sql = new SQLins('ukm_ambassador', array('amb_faceID' => $this->faceID));
+		$sql->add('deleted', 'false');
+		return $sql->run();
+	}
+	
+	public function isDeaktivert() {
+		return $this->getDeleted();
+	}
+
 	
 	public function invite($phone, $pl_id) {
 		$pass =   chr(rand(97,122)) 
