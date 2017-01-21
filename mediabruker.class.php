@@ -21,6 +21,14 @@ class mediabruker {
 	private $wp_user_id = null;
 	private $registrert = null;
 	
+	public static function existsByWpId( $wp_user_id ) {
+		$SQL = new SQL("SELECT EXISTS( SELECT * FROM `ukm_mediabruker` WHERE `wp_user_id` = '#wpuserid' ) AS `exists`",
+			array('wpuserid' => $wp_user_id ));
+		$res = $SQL->run('field', 'exists');
+		
+		return $res == '1';
+	}
+	
 	public static function loadQuery() {
 		return 'SELECT *
 				FROM `ukm_mediabruker`';
@@ -45,6 +53,21 @@ class mediabruker {
 		$this->delta_user_id = $row['delta_user_id'];
 		$this->wp_user_id = $row['wp_user_id'];
 		$this->registrert = $row['registrert'];
+	}
+	
+	public function setWordpressBruker( $user_object ) {
+		if( 'WP_User' != get_class( $user_object ) ) {
+			throw new Exception('MEDIABRUKER: setWordpressBruker krever et WP_User-objekt som input-parameter');
+		}
+		$data = array('user_login', 'user_nicename', 'user_email', 'display_name');
+		$this->wordpress_user = new stdClass();
+		foreach( $data as $key ) {
+			$this->wordpress_user->$key = $user_object->data->$key;
+		}
+		return $this;
+	}
+	public function getWordpressBruker() {
+		return $this->wordpress_user;
 	}
 	
 	public function getRegion() {
