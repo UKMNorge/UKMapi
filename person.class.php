@@ -593,7 +593,7 @@ class person_v2 {
 		$this->setFornavn( utf8_encode($person['p_firstname']) );
 		$this->setEtternavn( utf8_encode($person['p_lastname']) );
 		$this->setMobil( $person['p_phone'] );
-		$this->setEpost( $person['p_email'] );
+		$this->setEpost( utf8_encode($person['p_email']) );
 		$this->setFodselsdato( $person['p_dob'] );
 		$this->setKommune( $person['p_kommune'] );
 		if( array_key_exists('instrument', $person ) ) {
@@ -924,8 +924,30 @@ class person_v2 {
 		}
 		return $this->fylke;
 	}
-
 	
+	/**
+	 * hent kjønn
+	 * Henter kjønn fra navnetabellen
+	 *
+	 * OBS: krever databasespørring!
+	 * TODO: write_person bør lagre dette på personobjektet
+	 *
+	 * @return string kjønn
+	**/
+	public function getKjonn() {
+		$first_name = split(" ", str_replace("-", " ", $this->getFornavn()) );
+		$first_name = $first_name[0];
+		
+		$qry = "SELECT `kjonn`
+				FROM `ukm_navn`
+				WHERE `navn` = '" . $first_name ."' ";
+		
+		$qry = new SQL($qry);
+		$res = $qry->run('field','kjonn');
+		
+		return ($res == null) ? 'unknown' : $res;
+	}
+
 	/**
 	 * Set BT_ID (innslagstype)
 	 * Brukes for å definere om man er videresendt (BTID==1 gir videresendt uavhengig av database-relasjoner)

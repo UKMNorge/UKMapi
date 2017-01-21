@@ -304,7 +304,7 @@ class innslag_collection {
 											   `td`.`td_demand`,
 											   `td`.`td_konferansier`
 										FROM `smartukm_band` AS `band`
-										JOIN `smartukm_rel_pl_b` AS `pl_b` ON (`pl_b`.`b_id` = `band`.`b_id`)
+										LEFT JOIN `smartukm_rel_pl_b` AS `pl_b` ON (`pl_b`.`b_id` = `band`.`b_id`)
 										LEFT JOIN `smartukm_technical` AS `td` ON (`td`.`b_id` = `band`.`b_id`) 
 										WHERE   `b_season` = '#season'
 											AND `b_status` ". $operand ." '8'
@@ -379,11 +379,14 @@ class innslag_collection {
 
 		*/
 		UKMlogger::log( 601, $innslag->getId(), $innslag->getId() );
+		$innslag->setStatus(77);
+		$innslag->save();
 		$res = $qry->run();
 
 		// TODO: Sørg for å fjerne fra eventuelle forestillinger også!
-		$this->_fjernInnslagFraAlleForestillingerIMonstring( $innslag );
-
+		if( 'monstring' == $this->getContainerType() ) {
+			$this->_fjernInnslagFraAlleForestillingerIMonstring( $innslag );
+		}
 		if(1 == $res) {
 			return true;
 		}

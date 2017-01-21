@@ -128,6 +128,9 @@ class write_innslag extends innslag_v2 {
 		if( null != $smartukm_rel_b_p) {
 			$smartukm_rel_b_p->run();
 		}
+		
+		require_once('UKM/statistikk.class.php');
+		statistikk::oppdater_innslag( $this );
 	}
 
 	private function _setLoaded() {
@@ -223,6 +226,20 @@ class write_innslag extends innslag_v2 {
 		$this->changes[ $tabell .'|'. $felt ] = $data;
 	}
 	
+	/**
+	 * setStatus på innslaget
+	 * @param int $status
+	 *
+	 * @return this
+	**/
+	public function setStatus( $status ) {
+		if( $this->_loaded() && $this->getStatus() == $status ) {
+			return false;
+		}
+		parent::setStatus( $status );
+		$this->_change('smartukm_band', 'b_status', 304, $status);
+		return true;
+	}	
 
 	/**
 	 * Denne funksjonen validerer innslaget, sjekker at det har all påkrevd informasjon,

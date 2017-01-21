@@ -1604,6 +1604,7 @@ class innslag_v2 {
 	var $playback = null;
 	var $personer_collection = null;
 	var $artikler_collection = null;
+	var $sesong = null;
 	
 	var $avmeldbar = false;
 	var $advarsler = null;
@@ -1673,6 +1674,7 @@ class innslag_v2 {
 		$this->setKontaktpersonId( $row['b_contact'] );
 		$this->_setSubscriptionTime( $row['b_subscr_time'] );
 		$this->setStatus( $row['b_status'] );
+		$this->setSesong( $row['b_season'] );
 		return $this;
 	}
 	

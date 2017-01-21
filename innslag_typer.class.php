@@ -45,7 +45,6 @@ class innslag_typer extends Collection {
 		switch( $id ) {
 			case 1:
 				switch( $kategori ) {
-					case 'scene':
 					case 'musikk':
 						$data = array('id' => 1,
 									  'key' => 'musikk',

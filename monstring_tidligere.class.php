@@ -80,6 +80,11 @@ require_once('UKM/monstring.class.php');
 		}
 	}
 
+	class kommune_monstring_v2 extends kommune_monstring {
+		public function monstring_get() {
+			return new monstring_v2( $this->pl_id );
+		}
+	}
 	class kommune_monstring{
 		public function __construct($kommune,$season) {
 			$qry = new SQL("SELECT `pl_id`

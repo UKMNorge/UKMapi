@@ -63,6 +63,12 @@ class write_person extends person_v2 {
 				throw new Exception("PERSON_V2: Klarte ikke å opprette et personobjekt for ".$fornavn." ". $etternavn.".");
 			}
 			$p_id = $sql->insid();
+		} else {
+			// Oppdater personinfo
+			$sql = new SQLins("smartukm_participant", array('p_id'=>$p_id));
+			$sql->add('p_kommune', $kommune->getId());
+			$sql->add('p_dob', $fodselsdato);
+			$res = $sql->run(); 
 		}
 		
 		return new write_person((int)$p_id);
