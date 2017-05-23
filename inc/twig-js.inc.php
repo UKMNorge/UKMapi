@@ -21,3 +21,20 @@ function TWIGjs($templatefolder, $prefix='') {
 	}
 	return $SCRIPT;
 }
+function TWIGjs_simple($templatefolder) {
+	$SCRIPT = '<script type="text/javascript">';
+	
+	$templates = glob($templatefolder . "/twig/js/*.html.twig");
+	
+	foreach($templates as $template) {
+		if($template != '.' && $template != '..') {
+			$templateID = str_replace(array('.html.twig','_','.'),
+									  array('', '_','_'),
+									  basename($template)
+									 );
+			$SCRIPT .= 'var twigJS_'. $templateID.' = twig({data: \''.str_replace("'","\'",preg_replace( "/\r|\n/", "",file_get_contents( $template ))).'\'});';
+		}
+	}
+	$SCRIPT .= '</script>';
+	return $SCRIPT;
+}
