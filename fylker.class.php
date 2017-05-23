@@ -74,6 +74,8 @@ class fylker {
 			case 'ostfold':			return self::getById( 1 );
 			
 			case 'testfylke':		return self::getById( 21 );
+			case 'gjester':			return self::getById( 32 );
+			case 'internasjonalt':	return self::getById( 31 );
 		}
 
 		throw new Exception('Prøvde å aksessere et fylke som ikke finnes (ID: '. $id .')');
@@ -104,6 +106,21 @@ class fylker {
 		ksort( $sortert );
 		return $sortert;
 	}
+
+	public static function getAllInkludertGjester() {
+		self::initialize();
+
+		$sortert = array();
+		foreach( self::$fylker as $fylke ) {
+			if( $fylke->getId() == 21 ) {
+				continue;
+			}
+			$sortert[ $fylke->getNavn() ] = $fylke;
+		}
+		ksort( $sortert );
+		return $sortert;
+	}
+
 
 	public static function setLogMethod($method) {
 		self::$logMethod = $method;
