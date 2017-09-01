@@ -1627,6 +1627,7 @@ class monstring_v2 {
 	var $id = null;
 	var $type = null;
 	var $navn = null;
+	var $sted = null;
 	var $start = null;
 	var $start_datetime = null;
 	var $stop = null;
@@ -1715,6 +1716,7 @@ class monstring_v2 {
 		$this->setFrist1( $row['pl_deadline'] );
 		$this->setFrist2( $row['pl_deadline2'] );
 		$this->setSesong( $row['season'] );
+		$this->setSted( $row['pl_place'] );
 	}
 	
 	
@@ -1801,6 +1803,25 @@ class monstring_v2 {
 	**/
 	public function getNavn() {
 		return $this->navn;
+	}
+	
+	/**
+	 * Sett sted
+	 *
+	 * @param string $sted
+	 *
+	 * @return $this
+	**/
+	public function setSted( $sted ) {
+		$this->sted = $sted;
+		return $this;
+	}
+	/**
+	 * hent sted
+	 * @return string $sted
+	**/
+	public function getSted() {
+		return $this->sted;
 	}
 
 	/**
