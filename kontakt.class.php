@@ -1,109 +1,188 @@
 <?php
+require_once('v1_kontakt.class.php');
 
-class kontakt {
-	var $info = array();
-		
-		public function kontakt($id,$rel_id=false){/* legger en place inn i $info */
-			$qry	= new SQL("SELECT `smartukm_contacts`.*,
-									  `smartukm_kommune`.`name` AS `kommunenavn`,
-									  `smartukm_contacts`.`adress` AS `address`
-							   FROM `smartukm_contacts`
-							   LEFT JOIN `smartukm_kommune` ON (`smartukm_kommune`.`id`=`smartukm_contacts`.`kommune`)
-							   WHERE `smartukm_contacts`.`id` = '#id'",
-							   array('id'=>$id));
-			$this->info = $qry->run('array');
-			$this->info['rel_id'] = $rel_id;
-			$this->image();
-		}
-		
-		public function set($key, $value){
-			$this->info[$key] = $value;
-		}
-		
-		private function image() {		
-			if(empty($this->info['picture']) || is_numeric($this->info['picture']))
-				$this->info['image'] = $this->defaultImage();
-			else {
-			/*	require_once('UKM/curl.class.php');
-				// check existence
-				$test = new UKMCURL();
-				$test->headersOnly();
-				$response = $test->request($this->info['picture']);
-			
-				if($response == 200) {
-			*/
-					$this->info['image'] = $this->info['picture'];
-			/*	} else {
-					$this->info['image'] = $this->defaultImage();
-				}
-			*/
-				$this->info['picture'] = $this->info['image'];
-			}
-		}
-		
-		public function defaultImage() {
-			return 'http://grafikk.ukm.no/placeholder/person.jpg';
-				
-		}
-		
-		public function get($key) {
-			return utf8_encode($this->info[$key]);
-		}
-		
-		public function g($key) {
-			return $this->get($key);
-		}
-		
-		public function mobil(){
-			$phone = $this->g('tlf');
-			if (strlen($phone) == 8 && (substr($phone, 0, 1) == 9 || substr($phone, 0, 1) == 4))
-				return $phone;
-			return false;
-		}
+class kontakt_v2 {
+	public $id = null;
 	
-		public function info(){
-			return $this->info;
+	public $fornavn = null;
+	public $etternavn = null;
+	public $telefon = null;
+	public $epost = null;
+
+	public $tittel = null;
+	public $facebook = null;
+	public $bilde = null;
+	
+	public $adresse = null;
+	public $postnummer = null;
+	public $kommune_id = null;
+
+	private $lastUpdated = null;
+	private $system_locked = null;
+
+	public function __construct( $id_or_row ) {
+		if( is_numeric( $id_or_row ) ) {
+			$this->_load_by_id( $id_or_row );
+		} elseif( is_array( $id_or_row ) ) {
+			$this->_load_by_row( $id_or_row );
+		} else {
+			throw new Exception('KONTAKT: Oppretting av objekt krever numerisk id eller databaserad');
 		}
+	}
+	
+	private function _load_by_id( $id ) {
+		$qry = new SQL( self::getLoadQry() 
+						. "WHERE `kontakt.`id` = '#id'",
+					array('id' => $id)
+					);
+		$res = $qry->run('array');
 		
-		public function html() {
-			$tittel = $this->g('title');
-			$kommune = $this->g('kommunenavn');
-			$face = str_replace(' ','',$this->get('facebook'));
-
-
-			return '<img src="'.$this->g('image').'" width="120" style="float: left; margin-top: 2px; margin-right: 5px; border: 2px solid #1c4a45; margin-bottom: 2px;" />'
-					.  '<strong>'.$this->g('name') . '</strong><br />'
-					.  '<span style="font-size: 12px;">'
-					.  (!empty($tittel) ? '<strong>'. $this->g('title') . '</strong><br />' : '')
-					.  (!empty($kommune) ? ''. $this->g('kommunenavn') . '<br />' : '')
-					.  UKMN_ico('mobile',16). '' . $this->g('tlf') . ' | '
-					.  '<a href="mailto:'.$this->g('email').'">'.UKMN_ico('mail',16).'send en e-post</a>'
-					.  '<br />'
-					.  (!empty($face)&&strpos($face,'http')!==false ? 
-							UKMN_ico('face',16).'<a href="'.$face.'" target="_blank">p&aring; facebook</a>'
-							:'')
-					.  '<div style="height: 10px; width: 10px;"></div>'
-					;
-
-
-
-
-
-
-			return '<img src="'.$this->g('image').'" width="186" style="float: left; margin-top: 2px; border: 2px solid #1c4a45; 	margin-bottom: 2px;" />'
-					.  '<strong>'.$this->g('name') . '</strong><br />'
-					.  '<span style="font-size: 12px;">'
-					.  (!empty($tittel) ? '<strong>'. $this->g('title') . '</strong><br />' : '')
-					.  (!empty($kommune) ? ''. $this->g('kommunenavn') . '<br />' : '')
-					.  UKMN_ico('mobile',16). '' . $this->g('tlf') . ' | '
-					.  '<a href="mailto:'.$this->g('email').'">'.UKMN_ico('mail',16).'send en e-post</a>'
-					.  '<br />'
-					.  (!empty($face)&&strpos($face,'http')!==false ? 
-							UKMN_ico('face',16).'<a href="'.$face.'" target="_blank">p&aring; facebook</a>'
-							:'')
-					.  '<div style="height: 10px; width: 10px;"></div>'
-					;
+		$this->_load_by_row( $res );
+	}
+	
+	private function _load_by_row( $row ) {
+		if( !is_array( $row ) ) {
+			throw new Exception('MONSTRING: _load_by_row krever dataarray!');
 		}
-}
+		$this->id = $row['id'];
+		$this->fornavn = utf8_encode( $row['firstname'] );
+		$this->etternavn = utf8_encode( $row['lastname'] );
+		$this->telefon = $row['tlf'];
+		$this->epost = $row['email'];
+		$this->tittel = utf8_encode( $row['title'] );
+		$this->facebook = $row['facebook'];
+		$this->bilde = $row['picture'];
+		$this->adresse = $row['adress'];
+		$this->postnummer = $row['postalcode'];
+		$this->kommune_id = $row['kommune'];
+		$this->last_updated = $row['last_updated'];
+		$this->system_locked = $row['system_locked'];
+	}
+	
+	public static function getLoadQry() {
+		return "SELECT * FROM `smartukm_contacts` AS `kontakt` ";
+	}
+	
+	public function setId( $id ) {
+		$this->id = $id;
+		return $this;
+	}
+	public function getId() {
+		return $this->id;
+	}
 
+	public function getNavn() {
+		return $this->getFornavn() .' '. $this->getEtternavn();
+	}
+
+	public function getFornavn(){
+		return $this->fornavn;
+	}
+	public function setFornavn( $fornavn ){
+		$this->fornavn = $fornavn;
+		return $this;
+	}
+	
+	public function getEtternavn(){
+		return $this->etternavn;
+	}
+	public function setEtternavn( $etternavn ){
+		$this->etternavn = $etternavn;
+		return $this;
+	}
+	
+	public function getTelefon(){
+		return $this->telefon;
+	}
+	public function setTelefon( $telefon ){
+		$this->telefon = $telefon;
+		return $this;
+	}
+	
+	public function getEpost(){
+		return $this->epost;
+	}
+	public function setEpost( $epost ){
+		$this->epost = $epost;
+		return $this;
+	}
+	
+	public function getTittel(){
+		return $this->tittel;
+	}
+	public function setTittel( $tittel ){
+		$this->tittel = $tittel;
+		return $this;
+	}
+	
+	public function getFacebook(){
+		return $this->facebook;
+	}
+	public function setFacebook( $facebook ){
+		$this->facebook = $facebook;
+		return $this;
+	}
+	
+	public function getSystem_locked(){
+		return $this->system_locked;
+	}
+	public function setSystem_locked( $system_locked ){
+		$this->system_locked = $system_locked;
+		return $this;
+	}
+	
+	public function getBilde(){
+		return $this->bilde;
+	}
+	public function setBilde( $bilde ){
+		$this->bilde = $bilde;
+		return $this;
+	}
+	
+	public function getAdresse(){
+		return $this->adresse;
+	}
+	public function setAdresse( $adresse ){
+		$this->adresse = $adresse;
+		return $this;
+	}
+	
+	public function getPostnummer(){
+		return $this->postnummer;
+	}
+	public function setPostnummer( $postnummer ){
+		$this->postnummer = $postnummer;
+		return $this;
+	}
+	
+	/**
+	 * Sett kommune
+	 *
+	 * @param kommune_id
+	 * @return $this
+	**/
+	public function setKommune( $kommune_id ) {
+		$this->kommune_id = $kommune_id;
+		return $this;
+	}
+	/**
+	 * Hent kommune
+	 *
+	 * @return object $kommune
+	**/
+	public function getKommune() {
+		if( null == $this->kommune ) {
+			$this->kommune = new kommune( $this->kommune_id );
+		}
+		return $this->kommune;
+	}
+	
+	public function getLastUpdated(){
+		return $this->lastUpdated;
+	}
+	public function setLastUpdated( $lastUpdated ){
+		$this->lastUpdated = $lastUpdated;
+		return $this;
+	}
+}
 ?>
