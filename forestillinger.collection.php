@@ -19,6 +19,22 @@ class program {
 		$this->setContainerObjectId( $container_object_id );
 		$this->rekkefolge = [];
 	}
+	
+	public static function sorterPerDag( $forestillinger ) {
+		$sortert = [];
+		foreach( $forestillinger as $forestilling ) {
+			$key = $forestilling->getStart()->format('d_m');
+			if( !isset( $sortert[ $key ] ) ) {
+				$dag = new stdClass();
+				$dag->key	= $key;
+				$dag->date 	= $forestilling->getStart();
+				$dag->forestillinger = [];
+				$sortert[ $key ] = $dag;
+			}
+			$sortert[ $key ]->forestillinger[] = $forestilling;
+		}
+		return $sortert;
+	}
 
 	public function getAntall() {
 		return sizeof( $this->getAll() );
