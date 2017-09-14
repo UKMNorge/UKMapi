@@ -80,6 +80,10 @@ class innslag_type {
 		return $this->har_titler;
 	}
 	
+	public function getFrist() {
+		return $this->harTitler() ? 1 : 2;
+	}
+	
 	public function __toString() {
 		return $this->getNavn();
 	}

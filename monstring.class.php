@@ -521,7 +521,7 @@ class monstring_v2 {
 	}
 		
 	/**
-	 * Hent hvilke innslagstyper som kan være påmeldt denne møsntringen
+	 * Hent hvilke innslagstyper som kan være påmeldt denne mønstringen
 	 *
 	 * @return Collection innslagstyper 
 	**/
@@ -599,6 +599,17 @@ class monstring_v2 {
 	}
 	public function erFerdig() {
 		return time() > $this->getStop()->getTimestamp();
+	}
+	
+	public function erPameldingApen( $frist = 'begge' ) {
+		if( $frist == 1 || $frist == 'frist_1' ) {
+			return time() < $this->getFrist1()->getTimestamp();
+		}
+		if( $frist == 2 || $frist == 'frist_2' ) {
+			return time() < $this->getFrist2()->getTimestamp();
+		}
+		$res = time() < $this->getFrist1()->getTimestamp() && time() < $this->getFrist2()->getTimestamp();
+		return $res;
 	}
 	
 	/**

@@ -256,7 +256,7 @@ class monstring{
 	## Sjekker default frist 1, kan spesifiseres til frist 2
 	############################################
 	public function subscribable($deadline = 'pl_deadline') {
-		return $this->info[$deadline] > time();
+		return @$this->info[$deadline] > time();
 	}
 
 	############################################
