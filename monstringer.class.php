@@ -32,7 +32,7 @@ class monstringer_v2 {
 	}
 	
 	/**
-	 * Henter ut alle lokalmønstringer fra gitt fylke
+	 * Henter ut alle lokalmønstringer fra gitt fylke, sortert alfabetisk
 	 *
 	 * @param object $fylke
 	 * @return array with monstring_v2-objects
@@ -52,6 +52,39 @@ class monstringer_v2 {
 					AND `k`.`idfylke` = '#fylke'
 				  GROUP BY `place`.`pl_id` 
 				  ORDER BY `place`.`pl_name` ASC";
+		$qry = new SQL( $query , array('season'=>$this->sesong, 'fylke'=>$fylkeId));
+		$res = $qry->run();
+		if( $res ) {
+			while( $row = mysql_fetch_assoc( $res ) ) {
+				$monstringer[] = new monstring_v2( $row );
+			}
+		}
+		return $monstringer;
+	}
+
+	
+	/**
+	 * getAllByFylkeSortByStart()
+	 * Henter ut alle lokalmønstringer fra gitt fylke, sortert etter startdato
+	 *
+	 * @param object $fylke
+	 * @return array with monstring_v2-objects
+	**/
+	public function getAllByFylkeSortByStart( $fylke ) {
+		$monstringer = [];
+		
+		if( is_numeric( $fylke ) ) {
+			$fylkeId = $fylke;
+		} else {
+			$fylkeId = $fylke->getId();
+		}
+		
+		$query =  monstring_v2::getLoadQry()
+				."JOIN `smartukm_kommune` AS `k` ON (`k`.`id` = `kommuner`.`k_id`) 
+				  WHERE `place`.`season` = '#season' 
+					AND `k`.`idfylke` = '#fylke'
+				  GROUP BY `place`.`pl_id` 
+				  ORDER BY `place`.`pl_start` ASC";
 		$qry = new SQL( $query , array('season'=>$this->sesong, 'fylke'=>$fylkeId));
 		$res = $qry->run();
 		if( $res ) {
