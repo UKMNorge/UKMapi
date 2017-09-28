@@ -1511,8 +1511,10 @@ class innslag {
 		|| $b['p_phone'] == '98765432')
 	    	$whatmissing[] = 'kontakt.telefonugyldig';
 
+/*
 	    if(empty($b['p_adress']) || strlen($b['p_adress']) < 3)
 	    	$whatmissing[] = 'kontakt.adresse';
+*/
 	    if( empty($b['p_postnumber']) || (strlen($b['p_postnumber']) !==4 || strlen($b['p_postnumber']) === 3 && $b['p_postnumber'] < 200))
 	    	$whatmissing[] = 'kontakt.postnummer';
 	  	

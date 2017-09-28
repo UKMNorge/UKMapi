@@ -331,8 +331,9 @@ function contact_person($b) {
 	|| $b['p_phone'] == '98765432')
     														$whatmissing .= ' - Telefonnummer er ikke gyldig<br />';
 
-    if(empty($b['p_adress']) || strlen($b['p_adress']) < 3)
+/*    if(empty($b['p_adress']) || strlen($b['p_adress']) < 3)
     														$whatmissing .= ' - Adresse mangler';
+*/
     if( empty($b['p_postnumber']) || (strlen($b['p_postnumber']) !==4 || strlen($b['p_postnumber']) === 3 && $b['p_postnumber'] < 200))
     														$whatmissing .= ' - Postnummeret best&aring;r ikke av 4 sifre<br />';
   	
