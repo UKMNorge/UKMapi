@@ -32,17 +32,20 @@ class kontakt_v2 {
 	
 	private function _load_by_id( $id ) {
 		$qry = new SQL( self::getLoadQry() 
-						. "WHERE `kontakt.`id` = '#id'",
+						. "WHERE `kontakt`.`id` = '#id'",
 					array('id' => $id)
 					);
 		$res = $qry->run('array');
-		
-		$this->_load_by_row( $res );
+		if( $res ) {
+			$this->_load_by_row( $res );
+		} else {
+			throw new Exception('KONTAKT: Fant ikke kontaktperson '. $id );
+		}
 	}
 	
 	private function _load_by_row( $row ) {
 		if( !is_array( $row ) ) {
-			throw new Exception('MONSTRING: _load_by_row krever dataarray!');
+			throw new Exception('KONTAKT: _load_by_row krever dataarray!');
 		}
 		$this->id = $row['id'];
 		$this->fornavn = utf8_encode( $row['firstname'] );
@@ -57,6 +60,9 @@ class kontakt_v2 {
 		$this->kommune_id = $row['kommune'];
 		$this->last_updated = $row['last_updated'];
 		$this->system_locked = $row['system_locked'];
+		if( isset( $row['beskrivelse'] ) ) {
+			$this->beskrivelse = $row['beskrivelse'];
+		}
 	}
 	
 	public static function getLoadQry() {
@@ -152,6 +158,14 @@ class kontakt_v2 {
 	}
 	public function setPostnummer( $postnummer ){
 		$this->postnummer = $postnummer;
+		return $this;
+	}
+	
+	public function getBeskrivelse(){
+		return $this->beskrivelse;
+	}
+	public function setBeskrivelse( $beskrivelse ){
+		$this->beskrivelse = $beskrivelse;
 		return $this;
 	}
 	
