@@ -50,6 +50,23 @@ class innslag_collection {
 		return $this->getAntall() > 0;
 	}
 
+	/**
+	 * Sjekker om collectionen har et innslag med en gitt ID. Fint for å verifisere forespørsler.
+	 *
+	 */
+	public function harInnslagMedId($id) {
+		if ( null == $this->innslag ) {
+			$this->getAll();
+		}
+		//var_dump($this->innslag);
+		foreach($this->innslag as $innslag) {
+			if($id == $innslag->getId()){
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public function getAntall() {
 		return sizeof( $this->getAll() );
 	}
