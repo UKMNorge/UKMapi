@@ -14,7 +14,7 @@ class kommune {
 		$sql = new SQL("SELECT *
 						FROM `smartukm_kommune`
 						WHERE `id` = '#id'",
-					    array('id' => $id ) );
+						array('id' => $id ) );
 		$res = $sql->run('array');
 		if( !is_array( $res ) ) {
 			$this->id = false;

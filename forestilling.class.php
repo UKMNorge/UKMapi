@@ -9,7 +9,8 @@ class forestilling_v2 extends forestilling {
 	var $start = null;
 	var $start_datetime = null;
 	var $synlig_i_rammeprogram = null;
-
+	var $synlig_detaljprogram = null;
+	
 	public function __construct($c_id,$tekniskprove=false) {
 		if( is_array( $c_id ) ) {
 			$c_id = $c_id['c_id'];
@@ -19,9 +20,10 @@ class forestilling_v2 extends forestilling {
 		$this->setId( $this->info['c_id'] );
 		$this->setNavn( utf8_encode( $this->info['c_name'] ) );
 		$this->setStart( $this->info['c_start'] );
-		$this->setSted( $this->info['c_place'] );
+		$this->setSted( utf8_encode( $this->info['c_place'] ) );
 		$this->setMonstringId( $this->info['pl_id'] );
 		$this->setSynligRammeprogram( 'true' == $this->info['c_visible_program'] );
+		$this->setSynligDetaljprogram( 'true' == $this->info['c_visible_detail'] );
 	}
 	
 	
@@ -202,6 +204,26 @@ class forestilling_v2 extends forestilling {
 	**/
 	public function setSynligRammeprogram( $synlig ) {
 		$this->synlig_i_rammeprogram = $synlig;
+		return $this;
+	}
+
+	/**
+	 * Skal detaljene for forestillingen vises?
+	 *
+	 * @return bool
+	**/
+	public function harSynligDetaljprogram() {
+		return $this->synlig_detaljprogram;
+	}
+	
+	/**
+	 * Sett om rekkefølgen skal være tilgjengelig
+	 *
+	 * @param bool synlig
+	 * @return $this
+	**/
+	public function setSynligDetaljprogram( $synlig ) {
+		$this->synlig_detaljprogram = $synlig;
 		return $this;
 	}
 }

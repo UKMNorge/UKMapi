@@ -3,6 +3,7 @@ require_once('UKM/sql.class.php');
 require_once('UKM/innslag.class.php');
 
 class innslag_collection {
+	var $quickcount = null;
 	var $innslag = null;
 	var $innslag_ufullstendige = null;
 	var $containerType = null;
@@ -15,6 +16,38 @@ class innslag_collection {
 	public function __construct($container_type, $containerId) {
 		$this->setContainerType( $container_type );
 		$this->setContainerId( $containerId );
+	}
+	
+	/**
+	 * Hurtig-funksjon for å avgjøre om samlingen har innslag
+	 *
+	 * Kjører _load() i countOnly-modus, som returnerer
+	 * mysql_num_rows
+	 *
+	 * Funksjonen henter alle rader fra databasen med joins
+	 * så krever litt, men likevel mye mindre enn å loope 
+	 * alle innslag og opprette innslags-objekter
+	 *
+	 *
+	 * Skal du bruke både harInnslag og loope innslagene
+	 * bør du sette $forceLoad = true
+	**/
+	public function harInnslag( $forceLoad=false ) {
+		// Hvis vi ikke har info, last inn quickCount såfremt $forceLoad ikke er true
+		if( $this->innslag === null && $this->quickCount === null && $forceLoad === false) {
+			$this->quickCount = $this->_load( true, true );
+		}
+		// Hvis innslag ikke er lastet og $forceLoad er true
+		elseif( $this->innslag === null && $forceLoad ) {
+			$this->_load();
+		}
+		
+		// Hvis vi har quickCount, bruk denne
+		if( $this->quickCount !== null ) {
+			return $this->quickCount > 0;
+		}
+		// Hvis vi ikke har quickCount skal vi ha innslag/bruke denne
+		return $this->getAntall() > 0;
 	}
 
 	public function get( $id ) {
@@ -216,7 +249,7 @@ class innslag_collection {
 		return $this->monstring_sesong;
 	}
 	
-	public function _load( $pameldte=true ) {
+	public function _load( $pameldte=true, $countOnly=false ) {
 		$internal_var = $pameldte ? 'innslag' : 'innslag_ufullstendige';
 		$this->$internal_var = array();
 		
@@ -225,6 +258,9 @@ class innslag_collection {
 		#echo $SQL->debug();
 		if( !$res ) {
 			return false;
+		}
+		if( $countOnly ) {
+			return mysql_num_rows( $res );
 		}
 		while( $row = mysql_fetch_assoc( $res ) ) {
 			$innslag = new innslag_v2( $row );

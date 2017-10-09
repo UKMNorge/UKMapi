@@ -19,4 +19,11 @@ class kommuner extends Collection {
 		return $array;
 	}
 	
+	public function __toString() {
+		$string = '';
+		foreach( $this as $kommune ) {
+			$string .= $kommune->getNavn() .', ';
+		}
+		return rtrim( $string, ', ');
+	}
 }
