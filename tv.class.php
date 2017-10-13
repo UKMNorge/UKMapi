@@ -211,6 +211,14 @@ class tv {
 		}
 	}
 	
+	public function embedCodeVH() {
+		return '<iframe src="'. $this->embed_url .'" '
+			.  ' style="width: 100vw; height: Calc( (100vw/16)*9);" '
+			.  ' class="ukmtv" border="0" frameborder="0" '
+			.  ' mozallowfullscreen="true" webkitallowfullscreen="true" allowfullscreen="true">'
+			.  '</iframe>';
+	}
+	
 	public function iframe($width='920px') {
 		return $this->embedcode($width);
 	}
@@ -229,8 +237,12 @@ class tv {
 		}
 		$width = (int) ceil(str_replace($sizetype, '', $width));
 		$height = (int) floor($width / $this->ratio);
-		
-		return '<iframe src="'. $this->embed_url .'" style="width:'.$width.$sizetype.'; height:'.$height.$sizetype.';" class="ukmtv" border="0" frameborder="0" mozallowfullscreen="true" webkitallowfullscreen="true" allowfullscreen="true"></iframe>';
+
+		return '<iframe src="'. $this->embed_url .'" '
+			.  ' style="width:'.$width.$sizetype.'; height:'.$height.$sizetype.';" '
+			.  ' class="ukmtv" border="0" frameborder="0" '
+			.  ' mozallowfullscreen="true" webkitallowfullscreen="true" allowfullscreen="true">'
+			.  '</iframe>';
 	}
 
 	
