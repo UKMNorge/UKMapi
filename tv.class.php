@@ -213,7 +213,7 @@ class tv {
 	
 	public function embedCodeVH() {
 		return '<iframe src="'. $this->embed_url .'" '
-			.  ' style="width: 100vw; height: Calc( (100vw/16)*9);" '
+			.  ' style="width: 100vw; height: Calc( (100vw/16)*9); max-height: 85vh;" '
 			.  ' class="ukmtv" border="0" frameborder="0" '
 			.  ' mozallowfullscreen="true" webkitallowfullscreen="true" allowfullscreen="true">'
 			.  '</iframe>';
