@@ -11,9 +11,9 @@ class tv {
 	var $storageIP	= '212.125.231.33';
 	
 	public function __construct($tv_id,$cron_id=false) {
-		$this->tvurl = 'http://tv.'. UKM_HOSTNAME .'/';
-		$this->embedurl = 'http://embed.'. UKM_HOSTNAME .'/';
-		$this->storageurl = 'http://video.'. UKM_HOSTNAME .'/';
+		$this->tvurl = '//tv.'. UKM_HOSTNAME .'/';
+		$this->embedurl = '//embed.'. UKM_HOSTNAME .'/';
+		$this->storageurl = '//video.'. UKM_HOSTNAME .'/';
 
 		// If created by a cron_id ($tv_id = false)
 		if($cron_id) {
