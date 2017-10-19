@@ -127,6 +127,7 @@ class UKMCURL {
 		curl_setopt($this->curl, CURLOPT_HEADER, $this->headers);
 		curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($this->curl, CURLOPT_TIMEOUT, $this->timeout);
+		curl_setopt($this->curl, CURLOPT_SSL_VERIFYPEER, false); // WHOA, PLEASE DON'T
 	}
 	
 	private function _analyze() {
