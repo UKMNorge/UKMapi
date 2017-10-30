@@ -470,6 +470,9 @@ class monstring_v2 {
 		if( null == $this->fylke ) {
 			if( null == $this->fylke_id && 'kommune' == $this->getType() ) {
 				$first_kommune = $this->getKommuner()->first();
+				if( null == $first_kommune || !is_object( $first_kommune ) ) {
+					throw new Exception('Beklager, klarte ikke å finne en kommune som tilhører denne mønstringen');
+				}
 				$this->setFylke( $first_kommune->getFylke()->getId() );
 			}
 			$this->fylke = fylker::getById( $this->fylke_id );
