@@ -8,6 +8,10 @@ abstract class Collection implements Iterator
 	    $this->var[] = $item;
 	    return $this;
     }
+    
+    public function har( $object ) {
+	    return $this->find( $object->getId() );
+    }
 
     public function find( $id ) {
 	    foreach( $this as $item ) {
