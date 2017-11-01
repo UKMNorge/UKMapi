@@ -106,4 +106,13 @@ class fylke {
 	public function __toString() {
 		return $this->getNavn();
 	}
+	
+	/**
+	 * getURLsafe
+	 * Alias av getLink for consistency kommune.class
+	 * @return string link
+	**/
+	public function getURLsafe() {
+		return $this->getLink();
+	}
 }
