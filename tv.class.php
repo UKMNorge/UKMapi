@@ -11,9 +11,9 @@ class tv {
 	var $storageIP	= '212.125.231.33';
 	
 	public function __construct($tv_id,$cron_id=false) {
-		$this->tvurl = 'http://tv.'. UKM_HOSTNAME .'/';
-		$this->embedurl = 'http://embed.'. UKM_HOSTNAME .'/';
-		$this->storageurl = 'http://video.'. UKM_HOSTNAME .'/';
+		$this->tvurl = 'https://tv.'. UKM_HOSTNAME .'/';
+		$this->embedurl = 'https://embed.'. UKM_HOSTNAME .'/';
+		$this->storageurl = 'https://video.'. UKM_HOSTNAME .'/';
 
 		// If created by a cron_id ($tv_id = false)
 		if($cron_id) {
@@ -213,7 +213,7 @@ class tv {
 	
 	public function embedCodeVH() {
 		return '<iframe src="'. $this->embed_url .'" '
-			.  ' style="width: 100vw; height: Calc( (100vw/16)*9);" '
+			.  ' style="width: 100vw; height: Calc( (100vw/16)*9); max-height: 85vh;" '
 			.  ' class="ukmtv" border="0" frameborder="0" '
 			.  ' mozallowfullscreen="true" webkitallowfullscreen="true" allowfullscreen="true">'
 			.  '</iframe>';
