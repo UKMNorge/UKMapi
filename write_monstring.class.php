@@ -6,6 +6,8 @@ VALUES
 	(111, 'lagt til', 'kontaktperson', 'text', 'smartukm_rel_pl_ab|new', 1),
 	(112, 'lagt til', 'kommune', 'text', 'smartukm_rel_pl_k|new', 1),
 	(113, 'lagt til', 'skjema for videresending', 'text', 'smartukm_place|pl_form', 0),
+	(114, 'fjernet', 'kommune', 'text', 'smartukm_rel_pl_k|delete', 1),
+	(115, 'avlyste', 'mønstringen', 'text', 'smartukm_rel_pl|delete', 0),
 */
 require_once('UKM/monstring.class.php');
 require_once('UKM/logger.class.php');
@@ -116,42 +118,17 @@ class write_monstring extends monstring_v2 {
 		// Oppdater loggeren til å bruke riktig PL_ID
 		UKMlogger::setPlId( $monstring->getId() );
 		
-		switch( $type ) {
-			case 'kommune':
-				// Legg til kommunerelasjoner og bygg link
-				$link = '';
-				foreach( $geografi as $kommune ) {
-					$monstring->addKommune( $kommune );
-					$link .= $kommune->getURLsafe() .'-';
-				}
-				$link = rtrim( $link, '-' );
-				
-				// Sjekk om linken er i bruk for gitt sesong
-				$linkCheck = new SQL(
-									"SELECT `pl_id`
-									 FROM `smartukm_place`
-									 WHERE `pl_link` = '#link'
-									 AND `season` = '#season'",
-									array(
-										'link'=> $link, 
-										'season'=> $sesong
-										)
-									);
-				$linkExists = $linkCheck->run('field', 'pl_id');
-				if( false !== $linkExists && is_numeric( $linkExists ) ) {
-					$fylke = $kommune->getFylke(); // Bruker siste kommune fra foreach
-					$link = $fylke->getURLsafe() .'-'. $link;
-				}
-				break;
-			case 'fylke':
-				$link = $geografi->getURLsafe();
-				break;
-			case 'land':
-				$link = 'festivalen';
-				break;
+		foreach( $geografi as $kommune ) {
+			$monstring->addKommune( $kommune );
 		}
 		
-		$monstring->setPath( $link );
+		$monstring->setPath( 
+			self::generatePath(
+				'kommune',
+				$geografi,
+				$sesong
+			)
+		);
 		$monstring->save();
 		
 		return $monstring;
@@ -164,6 +141,22 @@ class write_monstring extends monstring_v2 {
 	public function __construct( $b_id_or_row ) {
 		parent::__construct( $b_id_or_row, true );
 		$this->_resetChanges();
+	}
+	
+
+	/**
+	 * setNavn
+	 * 
+	 * @param string $navn
+	 * @return $this
+	**/
+	public function setNavn( $navn ) {
+		if( $navn == $this->getNavn() ) {
+			return $this;
+		}
+		parent::setNavn( $navn );
+		$this->_change('smartukm_place', 'pl_name', 100, $navn);
+		return $this;
 	}
 
 	/**
@@ -178,6 +171,7 @@ class write_monstring extends monstring_v2 {
 		if( $path == $this->getPath() && $this->getType() != 'fylke' ) {
 			return $this;
 		}
+		$path = rtrim( trim($path, '/'), '/');
 		parent::setPath( $path );
 		$this->_change('smartukm_place', 'pl_link', 110, $path);
 		return $this;
@@ -240,6 +234,9 @@ class write_monstring extends monstring_v2 {
  	 * @param kommune $kommune
  	 * @return $this
  	**/
+ 	public function leggTilKommune( $kommune ) {
+	 	return $this->addKommune( $kommune );
+ 	}
 	public function addKommune( $kommune ) {
 		if( $this->getType() != 'kommune' ) {
 			throw new Exception('Mønstring: kan ikke legge til kommune på andre enn kommune(/lokal)-mønstringer)');
@@ -262,6 +259,98 @@ class write_monstring extends monstring_v2 {
 						$this->getId(), 
 						$kommune->getId() .': '. $kommune->getNavn()
 					);
+		return $this;
+	}
+
+	/**
+	 * avlys
+	 * 
+	 * !! OBS, OBS !!
+	 * Skal denne kun benyttes fra UKM Norge-admin,
+	 * da bloggen må endres for at alt skal fungere som ønsket.
+	 * !! OBS, OBS !! 
+	 *
+	**/
+	public function avlys() {
+		if( $this->getType() != 'kommune' ) {
+			throw new Exception('Mønstring: kun lokalmønstringer kan avlyses');
+		}
+		if( !$this->erSingelmonstring() ) {
+			throw new Exception('Mønstring: kun enkeltmønstringer kan avlyses');
+		}
+		if( !is_numeric( $this->getId() ) ) {
+			throw new Exception('Mønstring: kan ikke fjerne kommune da mønstring ikke har numerisk ID');
+		}
+		if( !is_numeric( $this->getSesong() ) ) {
+			throw new Exception('Mønstring: kan ikke fjerne kommune da sesong ikke har numerisk verdi');
+		}
+		$this->_checkSaveRequirements();
+		
+		// Fjern kommune-relasjonen
+		$this->fjernKommune( $this->getKommune() );
+		
+		// Fjern databasefelter som identifiserer mønstringen ("soft delete")
+		$monstringsnavn = $this->getNavn();
+		$this->setNavn( 'SLETTET: '. $this->getNavn() );
+		$this->setPath( NULL );
+		$this->save();
+		
+		UKMlogger::log(
+			115,
+			$this->getId(),
+			$monstringsnavn
+		);
+		
+		
+		return $this;
+
+	}
+	
+	/**
+	 * fjernKommune
+	 * Trekker en kommune ut av mønstringen, 
+	 * uavhengig om mønstringen har en eller flere kommuner.
+	 *
+	 * @param kommune $kommune
+	 * @return $this
+	**/
+	public function fjernKommune( $kommune ) {
+		if( $this->getType() != 'kommune' ) {
+			throw new Exception('Mønstring: kan ikke fjerne kommune fra annet enn lokalmønstringer!');
+		}
+		if( !is_numeric( $this->getId() ) ) {
+			throw new Exception('Mønstring: kan ikke fjerne kommune da mønstring ikke har numerisk ID');
+		}
+		if( !is_numeric( $this->getSesong() ) ) {
+			throw new Exception('Mønstring: kan ikke fjerne kommune da sesong ikke har numerisk verdi');
+		}
+		$this->_checkSaveRequirements();
+		
+		// Fjern fra databasen
+		$rel_pl_k_del = new SQLdel(
+			'smartukm_rel_pl_k', 
+			array(
+				'pl_id' => $this->getId(),
+				'k_id'	=> $kommune->getId(),
+				'season'=> $this->getSesong()
+			)
+		);
+		//echo $rel_pl_k_del->debug();
+		$rel_pl_k_del->run();
+		
+		// Logg
+		UKMlogger::log(
+			114,
+			$this->getId(),
+			$kommune->getId() .': '. $kommune->getNavn()
+		);
+		
+		// Fjern kommune-id fra mønstringsobjektet (bruker dette for å laste kommuner)
+		if (($key = array_search($kommune->getId(), $this->kommuner_id)) !== false) {
+			unset($this->kommuner_id[$key]);
+		}
+		parent::_resetKommuner();
+		
 		return $this;
 	}
 
@@ -289,6 +378,49 @@ class write_monstring extends monstring_v2 {
 		return $this;
 	}
 	
+	public static function generatePath( $type, $geografi, $sesong, $skipCheck=false ) {
+		switch( $type ) {
+			case 'kommune':
+				// Legg til kommunerelasjoner og bygg link
+				$kommuner = [];
+				foreach( $geografi as $kommune ) {
+					$kommuner[] = $kommune->getURLsafe();
+				}
+				sort( $kommuner );
+				$link = implode('-', $kommuner );
+				
+				if( $skipCheck ) {
+					return $link;
+				}
+				// Sjekk om linken er i bruk for gitt sesong
+				$linkCheck = new SQL(
+									"SELECT `pl_id`
+									 FROM `smartukm_place`
+									 WHERE `pl_link` = '#link'
+									 AND `season` = '#season'",
+									array(
+										'link'=> $link, 
+										'season'=> $sesong,
+										)
+									);
+				$linkExists = $linkCheck->run('field', 'pl_id');
+				if( false !== $linkExists && is_numeric( $linkExists ) ) {
+					$fylke = $kommune->getFylke(); // Bruker siste kommune fra foreach
+					$link = $fylke->getURLsafe() .'-'. $link;
+				}
+				break;
+			case 'fylke':
+				$link = $geografi->getURLsafe();
+				break;
+			case 'land':
+				$link = 'festivalen';
+				break;
+			case 'default':
+				throw new Exception('WRITE_MONSTRING::createLink() kan ikke generer link for ukjent type mønstring!');
+		}
+		return $link;
+	}
+
 	/**
 	 * INTERNE FUNKSJONER FOR LAGRING
 	**/

@@ -1,6 +1,7 @@
 <?php
 require_once('UKM/wp_user.class.php');
 require_once('UKM/logger.class.php');
+require_once('UKM/inc/password.inc.php');
 
 class write_wp_UKM_user extends wp_UKM_user {
 	
