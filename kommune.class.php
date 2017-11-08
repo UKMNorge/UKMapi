@@ -49,7 +49,7 @@ class kommune {
 	}
 	
 	public function getURLsafe() {
-		$text = strtolower( $this->getNavn() );
+		$text = mb_strtolower( $this->getNavn() );
 		$text = htmlentities($text);
 	
 		// eh, noen rare her, men muligens pga tidl dobbeltencode utf8
