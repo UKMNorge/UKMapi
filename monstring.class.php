@@ -167,8 +167,7 @@ class monstring_v2 {
 	**/
 	public function getId() {
 		return $this->id;
-	}		
-	
+	}	
 	
 	/**
 	 * Sett type
@@ -671,6 +670,20 @@ class monstring_v2 {
 	**/
 	public function erOslo() {
 		return $this->getFylke()->getId() == 3;
+	}
+	
+		
+	/**
+	 * eksisterer
+	 * 
+	 * @return bool
+	**/
+	public function eksisterer() {
+		return !is_null( $this->id );
+	}	
+	
+	protected function _resetKommuner() {
+		$this->kommuner = null;
 	}
 }
 ?>
