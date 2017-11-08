@@ -113,10 +113,41 @@ class stat_monstringer_v2 {
 		$res = $qry->run();
 		if( $res ) {
 			while( $row = mysql_fetch_assoc( $res ) ) {
-				$monstringer[] = new monstring_v2( $row );
+				$monstring = new monstring_v2( $row );
+				if( $monstring->getType() == 'kommune' && $monstring->getAntallKommuner() == 0 ) {
+					continue;
+				}
+				$monstringer[] = $monstring;
 			}
 		}
 		return $monstringer;
+	}
+	
+	/**
+	 * Hent alle kommuner uten mønstring
+	 *
+	 * @param int $season
+	 * @return array kommuner
+	**/
+	public static function getAlleKommunerUtenMonstring( $season ) {
+		$kommuner = array();
+		// Hent alle kommuner
+		$qry = new SQL("SELECT `kommune`.`name` AS `kommune`,
+							`kommune`.`id` AS `kommune_id`,
+							`fylke`.`name` AS `fylke`,
+							`pl_k`.`pl_id`,
+							`pl_k`.`season`
+						FROM `smartukm_kommune` AS `kommune`
+						JOIN `smartukm_fylke` AS `fylke` ON ( `fylke`.`id` = `kommune`.`idfylke` )
+						LEFT JOIN `smartukm_rel_pl_k` AS `pl_k` ON (`pl_k`.`k_id` = `kommune`.`id` AND `season` = '#season')
+						WHERE `pl_id` IS NULL
+						ORDER BY `kommune`.`name` ASC",
+					array('season' => $season ));
+		$res = $qry->run();
+		while($r = mysql_fetch_assoc($res)) {
+			$kommuner[] = array('id' => $r['kommune_id'], 'navn' => utf8_encode( $r['kommune'] ), 'fylke' => utf8_encode($r['fylke']) );
+		}
+		return $kommuner;
 	}
 }
 
@@ -150,6 +181,28 @@ class monstringer_v2 {
 	}
 	public function getSesong() {
 		return $this->sesong;
+	}
+	
+	public static function getAlleKommunerUtenMonstring( $season ) {
+		return stat_monstringer_v2::getAlleKommunerUtenMonstring( $season );
+	}
+	
+	public static function kommune( $kommune, $season ) {
+		$qry = new SQL("SELECT `pl_id`
+						FROM `smartukm_rel_pl_k`
+						WHERE `k_id` = '#kommune'
+						AND `season` = '#season'",
+					array('kommune'=>$kommune,'season'=>$season));
+		$pl_id = $qry->run('field','pl_id');
+		
+		if( is_numeric( $pl_id ) ) {
+			$monstring = new monstring_v2( $pl_id );
+			if( $monstring->eksisterer() ) {
+				return $monstring;
+			}
+		}
+		$kommune = new kommune( $kommune );
+		throw new Exception('Fant ingen mønstring for '. $kommune->getNavn() .' i '. $season );
 	}
 }
 ?>
