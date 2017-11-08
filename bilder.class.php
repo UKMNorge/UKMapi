@@ -16,6 +16,16 @@ class bilder {
 		return sizeof( $this->getAll() );
 	}
 	
+	public function first() {
+		return $this->getFirst();
+	}
+	
+	public function getFirst() {
+		$bilder = $this->getAll();
+		$bilde = array_shift( $bilder );
+		return $bilde;
+	}
+	
 	/**
 	 * Alle bilder for gitt innslag
 	 */
