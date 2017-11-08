@@ -38,7 +38,9 @@ abstract class Collection implements Iterator
     }
     
     public function first() {
-	    return array_values( $this->var )[0];
+		if( isset( array_values( $this->var )[ 0 ] ) ) {
+			return array_values( $this->var )[0];
+		}
     }
     public function last() {
 	    // TODO: Untested!!!!

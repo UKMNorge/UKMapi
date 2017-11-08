@@ -36,6 +36,10 @@ class fylke {
 		return $this->navn;
 	}
 	
+	public function erOslo() {
+		return $this->getId() == 3;
+	}
+	
 	/**
 	 * Sett attributt
 	 * Sett egenskaper som for enkelhets skyld kan følge mønstringen et lite stykke
