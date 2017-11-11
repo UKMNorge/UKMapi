@@ -27,7 +27,8 @@ class innslag_v2 {
 	var $playback = null;
 	var $personer_collection = null;
 	var $artikler_collection = null;
-	
+	var $attributes = null;
+		
 	var $avmeldbar = false;
 	var $advarsler = null;
 	
@@ -35,6 +36,8 @@ class innslag_v2 {
 	var $kontaktperson = null;
 
 	public function __construct( $bid_or_row, $select_also_if_not_completed=false ) {
+		$this->attributes = array();
+		
 		if( is_numeric( $bid_or_row ) ) {
 			$this->_loadByBID( $bid_or_row, $select_also_if_not_completed );
 		} else {
@@ -49,11 +52,15 @@ class innslag_v2 {
 	 * @return this;
 	 *
 	**/
-	private function _loadByBID( $b_id, $select_also_if_not_completed ) {
+	static function getLoadQry() {
+		return "SELECT `smartukm_band`.*, 
+					   `td`.`td_demand`,
+					   `td`.`td_konferansier`
+				";
+	}
 
-		$SQL = new SQL("SELECT `smartukm_band`.*, 
-							   `td`.`td_demand`,
-							   `td`.`td_konferansier`
+	private function _loadByBID( $b_id, $select_also_if_not_completed ) {
+		$SQL = new SQL( innslag_v2::getLoadQry() ."
 						FROM `smartukm_band`
 						LEFT JOIN `smartukm_technical` AS `td` ON (`td`.`b_id` = `smartukm_band`.`b_id`)
 						WHERE `smartukm_band`.`b_id` = '#bid' 
@@ -84,6 +91,11 @@ class innslag_v2 {
 		$this->setKontaktpersonId( $row['b_contact'] );
 		$this->_setSubscriptionTime( $row['b_subscr_time'] );
 		$this->setStatus( $row['b_status'] );
+		if( isset( $row['order'] ) ) {
+			$this->setAttr('order', $row['order'] );
+		} else {
+			$this->setAttr('order', null );
+		}
 		return $this;
 	}
 	
@@ -370,7 +382,11 @@ class innslag_v2 {
 	 * @return bool
 	 */
 	public function getAvmeldbar() {
-		return $this->getSubscriptionTime()->getTimestamp() + (self::avmeldbarPeriode() * 24 * 60 * 60 );
+		$subscriptiontime = $this->getSubscriptionTime();
+		if( is_object( $subscriptiontime ) ) {
+			return $subscriptiontime->getTimestamp() + (self::avmeldbarPeriode() * 24 * 60 * 60 );
+		}
+		return false;
 	}
 	
 	/**
@@ -575,4 +591,31 @@ class innslag_v2 {
 		}
 		return $this->advarsler;
 	}
+	
+	/**
+	 * Sett attributt
+	 * Sett egenskaper som for enkelhets skyld kan følge innslaget et lite stykke
+	 * Vil aldri kunne lagres
+	 *
+	 * @param string $key
+	 * @param $value
+	 *
+	 * @return innslag
+	**/
+	public function setAttr( $key, $value ) {
+		$this->attributes[ $key ] = $value;
+		return $this;
+	}
+	
+	/**
+	 * Hent attributt
+	 *
+	 * @param string $key
+	 *
+	 * @return value
+	**/
+	public function getAttr( $key ) {
+		return isset( $this->attributes[ $key ] ) ? $this->attributes[ $key ] : false;
+	}
+
 }

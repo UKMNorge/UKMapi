@@ -170,7 +170,7 @@ class innslag_collection {
 	}
 	
 	public function setContainerType( $type ) {
-		if( !in_array( $type, array('monstring' ) ) ) {
+		if( !in_array( $type, array('monstring','forestilling' ) ) ) {
 			throw new Exception('INNSLAG_COLLECTION: Har ikke støtte for '. $type .'-collection');
 		}
 		$this->containerType = $type;
@@ -388,7 +388,24 @@ class innslag_collection {
 											# IDs inputted directly to avoid escaping
 										)
 									);
-				}		
+					break;
+				}
+				break;
+			case 'forestilling':
+				return 	new SQL(innslag_v2::getLoadQry() .
+								",
+								`rel`.`order` 
+								FROM `smartukm_rel_b_c` AS `rel` 
+								JOIN `smartukm_band` AS `smartukm_band` ON (`smartukm_band`.`b_id` = `rel`.`b_id`) 
+								LEFT JOIN `smartukm_technical` AS `td` ON (`td`.`b_id` = `smartukm_band`.`b_id`)
+								WHERE `rel`.`c_id` = #c_id
+								AND `smartukm_band`.`b_status` = 8
+								ORDER BY `order` ASC",
+								array(
+									'c_id' => $this->getContainerObjectId()
+								)
+							);
+				break;
 			default:
 				throw new Exception('innslag: Har ikke støtte for '. $type .'-collection (#2)');
 		}
