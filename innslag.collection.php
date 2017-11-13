@@ -356,7 +356,7 @@ class innslag_collection {
 
 			case 'forestilling':
 				if( null == $this->getContainerId() ) {
-					throw new Exception('INNSLAG_COLLECTION: Krever container-ID for å hente forestillingens innslag');
+					throw new Exception('INNSLAG_COLLECTION: Krever container-ID for å hente forestillingens innslag', 2);
 				}
 				$sql = new SQL(innslag_v2::getLoadQuery()."
 								JOIN `smartukm_rel_b_c` AS `rel`
@@ -449,7 +449,7 @@ class innslag_collection {
 		}
 
 		if( false != $this->get( $innslag->getId() ) ) {
-			throw new Exception("INNSLAG_COLLECTION: Innslaget er allerede lagt til i denne hendelsen.");
+			throw new Exception("INNSLAG_COLLECTION: Innslaget er allerede lagt til i denne hendelsen.", 1);
 		}
 
 		UKMlogger::log( 518, $this->getContainerId(), $innslag->getId() );
