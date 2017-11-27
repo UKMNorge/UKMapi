@@ -54,7 +54,7 @@ class write_wp_blog {
 		return write_wp_blog::addUsersToBlog( 
 			$fylkesbrukere[ $fylke_urlname ],
 			$blog_id,
-			'administrator'
+			'editor'
 		);
 	}
 
