@@ -33,20 +33,7 @@ class forestilling_v2 extends forestilling {
 		// TODO: FIX THIS
 		return $this->innslag();
 	}
-
-	/**
-	 * Hent innslag i denne forestillingen.
-	 *
-	 * @return innslag collection
-	**/
-	public function getInnslag() {
-		if( null == $this->innslag ) {
-			$this->innslag = new innslag_collection( 'forestilling', $this->getId() );
-			$this->innslag->setContainerDataForestilling( $this );
-		}
-		return $this->innslag;
-	}
-
+	
 	/**
 	 * Sett ID
 	 *
@@ -58,7 +45,6 @@ class forestilling_v2 extends forestilling {
 		$this->id = $id;
 		return $this;
 	}
-	
 	/**
 	 * hent ID
 	 * @return integer $id

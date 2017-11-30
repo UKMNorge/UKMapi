@@ -562,7 +562,7 @@ class person_v2 {
 	var $fornavn = null;
 	var $etternavn = null;
 	var $mobil = null;
-	var $rolle = null;
+	var $instrument = null;
 	var $epost = null;
 	
 	var $videresendtTil = null;
@@ -573,7 +573,7 @@ class person_v2 {
 		} elseif( is_array( $person ) ) {
 			$this->_load_from_array( $person );
 		} else {
-			throw new Exception('PERSON_V2: Oppretting krever parameter $person som numerisk id eller array, fikk '. gettype($person) .'.');
+			throw new Exception('PERSON_V2: Object construction requires parameter $person as integer or array');
 		}
 #		if( 0 == $this->id ) {
 #			throw new Exception('PERSON_V2: Innslag MÅ ha kontaktperson');
@@ -593,14 +593,14 @@ class person_v2 {
 		$this->setFornavn( utf8_encode($person['p_firstname']) );
 		$this->setEtternavn( utf8_encode($person['p_lastname']) );
 		$this->setMobil( $person['p_phone'] );
-		$this->setEpost( utf8_encode($person['p_email']) );
+		$this->setEpost( $person['p_email'] );
 		$this->setFodselsdato( $person['p_dob'] );
 		$this->setKommune( $person['p_kommune'] );
 		if( array_key_exists('instrument', $person ) ) {
-			$this->setRolle( utf8_encode($person['instrument']) );
+			$this->setInstrument( utf8_encode($person['instrument']) );
 		}
 		if( array_key_exists('instrument_object', $person ) ) {
-			$this->setRolleObject( json_decode( $person['instrument_object'] ) );
+			$this->setInstrumentObject( json_decode( $person['instrument_object'] ) );
 		}
 		if( array_key_exists('pl_ids', $person ) ) {
 			$this->setVideresendtTil( explode(',', $person['pl_ids']) );
@@ -751,76 +751,25 @@ class person_v2 {
 		return $this->epost;
 	}
 
-	/**
-	 * Sett rolle (i.e. instrument for scene, film/flerkamera/tekst/foto for UKM Media osv)
-	 *
-	 * @param string|array $rolle
-	 * @return $this
-	 */
-	public function setRolle( $rolle ) {
-		if( is_array( $rolle ) ) {
-			$rolle_object = array();
-			$rolle_nicename = '';
-
-			foreach ($rolle as $key => $r) {
-				$rolle_object[] = $key;
-				$rolle_nicename = $rolle_nicename . $r . ', ';
-			}
-			
-			$this->setRolleObject($rolle_object);
-			$rolle = rtrim($rolle_nicename, ', ');
-		}
-
-		$this->rolle = $rolle;
-		return $this;
-	}
-
-	/**
-	 * Hent rolle (i.e. instrument for scene, film/flerkamera/tekst/foto for UKM Media osv)
-	 *
-	 * @return string $rolle
-	 */
-	public function getRolle() {
-		return $this->rolle;
-	}
-
-	/**
-	 * JSON-encodes på vei inn i databasen, vanlig array ellers.
-	 * @param array
-	 * @return $this
-	 */
-	public function setRolleObject( $rolleArray ) {
-		$this->rolleObject = $rolleArray;
-		return $this;
-	}
-
-	public function getRolleObject() {
-		return $this->rolleObject;
-	}
 	
 	/**
-	 * Sett instrument. Alias of setRolle().
+	 * Sett instrument
 	 *
 	 * @param string $instrument
 	 * @return $this
 	**/
 	public function setInstrument( $instrument ) {
-		$this->setRolle($instrument);
+		$this->instrument = $instrument;
 		return $this;
-
-		/*$this->instrument = $instrument;
-		return $this;*/
 	}
 	/**
-	 * Hent instrument. Alias of getRolle().
+	 * Hent instrument
 	 *
 	 * @return string $instrument
 	**/
 	public function getInstrument() {
-		return $this->getRolle();
-		#return $this->instrument;
+		return $this->instrument;
 	}
-
 	/**
 	 * Sett instrumentObject
 	 * Brukes av nettredaksjon + arrangør for å holde styr på undergrupper
@@ -829,8 +778,7 @@ class person_v2 {
 	 * @return $this
 	**/
 	public function setInstrumentObject( $instrumentArray ) {
-		$this->setRolleObject($instrumentArray);
-		#$this->instrumentObject = $instrumentArray;
+		$this->instrumentObject = $instrumentArray;
 		return $this;
 	}
 	/**
@@ -840,8 +788,7 @@ class person_v2 {
 	 * @return array $instrumentObject
 	**/
 	public function getInstrumentObject() {
-		return $this->getRolleObject();
-		#return $this->instrumentObject;
+		return $this->instrumentObject;
 	}
 
 	/**
@@ -924,30 +871,8 @@ class person_v2 {
 		}
 		return $this->fylke;
 	}
-	
-	/**
-	 * hent kjønn
-	 * Henter kjønn fra navnetabellen
-	 *
-	 * OBS: krever databasespørring!
-	 * TODO: write_person bør lagre dette på personobjektet
-	 *
-	 * @return string kjønn
-	**/
-	public function getKjonn() {
-		$first_name = split(" ", str_replace("-", " ", $this->getFornavn()) );
-		$first_name = $first_name[0];
-		
-		$qry = "SELECT `kjonn`
-				FROM `ukm_navn`
-				WHERE `navn` = '" . $first_name ."' ";
-		
-		$qry = new SQL($qry);
-		$res = $qry->run('field','kjonn');
-		
-		return ($res == null) ? 'unknown' : $res;
-	}
 
+	
 	/**
 	 * Set BT_ID (innslagstype)
 	 * Brukes for å definere om man er videresendt (BTID==1 gir videresendt uavhengig av database-relasjoner)

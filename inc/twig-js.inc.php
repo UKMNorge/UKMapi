@@ -29,7 +29,7 @@ function TWIGjs_simple($templatefolder) {
 	foreach($templates as $template) {
 		if($template != '.' && $template != '..') {
 			$templateID = str_replace(array('.html.twig','_','.'),
-									  array('', '','_'),
+									  array('', '_','_'),
 									  basename($template)
 									 );
 			$SCRIPT .= 'var twigJS_'. $templateID.' = twig({data: \''.str_replace("'","\'",preg_replace( "/\r|\n/", "",file_get_contents( $template ))).'\'});';

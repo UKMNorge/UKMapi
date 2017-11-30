@@ -257,69 +257,6 @@ class statistikk {
 			return $array;
 		}
 	
-	/**
-	 * Oppdater statistikk for innslag
-	 *
-	 * @param (innslag|write_innslag) $innslag
-	 * @return void
-	**/
-	public static function oppdater_innslag( $innslag ) {
-		$sqldel = new SQLdel('ukm_statistics',
-							 array('season' => $innslag->getSesong(),
-							 	   'b_id' => $innslag->getId()));
-		$sqldel->run();
-
-		if( $innslag->getStatus() == 8 ) {
-			foreach( $innslag->getPersoner()->getAll() as $person ) { // behandle hver person
-				if( $innslag->getSubscriptionTime()->format('Y') == 1970) {
-					$time = new DateTime( $innslag->getSesong() .'-01-01T00:00:01Z' );
-				}
-				$time = $innslag->getSubscriptionTime()->format('Y-m-d') .'T'. $innslag->getSubscriptionTime()->format('H:i:s') .'Z';
-				
-				$stats_info = array(
-					"b_id" => $innslag->getId(), // innslag-id
-					"p_id" => $person->getId(), // person-id
-					"k_id" => $innslag->getKommune()->getId(), // kommune-id
-					"f_id" => $innslag->getFylke()->getId(), // fylke-id
-					"bt_id" => $innslag->getType()->getId(), // innslagstype-id
-					"subcat" => $innslag->getKategori(), // underkategori
-					"age" => $person->getAlder('') == '25+' ? 0 : $person->getAlder(''), // alder
-					"sex" => $person->getKjonn(), // kjonn
-					"time" =>  $time, // tid ved registrering
-					"fylke" => false, // dratt pa fylkesmonstring?
-					"land" => false, // dratt pa festivalen?
-					"season" => $innslag->getSesong() // sesong
-				);
-				
-				// faktisk lagre det 
-				$qry = "SELECT * FROM `ukm_statistics`" .
-						" WHERE `b_id` = '" . $stats_info["b_id"] . "'" .
-						" AND `p_id` = '" . $stats_info["p_id"] . "'" .
-						" AND `k_id` = '" . $stats_info["k_id"] . "'"  .
-						" AND `season` = '" . $stats_info["season"] . "'";
-				$sql = new SQL($qry);
-				// Sjekke om ting skal settes inn eller oppdateres
-				if (mysql_num_rows($sql->run()) > 0) {
-					$sql_ins = new SQLins('ukm_statistics', array(
-						"b_id" => $stats_info["b_id"], // innslag-id
-						"p_id" => $stats_info["p_id"], // person-id
-						"k_id" => $stats_info["k_id"], // kommune-id
-						"season" => $stats_info["season"], // kommune-id
-					) );
-				} else {
-					$sql_ins = new SQLins("ukm_statistics");
-				}
-				
-				// Legge til info i insert-sporringen
-				foreach ($stats_info as $key => $value) {
-					$sql_ins->add($key, $value);
-				}
-				$sql_ins->run();
-			}
-		}
-	}
-
-	
 	
 	private function _load($season) {
                 $kommuneList = implode(', ', $this->kommuner);

@@ -87,25 +87,4 @@ class innslag_type {
 	public function __toString() {
 		return $this->getNavn();
 	}
-
-	public function getFunksjoner() {
-        if( 5 == $this->getId() ) {
-            return array('tekst'=> 'Journalist',
-                         'foto' => 'Fotograf',
-                         'videoreportasjer' => 'Videoreportasjer',
-                         'flerkamera_regi' => 'Flerkamera, regi',
-                         'flerkamera_kamera' => 'Flerkamera, kamera',
-                         'pr' => 'PR og pressekontakt'
-                        );
-        } elseif( 8 == $this->getId() ) {
-            return array('lyd' => 'Lyd',
-                         'lys' => 'Lys',
-                         'scenearbeider' => 'Scenearbeider',
-                         'artistvert' => 'Artistvert',
-                         'info' => 'Info / sekretariat',
-                         'koordinator' => 'Koordinator / produsent'
-                        );
-        }
-        return [];
-    }
 }

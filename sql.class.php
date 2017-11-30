@@ -152,7 +152,6 @@ if(!class_exists('SQLins')) {
 	class SQLins {
 		var $wheres = ' WHERE ';
 		var $db;
-		var $insid = null;
 		var $keys = array();
 		var $vals = array();
 		var $error = false;
@@ -260,10 +259,7 @@ if(!class_exists('SQLins')) {
 			}
 		}
 		function insid() {
-			if( null == $this->insid ) {
-				$this->insid = mysql_insert_id( $this->db );
-			}
-			return $this->insid;
+			return mysql_insert_id( $this->db );
 		}
 	}
 }

@@ -7,15 +7,15 @@ class innslag_collection {
 	var $innslag = null;
 	var $innslag_ufullstendige = null;
 	var $containerType = null;
-	var $containerId = null;
+	var $containerObjectId = null;
 
 	var $monstring_id = null; // Brukes av container_type 'monstring'
 	var $monstring_type = null; // Brukes av container_type 'monstring'
 	var $monstring_sesong = null; // Brukes av container_type 'monstring'
 	
-	public function __construct($container_type, $containerId) {
+	public function __construct($container_type, $container_object_id) {
 		$this->setContainerType( $container_type );
-		$this->setContainerId( $containerId );
+		$this->setContainerObjectId( $container_object_id );
 	}
 	
 	/**
@@ -66,15 +66,6 @@ class innslag_collection {
 		}
 		return false;
 	}
-
-	public function get( $id ) {
-	    foreach( $this->getAll() as $item ) {
-		    if( $id == $item->getId() ) {
-			    return $item;
-		    }
-	    }
-	    return false;
-    }
 
 	public function getAntall() {
 		return sizeof( $this->getAll() );
@@ -170,17 +161,16 @@ class innslag_collection {
 		return $selected_innslag;
 	}
 	
-	public function setContainerId( $id ) {
-		$this->containerId = $id;
-
+	public function setContainerObjectId( $id ) {
+		$this->containerObjectId = $id;
 		return $this;
 	}
-	public function getContainerId() {
-		return $this->containerId;
+	public function getContainerObjectId() {
+		return $this->containerObjectId;
 	}
 	
 	public function setContainerType( $type ) {
-		if( !in_array( $type, array('monstring', 'forestilling' ) ) ) {
+		if( !in_array( $type, array('monstring','forestilling' ) ) ) {
 			throw new Exception('INNSLAG_COLLECTION: Har ikke støtte for '. $type .'-collection');
 		}
 		$this->containerType = $type;
@@ -197,15 +187,6 @@ class innslag_collection {
 		$this->setMonstringFylke( $fylke );
 		$this->setMonstringKommuner( $kommuner );
 		return $this;
-	}
-
-	/**
-	 *
-	 *
-	 *
-	 *
-	**/
-	public function setContainerDataForestilling( $forestilling ) {
 	}
 
 	/**
@@ -395,7 +376,7 @@ class innslag_collection {
 											   `td`.`td_demand`,
 											   `td`.`td_konferansier`
 										FROM `smartukm_band` AS `band`
-										LEFT JOIN `smartukm_rel_pl_b` AS `pl_b` ON (`pl_b`.`b_id` = `band`.`b_id`)
+										JOIN `smartukm_rel_pl_b` AS `pl_b` ON (`pl_b`.`b_id` = `band`.`b_id`)
 										LEFT JOIN `smartukm_technical` AS `td` ON (`td`.`b_id` = `band`.`b_id`) 
 										WHERE   `b_season` = '#season'
 											AND `b_status` ". $operand ." '8'
@@ -411,194 +392,24 @@ class innslag_collection {
 				}
 				break;
 			case 'forestilling':
-				if( null == $this->getContainerId() ) {
-					throw new Exception('INNSLAG_COLLECTION: Krever container-ID for å hente forestillingens innslag', 2);
-				}
-				$sql = new SQL(innslag_v2::getLoadQuery()."
-								JOIN `smartukm_rel_b_c` AS `rel`
-									ON `rel`.`b_id` = `smartukm_band`.`b_id`
-								WHERE `rel`.`c_id` = '#c_id'",
-								array( 'c_id' => $this->getContainerId() ) );
-				return $sql; 
+				return 	new SQL(innslag_v2::getLoadQry() .
+								",
+								`rel`.`order` 
+								FROM `smartukm_rel_b_c` AS `rel` 
+								JOIN `smartukm_band` AS `smartukm_band` ON (`smartukm_band`.`b_id` = `rel`.`b_id`) 
+								LEFT JOIN `smartukm_technical` AS `td` ON (`td`.`b_id` = `smartukm_band`.`b_id`)
+								WHERE `rel`.`c_id` = #c_id
+								AND `smartukm_band`.`b_status` = 8
+								ORDER BY `order` ASC",
+								array(
+									'c_id' => $this->getContainerObjectId()
+								)
+							);
 				break;
 			default:
-				throw new Exception('innslag: Har ikke støtte for '. $this->getContainerType() .'-collection (#2)');
+				throw new Exception('innslag: Har ikke støtte for '. $type .'-collection (#2)');
 		}
 	}
-
-
-	/**
-	 * meldAv - Melder av et innslag fra mønstringen.
-	 * @param write_innslag $innslag
-	 * @return bool
-	 */
-	public function meldAv($innslag) {
-		### Gjør litt validering, da.
-		if( 'write_innslag' != get_class($innslag) ) {
-			throw new Exception("INNSLAG_COLLECTION: Krever skrivbart innslagsobjekt for å kunne melde av fra mønstringen.");
-		}
-		if( 'monstring' != $this->getContainerType() ) {
-			throw new Exception("INNSLAG_COLLECTION: Kan ikke fjerne et innslag uten mønstring.");
-		}
-		if( !is_numeric( $innslag->getId() ) ) {
-			throw new Exception("INNSLAG_COLLECTION: Avmelding av innslag krever et innslag med numerisk ID.");
-		}
-		
-		if( !UKMlogger::ready() ) {
-			throw new Exception("INNSLAG_COLLECTION: Kan ikke melde av innslaget når loggeren ikke er klar.");
-		}
-
-		$monstring = new monstring_v2( $this->getContainerId() );
-		if( $monstring->getType() !== 'kommune' ) {
-			throw new Exception("INNSLAG_COLLECTION: Avmelding av innslag er kun implementert for lokalmønstringer!");
-		}
-		if( !is_numeric( $monstring->getId() ) ) {
-			throw new Exception("INNSLAG_COLLECTION: Avmelding av innslag krever en mønstring med numerisk ID.");	
-		}
-
-		if( $innslag->erVideresendt() ) {
-			throw new Exception("INNSLAG_COLLECTION: Du kan ikke melde av et innslag som er videresendt før du har fjernet videresendingen.");
-		}
-		
-
-		$qry = new SQLdel("smartukm_rel_pl_b", array("b_id" => $innslag->getId(), 'pl_id' => $monstring->getId(), 'season' => $this->getMonstringSesong()) );
-		// TODO: Sjekk at den faktisk logger!
-		/**
-		INSERT INTO `log_actions` 
-			(`log_action_id`, `log_action_verb`, `log_action_element`, `log_action_datatype`, `log_action_identifier`, `log_action_printobject`)
-		VALUES
-			(601, 'meldte av', 'innslaget', 'int', 'smartukm_rel_pl_b|delete', 0);
-
-		*/
-		UKMlogger::log( 601, $innslag->getId(), $innslag->getId() );
-		$innslag->setStatus(77);
-		$innslag->save();
-		$res = $qry->run();
-
-		// TODO: Sørg for å fjerne fra eventuelle forestillinger også!
-		if( 'monstring' == $this->getContainerType() ) {
-			$this->_fjernInnslagFraAlleForestillingerIMonstring( $innslag );
-		}
-		if(1 == $res) {
-			return true;
-		}
-		throw new Exception("INNSLAG_COLLECTION: Klarte ikke å melde av innslaget.");
-	}
-
-	/**
-	 * Legger til et innslag i collectionen og container.
-	 *
-	 * @param write_innslag $innslag
-	 * @return $this
-	 *
-	 */
-	public function leggTil( $innslag ) {
-		if( 'write_innslag' != get_class($innslag) ) {
-			throw new Exception("INNSLAG_COLLECTION: Krever skrivbart innslagsobjekt for å kunne legge til i forestillingen.");
-		}
-		if( 'forestilling' != $this->getContainerType() ) {
-			throw new Exception("INNSLAG_COLLECTION: Kan kun legge innslag til en forestilling enda, ikke " . $this->getContainerType() );
-		}
-		
-		if( !UKMlogger::ready() ) {
-			throw new Exception("INNSLAG_COLLECTION: Kan ikke legge til innslag når loggeren ikke er klar.");
-		}
-
-		if( false != $this->get( $innslag->getId() ) ) {
-			throw new Exception("INNSLAG_COLLECTION: Innslaget er allerede lagt til i denne hendelsen.", 1);
-		}
-
-		UKMlogger::log( 518, $this->getContainerId(), $innslag->getId() );
-
-		$lastorder = new SQL("SELECT `order`
-							  FROM `smartukm_rel_b_c`
-							  WHERE `c_id` = '#cid'
-							  ORDER BY `order` DESC
-							  LIMIT 1",
-							  array('cid' => $this->getContainerId() ) );
-		$lastorder = $lastorder->run('field','order');
-		$order = (int)$lastorder+1;
-		
-		$qry = new SQLins('smartukm_rel_b_c');
-		$qry->add('b_id', $innslag->getId() );
-		$qry->add('c_id', $this->getContainerId() );
-		$qry->add('order', $order);
-		$res = $qry->run();
-		
-		if( 1 != $res ) {
-			throw new Exception("INNSLAG_COLLECTION: Klarte ikke å legge til innslaget i forestilling.");
-		}
-		return $this;
-	}
-
-	/**
-	 * Fjerner et innslag fra denne forestillingen.
-	 *
-	 * @param write_innslag $innslag
-	 * @return $this
-	 */
-	public function fjern( $innslag ) {
-		if( 'write_innslag' != get_class($innslag) ) {
-			throw new Exception("INNSLAG_COLLECTION: Krever skrivbart innslagsobjekt for å kunne fjerne fra forestillinger.");
-		}
-		if( 'forestilling' != $this->getContainerType() ) {
-			throw new Exception("INNSLAG_COLLECTION: Kan kun fjerne innslag fra en forestilling enda, ikke " . $this->getContainerType() );
-		}
-		if( !UKMlogger::ready() ) {
-			throw new Exception("INNSLAG_COLLECTION: Kan ikke fjerne innslag når loggeren ikke er klar.");
-		}
-
-		if( !is_numeric( $this->getContainerId() ) ||
-			!is_numeric( $innslag->getId() ) ||
-			0 == $innslag->getId() || 
-			0 == $this->getContainerId() )
-		{
-			throw new Exception("FORESTILLING_V2: Krever forestillings-ID og innslags-ID som tall.");
-		}
-
-		UKMlogger::log( 519, $this->getContainerId(), $innslag->getId() );
-
-		$qry = new SQLdel(	'smartukm_rel_b_c', 
-							array(	'c_id' => $this->getContainerId(),
-									'b_id' => $innslag->getId() ) );
-		$res = $qry->run();
-
-		if( 1 != $res ) {
-			throw new Exception("INNSLAG_COLLECTION: Klarte ikke å fjerne innslaget fra forestillingen.");
-		}
-		return $this;
-	}
-
-	private function _fjernInnslagFraAlleForestillingerIMonstring( $innslag ) {
-		if( 'write_innslag' != get_class($innslag) ) {
-			throw new Exception("INNSLAG_COLLECTION: Krever skrivbart innslagsobjekt.");
-		}
-		if( 'monstring' != $this->getContainerType() ) {
-			throw new Exception("INNSLAG_COLLECTION: _fjernInnslagFraAlleForestillingerIMonstring kan kun kjøres med mønstring som container, ikke " . $this->getContainerType() );
-		}
-		if( !UKMlogger::ready() ) {
-			throw new Exception("INNSLAG_COLLECTION: Kan ikke fjerne innslag når loggeren ikke er klar.");
-		}
-
-		// Finn alle forestillinger i mønstringen
-		$fQry = new SQL("SELECT `c_id` FROM `smartukm_concert` WHERE `pl_id` = '#pl_id' ", array('pl_id' => $this->getContainerId() ));
-		$fRes = $fQry->run();
-		$forestillinger = array();
-		while( $row = mysql_fetch_array($fRes) ) {
-			$forestillinger[] = $row['c_id'];
-		}
-
-		// Fjern innslaget fra alle hendelser i mønstringen
-		foreach($forestillinger as $forestilling) {
-			if( null != $forestilling || null != $innslag->getId() ) {
-				$qry = new SQLdel("smartukm_rel_b_c", array( 'c_id' => $forestilling, 'b_id' => $innslag->getId() ));
-				UKMlogger::log( 701, $this->getContainerId(), $innslag->getId() );
-				$res = $qry->run();
-			}
-		}
-
-	}
-
 	/**
 	 * legg til innslag
 	 *

@@ -9,14 +9,14 @@ class program {
 	var $forestillinger = null;
 	var $skjulte_forestillinger = null;
 	var $containerType = null;
-	var $containerId = null;
+	var $containerObjectId = null;
 	var $rekkefolge = null;
 	
 	var $container_pl_id = null; // Brukes av container_type 'innslag'
 	
 	public function __construct($container_type, $container_object_id) {
 		$this->setContainerType( $container_type );
-		$this->setContainerId( $container_object_id );
+		$this->setContainerObjectId( $container_object_id );
 		$this->rekkefolge = [];
 	}
 	
@@ -78,12 +78,12 @@ class program {
 	}
 
 	
-	public function setContainerId( $id ) {
-		$this->containerId = $id;
+	public function setContainerObjectId( $id ) {
+		$this->containerObjectId = $id;
 		return $this;
 	}
-	public function getContainerId() {
-		return $this->containerId;
+	public function getContainerObjectId() {
+		return $this->containerObjectId;
 	}
 	
 	public function setContainerType( $type ) {
@@ -153,15 +153,15 @@ class program {
 	private function _getQuery() {
 		switch( $this->getContainerType() ) {
 			case 'monstring':
-				if( null == $this->getContainerId() ) {
-					throw new Exception('FORESTILLINGER: Krever MønstringID (containerId) for å hente mønstringens program');
+				if( null == $this->getContainerObjectId() ) {
+					throw new Exception('FORESTILLINGER: Krever MønstringID (ContainerObjectId) for å hente mønstringens program');
 				}
 				
 				return new SQL( "SELECT *
 						    	 FROM `smartukm_concert` 
 						    	 WHERE `pl_id` = '#pl_id'
 						    	 ORDER BY #order ASC",
-						    array('pl_id' => $this->getContainerId(),
+						    array('pl_id' => $this->getContainerObjectId(),
 						     	  'order' => 'c_start'
 						     	 )
 						     );
@@ -177,7 +177,7 @@ class program {
 								WHERE `concert`.`pl_id` = '#pl_id'
 								AND `relation`.`b_id` = '#b_id'
 								ORDER BY `c_start` ASC",
-							array('b_id' => $this->getContainerId(), 'pl_id' => $this->getMonstringId() )
+							array('b_id' => $this->getContainerObjectId(), 'pl_id' => $this->getMonstringId() )
 							);
 		
 			default:
