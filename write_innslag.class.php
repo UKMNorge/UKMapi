@@ -1,5 +1,4 @@
 <?php
-
 /**
 	HVORDAN CONSTRUCT OG SET FUNKER:
 	- konstruktøren kjører parent::construct
@@ -9,10 +8,9 @@
 	- etter foreldre-konstruktøren er ferdig resetter vi changes
 		changes brukes av save-funksjonen for å avgjøre hvilke verdier som er endret
 	- alle settere sjekker om getteren gir samme verdi som setteren før den logger endring (change)
-**/
-	
+**/	
+require_once('UKM/log.class.php');
 require_once('UKM/innslag.class.php');
-
 // For valideringen.
 require_once('UKM/advarsel.class.php');
 

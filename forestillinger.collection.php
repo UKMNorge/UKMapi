@@ -40,6 +40,10 @@ class program {
 		return sizeof( $this->getAll() );
 	}
 	
+	public function getAntallSkjulte() {
+		return sizeof( $this->getAllSkjulte() );
+	}
+	
 	public function getAll() {
 		$this->_load();
 		return $this->forestillinger;

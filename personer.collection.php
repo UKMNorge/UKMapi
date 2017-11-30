@@ -7,6 +7,7 @@ class personer {
 	var $personer = null;
 	var $personer_videresendt = null;
 	var $personer_ikke_videresendt = null;
+	var $debug = false;
 	
 	public function __construct( $b_id ) {
 		$this->b_id = $b_id;
@@ -219,7 +220,7 @@ class personer {
 							`participant`.`p_lastname` ASC",
 						array('bid' => $this->_getBID() ));
 		$res = $SQL->run();
-		if( isset( $_GET['debug'] ) )  {
+		if( isset( $_GET['debug'] ) || $this->debug )  {
 			echo $SQL->debug();
 		}
 		if($res === false) {

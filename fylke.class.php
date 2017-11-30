@@ -36,6 +36,10 @@ class fylke {
 		return $this->navn;
 	}
 	
+	public function erOslo() {
+		return $this->getId() == 3;
+	}
+	
 	/**
 	 * Sett attributt
 	 * Sett egenskaper som for enkelhets skyld kan følge mønstringen et lite stykke
@@ -105,5 +109,14 @@ class fylke {
 	
 	public function __toString() {
 		return $this->getNavn();
+	}
+	
+	/**
+	 * getURLsafe
+	 * Alias av getLink for consistency kommune.class
+	 * @return string link
+	**/
+	public function getURLsafe() {
+		return $this->getLink();
 	}
 }

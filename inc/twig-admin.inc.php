@@ -22,6 +22,9 @@ function TWIG($template, $dataarray, $templatefolder, $debug=false) {
 	$filter = new Twig_SimpleFilter('kroner', 'TWIGkroner');
 	$twig->addFilter($filter);
 	
+	$function = new Twig_SimpleFunction('GET', 'TWIG_GET');
+	$twig->addFunction($function);
+	
 	// Set language to French
 	putenv('LC_ALL=nb_NO');
 	setlocale(LC_ALL, 'nb_NO');
@@ -35,6 +38,12 @@ function TWIG($template, $dataarray, $templatefolder, $debug=false) {
 	
 	return $twig->render($template, $dataarray);
 }
+function TWIG_GET( $var ) {
+	if( isset( $_GET[ $var ] ) ) {
+		return $_GET[ $var ];
+	}
+	return false;
+}
 
 function TWIGkroner( $number, $decimals = 0, $decPoint = ',', $thousandsSep = ' ' ) {
 	$price = number_format($number, $decimals, $decPoint, $thousandsSep);
@@ -46,7 +55,9 @@ function TWIGrender($template, $dataarray, $debug=false) {
 }
 
 function TWIG_date($time, $format) {
-	if( is_string( $time ) && !is_numeric( $time ) ) {
+	if( is_object( $time ) && get_class( $time ) == 'DateTime' ) {
+		$time = $time->getTimestamp();
+	} elseif( is_string( $time ) && !is_numeric( $time ) ) {
 		$time = strtotime($time);
 	}
 	$date = date($format, $time);

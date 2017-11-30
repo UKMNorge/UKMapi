@@ -11,6 +11,8 @@ class forestilling_v2 extends forestilling {
 	var $synlig_i_rammeprogram = null;
 	var $synlig_detaljprogram = null;
 	
+	var $collection_innslag = null;
+	
 	public function __construct($c_id,$tekniskprove=false) {
 		if( is_array( $c_id ) ) {
 			$c_id = $c_id['c_id'];
@@ -104,6 +106,18 @@ class forestilling_v2 extends forestilling {
 	**/
 	public function getSted() {
 		return $this->sted;
+	}
+	
+	public function getInnslag() {
+		if( null == $this->collection_innslag ) {
+			$this->_loadInnslag();
+		}
+		
+		return $this->collection_innslag;
+	}
+	
+	private function _loadInnslag() {
+		$this->collection_innslag = new innslag_collection('forestilling', $this->getId());
 	}
 	
 	/**
@@ -520,17 +534,21 @@ class forestilling {
 		$bandRows = array();
 		
 		$kunstutstilling = true;
-		if( $bandResult )
-		while( $bandRow = mysql_fetch_assoc( $bandResult ) ) {
-			$this->bandRows[] = $bandRow;
-			$this->index[] = $bandRow['b_id'];
-			if($kunstutstilling && $bandRow['bt_id']!=3)
-				$kunstutstilling = false;
+		if( $bandResult ) {
+			while( $bandRow = mysql_fetch_assoc( $bandResult ) ) {
+				$this->bandRows[] = $bandRow;
+				$this->index[] = $bandRow['b_id'];
+				if($kunstutstilling && $bandRow['bt_id']!=3)
+					$kunstutstilling = false;
+			}
+			
+			$this->info['antall_innslag'] = mysql_num_rows($bandResult);
+		} else {
+			$this->info['antall_innslag'] = 0;
 		}
-		
-		$this->info['antall_innslag'] = mysql_num_rows($bandResult);
 		if($this->info['antall_innslag']==0)
 			$kunstutstilling=false;
+			
 		$this->info['kunstutstilling'] = $kunstutstilling;
 		
 		if(!isset($this->bandRows))

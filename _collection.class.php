@@ -8,6 +8,10 @@ abstract class Collection implements Iterator
 	    $this->var[] = $item;
 	    return $this;
     }
+    
+    public function har( $object ) {
+	    return $this->find( $object->getId() );
+    }
 
     public function find( $id ) {
 	    foreach( $this as $item ) {
@@ -34,7 +38,9 @@ abstract class Collection implements Iterator
     }
     
     public function first() {
-	    return array_values( $this->var )[0];
+		if( isset( array_values( $this->var )[ 0 ] ) ) {
+			return array_values( $this->var )[0];
+		}
     }
     public function last() {
 	    // TODO: Untested!!!!

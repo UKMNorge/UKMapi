@@ -47,4 +47,17 @@ class kommune {
 	public function __toString() {
 		return $this->getNavn();
 	}
+	
+	public function getURLsafe() {
+		$text = mb_strtolower( $this->getNavn() );
+		$text = htmlentities($text);
+	
+		// eh, noen rare her, men muligens pga tidl dobbeltencode utf8
+		$ut = array('&aring;','&aelig;','&oslash;','&atilde;','&ocedil;','&uuml;');
+		$inn= array('a','a','o','o','o','u');
+		$text = str_replace($ut, $inn, $text);
+		
+		$text = preg_replace("/[^A-Za-z0-9-]/","",$text);
+		return $text;
+	}
 }

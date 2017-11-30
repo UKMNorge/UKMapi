@@ -50,6 +50,23 @@ class innslag_collection {
 		return $this->getAntall() > 0;
 	}
 
+	/**
+	 * Sjekker om collectionen har et innslag med en gitt ID. Fint for å verifisere forespørsler.
+	 *
+	 */
+	public function harInnslagMedId($id) {
+		if ( null == $this->innslag ) {
+			$this->getAll();
+		}
+		//var_dump($this->innslag);
+		foreach($this->innslag as $innslag) {
+			if($id == $innslag->getId()){
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public function get( $id ) {
 	    foreach( $this->getAll() as $item ) {
 		    if( $id == $item->getId() ) {
@@ -75,6 +92,14 @@ class innslag_collection {
 			$this->_load( false );
 		}
 		return $this->innslag_ufullstendige;
+	}
+
+	public function getAllByKommune( $kommune ) {
+		return $this->filterByGeografi( $kommune, 'kommune', $this->getAll() );
+	}
+
+	public function getAllByFylke( $fylke ) {
+		return $this->filterByGeografi( $fylke, 'fylke', $this->getAll() );
 	}
 	
 	public function getAllByType( $innslag_type ) {
@@ -116,8 +141,38 @@ class innslag_collection {
 	}
 
 	
+	public function filterByGeografi( $geografi, $type, $innslag_array ) {
+		if( $type != 'kommune' && $type != 'fylke' ) {
+			throw new Exception(
+				'innslag_collection::filterByGeografi: '.
+				'Type (param 2) må være kommune eller fylke'
+			);
+		}
+		if( $type != get_class( $geografi ) ) {
+			throw new Exception(
+				'innslag_collection::filterByGeografi() geografi-objekt må matche gitt type. '. 
+				'Gitt '. get_class($geografi) .', ikke "'. $type .'"'
+			);
+		}
+		
+		$selected_innslag = [];
+		foreach( $innslag_array as $innslag ) {
+			if( get_class( $geografi ) == 'kommune' ) {
+				if( $innslag->getKommune()->getId() == $geografi->getId() ) {
+					$selected_innslag[] = $innslag;
+				}
+			} elseif( get_class( $geografi ) == 'fylke' ) {
+				if( $innslag->getFylke()->getId() == $geografi->getId() ) {
+					$selected_innslag[] = $innslag;
+				}
+			}
+		}
+		return $selected_innslag;
+	}
+	
 	public function setContainerId( $id ) {
 		$this->containerId = $id;
+
 		return $this;
 	}
 	public function getContainerId() {
@@ -352,8 +407,9 @@ class innslag_collection {
 											# IDs inputted directly to avoid escaping
 										)
 									);
-				}		
-
+					break;
+				}
+				break;
 			case 'forestilling':
 				if( null == $this->getContainerId() ) {
 					throw new Exception('INNSLAG_COLLECTION: Krever container-ID for å hente forestillingens innslag', 2);

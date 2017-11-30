@@ -24,13 +24,15 @@ class monstring_v2 {
 	var $kommuner_id = null;
 	var $kommuner = null;
 	var $fylke = null;
+	var $fylke_id = null;
 	var $sesong = null;
 	var $innslag = null;
 	var $path = null;
+	var $skjema_id = null;
+	var $skjema = null;
 	var $kontaktpersoner = null;
 	
 	var $attributes = null;
-	
 	/**
 	 * getLoadQry
 	 * Brukes for å få standardiserte databaserader inn for 
@@ -103,6 +105,7 @@ class monstring_v2 {
 		$this->setFrist2( $row['pl_deadline2'] );
 		$this->setSesong( $row['season'] );
 		$this->setSted( utf8_encode( $row['pl_place'] ) );
+		$this->_setSkjemaId( $row['pl_form'] );
 
 		// SET PATH TO BLOG
 		if( isset( $row['pl_link'] ) || ( isset( $row['pl_link'] ) && empty( $row['pl_link'] ) ) ) {
@@ -164,8 +167,7 @@ class monstring_v2 {
 	**/
 	public function getId() {
 		return $this->id;
-	}		
-	
+	}	
 	
 	/**
 	 * Sett type
@@ -443,6 +445,50 @@ class monstring_v2 {
 	}
 	
 	/**
+	 * Sett skjema
+	 *
+	 * @param skjema $skjema eller int $skjema_id
+	 * @return $this
+	**/
+	public function setSkjema( $skjema ) {
+		if( $this->getType() == 'kommune' ) {
+			throw new Exception('Mønstring: lokalmønstringer kan ikke ha skjema');
+		}
+		$skjema_id = is_int( $skjema ) ? $skjema : $skjema->getId();
+
+		$this->_setSkjemaId( $skjema_id );
+		return $this;
+	}
+	
+	/**
+	 * Hent skjema
+	 *
+	 * @return skjema $skjema
+	**/
+	public function getSkjema() {
+		require_once('UKM/monstring_skjema.class.php');
+		if( $this->getType() == 'land' ) {
+			throw new Exception('Videresendingsskjema ikke støttet for UKM-festivalen');
+		}
+		if( $this->skjema == null ) {
+			$this->skjema = new monstring_skjema( $this->getFylke()->getId() );
+		}
+		return $this->skjema;
+	}
+	
+	/**
+	 * Sett skjemaId
+	 *
+	 * @param int $skjema_id
+	 * @return $this
+	**/
+	private function _setSkjemaId( $skjema_id ) {
+		$this->skjema_id = $skjema_id;
+	}
+	
+	
+	
+	/**
 	 * Sett sesong
 	 *
 	 * @param int $seson
@@ -470,6 +516,9 @@ class monstring_v2 {
 		if( null == $this->fylke ) {
 			if( null == $this->fylke_id && 'kommune' == $this->getType() ) {
 				$first_kommune = $this->getKommuner()->first();
+				if( null == $first_kommune || !is_object( $first_kommune ) ) {
+					throw new Exception('Beklager, klarte ikke å finne en kommune som tilhører denne mønstringen');
+				}
 				$this->setFylke( $first_kommune->getFylke()->getId() );
 			}
 			$this->fylke = fylker::getById( $this->fylke_id );
@@ -626,6 +675,20 @@ class monstring_v2 {
 	**/
 	public function erOslo() {
 		return $this->getFylke()->getId() == 3;
+	}
+	
+		
+	/**
+	 * eksisterer
+	 * 
+	 * @return bool
+	**/
+	public function eksisterer() {
+		return !is_null( $this->id );
+	}	
+	
+	protected function _resetKommuner() {
+		$this->kommuner = null;
 	}
 }
 ?>
