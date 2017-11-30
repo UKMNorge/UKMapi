@@ -1,6 +1,7 @@
 <?php
 require_once('UKM/sql.class.php');
 require_once('UKM/person.class.php');
+require_once('UKM/write_person.class.php');
 require_once('UKM/personer.collection.php');
 require_once('UKM/inc/ukmlog.inc.php');
 require_once('UKM/monstring.class.php');
@@ -28,23 +29,35 @@ class innslag_v2 {
 	var $personer_collection = null;
 	var $artikler_collection = null;
 	var $attributes = null;
-		
+	var $sesong = null;
 	var $avmeldbar = false;
 	var $advarsler = null;
+
+	var $erVideresendt = null;
 	
 	var $kontaktperson_id = null;
 	var $kontaktperson = null;
 
 	public function __construct( $bid_or_row, $select_also_if_not_completed=false ) {
 		$this->attributes = array();
-		
+		if( null == $bid_or_row || empty( $bid_or_row ) ) {
+			throw new Exception('INNSLAG_V2: Konstruktør krever b_id som numerisk verdi eller array med innslag-data. Gitt '. var_export( $bid_or_row, true ) );
+		}
 		if( is_numeric( $bid_or_row ) ) {
 			$this->_loadByBID( $bid_or_row, $select_also_if_not_completed );
 		} else {
 			$this->_loadByRow( $bid_or_row );
 		}
 	}
-	
+
+	public static function getLoadQuery() {
+		return "SELECT `smartukm_band`.*, 
+					   `td`.`td_demand`,
+					   `td`.`td_konferansier`
+				FROM `smartukm_band`
+				LEFT JOIN `smartukm_technical` AS `td` ON (`td`.`b_id` = `smartukm_band`.`b_id`)";
+	}
+
 	/**
 	 * Last inn objekt fra innslagsID
 	 *
@@ -60,9 +73,7 @@ class innslag_v2 {
 	}
 
 	private function _loadByBID( $b_id, $select_also_if_not_completed ) {
-		$SQL = new SQL( innslag_v2::getLoadQry() ."
-						FROM `smartukm_band`
-						LEFT JOIN `smartukm_technical` AS `td` ON (`td`.`b_id` = `smartukm_band`.`b_id`)
+		$SQL = new SQL(self::getLoadQuery()."
 						WHERE `smartukm_band`.`b_id` = '#bid' 
 						#select_also_if_not_completed",
 					array('bid' => $b_id, 
@@ -82,20 +93,27 @@ class innslag_v2 {
 	**/
 	private function _loadByRow( $row ) {
 		$this->setId( $row['b_id'] );
+		if( null == $this->getId() ) {
+			throw new Exception("INNSLAG_V2: Klarte ikke å laste inn innslagsdata");
+		}
 		$this->setNavn( utf8_encode( $row['b_name'] ) );
 		$this->setType( $row['bt_id'], $row['b_kategori'] );
 		$this->setBeskrivelse( stripslashes( utf8_encode($row['b_description']) ) );
 		$this->setKommune( $row['b_kommune'] );
 		$this->setKategori( utf8_decode( $row['b_kategori'] ) );
-		$this->setSjanger( (string) $row['b_sjanger'] );
+		$this->setSjanger( (string) utf8_encode($row['b_sjanger'] ));
 		$this->setKontaktpersonId( $row['b_contact'] );
 		$this->_setSubscriptionTime( $row['b_subscr_time'] );
 		$this->setStatus( $row['b_status'] );
+
 		if( isset( $row['order'] ) ) {
 			$this->setAttr('order', $row['order'] );
 		} else {
 			$this->setAttr('order', null );
 		}
+
+		$this->setSesong( $row['b_season'] );
+
 		return $this;
 	}
 	
@@ -485,7 +503,12 @@ class innslag_v2 {
 	**/
 	public function getKontaktperson() {
 		if( null == $this->kontaktperson ) {
-			$person = new person_v2( $this->getKontaktpersonId() );
+			if( 'write_innslag' == get_class($this) ) {
+				$person = new write_person( $this->getKontaktpersonId() );
+			}
+			else {
+				$person = new person_v2( $this->getKontaktpersonId() );
+			}
 			$this->setKontaktperson( $person );
 		}
 		return $this->kontaktperson;
@@ -517,19 +540,19 @@ class innslag_v2 {
 		// Pre UKMdelta var korrekt påloggingstidspunkt for tittelløse innslag
 		// lagret i loggen. Sjekker kun denne loggtabellen hvis innslaget ikke har 
 		// b_subscr_time
-
-		if( !empty( $this->subscriptionTime ) ) {
-			$datetime = new DateTime();
-			$datetime->setTimestamp( $this->subscriptionTime );
-			return $datetime;
+		if( empty( $this->subscriptionTime ) ) {
+			$qry = new SQL("SELECT `log_time` FROM `ukmno_smartukm_log`
+							WHERE `log_b_id` = '#bid'
+							AND `log_code` = '22'
+							ORDER BY `log_id` DESC",
+							array( 'bid' => $this->getId() ) );
+			$this->subscriptionTime = $qry->run('field','log_time');
 		}
+		
+		$datetime = new DateTime();
+		$datetime->setTimestamp( $this->subscriptionTime );
+		return $datetime;
 
-		$qry = new SQL("SELECT `log_time` FROM `ukmno_smartukm_log`
-						WHERE `log_b_id` = '#bid'
-						AND `log_code` = '22'
-						ORDER BY `log_id` DESC",
-						array('bid'=>$this->info['b_id']));
-		return $qry->run('field','log_time');
 	}
 	 
 	/**
@@ -557,6 +580,36 @@ class innslag_v2 {
 		}
 		return $this->titler;
 	}
+
+	/**
+	 * Sjekk om innslaget er videresendt fra lokalnivå.
+	 *
+	 * @return boolean
+	 */
+	public function erVideresendt() {
+		if( null != $this->erVideresendt ) {
+			return $this->erVideresendt;
+		}
+
+		$qry = new SQL("SELECT COUNT(*) FROM `smartukm_rel_pl_b` WHERE `b_id` = '#b_id'", 
+			array('b_id' => $this->getId() ) );
+		$res = $qry->run('field', 'COUNT(*)');
+		if( $res > 1 ) {
+			$this->erVideresendt = true;
+			return true;
+		}
+
+		$qry = new SQL("SELECT COUNT(*) FROM `smartukm_fylkestep` WHERE `b_id` = '#b_id'",
+			array('b_id' => $this->getId() ) );
+		$res = $qry->run('field', 'COUNT(*)');
+		if( $res > 0 ) {
+			$this->erVideresendt = true;
+			return true;
+		}
+
+		$this->erVideresendt = false;
+		return false;
+	}
 	
 	private function _calcAdvarsler( $monstring) {
 		require_once('UKM/advarsler.collection.php');
@@ -570,13 +623,18 @@ class innslag_v2 {
 		// Utstilling har mer enn 3 verk
 		if( 'utstilling' == $this->getType()->getKey() && $this->getTitler( $monstring )->getAntall() > 3 ) {
 			$this->advarsler->add( new advarsel( advarsel::create('titler', 'Innslaget har mer enn 3 kunstverk') ) );
+		// Utstilling har ingen verk
+		} elseif( 'utstilling' == $this->getType()->getKey() && $this->getTitler( $monstring )->getAntall() == 0) {
+			$this->advarsler->add( new advarsel( advarsel::create('titler', 'Innslaget har ingen kunstverk') ) );
 		// Innslaget har mer enn 3 titler
 		} elseif( $this->getType()->harTitler() && $this->getTitler( $monstring )->getAntall() > 2 ) {
 			$this->advarsler->add( new advarsel( advarsel::create('titler', 'Innslaget har mer enn 2 titler' ) ) );
-		}
-		
+		// Innslaget har ingen titler
+		} elseif( $this->getType()->harTitler() && $this->getTitler( $monstring )->getAntall() == 0) {
+			$this->advarsler->add( new advarsel( advarsel::create('titler', 'Innslaget har ingen titler, og derfor ingen varighet.') ) );
+		}		
 		// Innslaget har en varighet over 5 min
-		if( (5*60) < $this->getVarighet( $monstring )->getSekunder() ) {
+		if( $this->getType()->harTitler() && (5*60) < $this->getVarighet( $monstring )->getSekunder() ) {
 			$this->advarsler->add( new advarsel( advarsel::create('titler', 'Innslaget er lengre enn 5 minutter ') ) );
 		}
 	}
@@ -585,6 +643,7 @@ class innslag_v2 {
 		return $this->getTitler( $monstring )->getVarighet();
 	}
 	
+	// TODO: Load valideringsadvarsler fra b_status_text
 	public function getAdvarsler( $monstring ) {
 		if( null == $this->advarsler ) {
 			$this->_calcAdvarsler( $monstring );

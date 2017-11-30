@@ -50,6 +50,7 @@ class UKMlogger {
 	
 	static function setPlId( $pl_id ) {
 		self::$pl_id = $pl_id;
+		return self;
 	}
 	static function getPlId() {
 		return self::$pl_id;
@@ -57,6 +58,7 @@ class UKMlogger {
 	
 	static function setUser( $user ) {
 		self::$user = $user;
+		return self;
 	}
 	static function getUser() {
 		return self::$user;
@@ -64,6 +66,7 @@ class UKMlogger {
 	
 	static function setSystem( $system ) {
 		self::$system = $system;
+		return self;
 	}
 	static function getSystem() {
 		return self::$system;
@@ -73,6 +76,7 @@ class UKMlogger {
 		self::setSystem( $system );
 		self::setUser( $user );
 		self::setPlId( $pl_id );
+		return self;
 	}
 	
 }
