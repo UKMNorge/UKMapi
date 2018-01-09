@@ -6,6 +6,8 @@ class titler {
 	var $type = null;
 	var $monstring = null;
 	var $titler = null;
+	var $titler_videresendt = null;
+	var $titler_ikke_videresendt = null;
 	var $table = null;
 	var $table_field_title = null;
 	var $varighet = 0;
@@ -22,6 +24,45 @@ class titler {
 		}
 		return $this->titler;
 	}
+	
+	/**
+	 * getAllVideresendt
+	 * Hent alle titler i innslaget videresendt til gitt mønstring
+	 *
+	 * @param int $pl_id
+	 * @return bool
+	**/
+	public function getAllVideresendt( $pl_id ) {
+		if( null == $this->titler_videresendt ) {
+			$this->titler_videresendt = array();
+			foreach( $this->getAll() as $tittel ) {
+				if( $tittel->erVideresendt( $pl_id ) ) {
+					$this->titler_videresendt[] = $tittel;
+				}
+			}
+		}
+		return $this->titler_videresendt;
+	}
+
+	/**
+	 * getAllIkkeVideresendt
+	 * Hent alle titler i innslaget videresendt til gitt mønstring
+	 *
+	 * @param int $pl_id
+	 * @return bool
+	**/
+	public function getAllIkkeVideresendt( $pl_id ) {
+		if( null == $this->titler_ikke_videresendt ) {
+			$this->titler_ikke_videresendt = array();
+			foreach( $this->getAll() as $tittel ) {
+				if( !$tittel->erVideresendt( $pl_id ) ) {
+					$this->titler_ikke_videresendt[] = $tittel;
+				}
+			}
+		}
+		return $this->titler_ikke_videresendt;
+	}
+
 	
 	public function getAntall() {
 		return sizeof( $this->getAll() );
