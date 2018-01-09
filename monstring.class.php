@@ -671,7 +671,7 @@ class monstring_v2 {
 		if( $frist == 2 || $frist == 'frist_2' ) {
 			return time() < $this->getFrist2()->getTimestamp();
 		}
-		$res = time() < $this->getFrist1()->getTimestamp() && time() < $this->getFrist2()->getTimestamp();
+		$res = time() < $this->getFrist1()->getTimestamp() || time() < $this->getFrist2()->getTimestamp();
 		return $res;
 	}
 	
