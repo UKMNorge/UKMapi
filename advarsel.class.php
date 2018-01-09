@@ -2,9 +2,17 @@
 class advarsel {
 	var $kategori = null;
 	var $melding = null;
+
+	// Hvilke advarselsnivåer har vi?
+	// Bruker bootstrap-default: warning og danger.
+	var $level = null;
 	
 	static function create( $kategori, $melding, $level='warning' ) {
 		return array('kategori' => $kategori, 'level' => $level, 'melding' => $melding );
+	}
+
+	static function ny( $kategori, $melding, $level='warning' ) {
+		return new advarsel(self::create($kategori, $melding, $level));
 	}
 	
 	public function __construct( $row ) {

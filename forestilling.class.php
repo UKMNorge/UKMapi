@@ -58,6 +58,7 @@ class forestilling_v2 extends forestilling {
 		$this->id = $id;
 		return $this;
 	}
+	
 	/**
 	 * hent ID
 	 * @return integer $id
