@@ -9,7 +9,7 @@
 		changes brukes av save-funksjonen for å avgjøre hvilke verdier som er endret
 	- alle settere sjekker om getteren gir samme verdi som setteren før den logger endring (change)
 **/	
-require_once('UKM/log.class.php');
+require_once('UKM/logger.class.php');
 require_once('UKM/innslag.class.php');
 // For valideringen.
 require_once('UKM/advarsel.class.php');
