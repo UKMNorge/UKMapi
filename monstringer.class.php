@@ -188,19 +188,11 @@ class monstringer_v2 {
 	}
 	
 	public static function kommune( $kommune, $season ) {
-		if( is_numeric( $kommune ) ) {
-			$kommune_id = $kommune;
-		} elseif( 'kommune' == get_class( $kommune ) ) {
-			$kommune_id = $kommune->getId();
-		} else {
-			throw new Exception('Kan ikke finne kommune med ugyldig parameter. Må være integer ID eller kommune-objekt');
-		}
-		
 		$qry = new SQL("SELECT `pl_id`
 						FROM `smartukm_rel_pl_k`
 						WHERE `k_id` = '#kommune'
 						AND `season` = '#season'",
-					array('kommune'=>$kommune_id,'season'=>$season));
+					array('kommune'=>$kommune,'season'=>$season));
 		$pl_id = $qry->run('field','pl_id');
 		
 		if( is_numeric( $pl_id ) ) {
@@ -209,7 +201,7 @@ class monstringer_v2 {
 				return $monstring;
 			}
 		}
-		$kommune = new kommune( $kommune_id );
+		$kommune = new kommune( $kommune );
 		throw new Exception('Fant ingen mønstring for '. $kommune->getNavn() .' i '. $season );
 	}
 }
