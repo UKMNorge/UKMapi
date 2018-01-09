@@ -598,6 +598,13 @@ class monstring_v2 {
 					}
 				}
 			}
+			if( $this->innslagTyper->getAntall() == 0 ) {
+				foreach( innslag_typer::getAllScene() as $type ) {
+					$this->innslagTyper->add( $type );
+				}
+				$this->innslagTyper->add( innslag_typer::getByName('video') );
+				$this->innslagTyper->add( innslag_typer::getByName('utstilling') );
+			}
 		}
 		return $this->innslagTyper;
 	}
