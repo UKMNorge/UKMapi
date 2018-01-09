@@ -40,12 +40,13 @@ class forestilling_v2 extends forestilling {
 	 * @return innslag collection
 	**/
 	public function getInnslag() {
-		if( null == $this->innslag ) {
-			$this->innslag = new innslag_collection( 'forestilling', $this->getId() );
-			$this->innslag->setContainerDataForestilling( $this );
+		if( null == $this->collection_innslag ) {
+			$this->_loadInnslag();
 		}
-		return $this->innslag;
+		
+		return $this->collection_innslag;
 	}
+	
 
 	/**
 	 * Sett ID
@@ -106,14 +107,6 @@ class forestilling_v2 extends forestilling {
 	**/
 	public function getSted() {
 		return $this->sted;
-	}
-	
-	public function getInnslag() {
-		if( null == $this->collection_innslag ) {
-			$this->_loadInnslag();
-		}
-		
-		return $this->collection_innslag;
 	}
 	
 	private function _loadInnslag() {
