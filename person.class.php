@@ -351,7 +351,7 @@ class person_v2 {
 				return 'han/hun';
 		}
 	}
-	
+
 	/**
 	 * Set BT_ID (innslagstype)
 	 * Brukes for å definere om man er videresendt (BTID==1 gir videresendt uavhengig av database-relasjoner)
