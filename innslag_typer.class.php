@@ -16,6 +16,10 @@ class innslag_typer extends Collection {
 	}
 	
 	static function getByName( $key ) {
+		// Last med kategori om vi er på scene-innslag.
+		if(in_array($key, array('musikk', 'dans', 'teater', 'litteratur') ) ) {
+			return self::_load( self::_translate_key_to_id( $key ), $key );
+		}
 		return self::_load( self::_translate_key_to_id( $key ) );	
 	}
 	
@@ -41,7 +45,6 @@ class innslag_typer extends Collection {
 		switch( $id ) {
 			case 1:
 				switch( $kategori ) {
-					case 'scene':
 					case 'musikk':
 						$data = array('id' => 1,
 									  'key' => 'musikk',
@@ -85,7 +88,7 @@ class innslag_typer extends Collection {
 					default:
 						$data = array('id' => 1,
 									  'key' => 'scene',
-									  'name' => ($kategori == false ? 'Scene' : 'Annet'),
+									  'name' => ($kategori == false ? 'Scene' : 'Annet på scene'),
 									  'icon' => 'http://ico.ukm.no/delta/delta-annet-64.png',
 									  'har_filmer' => true,
 									  'har_titler' => true,
