@@ -16,6 +16,245 @@ class personer {
 	}
 	
 	/**
+	 * 
+	 * Relaterer en person til dette innslaget.
+	 *
+	 * @param write_person $person
+	 *
+	 * @return $this
+	 */
+	public function leggTil($person) {
+		if('write_person' != get_class($person)) {
+			throw new Exception("PERSONER_V2: Kan ikke fjerne en person uten skriverettigheter fra et innslag.");
+		}
+		if(!is_numeric($person->getId()) ) {
+			throw new Exception("PERSONER_V2: Kan ikke slette en person fra et innslag uten en numerisk ID!");
+		}
+
+		if(null == $this->_getBID() || empty($this->_getBID()) ) {
+			throw new Exception("PERSONER_V2: Kan ikke slette med tom b_id.");
+		}
+
+		$sql = new SQL("SELECT COUNT(*) 
+						FROM smartukm_rel_b_p 
+						WHERE 'b_id' = '#b_id' 
+							AND 'p_id' = '#p_id'",
+						array(	'b_id' => $this->_getBID(), 
+								'p_id' => $person->getId()) 
+						);
+		$exists = $sql->run('field', 'COUNT(*)');
+
+		if($exists) {
+			return true;
+		}
+
+		$sql = new SQLins("smartukm_rel_b_p");
+		$sql->add('b_id', $this->_getBID());
+		$sql->add('p_id', $person->getId());
+		/*$sql->add('b_p_year', $this->getSesong());
+		$sql->add('season', $this->getSesong());*/
+
+		$res = $sql->run();
+		if(false == $res)
+			return false;
+			
+		$this->_load();
+		return true;
+	}
+	
+	public function fjern($person) {
+		if('write_person' != get_class($person)) {
+			throw new Exception("PERSONER_V2: Kan ikke fjerne en person uten skriverettigheter fra et innslag.");
+		}
+		if(!is_numeric($person->getId()) ) {
+			throw new Exception("PERSONER_V2: Kan ikke slette en person fra et innslag uten en numerisk ID!");
+		}
+
+		if(null == $this->_getBID() || empty($this->_getBID()) ) {
+			throw new Exception("PERSONER_V2: Kan ikke slette med tom b_id.");
+		}
+
+		$sql = new SQLdel("smartukm_rel_b_p", 
+			array( 	'b_id' => $this->_getBID(),
+					'p_id' => $person->getId(),
+					));
+
+		$res = $sql->run();
+		return $res;
+	}
+
+	/**
+	 * 
+	 * Relaterer en person til dette innslaget.
+	 *
+	 * @param write_person $person
+	 *
+	 * @return $this
+	 */
+	public function videresend($person, $monstring_til, $monstring_fra) {
+		if('write_person' != get_class($person)) {
+			throw new Exception("PERSONER_V2: Kan ikke videresende en person uten skriverettigheter på personen.");
+		}
+		if(!is_numeric($person->getId()) ) {
+			throw new Exception("PERSONER_V2: Kan ikke videresende en person i et innslag uten en numerisk ID!");
+		}
+
+		if('write_monstring' != get_class($monstring_til)) {
+			throw new Exception("PERSONER_V2: Kan ikke videresende en person uten skriverettigheter på til-mønstringen.");
+		}
+		if(!is_numeric($monstring_til->getId()) ) {
+			throw new Exception("PERSONER_V2: Kan ikke videresende en person i en til-mønstring uten en numerisk ID!");
+		}
+
+		if('write_monstring' != get_class($monstring_fra)) {
+			throw new Exception("PERSONER_V2: Kan ikke videresende en person uten skriverettigheter på fra-mønstringen.");
+		}
+		if(!is_numeric($monstring_fra->getId()) ) {
+			throw new Exception("PERSONER_V2: Kan ikke videresende en person i en fra-mønstring uten en numerisk ID!");
+		}
+		
+		
+		// FOR INNSLAG I KATEGORI 1 (SCENE) FØLGER ALLE DELTAKERE ALLTID INNSLAGET VIDERE
+		$innslag = new innslag_v2( $this->_getBID() );
+		if( $innslag->getType()->getId() == 1 ) {
+			return true;
+		}
+		
+		/**
+			Videresendingsmodulen viser titler, og ikke innslag for å gjøre det enklere for brukeren.
+			Videresending skjer derfor på tittel-nivå, og for å ikke tilfeldigvis fjerne en person fra en mønstring
+			benyttes $tittel-id som et input-parameter.
+			Dette bør løses i videresendingsmodulen, ikke i API.
+			API V2 skal  derfor ikke ta hensyn til disse, men gjør det inntil videresendingsfunksjonen er skrevet om.
+		**/
+		
+		if( $innslag->getType()->harTitler() ) {
+			$t_ids = '';
+			foreach( $innslag->getTitler( $monstring_til )->getAllVideresendt( $monstring_til ) as $tittel ) {
+				$t_ids .= '|t_'. $tittel->getId() .'|';
+			}
+		} else {
+			$t_ids ='|t_notitle|';
+		}
+		
+		$test_relasjon = new SQL(
+			"SELECT * FROM `smartukm_fylkestep_p`
+				WHERE `pl_id` = '#pl_id'
+				AND `b_id` = '#b_id'
+				AND `pl_from` = '#pl_from'
+				AND `p_id` = '#p_id'",
+			[
+				'pl_id'		=> $monstring_til->getId(), 
+				'pl_from'	=> $monstring_fra->getId(),
+		  		'b_id'		=> $this->_getBID(), 
+				'p_id'		=> $person->getId(),
+			]
+		);
+		$test_relasjon = $test_relasjon->run();
+		
+		if( mysql_num_rows($test_relasjon) == 0 ) {
+			$videresend_person = new SQLins('smartukm_fylkestep_p');
+			$videresend_person->add('pl_id', $monstring_til->getId() );
+			$videresend_person->add('pl_from', $monstring_fra->getId() );
+			$videresend_person->add('b_id', $this->_getBID() );
+			$videresend_person->add('p_id', $person->getId() );
+			$videresend_person->add('t_ids', $t_ids );
+			$res = $videresend_person->run();
+		} else {
+			$row = mysql_fetch_assoc( $test_relasjon );
+			$videresend_person = new SQLins(
+				'smartukm_fylkestep_p', 
+				[
+					'pl_id' 	=> $monstring_til->getId(),
+					'pl_from'	=> $monstring_fra->getId(),
+					'b_id' 		=> $this->_getBID(),
+					'p_id' 		=> $person->getId()
+				 ]
+			);
+			$videresend_person->add('t_ids', $t_ids );
+			$res = $videresend_person->run();
+			
+		}
+		
+		if( $res ) {
+			return true;
+		}
+
+		throw new Exception('PERSONER_COLLECTION: Kunne ikke videresende '. $person->getNavn() .' fra '. $innslag->getNavn() );
+	}
+
+	/**
+	 * 
+	 * Relaterer en person til dette innslaget.
+	 *
+	 * @param write_person $person
+	 *
+	 * @return $this
+	 */
+	public function avmeld($person, $monstring_til, $monstring_fra) {
+		if('write_person' != get_class($person)) {
+			throw new Exception("PERSONER_V2: Kan ikke avmelde en person uten skriverettigheter på personen.");
+		}
+		if(!is_numeric($person->getId()) ) {
+			throw new Exception("PERSONER_V2: Kan ikke avmelde en person i et innslag uten en numerisk ID!");
+		}
+
+		if('write_monstring' != get_class($monstring_til)) {
+			throw new Exception("PERSONER_V2: Kan ikke avmelde en person uten skriverettigheter på til-mønstringen.");
+		}
+		if(!is_numeric($monstring_til->getId()) ) {
+			throw new Exception("PERSONER_V2: Kan ikke avmelde en person i en til-mønstring uten en numerisk ID!");
+		}
+
+		if('write_monstring' != get_class($monstring_fra)) {
+			throw new Exception("PERSONER_V2: Kan ikke avmelde en person uten skriverettigheter på fra-mønstringen.");
+		}
+		if(!is_numeric($monstring_fra->getId()) ) {
+			throw new Exception("PERSONER_V2: Kan ikke avmelde en person i en fra-mønstring uten en numerisk ID!");
+		}
+
+		// FOR INNSLAG I KATEGORI 1 (SCENE) FØLGER ALLE DELTAKERE ALLTID INNSLAGET VIDERE
+		$innslag = new innslag_v2( $this->_getBID() );
+		if( $innslag->getType()->getId() == 1 ) {
+			return true;
+		}
+		
+		/**
+			Videresendingsmodulen viser titler, og ikke innslag for å gjøre det enklere for brukeren.
+			Videresending skjer derfor på tittel-nivå, og for å ikke tilfeldigvis fjerne en person fra en mønstring
+			benyttes $tittel-id som et input-parameter.
+			Dette bør løses i videresendingsmodulen, ikke i API.
+			API V2 skal  derfor ikke ta hensyn til disse, men gjør det inntil videresendingsfunksjonen er skrevet om.
+		**/
+		
+		if( $innslag->getType()->harTitler() ) {
+			$t_ids = '';
+			foreach( $innslag->getTitler( $monstring_til )->getAllVideresendt( $monstring_til ) as $tittel ) {
+				$t_ids .= '|t_'. $tittel->getId() .'|';
+			}
+		} else {
+			$t_ids ='|t_notitle|';
+		}
+		
+		$videresend_person = new SQLdel(
+			'smartukm_fylkestep_p', 
+			[
+				'pl_id' 	=> $monstring_til->getId(),
+				'pl_from'	=> $monstring_fra->getId(),
+				'b_id' 		=> $this->_getBID(),
+				'p_id' 		=> $person->getId()
+			]
+		);
+		$res = $videresend_person->run();
+		
+		if( $res ) {
+			return true;
+		}
+
+		throw new Exception('PERSONER_COLLECTION: Kunne ikke avmelde '. $person->getNavn() .' fra '. $innslag->getNavn() );
+	}
+
+	/**
 	 * getAll
 	 * Returner alle personer i innslaget
 	 *
@@ -166,6 +405,9 @@ class personer {
 		$res = $SQL->run();
 		if( isset( $_GET['debug'] ) || $this->debug )  {
 			echo $SQL->debug();
+		}
+		if($res === false) {
+			throw new Exception("PERSONER_V2: Klarte ikke hente personer og roller - kan databaseskjema være utdatert?");
 		}
 		while( $r = mysql_fetch_assoc( $res ) ) {
 			$person = new person_v2( $r );
