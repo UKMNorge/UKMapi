@@ -33,20 +33,7 @@ class forestilling_v2 extends forestilling {
 		// TODO: FIX THIS
 		return $this->innslag();
 	}
-
-	/**
-	 * Hent innslag i denne forestillingen.
-	 *
-	 * @return innslag collection
-	**/
-	public function getInnslag() {
-		if( null == $this->collection_innslag ) {
-			$this->_loadInnslag();
-		}
-		
-		return $this->collection_innslag;
-	}
-
+	
 	/**
 	 * Sett ID
 	 *
@@ -105,6 +92,14 @@ class forestilling_v2 extends forestilling {
 	**/
 	public function getSted() {
 		return $this->sted;
+	}
+	
+	public function getInnslag() {
+		if( null == $this->collection_innslag ) {
+			$this->_loadInnslag();
+		}
+		
+		return $this->collection_innslag;
 	}
 	
 	private function _loadInnslag() {
