@@ -33,6 +33,10 @@ class fylke {
 		return $this;
 	}
 	public function getNavn() {
+		if( null == $this->navn ) {
+			return 'ukjent';
+		}
+
 		return $this->navn;
 	}
 	

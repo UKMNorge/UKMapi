@@ -34,6 +34,9 @@ class kommune {
 	}
 	
 	public function getNavn() {
+		if( null == $this->name ) {
+			return 'ukjent';
+		}
 		return $this->name;
 	}
 	
