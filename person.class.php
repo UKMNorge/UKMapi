@@ -25,13 +25,13 @@ class person_v2 {
 #		}
 	}
 	
-	public static function getLoadQry() {
+	public static function getLoadQuery() {
 		return "SELECT * FROM `smartukm_participant` ";
 	}
 	
 	private function _load_from_db( $person ) {
 		$sql = new SQL(
-			person_v2::getLoadQry() . "	WHERE `p_id` = '#p_id'",
+			person_v2::getLoadQuery() . "	WHERE `p_id` = '#p_id'",
 			array('p_id' => $person )
 		);
 		$res = $sql->run('array');

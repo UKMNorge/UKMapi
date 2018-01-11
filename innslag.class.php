@@ -65,6 +65,7 @@ class innslag_v2 {
 	 * @return this;
 	 *
 	**/
+	/* OBS OBS OBS: DENNE SKAL VEL IKKE BRUKES ?!?! */
 	static function getLoadQry() {
 		return "SELECT `smartukm_band`.*, 
 					   `td`.`td_demand`,
