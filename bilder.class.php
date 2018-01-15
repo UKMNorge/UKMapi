@@ -10,7 +10,11 @@ class bilder {
 
 	public function __construct( $b_id ) {
 		$this->b_id = $b_id;
-	}	
+	}
+	
+	public function har() {
+		return $this->getAntall() > 0;
+	}
 
 	public function getAntall() {
 		return sizeof( $this->getAll() );

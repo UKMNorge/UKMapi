@@ -122,7 +122,7 @@ class bilde_storrelse {
 	 * @return $this
 	**/
 	public function setExternalPath( $path ) {
-		$this->path_external = rtrim($path, '/').'/';
+		$this->path_external = str_replace('http:','https:', rtrim($path, '/').'/');
 		return $this;
 	}
 	/**
