@@ -23,6 +23,8 @@ class SMS {
 	var $recipients = array();
 	var $from = '';
 	var $from_dirty = '';
+	
+	var $blocked = null;
 
 	public function __construct($system_id, $user_id, $pl_id=0) {
 		$this->id_system= $system_id;
@@ -78,8 +80,12 @@ class SMS {
 	}
 	
 	private function _send($recipient) {
-		$sms_raw_result = $this->_sveve($recipient);
-		$sms_result = $this->_sveve_parse($sms_raw_result);
+		if( $this->_block( $recipient ) ) {
+			$sms_result = false;
+		} else {
+			$sms_raw_result = $this->_sveve($recipient);
+			$sms_result = $this->_sveve_parse($sms_raw_result);
+		}
 		
 		if($sms_result)
 			$this->_sent($recipient);
@@ -87,6 +93,23 @@ class SMS {
 			$this->_not_sent($recipient);
 
 		return $sms_result;
+	}
+	
+	private function _block( $recipient ) {
+		if( null == $this->blocked ) {
+			$this->_loadBlockList();
+		}
+		return in_array( $recipient, $this->blocked );
+	}
+	
+	private function _loadBlockList() {
+		$this->blocked = [];
+		$sql = new SQL("SELECT `number`	FROM `sms_block`");
+		$res = $sql->run();
+		
+		while( $row = mysql_fetch_assoc( $res ) ) {
+			$this->blocked[] = $row['number'];
+		}
 	}
 	
 	private function _sent($recipient) {
@@ -99,8 +122,9 @@ class SMS {
 		if($_SERVER['REMOTE_ADDR'] == '81.0.146.162')
 			var_dump( $this->sveve_parsed_response);
 */
-			
-		if( isset($this->sveve_parsed_response->errors->fatal) ) {
+		if( $this->_block( $recipient ) ) {
+			$this->_error('Mottakeren er reservert mot SMS fra UKM');
+		} elseif( isset($this->sveve_parsed_response->errors->fatal) ) {
 			$this->_error('SVEVE ERROR: '. $this->sveve_parsed_response->errors->fatal );
 		} elseif( isset($this->sveve_parsed_response->errors->error) ) {
 			$this->_error('SVEVE ERROR: '. $this->sveve_parsed_response->errors->error->message );
