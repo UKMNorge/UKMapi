@@ -14,6 +14,7 @@ class tittel_v2 {
 	var $melodi_av = null;
 	var $koreografi_av = null;
 	var $varighet = null;
+	var $sekunder = null;
 	var $selvlaget = null;
 	var $litteratur_read = null;
 	var $instrumental = null;
@@ -89,7 +90,7 @@ class tittel_v2 {
 	 * @return bool
 	**/
 	public function erVideresendt( $pl_id ) {
-		if( 'write_monstring' == get_class( $pl_id ) || 'monstring' == get_class( $pl_id ) ) {
+		if( is_object( $pl_id ) && ( 'write_monstring' == get_class( $pl_id ) || 'monstring' == get_class( $pl_id ) ) ) {
 			$pl_id = $pl_id->getId();
 		}
 		if( null == $this->videresendtTil ){
@@ -185,6 +186,7 @@ class tittel_v2 {
 	 * @return $this
 	**/
 	public function setVarighet( $sekunder ) {
+		$this->sekunder = $sekunder;
 		$this->varighet = new tid( $sekunder );
 		return $this;
 	}
@@ -196,6 +198,15 @@ class tittel_v2 {
 	**/
 	public function getVarighet() {
 		return $this->varighet;
+	}
+	
+	/**
+	 * Hent varigheten, men som sekunder
+	 *
+	 * @return int tid
+	**/
+	public function getVarighetSomSekunder() {
+		return $this->sekunder;
 	}
 	
 	/**

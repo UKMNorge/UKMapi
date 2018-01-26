@@ -76,6 +76,7 @@ class write_innslag extends innslag_v2 {
 			throw new Exception("WRITE_INNSLAG: Klarte ikke å opprette tekniske behov-rad i tabellen.");
 		}		
 
+		// TODO: Burde benytte $monstring->getInnslag()->leggTil( $innslag );
 		$rel = new SQLins('smartukm_rel_pl_b');
 		$rel->add('pl_id', $monstring->getId() );
 		$rel->add('b_id', $band->insid() );

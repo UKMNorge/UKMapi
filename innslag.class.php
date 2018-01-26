@@ -125,7 +125,7 @@ class innslag_v2 {
 	**/
 	public function getPersoner() {
 		if( null == $this->personer_collection ) {
-			$this->personer_collection = new personer( $this->getId() );
+			$this->personer_collection = new personer( $this->getId(), $this->getType() );
 		}
 		return $this->personer_collection;	
 	}
