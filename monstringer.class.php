@@ -186,6 +186,31 @@ class monstringer_v2 {
 	public static function getAlleKommunerUtenMonstring( $season ) {
 		return stat_monstringer_v2::getAlleKommunerUtenMonstring( $season );
 	}
+	public static function fylke( $fylke, $season ) {
+		if( is_numeric( $fylke ) ) {
+			$fylke_id = $fylke;
+		} elseif( 'fylke' == get_class( $fylke ) ) {
+			$fylke_id = $fylke->getId();
+		} else {
+			throw new Exception('Kan ikke finne fylke med ugyldig parameter. Må være integer ID eller fylke-objekt');
+		}
+		
+		$qry = new SQL("SELECT `pl_id`
+						FROM `smartukm_place`
+						WHERE `pl_fylke` = '#fylke'
+						AND `season` = '#season'",
+					array('fylke'=>$fylke_id,'season'=>$season));
+		$pl_id = $qry->run('field','pl_id');
+		
+		if( is_numeric( $pl_id ) ) {
+			$monstring = new monstring_v2( $pl_id );
+			if( $monstring->eksisterer() ) {
+				return $monstring;
+			}
+		}
+		$fylke = new fylke( $fylke_id );
+		throw new Exception('Fant ingen mønstring for '. $fylke->getNavn() .' i '. $season );
+	}
 	
 	public static function kommune( $kommune, $season ) {
 		if( is_numeric( $kommune ) ) {
@@ -212,5 +237,26 @@ class monstringer_v2 {
 		$kommune = new kommune( $kommune_id );
 		throw new Exception('Fant ingen mønstring for '. $kommune->getNavn() .' i '. $season );
 	}
+	
+	
+	public static function land( $sesong ) {
+		$qry = new SQL(
+			monstring_v2::getLoadQry() ."
+			WHERE `pl_fylke` = '123456789'
+			AND `pl_kommune` = '123456789'
+			AND `place`.`season` = '#season'",
+			[
+				'season' => $sesong,
+			]
+		);
+
+		$res = $qry->run('array');
+		if( $res ) {
+			return new monstring_v2( $res );
+		}
+		
+		throw new Exception('Fant ingen nasjonal mønstring for '. $sesong );
+	}
+
 }
 ?>
