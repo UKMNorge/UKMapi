@@ -28,7 +28,7 @@ class write_nominasjon extends nominasjon {
 			throw new Exception("WRITE_NOMINASJON: Krever kommune-objekt, ikke ".get_class($kommune)."." );
 		}
 
-		$classname = 'write_nominasjon_'. $innslag_type;
+		$classname = 'nominasjon_'. $innslag_type;
 		
 		$obj = new $classname( $innslag_id, $innslag_type, $niva );
 		if( !$obj->harNominasjon() ) {
@@ -138,5 +138,29 @@ class write_nominasjon extends nominasjon {
 		$res = $sql->run();
 
 		return true;
+	}
+	
+	public static function saveMedia( $nominasjon ) {
+		if( !UKMlogger::ready() ) {
+			throw new Exception('Logger is missing or incorrect set up.');
+		}
+		
+		if( get_class( $nominasjon ) != 'nominasjon_media' ) {
+			throw new Exception('WRITE_NOMINASJON_MEDIA: Lagring av media-detaljer krever objekt som parameter');
+		}
+		
+		if( !is_numeric( $nominasjon->getId() ) ) {
+			throw new Exception('WRITE_NOMINASJON_MEDIA: Lagring av media-detaljer krever numerisk id');
+		}
+
+		$sql = new SQLins('ukm_nominasjon_media', ['nominasjon' => $nominasjon->getId() ] );
+		$sql->add('pri_1', $nominasjon->getPri1() );
+		$sql->add('pri_2', $nominasjon->getPri2() );
+		$sql->add('pri_3', $nominasjon->getPri3() );
+		$sql->add('annet', $nominasjon->getAnnet() );
+		$sql->add('beskrivelse', $nominasjon->getBeskrivelse() );
+		$sql->add('samarbeid', $nominasjon->getSamarbeid() );
+		$sql->add('erfaring', $nominasjon->getErfaring() );
+		$res = $sql->run();
 	}
 }
