@@ -34,6 +34,7 @@ class innslag_v2 {
 	var $advarsler = null;
 
 	var $erVideresendt = null;
+	var $nominasjon = null;
 	
 	var $kontaktperson_id = null;
 	var $kontaktperson = null;
@@ -174,6 +175,35 @@ class innslag_v2 {
 	}		
 	private function _getNewOrOld($new, $old) {
 		return null == $this->$new ? $this->info[$old] : $this->$new;
+	}
+	
+	public function getNominasjon( $monstring ) {
+		require_once('UKM/nominasjon.class.php');
+		if( null == $this->nominasjon ) {
+
+			if( !is_object( $monstring ) ) {
+				throw new Exception('INNSLAG: Mønstring må være gitt som objekt for å hente nominasjon');
+			}
+		
+			switch( $this->getType()->getKey() ) {
+				case 'nettredaksjon':
+				case 'media':
+					$classname = 'nominasjon_media';
+					break;
+				case 'konferansier':
+					$classname = 'nominasjon_konferansier';
+					break;
+				case 'arrangor':
+					$classname = 'nominasjon_arrangor';
+					break;
+				default:
+					$classname = 'nominasjon_placeholder';
+					$key = false;
+			}
+			$this->nominasjon = new $classname( $this->getId(), $this->getType()->getKey(), $monstring->getType() );
+		}
+
+		return $this->nominasjon;
 	}
 	/**
 	 * Sett ID

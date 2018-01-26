@@ -711,5 +711,47 @@ class monstring_v2 {
 	protected function _resetKommuner() {
 		$this->kommuner = null;
 	}
+
+/* UTGÅR	
+	public function getNominerteFraMeg() {
+		require_once('UKM/nominasjoner.collection.php');
+		if( null == $this->nominert_fra_meg ) {
+			if( $this->getType() == 'kommune' ) {
+				$geografi = $this->getKommune();
+			} elseif( $this->getType() == 'fylke' ) {
+				$geografi = $this->getFylke();
+			} else {
+				$geografi = null;
+			}
+			$this->nominert_fra_meg = new nominert_fra(
+				$this->getId(), 
+				$this->getType(), 
+				$geografi,
+				$this->getSesong()
+			);
+		}
+		return $this->nominert_fra_meg;
+	}
+	
+	public function getNominerteTilMeg() {
+		require_once('UKM/nominasjoner.collection.php');
+		if( null == $this->nominert_til_meg ) {
+			if( $this->getType() == 'kommune' ) {
+				$geografi = $this->getKommune();
+			} elseif( $this->getType() == 'fylke' ) {
+				$geografi = $this->getFylke();
+			} else {
+				$geografi = null;
+			}
+			$this->nominert_fra_meg = new nominert_til(
+				$this->getId(), 
+				$this->getType(), 
+				$geografi,
+				$this->getSesong()
+			);
+		}
+		return $this->nominert_til_meg;
+	}
+*/
 }
 ?>
