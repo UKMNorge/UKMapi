@@ -60,9 +60,12 @@ class UKMmail {
 			$mail->AddReplyTo(UKM_MAIL_REPLY, UKM_MAIL_FROMNAME);
 			$mail->SetFrom(UKM_MAIL_FROM, UKM_MAIL_FROMNAME);
 	
-			foreach($this->recipients as $recipient) 
+			foreach($this->recipients as $recipient) {
+				if( $recipient == 'support@ukm.no' ) {
+					$mail->AddBCC('ukmnosupport@ukmnorge.freshdesk.com');
+				}
 				$mail->AddAddress($recipient);
-				
+			}				
 			$mail->Subject = $this->subject;
 
 			$mail->MsgHTML($this->message);
