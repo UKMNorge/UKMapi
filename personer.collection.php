@@ -236,26 +236,26 @@ class personer {
 	private function _validateInput( $person, $monstring ) {
 		// Personen
 		if( 'write_person' != get_class( $person ) ) {
-			throw new Exception('PERSONER_COLLECTION: Kan ikke legge til person som ikke er skrivbar');
+			throw new Exception('PERSONER_COLLECTION: Kan ikke legge til eller fjerne en person som ikke er skrivbar');
 		}
 		if( !is_numeric( $person->getId() ) ) {
-			throw new Exception('PERSONER_COLLECTION: Kan ikke legge til person uten numerisk ID!');
+			throw new Exception('PERSONER_COLLECTION: Kan ikke legge til eller fjerne en person uten numerisk ID!');
 		}
 		
 		// Innslaget
 		if( null == $this->_getInnslagId() || empty( $this->_getInnslagId() ) ) {
-			throw new Exception('PERSONER_COLLECTION: Kan ikke legge til person når innslag-ID er tom');
+			throw new Exception('PERSONER_COLLECTION: Kan ikke legge til eller fjerne en person når innslag-ID er tom');
 		}
 		if( !is_numeric( $this->_getInnslagId() ) ) {
-			throw new Exception('PERSONER_COLLECTION: Kan ikke legge til person i innslag med ikke-numerisk ID');
+			throw new Exception('PERSONER_COLLECTION: Kan ikke legge til eller fjerne en person i innslag med ikke-numerisk ID');
 		}
 		
 		// Mønstringen
 		if( 'write_monstring' != get_class( $monstring ) ) {
-			throw new Exception("PERSONER_COLLECTION: Kan ikke videresende en person uten skriverettigheter mønstringen.");
+			throw new Exception("PERSONER_COLLECTION: Kan ikke legge til eller fjerne en person uten skriverettigheter for mønstringen.");
 		}
 		if( !is_numeric( $monstring->getId() ) ) {
-			throw new Exception("PERSONER_COLLECTION: Kan ikke videresende en person til en mønstring uten numerisk ID!");
+			throw new Exception("PERSONER_COLLECTION: Kan ikke legge til eller fjerne en person i en mønstring uten numerisk ID!");
 		}
 	}
 	

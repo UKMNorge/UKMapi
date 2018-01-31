@@ -5,10 +5,13 @@ class titler {
 	var $titler = null;
 	var $titler_videresendt = null;
 	var $titler_ikke_videresendt = null;
+	var $titler_alle = null;
+	
 	var $table = null;
 	var $table_field_title = null;
 	var $varighet = 0;
-
+	var $varighet_ikke_videresendt = 0;
+	
 	var $innslag_id = null;
 	var $innslag_type = null;
 	
@@ -23,18 +26,6 @@ class titler {
 		$this->_setMonstringId( $monstring->getId() );
 		$this->_setMonstringType( $monstring->getType() );
 		$this->_setMonstringSesong( $monstring->getSesong() );
-	}
-
-	/**
-	 * Hent alle titler
-	 *
-	 * @return array [tittel_v2]
-	**/
-	public function getAll() {
-		if( null == $this->titler ) {
-			$this->_load();
-		}
-		return $this->titler;
 	}
 
 	/** 
@@ -74,41 +65,42 @@ class titler {
 	 ********************************************************************************/
 
 	/**
-	 * getAllVideresendt
-	 * Hent alle titler i innslaget videresendt til gitt mønstring
+	 * getAll(Videresendt)
+	 * Hent alle titler i innslaget videresendt til samlingens mønstring
 	 *
-	 * @param int $pl_id
 	 * @return bool
 	**/
-	public function getAllVideresendt( $pl_id ) {
+	public function getAll() {
 		if( null == $this->titler_videresendt ) {
-			$this->titler_videresendt = array();
-			foreach( $this->getAll() as $tittel ) {
-				if( $tittel->erVideresendt( $pl_id ) ) {
-					$this->titler_videresendt[] = $tittel;
-				}
-			}
+			$this->_load();
 		}
 		return $this->titler_videresendt;
 	}
 
 	/**
 	 * getAllIkkeVideresendt
-	 * Hent alle titler i innslaget videresendt til gitt mønstring
+	 * Hent alle titler i innslaget som ikke er videresendt til samlingens mønstring
 	 *
-	 * @param int $pl_id
 	 * @return bool
 	**/
-	public function getAllIkkeVideresendt( $pl_id ) {
+	public function getAllIkkeVideresendt() {
 		if( null == $this->titler_ikke_videresendt ) {
-			$this->titler_ikke_videresendt = array();
-			foreach( $this->getAll() as $tittel ) {
-				if( !$tittel->erVideresendt( $pl_id ) ) {
-					$this->titler_ikke_videresendt[] = $tittel;
-				}
-			}
+			$this->_load();
 		}
 		return $this->titler_ikke_videresendt;
+	}
+	
+	/**
+	 * getAllIkkeVideresendt
+	 * Hent alle titler i innslaget som ikke er videresendt til samlingens mønstring
+	 *
+	 * @return bool
+	**/
+	public function getAllInkludertIkkeVideresendt() {
+		if( null == $this->titler_alle ) {
+			$this->_load();
+		}
+		return $this->titler_alle;
 	}
 
 
@@ -190,6 +182,14 @@ class titler {
 	public function getVarighet() {
 		return new tid( $this->varighet );
 	}
+	
+	public function setVarighetIkkeVideresendt( $seconds ) {
+		$this->varighet_ikke_videresendt = $seconds;
+		return $this;
+	}
+	public function getVarighetIkkeVideresendt() {
+		return new tid( $this->varighet_ikke_videresendt );
+	}
 
 
 
@@ -208,13 +208,13 @@ class titler {
 	 * @param write_monstring $monstring
 	 * @return void
 	**/
-	private function _validateInput( $person, $monstring ) {
+	private function _validateInput( $tittel, $monstring ) {
 		// Tittelen
 		if( 'write_tittel' != get_class($tittel) ) {
-			throw new Exception("TITLER_COLLECTION: Fjerning av tittel krever skriverettigheter til tittelen!");
+			throw new Exception("TITLER_COLLECTION: Å legge til eller fjerne en tittel krever skriverettigheter til tittelen!");
 		}
 		if( !is_numeric( $tittel->getId() ) ) {
-			throw new Exception("TITLER_COLLECTION: Fjerning av en tittel krever at tittelen har en numerisk ID!");
+			throw new Exception("TITLER_COLLECTION: Å legge til eller fjerne en tittel krever at tittelen har en numerisk ID!");
 		}
 		
 		// Innslaget
@@ -317,7 +317,7 @@ class titler {
 		if( mysql_num_rows($test_relasjon) > 0 ) {
 			return true;
 		}
-		// Videresend personen
+		// Videresend tittelen
 		else {
 			$videresend_tittel = new SQLins('smartukm_fylkestep');
 			$videresend_tittel->add('pl_id', $monstring->getId() );
@@ -337,7 +337,13 @@ class titler {
 
 
 	private function _load() {
-		$this->titler = array();
+		$this->titler_videresendt = array();
+		$this->titler_ikke_videresendt = array();
+		$this->titler_alle = array();
+		
+		$varighet_videresendt = 0;
+		$varighet_ikke_videresendt = 0;
+
 		
 		// Til og med 2013-sesongen brukte vi tabellen "landstep" for videresending til land
 		if( 2014 > $this->_getMonstringSesong() && 'land' == $this->_getMonstringType() ) {
@@ -373,7 +379,6 @@ class titler {
 		}
 		
 		if( $res ) {
-			$varighet = 0;
 			while( $row = mysql_fetch_assoc( $res ) ) {
 				// Hvis innslaget er pre 2014 og på landsmønstring jukser vi
 				// til at den har pl_ids for å få lik funksjonalitet videre
@@ -386,13 +391,22 @@ class titler {
 				}
 				// Legg til tittel i array
 				$tittel = new tittel_v2( $row, $this->_getInnslagType()->getTabell() );
-				$this->titler[] = $tittel;
 				
-				$varighet += $tittel->getVarighetSomSekunder();
+				if( $this->_getMonstringType() == 'kommune' || $tittel->erVideresendt( $this->_getMonstringId() ) ) {
+					$this->titler_videresendt[] = $tittel;
+					$varighet_videresendt += $tittel->getVarighetSomSekunder();
+				} else {
+					$this->titler_ikke_videresendt[] = $tittel;
+					$varighet_ikke_videresendt += $tittel->getVarighetSomSekunder();
+				}
+				
+				$this->titler_alle[] = $tittel;
+				
 			}
-			$this->setVarighet( $varighet );
+			$this->setVarighet( $varighet_videresendt );
+			$this->setVarighetIkkeVideresendt( $varighet_ikke_videresendt );
 		}
-		return $this->titler;
+		return $this->titler_videresendt;
 	}
 
 		

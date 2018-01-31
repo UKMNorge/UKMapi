@@ -653,16 +653,20 @@ class innslag_collection {
 	 * @return $this
 	**/
 	private function _fjernVideresending( $innslag ) {
-		throw new Exception('TODO: Personer og titler krever vel egentlig mønstrings-objektet som param 2..?');
+		require_once('UKM/write_person.class.php');
+		require_once('UKM/write_tittel.class.php');
+		
 		// Meld av alle personer
 		foreach( $innslag->getPersoner()->getAllVideresendt( $this->getContainerId() ) as $person ) {
-			$innslag->getPersoner()->fjern( $person, $this->getContainerId() );
+			$write_person = new write_person( $person->getId() );
+			$innslag->getPersoner()->fjern( $write_person, $this->getContainerId() );
 		}
 
 		// Meld av alle titler
 		if( $innslag->harTitler() ) {
-			foreach( $innslag->getTitler()->getAllVideresendt( $this->getContainerId() ) as $tittel ) {
-				$innslag->getTitler()->fjern( $tittel, $this->getContainerId() );
+			foreach( $innslag->getTitler( $this->getContainerId() )->getAll( ) as $tittel ) {
+				$write_tittel = new write_tittel( $tittel->getId() );
+				$innslag->getTitler()->fjern( $write_tittel, $this->getContainerId() );
 			}
 		}
 		
