@@ -90,6 +90,7 @@ class nominasjon extends nominasjon_placeholder {
 				'niva' => $niva,
 			]
 		);
+		
 		$res = $sql->run('array');
 		
 		if( is_array( $res ) ) {

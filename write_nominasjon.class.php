@@ -31,6 +31,7 @@ class write_nominasjon extends nominasjon {
 		$classname = 'nominasjon_'. $innslag_type;
 		
 		$obj = new $classname( $innslag_id, $innslag_type, $niva );
+		
 		if( !$obj->harNominasjon() ) {
 			$sql = new SQLins('ukm_nominasjon');
 			$sql->add('b_id', $innslag_id );
@@ -59,6 +60,7 @@ class write_nominasjon extends nominasjon {
 				throw new Exception('WRITE_NOMINASJON: Noe feilet ved opprettelsen av nominasjonen');
 			}
 		}
+		
 		return $obj;
 	}
 	
@@ -121,14 +123,13 @@ class write_nominasjon extends nominasjon {
 			throw new Exception('WRITE_NOMINASJON_VOKSEN: Lagring av voksen krever voksen-objekt som parameter');
 		}
 		
-		if( !is_numeric( $voksen->getId() ) ) {
-			throw new Exception('WRITE_NOMINASJON_VOKSEN: Lagring av voksen krever numerisk id');
+		if( !is_numeric( $voksen->getNominasjon() ) ) {
+			throw new Exception('WRITE_NOMINASJON_VOKSEN: Lagring av voksen krever numerisk nominasjons-id');
 		}
 		
 		$sql = new SQLins(
 			'ukm_nominasjon_voksen',
 			[
-				'id' => $voksen->getId(),
 				'nominasjon' => $voksen->getNominasjon()
 			]
 		);
@@ -146,11 +147,11 @@ class write_nominasjon extends nominasjon {
 		}
 		
 		if( get_class( $nominasjon ) != 'nominasjon_media' ) {
-			throw new Exception('WRITE_NOMINASJON_MEDIA: Lagring av media-detaljer krever objekt som parameter');
+			throw new Exception('WRITE_NOMINASJON: Lagring av media-detaljer krever objekt som parameter');
 		}
 		
 		if( !is_numeric( $nominasjon->getId() ) ) {
-			throw new Exception('WRITE_NOMINASJON_MEDIA: Lagring av media-detaljer krever numerisk id');
+			throw new Exception('WRITE_NOMINASJON: Lagring av media-detaljer krever numerisk id');
 		}
 
 		$sql = new SQLins('ukm_nominasjon_media', ['nominasjon' => $nominasjon->getId() ] );
@@ -161,6 +162,72 @@ class write_nominasjon extends nominasjon {
 		$sql->add('beskrivelse', $nominasjon->getBeskrivelse() );
 		$sql->add('samarbeid', $nominasjon->getSamarbeid() );
 		$sql->add('erfaring', $nominasjon->getErfaring() );
+		$res = $sql->run();
+	}
+
+
+	public static function saveKonferansier( $nominasjon ) {
+		if( !UKMlogger::ready() ) {
+			throw new Exception('Logger is missing or incorrect set up.');
+		}
+		
+		if( get_class( $nominasjon ) != 'nominasjon_konferansier' ) {
+			throw new Exception('WRITE_NOMINASJON: Lagring av konferansier-detaljer krever objekt som parameter');
+		}
+		
+		if( !is_numeric( $nominasjon->getId() ) ) {
+			throw new Exception('WRITE_NOMINASJON: Lagring av konferansier-detaljer krever numerisk id');
+		}
+
+		$sql = new SQLins('ukm_nominasjon_konferansier', ['nominasjon' => $nominasjon->getId() ] );
+		$sql->add('hvorfor', $nominasjon->getHvorfor() );
+		$sql->add('beskrivelse', $nominasjon->getBeskrivelse() );
+		$sql->add('fil-plassering', $nominasjon->getFilPlassering() );
+		$sql->add('fil-url', $nominasjon->getFilUrl() );
+		$res = $sql->run();
+	}
+	
+	public static function saveArrangor( $nominasjon ) {
+		if( !UKMlogger::ready() ) {
+			throw new Exception('Logger is missing or incorrect set up.');
+		}
+		
+		if( get_class( $nominasjon ) != 'nominasjon_arrangor' ) {
+			throw new Exception('WRITE_NOMINASJON: Lagring av arrangør-detaljer krever objekt som parameter');
+		}
+		
+		if( !is_numeric( $nominasjon->getId() ) ) {
+			throw new Exception('WRITE_NOMINASJON: Lagring av arrangør-detaljer krever numerisk id');
+		}
+
+		$sql = new SQLins('ukm_nominasjon_arrangor', ['nominasjon' => $nominasjon->getId() ] );
+		$sql->add('type_lydtekniker', $nominasjon->getLydtekniker() ? 'true':'false' );
+		$sql->add('type_lystekniker', $nominasjon->getLystekniker() ? 'true':'false' );
+		$sql->add('type_vertskap', $nominasjon->getVertskap() ? 'true':'false' );
+
+		$sql->add('samarbeid', $nominasjon->getSamarbeid() );
+		$sql->add('erfaring', $nominasjon->getErfaring() );
+		$sql->add('suksesskriterie', $nominasjon->getSuksesskriterie() );
+		$sql->add('annet', $nominasjon->getAnnet() );
+		
+		$sql->add('lyd-erfaring-1', $nominasjon->getLydErfaring1() );
+		$sql->add('lyd-erfaring-2', $nominasjon->getLydErfaring2() );
+		$sql->add('lyd-erfaring-3', $nominasjon->getLydErfaring3() );
+		$sql->add('lyd-erfaring-4', $nominasjon->getLydErfaring4() );
+		$sql->add('lyd-erfaring-5', $nominasjon->getLydErfaring5() );
+		$sql->add('lyd-erfaring-6', $nominasjon->getLydErfaring6() );
+		
+		$sql->add('lys-erfaring-1', $nominasjon->getLysErfaring1() );
+		$sql->add('lys-erfaring-2', $nominasjon->getLysErfaring2() );
+		$sql->add('lys-erfaring-3', $nominasjon->getLysErfaring3() );
+		$sql->add('lys-erfaring-4', $nominasjon->getLysErfaring4() );
+		$sql->add('lys-erfaring-5', $nominasjon->getLysErfaring5() );
+		$sql->add('lys-erfaring-6', $nominasjon->getLysErfaring6() );
+
+		$sql->add('voksen-samarbeid', $nominasjon->getVoksenSamarbeid() );
+		$sql->add('voksen-erfaring', $nominasjon->getVoksenErfaring() );
+		$sql->add('voksen-annet', $nominasjon->getVoksenAnnet() );
+		
 		$res = $sql->run();
 	}
 }
