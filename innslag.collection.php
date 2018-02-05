@@ -861,7 +861,8 @@ class innslag_collection {
 				$sql = new SQL(innslag_v2::getLoadQuery()."
 								JOIN `smartukm_rel_b_c` AS `rel`
 									ON `rel`.`b_id` = `smartukm_band`.`b_id`
-								WHERE `rel`.`c_id` = '#c_id'",
+								WHERE `rel`.`c_id` = '#c_id'
+								ORDER BY `order` ASC",
 								array( 'c_id' => $this->getContainerId() ) );
 				return $sql; 
 				break;
