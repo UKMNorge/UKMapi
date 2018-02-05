@@ -86,6 +86,38 @@ class innslag {
 	var $personer = array();
 	var $items = array();
 	var $warnings = array();
+	
+	var $nominasjon = null;
+
+	/**** KOPIERT FRA INNSLAG V2 (courtesy of UKMdelta)
+	 *
+	 *
+	**/
+	public function getNominasjon( $monstring_type ) {
+		require_once('UKM/nominasjon.class.php');
+		if( null == $this->nominasjon ) {
+			switch( $this->get('bt_id') ) {
+				case 5:
+					$classname = 'nominasjon_media';
+					$key = 'media';
+					break;
+				case 4:
+					$classname = 'nominasjon_konferansier';
+					$key = 'konferansier';
+					break;
+				case 8:
+					$classname = 'nominasjon_arrangor';
+					$key = 'arrangor';
+					break;
+				default:
+					$classname = 'nominasjon_placeholder';
+					$key = false;
+			}
+			$this->nominasjon = new $classname( $this->get('b_id'), $key, $monstring_type );
+		}
+		return $this->nominasjon;
+	}
+
 
 	// Nye funksjoner nov 2015 for UKMdelta
 	private function _log( $field, $newValue ) {

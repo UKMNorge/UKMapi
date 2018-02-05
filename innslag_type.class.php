@@ -8,14 +8,16 @@ class innslag_type {
 	var $har_filmer = false; # Kan det finnes noe i UKM-TV?
 	var $har_titler = false;
 	var $tabell = false;
+	var $har_tekniske_behov = false;
 	
-	public function __construct($id, $key, $name, $icon, $har_filmer, $har_titler, $tabell) {
+	public function __construct($id, $key, $name, $icon, $har_filmer, $har_titler, $tabell, $har_tekniske_behov) {
 		$this->setId( $id );
 		$this->setKey( $key );
 		$this->setNavn( $name );
 		$this->setIcon( $icon );
 		$this->setHarFilmer( $har_filmer );
 		$this->setHarTitler( $har_titler );
+		$this->setHarTekniskeBehov( $har_tekniske_behov );
 		$this->setTabell( $tabell );
 	}
 	
@@ -78,6 +80,14 @@ class innslag_type {
 	}
 	public function harTitler() {
 		return $this->har_titler;
+	}
+	
+	public function setHarTekniskeBehov( $har_tekniske_behov ) {
+		$this->har_tekniske_behov = $har_tekniske_behov;
+		return $this;
+	}
+	public function harTekniskeBehov() {
+		return $this->har_tekniske_behov;
 	}
 	
 	public function getFrist() {

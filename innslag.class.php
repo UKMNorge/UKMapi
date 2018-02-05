@@ -34,9 +34,12 @@ class innslag_v2 {
 	var $advarsler = null;
 
 	var $erVideresendt = null;
+	var $nominasjon = null;
 	
 	var $kontaktperson_id = null;
 	var $kontaktperson = null;
+	
+	var $tekniske_behov = null;
 
 	public function __construct( $bid_or_row, $select_also_if_not_completed=false ) {
 		$this->attributes = array();
@@ -106,6 +109,7 @@ class innslag_v2 {
 		$this->setKontaktpersonId( $row['b_contact'] );
 		$this->_setSubscriptionTime( $row['b_subscr_time'] );
 		$this->setStatus( $row['b_status'] );
+		$this->setTekniskeBehov( utf8_encode( $row['td_demand'] ) );
 
 		if( isset( $row['order'] ) ) {
 			$this->setAttr('order', $row['order'] );
@@ -125,7 +129,7 @@ class innslag_v2 {
 	**/
 	public function getPersoner() {
 		if( null == $this->personer_collection ) {
-			$this->personer_collection = new personer( $this->getId() );
+			$this->personer_collection = new personer( $this->getId(), $this->getType() );
 		}
 		return $this->personer_collection;	
 	}
@@ -174,6 +178,35 @@ class innslag_v2 {
 	}		
 	private function _getNewOrOld($new, $old) {
 		return null == $this->$new ? $this->info[$old] : $this->$new;
+	}
+	
+	public function getNominasjon( $monstring ) {
+		require_once('UKM/nominasjon.class.php');
+		if( null == $this->nominasjon ) {
+
+			if( !is_object( $monstring ) ) {
+				throw new Exception('INNSLAG: Mønstring må være gitt som objekt for å hente nominasjon');
+			}
+		
+			switch( $this->getType()->getKey() ) {
+				case 'nettredaksjon':
+				case 'media':
+					$classname = 'nominasjon_media';
+					break;
+				case 'konferansier':
+					$classname = 'nominasjon_konferansier';
+					break;
+				case 'arrangor':
+					$classname = 'nominasjon_arrangor';
+					break;
+				default:
+					$classname = 'nominasjon_placeholder';
+					$key = false;
+			}
+			$this->nominasjon = new $classname( $this->getId(), $this->getType()->getKey(), $monstring->getType() );
+		}
+
+		return $this->nominasjon;
 	}
 	/**
 	 * Sett ID
@@ -278,6 +311,26 @@ class innslag_v2 {
 	**/
 	public function getSesong() {
 		return $this->sesong;
+	}
+	
+	/**
+	 * Sett tekniske behov
+	 *
+	 * @param string $tekniske_behov
+	 * @return $this
+	**/
+	public function setTekniskeBehov( $tekniske_behov ) {
+		$this->tekniske_behov = $tekniske_behov;
+		return $this;
+	}
+	
+	/**
+	 * Hent tekniske behov
+	 *
+	 * @return string $tekniske_behov
+	**/
+	public function getTekniskeBehov() {
+		return $this->tekniske_behov;
 	}
 	
 	/**
