@@ -52,6 +52,7 @@ class innslag_typer extends Collection {
 									  'icon' => 'http://ico.ukm.no/delta/delta-musikk-64.png',
 									  'har_filmer' => true,
 									  'har_titler' => true,
+									  'har_tekniske_behov' => true,
 									  'database_table' => 'smartukm_titles_scene',
 									  );
 						break;
@@ -62,6 +63,7 @@ class innslag_typer extends Collection {
 									  'icon' => 'http://ico.ukm.no/delta/delta-dans-64.png',
 									  'har_filmer' => true,
 									  'har_titler' => true,
+									  'har_tekniske_behov' => true,
 									  'database_table' => 'smartukm_titles_scene',
 									  );
 						break;
@@ -72,6 +74,7 @@ class innslag_typer extends Collection {
 									  'icon' => 'http://ico.ukm.no/delta/delta-teater-64.png',
 									  'har_filmer' => true,
 									  'har_titler' => true,
+									  'har_tekniske_behov' => true,
 									  'database_table' => 'smartukm_titles_scene',
 									  );
 						break;						
@@ -82,6 +85,7 @@ class innslag_typer extends Collection {
 									  'icon' => 'http://ico.ukm.no/delta/delta-litteratur-64.png',
 									  'har_filmer' => true,
 									  'har_titler' => true,
+									  'har_tekniske_behov' => false,
 									  'database_table' => 'smartukm_titles_scene',
 									  );
 						break;
@@ -92,6 +96,7 @@ class innslag_typer extends Collection {
 									  'icon' => 'http://ico.ukm.no/delta/delta-annet-64.png',
 									  'har_filmer' => true,
 									  'har_titler' => true,
+									  'har_tekniske_behov' => true,
 									  'database_table' => 'smartukm_titles_scene',
 									  );
 				}
@@ -103,6 +108,7 @@ class innslag_typer extends Collection {
 							  'icon' => 'http://ico.ukm.no/delta/delta-film-64.png',
 							  'har_filmer' => true,
 							  'har_titler' => true,
+							  'har_tekniske_behov' => false,
 							  'database_table' => 'smartukm_titles_video',
 							  );
 				break;
@@ -113,6 +119,7 @@ class innslag_typer extends Collection {
 							  'icon' => 'http://ico.ukm.no/delta/delta-utstilling-64.png',
 							  'har_filmer' => false,
 							  'har_titler' => true,
+							  'har_tekniske_behov' => false,
 							  'database_table' => 'smartukm_titles_exhibition',
 							  );
 				break;
@@ -123,8 +130,8 @@ class innslag_typer extends Collection {
 							  'icon' => 'http://ico.ukm.no/delta/delta-konferansier-64.png',
 							  'har_filmer' => false,
 							  'har_titler' => false,
+							  'har_tekniske_behov' => false,
 							  'database_table' => false,
-
 							  );
 				break;
 			case 5:
@@ -134,6 +141,7 @@ class innslag_typer extends Collection {
 							  'icon' => 'http://ico.ukm.no/delta/delta-nettredaksjon-64.png',
 							  'har_filmer' => false,
 							  'har_titler' => false,
+							  'har_tekniske_behov' => false,
 							  'database_table' => false,
 							  );
 				break;
@@ -144,6 +152,7 @@ class innslag_typer extends Collection {
 							  'icon' => 'http://ico.ukm.no/delta/delta-matkultur-64.png',
 							  'har_filmer' => true,
 							  'har_titler' => true,
+							  'har_tekniske_behov' => false,
 							  'database_table' => 'smartukm_titles_other',
 							  );
 				break;
@@ -155,13 +164,14 @@ class innslag_typer extends Collection {
 							  'icon' => 'http://ico.ukm.no/delta/delta-arrangor-64.png',
 							  'har_filmer' => false,
 							  'har_titler' => false,
+							  'har_tekniske_behov' => false,
 							  'database_table' => false,
 							  );
 				break;
 			default:
 				$data = array('id' => 'missing '. $id);
 		}
-		return new innslag_type( $data['id'], $data['key'], $data['name'], $data['icon'], $data['har_filmer'], $data['har_titler'], $data['database_table'] );
+		return new innslag_type( $data['id'], $data['key'], $data['name'], $data['icon'], $data['har_filmer'], $data['har_titler'], $data['database_table'], $data['har_tekniske_behov'] );
 	}
 	
 	

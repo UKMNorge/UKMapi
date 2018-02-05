@@ -38,6 +38,8 @@ class innslag_v2 {
 	
 	var $kontaktperson_id = null;
 	var $kontaktperson = null;
+	
+	var $tekniske_behov = null;
 
 	public function __construct( $bid_or_row, $select_also_if_not_completed=false ) {
 		$this->attributes = array();
@@ -107,6 +109,7 @@ class innslag_v2 {
 		$this->setKontaktpersonId( $row['b_contact'] );
 		$this->_setSubscriptionTime( $row['b_subscr_time'] );
 		$this->setStatus( $row['b_status'] );
+		$this->setTekniskeBehov( utf8_encode( $row['td_demand'] ) );
 
 		if( isset( $row['order'] ) ) {
 			$this->setAttr('order', $row['order'] );
@@ -308,6 +311,26 @@ class innslag_v2 {
 	**/
 	public function getSesong() {
 		return $this->sesong;
+	}
+	
+	/**
+	 * Sett tekniske behov
+	 *
+	 * @param string $tekniske_behov
+	 * @return $this
+	**/
+	public function setTekniskeBehov( $tekniske_behov ) {
+		$this->tekniske_behov = $tekniske_behov;
+		return $this;
+	}
+	
+	/**
+	 * Hent tekniske behov
+	 *
+	 * @return string $tekniske_behov
+	**/
+	public function getTekniskeBehov() {
+		return $this->tekniske_behov;
 	}
 	
 	/**

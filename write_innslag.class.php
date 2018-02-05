@@ -99,7 +99,7 @@ class write_innslag extends innslag_v2 {
 			throw new Exception('Logger is missing or incorrect set up.');
 		}
 		$smartukm_band = new SQLins('smartukm_band', array('b_id'=>$this->getId()));
-		$smartukm_tech = new SQLins('smartukm_technical_demand', array('b_id'=>$this->getId()));
+		$smartukm_technical = new SQLins('smartukm_technical', array('b_id'=>$this->getId()));
 		$smartukm_rel_b_p = null;
 
 		foreach( $this->getChanges() as $change ) {
@@ -121,8 +121,8 @@ class write_innslag extends innslag_v2 {
 			#echo $qry->debug();
 			$smartukm_band->run();
 		}
-		if( $smartukm_tech->hasChanges() ) {
-			$smartukm_tech->run();
+		if( $smartukm_technical->hasChanges() ) {
+			$smartukm_technical->run();
 		}
 		if( null != $smartukm_rel_b_p) {
 			$smartukm_rel_b_p->run();
@@ -175,6 +175,13 @@ class write_innslag extends innslag_v2 {
 		}
 		$this->_change('smartukm_band', 'b_kommune', 307, $kommune_id);
 		parent::setKommune( $kommune_id );
+	}	
+	public function setTekniskeBehov( $tekniske_behov ) {
+		if( $this->_loaded() && $this->getTekniskeBehov() == $tekniske_behov ) {
+			return false;
+		}
+		$this->_change('smartukm_technical', 'td_demand', 308, $tekniske_behov);
+		parent::setTekniskeBehov( $tekniske_behov );
 	}	
 
 	/**
