@@ -2,9 +2,28 @@
 require_once('UKM/mail/class.phpmailer.php');
 
 class UKMmail {
+	var $reply_to = null;
+	var $send_from = null;
 	public function __construct() {
+		$this->reply_to = new stdClass();
+		$this->reply_to->mail = UKM_MAIL_REPLY;
+		$this->reply_to->name = UKM_MAIL_FROMNAME;
+
+		$this->send_from = new stdClass();
+		$this->send_from->mail = UKM_MAIL_FROM;
+		$this->send_from->name = UKM_MAIL_FROMNAME;
 	}
 	
+	public function setFrom( $mail, $name ) {
+		$this->send_from->mail = $mail;
+		$this->send_from->name = $name;
+		return $this;
+	}
+	public function setReplyTo( $mail, $name ) {
+		$this->reply_to->mail = $mail;
+		$this->reply_to->name = $name;
+		return $this;
+	}
 	
 	public function text( $text ) {
 	
@@ -57,19 +76,19 @@ class UKMmail {
 			$mail->Host       = UKM_MAIL_HOST;
 			$mail->Username   = UKM_MAIL_USER;
 			$mail->Password   = UKM_MAIL_PASS;
-			$mail->SetFrom(UKM_MAIL_FROM, UKM_MAIL_FROMNAME);
+			$mail->SetFrom( $this->send_from->mail, $this->send_from->name );
+			$mail->AddReplyTo( $this->reply_to->mail, $this->reply_to->name );
 	
 			$supportIsRecipient = false;
 			foreach($this->recipients as $recipient) {
-				if( $recipient == 'support@ukm.no' ) {
-					$supportIsRecipient = true;
+				// Hvis support er mottaker, må svar-til (og avsender?) ikke være
+				// support, da freshdesk nekter å motta den da...
+				if( $recipient == UKM_MAIL_REPLY && $this->reply_to->mail == UKM_MAIL_REPLY ) {
+					$mail->AddReplyTo( $this->send_from->mail, $this->send_from->name );
 				}
 				$mail->AddAddress($recipient);
 			}
-			// Hvis support er mottaker, må svar-til og avsender ikke være
-			// support, da freshdesk nekter å motta den da...
-			$mail->AddReplyTo( ($supportIsRecipient ? UKM_MAIL_FROM : UKM_MAIL_REPLY), UKM_MAIL_FROMNAME);
-			
+
 			$mail->Subject = $this->subject;
 
 			$mail->MsgHTML($this->message);
@@ -79,7 +98,6 @@ class UKMmail {
 
 			$res = $mail->Send();
 			return $res;
-			return true;
 		} catch (phpmailerException $e) {
 			return 'Mailer: '. $e->errorMessage(); //Pretty error messages from PHPMailer
 		} catch (Exception $e) {
