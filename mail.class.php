@@ -77,16 +77,21 @@ class UKMmail {
 			$mail->Username   = UKM_MAIL_USER;
 			$mail->Password   = UKM_MAIL_PASS;
 			$mail->SetFrom( $this->send_from->mail, $this->send_from->name );
-			$mail->AddReplyTo( $this->reply_to->mail, $this->reply_to->name );
 	
 			$supportIsRecipient = false;
 			foreach($this->recipients as $recipient) {
 				// Hvis support er mottaker, må svar-til (og avsender?) ikke være
 				// support, da freshdesk nekter å motta den da...
 				if( $recipient == UKM_MAIL_REPLY && $this->reply_to->mail == UKM_MAIL_REPLY ) {
-					$mail->AddReplyTo( $this->send_from->mail, $this->send_from->name );
+					$supportIsRecipient = true;
 				}
 				$mail->AddAddress($recipient);
+			}
+			
+			if( $supportIsRecipient ) {
+				$mail->AddReplyTo( $this->send_from->mail, $this->send_from->name );
+			} else {
+				$mail->AddReplyTo( $this->reply_to->mail, $this->reply_to->name );
 			}
 
 			$mail->Subject = $this->subject;
