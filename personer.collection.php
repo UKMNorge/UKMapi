@@ -376,12 +376,6 @@ class personer {
 	 * @return (bool true|throw exception)
 	 */
 	public function _fjernVideresend( $person, $monstring ) {
-		// FOR INNSLAG I KATEGORI 1 (SCENE) FØLGER ALLE DELTAKERE ALLTID INNSLAGET VIDERE
-		// FJERN DERFOR LOKALT
-		if( $this->_getInnslagType()->getId() == 1 ) {
-			return $this->_fjernLokalt( $person, $monstring );
-		}
-
 		$videresend_person = new SQLdel(
 			'smartukm_fylkestep_p', 
 			[
