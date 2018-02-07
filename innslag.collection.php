@@ -9,10 +9,10 @@ class innslag_collection {
 	var $containerType = null;
 	var $containerId = null;
 
-	var $monstring_id = null; // Brukes av container_type 'monstring'
 	var $monstring_type = null; // Brukes av container_type 'monstring'
 	var $monstring_sesong = null; // Brukes av container_type 'monstring'
-	
+	var $monstring_kommuner = null; // Brukes av container_type 'monstring'
+	var $monstring_fylke = null; // Brukes av container_type 'monstring'
 	/**
 	 * Class constructor
 	 * OBS: monstring-collection krever kall til $this->setContainerDataMonstring()
@@ -30,15 +30,13 @@ class innslag_collection {
 	 * Benyttes når collection er for en mønstring
 	 * Setter nødvendig hjelpedata fra moder-objektet
 	 *
-	 * @param integer $pl_id
 	 * @param string $pl_type
 	 * @param integer $sesong
 	 * @param integer $fylke
 	 * @param array $kommune_id
 	 * @return $this
 	**/
-	public function setContainerDataMonstring( $pl_id, $pl_type, $sesong, $fylke, $kommuner ) {
-		$this->setMonstringId( $pl_id );
+	public function setContainerDataMonstring( $pl_type, $sesong, $fylke, $kommuner ) {
 		$this->setMonstringType( $pl_type );
 		$this->setMonstringSesong( $sesong );
 		$this->setMonstringFylke( $fylke );
@@ -421,25 +419,6 @@ class innslag_collection {
 	}
 
 	/**
-	 * Sett mønstringsid (PLID)
-	 *
-	 * @param string $type
-	 * @return $this
-	**/
-	public function setMonstringId( $pl_id ) {
-		$this->monstring_id = $pl_id;
-		return $this;
-	}
-	/**
-	 * Hent mønstringsid (PLID)
-	 *
-	 * @return $this
-	**/
-	public function getMonstringId() {
-		return $this->monstring_id;
-	}
-	
-	/**
 	 * Sett mønstringens kommuner
 	 *
 	 * @param array $kommuner
@@ -568,7 +547,7 @@ class innslag_collection {
 				WHERE `pl_id` = '#pl_id'
 				AND `b_id` = '#b_id'",
 			[
-				'pl_id'		=> $this->getMonstringId(),
+				'pl_id'		=> $this->getContainerId(),
 		  		'b_id'		=> $innslag->getId(), 
 			]
 		);
@@ -581,10 +560,10 @@ class innslag_collection {
 		// Videresend personen
 		else {
 			$videresend = new SQLins('smartukm_fylkestep');
-			$videresend->add('pl_id', $this->getMonstringId() );
+			$videresend->add('pl_id', $this->getContainerId() );
 			$videresend->add('b_id', $innslag->getId() );
 
-			UKMlogger::log( 318, $innslag->getId(), $this->getMonstringId() );
+			UKMlogger::log( 318, $innslag->getId(), $this->getContainerId() );
 			$res = $videresend->run();
 		
 			if( $res ) {
@@ -772,7 +751,7 @@ class innslag_collection {
 		$operand = $pameldte ? '=' : '<';
 		switch( $this->getContainerType() ) {
 			case 'monstring':
-				if( null == $this->getMonstringId() ) {
+				if( null == $this->getContainerId() ) {
 					throw new Exception('innslag: Krever MønstringID for å hente mønstringens innslag');
 				}
 
@@ -790,7 +769,7 @@ class innslag_collection {
 									ORDER BY `bt_id` ASC,
 											`band`.`b_name` ASC",
 								array(	'season' => $this->getMonstringSesong(),
-										'pl_id' => $this->getMonstringId(),
+										'pl_id' => $this->getContainerId(),
 									)
 								);
 				}
@@ -811,7 +790,7 @@ class innslag_collection {
 										ORDER BY `bt_id` ASC,
 												`band`.`b_name` ASC",
 									array(	'season' => $this->getMonstringSesong(),
-											'pl_id' => $this->getMonstringId(),
+											'pl_id' => $this->getContainerId(),
 										)
 									);
 					break;
