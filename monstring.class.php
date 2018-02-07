@@ -552,9 +552,9 @@ class monstring_v2 {
 		if( null == $this->innslag ) {
 			$this->innslag = new innslag_collection( 'monstring', $this->getId() );
 			if( 'land' == $this->getType() ) {
-				$this->innslag->setContainerDataMonstring( $this->getId(), $this->getType(), $this->getSesong(), false, false );
+				$this->innslag->setContainerDataMonstring( $this->getType(), $this->getSesong(), false, false );
 			} else {
-				$this->innslag->setContainerDataMonstring( $this->getId(), $this->getType(), $this->getSesong(), $this->getFylke()->getId(), $this->getKommuner()->getIdArray() );
+				$this->innslag->setContainerDataMonstring( $this->getType(), $this->getSesong(), $this->getFylke()->getId(), $this->getKommuner()->getIdArray() );
 			}
 		}
 		return $this->innslag;
