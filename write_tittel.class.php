@@ -155,9 +155,98 @@ class write_tittel {
 	}
 	
 
+	
+	/**
+	 * Legg til tittelen i innslaget
+	 * Videresender automatisk til context-mønstring
+	 * 
+	 * @param tittel_v2 $tittel_save
+	**/
+	public static function leggtil( $tittel_save ) {
+		// Valider inputs
+		write_tittel::_validerLeggtil( $tittel_save );
+
+		// Opprett mønstringen tittelen kommer fra
+		$monstring = new monstring_v2( $tittel_save->getContext()->getMonstring()->getId() );
+		// Hent innslaget fra gitt mønstring
+		$innslag_db = $monstring->getInnslag()->get( $tittel_save->getContext()->getInnslag()->getId() );
+		
+		// En tittel vil alltid være lagt til lokalt
+		
+		// Videresend tittelen hvis ikke lokalmønstring
+		if( $monstring->getType() != 'kommune' ) {
+			$res = write_tittel::_leggTilVideresend( $tittel_save );
+		}
+		
+		if( $res ) {
+			return $this;
+		}
+		
+		throw new Exception(
+			'Kunne ikke legge til '. $tittel_save->getNavn() .' i innslaget. ',
+			50913
+		);
+	}
 
 
+	/**
+	 * Fjern en videresendt tittel, og avmelder hvis gitt lokalmønstring
+	 *
+	 * @param tittel_v2 $tittel_save
+	 *
+	 * @return (bool true|throw exception)
+	 */
+	public function fjern( $tittel_save ) {
+		// Valider inputs
+		write_tittel::_validerLeggtil( $tittel_save );
 
+		// Opprett mønstringen tittelen kommer fra
+		$monstring = new monstring_v2( $tittel_save->getContext()->getMonstring()->getId() );
+		// Hent innslaget fra gitt mønstring
+		$innslag_db = $monstring->getInnslag()->get( $tittel_save->getContext()->getInnslag()->getId() );
+		
+
+		if( $monstring->getType() == 'kommune' ) {
+			$res = write_tittel::_fjernLokalt( $tittel_save );
+		} else {
+			$res = write_tittel::_fjernVideresend( $tittel_save );
+		}
+		
+		if( $res ) {
+			return true;
+		}
+		
+		throw new Exception(
+			'Kunne ikke fjerne '. $tittel_save->getTittel() .' fra innslaget. ',
+			50514
+		);
+	}
+	
+	
+	/**
+	 * Fjern en tittel fra innslaget helt
+	 * @param tittel_v2 $tittel_save
+	**/
+	private static function _fjernLokalt( $tittel_save ) {
+		UKMlogger::log( 327, $tittel_save->getContext()->getInnslag()->getId(), $tittel_save->getId() .': '. $tittel_save->getTittel() );
+		$qry = new SQLdel( 
+			$tittel_save->getTable(), 
+			[
+				't_id' => $tittel_save->getId(),
+				'b_id' => $tittel_save->getContext()->getInnslag()->getId(),
+			]
+		);
+		$res = $qry->run();
+
+		if($res == 1) {
+			return true;
+		}
+
+		throw new Exception(
+			'Klarte ikke fjerne tittel ' . $tittel->getTittel(),
+			50515
+		);
+	}
 
 	/********************************************************************************
 	 *
@@ -185,6 +274,41 @@ class write_tittel {
 			throw new Exception(
 				'Tittel-objektet må ha en numerisk ID større enn null',
 				50906
+			);
+		}
+	}
+	
+	
+	/**
+	 * Valider alle input-parametre for å legge til ny tittel
+	 *
+	 * @see leggTil
+	**/
+	private static function _validerLeggtil( $tittel_save ) {
+		// Valider input-data
+		try {
+			write_tittel::validerTittel( $tittel_save );
+		} catch( Exception $e ) {
+			throw new Exception(
+				'Kan ikke legge til/fjerne tittel. '. $e->getMessage(),
+				$e->getCode()
+			);
+		}
+		
+		// Valider kontekst (tilknytning til mønstring)
+		if( $tittel_save->getContext()->getMonstring() == null ) {
+			throw new Exception(
+				'Kan ikke legge til/fjerne tittel. '.
+				'Tittel-objektet er ikke opprettet i riktig kontekst',
+				50911
+			);
+		}
+		// Valider kontekst (tilknytning til innslag)
+		if( $tittel_save->getContext()->getInnslag() == null ) {
+			throw new Exception(
+				'Kan ikke legge til/fjerne tittel. '.
+				'Tittel-objektet er ikke opprettet i riktig kontekst',
+				50912
 			);
 		}
 	}

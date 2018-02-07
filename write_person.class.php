@@ -63,10 +63,10 @@ class write_person {
 		}
 		// Valider input-data
 		try {
-			write_person::_validateCreate( $fornavn, $etternavn, $mobil, $fodselsdato, $kommune_id );
+			write_person::_validerCreate( $fornavn, $etternavn, $mobil, $fodselsdato, $kommune_id );
 		} catch( Exception $e ) {
 			throw new Exception(
-				'Kunne ikke opprette person'. $e->getMessage(),
+				'Kunne ikke opprette person. '. $e->getMessage(),
 				$e->getCode()
 			);
 		}
@@ -187,6 +187,9 @@ class write_person {
 	/**
 	 * setRolle på person.
 	 *
+	 * Kan ikke alltid kjøres som en del av savePerson da personer
+	 * kan redigeres uten å ha en rolle i et innslag (og da mangle relasjonen)
+	 *
 	 * @param write_person
 	 * @param rolle string
 	 *
@@ -204,7 +207,7 @@ class write_person {
 		}
 		
 		// Valider kontekst (tilknytning til mønstring)
-		if( $person_save->getContext()->getMonstring() == null ) {
+		if( $person_save->getContext() == null || $person_save->getContext()->getMonstring() == null ) {
 			throw new Exception(
 				'Kan ikke oppdatere personens rolle. '.
 				'Person-objektet er ikke opprettet i riktig kontekst',
@@ -250,8 +253,142 @@ class write_person {
 			return $sql->run();
 		}
 	}
+	
+	/**
+	 * Legg til person i innslaget
+	 * Videresender automatisk til context-mønstring
+	 * 
+	 * @param person_v2 $person_save
+	**/
+	public static function leggTil( $person_save ) {
+		// Valider inputs
+		write_person::_validerLeggtil( $person_save );
+
+		// Opprett mønstringen personen kommer fra
+		$monstring = new monstring_v2( $person_save->getContext()->getMonstring()->getId() );
+		// Hent innslaget fra gitt mønstring
+		$innslag_db = $monstring->getInnslag()->get( $person_save->getContext()->getInnslag()->getId() );
+		
+		// Alltid legg til personen lokalt
+		$res = write_person::_leggTilLokalt( $person_save );
+
+		// Sett rolle på personen. 
+		// Worst case: vi setter blank rolle hvis dette ikke er satt på objektet fra før
+		if( $res ) {
+			write_person::saveRolle( $person_save );
+		}
+
+		// Videresend personen hvis ikke lokalmønstring
+		if( $res && $monstring->getType() != 'kommune' ) {
+			$res = write_person::_leggTilVideresend( $person_save );
+		}
+		
+		if( $res ) {
+			return $this;
+		}
+		
+		throw new Exception(
+			'Kunne ikke legge til '. $person->getNavn() .' i innslaget. ',
+			50513
+		);
+	}
+
+	/**
+	 * Fjern en videresendt person, og avmelder hvis gitt lokalmønstring
+	 *
+	 * @param person_v2 $person_save
+	 *
+	 * @return (bool true|throw exception)
+	 */
+	public function fjern( $person_save ) {
+		// Valider inputs
+		write_person::_validerLeggtil( $person_save );
+
+		// Opprett mønstringen personen kommer fra
+		$monstring = new monstring_v2( $person_save->getContext()->getMonstring()->getId() );
+		// Hent innslaget fra gitt mønstring
+		$innslag_db = $monstring->getInnslag()->get( $person_save->getContext()->getInnslag()->getId() );
+		
+
+		if( $monstring->getType() == 'kommune' ) {
+			$res = write_person::_fjernLokalt( $person_save );
+		} else {
+			$res = write_person::_fjernVideresend( $person_save );
+		}
+		
+		if( $res ) {
+			return true;
+		}
+		
+		throw new Exception(
+			'Kunne ikke fjerne '. $person->getNavn() .' fra innslaget. ',
+			50514
+		);
+	}
 
 
+
+
+
+
+
+	/**
+	 * Legg til en person på lokalnivå (ikke videresend)
+	 *
+	 * @param person_v2 $person
+	 * @return bool $success
+	**/
+	private static function _leggTilLokalt( $person_save ) {
+		// Er personen allerede lagt til i innslaget?
+		$sql = new SQL("SELECT COUNT(*) 
+						FROM smartukm_rel_b_p 
+						WHERE 'b_id' = '#b_id' 
+							AND 'p_id' = '#p_id'",
+						array(	'b_id' => $person_save->getContext()->getInnslag()->getId(), 
+								'p_id' => $person_save->getId()) 
+						);
+		$exists = $sql->run('field', 'COUNT(*)');
+		if($exists) {
+			return true;
+		}
+
+		// Legg til i innslaget
+		$sql = new SQLins("smartukm_rel_b_p");
+		$sql->add('b_id', $person_save->getContext()->getInnslag()->getId() );
+		$sql->add('p_id', $person_save->getId());
+
+		UKMlogger::log( 324, $person_save->getContext()->getInnslag()->getId(), $person_save->getId().': '. $person_save->getNavn() );
+		$res = $sql->run();
+		
+		if(false == $res)
+			return false;
+		
+		return true;
+	}
+	
+	/**
+	 * Fjerner en person helt fra innslaget (avmelding lokalnivå)
+	 *
+	 * @param person_v2 $person
+	 *
+	 * @return (bool true|throw exception)
+	 */	 
+	private function _fjernLokalt( $person_save ) {
+		$sql = new SQLdel("smartukm_rel_b_p", 
+			array( 	'b_id' => $person_save->getContext()->getInnslag()->getId(),
+					'p_id' => $person_save->getId(),
+					));
+		UKMlogger::log( 325, $person_save->getContext()->getInnslag()->getId(), $person_save->getId().': '. $person_save->getNavn() );
+		$res = $sql->run();
+		if( $res ) {
+			return true;
+		}
+		
+		throw new Exception(
+			'Kunne ikke fjerne '. $person->getNavn() .' fra innslaget. ',
+			50515
+		);
+	}
 
 
 
@@ -313,6 +450,40 @@ class write_person {
 			throw new Exception(
 				"Kommune-ID må være et tall.",
 				50705
+			);
+		}
+	}
+	
+	/**
+	 * Valider alle input-parametre for å legge til ny person
+	 *
+	 * @see leggTil
+	**/
+	private static function _validerLeggtil( $person_save ) {
+		// Valider input-data
+		try {
+			write_person::validerPerson( $person_save );
+		} catch( Exception $e ) {
+			throw new Exception(
+				'Kan ikke legge til/fjerne person. '. $e->getMessage(),
+				$e->getCode()
+			);
+		}
+		
+		// Valider kontekst (tilknytning til mønstring)
+		if( $person_save->getContext()->getMonstring() == null ) {
+			throw new Exception(
+				'Kan ikke legge til/fjerne person. '.
+				'Person-objektet er ikke opprettet i riktig kontekst',
+				50511
+			);
+		}
+		// Valider kontekst (tilknytning til innslag)
+		if( $person_save->getContext()->getInnslag() == null ) {
+			throw new Exception(
+				'Kan ikke legge til/fjerne person. '.
+				'Person-objektet er ikke opprettet i riktig kontekst',
+				50512
 			);
 		}
 	}

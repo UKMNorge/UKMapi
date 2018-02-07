@@ -45,13 +45,35 @@ class program {
 	}
 	
 	public function get( $id ) {
+		if( is_object( $id ) && get_class( $id ) == 'forestilling_v2' ) {
+			$id = $id->getId();
+		}
 		foreach( $this->getAll() as $item ) {
 			if( $item->getId() == $id ) {
 				return $item;
 			}
 		}
-		return false;
+		throw new Exception('Kunne ikke finne hendelse '. $id .'.', 2); // OBS: code brukes av har()
 	}
+	
+	/**
+	 * Er innslaget med i hendelsen
+	 *
+	 * @param object person
+	 * @return boolean
+	**/
+	public function har( $hendelse ) {
+		try {
+			$this->get( $hendelse );
+			return true;
+		} catch( Exception $e ) {
+			if( $e->getCode() == 2 ) {
+				return false;
+			}
+			throw $e;
+		}
+	}
+
 
 	public function getAntall() {
 		return sizeof( $this->getAll() );

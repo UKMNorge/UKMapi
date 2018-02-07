@@ -88,6 +88,17 @@ class write_innslag {
 	}	
 
 
+
+
+	/********************************************************************************
+	 *
+	 *
+	 * LAGRE DETALJER DIREKTE PÅ INNSLAGET
+	 *
+	 *
+	 ********************************************************************************/
+
+
 	/**
 	 * Lagre et innslag-objekt
 	 *
@@ -113,7 +124,14 @@ class write_innslag {
 		}
 
 		// Hent sammenligningsgrunnlag
-		$innslag_db = new innslag_v2( $innslag_save->getId() );
+		try {
+			$innslag_db = new innslag_v2( $innslag_save->getId(), true );
+		} catch( Exception $e ) {
+			throw new Exception(
+				'Kan ikke lagre innslagets endringer. Feil ved henting av kontroll-innslag. '. $e->getMessage(),
+				$e->getCode()
+			);
+		}
 
 		// TABELLER SOM KAN OPPDATERES
 		$smartukm_band = new SQLins('smartukm_band', array('b_id'=>$innslag_save->getId()));
@@ -168,6 +186,293 @@ class write_innslag {
 		
 		require_once('UKM/statistikk.class.php');
 		statistikk::oppdater_innslag( $innslag_save );
+	}
+
+
+	/**
+	 * Lagre endringer i innslagets status
+	 *
+	 * @param innslag_v2 $innslag_save
+	 * @return bool true
+	**/
+	public static function saveStatus( $innslag_save ) {
+		// Valider logger
+		if( !UKMlogger::ready() ) {
+			throw new Exception(
+				'Logger is missing or incorrect set up.',
+				50501
+			);
+		}
+		// Valider input-data
+		try {
+			write_innslag::validerInnslag( $innslag_save );
+		} catch( Exception $e ) {
+			throw new Exception(
+				'Kan ikke lagre innslagets status. '. $e->getMessage(),
+				$e->getCode()
+			);
+		}
+
+		// Hent sammenligningsgrunnlag
+		try {
+			$innslag_db = new innslag_v2( $innslag_save->getId(), true );
+		} catch( Exception $e ) {
+			throw new Exception(
+				'Kan ikke lagre innslagets status. Feil ved henting av kontroll-innslag. '. $e->getMessage(),
+				$e->getCode()
+			);
+		}
+
+		if( $innslag_db->getStatus() == $innslag_save->getStatus() ) {
+			return true;
+		}
+
+		// TABELLER SOM KAN OPPDATERES
+		$smartukm_band = new SQLins(
+			'smartukm_band', 
+			[
+				'b_id' => $innslag_save->getId()
+			]
+		);
+		$smartukm_band->add('b_status', $innslag_save->getStatus() );
+		$res = $smartukm_band->run();
+
+		require_once('UKM/statistikk.class.php');
+		statistikk::oppdater_innslag( $innslag_save );
+		
+		return $res;
+	}
+
+	/********************************************************************************
+	 *
+	 *
+	 * LAGRE ENDRINGER I INNSLAGETS INTERNE COLLECTIONS
+	 *
+	 *
+	 ********************************************************************************/
+
+
+	/**
+	 * Lagre endringer i personer-collection
+	 *
+	 * Samme som å kjøre flere 
+	 *  write_person::leggTil( $person ) eller
+	 *  write_person::fjern( $person )
+	 *
+	 * @param innslag_v2 $innslag_save
+	 * @return void
+	**/
+	public static function savePersoner( $innslag_save ) {
+		// Valider logger
+		if( !UKMlogger::ready() ) {
+			throw new Exception(
+				'Logger is missing or incorrect set up.',
+				50501
+			);
+		}
+		// Valider input-data
+		try {
+			write_innslag::validerInnslag( $innslag_save );
+		} catch( Exception $e ) {
+			throw new Exception(
+				'Kan ikke lagre personer i innslaget. '. $e->getMessage(),
+				$e->getCode()
+			);
+		}
+		
+		// Opprett mønstringen innslaget kommer fra
+		$monstring = new monstring_v2( $innslag_save->getContext()->getMonstring()->getId() );
+		// Hent innslaget fra gitt mønstring
+		$innslag_db = $monstring->getInnslag()->get( $innslag_save->getId() );
+
+		foreach( $innslag_save->getPersoner()->getAll() as $person ) {
+			if( !$innslag_db->getPersoner()->har( $person ) ) {
+				write_person::leggTil( $person );
+			}
+		}
+		foreach( $innslag_db->getPersoner()->getAll() as $person ) {
+			if( !$innslag_save->getPersoner()->har( $person ) ) {
+				write_person::fjern( $person );
+			}
+		}
+	}
+
+
+	/**
+	 * Lagre endringer i titler-collection
+	 *
+	 * Samme som å kjøre flere 
+	 *  write_tittel::leggTil( $tittel ) eller
+	 *  write_tittel::fjern( $tittel )
+	 *
+	 * @param innslag_v2 $innslag_save
+	 * @return void
+	**/
+	public static function saveTitler( $innslag_save ) {
+		// Valider logger
+		if( !UKMlogger::ready() ) {
+			throw new Exception(
+				'Logger is missing or incorrect set up.',
+				50501
+			);
+		}
+		// Valider input-data
+		try {
+			write_innslag::validerInnslag( $innslag_save );
+		} catch( Exception $e ) {
+			throw new Exception(
+				'Kan ikke lagre titler i innslaget. '. $e->getMessage(),
+				$e->getCode()
+			);
+		}
+		
+		// Opprett mønstringen innslaget kommer fra
+		$monstring = new monstring_v2( $innslag_save->getContext()->getMonstring()->getId() );
+		// Hent innslaget fra gitt mønstring
+		$innslag_db = $monstring->getInnslag()->get( $innslag_save->getId() );
+
+		foreach( $innslag_save->getTitler()->getAll() as $tittel ) {
+			if( !$innslag_db->getTitler()->har( $tittel ) ) {
+				write_tittel::leggTil( $tittel );
+			}
+		}
+		foreach( $innslag_db->getTitler()->getAll() as $tittel ) {
+			if( !$innslag_save->getTitler()->har( $tittel ) ) {
+				write_tittel::fjern( $tittel );
+			}
+		}
+	}
+
+	/**
+	 * Lagre endringer i program-collection
+	 *
+	 * Samme som å kjøre flere 
+	 *  write_forestilling::leggTil( $tittel ) eller
+	 *  write_forestilling::fjern( $tittel )
+	 *
+	 * @param innslag_v2 $innslag_save
+	 * @return void
+	**/
+	public static function saveProgram( $innslag_save ) {
+		// Valider logger
+		if( !UKMlogger::ready() ) {
+			throw new Exception(
+				'Logger is missing or incorrect set up.',
+				50501
+			);
+		}
+		// Valider input-data
+		try {
+			write_innslag::validerInnslag( $innslag_save );
+		} catch( Exception $e ) {
+			throw new Exception(
+				'Kan ikke lagre endringer i programmet. '. $e->getMessage(),
+				$e->getCode()
+			);
+		}
+		
+		// Opprett mønstringen innslaget kommer fra
+		$monstring = new monstring_v2( $innslag_save->getContext()->getMonstring()->getId() );
+		// Hent innslaget fra gitt mønstring
+		$innslag_db = $monstring->getInnslag()->get( $innslag_save->getId() );
+
+		foreach( $innslag_save->getProgram()->getAllInkludertSkjulte() as $hendelse ) {
+			if( !$innslag_db->getProgram()->har( $hendelse ) ) {
+				write_forestilling::leggTil( $hendelse );
+			}
+		}
+		foreach( $innslag_db->getTitler()->getAllInkludertSkjulte() as $tittel ) {
+			if( !$innslag_save->getTitler()->har( $tittel ) ) {
+				write_forestilling::fjern( $tittel );
+			}
+		}
+	}
+	
+	
+	
+	
+
+	/********************************************************************************
+	 *
+	 *
+	 * LEGG TIL OG FJERN INNSLAG FRA COLLECTION
+	 *
+	 *
+	 ********************************************************************************/
+
+	
+	
+	/**
+	 * Fjerner et innslag fra denne forestillingen.
+	 *
+	 * @param innslag_v2 $innslag
+	 * @return $this
+	 */
+	public static function fjern( $innslag ) {
+		write_innslag::_validerLeggtil( $innslag );
+		
+		switch( $innslag->getContext()->getType() ) {
+			case 'forestilling':
+				write_innslag::_fjernFraForestilling( $innslag );
+				break;
+			case 'monstring':
+				if( $innslag->getContext()->getMonstring()->getType() == 'kommune' ) {
+					write_innslag::_fjernFraLokalMonstring( $innslag );
+				} else {
+					write_innslag::_fjernVideresending( $innslag );
+				}
+				break;
+			default: 
+				throw new Exception(
+					'Kan ikke fjerne innslag fra ukjent collection type: ' . $this->getContext()->getType(),
+					50511
+				);
+		}
+	}
+
+
+
+	/********************************************************************************
+	 *
+	 *
+	 * FJERN-HJELPERE
+	 *
+	 *
+	 ********************************************************************************/
+
+	/**
+	 * Fjern et innslag fra en lokalmønstring
+	 * Dette vil endre innslaget status, og effektivt melde det av
+	 * 
+	 * @param write_innslag $innslag
+	 * @return $this
+	**/
+	private static function _fjernFraLokalMonstring( $innslag ) {
+		/*
+		 * Fjern fra lokalmønstring
+		*/
+		if( $innslag->erVideresendt() ) {
+			throw new Exception(
+				'Du kan ikke melde av et innslag som er videresendt før du har fjernet videresendingen.',
+				50512
+			);
+		}
+	
+		$SQLdel = new SQLdel(
+			'smartukm_rel_pl_b',
+			[
+				'b_id' => $innslag->getId(),
+				'pl_id' => $innslag->getContext()->getMonstring()->getId(),
+				'season' => $innslag->getContext()->getMonstring()->getSesong()
+			]
+		);
+		UKMlogger::log( 311, $innslag->getId(), $innslag->getId() );
+		$res = $SQLdel->run();
+
+		$innslag->setStatus(77);
+		write_innslag::saveStatus( $innslag );
+		
+		return $this;
 	}
 
 
@@ -247,6 +552,33 @@ class write_innslag {
 			);
 		}
 	}
+	
+	/**
+	 * Valider alle input-parametre for å legge til nytt innslag
+	 *
+	 * @see leggTil
+	**/
+	private static function _validerLeggtil( $innslag_save ) {
+		// Valider input-data
+		try {
+			write_innslag::validerInnslag( $innslag_save );
+		} catch( Exception $e ) {
+			throw new Exception(
+				'Kan ikke legge til/fjerne innslag. '. $e->getMessage(),
+				$e->getCode()
+			);
+		}
+		
+		// Valider kontekst (tilknytning til mønstring)
+		if( $innslag_save->getContext()->getMonstring() == null && $innslag_save->getContext()->getForestilling() == null ) {
+			throw new Exception(
+				'Kan ikke legge til/fjerne person. '.
+				'Person-objektet er ikke opprettet i riktig kontekst',
+				50511
+			);
+		}
+	}
+
 
 	/********************************************************************************
 	 *
