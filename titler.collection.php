@@ -2,6 +2,8 @@
 require_once('UKM/tid.class.php');
 	
 class titler {
+	var $context = null;
+	
 	var $titler = null;
 	var $titler_videresendt = null;
 	var $titler_ikke_videresendt = null;
@@ -12,22 +14,22 @@ class titler {
 	var $varighet = 0;
 	var $varighet_ikke_videresendt = 0;
 	
-	var $innslag_id = null;
-	var $innslag_type = null;
-	
 	var $monstring_type = null;
 	var $monstring_sesong = null;
 	var $monstring_id = null;
 
 		
-	public function __construct( $innslag_id, $innslag_type, $monstring ) {
-		$this->_setInnslagId( $innslag_id );
-		$this->_setInnslagType( $innslag_type );
-		$this->_setMonstringId( $monstring->getId() );
-		$this->_setMonstringType( $monstring->getType() );
-		$this->_setMonstringSesong( $monstring->getSesong() );
+	public function __construct( $context ) {
+		$this->context = $context;
+
+		// Sett hvilken tabell som skal brukes
+		$this->_setTable( $this->getContext()->getInnslag()->getType()->getTabell() );
+#		echo '<pre>'; var_dump( $this->getContext() ); echo '</pre>';
 	}
 
+	public function getContext() {
+		return $this->context;
+	}
 	/** 
 	 * Hent antall titler i samlingen
 	 *
@@ -50,7 +52,7 @@ class titler {
 				return $tittel;
 			}
 		}
-		throw new Exception('PERSONER_V2: Kunne ikke finne tittel '. $id .' i innslag '. $this->_getInnslagId());
+		throw new Exception('PERSONER_V2: Kunne ikke finne tittel '. $id .' i innslag '. $this->getContext()->getInnslag()->getId());
 	}
 
 
@@ -218,10 +220,10 @@ class titler {
 		}
 		
 		// Innslaget
-		if( null == $this->_getInnslagId() || empty( $this->_getInnslagId() ) ) {
+		if( null == $this->getContext()->getInnslag()->getId() || empty( $this->getContext()->getInnslag()->getId() ) ) {
 			throw new Exception('TITLER_COLLECTION: Kan ikke legge til/fjerne tittel når innslag-ID er tom');
 		}
-		if( !is_numeric( $this->_getInnslagId() ) ) {
+		if( !is_numeric( $this->getContext()->getInnslag()->getId() ) ) {
 			throw new Exception('TITLER_COLLECTION: Kan ikke legge til/fjerne tittel i innslag med ikke-numerisk ID');
 		}
 		
@@ -246,12 +248,12 @@ class titler {
 			throw new Exception('TITLER_COLLECTION: Trenger en lokalmønstring for å kunne slette tittelen!');
 		}
 		
-		UKMlogger::log( 327, $this->_getInnslagId(), $tittel->getId() .': '. $tittel->getTittel() );
+		UKMlogger::log( 327, $this->getContext()->getInnslag()->getId(), $tittel->getId() .': '. $tittel->getTittel() );
 		$qry = new SQLdel( 
 			$this->_getTable(), 
 			[
 				't_id' => $tittel->getId(),
-				'b_id' => $this->_getInnslagId(),
+				'b_id' => $this->getContext()->getInnslag()->getId(),
 			]
 		);
 		$res = $qry->run();
@@ -277,11 +279,11 @@ class titler {
 			'smartukm_fylkestep', 
 			[
 				'pl_id' 	=> $monstring->getId(),
-				'b_id' 		=> $this->_getInnslagId(),
+				'b_id' 		=> $this->getContext()->getInnslag()->getId(),
 				't_id' 		=> $tittel->getId()
 			]
 		);
-		UKMlogger::log( 321, $this->_getInnslagId(), $tittel->getId().': '. $tittel->getTittel() .' => '. $monstring->getNavn() );
+		UKMlogger::log( 321, $this->getContext()->getInnslag()->getId(), $tittel->getId().': '. $tittel->getTittel() .' => '. $monstring->getNavn() );
 
 		$res = $videresend_tittel->run();
 		
@@ -307,7 +309,7 @@ class titler {
 				AND `t_id` = '#t_id'",
 			[
 				'pl_id'		=> $monstring->getId(), 
-		  		'b_id'		=> $this->_getInnslagId(), 
+		  		'b_id'		=> $this->getContext()->getInnslag()->getId(), 
 				't_id'		=> $tittel->getId(),
 			]
 		);
@@ -321,10 +323,10 @@ class titler {
 		else {
 			$videresend_tittel = new SQLins('smartukm_fylkestep');
 			$videresend_tittel->add('pl_id', $monstring->getId() );
-			$videresend_tittel->add('b_id', $this->_getInnslagId() );
+			$videresend_tittel->add('b_id', $this->getContext()->getInnslag()->getId() );
 			$videresend_tittel->add('t_id', $tittel->getId() );
 
-			UKMlogger::log( 322, $this->_getInnslagId(), $tittel->getId().': '. $tittel->getTittel() .' => '. $monstring->getNavn() );
+			UKMlogger::log( 322, $this->getContext()->getInnslag()->getId(), $tittel->getId().': '. $tittel->getTittel() .' => '. $monstring->getNavn() );
 			$res = $videresend_tittel->run();
 		
 			if( $res ) {
@@ -346,7 +348,7 @@ class titler {
 
 		
 		// Til og med 2013-sesongen brukte vi tabellen "landstep" for videresending til land
-		if( 2014 > $this->_getMonstringSesong() && 'land' == $this->_getMonstringType() ) {
+		if( 2014 > $this->getContext()->getMonstring()->getSesong() && 'land' == $this->getContext()->getMonstring()->getType() ) {
 			$SQL = new SQL("SELECT `title`.*,
 								   `videre`.`id` AS `videre_if_not_empty`
 							FROM `#table` AS `title`
@@ -357,7 +359,7 @@ class titler {
 							ORDER BY `title`.`#titlefield`",
 						array('table' => $this->_getTable(),
 							  'titlefield' => $this->_getTableFieldnameTitle(),
-							  'b_id' => $this->_getInnslagId()
+							  'b_id' => $this->getContext()->getInnslag()->getId()
 							)
 						);
 		} else {
@@ -372,7 +374,7 @@ class titler {
 							ORDER BY `title`.`#titlefield`",
 						array('table' => $this->_getTable(),
 							  'titlefield' => $this->_getTableFieldnameTitle(),
-							  'b_id' => $this->_getInnslagId()
+							  'b_id' => $this->getContext()->getInnslag()->getId()
 							)
 						);
 			$res = $SQL->run();
@@ -384,15 +386,15 @@ class titler {
 				// til at den har pl_ids for å få lik funksjonalitet videre
 				if( isset( $row['videre_if_not_empty'] ) ) {
 					if( is_numeric( $row['videre_if_not_empty'] ) ) {
-						$row['pl_ids'] = $this->_getMonstringId();
+						$row['pl_ids'] = $this->getContext()->getMonstring()->getId();
 					} else {
 						$row['pl_ids'] = null;
 					}
 				}
 				// Legg til tittel i array
-				$tittel = new tittel_v2( $row, $this->_getInnslagType()->getTabell() );
+				$tittel = new tittel_v2( $row, $this->getContext()->getInnslag()->getType()->getTabell() );
 				
-				if( $this->_getMonstringType() == 'kommune' || $tittel->erVideresendt( $this->_getMonstringId() ) ) {
+				if( $this->getContext()->getMonstring()->getType() == 'kommune' || $tittel->erVideresendt( $this->getContext()->getMonstring()->getId() ) ) {
 					$this->titler_videresendt[] = $tittel;
 					$varighet_videresendt += $tittel->getVarighetSomSekunder();
 				} else {
@@ -408,109 +410,7 @@ class titler {
 		}
 		return $this->titler_videresendt;
 	}
-
-		
-	/**
-	 * Sett ID
-	 *
-	 * @param integer id 
-	 *
-	 * @return $this
-	**/
-	public function _setInnslagId( $id ) {
-		$this->innslag_id = $id;
-		return $this;
-	}
-	/**
-	 * Hent ID
-	 * @return integer $id
-	**/
-	public function _getInnslagId() {
-		return $this->innslag_id;
-	}
 	
-	/**
-	 * Sett type
-	 * Hvilken kategori faller innslaget inn under?
-	 *
-	 * @param integer $type
-	 * @param string $kategori
-	 *
-	 * @return $this;
-	**/
-	public function _setInnslagType( $type ) {
-		$this->innslag_type = $type; 
-
-		// Sett hvilken tabell som skal brukes
-		$this->_setTable( $this->_getInnslagType()->getTabell() );
-		return $this;
-	}
-	/**
-	 * Hent type
-	 * Hvilken kategori innslaget faller inn under
-	 *
-	 * @return innslag_type $type
-	**/
-	private function _getInnslagType( ) {
-		return $this->innslag_type;
-	}
-	
-	/**
-	 * Sett mønstringsid (PLID)
-	 *
-	 * @param string $type
-	 * @return $this
-	**/
-	private function _setMonstringId( $pl_id ) {
-		$this->monstring_id = $pl_id;
-		return $this;
-	}
-	/**
-	 * Hent mønstringsid (PLID)
-	 *
-	 * @return $this
-	**/
-	private function _getMonstringId() {
-		return $this->monstring_id;
-	}
-	
-	/**
-	 * Sett mønstringstype
-	 *
-	 * @param string $type
-	 * @return $this
-	**/
-	private function _setMonstringType( $type ) {
-		$this->monstring_type = $type;
-		return $this;
-	}
-	/**
-	 * Hent mønstringstype
-	 *
-	 * @return string $type
-	**/
-	private function _getMonstringType() {
-		return $this->monstring_type;
-	}
-	
-	/**
-	 * Sett sesong
-	 *
-	 * @param int $seson
-	 * @return $this
-	**/
-	private function _setMonstringSesong( $sesong ) {
-		$this->monstring_sesong = $sesong;
-		return $this;
-	}
-	/**
-	 * Hent sesong
-	 *
-	 * @return int $sesong
-	**/
-	private function _getMonstringSesong() {
-		return $this->monstring_sesong;
-	}	
 	/**
 	 * Sett tabellnavn
 	 *

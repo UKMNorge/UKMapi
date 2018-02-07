@@ -14,6 +14,8 @@ require_once('UKM/artikler.collection.php');
 require_once('UKM/v1_innslag.class.php');
 
 class innslag_v2 {
+	var $context = null;
+	
 	var $id = null;
 	var $navn = null;
 	var $type = null;
@@ -51,6 +53,14 @@ class innslag_v2 {
 		} else {
 			$this->_loadByRow( $bid_or_row );
 		}
+	}
+	
+	public function setContext( $context ) {
+		$this->context = $context;
+		return $this;
+	}
+	public function getContext() {
+		return $this->context;
 	}
 
 	public static function getLoadQuery() {
@@ -616,21 +626,31 @@ class innslag_v2 {
 	 * @return list program
 	 *
 	**/
-	public function getProgram( $monstring ) {
-		if( !is_object( $monstring ) || 'monstring_v2' != get_class( $monstring ) ) {
-			throw new Exception('INNSLAG_V2: Mønstring må være mønstrings-objekt! Gitt '. (is_object( $monstring ) ? get_class( $monstring ) : (is_array( $monstring )?'Array':'ukjent')));
-		}
+	public function getProgram() {
 		if( null == $this->program ) {
 			require_once('UKM/forestillinger.collection.php');
-			$this->program = new program( 'innslag', $this->getId() );
-			$this->program->setMonstringId( is_numeric( $monstring ) ? $monstring : $monstring->getId() );
+			$context = context::createInnslag(
+				$this->getId(),										// Innslag ID
+				$this->getType(),									// Innslag type (objekt)
+				$this->getContext()->getMonstring()->getId(),		// Mønstring ID
+				$this->getContext()->getMonstring()->getType(),		// Mønstring type
+				$this->getContext()->getMonstring()->getSesong()	// Mønstring sesong
+			);
+			$this->program = new program( $context );
 		}
 		return $this->program;
 	}
 	
-	public function getTitler( $monstring ) {
+	public function getTitler() {
 		if( null == $this->titler ) {
-			$this->titler = new titler( $this->getId(), $this->getType(), $monstring );
+			$context = context::createInnslag(
+				$this->getId(),										// Innslag ID
+				$this->getType(),									// Innslag type (objekt)
+				$this->getContext()->getMonstring()->getId(),		// Mønstring ID
+				$this->getContext()->getMonstring()->getType(),		// Mønstring type
+				$this->getContext()->getMonstring()->getSesong()	// Mønstring sesong
+			);
+			$this->titler = new titler( $context );
 		}
 		return $this->titler;
 	}
@@ -665,42 +685,50 @@ class innslag_v2 {
 		return false;
 	}
 	
-	private function _calcAdvarsler( $monstring) {
+	private function _calcAdvarsler( $context) {
 		require_once('UKM/advarsler.collection.php');
 		
 		$this->advarsler = new advarsler();
 
 		// Har 0 personer
-		if( 0 == $this->getPersoner( $monstring )->getAntall()) {
+		if( 0 == $this->getPersoner()->getAntall()) {
 			$this->advarsler->add( new advarsel( advarsel::create('personer', 'Innslaget har ingen personer' ) ) );
 		}
 		// Utstilling har mer enn 3 verk
-		if( 'utstilling' == $this->getType()->getKey() && $this->getTitler( $monstring )->getAntall() > 3 ) {
+		if( 'utstilling' == $this->getType()->getKey() && $this->getTitler()->getAntall() > 3 ) {
 			$this->advarsler->add( new advarsel( advarsel::create('titler', 'Innslaget har mer enn 3 kunstverk') ) );
 		// Utstilling har ingen verk
-		} elseif( 'utstilling' == $this->getType()->getKey() && $this->getTitler( $monstring )->getAntall() == 0) {
+		} elseif( 'utstilling' == $this->getType()->getKey() && $this->getTitler()->getAntall() == 0) {
 			$this->advarsler->add( new advarsel( advarsel::create('titler', 'Innslaget har ingen kunstverk') ) );
 		// Innslaget har mer enn 3 titler
-		} elseif( $this->getType()->harTitler() && $this->getTitler( $monstring )->getAntall() > 2 ) {
+		} elseif( $this->getType()->harTitler() && $this->getTitler()->getAntall() > 2 ) {
 			$this->advarsler->add( new advarsel( advarsel::create('titler', 'Innslaget har mer enn 2 titler' ) ) );
 		// Innslaget har ingen titler
-		} elseif( $this->getType()->harTitler() && $this->getTitler( $monstring )->getAntall() == 0) {
+		} elseif( $this->getType()->harTitler() && $this->getTitler()->getAntall() == 0) {
 			$this->advarsler->add( new advarsel( advarsel::create('titler', 'Innslaget har ingen titler, og derfor ingen varighet.') ) );
 		}		
 		// Innslaget har en varighet over 5 min
-		if( $this->getType()->harTitler() && (5*60) < $this->getVarighet( $monstring )->getSekunder() ) {
+		if( $this->getType()->harTitler() && (5*60) < $this->getVarighet()->getSekunder() ) {
 			$this->advarsler->add( new advarsel( advarsel::create('titler', 'Innslaget er lengre enn 5 minutter ') ) );
 		}
 	}
 	
-	public function getVarighet( $monstring ) {
-		return $this->getTitler( $monstring )->getVarighet();
+	public function getVarighet() {
+		return $this->getTitler()->getVarighet();
 	}
 	
 	// TODO: Load valideringsadvarsler fra b_status_text
-	public function getAdvarsler( $monstring ) {
+	public function getAdvarsler() {
 		if( null == $this->advarsler ) {
-			$this->_calcAdvarsler( $monstring );
+			$context = context::createInnslag(
+				$this->getId(),										// Innslag ID
+				$this->getType(),									// Innslag type (objekt)
+				$this->getContext()->getMonstring()->getId(),		// Mønstring ID
+				$this->getContext()->getMonstring()->getType(),		// Mønstring type
+				$this->getContext()->getMonstring()->getSesong()	// Mønstring sesong
+			);
+
+			$this->_calcAdvarsler( $context );
 		}
 		return $this->advarsler;
 	}

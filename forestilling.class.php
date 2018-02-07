@@ -28,6 +28,13 @@ class forestilling_v2 extends forestilling {
 		$this->setSynligDetaljprogram( 'true' == $this->info['c_visible_detail'] );
 	}
 	
+	public function setContext( $context ) {
+		$this->context = $context;
+		return $this;
+	}
+	public function getContext() {
+		return $this->context;
+	}	
 	
 	public function getAll() {
 		// TODO: FIX THIS
@@ -109,7 +116,7 @@ class forestilling_v2 extends forestilling {
 	}
 	
 	private function _loadInnslag() {
-		$this->collection_innslag = new innslag_collection('forestilling', $this->getId());
+		$this->collection_innslag = new innslag_collection( $this->getContext() );
 	}
 	
 	/**
@@ -220,6 +227,9 @@ class forestilling_v2 extends forestilling {
 	**/
 	public function harSynligDetaljprogram() {
 		return $this->synlig_detaljprogram;
+	}
+	public function erSynligDetaljProgram() {
+		return $this->harSynligDetaljprogram();
 	}
 	
 	/**

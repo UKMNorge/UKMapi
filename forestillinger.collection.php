@@ -5,6 +5,7 @@ require_once('UKM/forestilling.class.php');
 class forestillinger extends program {}
 
 class program {
+	var $context = null;
 	var $loaded = false;
 	var $forestillinger = null;
 	var $skjulte_forestillinger = null;
@@ -14,10 +15,17 @@ class program {
 	
 	var $container_pl_id = null; // Brukes av container_type 'innslag'
 	
-	public function __construct($container_type, $container_object_id) {
-		$this->setContainerType( $container_type );
-		$this->setContainerId( $container_object_id );
+	public function __construct( $context ) {
+		$this->context = $context;
+		
+		if( !in_array( $context->getType(), ['innslag','monstring'] ) ) {
+			throw new Exception('FORESTILLINGER: Støtter kun context innslag eller mønstring, ikke '. $context->getType() );
+		}
 		$this->rekkefolge = [];
+	}
+	
+	public function getContext() {
+		return $this->context;
 	}
 	
 	public static function sorterPerDag( $forestillinger ) {
@@ -34,6 +42,15 @@ class program {
 			$sortert[ $key ]->forestillinger[] = $forestilling;
 		}
 		return $sortert;
+	}
+	
+	public function get( $id ) {
+		foreach( $this->getAll() as $item ) {
+			if( $item->getId() == $id ) {
+				return $item;
+			}
+		}
+		return false;
 	}
 
 	public function getAntall() {
@@ -77,41 +94,14 @@ class program {
 		return $idArray;
 	}
 
-	
-	public function setContainerId( $id ) {
-		$this->containerId = $id;
-		return $this;
-	}
-	public function getContainerId() {
-		return $this->containerId;
-	}
-	
-	public function setContainerType( $type ) {
-		if( !in_array( $type, array('innslag','monstring' ) ) ) {
-			throw new Exception('FORESTILLINGER: Har ikke støtte for '. $type .'-collection');
-		}
-		$this->containerType = $type;
-		return $this;
-	}
-	public function getContainerType() {
-		return $this->containerType;
-	}
-	
-	public function setMonstringId( $pl_id ) {
-		$this->container_pl_id = $pl_id;
-		return $this;
-	}
-	public function getMonstringId() {
-		return $this->container_pl_id;
-	}
-	
 	public function _load() {
 		if( $this->loaded ) {
 			return true;
 		}
 
-		$this->forestillinger = array();
-		
+		$this->forestillinger = [];
+		$this->skjulte_forestillinger = [];
+
 		$SQL = $this->_getQuery();
 #		echo $SQL->debug();
 		$res = $SQL->run();
@@ -120,12 +110,17 @@ class program {
 		}
 		while( $row = mysql_fetch_assoc( $res ) ) {
 			$forestilling = new forestilling_v2( $row );
+			
+			$context = context::createForestilling(
+				$row['c_id'] 		// Forestilling Id
+			);
+			$forestilling->setContext( $context );
 			if( $forestilling->erSynligRammeprogram() ) {
-				$this->addForestilling( $forestilling );
+				$this->forestillinger[] = $forestilling;
 			} else {
-				$this->addSkjultForestilling( $forestilling );
+				$this->skjulte_forestillinger[] = $forestilling;
 			}
-			if( 'innslag' == $this->getContainerType() ) {
+			if( 'innslag' == $this->getContext()->getType() ) {
 				$this->setRekkefolge( $forestilling->getId(), $row['order'] );
 			}
 		}
@@ -151,9 +146,9 @@ class program {
 	}
 
 	private function _getQuery() {
-		switch( $this->getContainerType() ) {
+		switch( $this->getContext()->getType() ) {
 			case 'monstring':
-				if( null == $this->getContainerId() ) {
+				if( null == $this->getContext()->getMonstring()->getId() ) {
 					throw new Exception('FORESTILLINGER: Krever MønstringID (containerId) for å hente mønstringens program');
 				}
 				
@@ -161,12 +156,12 @@ class program {
 						    	 FROM `smartukm_concert` 
 						    	 WHERE `pl_id` = '#pl_id'
 						    	 ORDER BY #order ASC",
-						    array('pl_id' => $this->getContainerId(),
+						    array('pl_id' => $this->getContext()->getMonstring()->getId(),
 						     	  'order' => 'c_start'
 						     	 )
 						     );
 			case 'innslag':
-				if( null == $this->getMonstringId() ) {
+				if( null == $this->getContext()->getMonstring()->getId() ) {
 					throw new Exception('FORESTILLINGER: Krever MønstringID for å hente innslagets program');
 				}
 				return new SQL("SELECT `concert`.*,
@@ -177,43 +172,11 @@ class program {
 								WHERE `concert`.`pl_id` = '#pl_id'
 								AND `relation`.`b_id` = '#b_id'
 								ORDER BY `c_start` ASC",
-							array('b_id' => $this->getContainerId(), 'pl_id' => $this->getMonstringId() )
+							array('b_id' => $this->getContext()->getInnslag()->getId(), 'pl_id' => $this->getContext()->getMonstring()->getId() )
 							);
 		
 			default:
 				throw new Exception('FORESTILLINGER: Har ikke støtte for '. $type .'-collection (#2)');
 		}
 	}
-	/**
-	 * legg til forestilling
-	 *
-	 * @param $forestilling
-	 * @return $this
-	**/
-	public function addForestilling( $forestilling ) {
-		if( null == $this->forestillinger ) {
-			$this->forestillinger = array();
-		}
-		
-		$this->forestillinger[] = $forestilling;
-		
-		return $this;
-	}
-
-	/**
-	 * legg til skjult forestilling
-	 *
-	 * @param $forestilling
-	 * @return $this
-	**/
-	public function addSkjultForestilling( $forestilling ) {
-		if( null == $this->skjulte_forestillinger ) {
-			$this->skjulte_forestillinger = array();
-		}
-		
-		$this->skjulte_forestillinger[] = $forestilling;
-		
-		return $this;
-	}
-
 }

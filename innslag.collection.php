@@ -2,7 +2,12 @@
 require_once('UKM/sql.class.php');
 require_once('UKM/innslag.class.php');
 
+
+
+// $this->getContext()->getMonstring()->getId()
 class innslag_collection {
+	var $context = null;
+	
 	var $quickcount = null;
 	var $innslag = null;
 	var $innslag_ufullstendige = null;
@@ -20,29 +25,26 @@ class innslag_collection {
 	 * @param string $container_type
 	 * @param integer $container_id
 	**/
-	public function __construct($container_type, $container_id) {
-		$this->setContainerType( $container_type );
-		$this->setContainerId( $container_id );
-	}
+	public function __construct( $context ) {
+		$this->setContext( $context );
 		
-	/**
-	 * Sett monstringsdata
-	 * Benyttes når collection er for en mønstring
-	 * Setter nødvendig hjelpedata fra moder-objektet
-	 *
-	 * @param string $pl_type
-	 * @param integer $sesong
-	 * @param integer $fylke
-	 * @param array $kommune_id
-	 * @return $this
-	**/
-	public function setContainerDataMonstring( $pl_type, $sesong, $fylke, $kommuner ) {
-		$this->setMonstringType( $pl_type );
-		$this->setMonstringSesong( $sesong );
-		$this->setMonstringFylke( $fylke );
-		$this->setMonstringKommuner( $kommuner );
+		switch( $this->getContext()->getType() ) {
+			case 'monstring': 
+			break;
+			case 'forestilling':
+				#throw new Exception('INNSLAG_COLLECTION: ikke implementert støtte for forestilling');
+			break;
+		}
+	}
+	
+	public function setContext( $context ) {
+		$this->context = $context;
 		return $this;
 	}
+	public function getContext() {
+		return $this->context;
+	}
+
 	
 	/**
 	 * Hurtig-funksjon for å avgjøre om samlingen har innslag
@@ -94,13 +96,24 @@ class innslag_collection {
 	/**
 	 * Hent ut innslag med gitt id
 	 *
+	 * Hvis $mulig_ufullstendig == true, vil den også sjekke
+	 * listen over ufullstendige innslag
+	 *
 	 * @param int $id
+	 * @param bool $mulig_ufullstendig=false
 	 * @return bool 
 	**/
-	public function get( $id ) {
+	public function get( $id, $mulig_ufullstendig=false ) {
 		foreach( $this->getAll() as $item ) {
 			if( $id == $item->getId() ) {
 				return $item;
+			}
+		}
+		if( $mulig_ufullstendig ) {
+			foreach( $this->getAllUfullstendige() as $item ) {
+				if( $id == $item->getId() ) {
+					return $item;
+				}
 			}
 		}
 		return false;
@@ -302,7 +315,7 @@ class innslag_collection {
 			throw new Exception("INNSLAG_COLLECTION: Innslaget er allerede lagt til.", 1);
 		}
 
-		switch( $this->getContainerType() ) {
+		switch( $this->getContext()->getType() ) {
 			case 'forestilling':
 				$this->_leggTilForestilling( $innslag );
 				break;
@@ -320,6 +333,7 @@ class innslag_collection {
 	 * @return $this
 	 */
 	public function fjern( $innslag ) {
+		throw new Exception('TODO: fjern støtter ikke context');
 		if( 'write_innslag' != get_class($innslag) ) {
 			throw new Exception('INNSLAG_COLLECTION: Fjerning krever skrivbart innslagsobjekt');
 		}
@@ -334,19 +348,19 @@ class innslag_collection {
 			throw new Exception('INNSLAG_COLLECTION: Kan ikke fjerne innslag når loggeren ikke er klar.');
 		}
 
-		switch( $this->getContainerType() ) {
+		switch( $this->getContext()->getType() ) {
 			case 'forestilling':
 				$this->_fjernFraForestilling( $innslag );
 				break;
 			case 'monstring':
-				if( $this->getMonstringType() == 'kommune' ) {
+				if( $this->getContext()->getMonstring()->getType() == 'kommune' ) {
 					$this->_fjernFraLokalMonstring( $innslag );
 				} else {
 					$this->_fjernVideresending( $innslag );
 				}
 				break;
 			default: 
-				throw new Exception("INNSLAG_COLLECTION: Kan kun fjerne innslag fra en forestilling enda, ikke " . $this->getContainerType() );
+				throw new Exception("INNSLAG_COLLECTION: Kan kun fjerne innslag fra en forestilling enda, ikke " . $this->getContext()->getType() );
 		}
 		
 		// FJERN FRA COLLECTION
@@ -360,143 +374,7 @@ class innslag_collection {
 			}
 		}
 		return $this;
-	}		
-
-
-
-
-	/********************************************************************************
-	 *
-	 *
-	 * SETTERS AND GETTERS
-	 *
-	 *
-	 ********************************************************************************/
-	
-	/**
-	 * Sett container id
-	 * Setter id av mønstring eller forestilling samlingen gjelder
-	 *
-	 * @param integer $id
-	 * @return $this
-	**/
-	public function setContainerId( $id ) {
-		$this->containerId = $id;
-
-		return $this;
-	}
-	
-	/**
-	 * Hent container id (mønstring|forestilling)Id
-	 *
-	 * @return integer $id
-	**/
-	public function getContainerId() {
-		return $this->containerId;
-	}
-	
-	/**
-	 * Sett type container dette er
-	 * 
-	 * @param string $type (monstring|forestilling)
-	 * @return $this
-	**/
-	public function setContainerType( $type ) {
-		if( !in_array( $type, array('monstring', 'forestilling' ) ) ) {
-			throw new Exception('INNSLAG_COLLECTION: Har ikke støtte for '. $type .'-collection');
-		}
-		$this->containerType = $type;
-		return $this;
-	}
-	
-	/**
-	 * Hent container type
-	 * 
-	 * @return string $type (monstring|forestilling)
-	**/
-	public function getContainerType() {
-		return $this->containerType;
-	}
-
-	/**
-	 * Sett mønstringens kommuner
-	 *
-	 * @param array $kommuner
-	 * @return $this
-	**/
-	public function setMonstringKommuner( $kommuner ) {
-		$this->monstring_kommuner = $kommuner;
-		return $this;
-	}
-	/**
-	 * Hent mønstringens kommuner
-	 *
-	 * @return array $kommuner
-	**/
-	public function getMonstringKommuner() {
-		return $this->monstring_kommuner;
-	}
-	
-	/**
-	 * Sett hvilket fylke mønstringen tilhører
-	 *
-	 * @param integer $fylke
-	 * @return $this
-	**/
-	public function setMonstringFylke( $fylke ) {
-		if( !is_numeric( $fylke ) ) {
-			throw new Exception('INNSLAG_COLLECTION: setMonstringFylke krever numerisk fylke-id');	
-		}
-		$this->monstring_fylke = $fylke;
-		return $this;
-	}
-	/**
-	 * Hent hvilket fylke mønstringen tilhører
-	 *
-	 * @return integer $fylke
-	**/
-	public function getMonstringFylke() {
-		return $this->monstring_fylke;
-	}
-	
-	/**
-	 * Sett mønstringstype
-	 *
-	 * @param string $type
-	 * @return $this
-	**/
-	public function setMonstringType( $type ) {
-		$this->monstring_type = $type;
-		return $this;
-	}
-	/**
-	 * Hent mønstringstype
-	 *
-	 * @return string $type
-	**/
-	public function getMonstringType() {
-		return $this->monstring_type;
-	}
-	
-	/**
-	 * Sett sesong
-	 *
-	 * @param int $seson
-	 * @return $this
-	**/
-	public function setMonstringSesong( $sesong ) {
-		$this->monstring_sesong = $sesong;
-		return $this;
-	}
-	/**
-	 * Hent sesong
-	 *
-	 * @return int $sesong
-	**/
-	public function getMonstringSesong() {
-		return $this->monstring_sesong;
-	}
-
+	}	
 
 
 	/********************************************************************************
@@ -513,20 +391,20 @@ class innslag_collection {
 	 * @param write_innslag $innslag
 	**/
 	private function _leggTilForestilling( $innslag ) {
-		UKMlogger::log( 219, $this->getContainerId(), $innslag->getId() );
+		UKMlogger::log( 219, $this->getContext()->getForestilling()->getId(), $innslag->getId() );
 
 		$lastorder = new SQL("SELECT `order`
 							  FROM `smartukm_rel_b_c`
 							  WHERE `c_id` = '#cid'
 							  ORDER BY `order` DESC
 							  LIMIT 1",
-							  array('cid' => $this->getContainerId() ) );
+							  array('cid' => $this->getContext()->getForestilling()->getId() ) );
 		$lastorder = $lastorder->run('field','order');
 		$order = (int)$lastorder+1;
 		
 		$qry = new SQLins('smartukm_rel_b_c');
 		$qry->add('b_id', $innslag->getId() );
-		$qry->add('c_id', $this->getContainerId() );
+		$qry->add('c_id', $this->getContext()->getForestilling()->getId() );
 		$qry->add('order', $order);
 		$res = $qry->run();
 		
@@ -538,7 +416,7 @@ class innslag_collection {
 
 	private function _leggTilMonstring( $innslag ) {
 		// TODO: Støtt lokalmønstring
-		if( $this->getMonstringType() == 'kommune' ) {
+		if( $this->getContext()->getMonstring()->getType() == 'kommune' ) {
 			throw new Exception('INNSLAG_COLLECTION: Støtter ikke å legge til innslag på lokalnivå. Må gjøres via create inntil videre');
 		}
 
@@ -547,7 +425,7 @@ class innslag_collection {
 				WHERE `pl_id` = '#pl_id'
 				AND `b_id` = '#b_id'",
 			[
-				'pl_id'		=> $this->getContainerId(),
+				'pl_id'		=> $this->$this->getContext()->getMonstring()->getId(),
 		  		'b_id'		=> $innslag->getId(), 
 			]
 		);
@@ -560,10 +438,10 @@ class innslag_collection {
 		// Videresend personen
 		else {
 			$videresend = new SQLins('smartukm_fylkestep');
-			$videresend->add('pl_id', $this->getContainerId() );
+			$videresend->add('pl_id', $this->getContext()->getMonstring()->getId() );
 			$videresend->add('b_id', $innslag->getId() );
 
-			UKMlogger::log( 318, $innslag->getId(), $this->getContainerId() );
+			UKMlogger::log( 318, $innslag->getId(), $this->getContext()->getMonstring()->getId() );
 			$res = $videresend->run();
 		
 			if( $res ) {
@@ -581,9 +459,9 @@ class innslag_collection {
 	 * @return $this
 	**/
 	private function _fjernFraForestilling( $innslag ) {
-		UKMlogger::log( 220, $this->getContainerId(), $innslag->getId() );
+		UKMlogger::log( 220, $this->getContext()->getForestilling()->getId(), $innslag->getId() );
 		$qry = new SQLdel(	'smartukm_rel_b_c', 
-							array(	'c_id' => $this->getContainerId(),
+							array(	'c_id' => $this->getContext()->getForestilling()->getId(),
 									'b_id' => $innslag->getId() ) );
 		$res = $qry->run();
 
@@ -612,8 +490,8 @@ class innslag_collection {
 			'smartukm_rel_pl_b',
 			[
 				'b_id' => $innslag->getId(),
-				'pl_id' => $this->getContainerId(),
-				'season' => $this->getMonstringSesong()
+				'pl_id' => $this->getContext()->getMonstring()->getId(),
+				'season' => $this->getContext()->getMonstring()->getSesong()
 			]
 		);
 		UKMlogger::log( 311, $innslag->getId(), $innslag->getId() );
@@ -631,10 +509,13 @@ class innslag_collection {
 	 * @param $innslag
 	 * @return $this
 	**/
-	private function _fjernVideresending( $innslag ) {
+	private function _fjernVideresending( $innslag_object ) {
 		require_once('UKM/write_person.class.php');
 		require_once('UKM/write_tittel.class.php');
 		
+		$innslag = $this->get( $innslag->getId() );
+		
+		throw new Exception('TODO FJERN VIDERESENDING STØTTER IKKE CONTEXT');
 		// Meld av alle personer
 		foreach( $innslag->getPersoner()->getAllVideresendt( $this->getContainerId() ) as $person ) {
 			$write_person = new write_person( $person->getId() );
@@ -655,14 +536,14 @@ class innslag_collection {
 			[
 				'pl_id' => $this->getContainerId(),
 				'b_id'	=> $innslag->getId(),
-				'season' => $this->getMonstringSesong()
+				'season' => $this->getContext()->getMonstring()->getSesong()
 			]
 		);
 		UKMlogger::log( 319, $innslag->getId(), $this->getContainerId() );
 
 		$res = $SQLdel->run();
 	
-		if( 'monstring' == $this->getContainerType() ) {
+		if( 'monstring' == $this->getContext()->getType() ) {
 			$this->_fjernInnslagFraAlleForestillingerIMonstring( $innslag );
 		}
 		
@@ -681,11 +562,12 @@ class innslag_collection {
 	 * @return $this
 	**/
 	private function _fjernInnslagFraAlleForestillingerIMonstring( $innslag ) {
+		throw new Exception('TODO FJERN INNSLAG FRA ALLE FORESTILLINGER STØTTER IKKE CONTEXT');
 		if( 'write_innslag' != get_class($innslag) ) {
 			throw new Exception("INNSLAG_COLLECTION: Krever skrivbart innslagsobjekt.");
 		}
-		if( 'monstring' != $this->getContainerType() ) {
-			throw new Exception("INNSLAG_COLLECTION: _fjernInnslagFraAlleForestillingerIMonstring kan kun kjøres med mønstring som container, ikke " . $this->getContainerType() );
+		if( 'monstring' != $this->getContext()->getType() ) {
+			throw new Exception("INNSLAG_COLLECTION: _fjernInnslagFraAlleForestillingerIMonstring kan kun kjøres med mønstring som container, ikke " . $this->getContext()->getType() );
 		}
 		if( !UKMlogger::ready() ) {
 			throw new Exception("INNSLAG_COLLECTION: Kan ikke fjerne innslag når loggeren ikke er klar.");
@@ -738,6 +620,7 @@ class innslag_collection {
 		}
 		while( $row = mysql_fetch_assoc( $res ) ) {
 			$innslag = new innslag_v2( $row );
+			$innslag->setContext( $this->getContext() );
 			array_push( $this->$internal_var, $innslag);
 		}
 		return true;
@@ -749,14 +632,14 @@ class innslag_collection {
 	**/
 	private function _getQuery( $pameldte ) {
 		$operand = $pameldte ? '=' : '<';
-		switch( $this->getContainerType() ) {
+		switch( $this->getContext()->getType() ) {
 			case 'monstring':
-				if( null == $this->getContainerId() ) {
+				if( null == $this->getContext()->getMonstring()->getId() ) {
 					throw new Exception('innslag: Krever MønstringID for å hente mønstringens innslag');
 				}
 
 				// PRE 2011 DID NOT USE BAND SEASON FIELD
-				if( 2011 >= $this->getMonstringSesong() ) {
+				if( 2011 >= $this->getContext()->getMonstring()->getSesong() ) {
 					return new SQL("SELECT `band`.*, 
 										   `td`.`td_demand`,
 										   `td`.`td_konferansier`
@@ -768,14 +651,14 @@ class innslag_collection {
 									GROUP BY `band`.`b_id`
 									ORDER BY `bt_id` ASC,
 											`band`.`b_name` ASC",
-								array(	'season' => $this->getMonstringSesong(),
-										'pl_id' => $this->getContainerId(),
+								array(	'season' => $this->getContext()->getMonstring()->getSesong(),
+										'pl_id' => $this->getContext()->getMonstring()->getId(),
 									)
 								);
 				}
 				
 				// POST 2011
-				switch( $this->getMonstringType() ) {
+				switch( $this->getContext()->getMonstring()->getType() ) {
 					case 'land':
 						return new SQL("SELECT `band`.*, 
 											   `td`.`td_demand`,
@@ -789,8 +672,8 @@ class innslag_collection {
 										GROUP BY `band`.`b_id`
 										ORDER BY `bt_id` ASC,
 												`band`.`b_name` ASC",
-									array(	'season' => $this->getMonstringSesong(),
-											'pl_id' => $this->getContainerId(),
+									array(	'season' => $this->getContext()->getMonstring()->getSesong(),
+											'pl_id' => $this->getContext()->getMonstring()->getId(),
 										)
 									);
 					break;
@@ -808,8 +691,8 @@ class innslag_collection {
 										GROUP BY `band`.`b_id`
 										ORDER BY `bt_id` ASC,
 												 `band`.`b_name` ASC",
-									array(	'season' => $this->getMonstringSesong(),
-											'fylke_id' => $this->getMonstringFylke(),
+									array(	'season' => $this->getContext()->getMonstring()->getSesong(),
+											'fylke_id' => $this->getContext()->getMonstring()->getFylke(),
 										)
 									);
 					break;	
@@ -822,11 +705,11 @@ class innslag_collection {
 										LEFT JOIN `smartukm_technical` AS `td` ON (`td`.`b_id` = `band`.`b_id`) 
 										WHERE   `b_season` = '#season'
 											AND `b_status` ". $operand ." '8'
-											AND `b_kommune` IN ('". implode("','", $this->getMonstringKommuner() ) ."')
+											AND `b_kommune` IN ('". implode("','", $this->getContext()->getMonstring()->getKommuner() ) ."')
 										GROUP BY `band`.`b_id`
 										ORDER BY `bt_id` ASC,
 												 `band`.`b_name` ASC",
-									array(	'season' => $this->getMonstringSesong(),
+									array(	'season' => $this->getContext()->getMonstring()->getSesong(),
 											# IDs inputted directly to avoid escaping
 										)
 									);
@@ -834,19 +717,19 @@ class innslag_collection {
 				}
 				break;
 			case 'forestilling':
-				if( null == $this->getContainerId() ) {
-					throw new Exception('INNSLAG_COLLECTION: Krever container-ID for å hente forestillingens innslag', 2);
+				if( null == $this->getContext()->getForestilling()->getId() ) {
+					throw new Exception('INNSLAG_COLLECTION: Krever forestilling-ID for å hente forestillingens innslag', 2);
 				}
 				$sql = new SQL(innslag_v2::getLoadQuery()."
 								JOIN `smartukm_rel_b_c` AS `rel`
 									ON `rel`.`b_id` = `smartukm_band`.`b_id`
 								WHERE `rel`.`c_id` = '#c_id'
 								ORDER BY `order` ASC",
-								array( 'c_id' => $this->getContainerId() ) );
+								array( 'c_id' => $this->getContext()->getForestilling()->getId() ) );
 				return $sql; 
 				break;
 			default:
-				throw new Exception('innslag: Har ikke støtte for '. $this->getContainerType() .'-collection (#2)');
+				throw new Exception('innslag: Har ikke støtte for '. $this->getContext()->getType() .'-collection (#2)');
 		}
 	}
 }
