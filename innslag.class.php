@@ -131,19 +131,6 @@ class innslag_v2 {
 
 		return $this;
 	}
-	
-	/**
-	 * Hent personer i innslaget
-	 *
-	 * @return array $personer
-	**/
-	public function getPersoner() {
-		if( null == $this->personer_collection ) {
-			$this->personer_collection = new personer( $this->getId(), $this->getType() );
-		}
-		return $this->personer_collection;	
-	}
-	
 		
 	/**
 	 * Hent alle bilder tilknyttet innslaget
@@ -618,9 +605,29 @@ class innslag_v2 {
 		return $datetime;
 
 	}
+	
+	/**
+	 * Hent personer i innslaget
+	 *
+	 * @return array $personer
+	**/
+	public function getPersoner() {
+		if( null == $this->personer_collection ) {
+			$this->personer_collection = new personer( 
+				$this->getId(), 	// Innslag ID
+				$this->getType(), 	// Innslag type
+				$this->getContext()	// Innslagets nåværende kontekst
+			);
+		}
+		return $this->personer_collection;	
+	}
 	 
 	/**
 	 * Hent program for dette innslaget på gitt mønstring
+	 *
+	 * INTERNALS: program bruker context som eneste input-parameter
+	 * da dette er en collection som også eksisterer i andre 
+	 * tilstander enn kun i tilknytning til innslag (som personer og titler)
 	 *
 	 * @param monstring $monstring
 	 * @return list program
@@ -643,14 +650,11 @@ class innslag_v2 {
 	
 	public function getTitler() {
 		if( null == $this->titler ) {
-			$context = context::createInnslag(
-				$this->getId(),										// Innslag ID
-				$this->getType(),									// Innslag type (objekt)
-				$this->getContext()->getMonstring()->getId(),		// Mønstring ID
-				$this->getContext()->getMonstring()->getType(),		// Mønstring type
-				$this->getContext()->getMonstring()->getSesong()	// Mønstring sesong
+			$this->titler = new titler(
+				$this->getId(), 	// Innslag ID
+				$this->getType(), 	// Innslag type
+				$this->getContext()	// Innslagets nåværende kontekst
 			);
-			$this->titler = new titler( $context );
 		}
 		return $this->titler;
 	}

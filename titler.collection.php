@@ -3,7 +3,9 @@ require_once('UKM/tid.class.php');
 	
 class titler {
 	var $context = null;
-	
+	var $innslag_id = null;
+	var $innslag_type = null;
+
 	var $titler = null;
 	var $titler_videresendt = null;
 	var $titler_ikke_videresendt = null;
@@ -19,17 +21,15 @@ class titler {
 	var $monstring_id = null;
 
 		
-	public function __construct( $context ) {
-		$this->context = $context;
+	public function __construct( $innslag_id, $innslag_type, $context ) {
+		$this->_setInnslagId( $innslag_id );
+		$this->_setInnslagType( $innslag_type );
+		$this->_setContext( $context );
 
 		// Sett hvilken tabell som skal brukes
-		$this->_setTable( $this->getContext()->getInnslag()->getType()->getTabell() );
-#		echo '<pre>'; var_dump( $this->getContext() ); echo '</pre>';
+		$this->_setTable( $this->getInnslagType()->getTabell() );
 	}
 
-	public function getContext() {
-		return $this->context;
-	}
 	/** 
 	 * Hent antall titler i samlingen
 	 *
@@ -52,7 +52,7 @@ class titler {
 				return $tittel;
 			}
 		}
-		throw new Exception('PERSONER_V2: Kunne ikke finne tittel '. $id .' i innslag '. $this->getContext()->getInnslag()->getId());
+		throw new Exception('TITLER: Kunne ikke finne tittel '. $id .' i innslag '. $this->getInnslagId());
 	}
 
 
@@ -220,10 +220,10 @@ class titler {
 		}
 		
 		// Innslaget
-		if( null == $this->getContext()->getInnslag()->getId() || empty( $this->getContext()->getInnslag()->getId() ) ) {
+		if( null == $this->getInnslagId() || empty( $this->getInnslagId() ) ) {
 			throw new Exception('TITLER_COLLECTION: Kan ikke legge til/fjerne tittel når innslag-ID er tom');
 		}
-		if( !is_numeric( $this->getContext()->getInnslag()->getId() ) ) {
+		if( !is_numeric( $this->getInnslagId() ) ) {
 			throw new Exception('TITLER_COLLECTION: Kan ikke legge til/fjerne tittel i innslag med ikke-numerisk ID');
 		}
 		
@@ -248,12 +248,12 @@ class titler {
 			throw new Exception('TITLER_COLLECTION: Trenger en lokalmønstring for å kunne slette tittelen!');
 		}
 		
-		UKMlogger::log( 327, $this->getContext()->getInnslag()->getId(), $tittel->getId() .': '. $tittel->getTittel() );
+		UKMlogger::log( 327, $this->getInnslagId(), $tittel->getId() .': '. $tittel->getTittel() );
 		$qry = new SQLdel( 
 			$this->_getTable(), 
 			[
 				't_id' => $tittel->getId(),
-				'b_id' => $this->getContext()->getInnslag()->getId(),
+				'b_id' => $this->getInnslagId(),
 			]
 		);
 		$res = $qry->run();
@@ -279,11 +279,11 @@ class titler {
 			'smartukm_fylkestep', 
 			[
 				'pl_id' 	=> $monstring->getId(),
-				'b_id' 		=> $this->getContext()->getInnslag()->getId(),
+				'b_id' 		=> $this->getInnslagId(),
 				't_id' 		=> $tittel->getId()
 			]
 		);
-		UKMlogger::log( 321, $this->getContext()->getInnslag()->getId(), $tittel->getId().': '. $tittel->getTittel() .' => '. $monstring->getNavn() );
+		UKMlogger::log( 321, $this->getInnslagId(), $tittel->getId().': '. $tittel->getTittel() .' => '. $monstring->getNavn() );
 
 		$res = $videresend_tittel->run();
 		
@@ -309,7 +309,7 @@ class titler {
 				AND `t_id` = '#t_id'",
 			[
 				'pl_id'		=> $monstring->getId(), 
-		  		'b_id'		=> $this->getContext()->getInnslag()->getId(), 
+		  		'b_id'		=> $this->getInnslagId(), 
 				't_id'		=> $tittel->getId(),
 			]
 		);
@@ -323,10 +323,10 @@ class titler {
 		else {
 			$videresend_tittel = new SQLins('smartukm_fylkestep');
 			$videresend_tittel->add('pl_id', $monstring->getId() );
-			$videresend_tittel->add('b_id', $this->getContext()->getInnslag()->getId() );
+			$videresend_tittel->add('b_id', $this->getInnslagId() );
 			$videresend_tittel->add('t_id', $tittel->getId() );
 
-			UKMlogger::log( 322, $this->getContext()->getInnslag()->getId(), $tittel->getId().': '. $tittel->getTittel() .' => '. $monstring->getNavn() );
+			UKMlogger::log( 322, $this->getInnslagId(), $tittel->getId().': '. $tittel->getTittel() .' => '. $monstring->getNavn() );
 			$res = $videresend_tittel->run();
 		
 			if( $res ) {
@@ -359,7 +359,7 @@ class titler {
 							ORDER BY `title`.`#titlefield`",
 						array('table' => $this->_getTable(),
 							  'titlefield' => $this->_getTableFieldnameTitle(),
-							  'b_id' => $this->getContext()->getInnslag()->getId()
+							  'b_id' => $this->getInnslagId()
 							)
 						);
 		} else {
@@ -374,7 +374,7 @@ class titler {
 							ORDER BY `title`.`#titlefield`",
 						array('table' => $this->_getTable(),
 							  'titlefield' => $this->_getTableFieldnameTitle(),
-							  'b_id' => $this->getContext()->getInnslag()->getId()
+							  'b_id' => $this->getInnslagId()
 							)
 						);
 			$res = $SQL->run();
@@ -392,7 +392,16 @@ class titler {
 					}
 				}
 				// Legg til tittel i array
-				$tittel = new tittel_v2( $row, $this->getContext()->getInnslag()->getType()->getTabell() );
+				$tittel = new tittel_v2( $row, $this->getInnslagType()->getTabell() );
+				$context = context::createInnslag(
+					$this->getInnslagId(),								// Innslag ID
+					$this->getInnslagType(),							// Innslag type (objekt)
+					$this->getContext()->getMonstring()->getId(),		// Mønstring ID
+					$this->getContext()->getMonstring()->getType(),		// Mønstring type
+					$this->getContext()->getMonstring()->getSesong()	// Mønstring sesong
+				);
+				$tittel->setContext( $context );
+
 				
 				if( $this->getContext()->getMonstring()->getType() == 'kommune' || $tittel->erVideresendt( $this->getContext()->getMonstring()->getId() ) ) {
 					$this->titler_videresendt[] = $tittel;
@@ -470,4 +479,33 @@ class titler {
 		return $this->table_field_title;
 	}
 
+
+
+
+	public function getInnslagId() {
+		return $this->innslag_id;
+	}
+	private function _setInnslagId( $bid ) {
+		$this->innslag_id = $bid;
+		return $this;
+	}	
+
+	public function getInnslagType() {
+		return $this->innslag_type;
+	}
+	private function _setInnslagType( $type ) {
+		if( is_object( $type ) && get_class( $type ) == 'innslag_type' ) {
+			$this->innslag_type = $type;
+			return $this;
+		}
+		throw new Exception('TITLER_COLLECTION: Innslag-type må være angitt som objekt');
+	}
+
+	private function _setContext( $context ) {
+		$this->context = $context;
+		return $this;
+	}
+	public function getContext() {
+		return $this->context;
+	}
 }

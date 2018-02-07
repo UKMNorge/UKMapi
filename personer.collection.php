@@ -2,17 +2,20 @@
 require_once('UKM/person.class.php');
 
 class personer {
-	
+	var $context = null;
 	var $innslag_id = null;
 	var $innslag_type = null;
+	
 	var $personer = null;
 	var $personer_videresendt = null;
 	var $personer_ikke_videresendt = null;
 	var $debug = false;
 	
-	public function __construct( $innslag_id, $innslag_type ) {
-		$this->_setInnslagType( $innslag_type );
+	public function __construct( $innslag_id, $innslag_type, $context ) {
 		$this->_setInnslagId( $innslag_id );
+		$this->_setInnslagType( $innslag_type );
+		$this->_setContext( $context );
+
 		$this->_load();
 	}
 
@@ -99,13 +102,16 @@ class personer {
 	}
 	
 	/**
-	 * getById
+	 * get
+	 *
 	 * Finn en person med gitt ID
+	 *
+	 * @alias getById
 	 *
 	 * @param integer id
 	 * @return person
 	**/
-	public function getById( $id ) {
+	public function get( $id ) {
 		if( is_object( $id ) && get_class( $id ) == 'person_v2' ) {
 			$id = $id->getId();
 		}
@@ -118,7 +124,10 @@ class personer {
 				return $person;
 			}
 		}
-		throw new Exception('PERSONER_COLLECTION: Kunne ikke finne person '. $id .' i innslag '. $this->_getInnslagId(), 2);
+		throw new Exception('PERSONER_COLLECTION: Kunne ikke finne person '. $id .' i innslag '. $this->getInnslagId(), 2);
+	}
+	public function getById( $id ) {
+		return $this->get( $id );
 	}
 
 	/**
@@ -243,10 +252,10 @@ class personer {
 		}
 		
 		// Innslaget
-		if( null == $this->_getInnslagId() || empty( $this->_getInnslagId() ) ) {
+		if( null == $this->getInnslagId() || empty( $this->getInnslagId() ) ) {
 			throw new Exception('PERSONER_COLLECTION: Kan ikke legge til eller fjerne en person når innslag-ID er tom');
 		}
-		if( !is_numeric( $this->_getInnslagId() ) ) {
+		if( !is_numeric( $this->getInnslagId() ) ) {
 			throw new Exception('PERSONER_COLLECTION: Kan ikke legge til eller fjerne en person i innslag med ikke-numerisk ID');
 		}
 		
@@ -271,7 +280,7 @@ class personer {
 						FROM smartukm_rel_b_p 
 						WHERE 'b_id' = '#b_id' 
 							AND 'p_id' = '#p_id'",
-						array(	'b_id' => $this->_getInnslagId(), 
+						array(	'b_id' => $this->getInnslagId(), 
 								'p_id' => $person->getId()) 
 						);
 		$exists = $sql->run('field', 'COUNT(*)');
@@ -281,10 +290,10 @@ class personer {
 
 		// Legg til i innslaget
 		$sql = new SQLins("smartukm_rel_b_p");
-		$sql->add('b_id', $this->_getInnslagId());
+		$sql->add('b_id', $this->getInnslagId());
 		$sql->add('p_id', $person->getId());
 
-		UKMlogger::log( 324, $this->_getInnslagId(), $person->getId().': '. $person->getNavn() );
+		UKMlogger::log( 324, $this->getInnslagId(), $person->getId().': '. $person->getNavn() );
 		$res = $sql->run();
 		
 		if(false == $res)
@@ -305,7 +314,7 @@ class personer {
 	**/
 	private function _leggTilVideresend( $person, $monstring ) {
 		// FOR INNSLAG I KATEGORI 1 (SCENE) FØLGER ALLE DELTAKERE ALLTID INNSLAGET VIDERE
-		if( $this->_getInnslagType()->getId() == 1 ) {
+		if( $this->getInnslagType()->getId() == 1 ) {
 			return true;
 		}
 		
@@ -316,7 +325,7 @@ class personer {
 				AND `p_id` = '#p_id'",
 			[
 				'pl_id'		=> $monstring->getId(), 
-		  		'b_id'		=> $this->_getInnslagId(), 
+		  		'b_id'		=> $this->getInnslagId(), 
 				'p_id'		=> $person->getId(),
 			]
 		);
@@ -330,10 +339,10 @@ class personer {
 		else {
 			$videresend_person = new SQLins('smartukm_fylkestep_p');
 			$videresend_person->add('pl_id', $monstring->getId() );
-			$videresend_person->add('b_id', $this->_getInnslagId() );
+			$videresend_person->add('b_id', $this->getInnslagId() );
 			$videresend_person->add('p_id', $person->getId() );
 
-			UKMlogger::log( 320, $this->_getInnslagId(), $person->getId().': '. $person->getNavn() .' => '. $monstring->getNavn() );
+			UKMlogger::log( 320, $this->getInnslagId(), $person->getId().': '. $person->getNavn() .' => '. $monstring->getNavn() );
 			$res = $videresend_person->run();
 		
 			if( $res ) {
@@ -355,10 +364,10 @@ class personer {
 	 */	 
 	private function _fjernLokalt( $person, $monstring ) {
 		$sql = new SQLdel("smartukm_rel_b_p", 
-			array( 	'b_id' => $this->_getInnslagId(),
+			array( 	'b_id' => $this->getInnslagId(),
 					'p_id' => $person->getId(),
 					));
-		UKMlogger::log( 325, $this->_getInnslagId(), $person->getId().': '. $person->getNavn() );
+		UKMlogger::log( 325, $this->getInnslagId(), $person->getId().': '. $person->getNavn() );
 		$res = $sql->run();
 		if( $res ) {
 			return true;
@@ -377,7 +386,7 @@ class personer {
 	 */
 	public function _fjernVideresend( $person, $monstring ) {
 		// FOR INNSLAG I KATEGORI 1 (SCENE) FØLGER ALLE DELTAKERE ALLTID INNSLAGET VIDERE
-		if( $this->_getInnslagType()->getId() == 1 ) {
+		if( $this->getInnslagType()->getId() == 1 ) {
 			return false;
 		}
 
@@ -385,11 +394,11 @@ class personer {
 			'smartukm_fylkestep_p', 
 			[
 				'pl_id' 	=> $monstring->getId(),
-				'b_id' 		=> $this->_getInnslagId(),
+				'b_id' 		=> $this->getInnslagId(),
 				'p_id' 		=> $person->getId()
 			]
 		);
-		UKMlogger::log( 321, $this->_getInnslagId(), $person->getId().': '. $person->getNavn() .' => '. $monstring->getNavn() );
+		UKMlogger::log( 321, $this->getInnslagId(), $person->getId().': '. $person->getNavn() .' => '. $monstring->getNavn() );
 
 		$res = $videresend_person->run();
 		
@@ -425,7 +434,7 @@ class personer {
 						ORDER BY 
 							`participant`.`p_firstname` ASC, 
 							`participant`.`p_lastname` ASC",
-						array('bid' => $this->_getInnslagId() ));
+						array('bid' => $this->getInnslagId() ));
 		$res = $SQL->run();
 		if( isset( $_GET['debug'] ) || $this->debug )  {
 			echo $SQL->debug();
@@ -435,18 +444,30 @@ class personer {
 		}
 		while( $r = mysql_fetch_assoc( $res ) ) {
 			$person = new person_v2( $r );
+			$context = context::createInnslag(
+				$this->getInnslagId(),								// Innslag ID
+				$this->getInnslagType(),							// Innslag type (objekt)
+				$this->getContext()->getMonstring()->getId(),		// Mønstring ID
+				$this->getContext()->getMonstring()->getType(),		// Mønstring type
+				$this->getContext()->getMonstring()->getSesong()	// Mønstring sesong
+			);
+			$person->setContext( $context );
 			$this->personer[ $person->getId() ] = $person;
 		}
 	}
 	
+
+	public function getInnslagId() {
+		return $this->innslag_id;
+	}
 	private function _setInnslagId( $bid ) {
 		$this->innslag_id = $bid;
 		return $this;
+	}	
+
+	public function getInnslagType() {
+		return $this->innslag_type;
 	}
-	private function _getInnslagId() {
-		return $this->innslag_id;
-	}
-	
 	private function _setInnslagType( $type ) {
 		if( is_object( $type ) && get_class( $type ) == 'innslag_type' ) {
 			$this->innslag_type = $type;
@@ -454,8 +475,12 @@ class personer {
 		}
 		throw new Exception('PERSONER_COLLECTION: Innslag-type må være angitt som objekt');
 	}
-	
-	private function _getInnslagType() {
-		return $this->innslag_type;
+
+	private function _setContext( $context ) {
+		$this->context = $context;
+		return $this;
+	}
+	public function getContext() {
+		return $this->context;
 	}
 }

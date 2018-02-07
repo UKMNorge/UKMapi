@@ -1,52 +1,35 @@
 <?php
-/**
-	HVORDAN CONSTRUCT OG SET FUNKER:
-	- konstruktøren kjører parent::construct
-	- alle settere er allerede overskrevet fra write-klassen
-		- setter sjekker om objektet er lastet inn ($this->_loaded), noe det ikke er
-		- logger derfor endring (change) og setter verdien via parent::setter
-	- etter foreldre-konstruktøren er ferdig resetter vi changes
-		changes brukes av save-funksjonen for å avgjøre hvilke verdier som er endret
-	- alle settere sjekker om getteren gir samme verdi som setteren før den logger endring (change)
-**/	
 require_once('UKM/logger.class.php');
 require_once('UKM/innslag.class.php');
-// For valideringen.
 require_once('UKM/advarsel.class.php');
 
-class write_innslag extends innslag_v2 {
-	var $changes = array();
-	var $loaded = false;
-	
-	public function __construct( $b_id_or_row ) {
-		parent::__construct( $b_id_or_row, true );
-		$this->_setLoaded();
-	}
-
+class write_innslag {
+	/**
+	 * Opprett et nytt innslag, og relater til kommune
+	 *
+	 * @param kommune $kommune
+	 * @param monstring $monstring
+	 * @param innslag_type $type 
+	 * @param string $navn
+	 * @param person_v2 $contact
+	 *
+	 * @return innslag_v2 $innslag
+	**/
 	public static function create( $kommune, $monstring, $type, $navn, $contact ) {
+		// Valider at logger er på plass
 		if( !UKMlogger::ready() ) {
-			throw new Exception('Logger is missing or incorrect set up.');
+			throw new Exception('Logger is missing or incorrect set up.', 50501);
 		}
-		if( 'monstring_v2' != get_class($monstring) ) {
-			throw new Exception("WRITE_INNSLAG: Krever mønstrings-objekt, ikke ".get_class($monstring)."." );
+		// Valider alle input-parametre
+		try {
+			write_innslag::_validerCreate( $kommune, $monstring, $type, $navn, $contact );
+		} catch( Exception $e ) {
+			throw new Exception(
+				'Kunne ikke opprette innslag. '. $e->getMessage(),
+				$e->getCode()
+			);
 		}
-		if( 'kommune' != get_class($kommune) ) {
-			throw new Exception("WRITE_INNSLAG: Krever kommune-objekt, ikke ".get_class($kommune)."." );
-		}
-		if( 'innslag_type' != get_class($type) ) {
-			throw new Exception("WRITE_INNSLAG: Krever at $type er av klassen innslag_type.");
-		}
-		if( 'write_person' != get_class($contact) ) {
-			throw new Exception("WRITE_INNSLAG: Krever skrivbar person, ikke ".get_class($contact));	
-		}
-		if( empty($navn) ) {
-			throw new Exception("WRITE_INNSLAG: Må ha innslagsnavn.");
-		}
-
-		if( !in_array($type->getKey(), array('scene', 'musikk', 'dans', 'teater', 'litteratur', 'film', 'video', 'utstilling', 'konferansier', 'nettredaksjon', 'arrangor') ) ) {
-			throw new Exception("WRITE_INNSLAG: Kan kun opprette innslag for sceneinnslag, ikke ".$type->getKey().".");	
-		}
-
+		
 		## CREATE INNSLAG-SQL
 		$band = new SQLins('smartukm_band');
 		$band->add('b_season', $monstring->getSesong() );
@@ -64,7 +47,10 @@ class write_innslag extends innslag_v2 {
 
 		$bandres = $band->run();
 		if( 1 != $bandres ) {
-			throw new Exception("WRITE_INNSLAG: Klarte ikke å opprette et nytt innslag.");
+			throw new Exception(
+				"Klarte ikke å opprette et nytt innslag.",
+				50508
+			);
 		}
 
 		$tech = new SQLins('smartukm_technical');
@@ -73,7 +59,10 @@ class write_innslag extends innslag_v2 {
 		
 		$techres = $tech->run();
 		if( 1 != $techres ) {
-			throw new Exception("WRITE_INNSLAG: Klarte ikke å opprette tekniske behov-rad i tabellen.");
+			throw new Exception(
+				"Klarte ikke å opprette tekniske behov-rad i tabellen.",
+				50509
+			);
 		}		
 
 		// TODO: Burde benytte $monstring->getInnslag()->leggTil( $innslag );
@@ -84,168 +73,188 @@ class write_innslag extends innslag_v2 {
 		
 		$relres = $rel->run();
 		if( 1 != $relres ) {
-			throw new Exception("WRITE_INNSLAG: Klarte ikke å melde på det nye innslaget til mønstringen.");
+			throw new Exception(
+				"Klarte ikke å melde på det nye innslaget til mønstringen.",
+				50510
+			);
 		}
-
+		
+		// TODO: KREVER at relasjonen over gjøres riktig (leggTil, ikke db-insert)
+		return $monstring->getInnslag()->get( $band->insid() );
 		// TODO: Oppdater statistikk
 		#$innslag = new innslag( $b_id, false );
 		#$innslag->statistikk_oppdater();
-		return new write_innslag( (int)$band->insid() ); // Tror ikke cast er nødvendig, men det er gjort sånn i write_person.
+		return new innslag_v2( (int)$band->insid() ); // Tror ikke cast er nødvendig, men det er gjort sånn i write_person.
 	}	
 
 
-	public function save() {
+	/**
+	 * Lagre et innslag-objekt
+	 *
+	 * @param innslag_v2 $innslag_save
+	 * @return bool true
+	**/
+	public static function save( $innslag_save ) {
+		// Valider logger
 		if( !UKMlogger::ready() ) {
-			throw new Exception('Logger is missing or incorrect set up.');
+			throw new Exception(
+				'Logger is missing or incorrect set up.',
+				50501
+			);
 		}
-		$smartukm_band = new SQLins('smartukm_band', array('b_id'=>$this->getId()));
-		$smartukm_technical = new SQLins('smartukm_technical', array('b_id'=>$this->getId()));
-		$smartukm_rel_b_p = null;
+		// Valider input-data
+		try {
+			write_innslag::validerInnslag( $innslag_save );
+		} catch( Exception $e ) {
+			throw new Exception(
+				'Kan ikke lagre innslag. '. $e->getMessage(),
+				$e->getCode()
+			);
+		}
 
-		foreach( $this->getChanges() as $change ) {
-			if( 411 == $change['action'] ) {
-				$person = $change['value'];
-				$change['value'] = $person->getRolle();
-				$smartukm_rel_b_p = new SQLins('smartukm_rel_b_p', array('b_id' => $this->getId(), 'p_id' => $person->getId()));
-				$tabell = 'smartukm_rel_b_p';
-				$smartukm_rel_b_p->add('instrument_object', json_encode($person->getRolleObject()) );
-			}
-			
-			$tabell = $change['tabell'];	#smartukm_band
-			$qry 	= $$tabell;				#$smartukm_band = SQLins
-			$qry->add( $change['felt'], $change['value'] );
+		// Hent sammenligningsgrunnlag
+		$innslag_db = new innslag_v2( $innslag_save->getId() );
+
+		// TABELLER SOM KAN OPPDATERES
+		$smartukm_band = new SQLins('smartukm_band', array('b_id'=>$innslag_save->getId()));
+		$smartukm_technical = new SQLins('smartukm_technical', array('b_id'=>$innslag_save->getId()));
 		
-			UKMlogger::log( $change['action'], $this->getId(), $change['value'] );
+		// VERDIER SOM KAN OPPDATERES
+		$properties = [
+			'Navn' 			=> ['smartukm_band', 'b_name', 301],
+			'Sjanger' 		=> ['smartukm_band', 'b_sjanger', 306],
+			'Beskrivelse'	=> ['smartukm_band', 'b_description', 309],
+			'TekniskeBehov'	=> ['smartukm_technical', 'td_demand', 308],
+		];
+		
+		// LOOP ALLE VERDIER, OG EVT LEGG TIL I SQL
+		foreach( $properties as $functionName => $logValues ) {
+			$function = 'get'.$functionName;
+			$table = $logValues[0];
+			$field = $logValues[1];
+			$action = $logValues[2];
+			$sql = $$table;
+			
+			if( $innslag_db->$function() != $innslag_save->$function() ) {
+				# Mellomlagre verdi som skal settes
+				$value = $innslag_save->$function();
+				# Legg til i SQL
+				$sql->add( $field, $value ); 	// SQL satt dynamisk i foreach til $$table
+				# Logg (eller dø) før vi kjører run
+				UKMlogger::log( $action, $innslag_save->getId(), $value );
+			}
 		}
+		
+		// SPESIAL-VERDIER
+		# KOMMUNE
+		if( $innslag_db->getKommune()->getId() != $innslag_save->getKommune()->getId() ) {
+			$smartukm_band->add('b_kommune', $innslag_save->getKommune()->getId() );
+			UKMlogger::log( 307, $innslag_save->getId(), $innslag_save->getKommune()->getId() );
+		}
+		# KONTAKTPERSON
+		if( $innslag_db->getKontaktperson()->getId() != $innslag_save->getKontaktperson()->getId() ) {
+			$smartukm_band->add('b_contact', $innslag_save->getKontaktperson()->getId() );
+			UKMlogger::log( 302, $innslag_save->getId(), $innslag_save->getKontaktperson()->getId() );
+		}		
+
 		if( $smartukm_band->hasChanges() ) {
-			#echo $qry->debug();
+			#echo $smartukm_band->debug();
 			$smartukm_band->run();
 		}
 		if( $smartukm_technical->hasChanges() ) {
+			#echo $smartukm_technical->debug();
 			$smartukm_technical->run();
-		}
-		if( null != $smartukm_rel_b_p) {
-			$smartukm_rel_b_p->run();
 		}
 		
 		require_once('UKM/statistikk.class.php');
-		statistikk::oppdater_innslag( $this );
+		statistikk::oppdater_innslag( $innslag_save );
 	}
 
-	private function _setLoaded() {
-		$this->loaded = true;
-		$this->_resetChanges();
-		return $this;
-	}
-	private function _loaded() {
-		return $this->loaded;
-	}
-	
-	public function getChanges() {
-		return $this->changes;
-	}
-	
-	public function setNavn( $navn ) {
-		if( $this->_loaded() && $this->getNavn() == $navn ) {
-			return false;
-		}
-		parent::setNavn( $navn );
-		$this->_change('smartukm_band', 'b_name', 301, $navn);
-		return true;
-	}	
-	
-	public function setSjanger( $sjanger ) {
-		if( $this->_loaded() &&  $this->getSjanger() == $sjanger ) {
-			return false;
-		}
-		$this->_change('smartukm_band', 'b_sjanger', 306, $sjanger);
-		parent::setSjanger( $sjanger );
-		return true;
-	}	
-	public function setBeskrivelse( $beskrivelse ) {
-		if( $this->_loaded() &&  $this->getBeskrivelse() == $beskrivelse ) {
-			return false;
-		}
-		$this->_change('smartukm_band', 'b_description', 309, $beskrivelse);
-		parent::setBeskrivelse( $beskrivelse );
-	}	
-	public function setKommune( $kommune_id ) {
-		if( $this->_loaded() &&  $this->getKommune()->getId() == $kommune_id ) {
-			return false;
-		}
-		$this->_change('smartukm_band', 'b_kommune', 307, $kommune_id);
-		parent::setKommune( $kommune_id );
-	}	
-	public function setTekniskeBehov( $tekniske_behov ) {
-		if( $this->_loaded() && $this->getTekniskeBehov() == $tekniske_behov ) {
-			return false;
-		}
-		$this->_change('smartukm_technical', 'td_demand', 308, $tekniske_behov);
-		parent::setTekniskeBehov( $tekniske_behov );
-	}	
 
-	/**
-	 * setKontaktperson
-	 * @param write_person
-	 * @return $this
-	 */
-	public function setKontaktperson( $person ) {
-		if( 'write_person' != get_class($person) ) {
-			throw new Exception("INNSLAG_V2: Krever skrivbart personobjekt for å endre kontaktperson.");
-		}
 
-		$this->_change('smartukm_band', 'b_contact', 302, $person->getId());
-		parent::setKontaktperson($person);
-		parent::setKontaktpersonId($person->getId());
-
-		return $this;
-	}
-
-	/**
-	 * setRolle på person.
+	/********************************************************************************
 	 *
-	 * @param write_person
-     * @param rolle string
-     *
-     * @return this
-	 */
-	public function setRolle( $person, $rolle ) {
-		if( 'write_person' != get_class($person) ) {
-			throw new Exception("INNSLAG_V2: setRolle krever skrivbart personobjekt (write_person).");
-		}
+	 *
+	 * VALIDER INPUT-PARAMETRE
+	 *
+	 *
+	 ********************************************************************************/
 
-		$person->setRolle($rolle);
-		$this->_change('smartukm_rel_b_p', 'instrument', 411, $person);
-		return $this;
-	}
-	
-	private function _resetChanges() {
-		$this->changes = [];
-	}
-	
-	private function _change( $tabell, $felt, $action, $value ) {
-		$data = array(	'tabell'	=> $tabell,
-						'felt'		=> $felt,
-						'action'	=> $action,
-						'value'		=> $value
-					);
-		$this->changes[ $tabell .'|'. $felt ] = $data;
-	}
 	
 	/**
-	 * setStatus på innslaget
-	 * @param int $status
+	 * Valider at gitt innslag-objekt er av riktig type
+	 * og har en numerisk Id som kan brukes til database-modifisering
 	 *
-	 * @return this
+	 * @param anything $innslag
+	 * @return void
 	**/
-	public function setStatus( $status ) {
-		if( $this->_loaded() && $this->getStatus() == $status ) {
-			return false;
+	public static function validerInnslag( $innslag ) {
+		if( !is_object( $innslag ) || get_class( $innslag ) != 'innslag_v2' ) {
+			throw new Exception(
+				'Innslag må være objekt av klassen innslag_v2',
+				50707
+			);
 		}
-		parent::setStatus( $status );
-		$this->_change('smartukm_band', 'b_status', 304, $status);
-		return true;
-	}	
+		if( !is_numeric( $innslag->getId() ) || $innslag->getId() <= 0 ) {
+			throw new Exception(
+				'Innslag-objektet må ha en numerisk ID større enn null',
+				50708
+			);
+		}
+	}
+
+	/**
+	 * Valider alle input-parametre for opprettelse av ny person
+	 *
+	 * @see create()
+	**/
+	private static function _validerCreate( $kommune, $monstring, $type, $navn, $contact ) {
+		if( 'monstring_v2' != get_class($monstring) ) {
+			throw new Exception(
+				"Krever mønstrings-objekt, ikke ".get_class($monstring).".",
+				50502
+			);
+		}
+		if( 'kommune' != get_class($kommune) ) {
+			throw new Exception(
+				"Krever kommune-objekt, ikke ".get_class($kommune).".",
+				50503
+			);
+		}
+		if( 'innslag_type' != get_class($type) ) {
+			throw new Exception(
+				"Krever at $type er av klassen innslag_type.",
+				50504
+			);
+		}
+		if( 'person_v2' != get_class($contact) ) {
+			throw new Exception(
+				"Krever skrivbar person, ikke ".get_class($contact),
+				50505
+			);	
+		}
+		if( empty($navn) ) {
+			throw new Exception(
+				"Må ha innslagsnavn.",
+				50506
+			);
+		}
+
+		if( !in_array($type->getKey(), array('scene', 'musikk', 'dans', 'teater', 'litteratur', 'film', 'video', 'utstilling', 'konferansier', 'nettredaksjon', 'arrangor') ) ) {
+			throw new Exception(
+				"Kan ikke opprette ".$type->getKey()."-innslag.",
+				50507
+			);
+		}
+	}
+
+	/********************************************************************************
+	 *
+	 *
+	 * ADVARSEL-FUNKSJONER. SJEKKER OM ALT ER OK MED INNSLAG, EVT FLAGGER DET
+	 *
+	 *
+	 ********************************************************************************/
 
 	/**
 	 * Denne funksjonen validerer innslaget, sjekker at det har all påkrevd informasjon,
@@ -270,7 +279,7 @@ class write_innslag extends innslag_v2 {
 		return array();
 		$advarsler = array();
 		// Felles for alle:
-		$advarsler[] = $this->_validerInnslagsNavn();
+		$advarsler[] = $this->validerInnslagsNavn();
 		$advarsler[] = $this->_validerBeskrivelse();
 		$advarsler += $this->_validerKontaktperson();
 		$advarsler += $this->_validerDeltakere();
@@ -284,7 +293,7 @@ class write_innslag extends innslag_v2 {
 			case 'scene':
 				break;
 			default:
-				throw new Exception("WRITE_INNSLAG: Kan ikke validere innslag av typen ".$this->getType()->getName() );
+				throw new Exception("Kan ikke validere innslag av typen ".$this->getType()->getName() );
 		}
 
 		// Fjern null-verdier og verdier som er false fra arrayet.
@@ -296,7 +305,7 @@ class write_innslag extends innslag_v2 {
 	 * Alle innslag må ha et innslagsnavn.
 	 * return advarsel or null
 	 */
-	private function _validerInnslagsNavn() {
+	private function validerInnslagsNavn() {
 		if( empty( $this->getNavn() ) ) {
 			return advarsel::ny('innslag', 'Innslaget mangler navn', 'danger');
 		}
@@ -513,5 +522,6 @@ class write_innslag extends innslag_v2 {
 	}
 
 	// TODO: Tittel-validering + flere bandtyper
+
 
 }

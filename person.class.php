@@ -3,6 +3,8 @@ require_once('UKM/sql.class.php');
 require_once('UKM/v1_person.class.php');
 
 class person_v2 {
+	var $context = null;
+	
 	var $id = null;
 	var $fornavn = null;
 	var $etternavn = null;
@@ -20,10 +22,16 @@ class person_v2 {
 		} else {
 			throw new Exception('PERSON_V2: Oppretting krever parameter $person som numerisk id eller array, fikk '. gettype($person) .'.');
 		}
-#		if( 0 == $this->id ) {
-#			throw new Exception('PERSON_V2: Innslag MÅ ha kontaktperson');
-#		}
 	}
+	
+	public function setContext( $context ) {
+		$this->context = $context;
+		return $this;
+	}
+	public function getContext() {
+		return $this->context;
+	}
+
 	
 	public static function getLoadQuery() {
 		return "SELECT * FROM `smartukm_participant` ";
