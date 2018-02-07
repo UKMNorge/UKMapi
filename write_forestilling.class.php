@@ -51,39 +51,6 @@ class write_forestilling {
 
 
 	/**
-	 * Fjern en videresendt tittel, og avmelder hvis gitt lokalmønstring
-	 *
-	 * @param tittel_v2 $tittel_save
-	 *
-	 * @return (bool true|throw exception)
-	 */
-	public function fjern( $tittel_save ) {
-		// Valider inputs
-		write_tittel::_validerLeggtil( $tittel_save );
-
-		// Opprett mønstringen tittelen kommer fra
-		$monstring = new monstring_v2( $tittel_save->getContext()->getMonstring()->getId() );
-		// Hent innslaget fra gitt mønstring
-		$innslag_db = $monstring->getInnslag()->get( $tittel_save->getContext()->getInnslag()->getId() );
-		
-
-		if( $monstring->getType() == 'kommune' ) {
-			$res = write_tittel::_fjernLokalt( $tittel_save );
-		} else {
-			$res = write_tittel::_fjernVideresend( $tittel_save );
-		}
-		
-		if( $res ) {
-			return true;
-		}
-		
-		throw new Exception(
-			'Kunne ikke fjerne '. $tittel_save->getTittel() .' fra innslaget. ',
-			50514
-		);
-	}	
-	
-	/**
 	 * Valider alle input-parametre for å legge til 
 	 *
 	 * @see leggTil
@@ -114,6 +81,36 @@ class write_forestilling {
 				'Tittel-objektet er ikke opprettet i riktig kontekst',
 				50912
 			);
+		}
+	}
+	
+	/**
+	 * Fjern et innslag fra alle forestillinger på en mønstring
+	 * Gjøres når et innslag er avmeldt en mønstring
+	 *
+	 * @param write_innslag $innslag
+	 * @return $this
+	**/
+	public static function fjernInnslagFraAlleForestillingerIMonstring( $innslag ) {
+		write_innslag::validerLeggtil( $innslag );
+
+		// Opprett mønstringen innslaget kommer fra
+		$monstring = new monstring_v2( $innslag->getContext()->getMonstring()->getId() );
+
+		// Fjern innslaget fra alle hendelser i mønstringen
+		foreach( $monstring->getProgram()->getAllInkludertSkjulte() as $forestilling ) {
+			if( $forestilling->getInnslag()->har( $innslag ) ) {
+				// Modifiserer ikke collectionen, da den kun eksisterer internt i funksjonen
+				UKMlogger::log( 220, $forestilling->getId(), $innslag->getId() );
+				$qry = new SQLdel(
+					'smartukm_rel_b_c', 
+					[
+						'c_id' => $forestilling->getId(),
+						'b_id' => $innslag->getId()
+					]
+				);
+				$res = $qry->run();
+			}
 		}
 	}
 }

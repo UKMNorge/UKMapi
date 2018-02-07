@@ -47,11 +47,10 @@ class forestilling_v2 extends forestilling {
 	 * @return innslag collection
 	**/
 	public function getInnslag() {
-		if( null == $this->collection_innslag ) {
-			$this->_loadInnslag();
+		if( null == $this->innslag ) {
+			$this->innslag = new innslag_collection( $this->getContext() );
 		}
-		
-		return $this->collection_innslag;
+		return $this->innslag;
 	}
 
 	/**
@@ -113,10 +112,6 @@ class forestilling_v2 extends forestilling {
 	**/
 	public function getSted() {
 		return $this->sted;
-	}
-	
-	private function _loadInnslag() {
-		$this->collection_innslag = new innslag_collection( $this->getContext() );
 	}
 	
 	/**

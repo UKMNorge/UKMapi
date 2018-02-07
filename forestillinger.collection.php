@@ -53,6 +53,12 @@ class program {
 				return $item;
 			}
 		}
+		
+		foreach( $this->getAllInkludertSkjulte() as $item ) {
+			if( $item->getId() == $id ) {
+				return $item;
+			}
+		}
 		throw new Exception('Kunne ikke finne hendelse '. $id .'.', 2); // OBS: code brukes av har()
 	}
 	

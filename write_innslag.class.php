@@ -400,16 +400,34 @@ class write_innslag {
 	 *
 	 ********************************************************************************/
 
-	
+	/**
+	 * Legger til et innslag i collection og database
+	 *
+	 * @param write_innslag $innslag
+	 * @return $this
+	 */
+	public function leggTil( $innslag ) {
+		write_innslag::validerLeggtil( $innslag );
+
+		switch( $innslag->getContext()->getType() ) {
+			case 'forestilling':
+				write_innslag::_leggTilForestilling( $innslag );
+				break;
+			case 'monstring':
+				write_innslag::_leggTilMonstring( $innslag );
+				break;
+		}
+		return $this;
+	}	
 	
 	/**
-	 * Fjerner et innslag fra denne forestillingen.
+	 * Fjern et innslag
 	 *
 	 * @param innslag_v2 $innslag
 	 * @return $this
 	 */
 	public static function fjern( $innslag ) {
-		write_innslag::_validerLeggtil( $innslag );
+		write_innslag::validerLeggtil( $innslag );
 		
 		switch( $innslag->getContext()->getType() ) {
 			case 'forestilling':
@@ -429,8 +447,7 @@ class write_innslag {
 				);
 		}
 	}
-
-
+	
 
 	/********************************************************************************
 	 *
@@ -448,16 +465,28 @@ class write_innslag {
 	 * @return $this
 	**/
 	private static function _fjernFraLokalMonstring( $innslag ) {
-		/*
-		 * Fjern fra lokalmønstring
-		*/
+		require_once('UKM/write_forestilling.class.php');
+
+		// Sjekk at vi har riktig context
+		if( $innslag->getContext()->getType() != 'monstring' ) {
+			throw new Exception(
+				'fjernFraLokalMonstring kan kun kalles på objekter med mønstring-context',
+				50518
+			);
+		}
+
+		// Er innslaget videresendt kan det ikke avmeldes
 		if( $innslag->erVideresendt() ) {
 			throw new Exception(
 				'Du kan ikke melde av et innslag som er videresendt før du har fjernet videresendingen.',
-				50512
+				5051
 			);
 		}
+		
+		// Fjern fra alle forestillinger på mønstringen
+		write_forestilling::fjernInnslagFraAlleForestillingerIMonstring( $innslag );
 	
+		// "Slett" innslaget
 		$SQLdel = new SQLdel(
 			'smartukm_rel_pl_b',
 			[
@@ -473,6 +502,196 @@ class write_innslag {
 		write_innslag::saveStatus( $innslag );
 		
 		return $this;
+	}
+	
+	/**
+	 * Fjern et innslag fra denne forestillingen
+	 *
+	 * @param innslag_v2 $innslag
+	 * @return $this
+	**/
+	private function _fjernFraForestilling( $innslag ) {
+		// Sjekk at vi har riktig context
+		if( $innslag->getContext()->getType() != 'forestilling' ) {
+			throw new Exception(
+				'fjernFraForestilling kan kun kalles på objekter med forestilling-context',
+				50518
+			);
+		}
+
+		// Logg (eller dø) før sql utføres
+		UKMlogger::log( 220, $innslag->getContext()->getForestilling()->getId(), $innslag->getId() );
+
+		// Fjern fra forestillingen
+		$qry = new SQLdel(	'smartukm_rel_b_c', 
+							array(	'c_id' => $innslag->getContext()->getForestilling()->getId(),
+									'b_id' => $innslag->getId() ) );
+		$res = $qry->run();
+
+		if( 1 != $res ) {
+			throw new Exception(
+				'Klarte ikke å fjerne innslaget fra forestillingen.',
+				50519
+			);
+		}
+		return $this;
+	}
+	
+	/**
+	 * Fjern et innslag fra en (fylke|land)mønstring
+	 * Vil fjerne videresendingen av innslaget
+	 *
+	 * @param innslag_v2 $innslag
+	 * @return $this
+	**/
+	private function _fjernVideresending( $innslag ) {
+		// Sjekk at vi har riktig context
+		if( $innslag->getContext()->getType() != 'monstring' ) {
+			throw new Exception(
+				'fjernVideresending kan kun kalles på objekter med mønstring-context',
+				50518
+			);
+		}
+		require_once('UKM/write_person.class.php');
+		require_once('UKM/write_tittel.class.php');
+		
+		// Fjern fra alle forestillinger på mønstringen
+		write_forestilling::fjernInnslagFraAlleForestillingerIMonstring( $innslag );
+	
+		// Meld av alle personer hvis dette er innslag hvor man kan velge personer som følger innslaget
+		if( $innslag->getType()->getId() != 1 ) {
+			foreach( $innslag->getPersoner()->getAllVideresendt( $innslag->getContext()->getMonstring()->getId() ) as $person ) {
+				$innslag->getPersoner()->fjern( $person );
+			}
+			write_innslag::savePersoner( $innslag );
+		}
+
+		// Meld av alle titler
+		if( $innslag->harTitler() ) {
+			foreach( $innslag->getTitler()->getAll( ) as $tittel ) {
+				$innslag->getTitler()->fjern( $tittel );
+			}
+			write_innslag::saveTitler( $innslag );
+		}
+		
+		// Fjern videresendingen av innslaget
+		$SQLdel = new SQLdel(
+			'smartukm_fylkestep',
+			[
+				'pl_id' => $innslag->getContext()->getMonstring()->getId(),
+				'b_id'	=> $innslag->getId(),
+				'season' => $innslag->getContext()->getMonstring()->getSesong()
+			]
+		);
+		
+		UKMlogger::log( 319, $innslag->getId(), $innslag->getContext()->getMonstring()->getId() );
+
+		$res = $SQLdel->run();
+	
+		if(1 == $res) {
+			return true;
+		}
+		
+		return $this;
+	}
+
+	/********************************************************************************
+	 *
+	 *
+	 * LEGG TIL-HJELPERE
+	 *
+	 *
+	 ********************************************************************************/
+
+	/**
+	 * Legg til et innslag i en forestilling
+	 *
+	 * @param innslag_v2 $innslag
+	**/
+	private function _leggTilForestilling( $innslag ) {
+		if( $innslag->getContext()->getType() != 'forestilling' ) {
+			throw new Exception(
+				'leggTilForestilling kan kun kalles på objekter med forestilling-context',
+				50518
+			);
+		}
+
+		UKMlogger::log( 219, $innslag->getContext()->getForestilling()->getId(), $innslag->getId() );
+
+		$lastorder = new SQL("SELECT `order`
+							  FROM `smartukm_rel_b_c`
+							  WHERE `c_id` = '#cid'
+							  ORDER BY `order` DESC
+							  LIMIT 1",
+							  array('cid' => $innslag->getContext()->getForestilling()->getId() ) );
+		$lastorder = $lastorder->run('field','order');
+		$order = (int)$lastorder+1;
+		
+		$qry = new SQLins('smartukm_rel_b_c');
+		$qry->add('b_id', $innslag->getId() );
+		$qry->add('c_id', $innslag->getContext()->getForestilling()->getId() );
+		$qry->add('order', $order);
+		$res = $qry->run();
+		
+		if( 1 != $res ) {
+			throw new Exception(
+				'Klarte ikke å legge til innslaget i forestillingen.',
+				50513
+			);
+		}
+		return $this;
+	}
+	
+	/**
+	 * Legg til et innslag i en mønstring
+	 *
+	 * Bruk ::create for å legge til på lokalnivå, denne
+	 * vil bare returnere true
+	 *
+	 * @param innslag_v2 $innslag
+	**/
+	private function _leggTilMonstring( $innslag ) {
+		if( $innslag->getContext()->getType() != 'monstring' ) {
+			throw new Exception(
+				'leggTilMonstring kan kun kalles på objekter med mønstring-context',
+				50518
+			);
+		}
+
+		if( $innslag->getContext()->getMonstring()->getType() == 'kommune' ) {
+			return true;
+		}
+
+		$test_relasjon = new SQL(
+			"SELECT `id` FROM `smartukm_fylkestep`
+				WHERE `pl_id` = '#pl_id'
+				AND `b_id` = '#b_id'",
+			[
+				'pl_id'		=> $innslag->getContext()->getMonstring()->getId(),
+		  		'b_id'		=> $innslag->getId(), 
+			]
+		);
+		$test_relasjon = $test_relasjon->run();
+		
+		// Hvis allerede videresendt, alt ok
+		if( mysql_num_rows($test_relasjon) > 0 ) {
+			return true;
+		}
+		// Videresend personen
+		else {
+			$videresend = new SQLins('smartukm_fylkestep');
+			$videresend->add('pl_id', $innslag->getContext()->getMonstring()->getId() );
+			$videresend->add('b_id', $innslag->getId() );
+
+			UKMlogger::log( 318, $innslag->getId(), $this->getContext()->getMonstring()->getId() );
+			$res = $videresend->run();
+		
+			if( $res ) {
+				return true;
+			}
+		}
+
+		throw new Exception('INNSLAG_COLLECTION: Kunne ikke videresende '. $innslag->getNavn() .' til mønstringen' );
 	}
 
 
@@ -497,13 +716,13 @@ class write_innslag {
 		if( !is_object( $innslag ) || get_class( $innslag ) != 'innslag_v2' ) {
 			throw new Exception(
 				'Innslag må være objekt av klassen innslag_v2',
-				50707
+				50514
 			);
 		}
 		if( !is_numeric( $innslag->getId() ) || $innslag->getId() <= 0 ) {
 			throw new Exception(
 				'Innslag-objektet må ha en numerisk ID større enn null',
-				50708
+				50515
 			);
 		}
 	}
@@ -558,7 +777,7 @@ class write_innslag {
 	 *
 	 * @see leggTil
 	**/
-	private static function _validerLeggtil( $innslag_save ) {
+	public static function validerLeggtil( $innslag_save ) {
 		// Valider input-data
 		try {
 			write_innslag::validerInnslag( $innslag_save );
@@ -572,10 +791,27 @@ class write_innslag {
 		// Valider kontekst (tilknytning til mønstring)
 		if( $innslag_save->getContext()->getMonstring() == null && $innslag_save->getContext()->getForestilling() == null ) {
 			throw new Exception(
-				'Kan ikke legge til/fjerne person. '.
+				'Kan ikke legge til/fjerne innslag. '.
 				'Person-objektet er ikke opprettet i riktig kontekst',
-				50511
+				50512
 			);
+		}
+		
+		if( is_object( $innslag_save->getContext()->getMonstring() ) ) {
+			if( !is_numeric( $innslag_save->getContext()->getMonstring()->getId() ) ) {
+				throw new Exception(
+					'Kan ikke legge til/fjerne innslag. Mangler numerisk mønstrings-ID',
+					50516
+				);
+			}
+		}		
+		if( is_object( $innslag_save->getContext()->getForestilling() ) ) {
+			if( !is_numeric( $innslag_save->getContext()->getForestilling()->getId() ) ) {
+				throw new Exception(
+					'Kan ikke legge til/fjerne innslag. Mangler numerisk forestilling-ID',
+					50517
+				);
+			}
 		}
 	}
 

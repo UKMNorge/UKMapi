@@ -309,13 +309,16 @@ class innslag_collection {
 		} catch( Exception $e ) {
 			throw new Exception(
 				'Kunne ikke legge til innslag. '. $e->getMessage(),
-				10601
+				10401
 			);
 		}
 		
 		// Hvis personen allerede er lagt til kan vi skippe resten
 		if( $this->har( $innslag ) ) {
-			return true;
+			throw new Exception(
+				'Innslaget er allerede i lagt til',
+				10404
+			);
 		}
 		
 		// Gi innslaget riktig context (hent fra collection, samme som new person herfra)
@@ -344,7 +347,7 @@ class innslag_collection {
 		} catch( Exception $e ) {
 			throw new Exception(
 				'Kunne ikke fjerne innslaget. '. $e->getMessage(),
-				10601
+				10403
 			);
 		}
 		
@@ -502,7 +505,7 @@ class innslag_collection {
 								WHERE `rel`.`c_id` = '#c_id'
 								ORDER BY `order` ASC",
 								array( 'c_id' => $this->getContext()->getForestilling()->getId() ) );
-				return $sql; 
+				return $sql;
 				break;
 			default:
 				throw new Exception('innslag: Har ikke støtte for '. $this->getContext()->getType() .'-collection (#2)');
