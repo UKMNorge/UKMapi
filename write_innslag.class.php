@@ -471,7 +471,7 @@ class write_innslag {
 		if( $innslag->getContext()->getType() != 'monstring' ) {
 			throw new Exception(
 				'fjernFraLokalMonstring kan kun kalles på objekter med mønstring-context',
-				50518
+				50519
 			);
 		}
 
@@ -531,7 +531,7 @@ class write_innslag {
 		if( 1 != $res ) {
 			throw new Exception(
 				'Klarte ikke å fjerne innslaget fra forestillingen.',
-				50519
+				50520
 			);
 		}
 		return $this;
@@ -554,6 +554,7 @@ class write_innslag {
 		}
 		require_once('UKM/write_person.class.php');
 		require_once('UKM/write_tittel.class.php');
+		require_once('UKM/write_forestilling.class.php');
 		
 		// Fjern fra alle forestillinger på mønstringen
 		write_forestilling::fjernInnslagFraAlleForestillingerIMonstring( $innslag );
@@ -567,7 +568,7 @@ class write_innslag {
 		}
 
 		// Meld av alle titler
-		if( $innslag->harTitler() ) {
+		if( $innslag->getType()->harTitler() ) {
 			foreach( $innslag->getTitler()->getAll( ) as $tittel ) {
 				$innslag->getTitler()->fjern( $tittel );
 			}
@@ -580,12 +581,10 @@ class write_innslag {
 			[
 				'pl_id' => $innslag->getContext()->getMonstring()->getId(),
 				'b_id'	=> $innslag->getId(),
-				'season' => $innslag->getContext()->getMonstring()->getSesong()
 			]
 		);
 		
 		UKMlogger::log( 319, $innslag->getId(), $innslag->getContext()->getMonstring()->getId() );
-
 		$res = $SQLdel->run();
 	
 		if(1 == $res) {
@@ -683,7 +682,7 @@ class write_innslag {
 			$videresend->add('pl_id', $innslag->getContext()->getMonstring()->getId() );
 			$videresend->add('b_id', $innslag->getId() );
 
-			UKMlogger::log( 318, $innslag->getId(), $this->getContext()->getMonstring()->getId() );
+			UKMlogger::log( 318, $innslag->getId(), $innslag->getContext()->getMonstring()->getId() );
 			$res = $videresend->run();
 		
 			if( $res ) {
@@ -691,7 +690,10 @@ class write_innslag {
 			}
 		}
 
-		throw new Exception('INNSLAG_COLLECTION: Kunne ikke videresende '. $innslag->getNavn() .' til mønstringen' );
+		throw new Exception(
+			'Kunne ikke videresende '. $innslag->getNavn() .' til mønstringen',
+			50521
+		);
 	}
 
 

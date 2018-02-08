@@ -54,6 +54,8 @@ class program {
 			}
 		}
 		
+		// Ingen grunn til å ikke la folk finne forestillingen de leter etter
+		// når de har ID (så fremt den tilhører mønstringen da)
 		foreach( $this->getAllInkludertSkjulte() as $item ) {
 			if( $item->getId() == $id ) {
 				return $item;

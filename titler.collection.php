@@ -55,6 +55,13 @@ class titler {
 				return $tittel;
 			}
 		}
+		// Ingen grunn til å ikke la folk finne tittelen de leter etter
+		// når de har ID (så fremt den tilhører innslaget da)
+		foreach( $this->getAllIkkeVideresendt() as $tittel ) {
+			if( $tittel->getId() == $id ) {
+				return $tittel;
+			}
+		}
 		throw new Exception('TITLER: Kunne ikke finne tittel '. $id .' i innslag '. $this->getInnslagId(), 2); // OBS: code brukes av har()
 	}
 

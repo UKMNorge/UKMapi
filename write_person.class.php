@@ -253,7 +253,17 @@ class write_person {
 			return $sql->run();
 		}
 	}
-	
+
+
+
+	/********************************************************************************
+	 *
+	 *
+	 * LEGG TIL OG FJERN PERSON FRA COLLECTION
+	 *
+	 *
+	 ********************************************************************************/
+
 	/**
 	 * Legg til person i innslaget
 	 * Videresender automatisk til context-mønstring
@@ -310,7 +320,7 @@ class write_person {
 		$innslag_db = $monstring->getInnslag()->get( $person_save->getContext()->getInnslag()->getId() );
 		
 
-		if( $monstring->getType() == 'kommune' ) {
+		if( $monstring->getType() == 'kommune' || $person_save->getContext()->getInnslag()->getType()->getId() == 1 ) {
 			$res = write_person::_fjernLokalt( $person_save );
 		} else {
 			$res = write_person::_fjernVideresend( $person_save );
@@ -321,7 +331,7 @@ class write_person {
 		}
 		
 		throw new Exception(
-			'Kunne ikke fjerne '. $person->getNavn() .' fra innslaget. ',
+			'Kunne ikke fjerne '. $person_save->getNavn() .' fra innslaget. ',
 			50514
 		);
 	}
@@ -329,8 +339,13 @@ class write_person {
 
 
 
-
-
+	/********************************************************************************
+	 *
+	 *
+	 * LEGG TIL-HJELPERE
+	 *
+	 *
+	 ********************************************************************************/
 
 	/**
 	 * Legg til en person på lokalnivå (ikke videresend)
@@ -367,6 +382,66 @@ class write_person {
 	}
 	
 	/**
+	 * Legg til en person på videresendt nivå
+	 *
+	 * @param person_v2 $person_save
+	**/
+	private function _leggTilVideresend( $person_save ) {
+		// FOR INNSLAG I KATEGORI 1 (SCENE) FØLGER ALLE DELTAKERE ALLTID INNSLAGET VIDERE
+		if( $person_save->getContext()->getInnslag()->getType()->getId() == 1 ) {
+			return true;
+		}
+		
+		$test_relasjon = new SQL(
+			"SELECT * FROM `smartukm_fylkestep_p`
+				WHERE `pl_id` = '#pl_id'
+				AND `b_id` = '#b_id'
+				AND `p_id` = '#p_id'",
+			[
+				'pl_id'		=> $person_save->getContext()->getMonstring()->getId(), 
+		  		'b_id'		=> $person_save->getContext()->getInnslag()->getId(), 
+				'p_id'		=> $person_save->getId(),
+			]
+		);
+		$test_relasjon = $test_relasjon->run();
+		
+		// Hvis allerede videresendt, alt ok
+		if( mysql_num_rows($test_relasjon) > 0 ) {
+			return true;
+		}
+		// Videresend personen
+		else {
+			$videresend_person = new SQLins('smartukm_fylkestep_p');
+			$videresend_person->add('pl_id', $person_save->getContext()->getMonstring()->getId() );
+			$videresend_person->add('b_id', $person_save->getContext()->getInnslag()->getId() );
+			$videresend_person->add('p_id', $person_save->getId() );
+
+			$log_msg = $person_save->getId().': '. $person_save->getNavn() .' => PL: '. $person_save->getContext()->getMonstring()->getId();
+			UKMlogger::log( 320, $person_save->getContext()->getInnslag()->getId(), $log_msg );
+			$res = $videresend_person->run();
+		
+			if( $res ) {
+				return true;
+			}
+		}
+
+		throw new Exception(
+			'Kunne ikke videresende '. $person->getNavn() .'.',
+			50516
+		);
+	}
+
+
+	
+	/********************************************************************************
+	 *
+	 *
+	 * FJERN-HJELPERE
+	 *
+	 *
+	 ********************************************************************************/
+
+	/**
 	 * Fjerner en person helt fra innslaget (avmelding lokalnivå)
 	 *
 	 * @param person_v2 $person
@@ -389,6 +464,47 @@ class write_person {
 			50515
 		);
 	}
+	
+	/**
+	 * 
+	 * Avrelaterer en person til dette innslaget.
+	 *
+	 * @param write_person $person
+	 * @param write_monstring $monstring
+	 *
+	 * @return (bool true|throw exception)
+	 */
+	public function _fjernVideresend( $person_save ) {
+		// FOR INNSLAG I KATEGORI 1 (SCENE) FØLGER ALLE DELTAKERE ALLTID INNSLAGET VIDERE
+		if( $person_save->getContext()->getInnslag()->getType()->getId() == 1 ) {
+			return false;
+		}
+
+		$videresend_person = new SQLdel(
+			'smartukm_fylkestep_p', 
+			[
+				'pl_id' 	=> $person_save->getContext()->getMonstring()->getId(),
+				'b_id' 		=> $person_save->getContext()->getInnslag()->getId(),
+				'p_id' 		=> $person_save->getId()
+			]
+		);
+		
+		$log_msg = $person_save->getId() .': '. $person_save->getNavn() .' => PL: '. $person_save->getContext()->getMonstring()->getId();
+		UKMlogger::log( 321, $person_save->getContext()->getInnslag()->getId(), $log_msg );
+
+		$res = $videresend_person->run();
+		
+		if( $res ) {
+			return true;
+		}
+
+		throw new Exception(
+			'Kunne ikke avmelde '. $person_save->getNavn() .'.',
+			50517
+		);
+	}
+
+	
 
 
 

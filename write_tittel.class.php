@@ -153,9 +153,16 @@ class write_tittel {
 
 		return true;
 	}
-	
 
-	
+
+	/********************************************************************************
+	 *
+	 *
+	 * LEGG TIL OG FJERN PERSON FRA COLLECTION
+	 *
+	 *
+	 ********************************************************************************/
+
 	/**
 	 * Legg til tittelen i innslaget
 	 * Videresender automatisk til context-mønstring
@@ -222,6 +229,69 @@ class write_tittel {
 		);
 	}
 	
+
+
+
+	/********************************************************************************
+	 *
+	 *
+	 * LEGG TIL-HJELPERE
+	 *
+	 *
+	 ********************************************************************************/
+	/**
+	 * Legg til en tittel på videresendt nivå
+	 *
+	 * @param tittel_v2 $tittel_save
+	**/
+	private function _leggTilVideresend( $tittel_save ) {
+		$test_relasjon = new SQL(
+			"SELECT * FROM `smartukm_fylkestep`
+				WHERE `pl_id` = '#pl_id'
+				AND `b_id` = '#b_id'
+				AND `t_id` = '#t_id'",
+			[
+				'pl_id'		=> $tittel_save->getContext()->getMonstring()->getId(), 
+		  		'b_id'		=> $tittel_save->getContext()->getInnslag()->getId(), 
+				't_id'		=> $tittel_save->getId(),
+			]
+		);
+		$test_relasjon = $test_relasjon->run();
+		
+		// Hvis allerede videresendt, alt ok
+		if( mysql_num_rows($test_relasjon) > 0 ) {
+			return true;
+		}
+		// Videresend tittelen
+		else {
+			$videresend_tittel = new SQLins('smartukm_fylkestep');
+			$videresend_tittel->add('pl_id', $tittel_save->getContext()->getMonstring()->getId() );
+			$videresend_tittel->add('b_id', $tittel_save->getContext()->getInnslag()->getId() );
+			$videresend_tittel->add('t_id', $tittel_save->getId() );
+
+			$log_msg = $tittel_save->getId().': '. $tittel_save->getTittel() .' => PL: '. $tittel_save->getContext()->getMonstring()->getId();
+			UKMlogger::log( 322, $tittel_save->getContext()->getInnslag()->getId(), $log_msg );
+			$res = $videresend_tittel->run();
+		
+			if( $res ) {
+				return true;
+			}
+		}
+
+		throw new Exception(
+			'Kunne ikke videresende '. $tittel_save->getTittel(),
+			50516
+		);
+	}
+
+	
+	/********************************************************************************
+	 *
+	 *
+	 * FJERN-HJELPERE
+	 *
+	 *
+	 ********************************************************************************/
 	
 	/**
 	 * Fjern en tittel fra innslaget helt
@@ -247,6 +317,39 @@ class write_tittel {
 			50515
 		);
 	}
+	
+	/**
+	 * 
+	 * Avrelaterer en tittel fra dette innslaget.
+	 *
+	 * @param tittel_v2 $tittel_save
+	 *
+	 * @return (bool true|throw exception)
+	 */
+	public function _fjernVideresend( $tittel_save ) {
+		$videresend_tittel = new SQLdel(
+			'smartukm_fylkestep', 
+			[
+				'pl_id' 	=> $tittel_save->getContext()->getMonstring()->getId(),
+				'b_id' 		=> $tittel_save->getContext()->getInnslag()->getId(),
+				't_id' 		=> $tittel_save->getId()
+			]
+		);
+		$log_msg = $tittel_save->getId().': '. $tittel_save->getTittel() .' => PL: '. $tittel_save->getContext()->getMonstring()->getId();
+		UKMlogger::log( 321, $tittel_save->getContext()->getInnslag()->getId(), $log_msg );
+
+		$res = $videresend_tittel->run();
+		
+		if( $res ) {
+			return true;
+		}
+
+		throw new Exception(
+			'Kunne ikke avmelde '. $tittel_save->getTittel() .' fra mønstringen',
+			50907
+		);
+ 	}
+
 
 	/********************************************************************************
 	 *
