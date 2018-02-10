@@ -1,4 +1,5 @@
 <?php
+require_once 'UKM/context.class.php';
 require_once 'UKM/sql.class.php';
 require_once 'UKM/statistikk.class.php';
 require_once 'UKM/monstring_tidligere.class.php';
@@ -537,9 +538,7 @@ class monstring_v2 {
 			return $this->program;
 		}
 		require_once('UKM/forestillinger.collection.php');
-
-		$this->program = new forestillinger( 'monstring', $this->getId() );
-
+		$this->program = new forestillinger( $this->getContext() );
 		return $this->program;
 	}
 	
@@ -550,12 +549,7 @@ class monstring_v2 {
 	**/
 	public function getInnslag() {
 		if( null == $this->innslag ) {
-			$this->innslag = new innslag_collection( 'monstring', $this->getId() );
-			if( 'land' == $this->getType() ) {
-				$this->innslag->setContainerDataMonstring( $this->getId(), $this->getType(), $this->getSesong(), false, false );
-			} else {
-				$this->innslag->setContainerDataMonstring( $this->getId(), $this->getType(), $this->getSesong(), $this->getFylke()->getId(), $this->getKommuner()->getIdArray() );
-			}
+			$this->innslag = new innslag_collection( $this->getContext() );
 		}
 		return $this->innslag;
 	}
@@ -710,6 +704,27 @@ class monstring_v2 {
 	
 	protected function _resetKommuner() {
 		$this->kommuner = null;
+	}
+	
+	public function getContext() {
+		if( 'land' == $this->getType() ) {
+			$context = context::createMonstring(
+				$this->getId(),			// Mønstring id
+				$this->getType(),		// Møntring type
+				$this->getSesong(),		// Mønstring sesong
+				false,					// Mønstring fylke ID
+				false					// Mønstring kommune ID array
+			);
+		} else {
+			$context = context::createMonstring(
+				$this->getId(),						// Mønstring id
+				$this->getType(),					// Møntring type
+				$this->getSesong(),					// Mønstring sesong
+				$this->getFylke()->getId(),			// Mønstring fylke ID
+				$this->getKommuner()->getIdArray()	// Mønstring kommune ID array
+			);
+		}
+		return $context;
 	}
 
 /* UTGÅR	

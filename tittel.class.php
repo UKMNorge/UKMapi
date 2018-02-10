@@ -5,6 +5,8 @@ require_once('UKM/tid.class.php');
 require_once('UKM/v1_tittel.class.php');
 
 class tittel_v2 {
+	var $context = null;
+	
 	var $table = null;
 	var $id = null;
 	var $videresendtTil = null;
@@ -230,6 +232,9 @@ class tittel_v2 {
 	public function erSelvlaget() {
 		return $this->selvlaget;
 	}
+	public function getSelvlaget() {
+		return $this->erSelvlaget();
+	}
 
 	/**
 	 * Sett skal litteratur leses opp?
@@ -260,6 +265,9 @@ class tittel_v2 {
 	public function skalLesesOpp() {
 		return $this->erLesOpp();
 	}
+	public function getLesOpp() {
+		return $this->erLesOpp();
+	}
 		
 	/**
 	 * Sett instrumental
@@ -281,6 +289,9 @@ class tittel_v2 {
 	**/
 	public function erInstrumental() {
 		return $this->instrumental;
+	}
+	public function getInstrumental() {
+		return $this->erInstrumental();
 	}
 	
 	/**
@@ -576,6 +587,15 @@ class tittel_v2 {
 	**/
 	public function getVideresendtTil() {
 		return $this->videresendtTil;
+	}
+
+	
+	public function setContext( $context ) {
+		$this->context = $context;
+		return $this;
+	}
+	public function getContext() {
+		return $this->context;
 	}
 
 }

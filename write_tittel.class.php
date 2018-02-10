@@ -1,42 +1,37 @@
 <?php
-
-/**
- *
- * write_tittel.class.php
- *
- *
- *
- *
- */
-
 require_once('UKM/sql.class.php');
 require_once('UKM/tittel.class.php');
 
-class write_tittel extends tittel_v2 {
-	var $changes = array();
-	var $loaded = false;
-
-	public function __construct( $b_id_or_row, $table) {
-		parent::__construct( $b_id_or_row, $table );
-		$this->_setLoaded();
-	}
+class write_tittel {
+	
 
 	/**
- 	 * Oppretter en ny tittel.
- 	 * @param string $table - Tabellnavnet vi skal bruke.
- 	 * @param int $b_id - Innslags-id som tittelen skal tilhøre.
+	 * Oppretter et nytt tittel og lagrer i databasen.
 	 *
+	 * @param innslag_v2 $innslag
  	 * @return false or integer (insert-ID).
  	 */
 	public static function create( $innslag ) {		
+		// Valider logger
 		if( !UKMlogger::ready() ) {
-			throw new Exception('Logger is missing or incorrectly set up');
+			throw new Exception(
+				'Logger is missing or incorrect set up.',
+				50901
+			);
 		}
-		if( 'write_innslag' != get_class($innslag) ) {
-			throw new Exception('WRITE_TITTEL: Krever skrivbart innslag.');	
+		// Valider input-data
+		try {
+			write_innslag::validerInnslag( $innslag );
+		} catch( Exception $e ) {
+			throw new Exception(
+				'Kunne ikke opprette tittel'. $e->getMessage(),
+				$e->getCode()
+			);
 		}
 
+		// Opprett spørringen
 		$qry = new SQLins( $innslag->getType()->getTabell() );
+		$qry->add( 'b_id', $innslag->getId() );
 		switch( $innslag->getType()->getTabell() ) {
 			case 'smartukm_titles_scene':
 				$action = 501;
@@ -48,191 +43,376 @@ class write_tittel extends tittel_v2 {
 				$action = 514;
 				break;
 			default:
-				throw new Exception('WRITE_TITTEL: Kan kun opprette en ny tittel for scene, video eller utstilling. '.$table.' er ikke støttet enda.');
+				// TODO
+				throw new Exception(
+					'Kan kun opprette en ny tittel for scene, video eller utstilling. '.$table.' er ikke støttet enda.',
+					50902
+				);
 		}
-
-		$qry->add( 'b_id', $innslag->getId() );
+		// Logg (eller dø) før insert
+		UKMlogger::log( $action, $innslag->getId(), $qry->insid() );
+		
 		$res = $qry->run();
 		if( 1 == $res ) {
-			// Logg oppretting av ny tittel for band $b_id med id insid();
-			UKMlogger::log( $action, $innslag->getId(), $qry->insid() );
 			return $qry->insid();
 		}
-		else {
-			throw new Exception("WRITE_TITTEL: Klarte ikke å opprette ny tittel.");
-			return false;
-		}
+
+		throw new Exception(
+			'Klarte ikke å opprette ny tittel.',
+			50903
+		);
 	}
 
-	public function save() {
+	public static function save( $tittel_save ) {
+		// Valider logger
 		if( !UKMlogger::ready() ) {
-			throw new Exception('Logger is missing or incorrectly set up.');
+			throw new Exception(
+				'Logger is missing or incorrect set up.',
+				50901
+			);
+		}
+		// Valider inputdata
+		try {
+			write_tittel::validerTittel( $tittel_save );
+		} catch( Exception $e ) {
+			throw new Exception(
+				'Kan ikke lagre tittel. '. $e->getMessage(),
+				$e->getCode()
+			);
+		}
+		
+		// Opprett mønstringen tittelen kommer fra
+		$monstring = new monstring_v2( $tittel_save->getContext()->getMonstring()->getId() );
+		// Hent innslaget fra gitt mønstring
+		$innslag_db = $monstring->getInnslag()->get( $tittel_save->getContext()->getInnslag()->getId() );
+		// Hent personen fra gitt innslag
+		$tittel_db = $innslag_db->getTitler()->get( $tittel_save->getId() );
+
+		// TABELLER SOM KAN OPPDATERES
+		$sql = new SQLins(
+			$tittel_save->getTable(), 
+			[
+				't_id' => $tittel_save->getId(),
+				'b_id' => $innslag_db->getId(),
+			]
+		);
+		// VERDIER SOM KAN OPPDATERES
+		switch( $tittel_save->getTable() ) {
+			case 'smartukm_titles_scene':
+				$properties = [
+					'Tittel' 				=> ['t_name', 502],
+					'VarighetSomSekunder'	=> ['t_time', 503],
+					'Instrumental'			=> ['t_instrumental', 504],
+					'Selvlaget'				=> ['t_selfmade', 505],
+					'TekstAv'				=> ['t_titleby', 506],
+					'MelodiAv'				=> ['t_musicby', 507],
+					'KoreografiAv'			=> ['t_coreography', 508],
+					'LitteraturLesOpp'		=> ['t_litterature_read', 509],
+				];
+				break;
+			case 'smartukm_titles_video':
+				$properties = [
+					'Tittel' 				=> ['t_v_title', 511],
+					'VarighetSomSekunder'	=> ['t_v_time', 512],
+					'Format'				=> ['t_v_format', 513],
+				];
+				break;
+			case 'smartukm_titles_exhibition':
+				$properties = [
+					'Tittel' 				=> ['t_e_title', 515],
+					'Type'					=> ['t_e_type', 516],
+					'Beskrivelse'			=> ['t_e_comments', 517],
+				];
+				break;
+			default: 
+				throw new Exception(
+					'Kunne ikke lagre tittel. Ukjent database-tabell '. $tittel_save->getTable(),
+					50904
+				);
 		}
 
-		$qry = new SQLins($this->getTable(), array('t_id' => $this->getId()));
-
-		foreach( $this->getChanges() as $change ) {
-			$qry->add( $change['felt'], $change['value'] );
-			UKMlogger::log( $change['action'], $this->getId(), $change['value'] );
+		// LOOP ALLE VERDIER, OG EVT LEGG TIL I SQL
+		foreach( $properties as $functionName => $logValues ) {
+			$function = 'get'.$functionName;
+			$field = $logValues[0];
+			$action = $logValues[1];
+			
+			if( $tittel_db->$function() != $tittel_save->$function() ) {
+				# Mellomlagre verdi som skal settes
+				$value = $tittel_save->$function();
+				# Legg til i SQL
+				$sql->add( $field, $value );
+				# Logg (eller dø) før vi kjører run
+				UKMlogger::log( $action, $tittel_save->getId(), $value );
+			}
 		}
 
-		if( $qry->hasChanges() ) {
-			$qry->run();
+		if( $sql->hasChanges() ) {
+			$sql->run();
 		}
 
 		return true;
 	}
 
-	public function setTittel( $tittel ) {
-		if( $this->_loaded() && $this->getTittel() == $tittel ) {
-			return false;
-		}	
 
-		if( 'smartukm_titles_scene' == $this->getTable() ) {
-			$this->_change($this->tabell, 't_name', 502, $tittel);	
-		} 
-		elseif( 'smartukm_titles_video' == $this->getTable() ) {
-			$this->_change($this->tabell, 't_v_title', 511, $tittel);	
-		} 
-		elseif( 'smartukm_titles_exhibition' == $this->getTable() ) {
-			$this->_change($this->tabell, 't_e_title', 515, $tittel);
+	/********************************************************************************
+	 *
+	 *
+	 * LEGG TIL OG FJERN PERSON FRA COLLECTION
+	 *
+	 *
+	 ********************************************************************************/
+
+	/**
+	 * Legg til tittelen i innslaget
+	 * Videresender automatisk til context-mønstring
+	 * 
+	 * @param tittel_v2 $tittel_save
+	**/
+	public static function leggtil( $tittel_save ) {
+		// Valider inputs
+		write_tittel::_validerLeggtil( $tittel_save );
+
+		// Opprett mønstringen tittelen kommer fra
+		$monstring = new monstring_v2( $tittel_save->getContext()->getMonstring()->getId() );
+		// Hent innslaget fra gitt mønstring
+		$innslag_db = $monstring->getInnslag()->get( $tittel_save->getContext()->getInnslag()->getId() );
+		
+		// En tittel vil alltid være lagt til lokalt
+		
+		// Videresend tittelen hvis ikke lokalmønstring
+		if( $monstring->getType() != 'kommune' ) {
+			$res = write_tittel::_leggTilVideresend( $tittel_save );
 		}
-
-		parent::setTittel($tittel);
-		return true;
+		
+		if( $res ) {
+			return $this;
+		}
+		
+		throw new Exception(
+			'Kunne ikke legge til '. $tittel_save->getNavn() .' i innslaget. ',
+			50913
+		);
 	}
 
-	public function setVarighet( $varighet) {
-		if( $this->_loaded() && $this->getVarighet() == $varighet ) {
-			return false;
+
+	/**
+	 * Fjern en videresendt tittel, og avmelder hvis gitt lokalmønstring
+	 *
+	 * @param tittel_v2 $tittel_save
+	 *
+	 * @return (bool true|throw exception)
+	 */
+	public function fjern( $tittel_save ) {
+		// Valider inputs
+		write_tittel::_validerLeggtil( $tittel_save );
+
+		// Opprett mønstringen tittelen kommer fra
+		$monstring = new monstring_v2( $tittel_save->getContext()->getMonstring()->getId() );
+		// Hent innslaget fra gitt mønstring
+		$innslag_db = $monstring->getInnslag()->get( $tittel_save->getContext()->getInnslag()->getId() );
+		
+
+		if( $monstring->getType() == 'kommune' ) {
+			$res = write_tittel::_fjernLokalt( $tittel_save );
+		} else {
+			$res = write_tittel::_fjernVideresend( $tittel_save );
 		}
-
-		if( $this->getTable() == 'smartukm_titles_video' ) {
-			$this->_change($this->tabell, 't_v_time', 512, $varighet);
+		
+		if( $res ) {
+			return true;
 		}
-		elseif( $this->getTable() == 'smartukm_titles_scene' ) {
-			$this->_change($this->tabell, 't_time', 503, $varighet);
-		}
-
-		parent::setVarighet( $varighet );
-		return true;
-	}
-
-	public function setFormat( $format ) {
-		if( $this->_loaded() && $this->getFormat() == $format ) {
-			return false;
-		}
-
-		$this->_change($this->tabell, 't_v_format', 513, $format);
-		parent::setFormat( $format );
-		return true;
-	}
-
-	public function setType( $type ) {
-		if( $this->_loaded() && $this->getType() == $type ) {
-			return false;
-		}
-
-		$this->_change($this->tabell, 't_e_type', 516, $type);
-		parent::setType( $type );
-		return true;
-	}
-
-	public function setBeskrivelse( $beskrivelse ) {
-		if( $this->_loaded() && $this->getBeskrivelse() == $beskrivelse ) {
-			return false;
-		}
-
-		$this->_change($this->tabell, 't_e_comments', 517, $beskrivelse);
-		parent::setBeskrivelse( $beskrivelse );
-		return true;
-	}
-
-	public function setInstrumental( $instrumental ) {
-		if( $this->_loaded() && $this->erInstrumental() == $instrumental ) {
-			return false;
-		}
-
-		$this->_change($this->tabell, 't_instrumental', 504, $instrumental);
-		parent::setInstrumental( $instrumental );
-		return true;
-	}
-
-	public function setSelvlaget( $selvlaget ) {
-		if( $this->_loaded() && $this->erSelvlaget() == $selvlaget ) {
-			return false;
-		}
-
-		$this->_change($this->tabell, 't_selfmade', 505, $selvlaget);
-		parent::setSelvlaget( $selvlaget );
-		return true;
-	}
-
-	public function setTekstAv( $tekstforfatter ) {
-		if( $this->_loaded() && $this->getTekstAv() == $tekstforfatter ) {
-			return false;
-		}
-
-		$this->_change($this->tabell, 't_titleby', 506, $tekstforfatter);
-		parent::setTekstAv( $selvlaget );
-		return true;
-	}
-
-	public function setMelodiAv( $melodi_av ) {
-		if( $this->_loaded() && $this->getMelodiAv() == $melodi_av ) {
-			return false;
-		}
-
-		$this->_change($this->tabell, 't_musicby', 507, $melodi_av);
-		parent::setMelodiAv( $selvlaget );
-		return true;
-	}
-
-	public function setKoreografiAv( $koreografi_av ) {
-		if( $this->_loaded() && $this->getKoreografiAv() == $koreografi_av ) {
-			return false;
-		}
-
-		$this->_change($this->tabell, 't_coreography', 508, $koreografi_av);
-		parent::setKoreografiAv( $koreografi_av );
-		return true;
-	}
-
-	public function setLitteraturLesOpp( $lese_opp ) {
-		if( $this->_loaded() && $this->getLitteraturLesOpp() == $lese_opp ) {
-			return false;
-		}
-
-		$this->_change($this->tabell, 't_litterature_read', 509, $lese_opp);
-		parent::setLitteraturLesOpp( $lese_opp );
-		return true;	
-	}
-
-	#### INTERNAL FUNCTIONS
-	public function getChanges() {
-		return $this->changes;
-	}
-
-	private function _resetChanges() {
-		$this->changes = [];
+		
+		throw new Exception(
+			'Kunne ikke fjerne '. $tittel_save->getTittel() .' fra innslaget. ',
+			50514
+		);
 	}
 	
-	private function _change( $tabell, $felt, $action, $value ) {
-		$data = array(	'tabell'	=> $tabell,
-						'felt'		=> $felt,
-						'action'	=> $action,
-						'value'		=> $value
-					);
-		$this->changes[ $tabell .'|'. $felt ] = $data;
-	}
-	
-	private function _setLoaded() {
-		$this->loaded = true;
-		$this->_resetChanges();
-		return $this;
+
+
+
+	/********************************************************************************
+	 *
+	 *
+	 * LEGG TIL-HJELPERE
+	 *
+	 *
+	 ********************************************************************************/
+	/**
+	 * Legg til en tittel på videresendt nivå
+	 *
+	 * @param tittel_v2 $tittel_save
+	**/
+	private function _leggTilVideresend( $tittel_save ) {
+		$test_relasjon = new SQL(
+			"SELECT * FROM `smartukm_fylkestep`
+				WHERE `pl_id` = '#pl_id'
+				AND `b_id` = '#b_id'
+				AND `t_id` = '#t_id'",
+			[
+				'pl_id'		=> $tittel_save->getContext()->getMonstring()->getId(), 
+		  		'b_id'		=> $tittel_save->getContext()->getInnslag()->getId(), 
+				't_id'		=> $tittel_save->getId(),
+			]
+		);
+		$test_relasjon = $test_relasjon->run();
+		
+		// Hvis allerede videresendt, alt ok
+		if( mysql_num_rows($test_relasjon) > 0 ) {
+			return true;
+		}
+		// Videresend tittelen
+		else {
+			$videresend_tittel = new SQLins('smartukm_fylkestep');
+			$videresend_tittel->add('pl_id', $tittel_save->getContext()->getMonstring()->getId() );
+			$videresend_tittel->add('b_id', $tittel_save->getContext()->getInnslag()->getId() );
+			$videresend_tittel->add('t_id', $tittel_save->getId() );
+
+			$log_msg = $tittel_save->getId().': '. $tittel_save->getTittel() .' => PL: '. $tittel_save->getContext()->getMonstring()->getId();
+			UKMlogger::log( 322, $tittel_save->getContext()->getInnslag()->getId(), $log_msg );
+			$res = $videresend_tittel->run();
+		
+			if( $res ) {
+				return true;
+			}
+		}
+
+		throw new Exception(
+			'Kunne ikke videresende '. $tittel_save->getTittel(),
+			50516
+		);
 	}
 
-	private function _loaded() {
-		return $this->loaded;
-	}	
+	
+	/********************************************************************************
+	 *
+	 *
+	 * FJERN-HJELPERE
+	 *
+	 *
+	 ********************************************************************************/
+	
+	/**
+	 * Fjern en tittel fra innslaget helt
+	 * @param tittel_v2 $tittel_save
+	**/
+	private static function _fjernLokalt( $tittel_save ) {
+		UKMlogger::log( 327, $tittel_save->getContext()->getInnslag()->getId(), $tittel_save->getId() .': '. $tittel_save->getTittel() );
+		$qry = new SQLdel( 
+			$tittel_save->getTable(), 
+			[
+				't_id' => $tittel_save->getId(),
+				'b_id' => $tittel_save->getContext()->getInnslag()->getId(),
+			]
+		);
+		$res = $qry->run();
+
+		if($res == 1) {
+			return true;
+		}
+
+		throw new Exception(
+			'Klarte ikke fjerne tittel ' . $tittel->getTittel(),
+			50515
+		);
+	}
+	
+	/**
+	 * 
+	 * Avrelaterer en tittel fra dette innslaget.
+	 *
+	 * @param tittel_v2 $tittel_save
+	 *
+	 * @return (bool true|throw exception)
+	 */
+	public function _fjernVideresend( $tittel_save ) {
+		$videresend_tittel = new SQLdel(
+			'smartukm_fylkestep', 
+			[
+				'pl_id' 	=> $tittel_save->getContext()->getMonstring()->getId(),
+				'b_id' 		=> $tittel_save->getContext()->getInnslag()->getId(),
+				't_id' 		=> $tittel_save->getId()
+			]
+		);
+		$log_msg = $tittel_save->getId().': '. $tittel_save->getTittel() .' => PL: '. $tittel_save->getContext()->getMonstring()->getId();
+		UKMlogger::log( 321, $tittel_save->getContext()->getInnslag()->getId(), $log_msg );
+
+		$res = $videresend_tittel->run();
+		
+		if( $res ) {
+			return true;
+		}
+
+		throw new Exception(
+			'Kunne ikke avmelde '. $tittel_save->getTittel() .' fra mønstringen',
+			50907
+		);
+ 	}
+
+
+	/********************************************************************************
+	 *
+	 *
+	 * VALIDER INPUT-PARAMETRE
+	 *
+	 *
+	 ********************************************************************************/
+	
+	/**
+	 * Valider at gitt tittel-objekt er av riktig type
+	 * og har en numerisk Id som kan brukes til database-modifisering
+	 *
+	 * @param tittel_V2 $tittel
+	 * @return void
+	**/
+	public static function validerTittel( $tittel ) {
+		if( !is_object( $tittel ) || get_class( $tittel ) != 'tittel_v2' ) {
+			throw new Exception(
+				'Tittel må være objekt av klassen tittel_v2',
+				50905
+			);
+		}
+		if( !is_numeric( $tittel->getId() ) || $tittel->getId() <= 0 ) {
+			throw new Exception(
+				'Tittel-objektet må ha en numerisk ID større enn null',
+				50906
+			);
+		}
+	}
+	
+	
+	/**
+	 * Valider alle input-parametre for å legge til ny tittel
+	 *
+	 * @see leggTil
+	**/
+	private static function _validerLeggtil( $tittel_save ) {
+		// Valider input-data
+		try {
+			write_tittel::validerTittel( $tittel_save );
+		} catch( Exception $e ) {
+			throw new Exception(
+				'Kan ikke legge til/fjerne tittel. '. $e->getMessage(),
+				$e->getCode()
+			);
+		}
+		
+		// Valider kontekst (tilknytning til mønstring)
+		if( $tittel_save->getContext()->getMonstring() == null ) {
+			throw new Exception(
+				'Kan ikke legge til/fjerne tittel. '.
+				'Tittel-objektet er ikke opprettet i riktig kontekst',
+				50911
+			);
+		}
+		// Valider kontekst (tilknytning til innslag)
+		if( $tittel_save->getContext()->getInnslag() == null ) {
+			throw new Exception(
+				'Kan ikke legge til/fjerne tittel. '.
+				'Tittel-objektet er ikke opprettet i riktig kontekst',
+				50912
+			);
+		}
+	}
 }

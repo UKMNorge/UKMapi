@@ -2,17 +2,20 @@
 require_once('UKM/person.class.php');
 
 class personer {
-	
+	var $context = null;
 	var $innslag_id = null;
 	var $innslag_type = null;
+	
 	var $personer = null;
 	var $personer_videresendt = null;
 	var $personer_ikke_videresendt = null;
 	var $debug = false;
 	
-	public function __construct( $innslag_id, $innslag_type ) {
-		$this->_setInnslagType( $innslag_type );
+	public function __construct( $innslag_id, $innslag_type, $context ) {
 		$this->_setInnslagId( $innslag_id );
+		$this->_setInnslagType( $innslag_type );
+		$this->_setContext( $context );
+
 		$this->_load();
 	}
 
@@ -45,13 +48,15 @@ class personer {
 	
 	/**
 	 * getAllVideresendt
-	 * Hent alle personer i innslaget videresendt til gitt mønstring
+	 * Hent alle personer i innslaget videresendt til GITT mønstring
 	 *
 	 * @param int $pl_id
 	 * @return bool
 	**/
-	public function getAllVideresendt( $pl_id ) {
-		if( is_object( $pl_id ) && get_class( $pl_id ) == 'monstring_v2' ) {
+	public function getAllVideresendt( $pl_id=false ) {
+		if( $pl_id == false ) {
+			$pl_id = $this->getContext()->getMonstring()->getId();
+		} elseif( is_object( $pl_id ) && get_class( $pl_id ) == 'monstring_v2' ) {
 			$pl_id = $pl_id->getId();
 		}
 		if( null == $this->personer_videresendt ) {
@@ -67,13 +72,15 @@ class personer {
 
 	/**
 	 * getAllIkkeVideresendt
-	 * Hent alle personer i innslaget videresendt til gitt mønstring
+	 * Hent alle personer i innslaget videresendt til GITT mønstring
 	 *
 	 * @param int $pl_id
 	 * @return bool
 	**/
-	public function getAllIkkeVideresendt( $pl_id ) {
-		if( is_object( $pl_id ) && get_class( $pl_id ) == 'monstring_v2' ) {
+	public function getAllIkkeVideresendt( $pl_id=false ) {
+		if( $pl_id == false ) {
+			$pl_id = $this->getContext()->getMonstring()->getId();
+		} elseif( is_object( $pl_id ) && get_class( $pl_id ) == 'monstring_v2' ) {
 			$pl_id = $pl_id->getId();
 		}
 		if( null == $this->personer_ikke_videresendt ) {
@@ -98,14 +105,25 @@ class personer {
 		return sizeof( $this->getAll() );
 	}
 	
+	public function getAntallVideresendt( $pl_id=false ) {
+		return sizeof( $this->getAllVideresendt( $pl_id ) );
+	}
+
+	public function getAntallIkkeVideresendt( $pl_id=false ) {
+		return sizeof( $this->getAllIkkeVideresendt( $pl_id ) );
+	}
+	
 	/**
-	 * getById
+	 * get
+	 *
 	 * Finn en person med gitt ID
+	 *
+	 * @alias getById
 	 *
 	 * @param integer id
 	 * @return person
 	**/
-	public function getById( $id ) {
+	public function get( $id ) {
 		if( is_object( $id ) && get_class( $id ) == 'person_v2' ) {
 			$id = $id->getId();
 		}
@@ -118,7 +136,10 @@ class personer {
 				return $person;
 			}
 		}
-		throw new Exception('PERSONER_COLLECTION: Kunne ikke finne person '. $id .' i innslag '. $this->_getInnslagId(), 2);
+		throw new Exception('PERSONER_COLLECTION: Kunne ikke finne person '. $id .' i innslag '. $this->getInnslagId(), 2); // OBS: code brukes av harPerson
+	}
+	public function getById( $id ) {
+		return $this->get( $id );
 	}
 
 	/**
@@ -138,6 +159,9 @@ class personer {
 			}
 			throw $e;
 		}
+	}
+	public function har( $person ) {
+		return $this->harPerson( $person );
 	}
 	
 	/**
@@ -161,246 +185,69 @@ class personer {
 	/********************************************************************************
 	 *
 	 *
-	 * DATABASE MODIFYING FUNCTIONS (WRITE)
+	 * MODIFISER COLLECTIONS
 	 *
 	 *
 	 ********************************************************************************/
-
-	/**
-	 * Legger til en person i innslaget, og videresender til gitt mønstring
-	 *
-	 * @param write_person $person
-	 * @param write_monstring $monstring
-	 *
-	 * @return (bool true|throw exception)
-	 */
-	public function leggTil( $person, $monstring ) {
-		$this->_validateInput( $person, $monstring );
-
-		// Alltid legg til personen lokalt
-		$res = $this->_leggTilLokalt( $person );
-
-		// Videresend personen hvis ikke lokalmønstring
-		if( $res && $monstring->getType() != 'kommune' ) {
-			$res = $this->_leggTilVideresend( $person, $monstring );
+	public function leggTil( $person ) {
+		try {
+			write_person::validerPerson( $person );
+		} catch( Exception $e ) {
+			throw new Exception(
+				'Kunne ikke legge til person. '. $e->getMessage(),
+				10601
+			);
 		}
 		
-		if( $res ) {
-			return $this;
-		}
-		
-		throw new Exception('PERSONER_COLLECTION: Kunne ikke legge til '. $person->getNavn() .' i innslaget');
-	}
-	
-	/**
-	 * Fjern en videresendt person, og avmelder hvis gitt lokalmønstring
-	 *
-	 * @param write_person $person
-	 * @param write_monstring $monstring
-	 *
-	 * @return (bool true|throw exception)
-	 */
-	public function fjern( $person, $monstring ) {
-		$this->_validateInput( $person, $monstring );
-
-		if( $monstring->getType() == 'kommune' ) {
-			$res = $this->_fjernLokalt( $person, $monstring );
-		} else {
-			$res = $this->_fjernVideresend( $person, $monstring );
-		}
-		
-		if( $res ) {
+		// Hvis personen allerede er lagt til kan vi skippe resten
+		if( $this->harPerson( $person ) ) {
 			return true;
 		}
 		
-		throw new Exception('PERSONER_COLLECTION: Kunne ikke fjerne '. $person->getNavn() .' fra innslaget');
+		// Gi personen riktig context (hent fra collection, samme som new person herfra)
+		$person->setContext( $this->getContextInnslag() );
+		
+		// Legg til at personen skal være videresendt
+		if( $person->getContext()->getMonstring()->getType() != 'kommune' ) {
+			$status_videresendt = $person->getVideresendtTil(); // henter et array av mønstringer personen er videresendt til
+			$status_videresendt[] = $person->getContext()->getMonstring()->getid(); // legger til denne mønstringer
+			$person->setVideresendtTil( $status_videresendt ); // "lagrer"
+		}
+		
+		// Legg til personen i collection
+		$this->personer[ $person->getId() ] = $person;
+
+		return true;
 	}
-	
+
+	public function fjern( $person ) {
+		try {
+			write_person::validerPerson( $person );
+		} catch( Exception $e ) {
+			throw new Exception(
+				'Kunne ikke fjerne person. '. $e->getMessage(),
+				10601
+			);
+		}
+		
+		if( !$this->harPerson( $person ) ) {
+			return true;
+		}
+		
+		unset( $this->personer[ $person->getId() ] );
+
+		return true;
+	}
+
 
 
 	/********************************************************************************
 	 *
 	 *
-	 * PRIVATE HELPER FUNCTIONS
+	 * INTERNE HJELPE-FUNKSJONER
 	 *
 	 *
 	 ********************************************************************************/
-	
-	/**
-	 * Valider at alle input-parametre er klare for write-actions
-	 *
-	 * @param write_person $person
-	 * @param write_monstring $monstring
-	 * @return void
-	**/
-	private function _validateInput( $person, $monstring ) {
-		// Personen
-		if( 'write_person' != get_class( $person ) ) {
-			throw new Exception('PERSONER_COLLECTION: Kan ikke legge til eller fjerne en person som ikke er skrivbar');
-		}
-		if( !is_numeric( $person->getId() ) ) {
-			throw new Exception('PERSONER_COLLECTION: Kan ikke legge til eller fjerne en person uten numerisk ID!');
-		}
-		
-		// Innslaget
-		if( null == $this->_getInnslagId() || empty( $this->_getInnslagId() ) ) {
-			throw new Exception('PERSONER_COLLECTION: Kan ikke legge til eller fjerne en person når innslag-ID er tom');
-		}
-		if( !is_numeric( $this->_getInnslagId() ) ) {
-			throw new Exception('PERSONER_COLLECTION: Kan ikke legge til eller fjerne en person i innslag med ikke-numerisk ID');
-		}
-		
-		// Mønstringen
-		if( 'write_monstring' != get_class( $monstring ) ) {
-			throw new Exception("PERSONER_COLLECTION: Kan ikke legge til eller fjerne en person uten skriverettigheter for mønstringen.");
-		}
-		if( !is_numeric( $monstring->getId() ) ) {
-			throw new Exception("PERSONER_COLLECTION: Kan ikke legge til eller fjerne en person i en mønstring uten numerisk ID!");
-		}
-	}
-	
-	/**
-	 * Legg til en person på lokalnivå (ikke videresend)
-	 *
-	 * @param write_person $person
-	 * @return bool $success
-	**/
-	private function _leggTilLokalt( $person ) {
-		// Er personen allerede lagt til i innslaget?
-		$sql = new SQL("SELECT COUNT(*) 
-						FROM smartukm_rel_b_p 
-						WHERE 'b_id' = '#b_id' 
-							AND 'p_id' = '#p_id'",
-						array(	'b_id' => $this->_getInnslagId(), 
-								'p_id' => $person->getId()) 
-						);
-		$exists = $sql->run('field', 'COUNT(*)');
-		if($exists) {
-			return true;
-		}
-
-		// Legg til i innslaget
-		$sql = new SQLins("smartukm_rel_b_p");
-		$sql->add('b_id', $this->_getInnslagId());
-		$sql->add('p_id', $person->getId());
-
-		UKMlogger::log( 324, $this->_getInnslagId(), $person->getId().': '. $person->getNavn() );
-		$res = $sql->run();
-		
-		if(false == $res)
-			return false;
-		
-		// Load re-initierer collection-arrayet
-		$this->_load();
-		
-		return true;
-	}
-	
-	/**
-	 * Legg til en person på videresendt nivå
-	 * Vil automatisk legge til personen på lokalt nivå
-	 *
-	 * @param write_person $person
-	 * @param write_monstring $monstring
-	**/
-	private function _leggTilVideresend( $person, $monstring ) {
-		// FOR INNSLAG I KATEGORI 1 (SCENE) FØLGER ALLE DELTAKERE ALLTID INNSLAGET VIDERE
-		if( $this->_getInnslagType()->getId() == 1 ) {
-			return true;
-		}
-		
-		$test_relasjon = new SQL(
-			"SELECT * FROM `smartukm_fylkestep_p`
-				WHERE `pl_id` = '#pl_id'
-				AND `b_id` = '#b_id'
-				AND `p_id` = '#p_id'",
-			[
-				'pl_id'		=> $monstring->getId(), 
-		  		'b_id'		=> $this->_getInnslagId(), 
-				'p_id'		=> $person->getId(),
-			]
-		);
-		$test_relasjon = $test_relasjon->run();
-		
-		// Hvis allerede videresendt, alt ok
-		if( mysql_num_rows($test_relasjon) > 0 ) {
-			return true;
-		}
-		// Videresend personen
-		else {
-			$videresend_person = new SQLins('smartukm_fylkestep_p');
-			$videresend_person->add('pl_id', $monstring->getId() );
-			$videresend_person->add('b_id', $this->_getInnslagId() );
-			$videresend_person->add('p_id', $person->getId() );
-
-			UKMlogger::log( 320, $this->_getInnslagId(), $person->getId().': '. $person->getNavn() .' => '. $monstring->getNavn() );
-			$res = $videresend_person->run();
-		
-			if( $res ) {
-				return true;
-			}
-		}
-
-		throw new Exception('PERSONER_COLLECTION: Kunne ikke videresende '. $person->getNavn() .' fra innslaget' );
-	}
-
-
-	/**
-	 * Fjerner en person helt fra innslaget (avmelding lokalnivå)
-	 *
-	 * @param write_person $person
-	 * @param write_monstring $monstring
-	 *
-	 * @return (bool true|throw exception)
-	 */	 
-	private function _fjernLokalt( $person, $monstring ) {
-		$sql = new SQLdel("smartukm_rel_b_p", 
-			array( 	'b_id' => $this->_getInnslagId(),
-					'p_id' => $person->getId(),
-					));
-		UKMlogger::log( 325, $this->_getInnslagId(), $person->getId().': '. $person->getNavn() );
-		$res = $sql->run();
-		if( $res ) {
-			return true;
-		}
-		throw new Exception('PERSONER_COLLECTION: Kunne ikke fjerne personen fra innslaget');
-	}
-
-	/**
-	 * 
-	 * Avrelaterer en person til dette innslaget.
-	 *
-	 * @param write_person $person
-	 * @param write_monstring $monstring
-	 *
-	 * @return (bool true|throw exception)
-	 */
-	public function _fjernVideresend( $person, $monstring ) {
-		// FOR INNSLAG I KATEGORI 1 (SCENE) FØLGER ALLE DELTAKERE ALLTID INNSLAGET VIDERE
-		if( $this->_getInnslagType()->getId() == 1 ) {
-			return false;
-		}
-
-		$videresend_person = new SQLdel(
-			'smartukm_fylkestep_p', 
-			[
-				'pl_id' 	=> $monstring->getId(),
-				'b_id' 		=> $this->_getInnslagId(),
-				'p_id' 		=> $person->getId()
-			]
-		);
-		UKMlogger::log( 321, $this->_getInnslagId(), $person->getId().': '. $person->getNavn() .' => '. $monstring->getNavn() );
-
-		$res = $videresend_person->run();
-		
-		if( $res ) {
-			return true;
-		}
-
-		throw new Exception('PERSONER_COLLECTION: Kunne ikke avmelde '. $person->getNavn() .' fra innslaget' );
-	}
-
-
 	/**
 	 * Last inn alle personer i samlingen
 	**/
@@ -425,7 +272,7 @@ class personer {
 						ORDER BY 
 							`participant`.`p_firstname` ASC, 
 							`participant`.`p_lastname` ASC",
-						array('bid' => $this->_getInnslagId() ));
+						array('bid' => $this->getInnslagId() ));
 		$res = $SQL->run();
 		if( isset( $_GET['debug'] ) || $this->debug )  {
 			echo $SQL->debug();
@@ -435,18 +282,23 @@ class personer {
 		}
 		while( $r = mysql_fetch_assoc( $res ) ) {
 			$person = new person_v2( $r );
+			$person->setContext( $this->getContextInnslag() );
 			$this->personer[ $person->getId() ] = $person;
 		}
 	}
 	
+
+	public function getInnslagId() {
+		return $this->innslag_id;
+	}
 	private function _setInnslagId( $bid ) {
 		$this->innslag_id = $bid;
 		return $this;
+	}	
+
+	public function getInnslagType() {
+		return $this->innslag_type;
 	}
-	private function _getInnslagId() {
-		return $this->innslag_id;
-	}
-	
 	private function _setInnslagType( $type ) {
 		if( is_object( $type ) && get_class( $type ) == 'innslag_type' ) {
 			$this->innslag_type = $type;
@@ -454,8 +306,22 @@ class personer {
 		}
 		throw new Exception('PERSONER_COLLECTION: Innslag-type må være angitt som objekt');
 	}
+
+	private function _setContext( $context ) {
+		$this->context = $context;
+		return $this;
+	}
+	public function getContext() {
+		return $this->context;
+	}
 	
-	private function _getInnslagType() {
-		return $this->innslag_type;
+	public function getContextInnslag() {
+		return context::createInnslag(
+			$this->getInnslagId(),								// Innslag ID
+			$this->getInnslagType(),							// Innslag type (objekt)
+			$this->getContext()->getMonstring()->getId(),		// Mønstring ID
+			$this->getContext()->getMonstring()->getType(),		// Mønstring type
+			$this->getContext()->getMonstring()->getSesong()	// Mønstring sesong
+		);
 	}
 }

@@ -2,6 +2,10 @@
 require_once('UKM/tid.class.php');
 	
 class titler {
+	var $context = null;
+	var $innslag_id = null;
+	var $innslag_type = null;
+
 	var $titler = null;
 	var $titler_videresendt = null;
 	var $titler_ikke_videresendt = null;
@@ -12,20 +16,18 @@ class titler {
 	var $varighet = 0;
 	var $varighet_ikke_videresendt = 0;
 	
-	var $innslag_id = null;
-	var $innslag_type = null;
-	
 	var $monstring_type = null;
 	var $monstring_sesong = null;
 	var $monstring_id = null;
 
 		
-	public function __construct( $innslag_id, $innslag_type, $monstring ) {
+	public function __construct( $innslag_id, $innslag_type, $context ) {
 		$this->_setInnslagId( $innslag_id );
 		$this->_setInnslagType( $innslag_type );
-		$this->_setMonstringId( $monstring->getId() );
-		$this->_setMonstringType( $monstring->getType() );
-		$this->_setMonstringSesong( $monstring->getSesong() );
+		$this->_setContext( $context );
+
+		// Sett hvilken tabell som skal brukes
+		$this->_setTable( $this->getInnslagType()->getTabell() );
 	}
 
 	/** 
@@ -45,16 +47,41 @@ class titler {
 	 * @return person
 	**/
 	public function get( $id ) {
+		if( is_object( $id ) && get_class( $id ) == 'tittel_v2' ) {
+			$id = $id->getId();
+		}
 		foreach( $this->getAll() as $tittel ) {
 			if( $tittel->getId() == $id ) {
 				return $tittel;
 			}
 		}
-		throw new Exception('PERSONER_V2: Kunne ikke finne tittel '. $id .' i innslag '. $this->_getInnslagId());
+		// Ingen grunn til å ikke la folk finne tittelen de leter etter
+		// når de har ID (så fremt den tilhører innslaget da)
+		foreach( $this->getAllIkkeVideresendt() as $tittel ) {
+			if( $tittel->getId() == $id ) {
+				return $tittel;
+			}
+		}
+		throw new Exception('TITLER: Kunne ikke finne tittel '. $id .' i innslag '. $this->getInnslagId(), 2); // OBS: code brukes av har()
 	}
 
-
-
+	/**
+	 * Er tittelen med i innslaget. OBS: Tar ikke høyde for videresending!
+	 *
+	 * @param object person
+	 * @return boolean
+	**/
+	public function har( $har_tittel ) {
+		try {
+			$this->get( $har_tittel );
+			return true;
+		} catch( Exception $e ) {
+			if( $e->getCode() == 2 ) {
+				return false;
+			}
+			throw $e;
+		}
+	}
 
 	/********************************************************************************
 	 *
@@ -109,61 +136,65 @@ class titler {
 	/********************************************************************************
 	 *
 	 *
-	 * DATABASE MODIFYING FUNCTIONS (WRITE)
+	 * MODIFISER COLLECTIONS
 	 *
 	 *
 	 ********************************************************************************/
-
-	/**
-	 * Fjern en videresendt tittel, og meld av hvis gitt lokalmønstring
-	 *
-	 * @param write_tittel $tittel
-	 * @param write_monstring $monstring
-	 *
-	 * @return (bool true|throw exception)
-	 */
-	public function fjern( $tittel, $monstring ) {
-		$this->_validateInput( $tittel, $monstring );
-
-		if( $monstring->getType() == 'kommune' ) {
-			$res = $this->_fjernLokalt( $tittel, $monstring );
-		} else {
-			$res = $this->_fjernVideresend( $tittel, $monstring );
+	public function leggTil( $tittel ) {
+		try {
+			write_tittel::validerTittel( $tittel );
+		} catch( Exception $e ) {
+			throw new Exception(
+				'Kunne ikke legge til tittel. '. $e->getMessage(),
+				10801
+			);
 		}
 		
-		if( $res ) {
+		// Hvis tittelen allerede er lagt til kan vi skippe resten
+		if( $this->har( $tittel ) ) {
 			return true;
 		}
 		
-		throw new Exception('PERSONER_COLLECTION: Kunne ikke fjerne '. $tittel->getTittel() .' fra innslaget');
+		// Gi tittelen riktig context (hent fra collection, samme som new tittel herfra)
+		$tittel->setContext( $this->getContextInnslag() );
+		
+		// Legg til at tittelen skal være videresendt
+		if( $tittel->getContext()->getMonstring()->getType() != 'kommune' ) {
+			$status_videresendt = $tittel->getVideresendtTil(); // henter et array av mønstringID'er tittelen er videresendt til
+			$status_videresendt[] = $tittel->getContext()->getMonstring()->getid(); // legg til denne mønstringen
+			$tittel->setVideresendtTil( $status_videresendt ); // "lagre"
+		}
+		
+		// Legg til tittelen i collection
+		$this->titler_videresendt[] = $tittel;
+
+		return true;
 	}
+
+	public function fjern( $tittel ) {
+		try {
+			write_tittel::validerTittel( $tittel );
+		} catch( Exception $e ) {
+			throw new Exception(
+				'Kunne ikke legge til tittel. '. $e->getMessage(),
+				10801
+			);
+		}
+
+		// Hvis tittelen ikke er her, så slipper vi å fjerne den
+		if( !$this->har( $tittel ) ) {
+			return true;
+		}
 	
-	/**
-	 * Legger til en tittel i innslaget, og videresender til gitt mønstring
-	 *
-	 * @param write_tittel $tittel
-	 * @param write_monstring $monstring
-	 *
-	 * @return (bool true|throw exception)
-	 */
-	public function leggTil( $tittel, $monstring ) {
-		// En tittel er alltid lagt til lokalt (pga databaserelasjonen)
-		// Videresend tittelen hvis ikke lokalmønstring
-		if( $monstring->getType() == 'kommune' ) {
-			return true;
+		foreach( $this->titler_videresendt as $pos => $tittel_search ) {
+			if( $tittel->getId() == $tittel_search->getId() ) {
+				unset( $this->titler_videresendt[ $pos ] );
+			}
 		}
-
-		$this->_validateInput( $tittel, $monstring );
-
-		$res = $this->_leggTilVideresend( $tittel, $monstring );
-		if( $res ) {
-			return $this;
-		}
-		
-		$this->_load();
-
-		throw new Exception('TITLER: Kunne ikke legge til '. $tittel->getTittel() .' i innslaget');
+	
+		return true;
 	}
+
 
 
 
@@ -200,142 +231,6 @@ class titler {
 	 *
 	 *
 	 ********************************************************************************/
-	
-	/**
-	 * Valider at alle input-parametre er klare for write-actions
-	 *
-	 * @param write_tittel $tittel
-	 * @param write_monstring $monstring
-	 * @return void
-	**/
-	private function _validateInput( $tittel, $monstring ) {
-		// Tittelen
-		if( 'write_tittel' != get_class($tittel) ) {
-			throw new Exception("TITLER_COLLECTION: Å legge til eller fjerne en tittel krever skriverettigheter til tittelen!");
-		}
-		if( !is_numeric( $tittel->getId() ) ) {
-			throw new Exception("TITLER_COLLECTION: Å legge til eller fjerne en tittel krever at tittelen har en numerisk ID!");
-		}
-		
-		// Innslaget
-		if( null == $this->_getInnslagId() || empty( $this->_getInnslagId() ) ) {
-			throw new Exception('TITLER_COLLECTION: Kan ikke legge til/fjerne tittel når innslag-ID er tom');
-		}
-		if( !is_numeric( $this->_getInnslagId() ) ) {
-			throw new Exception('TITLER_COLLECTION: Kan ikke legge til/fjerne tittel i innslag med ikke-numerisk ID');
-		}
-		
-		// Mønstringen
-		if( 'write_monstring' != get_class( $monstring ) ) {
-			throw new Exception("TITLER_COLLECTION: Kan ikke legge til/fjerne tittel uten skriverettigheter til mønstringen.");
-		}
-		if( !is_numeric( $monstring->getId() ) ) {
-			throw new Exception("TITLER_COLLECTION: Kan ikke legge til/fjerne tittel når mønstringen ikke har en numerisk ID!");
-		}
-	}
-	
-	/**
-	 * Fjern en tittel fra innslaget helt
-	 *
-	 * @param write_tittel $tittel
-	 * @param write_monstring $monstring
-	 * @return (bool true|throw exception)
-	 **/
-	private function _fjernLokalt( $tittel, $monstring ) {
-		if( $monstring->getType() !== 'kommune' ) {
-			throw new Exception('TITLER_COLLECTION: Trenger en lokalmønstring for å kunne slette tittelen!');
-		}
-		
-		UKMlogger::log( 327, $this->_getInnslagId(), $tittel->getId() .': '. $tittel->getTittel() );
-		$qry = new SQLdel( 
-			$this->_getTable(), 
-			[
-				't_id' => $tittel->getId(),
-				'b_id' => $this->_getInnslagId(),
-			]
-		);
-		$res = $qry->run();
-
-		if($res == 1) {
-			return true;
-		}
-
-		throw new Exception("TITLER: Klarte ikke fjerne tittel " . $tittel->getTittel());
-	}
-	
-	/**
-	 * 
-	 * Avrelaterer en tittel fra dette innslaget.
-	 *
-	 * @param write_tittel $tittel
-	 * @param write_monstring $monstring
-	 *
-	 * @return (bool true|throw exception)
-	 */
-	public function _fjernVideresend( $tittel, $monstring ) {
-		$videresend_tittel = new SQLdel(
-			'smartukm_fylkestep', 
-			[
-				'pl_id' 	=> $monstring->getId(),
-				'b_id' 		=> $this->_getInnslagId(),
-				't_id' 		=> $tittel->getId()
-			]
-		);
-		UKMlogger::log( 321, $this->_getInnslagId(), $tittel->getId().': '. $tittel->getTittel() .' => '. $monstring->getNavn() );
-
-		$res = $videresend_tittel->run();
-		
-		if( $res ) {
-			return true;
-		}
-
-		throw new Exception('TITLER_COLLECTION: Kunne ikke avmelde '. $tittel->getTittel() .' fra innslaget' );
- 	}
- 	
-	/**
-	 * Legg til en tittel på videresendt nivå
-	 *
-	 * @param write_tittel $tittel
-	 * @param write_monstring $monstring
-	**/
-	private function _leggTilVideresend( $tittel, $monstring ) {
-
-		$test_relasjon = new SQL(
-			"SELECT * FROM `smartukm_fylkestep`
-				WHERE `pl_id` = '#pl_id'
-				AND `b_id` = '#b_id'
-				AND `t_id` = '#t_id'",
-			[
-				'pl_id'		=> $monstring->getId(), 
-		  		'b_id'		=> $this->_getInnslagId(), 
-				't_id'		=> $tittel->getId(),
-			]
-		);
-		$test_relasjon = $test_relasjon->run();
-		
-		// Hvis allerede videresendt, alt ok
-		if( mysql_num_rows($test_relasjon) > 0 ) {
-			return true;
-		}
-		// Videresend tittelen
-		else {
-			$videresend_tittel = new SQLins('smartukm_fylkestep');
-			$videresend_tittel->add('pl_id', $monstring->getId() );
-			$videresend_tittel->add('b_id', $this->_getInnslagId() );
-			$videresend_tittel->add('t_id', $tittel->getId() );
-
-			UKMlogger::log( 322, $this->_getInnslagId(), $tittel->getId().': '. $tittel->getTittel() .' => '. $monstring->getNavn() );
-			$res = $videresend_tittel->run();
-		
-			if( $res ) {
-				return true;
-			}
-		}
-
-		throw new Exception('TITLER_COLLECTION: Kunne ikke videresende '. $tittel->getTittel() );
-	}
-
-
 	private function _load() {
 		$this->titler_videresendt = array();
 		$this->titler_ikke_videresendt = array();
@@ -346,7 +241,7 @@ class titler {
 
 		
 		// Til og med 2013-sesongen brukte vi tabellen "landstep" for videresending til land
-		if( 2014 > $this->_getMonstringSesong() && 'land' == $this->_getMonstringType() ) {
+		if( 2014 > $this->getContext()->getMonstring()->getSesong() && 'land' == $this->getContext()->getMonstring()->getType() ) {
 			$SQL = new SQL("SELECT `title`.*,
 								   `videre`.`id` AS `videre_if_not_empty`
 							FROM `#table` AS `title`
@@ -357,7 +252,7 @@ class titler {
 							ORDER BY `title`.`#titlefield`",
 						array('table' => $this->_getTable(),
 							  'titlefield' => $this->_getTableFieldnameTitle(),
-							  'b_id' => $this->_getInnslagId()
+							  'b_id' => $this->getInnslagId()
 							)
 						);
 		} else {
@@ -372,7 +267,7 @@ class titler {
 							ORDER BY `title`.`#titlefield`",
 						array('table' => $this->_getTable(),
 							  'titlefield' => $this->_getTableFieldnameTitle(),
-							  'b_id' => $this->_getInnslagId()
+							  'b_id' => $this->getInnslagId()
 							)
 						);
 			$res = $SQL->run();
@@ -384,15 +279,17 @@ class titler {
 				// til at den har pl_ids for å få lik funksjonalitet videre
 				if( isset( $row['videre_if_not_empty'] ) ) {
 					if( is_numeric( $row['videre_if_not_empty'] ) ) {
-						$row['pl_ids'] = $this->_getMonstringId();
+						$row['pl_ids'] = $this->getContext()->getMonstring()->getId();
 					} else {
 						$row['pl_ids'] = null;
 					}
 				}
 				// Legg til tittel i array
-				$tittel = new tittel_v2( $row, $this->_getInnslagType()->getTabell() );
+				$tittel = new tittel_v2( $row, $this->getInnslagType()->getTabell() );
+				$tittel->setContext( $this->getContextInnslag() );
+
 				
-				if( $this->_getMonstringType() == 'kommune' || $tittel->erVideresendt( $this->_getMonstringId() ) ) {
+				if( $this->getContext()->getMonstring()->getType() == 'kommune' || $tittel->erVideresendt( $this->getContext()->getMonstring()->getId() ) ) {
 					$this->titler_videresendt[] = $tittel;
 					$varighet_videresendt += $tittel->getVarighetSomSekunder();
 				} else {
@@ -408,109 +305,7 @@ class titler {
 		}
 		return $this->titler_videresendt;
 	}
-
-		
-	/**
-	 * Sett ID
-	 *
-	 * @param integer id 
-	 *
-	 * @return $this
-	**/
-	public function _setInnslagId( $id ) {
-		$this->innslag_id = $id;
-		return $this;
-	}
-	/**
-	 * Hent ID
-	 * @return integer $id
-	**/
-	public function _getInnslagId() {
-		return $this->innslag_id;
-	}
 	
-	/**
-	 * Sett type
-	 * Hvilken kategori faller innslaget inn under?
-	 *
-	 * @param integer $type
-	 * @param string $kategori
-	 *
-	 * @return $this;
-	**/
-	public function _setInnslagType( $type ) {
-		$this->innslag_type = $type; 
-
-		// Sett hvilken tabell som skal brukes
-		$this->_setTable( $this->_getInnslagType()->getTabell() );
-		return $this;
-	}
-	/**
-	 * Hent type
-	 * Hvilken kategori innslaget faller inn under
-	 *
-	 * @return innslag_type $type
-	**/
-	private function _getInnslagType( ) {
-		return $this->innslag_type;
-	}
-	
-	/**
-	 * Sett mønstringsid (PLID)
-	 *
-	 * @param string $type
-	 * @return $this
-	**/
-	private function _setMonstringId( $pl_id ) {
-		$this->monstring_id = $pl_id;
-		return $this;
-	}
-	/**
-	 * Hent mønstringsid (PLID)
-	 *
-	 * @return $this
-	**/
-	private function _getMonstringId() {
-		return $this->monstring_id;
-	}
-	
-	/**
-	 * Sett mønstringstype
-	 *
-	 * @param string $type
-	 * @return $this
-	**/
-	private function _setMonstringType( $type ) {
-		$this->monstring_type = $type;
-		return $this;
-	}
-	/**
-	 * Hent mønstringstype
-	 *
-	 * @return string $type
-	**/
-	private function _getMonstringType() {
-		return $this->monstring_type;
-	}
-	
-	/**
-	 * Sett sesong
-	 *
-	 * @param int $seson
-	 * @return $this
-	**/
-	private function _setMonstringSesong( $sesong ) {
-		$this->monstring_sesong = $sesong;
-		return $this;
-	}
-	/**
-	 * Hent sesong
-	 *
-	 * @return int $sesong
-	**/
-	private function _getMonstringSesong() {
-		return $this->monstring_sesong;
-	}	
 	/**
 	 * Sett tabellnavn
 	 *
@@ -570,4 +365,43 @@ class titler {
 		return $this->table_field_title;
 	}
 
+
+
+
+	public function getInnslagId() {
+		return $this->innslag_id;
+	}
+	private function _setInnslagId( $bid ) {
+		$this->innslag_id = $bid;
+		return $this;
+	}	
+
+	public function getInnslagType() {
+		return $this->innslag_type;
+	}
+	private function _setInnslagType( $type ) {
+		if( is_object( $type ) && get_class( $type ) == 'innslag_type' ) {
+			$this->innslag_type = $type;
+			return $this;
+		}
+		throw new Exception('TITLER_COLLECTION: Innslag-type må være angitt som objekt');
+	}
+
+	private function _setContext( $context ) {
+		$this->context = $context;
+		return $this;
+	}
+	public function getContext() {
+		return $this->context;
+	}
+	
+	public function getContextInnslag() {
+		return context::createInnslag(
+			$this->getInnslagId(),								// Innslag ID
+			$this->getInnslagType(),							// Innslag type (objekt)
+			$this->getContext()->getMonstring()->getId(),		// Mønstring ID
+			$this->getContext()->getMonstring()->getType(),		// Mønstring type
+			$this->getContext()->getMonstring()->getSesong()	// Mønstring sesong
+		);
+	}
 }
