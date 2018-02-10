@@ -160,12 +160,12 @@ class titler {
 		
 		// Legg til at tittelen skal være videresendt
 		if( $tittel->getContext()->getMonstring()->getType() != 'kommune' ) {
-			$status_videresendt = $tittel->getVideresendtTil();
-			$status_videresendt[] = $tittel->getContext()->getMonstring()->getid();
-			$tittel->setVideresendtTil( $status_videresendt );
+			$status_videresendt = $tittel->getVideresendtTil(); // henter et array av mønstringID'er tittelen er videresendt til
+			$status_videresendt[] = $tittel->getContext()->getMonstring()->getid(); // legg til denne mønstringen
+			$tittel->setVideresendtTil( $status_videresendt ); // "lagre"
 		}
 		
-		// Legg til personen i collection
+		// Legg til tittelen i collection
 		$this->titler_videresendt[] = $tittel;
 
 		return true;
