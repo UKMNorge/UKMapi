@@ -715,6 +715,15 @@ class innslag_v2 {
 		return $this->getTitler()->getVarighet();
 	}
 	
+	/**
+	 * Reset personer collection (kun på objektbasis)
+	 *
+	**/
+	public function resetPersonerCollection() {
+		$this->personer_collection = null;
+		return $this;
+	}
+	
 	// TODO: Load valideringsadvarsler fra b_status_text
 	public function getAdvarsler() {
 		if( null == $this->advarsler ) {
