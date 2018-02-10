@@ -209,9 +209,9 @@ class personer {
 		
 		// Legg til at personen skal være videresendt
 		if( $person->getContext()->getMonstring()->getType() != 'kommune' ) {
-			$status_videresendt = $person->getVideresendtTil();
-			$status_videresendt[] = $person->getContext()->getMonstring()->getid();
-			$person->setVideresendtTil( $status_videresendt );
+			$status_videresendt = $person->getVideresendtTil(); // henter et array av mønstringer personen er videresendt til
+			$status_videresendt[] = $person->getContext()->getMonstring()->getid(); // legger til denne mønstringer
+			$person->setVideresendtTil( $status_videresendt ); // "lagrer"
 		}
 		
 		// Legg til personen i collection
