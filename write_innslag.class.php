@@ -676,7 +676,7 @@ class write_innslag {
 		if( mysql_num_rows($test_relasjon) > 0 ) {
 			return true;
 		}
-		// Videresend personen
+		// Videresend innslaget
 		else {
 			$videresend = new SQLins('smartukm_fylkestep');
 			$videresend->add('pl_id', $innslag->getContext()->getMonstring()->getId() );
