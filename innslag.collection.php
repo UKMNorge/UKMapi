@@ -313,7 +313,7 @@ class innslag_collection {
 			);
 		}
 		
-		// Hvis personen allerede er lagt til kan vi skippe resten
+		// Hvis innslaget allerede er lagt til kan vi skippe resten
 		if( $this->har( $innslag ) ) {
 			throw new Exception(
 				'Innslaget er allerede i lagt til',
@@ -321,7 +321,7 @@ class innslag_collection {
 			);
 		}
 		
-		// Gi innslaget riktig context (hent fra collection, samme som new person herfra)
+		// Gi innslaget riktig context (hent fra collection, samme som new innslag herfra)
 		$innslag->setContext( $this->getContext() );
 		
 		// Legg til innslaget i collection
