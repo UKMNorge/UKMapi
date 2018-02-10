@@ -77,7 +77,7 @@ class personer {
 	 * @param int $pl_id
 	 * @return bool
 	**/
-	public function getAllIkkeVideresendt( $pl_id ) {
+	public function getAllIkkeVideresendt( $pl_id=false ) {
 		if( $pl_id == false ) {
 			$pl_id = $this->getContext()->getMonstring()->getId();
 		} elseif( is_object( $pl_id ) && get_class( $pl_id ) == 'monstring_v2' ) {
