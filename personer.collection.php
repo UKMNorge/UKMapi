@@ -48,13 +48,15 @@ class personer {
 	
 	/**
 	 * getAllVideresendt
-	 * Hent alle personer i innslaget videresendt til gitt mønstring
+	 * Hent alle personer i innslaget videresendt til GITT mønstring
 	 *
 	 * @param int $pl_id
 	 * @return bool
 	**/
-	public function getAllVideresendt( $pl_id ) {
-		if( is_object( $pl_id ) && get_class( $pl_id ) == 'monstring_v2' ) {
+	public function getAllVideresendt( $pl_id=false ) {
+		if( $pl_id == false ) {
+			$pl_id = $this->getContext()->getMonstring()->getId();
+		} elseif( is_object( $pl_id ) && get_class( $pl_id ) == 'monstring_v2' ) {
 			$pl_id = $pl_id->getId();
 		}
 		if( null == $this->personer_videresendt ) {
@@ -70,13 +72,15 @@ class personer {
 
 	/**
 	 * getAllIkkeVideresendt
-	 * Hent alle personer i innslaget videresendt til gitt mønstring
+	 * Hent alle personer i innslaget videresendt til GITT mønstring
 	 *
 	 * @param int $pl_id
 	 * @return bool
 	**/
 	public function getAllIkkeVideresendt( $pl_id ) {
-		if( is_object( $pl_id ) && get_class( $pl_id ) == 'monstring_v2' ) {
+		if( $pl_id == false ) {
+			$pl_id = $this->getContext()->getMonstring()->getId();
+		} elseif( is_object( $pl_id ) && get_class( $pl_id ) == 'monstring_v2' ) {
 			$pl_id = $pl_id->getId();
 		}
 		if( null == $this->personer_ikke_videresendt ) {
@@ -99,6 +103,14 @@ class personer {
 	**/
 	public function getAntall() {
 		return sizeof( $this->getAll() );
+	}
+	
+	public function getAntallVideresendt( $pl_id=false ) {
+		return sizeof( $this->getAllVideresendt( $pl_id ) );
+	}
+
+	public function getAntallIkkeVideresendt( $pl_id=false ) {
+		return sizeof( $this->getAllIkkeVideresendt( $pl_id ) );
 	}
 	
 	/**
