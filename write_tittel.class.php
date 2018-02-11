@@ -212,7 +212,6 @@ class write_tittel {
 		// Hent innslaget fra gitt mønstring
 		$innslag_db = $monstring->getInnslag()->get( $tittel_save->getContext()->getInnslag()->getId(), true );
 		
-
 		if( $monstring->getType() == 'kommune' ) {
 			$res = write_tittel::_fjernLokalt( $tittel_save );
 		} else {
@@ -307,7 +306,6 @@ class write_tittel {
 			]
 		);
 		$res = $qry->run();
-
 		if($res == 1) {
 			return true;
 		}
