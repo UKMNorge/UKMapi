@@ -176,7 +176,7 @@ class titler {
 			write_tittel::validerTittel( $tittel );
 		} catch( Exception $e ) {
 			throw new Exception(
-				'Kunne ikke legge til tittel. '. $e->getMessage(),
+				'Kunne ikke fjerne tittel. '. $e->getMessage(),
 				10801
 			);
 		}
