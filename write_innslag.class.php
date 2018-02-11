@@ -283,7 +283,7 @@ class write_innslag {
 		// Opprett mønstringen innslaget kommer fra
 		$monstring = new monstring_v2( $innslag_save->getContext()->getMonstring()->getId() );
 		// Hent innslaget fra gitt mønstring
-		$innslag_db = $monstring->getInnslag()->get( $innslag_save->getId() );
+		$innslag_db = $monstring->getInnslag()->get( $innslag_save->getId(), true );
 
 		foreach( $innslag_save->getPersoner()->getAll() as $person ) {
 			if( !$innslag_db->getPersoner()->har( $person ) ) {
@@ -329,7 +329,7 @@ class write_innslag {
 		// Opprett mønstringen innslaget kommer fra
 		$monstring = new monstring_v2( $innslag_save->getContext()->getMonstring()->getId() );
 		// Hent innslaget fra gitt mønstring
-		$innslag_db = $monstring->getInnslag()->get( $innslag_save->getId() );
+		$innslag_db = $monstring->getInnslag()->get( $innslag_save->getId(), true );
 
 		foreach( $innslag_save->getTitler()->getAll() as $tittel ) {
 			if( !$innslag_db->getTitler()->har( $tittel ) ) {
@@ -374,7 +374,7 @@ class write_innslag {
 		// Opprett mønstringen innslaget kommer fra
 		$monstring = new monstring_v2( $innslag_save->getContext()->getMonstring()->getId() );
 		// Hent innslaget fra gitt mønstring
-		$innslag_db = $monstring->getInnslag()->get( $innslag_save->getId() );
+		$innslag_db = $monstring->getInnslag()->get( $innslag_save->getId(), true );
 
 		foreach( $innslag_save->getProgram()->getAllInkludertSkjulte() as $hendelse ) {
 			if( !$innslag_db->getProgram()->har( $hendelse ) ) {
@@ -586,6 +586,18 @@ class write_innslag {
 		
 		UKMlogger::log( 319, $innslag->getId(), $innslag->getContext()->getMonstring()->getId() );
 		$res = $SQLdel->run();
+		
+		// Fjern rel pl_b
+		$slett_relasjon = new SQLdel(
+			'smartukm_rel_pl_b',
+			[
+				'pl_id'		=> $innslag->getContext()->getMonstring()->getId(),
+				'b_id'		=> $innslag->getId(),
+				'season'	=> $innslag->getContext()->getMonstring()->getSesong(),
+			]
+		);
+		$slett_relasjon->run();
+
 	
 		if(1 == $res) {
 			return true;

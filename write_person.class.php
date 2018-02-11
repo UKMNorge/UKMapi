@@ -226,7 +226,7 @@ class write_person {
 		// Opprett mønstringen personen kommer fra
 		$monstring = new monstring_v2( $person_save->getContext()->getMonstring()->getId() );
 		// Hent innslaget fra gitt mønstring
-		$innslag_db = $monstring->getInnslag()->get( $person_save->getContext()->getInnslag()->getId() );
+		$innslag_db = $monstring->getInnslag()->get( $person_save->getContext()->getInnslag()->getId(), true );
 		// Hent personen fra gitt innslag
 		$person_db = $innslag_db->getPersoner()->get( $person_save->getId() );
 		
@@ -277,7 +277,7 @@ class write_person {
 		// Opprett mønstringen personen kommer fra
 		$monstring = new monstring_v2( $person_save->getContext()->getMonstring()->getId() );
 		// Hent innslaget fra gitt mønstring
-		$innslag_db = $monstring->getInnslag()->get( $person_save->getContext()->getInnslag()->getId() );
+		$innslag_db = $monstring->getInnslag()->get( $person_save->getContext()->getInnslag()->getId(), true );
 		
 		// Alltid legg til personen lokalt
 		$res = write_person::_leggTilLokalt( $person_save );
@@ -317,7 +317,7 @@ class write_person {
 		// Opprett mønstringen personen kommer fra
 		$monstring = new monstring_v2( $person_save->getContext()->getMonstring()->getId() );
 		// Hent innslaget fra gitt mønstring
-		$innslag_db = $monstring->getInnslag()->get( $person_save->getContext()->getInnslag()->getId() );
+		$innslag_db = $monstring->getInnslag()->get( $person_save->getContext()->getInnslag()->getId(), true );
 		
 
 		if( $monstring->getType() == 'kommune' || $person_save->getContext()->getInnslag()->getType()->getId() == 1 ) {

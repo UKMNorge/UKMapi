@@ -84,7 +84,7 @@ class write_tittel {
 		// Opprett mønstringen tittelen kommer fra
 		$monstring = new monstring_v2( $tittel_save->getContext()->getMonstring()->getId() );
 		// Hent innslaget fra gitt mønstring
-		$innslag_db = $monstring->getInnslag()->get( $tittel_save->getContext()->getInnslag()->getId() );
+		$innslag_db = $monstring->getInnslag()->get( $tittel_save->getContext()->getInnslag()->getId(), true );
 		// Hent personen fra gitt innslag
 		$tittel_db = $innslag_db->getTitler()->get( $tittel_save->getId() );
 
@@ -176,7 +176,7 @@ class write_tittel {
 		// Opprett mønstringen tittelen kommer fra
 		$monstring = new monstring_v2( $tittel_save->getContext()->getMonstring()->getId() );
 		// Hent innslaget fra gitt mønstring
-		$innslag_db = $monstring->getInnslag()->get( $tittel_save->getContext()->getInnslag()->getId() );
+		$innslag_db = $monstring->getInnslag()->get( $tittel_save->getContext()->getInnslag()->getId(), true );
 		
 		// En tittel vil alltid være lagt til lokalt
 		
@@ -210,7 +210,7 @@ class write_tittel {
 		// Opprett mønstringen tittelen kommer fra
 		$monstring = new monstring_v2( $tittel_save->getContext()->getMonstring()->getId() );
 		// Hent innslaget fra gitt mønstring
-		$innslag_db = $monstring->getInnslag()->get( $tittel_save->getContext()->getInnslag()->getId() );
+		$innslag_db = $monstring->getInnslag()->get( $tittel_save->getContext()->getInnslag()->getId(), true );
 		
 
 		if( $monstring->getType() == 'kommune' ) {
