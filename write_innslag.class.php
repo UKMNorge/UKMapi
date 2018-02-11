@@ -330,12 +330,22 @@ class write_innslag {
 		$monstring = new monstring_v2( $innslag_save->getContext()->getMonstring()->getId() );
 		// Hent innslaget fra gitt mønstring
 		$innslag_db = $monstring->getInnslag()->get( $innslag_save->getId(), true );
+		
+		// Hvis lagre-innslaget ikke har noen titler, slett alle
+		if( $innslag_save->getTitler()->getAntall() == 0 ) {
+			foreach( $innslag_db->getTitler()->getAll() as $tittel ) {
+				write_tittel::fjern( $tittel );
+			}
+		}
 
+		// Legg til alle titler $innslag_save har som ikke $innslag_db har
 		foreach( $innslag_save->getTitler()->getAll() as $tittel ) {
 			if( !$innslag_db->getTitler()->har( $tittel ) ) {
 				write_tittel::leggTil( $tittel );
 			}
 		}
+		
+		// Fjern alle titler som $innslag_db har, som ikke $innslag_save har
 		foreach( $innslag_db->getTitler()->getAll() as $tittel ) {
 			if( !$innslag_save->getTitler()->har( $tittel ) ) {
 				write_tittel::fjern( $tittel );
