@@ -503,6 +503,7 @@ class innslag_collection {
 								JOIN `smartukm_rel_b_c` AS `rel`
 									ON `rel`.`b_id` = `smartukm_band`.`b_id`
 								WHERE `rel`.`c_id` = '#c_id'
+								AND `smartukm_band`.`b_status` = '8'
 								ORDER BY `order` ASC",
 								array( 'c_id' => $this->getContext()->getForestilling()->getId() ) );
 				return $sql;
