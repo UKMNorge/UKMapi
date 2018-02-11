@@ -336,7 +336,7 @@ class write_tittel {
 			]
 		);
 		$log_msg = $tittel_save->getId().': '. $tittel_save->getTittel() .' => PL: '. $tittel_save->getContext()->getMonstring()->getId();
-		UKMlogger::log( 321, $tittel_save->getContext()->getInnslag()->getId(), $log_msg );
+		UKMlogger::log( 323, $tittel_save->getContext()->getInnslag()->getId(), $log_msg );
 
 		$res = $videresend_tittel->run();
 		
