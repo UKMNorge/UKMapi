@@ -338,8 +338,50 @@ class write_tittel {
 		$log_msg = $tittel_save->getId().': '. $tittel_save->getTittel() .' => PL: '. $tittel_save->getContext()->getMonstring()->getId();
 		UKMlogger::log( 323, $tittel_save->getContext()->getInnslag()->getId(), $log_msg );
 
+		// Slett tittelen
 		$res = $videresend_tittel->run();
 		
+		// Hvis slettingen gikk bra
+		if( $res ) {
+
+			/**
+			 * Fjerning av siste tittel vil avmelde innslaget
+			 * Skulle dette ikke være ønsket effekt, må det her settes inn en ny fylkesstep-rad
+			 * med blank tittel-ID (som igjen må slettes ved innslag::avmeld()
+			**/
+
+			// Sjekk antall relasjoner som er igjen
+			$test_remaining_fylkestep = new SQL(
+				"SELECT COUNT(`id`) AS `num`
+				FROM `smartukm_fylkestep`
+				WHERE `pl_id` = '#pl_id'
+				AND `b_id` = '#b_id'",
+				[
+					'pl_id' 	=> $tittel_save->getContext()->getMonstring()->getId(),
+					'b_id' 		=> $tittel_save->getContext()->getInnslag()->getId(),
+				]
+			);
+			$remaining_fylkestep = $test_remaining_fylkestep->run('field', 'num');
+	
+			/**
+			 * HVIS ingen relasjoner gjenstår etter tittelen er fjernet, avmeld innslaget (manuelt)
+			 * Kan ikke kalle write_innslag::fjern() da det blir circular loop
+			**/
+			if( $remaining_fylkestep == 0 ) {
+				// Slett relasjonen manuelt
+				$SQLdel = new SQLdel(
+					'smartukm_rel_pl_b',
+					[
+						'b_id' 		=> $tittel_save->getContext()->getInnslag()->getId(),
+						'pl_id' 	=> $tittel_save->getContext()->getMonstring()->getId(),
+						'season' 	=> $tittel_save->getContext()->getMonstring()->getSesong()
+					]
+				);
+				UKMlogger::log( 311, $tittel_save->getContext()->getInnslag()->getId(), $tittel_save->getContext()->getInnslag()->getId() );
+				$res2 = $SQLdel->run();
+			}
+		}
+
 		if( $res ) {
 			return true;
 		}
