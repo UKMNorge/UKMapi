@@ -727,6 +727,15 @@ class monstring_v2 {
 		return $context;
 	}
 
+	/**
+	 * Reset personer collection (kun på objektbasis)
+	 *
+	**/
+	public function resetInnslagCollection() {
+		$this->innslag = null;
+		return $this;
+	}
+
 /* UTGÅR	
 	public function getNominerteFraMeg() {
 		require_once('UKM/nominasjoner.collection.php');
