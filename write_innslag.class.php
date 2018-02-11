@@ -696,6 +696,26 @@ class write_innslag {
 
 			UKMlogger::log( 318, $innslag->getId(), $innslag->getContext()->getMonstring()->getId() );
 			$res = $videresend->run();
+			
+			// Test relasjon i rel_pl_b
+			$test_relasjon_2 = new SQL(
+				"SELECT `pl_id`
+				FROM `smartukm_rel_pl_b`
+				WHERE `pl_id` = '#pl_id'
+				AND `b_id` = '#b_id'",
+				[
+					'pl_id'		=> $innslag->getContext()->getMonstring()->getId(),
+					'b_id'		=> $innslag->getId(),
+				]
+			);
+			$test_relasjon_2 = $test_relasjon_2->run();
+			if( mysql_num_rows( $test_relasjon_2 ) == 0 ) {
+				$rel_pl_b = new SQLins('smartukm_rel_pl_b');
+				$rel_pl_b->add('b_id', $innslag->getId() );
+				$rel_pl_b->add('pl_id', $innslag->getContext()->getMonstring()->getId() );
+				$rel_pl_b->add('season', $innslag->getContext()->getMonstring()->getSesong() );
+				$res2 = $rel_pl_b->run();
+			}
 		
 			if( $res ) {
 				return true;
