@@ -4441,7 +4441,6 @@ $pass_words = array(
 "forplikte",
 "forpliktelse",
 "forpliktet",
-"forpult",
 "forpurre",
 "forpurring",
 "forrang",
