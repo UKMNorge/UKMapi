@@ -222,7 +222,9 @@ class samtykke_request {
 	public static function loadFromHash( $prosjekt, $samtykke ) {
 		require_once('UKM/samtykke/prosjekt.class.php');
 		
-		$sql = new SQL("SELECT * 
+		$sql = new SQL("SELECT *,
+			`request`.`id` AS `request_id`,
+			`prosjekt`.`id` AS `prosjekt_id` 
 			FROM `samtykke_prosjekt` AS `prosjekt`
 			JOIN `samtykke_request` AS `request` 
 				ON (`request`.`prosjekt` = `prosjekt`.`id`)

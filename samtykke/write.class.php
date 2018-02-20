@@ -130,7 +130,7 @@ class write_samtykke {
 		$sql->add('hash-excerpt', $hashexcerpt );
 		$res = $sql->run();
 		
-		return new samtykke_approval( $sql->insId() );
+		return new samtykke_approval( $request->getId() );
 	}
 	
 		
@@ -150,7 +150,7 @@ class write_samtykke {
 		$sql->add('hash-excerpt', $hashexcerpt );
 		$res = $sql->run();
 		
-		return new samtykke_approval( $sql->insId() );
+		return new samtykke_approval( $request->getId() );
 	}
 	
 	
