@@ -446,6 +446,18 @@ class monstring_v2 {
 	}
 	
 	/**
+	 * Har fylket et skjema?
+	 *
+	**/
+	public function harSkjema() {
+		try {
+			$skjema = $this->getSkjema();
+			return sizeof( $skjema->getQuestions() ) > 0;
+		} catch( Exception $e ) {
+			return false;
+		}
+	}
+	/**
 	 * Sett skjema
 	 *
 	 * @param skjema $skjema eller int $skjema_id
@@ -472,7 +484,11 @@ class monstring_v2 {
 			throw new Exception('Videresendingsskjema ikke støttet for UKM-festivalen');
 		}
 		if( $this->skjema == null ) {
-			$this->skjema = new monstring_skjema( $this->getFylke()->getId() );
+			if( $this->getType() == 'fylke' ) {
+				$this->skjema = new monstring_skjema( $this->getFylke()->getId() );
+			} else {
+				$this->skjema = new monstring_skjema( $this->getFylke()->getId(), $this->getId() );
+			}
 		}
 		return $this->skjema;
 	}
