@@ -120,7 +120,7 @@ class monstring_skjema {
 		// Bygg spørsmål med svar-array
 		$data = array();
 		foreach($questions as $row) {
-			$questions[] = $this->getQuestionFromData($row);
+			$data[] = $this->getQuestionFromData($row);
 		}
 
 		/*echo '<pre>';
@@ -128,11 +128,11 @@ class monstring_skjema {
 		echo '</pre>';*/
 
 		// Returner et ferdig sortert array i rett rekkefølge
-		$questions = $this->orderQuestions($questions);
+		#$questions = $this->orderQuestions($questions);
 		/*echo '<pre>';
 		var_dump($questions);
 		echo '</pre>';*/
-		return $questions;
+		return $data;
 	}
 
 	private function orderQuestions($questions) {
