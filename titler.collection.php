@@ -211,6 +211,10 @@ class titler {
 		return $this;
 	}
 	public function getVarighet() {
+		if( null == $this->titler_videresendt ) {
+			$this->_load();
+		}
+
 		return new tid( $this->varighet );
 	}
 	
@@ -219,6 +223,10 @@ class titler {
 		return $this;
 	}
 	public function getVarighetIkkeVideresendt() {
+		if( null == $this->titler_ikke_videresendt ) {
+			$this->_load();
+		}
+
 		return new tid( $this->varighet_ikke_videresendt );
 	}
 
