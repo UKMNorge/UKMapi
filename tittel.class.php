@@ -492,7 +492,7 @@ class tittel_v2 {
 
 	
 	
-	private function getParentes() {
+	public function getParentes() {
 		$tekst = '';
 		switch( $this->getTable() ) {
 			case 'smartukm_titles_video':
