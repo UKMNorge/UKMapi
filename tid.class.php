@@ -42,4 +42,8 @@ class tid {
 		
 		return $q . $min .' '. $r . $sek;
 	}
+	
+	public function __toString() {
+		return $this->getHuman();
+	}
 }
