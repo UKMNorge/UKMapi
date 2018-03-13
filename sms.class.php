@@ -157,6 +157,7 @@ class SMS {
 	}
 	
 	private function _sveve_parse($response) {
+		var_dump($response);
 		$response = simplexml_load_string($response);
 		$response = $response->response;
 		
