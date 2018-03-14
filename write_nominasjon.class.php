@@ -230,4 +230,30 @@ class write_nominasjon extends nominasjon {
 		
 		$res = $sql->run();
 	}
+	
+	
+	public static function saveSorry( $nominasjon, $flagg ) {
+		if( !UKMlogger::ready() ) {
+			throw new Exception('Logger is missing or incorrect set up.');
+		}
+		
+		if( !is_object( $nominasjon ) ) {
+			throw new Exception('WRITE_NOMINASJON: Lagring av flagg krever et nominasjonsobjekt som parameter 1');
+		}
+		
+		if( !is_numeric( $nominasjon->getId() ) ) {
+			throw new Exception('WRITE_NOMINASJON: Lagring av flagg krever nominasjonsobjekt med numerisk id');
+		}
+
+		$sql = new SQLins(
+			'ukm_nominasjon_arrangor',
+			[
+				'nominasjon' => $nominasjon->getId(),
+			]
+		);
+		$sql->add('sorry', $flagg);
+		$sql->run();
+		
+		return true;
+	}
 }
