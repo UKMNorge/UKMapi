@@ -54,6 +54,44 @@ class bilder {
 		return $type_sorted;
 	}
 	
+	
+	public function harValgt( $tittel=0 ) {
+		try {
+			$this->getvalgt( $tittel );
+			return true;
+		} catch( Exception $e ) {
+			return false;
+		}
+	}
+	/**
+	 * Hent det bildet som er valgt ved videresending
+	 * For kunstner-bilde: velg tittel = 0;
+	**/
+	public function getValgt( $tittel=0 ) {
+		$sql = new SQL("
+			SELECT `rel_id` 
+			FROM `smartukm_videresending_media`
+			WHERE `b_id` = '#innslag'
+			AND `t_id` = '#tittel'
+			",
+			[
+				'innslag'	=> $this->b_id,
+				'tittel'	=> $tittel,
+			]
+		);
+		$media_id = $sql->run('field', 'rel_id');
+		
+		if( is_numeric( $media_id ) && $media_id > 0 ) {
+			foreach( $this->getAll() as $bilde ) {
+				if( $bilde->getId() == $media_id ) {
+					return $bilde;
+				}
+			}
+		}
+		
+		throw new Exception('Fant ingen valgte bilder');
+	}
+	
 	/**
 	 * Finn siste bilde
 	 *
