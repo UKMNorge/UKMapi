@@ -28,6 +28,9 @@ class playback_collection {
 		return sizeof( $this->getAll() );
 	}
 	
+	public function har() {
+		return $this->harPlayback();
+	}
 	public function harPlayback() {		
 		return 0 < $this->getAntall();
 	}
