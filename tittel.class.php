@@ -86,13 +86,13 @@ class tittel_v2 {
 	
 	/**
 	 * Er videresendt
-	 * Er personen videresendt til gitt mønstring?
+	 * Er tittelen videresendt til gitt mønstring?
 	 *
 	 * @param int $pl_id
 	 * @return bool
 	**/
 	public function erVideresendt( $pl_id ) {
-		if( is_object( $pl_id ) && ( 'write_monstring' == get_class( $pl_id ) || 'monstring' == get_class( $pl_id ) ) ) {
+		if( is_object( $pl_id ) && ( 'monstring_v2' == get_class( $pl_id ) || 'write_monstring' == get_class( $pl_id ) || 'monstring' == get_class( $pl_id ) ) ) {
 			$pl_id = $pl_id->getId();
 		}
 		if( null == $this->videresendtTil ){
@@ -100,6 +100,9 @@ class tittel_v2 {
 								.'på objekt som ikke er initiert med pl_ids (via collection)');
 		}
 		return in_array($pl_id, $this->getVideresendtTil() );
+	}
+	public function erVideresendtTil( $monstring ) {
+		return $this->erVideresendt( $monstring );
 	}
 	
 	/**
