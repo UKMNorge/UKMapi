@@ -726,6 +726,31 @@ class write_innslag {
 				$rel_pl_b->add('season', $innslag->getContext()->getMonstring()->getSesong() );
 				$res2 = $rel_pl_b->run();
 			}
+			
+			// Tittelløse innslag i V1 henter ikke automatisk alle personer
+			if( !$innslag->getType()->harTitler() ) {
+				$test_relasjon_3 = new SQL(
+					"SELECT `pl_id`
+					FROM `smartukm_fylkestep_p`
+					WHERE `pl_id` = '#pl_id'
+					AND `b_id` = '#b_id'
+					AND `p_id` = '#p_id'",
+					[
+						'pl_id'		=> $innslag->getContext()->getMonstring()->getId(),
+						'b_id'		=> $innslag->getId(),
+						'p_id'		=> $innslag->getPersoner()->getSingle()->getId()
+					]
+				);
+				$test_relasjon_3 = $test_relasjon_3->run();
+				if( mysql_num_rows( $test_relasjon_3 ) == 0 ) {
+					$fylkestep_p = new SQLins('smartukm_fylkestep_p');
+					$fylkestep_p->add('pl_id', $innslag->getContext()->getMonstring()->getId() );
+					$fylkestep_p->add('b_id', $innslag->getId() );
+					$fylkestep_p->add('p_id', $innslag->getPersoner()->getSingle()->getId() );
+					$res3 = $fylkestep_p->run();
+				}
+
+			}
 		
 			if( $res ) {
 				return true;
