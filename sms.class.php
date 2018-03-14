@@ -142,7 +142,7 @@ class SMS {
 	}
 	
 	private function _sveve($recipient) {
-		$url = 'http://www.sveve.no/SMS/SendSMS'
+		$url = 'https://www.sveve.no/SMS/SendSMS'
 			.  '?user='.UKM_SVEVE_ACCOUNT
 			.  '&to='.(int)$recipient
 			.  '&from='.$this->from
