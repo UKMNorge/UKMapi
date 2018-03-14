@@ -33,7 +33,14 @@ class monstring_v2 {
 	var $skjema = null;
 	var $kontaktpersoner = null;
 	
+	var $uregistrerte = null;
+	var $publikum = null;
+	
 	var $attributes = null;
+	var $fylkesmonstringer = null;
+	
+	var $dager = null;
+	var $netter = null;
 	/**
 	 * getLoadQry
 	 * Brukes for å få standardiserte databaserader inn for 
@@ -107,6 +114,8 @@ class monstring_v2 {
 		$this->setSesong( $row['season'] );
 		$this->setSted( utf8_encode( $row['pl_place'] ) );
 		$this->_setSkjemaId( $row['pl_form'] );
+		$this->setPublikum( $row['pl_public'] );
+		$this->setUregistrerte( $row['pl_missing'] );
 
 		// SET PATH TO BLOG
 		if( isset( $row['pl_link'] ) || ( isset( $row['pl_link'] ) && empty( $row['pl_link'] ) ) ) {
@@ -198,7 +207,7 @@ class monstring_v2 {
 	 * @return $this;
 	**/
 	public function setPath( $path ) {
-		$this->path = $path;
+		$this->path = rtrim( trim($path, '/'), '/');
 		return $this;
 	}
 	/**
@@ -246,6 +255,46 @@ class monstring_v2 {
 	**/
 	public function getSted() {
 		return $this->sted;
+	}
+	
+	/**
+	 * Hent antall uregistrerte deltakere
+	 *
+	 * @return int uregistrerte
+	**/
+	public function getUregistrerte() {
+		return $this->uregistrerte;
+	}
+
+
+	/**
+	 * Sett antall uregistrerte deltakere
+	 *
+	 * @param int antall uregistrerte deltakere
+	 * @return $this
+	**/
+	public function setUregistrerte( $uregistrerte ) {
+		$this->uregistrerte = $uregistrerte;
+		return $this;
+	}
+	
+	/**
+	 * Hent antall publikummere
+	 *
+	 * @return int antall_publikum
+	**/
+	public function getPublikum() {
+		return $this->publikum;
+	}
+	/**
+	 * Sett antall publikummere
+	 *
+	 * @param int antall publikummere
+	 * @return $this
+	**/
+	public function setPublikum( $publikum ) {
+		$this->publikum = $publikum;
+		return $this;
 	}
 
 	/**
@@ -478,7 +527,7 @@ class monstring_v2 {
 	 *
 	 * @return skjema $skjema
 	**/
-	public function getSkjema() {
+	public function getSkjema( $fylke=null ) {
 		require_once('UKM/monstring_skjema.class.php');
 		if( $this->getType() == 'land' ) {
 			throw new Exception('Videresendingsskjema ikke støttet for UKM-festivalen');
@@ -487,10 +536,29 @@ class monstring_v2 {
 			if( $this->getType() == 'fylke' ) {
 				$this->skjema = new monstring_skjema( $this->getFylke()->getId() );
 			} else {
-				$this->skjema = new monstring_skjema( $this->getFylke()->getId(), $this->getId() );
+				$this->skjema = new monstring_skjema( $fylke==null ? $this->getFylke()->getId() : $fylke, $this->getId() );
 			}
 		}
 		return $this->skjema;
+	}
+
+	/**
+	 * Hent ut fylkesmønstringene lokalmønstringen kan sende videre til
+	**/
+	public function getFylkesmonstringer() {
+		if( $this->getType() !== 'kommune' ) {
+			throw new Exception('MONSTRING_V2: Fylkesmønstringer kan ikke videresende til fylkesmønstringer');
+		}
+		require_once('UKM/monstringer.collection.php');
+		if( null === $this->fylkesmonstringer ) {
+			$this->fylkesmonstringer = [];
+			foreach( $this->getKommuner() as $kommune ) {
+				if( !isset( $this->fylkesmonstringer[ $kommune->getFylke()->getId() ] ) ) {
+					$this->fylkesmonstringer[ $kommune->getFylke()->getId() ] = monstringer_v2::fylke( $kommune->getFylke(), $this->getSesong() );
+				}
+			}
+		}
+		return $this->fylkesmonstringer;
 	}
 	
 	/**
@@ -697,6 +765,10 @@ class monstring_v2 {
 		return $res;
 	}
 	
+	public function erVideresendingApen() {
+		return time() < $this->getFrist1()->getTimestamp() && time() > $this->getFrist2()->getTimestamp();
+	}
+	
 	/**
 	 * erOslo
 	 * Returnerer om fylket er Oslo.
@@ -708,7 +780,80 @@ class monstring_v2 {
 		return $this->getFylke()->getId() == 3;
 	}
 	
+	/**
+	 * Hvor mange dager varer mønstringen?
+	 *
+	 * @return int $dager
+	**/
+	public function getAntallDager() {
+		$start = explode('.', date('d.m.Y.H.i', $this->getStart()->getTimestamp()));
+		$stop = explode('.', date('d.m.Y.H.i', $this->getStop()->getTimestamp()));
 		
+		$maned = $start[1];
+		$ar	   = $start[2];
+		
+		if($stop[0] >= $start[0]) {
+			for($i=$start[0]-1; $i<$stop[0]; $i++)
+				$days[($i+1).'.'.$maned] = date('N', mktime(0,0,0,$maned, $i+1, $ar));
+				
+			$this->dager = sizeof($days);
+		## Sluttdato er mindre enn startdato, ergo er sluttdato neste måned!
+		} else {
+			for($i=$start[0]-1; $i<cal_days_in_month(CAL_GREGORIAN, $maned, $ar); $i++)
+				$days[($i+1).'.'.$maned] = date('N', mktime(0,0,0,$maned, $i+1, $ar));
+			for($i=0; $i<$stop[0]; $i++) 
+				$days[($i+1).'.'.$maned+1] = date('N', mktime(0,0,0,$maned+1, $i+1, $ar));
+			
+			$this->dager = sizeof($days);
+		}
+		
+		return $this->dager;
+	}
+	
+	/**
+	 * Hvor mange netter varer mønstringen?
+	 *
+	 * @return int $dager
+	**/
+	public function getNetter() {
+		if( isset( $this->netter ) ) {
+			return $this->netter;
+		}
+		$netter = array();
+		
+		if( $this->getStart()->format('m') < $this->getStop()->format('m') ) {
+			$dager_ny_mnd 		= $this->getStart()->format('d');
+			$dager_forrige_mnd = cal_days_in_month( 
+				CAL_GREGORIAN, 
+				$this->getStart()->format('m'),
+				$this->getStart()->format('Y')
+			)
+			- $this->getStart()->format('d');
+			$num_dager = $dager_ny_mnd + $dager_forrige_mnd;
+		} else {
+			$num_dager = $this->getStop()->format('d') - $this->getStart()->format('d');
+		}
+		
+		$crnt = new stdClass();
+		$crnt->dag = (int)date('d', $this->getStart()->getTimestamp());
+		$crnt->mnd= (int)date('m', $this->getStart()->getTimestamp());
+		$crnt->ar  = (int)date('Y', $this->getStart()->getTimestamp());
+		
+		for( $i=0; $i < $num_dager+1; $i++ ) {	
+			if( $crnt->dag > cal_days_in_month( CAL_GREGORIAN, $crnt->mnd, $crnt->ar ) ) {
+				$crnt->dag = 1;
+				$crnt->mnd++;
+			}
+			$crnt->timestamp = strtotime( $crnt->dag.'-'.$crnt->mnd.'-'.$crnt->ar );
+			$netter[] = clone $crnt;
+		
+			$crnt->dag++;
+		}
+		$this->netter = $netter;
+		return $this->netter;
+	}
+
+
 	/**
 	 * eksisterer
 	 * 
