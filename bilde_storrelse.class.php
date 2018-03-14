@@ -123,6 +123,9 @@ class bilde_storrelse {
 	**/
 	public function setExternalPath( $path ) {
 		$this->path_external = str_replace('http:','https:', rtrim($path, '/').'/');
+		if( defined('UKM_HOSTNAME') && UKM_HOSTNAME == 'ukm.dev' ) {
+			$this->path_external = str_replace('https:', 'http:', $this->path_external);
+		}
 		return $this;
 	}
 	/**
