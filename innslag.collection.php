@@ -18,6 +18,8 @@ class innslag_collection {
 	var $monstring_sesong = null; // Brukes av container_type 'monstring'
 	var $monstring_kommuner = null; // Brukes av container_type 'monstring'
 	var $monstring_fylke = null; // Brukes av container_type 'monstring'
+	
+	var $videresendte = null;
 	/**
 	 * Class constructor
 	 * OBS: monstring-collection krever kall til $this->setContainerDataMonstring()
@@ -28,6 +30,7 @@ class innslag_collection {
 	public function __construct( $context ) {
 		$this->setContext( $context );
 		
+		/*
 		switch( $this->getContext()->getType() ) {
 			case 'monstring': 
 			break;
@@ -35,6 +38,7 @@ class innslag_collection {
 				#throw new Exception('INNSLAG_COLLECTION: ikke implementert støtte for forestilling');
 			break;
 		}
+		*/
 	}
 
 	/**
@@ -139,6 +143,18 @@ class innslag_collection {
 		return $this->innslag;
 	}
 	
+	public function getVideresendte( $monstring_til ) {
+		if( null == $this->videresendte ) {
+			foreach( $this->getAll() as $innslag ) {
+				if( !$innslag->erVideresendtTil( $monstring_til ) ) {
+					continue;
+				}
+				$this->videresendte[] = $innslag;
+			}
+		}
+		return $this->videresendte;
+	}
+	
 	/**
 	 * Hent antall innslag i collection
 	 *
@@ -176,7 +192,7 @@ class innslag_collection {
 	 * @return array [innslag_v2]
 	**/
 	public function getAllByKommune( $kommune ) {
-		return self::filterByGeografi( $kommune, 'kommune', $this->getAll() );
+		return self::filterByGeografi( $kommune, $this->getAll() );
 	}
 
 	/**
@@ -186,7 +202,7 @@ class innslag_collection {
 	 * @return array [innslag_v2]
 	**/
 	public function getAllByFylke( $fylke ) {
-		return self::filterByGeografi( $fylke, 'fylke', $this->getAll() );
+		return self::filterByGeografi( $fylke, $this->getAll() );
 	}
 	
 	/**
