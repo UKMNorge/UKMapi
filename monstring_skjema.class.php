@@ -6,7 +6,7 @@ require_once('UKM/fylker.class.php');
 
 
 class monstring_skjema {
-	public function __construct($f_id, $pl_id = null) {
+	public function __construct($f_id, $pl_id=null) {
 #		trigger_error('Ikke testet i UKMapi, kopiert fra UKMvideresending_festival', E_USER_NOTICE);
 
 		$this->f_id = $f_id;
@@ -173,21 +173,17 @@ class monstring_skjema {
 		return $answer;
 	}
 
-	public function answerQuestion($q_id, $pl_id, $answer, $debug = false) {
+	public function answerQuestion($q_id, $answer, $debug = false) {
 
-		#if($debug) die(json_encode(array($answer, gettype($answer), count($answer))));
 		// Check if question is answered before
 		$sql = new SQL("SELECT COUNT(*) FROM smartukm_videresending_fylke_svar 
-						WHERE `q_id` = '#q_id' AND `pl_id` = '#pl_id'", array('q_id' => $q_id, 'pl_id' => $pl_id));
-		#die(json_encode($sql->debug()));
+						WHERE `q_id` = '#q_id' AND `pl_id` = '#pl_id'", array('q_id' => $q_id, 'pl_id' => $this->pl_id));
 		$res = $sql->run('field', 'COUNT(*)');
-		#if($debug) die(json_encode($res));
 		if($res > 0) 
-			$sql = new SQLins('smartukm_videresending_fylke_svar', array('q_id' => $q_id, 'pl_id' => $pl_id));
+			$sql = new SQLins('smartukm_videresending_fylke_svar', array('q_id' => $q_id, 'pl_id' => $this->pl_id));
 		else
 			$sql = new SQLins('smartukm_videresending_fylke_svar');
 
-		#var_dump($answer);
 		if (is_array($answer) && (count($answer) > 1) ) {
 			$a = '';
 			foreach ($answer as $sub) {
@@ -198,15 +194,12 @@ class monstring_skjema {
 		else
 			$a = $answer;
 
-		#var_dump($a);
 		$sql->add('q_id', $q_id);
-		$sql->add('pl_id', $pl_id);
+		$sql->add('pl_id', $this->pl_id);
 		$sql->add('answer', (string)$a);
 		
 		$res = $sql->run();
-		#var_dump($res);
-		#echo $sql->debug();
-		#var_dump($sql->error());
+
 		if ($res != 1)
 			if ($sql->error())
 				return $sql; 
