@@ -190,7 +190,7 @@ class write_tittel {
 		}
 		
 		throw new Exception(
-			'Kunne ikke legge til '. $tittel_save->getNavn() .' i innslaget. ',
+			'Kunne ikke legge til '. $tittel_save->getTittel() .' i innslaget. ',
 			50913
 		);
 	}
