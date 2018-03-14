@@ -158,7 +158,7 @@ class monstring_skjema {
 		if ($q->type == 'kontakt') 
 			$q->value = $this->getKontakt($data['answer']);
 		else
-			$q->value = utf8_encode($data['answer']);
+			$q->value = stripslashes( utf8_encode($data['answer']) );
 		return $q;
 	}
 
@@ -166,7 +166,7 @@ class monstring_skjema {
 		#var_dump($str);
 		$str = explode('__||__', $str);
 		$answer = new stdClass();
-		$answer->navn = utf8_encode($str[0]);
+		$answer->navn = stripslashes( utf8_encode($str[0]) );
 		$answer->mobil = utf8_encode($str[1]);
 		$answer->epost = utf8_encode($str[2]);
 
