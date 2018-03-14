@@ -1,20 +1,9 @@
 <?php
-/** LOG ACTIONS
-INSERT INTO `log_actions` (`log_action_id`, `log_action_verb`, `log_action_element`, `log_action_datatype`, `log_action_identifier`, `log_action_printobject`)
-VALUES
-	(110, 'endret', 'lenke', 'text', 'smartukm_place|pl_link', 1),
-	(111, 'lagt til', 'kontaktperson', 'text', 'smartukm_rel_pl_ab|new', 1),
-	(112, 'lagt til', 'kommune', 'text', 'smartukm_rel_pl_k|new', 1),
-	(113, 'lagt til', 'skjema for videresending', 'text', 'smartukm_place|pl_form', 0),
-	(114, 'fjernet', 'kommune', 'text', 'smartukm_rel_pl_k|delete', 1),
-	(115, 'avlyste', 'mønstringen', 'text', 'smartukm_rel_pl|delete', 0),
-*/
 require_once('UKM/monstring.class.php');
 require_once('UKM/logger.class.php');
 
-class write_monstring extends monstring_v2 {
-	var $changes = array();
-	
+
+class write_monstring {
 	public static function create( $type, $sesong, $navn, $datoer, $geografi ) {
 		// Oppdater loggeren til å bruke riktig PL_ID
 		UKMlogger::setPlId( 0 );
@@ -113,11 +102,12 @@ class write_monstring extends monstring_v2 {
 		$result = $place->run();
 		$pl_id = $place->insid();
 		
-		$monstring = new write_monstring( $pl_id );
+		$monstring = new monstring_v2( $pl_id );
 
 		// Oppdater loggeren til å bruke riktig PL_ID
 		UKMlogger::setPlId( $monstring->getId() );
-		
+
+		die('BEKLAGER, INTEGRASJON MANGLER!');
 		foreach( $geografi as $kommune ) {
 			$monstring->addKommune( $kommune );
 		}
@@ -133,65 +123,53 @@ class write_monstring extends monstring_v2 {
 		
 		return $monstring;
 	}
-
-	/**
-	 * Opprett mønstringsobjekt
-	 * Bruker parent::__construct
-	**/
-	public function __construct( $b_id_or_row ) {
-		parent::__construct( $b_id_or_row, true );
-		$this->_resetChanges();
-	}
 	
-
-	/**
-	 * setNavn
-	 * 
-	 * @param string $navn
-	 * @return $this
-	**/
-	public function setNavn( $navn ) {
-		if( $navn == $this->getNavn() ) {
-			return $this;
-		}
-		parent::setNavn( $navn );
-		$this->_change('smartukm_place', 'pl_name', 100, $navn);
-		return $this;
-	}
-
-	/**
-	 * setPath
-	 * 
-	 * @param string $path
-	 * @return $this
-	**/
-	public function setPath( $path ) {
-		// Vi kan gjette oss til fylke, men det må likevel lagres
-		// i databasen. Lagrer derfor uansett hvis vi snakker om fylke
-		if( $path == $this->getPath() && $this->getType() != 'fylke' ) {
-			return $this;
-		}
-		$path = rtrim( trim($path, '/'), '/');
-		parent::setPath( $path );
-		$this->_change('smartukm_place', 'pl_link', 110, $path);
-		return $this;
-	}
 	
-	/**
-	 * setSkjema
-	 *
-	 * @param skjema $skjema eller int $skjemaId
-	 * @return $this
-	**/
-	public function setSkjema( $skjema ) {
-		$skjema_id = is_int( $skjema ) ? $skjema : $skjema->getId();
+	
+	public static function save( $monstring_save ) {
+		// DB-OBJEKT
+		$monstring_db = new monstring_v2( $monstring_save->getId() );
 		
-		if( $this->getSkjema()->getId() == $skjema_id ) {
-			return $this;
+		// TABELLER SOM KAN OPPDATERES
+		$smartukm_place = new SQLins(
+			'smartukm_place', 
+			[
+				'pl_id' => $monstring_save->getId()
+			]
+		);
+		
+		// VERDIER SOM KAN OPPDATERES
+		$properties = [
+			'Navn' 			=> ['smartukm_place', 'pl_name', 100],
+			'Path' 			=> ['smartukm_place', 'pl_link', 110],
+			'Skjema'		=> ['smartukm_place', 'pl_form', 113],
+			'Uregistrerte'	=> ['smartukm_place', 'pl_missing', 108],
+			'Publikum'		=> ['smartukm_place', 'pl_public', 109],
+		];
+		
+		// LOOP ALLE VERDIER, OG EVT LEGG TIL I SQL
+		foreach( $properties as $functionName => $logValues ) {
+			$function = 'get'.$functionName;
+			$table = $logValues[0];
+			$field = $logValues[1];
+			$action = $logValues[2];
+			$sql = $$table;
+			
+			if( $monstring_db->$function() != $monstring_save->$function() ) {
+				# Mellomlagre verdi som skal settes
+				$value = $monstring_save->$function();
+				# Legg til i SQL
+				$sql->add( $field, $value ); 	// SQL satt dynamisk i foreach til $$table
+				# Logg (eller dø) før vi kjører run
+				UKMlogger::log( $action, $monstring_save->getId(), $value );
+			}
 		}
-		parent::setSkjema( $skjema );
-		$this->_change('smartukm_place', 'pl_form', 113, $skjema_id);
-		return $this;
+		
+		if( $smartukm_place->hasChanges() ) {
+			#echo $smartukm_place->debug();
+			$smartukm_place->run();
+		}
+
 	}
 	
 	/**
@@ -203,6 +181,7 @@ class write_monstring extends monstring_v2 {
 	 * @return $this
 	**/
 	public function addKontaktperson( $kontakt ) {
+		die('BEKLAGER, INTEGRASJON MANGLER!');
 		if( parent::getKontaktpersoner()->har( $kontakt ) ) {
 			return $this;
 		}
@@ -238,6 +217,7 @@ class write_monstring extends monstring_v2 {
 	 	return $this->addKommune( $kommune );
  	}
 	public function addKommune( $kommune ) {
+		die('BEKLAGER, INTEGRASJON MANGLER!');
 		if( $this->getType() != 'kommune' ) {
 			throw new Exception('Mønstring: kan ikke legge til kommune på andre enn kommune(/lokal)-mønstringer)');
 		}
@@ -272,6 +252,7 @@ class write_monstring extends monstring_v2 {
 	 *
 	**/
 	public function avlys() {
+		die('BEKLAGER, INTEGRASJON MANGLER!');
 		if( $this->getType() != 'kommune' ) {
 			throw new Exception('Mønstring: kun lokalmønstringer kan avlyses');
 		}
@@ -315,6 +296,7 @@ class write_monstring extends monstring_v2 {
 	 * @return $this
 	**/
 	public function fjernKommune( $kommune ) {
+		die('BEKLAGER, INTEGRASJON MANGLER!');
 		if( $this->getType() != 'kommune' ) {
 			throw new Exception('Mønstring: kan ikke fjerne kommune fra annet enn lokalmønstringer!');
 		}
@@ -354,30 +336,6 @@ class write_monstring extends monstring_v2 {
 		return $this;
 	}
 
-	/**
-	 * save
-	 * Lagrer alle registrerte endringer
-	 *
-	 * @return $this
-	**/
-	public function save() {
-		$this->_checkSaveRequirements();
-		
-		$smartukm_place = new SQLins('smartukm_place', array('pl_id' => $this->getId() ) );
-		
-		foreach( $this->_getChanges() as $change ) {
-			$tabell = $change['tabell'];
-			$$tabell->add( $change['felt'], $change['value'] );
-			UKMlogger::log( $change['action'], $this->getId(), $change['value'] );
-		}
-
-		if( $smartukm_place->hasChanges() ) {
-			#echo $smartukm_place->debug();
-			$smartukm_place->run();
-		}
-		return $this;
-	}
-	
 	public static function generatePath( $type, $geografi, $sesong, $skipCheck=false ) {
 		switch( $type ) {
 			case 'kommune':
@@ -416,53 +374,8 @@ class write_monstring extends monstring_v2 {
 				$link = 'festivalen';
 				break;
 			case 'default':
-				throw new Exception('WRITE_MONSTRING::createLink() kan ikke generer link for ukjent type mønstring!');
+				throw new Exception('WRITE_MONSTRING::createLink() kan ikke genere link for ukjent type mønstring!');
 		}
 		return $link;
-	}
-
-	/**
-	 * INTERNE FUNKSJONER FOR LAGRING
-	**/
-	/**	
-	 * _getChanges
-	 * Henter alle endringer
-	**/
-	private function _getChanges() {
-		return $this->changes;
-	}
-	
-	/**
-	 * _resetChanges
-	 * Nullstiller info om hvilke endringer som er gjort
-	 *
-	**/
-	private function _resetChanges() {
-		$this->changes = [];
-	}
-	
-	/**
-	 * Lagre at en endring har skjedd
-	**/
-	private function _change( $tabell, $felt, $action, $value ) {
-		$data = array(	'tabell'	=> $tabell,
-						'felt'		=> $felt,
-						'action'	=> $action,
-						'value'		=> $value
-					);
-		$this->changes[ $tabell .'|'. $felt ] = $data;
-	}
-	
-	/**
-	 * Sjekk at alt er som det skal før vi kan starte lagring
-	**/
-	private function _checkSaveRequirements() {
-		if( !UKMlogger::ready() ) {
-			throw new Exception('Logger is missing or incorrect set up.');
-		}
-		
-		if( !is_numeric( $this->getId() ) ) {
-			throw new Exception('Monstring: Mangler mønstringsID for å kunne lagre');
-		}
 	}
 }
