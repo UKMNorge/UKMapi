@@ -12,6 +12,9 @@ class write_person {
 	 * @return integer unix timestamp.
 	 */
 	public static function fodselsdatoFraAlder($alder) {
+		if( $alder == 0 ) {
+			return 0;
+		}
 		return mktime(0,0,0,1,1, (int)date("Y") - (int)$alder);
 	}
 
@@ -493,14 +496,33 @@ class write_person {
 		UKMlogger::log( 321, $person_save->getContext()->getInnslag()->getId(), $log_msg );
 
 		$res = $videresend_person->run();
-		
+
 		if( $res ) {
 			return true;
 		}
-
+		
+		// Sjekk om det finnes en rad
+		$db_test = new SQL("
+			SELECT `b_id`
+			FROM `smartukm_fylkestep_p`
+			WHERE `pl_id` = '#pl_id'
+			AND `b_id` = '#b_id' 
+			AND `p_id` = '#p_id'",
+			[
+				'pl_id' 	=> $person_save->getContext()->getMonstring()->getId(),
+				'b_id' 		=> $person_save->getContext()->getInnslag()->getId(),
+				'p_id' 		=> $person_save->getId()
+			]
+		);
+		$test_res = $db_test->run('field','b_id');
+		if( null == $test_res ) {
+			return true;
+		}
+		
+		
 		throw new Exception(
 			'Kunne ikke avmelde '. $person_save->getNavn() .'.',
-			50517
+			50717
 		);
 	}
 
