@@ -41,6 +41,8 @@ class innslag_v2 {
 	var $kontaktperson = null;
 	
 	var $tekniske_behov = null;
+	
+	var $videresendt_til = null;
 
 	public function __construct( $bid_or_row, $select_also_if_not_completed=false ) {
 		$this->attributes = array();
@@ -566,8 +568,9 @@ class innslag_v2 {
 	 *
 	**/
 	public function getPlayback() {
+		require_once('UKM/playback.collection.php');
 		if( null == $this->playback ) {
-			$this->playback = new playback_filer( $this->getId() );
+			$this->playback = new playback_collection( $this->getId() );
 		}
 		return $this->playback;
 	}
@@ -681,6 +684,42 @@ class innslag_v2 {
 
 		$this->erVideresendt = false;
 		return false;
+	}
+	
+	public function erVideresendtTil( $monstring ) {
+		if( !is_object( $monstring ) && get_class( $monstring ) !== 'monstring_v2' ) {
+			throw new Exception('erVideresendtTil krever mønstring-objekt som input-parameter');
+		}
+		
+		if( $monstring->getId() == $this->getContext()->getMonstring()->getId() ) {
+			throw new Exception('Feil bruk av erVideresendtTil(): kan ikke sjekke om et innslag er videresendt til mønstringen det kommer fra');
+		}
+		
+		if( is_array( $this->videresendt_til ) && isset( $this->videresendt_til[ $monstring->getId() ] ) ) {
+			return $this->videresendt_til[ $monstring->getId() ];
+		}
+		
+		$qry = new SQL("
+			SELECT `rel`.`pl_id` 
+			FROM `smartukm_rel_pl_b` AS `rel`
+			LEFT JOIN `smartukm_place` AS `place` 
+				ON (`place`.`pl_id` = `rel`.`pl_id`)
+			WHERE `rel`.`b_id` = '#b_id'
+			AND `rel`.`pl_id` = '#pl_id'
+			", 
+			[
+				'b_id' => $this->getId(),
+				'pl_id' => $monstring->getId()
+			]
+		);
+		$res = $qry->run('field', 'pl_id');
+		$this->videresendt_til[ $monstring->getId() ] = $res !== null;
+
+		return $this->videresendt_til[ $monstring->getId() ];
+	}
+	
+	public function videresendesTil() {
+		return $this->getFylke();
 	}
 	
 	private function _calcAdvarsler( $context) {
