@@ -138,7 +138,7 @@ class person_v2 {
 	 * @return $this
 	**/
 	public function setFornavn( $fornavn ) {
-		$this->fornavn = mb_convert_case($fornavn, MB_CASE_TITLE, "UTF-8");
+		$this->fornavn = stripslashes( mb_convert_case($fornavn, MB_CASE_TITLE, "UTF-8" ) );
 		return $this;
 	}
 	/**
@@ -157,7 +157,7 @@ class person_v2 {
 	 * @return $this
 	**/
 	public function setEtternavn( $etternavn ) {
-		$this->etternavn = mb_convert_case($etternavn, MB_CASE_TITLE, "UTF-8");
+		$this->etternavn = stripslashes( mb_convert_case($etternavn, MB_CASE_TITLE, "UTF-8") );
 		return $this;
 	}
 	/**
@@ -236,7 +236,7 @@ class person_v2 {
 			$rolle = rtrim($rolle_nicename, ', ');
 		}
 
-		$this->rolle = $rolle;
+		$this->rolle = stripslashes( $rolle );
 		return $this;
 	}
 

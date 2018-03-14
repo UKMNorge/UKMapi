@@ -113,10 +113,10 @@ class innslag_v2 {
 		}
 		$this->setNavn( utf8_encode( $row['b_name'] ) );
 		$this->setType( $row['bt_id'], $row['b_kategori'] );
-		$this->setBeskrivelse( stripslashes( utf8_encode($row['b_description']) ) );
+		$this->setBeskrivelse( utf8_encode($row['b_description']) );
 		$this->setKommune( $row['b_kommune'] );
 		$this->setKategori( utf8_decode( $row['b_kategori'] ) );
-		$this->setSjanger( (string) utf8_encode($row['b_sjanger'] ));
+		$this->setSjanger( (string) utf8_encode($row['b_sjanger'] ) );
 		$this->setKontaktpersonId( $row['b_contact'] );
 		$this->_setSubscriptionTime( $row['b_subscr_time'] );
 		$this->setStatus( $row['b_status'] );
@@ -252,7 +252,7 @@ class innslag_v2 {
 	 * @return $this
 	**/
 	public function setNavn( $navn ) {
-		$this->navn = $navn;
+		$this->navn = stripslashes( $navn );
 		return $this;
 	}
 	/**
@@ -318,7 +318,7 @@ class innslag_v2 {
 	 * @return $this
 	**/
 	public function setTekniskeBehov( $tekniske_behov ) {
-		$this->tekniske_behov = $tekniske_behov;
+		$this->tekniske_behov = stripslashes( $tekniske_behov );
 		return $this;
 	}
 	
@@ -338,7 +338,7 @@ class innslag_v2 {
 	 * @return $this
 	**/
 	public function setBeskrivelse( $beskrivelse ) {
-		$this->beskrivelse = $beskrivelse;
+		$this->beskrivelse = stripslashes( $beskrivelse );
 		return $this;
 	}
 	/**
@@ -489,7 +489,7 @@ class innslag_v2 {
 	 * @return $this
 	**/
 	public function setSjanger( $sjanger ) {
-		$this->sjanger = $sjanger;
+		$this->sjanger = stripslashes( $sjanger );
 		return $this;
 	}
 	/**

@@ -32,7 +32,7 @@ class UKMlogger {
 		
 		$sql = new SQLins('log_value');
 		$sql->add('log_id', $id);
-		$sql->add('log_value', $value);
+		$sql->add('log_value', addslashes( $value ));
 		$res = $sql->run();
 		if( 1 != $res ) {
 			throw new Exception("UKMlogger: Klarte ikke å logge til log_value!");
