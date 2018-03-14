@@ -21,6 +21,9 @@ function TWIG($template, $dataarray, $templatefolder, $debug=false) {
 	// Add kroner-filter
 	$filter = new Twig_SimpleFilter('kroner', 'TWIGkroner');
 	$twig->addFilter($filter);
+	// Add tid-filter
+	$filter = new Twig_SimpleFilter('varighet', 'TWIGtid');
+	$twig->addFilter($filter);
 	
 	$function = new Twig_SimpleFunction('GET', 'TWIG_GET');
 	$twig->addFunction($function);
@@ -52,6 +55,19 @@ function TWIGkroner( $number, $decimals = 0, $decPoint = ',', $thousandsSep = ' 
 }
 function TWIGrender($template, $dataarray, $debug=false) {
 	return TWIG($template, $dataarray, str_replace('/twig/','', TWIG_PATH), $debug);
+}
+
+function TWIGtid( $seconds ) {
+	$q = floor($seconds / 60);
+	$r = $seconds % 60;
+	
+	if ($q == 0)
+		return $r.' sek';
+	
+	if ($r == 0)
+		return $q.' min';
+	
+	return $q.'m '.$r.'s';
 }
 
 function TWIG_date($time, $format) {
