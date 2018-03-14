@@ -75,6 +75,10 @@ class person_v2 {
 	 * @return bool
 	**/
 	public function erVideresendt( $pl_id ) {
+		if( is_object( $pl_id ) && ( 'monstring_v2' == get_class( $pl_id ) || 'write_monstring' == get_class( $pl_id ) || 'monstring' == get_class( $pl_id ) ) ) {
+			$pl_id = $pl_id->getId();
+		}
+
 		if( in_array( $this->_getBTID(), array(1,4,5,8,9)) ) {
 			return true;
 		}
@@ -84,6 +88,10 @@ class person_v2 {
 		}
 		return in_array($pl_id, $this->getVideresendtTil() );
 	}
+	public function erVideresendtTil( $monstring ) {
+		return $this->erVideresendt( $monstring );
+	}
+
 	
 	/**
 	 * Sett videresendt til
@@ -336,6 +344,10 @@ class person_v2 {
         $now = new DateTime('now');
 
 		return $birthdate->diff($now)->y . $suffix;
+	}
+	
+	public function getAlderTall() {
+		return $this->getAlder(null);
 	}
 	
 	
