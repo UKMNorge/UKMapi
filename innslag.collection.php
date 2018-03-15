@@ -143,13 +143,35 @@ class innslag_collection {
 		return $this->innslag;
 	}
 	
-	public function getVideresendte( $monstring_til ) {
+	public function getVideresendte() {
+		if( $this->getContext()->getType() != 'monstring' ) {
+			throw new Exception(
+				'Kan kun hente videresendte fra mønstring-context',
+				10405
+			);
+		}
+
 		if( null == $this->videresendte ) {
-			foreach( $this->getAll() as $innslag ) {
-				if( !$innslag->erVideresendtTil( $monstring_til ) ) {
-					continue;
+			$videresendTil = $this->getContext()->getMonstring()->getVideresendTil();
+			
+			// LOKAL TIL FYLKE
+			if( $this->getContext()->getMonstring()->getType() == 'kommune' ) {		
+				foreach( $this->getAll() as $innslag ) {
+					if( !$innslag->erVideresendtTil( $videresendTil[ $innslag->getFylke()->getId() ] ) ) {
+						continue;
+					}
+					$innslag->getContext()->setVideresendTil( $videresendTil[ $innslag->getFylke()->getId() ] );
+					$this->videresendte[] = $innslag;
 				}
-				$this->videresendte[] = $innslag;
+			} else {
+				foreach( $this->getAll() as $innslag ) {
+					if( !$innslag->erVideresendtTil( $videresendTil ) ) {
+						continue;
+					}
+					$innslag->getContext()->setVideresendTil( $videresendTil[ $innslag->getFylke()->getId() ] );
+
+					$this->videresendte[] = $innslag;
+				}
 			}
 		}
 		return $this->videresendte;

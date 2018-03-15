@@ -687,16 +687,20 @@ class innslag_v2 {
 	}
 	
 	public function erVideresendtTil( $monstring ) {
-		if( !is_object( $monstring ) && get_class( $monstring ) !== 'monstring_v2' ) {
-			throw new Exception('erVideresendtTil krever mønstring-objekt som input-parameter');
+		if( is_object( $monstring ) && get_class( $monstring ) == 'monstring_v2' ) {
+			$monstring_id = $monstring->getId();
+		} elseif( is_numeric( $monstring ) ) {
+			$monstring_id = $monstring;
+		} else {
+			throw new Exception('erVideresendtTil krever mønstring-objekt eller numerisk id som input-parameter');
 		}
 		
-		if( $monstring->getId() == $this->getContext()->getMonstring()->getId() ) {
+		if( $monstring_id == $this->getContext()->getMonstring()->getId() ) {
 			throw new Exception('Feil bruk av erVideresendtTil(): kan ikke sjekke om et innslag er videresendt til mønstringen det kommer fra');
 		}
 		
-		if( is_array( $this->videresendt_til ) && isset( $this->videresendt_til[ $monstring->getId() ] ) ) {
-			return $this->videresendt_til[ $monstring->getId() ];
+		if( is_array( $this->videresendt_til ) && isset( $this->videresendt_til[ $monstring_id ] ) ) {
+			return $this->videresendt_til[ $monstring_id ];
 		}
 		
 		$qry = new SQL("
@@ -709,13 +713,13 @@ class innslag_v2 {
 			", 
 			[
 				'b_id' => $this->getId(),
-				'pl_id' => $monstring->getId()
+				'pl_id' => $monstring_id
 			]
 		);
 		$res = $qry->run('field', 'pl_id');
-		$this->videresendt_til[ $monstring->getId() ] = $res !== null;
+		$this->videresendt_til[ $monstring_id ] = $res !== null;
 
-		return $this->videresendt_til[ $monstring->getId() ];
+		return $this->videresendt_til[ $monstring_id ];
 	}
 	
 	public function videresendesTil() {

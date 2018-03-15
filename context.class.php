@@ -5,6 +5,7 @@ class context {
 	var $monstring = null;
 	var $innslag = null;
 	var $forestilling = null;
+	var $videresend_til = false;
 	
 	public static function createMonstring( $id, $type, $sesong, $fylke, $kommuner ) {
 		$context = new context( 'monstring' );
@@ -42,7 +43,23 @@ class context {
 	public function getForestilling() {
 		return $this->forestilling;
 	}
+	
+	/**
+	 * Hvis innslaget er hentet ut som en del av en innslag-collection,
+	 * og funksjonen getVideresendte() er kjørt, settes dette på innslagets
+	 * kontekst, slik at det kan brukes på hentPersoner
+	**/
+	public function getVideresendTil() {
+		return $this->videresend_til;
+	}
+	public function setVideresendTil( $monstring ) {
+		if( is_object( $monstring ) && get_class( $monstring ) == 'monstring_v2' ) {
+			$monstring = $monstring->getId();
+		}
+		$this->videresend_til = $monstring;
+	}
 }
+
 class context_forestilling {
 	var $id = null;
 	
@@ -91,7 +108,7 @@ class context_monstring {
 	var $sesong;
 	var $kommuner;
 	var $fylke;
-	
+
 	public function __construct( $id, $type, $sesong, $fylke, $kommuner ) {
 		$this->id = $id;
 		$this->type = $type;
@@ -141,5 +158,32 @@ class context_monstring {
 	}
 	public function getFylke() {
 		return $this->fylke;
+	}
+	
+	public function getVideresendTil() {
+		if( null == $this->videresend_til ) {
+			require_once('UKM/monstringer.class.php');
+			switch( $this->getType() ) {
+				case 'kommune': 
+					$videresendTil = [];
+					foreach( $this->getKommuner() as $kommune_id ) {
+						$kommune = new kommune( $kommune_id );
+						if( !isset( $videresendTil[ $kommune->getFylke()->getId() ] ) ) {
+							$fylke = monstringer_v2::fylke( $kommune->getFylke(), $this->getSesong() );
+							$videresendTil[ $kommune->getFylke()->getId() ] = $fylke->getId();
+						}
+					}
+					$this->videresend_til = $videresendTil;
+				break;
+				case 'fylke':
+					$this->videresend_til = monstringer_v2::land( $this->getSesong() );
+				break;
+				default:
+					throw new Exception(
+						'CONTEXT_MONSTRING: Kan ikke videresende fra landsnivå'
+					);
+			}
+		}
+		return $this->videresend_til;
 	}
 }
