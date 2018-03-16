@@ -20,7 +20,10 @@ class person_v2 {
 		} elseif( is_array( $person ) ) {
 			$this->_load_from_array( $person );
 		} else {
-			throw new Exception('PERSON_V2: Oppretting krever parameter $person som numerisk id eller array, fikk '. gettype($person) .'.');
+			throw new Exception(
+				'PERSON_V2: Oppretting krever parameter $person som numerisk id eller array, fikk '. gettype($person) .'.',
+				109001
+			);
 		}
 	}
 	
@@ -35,6 +38,30 @@ class person_v2 {
 	
 	public static function getLoadQuery() {
 		return "SELECT * FROM `smartukm_participant` ";
+	}
+	
+	public static function loadFromData( $fornavn, $etternavn, $mobil ) {
+		$qry = new SQL(
+			self::getLoadQuery() . "
+			WHERE `p_firstname` = '#fornavn' 
+			AND `p_lastname` = '#etternavn' 
+			AND `p_phone` = '#mobil'", 
+			[
+				'fornavn' => $fornavn, 
+				'etternavn' => $etternavn,
+				'mobil' => $mobil
+			]
+		);
+		$person_data = $qry->run('array');
+		
+		if( !$person_data ) {
+			throw new Exception(
+				'Beklager, fant ikke '. $fornavn .' '. $etternavn .' ('. $mobil .')',
+				109004
+			);
+		}
+		
+		return new person_v2( $person_data );
 	}
 	
 	private function _load_from_db( $person ) {
@@ -83,8 +110,11 @@ class person_v2 {
 			return true;
 		}
 		if( null == $this->videresendtTil ){
-			throw new Exception( 'PERSON_V2 (p'. $this->getId() .'): Kan ikke svare om person er videresendt '
-								.'på objekt som ikke er initiert med pl_ids (via collection?)');
+			throw new Exception(
+				'PERSON_V2 (p'. $this->getId() .'): Kan ikke svare om person er videresendt '.
+				'på objekt som ikke er initiert med pl_ids (via collection?)',
+				109002
+			);
 		}
 		return in_array($pl_id, $this->getVideresendtTil() );
 	}
@@ -379,7 +409,10 @@ class person_v2 {
 	 * 
 	**/
 	public function setFylke( $fylke_id ) {
-		throw new Exception('PERSON V2: setFylke() er ikke mulig. Bruk setKommune( $kommune_id )');
+		throw new Exception(
+			'PERSON V2: setFylke() er ikke mulig. Bruk setKommune( $kommune_id )',
+			109003
+		);
 	}
 	
 	/**
