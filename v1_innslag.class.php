@@ -981,7 +981,7 @@ class innslag {
 	}
 	
 	public function kalkuler_titler($pl_id, $forwardToPLID=false) {
-		$titler = $this->titler($pl_id);
+		$titler = $this->titler($pl_id, $forwardToPLID);
 		$varighet = 0;
 		foreach($titler as $tittel) {
 			$varighet += (int) $tittel->g('varighet');
