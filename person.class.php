@@ -73,15 +73,23 @@ class person_v2 {
 		return $this->_load_from_array( $res );
 	}
 	private function _load_from_array( $person ) {
+		
+		foreach( ['p_firstname', 'p_lastname', 'p_email', 'instrument'] as $key ) {
+			if( isset( $person[ $key ] ) && !preg_match('!!u', $string) ) {
+				$person[ $key ] = utf8_encode( $person[ $key ] );
+			}
+		}
+		
+		
 		$this->setId( $person['p_id'] );
-		$this->setFornavn( utf8_encode($person['p_firstname']) );
-		$this->setEtternavn( utf8_encode($person['p_lastname']) );
+		$this->setFornavn( $person['p_firstname'] );
+		$this->setEtternavn( $person['p_lastname'] );
 		$this->setMobil( $person['p_phone'] );
-		$this->setEpost( utf8_encode($person['p_email']) );
+		$this->setEpost( $person['p_email'] );
 		$this->setFodselsdato( $person['p_dob'] );
 		$this->setKommune( $person['p_kommune'] );
 		if( array_key_exists('instrument', $person ) ) {
-			$this->setRolle( utf8_encode($person['instrument']) );
+			$this->setRolle( $person['instrument'] );
 		}
 		if( array_key_exists('instrument_object', $person ) ) {
 			$this->setRolleObject( json_decode( $person['instrument_object'] ) );
