@@ -162,6 +162,7 @@ class write_nominasjon extends nominasjon {
 		$sql->add('beskrivelse', $nominasjon->getBeskrivelse() );
 		$sql->add('samarbeid', $nominasjon->getSamarbeid() );
 		$sql->add('erfaring', $nominasjon->getErfaring() );
+		echo $sql->debug();
 		$res = $sql->run();
 	}
 
