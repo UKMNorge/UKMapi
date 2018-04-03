@@ -32,6 +32,9 @@ if(!class_exists('SQL')) {
 		}
 		
 		function charset($set='UTF-8') {
+			if( $set == 'UTF-8' ) {
+				$set = 'utf8';
+			}
 			$this->charset = $set;
 		}
 		function connect($db_name = null) {
@@ -181,6 +184,10 @@ if(!class_exists('SQLins')) {
 		}
 
 		function charset($set='UTF-8') {
+			if( $set == 'UTF-8' ) {
+				$set = 'utf8';
+			}
+
 			$this->charset = $set;
 		}
 
