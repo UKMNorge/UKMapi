@@ -75,7 +75,7 @@ class person_v2 {
 	private function _load_from_array( $person ) {
 		
 		foreach( ['p_firstname', 'p_lastname', 'p_email', 'instrument'] as $key ) {
-			if( isset( $person[ $key ] ) && !preg_match('!!u', $string) ) {
+			if( isset( $person[ $key ] ) && !preg_match('!!u', $person[ $key ]) ) {
 				$person[ $key ] = utf8_encode( $person[ $key ] );
 			}
 		}
