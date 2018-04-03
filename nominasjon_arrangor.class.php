@@ -63,7 +63,7 @@ class nominasjon_arrangor extends nominasjon {
 		if( !empty( $row['samarbeid'] ) ) {
 			$this->setHarDeltakerskjema( true );
 		}
-		if( !empty( $row['voksen-samarbeid'] ) && !empty( $row['erfaring'] ) ) {
+		if( !empty( $row['voksen-samarbeid'] ) && !empty( $row['voksen-erfaring'] ) ) {
 			$this->setHarVoksenskjema( true );
 		}
 
