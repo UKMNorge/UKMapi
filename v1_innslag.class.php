@@ -909,7 +909,7 @@ class innslag {
 												AND `pl_from` = '#plfrom'",
 												array(	'bid'=>$this->g('b_id'),
 														'tid'=>$r['t_id'],
-														'plto' => $forwardToPLID,
+														/* 'plto' => $forwardToPLID, */
 														'plfrom' => $pl_id
 													)
 											);
