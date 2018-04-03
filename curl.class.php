@@ -8,7 +8,8 @@ class UKMCURL {
 	var $requestType = "GET";
 	var $json = false;
 	var $headerList = array();
-	
+	var $error;
+
 	public function __construct() {
 
 	}
@@ -37,6 +38,9 @@ class UKMCURL {
 		$this->headerList[] = $header;
 	}
 
+	public function error() {
+		return $this->error;
+	}
 	public function headersOnly() {
 		$this->headers = true;
 		$this->content = false;
@@ -56,7 +60,7 @@ class UKMCURL {
 	
 	public function request($url) {
 		$this->url = $url;
-		
+
 		//curl_setopt($this->curl, CURLOPT_VERBOSE, true);
 
 		$this->_init();
@@ -102,7 +106,9 @@ class UKMCURL {
 		//var_dump($this);
 		// Execute
 		$this->result = curl_exec($this->curl);
-		#if ($this->result == false) echo curl_error($this->curl);
+		if ($this->result == false) {
+			$this->error = curl_error($this->curl);
+		}
 		// Default, return content of processed request
 		if($this->content) {
 			$this->_analyze();
