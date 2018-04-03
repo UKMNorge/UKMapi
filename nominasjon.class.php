@@ -90,7 +90,7 @@ class nominasjon extends nominasjon_placeholder {
 				'niva' => $niva,
 			]
 		);
-		$sql->charset('UTF-8');
+		$sql->charset('utf8');
 		
 		$res = $sql->run('array');
 		

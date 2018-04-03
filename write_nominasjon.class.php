@@ -34,7 +34,7 @@ class write_nominasjon extends nominasjon {
 		
 		if( !$obj->harNominasjon() ) {
 			$sql = new SQLins('ukm_nominasjon');
-			$sql->charset('UTF-8');
+			$sql->charset('utf8');
 			$sql->add('b_id', $innslag_id );
 			$sql->add('season', $sesong);
 			$sql->add('niva', $niva);
@@ -134,7 +134,7 @@ class write_nominasjon extends nominasjon {
 				'nominasjon' => $voksen->getNominasjon()
 			]
 		);
-		$sql->charset('UTF-8');
+		$sql->charset('utf8');
 		$sql->add('navn', $voksen->getNavn());
 		$sql->add('mobil', $voksen->getMobil());
 		$sql->add('rolle', $voksen->getRolle());
@@ -157,7 +157,7 @@ class write_nominasjon extends nominasjon {
 		}
 
 		$sql = new SQLins('ukm_nominasjon_media', ['nominasjon' => $nominasjon->getId() ] );
-		$sql->charset('UTF-8');
+		$sql->charset('utf8');
 		$sql->add('pri_1', $nominasjon->getPri1() );
 		$sql->add('pri_2', $nominasjon->getPri2() );
 		$sql->add('pri_3', $nominasjon->getPri3() );
@@ -183,7 +183,7 @@ class write_nominasjon extends nominasjon {
 		}
 
 		$sql = new SQLins('ukm_nominasjon_konferansier', ['nominasjon' => $nominasjon->getId() ] );
-		$sql->charset('UTF-8');
+		$sql->charset('utf8');
 		$sql->add('hvorfor', $nominasjon->getHvorfor() );
 		$sql->add('beskrivelse', $nominasjon->getBeskrivelse() );
 		$sql->add('fil-plassering', $nominasjon->getFilPlassering() );
@@ -205,7 +205,7 @@ class write_nominasjon extends nominasjon {
 		}
 
 		$sql = new SQLins('ukm_nominasjon_arrangor', ['nominasjon' => $nominasjon->getId() ] );
-		$sql->charset('UTF-8');
+		$sql->charset('utf8');
 		$sql->add('type_lydtekniker', $nominasjon->getLydtekniker() ? 'true':'false' );
 		$sql->add('type_lystekniker', $nominasjon->getLystekniker() ? 'true':'false' );
 		$sql->add('type_vertskap', $nominasjon->getVertskap() ? 'true':'false' );
