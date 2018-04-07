@@ -10,6 +10,7 @@ class forestilling_v2 extends forestilling {
 	var $start_datetime = null;
 	var $synlig_i_rammeprogram = null;
 	var $synlig_detaljprogram = null;
+	var $synlig_oppmotetid = false;
 	
 	var $collection_innslag = null;
 	
@@ -26,6 +27,7 @@ class forestilling_v2 extends forestilling {
 		$this->setMonstringId( $this->info['pl_id'] );
 		$this->setSynligRammeprogram( 'true' == $this->info['c_visible_program'] );
 		$this->setSynligDetaljprogram( 'true' == $this->info['c_visible_detail'] );
+		$this->setSynligOppmote( 'true' == $this->info['c_visible_oppmote'] );
 	}
 	
 	public function setContext( $context ) {
@@ -212,6 +214,27 @@ class forestilling_v2 extends forestilling {
 	**/
 	public function setSynligRammeprogram( $synlig ) {
 		$this->synlig_i_rammeprogram = $synlig;
+		return $this;
+	}
+
+	
+	/**
+	 * Skal forestillingen vises i rammeprogrammet?
+	 *
+	 * @return bool
+	**/
+	public function erSynligOppmote() {
+		return $this->synlig_oppmotetid;
+	}
+	
+	/**
+	 * Set om forestillingen skal vises i rammeprogrammet
+	 *
+	 * @param bool synlig
+	 * @return $this
+	**/
+	public function setSynligOppmote( $synlig ) {
+		$this->synlig_oppmotetid = $synlig;
 		return $this;
 	}
 
