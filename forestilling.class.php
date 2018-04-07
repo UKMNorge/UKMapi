@@ -245,7 +245,7 @@ class forestilling_v2 extends forestilling {
 	 * @return DateTime oppmøtetidspunkt
 	**/
 	public function getOppmoteTid( $searchfor ) {
-		$justering = $this->getOppmoteFor() + ( $this->getOppmoteDelay() * $this->getNummer( $searchfor ) );
+		$justering = 0 - ($this->getOppmoteFor()) + ( $this->getOppmoteDelay() * $this->getNummer( $searchfor ) );
 		return $this->getStart()->sub( DateInterval::createFromDateString("$justering minutes") );
 	}
 	
