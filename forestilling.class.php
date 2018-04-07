@@ -11,6 +11,8 @@ class forestilling_v2 extends forestilling {
 	var $synlig_i_rammeprogram = null;
 	var $synlig_detaljprogram = null;
 	var $synlig_oppmotetid = false;
+	var $oppmote_for = null;
+	var $oppmote_delay = null;
 	
 	var $collection_innslag = null;
 	
@@ -28,6 +30,8 @@ class forestilling_v2 extends forestilling {
 		$this->setSynligRammeprogram( 'true' == $this->info['c_visible_program'] );
 		$this->setSynligDetaljprogram( 'true' == $this->info['c_visible_detail'] );
 		$this->setSynligOppmotetid( 'true' == $this->info['c_visible_oppmote'] );
+		$this->setOppmoteFor( $this->info['c_before'] );
+		$this->setOppmoteDelay( $this->info['c_delay'] );
 	}
 	
 	public function setContext( $context ) {
@@ -197,6 +201,54 @@ class forestilling_v2 extends forestilling {
 		return false;
 	}
 
+	/**
+	 * Hent start-justering for oppmøte-beregning
+	 *
+	 * @return int sekunder før forestillingsstart
+	**/
+	public function getOppmoteFor() {
+		return $this->oppmote_for;
+	}
+	/**
+	 * Sett start-justering for oppmøte-beregning
+	 *
+	 * @param int sekunder
+	 * @return this
+	**/
+	public function setOppmoteFor( $sekunder ) {
+		$this->oppmote_for = $sekunder;
+		return $this;
+	}
+	
+	/**
+	 * Hent justering per innslag for oppmøte-beregning
+	 *
+	 * @param int sekunder
+	 * @return int sekunder delay per innslag
+	**/
+	public function setOppmoteDelay( $sekunder ) {
+		$this->oppmote_delay = $sekunder;
+		return $this;
+	}
+	/**
+	 * Sett justering per innslag for oppmøte-beregning
+	 *
+	 * @return this
+	**/
+	public function getOppmoteDelay() {
+		return $this->oppmote_delay;
+	}
+	
+	/**
+	 * Hent oppmøtetidspunkt for et gitt innslag
+	 *
+	 * @return DateTime oppmøtetidspunkt
+	**/
+	public function getOppmoteTid( $searchfor ) {
+		$justering = $this->getOppmoteFor() + ( $this->getOppmoteDelay() * $this->getNummer( $searchfor ) );
+		return $this->getStart()->sub("$justering seconds");
+	}
+	
 	/**
 	 * Skal forestillingen vises i rammeprogrammet?
 	 *
