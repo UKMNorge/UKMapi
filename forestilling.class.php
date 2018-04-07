@@ -247,7 +247,7 @@ class forestilling_v2 extends forestilling {
 	public function getOppmoteTid( $searchfor ) {
 		$oppmote = $this->getStart();
 		$oppmote->sub( DateInterval::createFromDateString( $this->getOppmoteFor() . " minutes") );
-		$oppmote->add( DateInterval::createFromDateString( ($this->getOppmoteDelay() * $this->getNummer( $searchfor )) . " minutes") );
+		$oppmote->add( DateInterval::createFromDateString( ($this->getOppmoteDelay() * ($this->getNummer( $searchfor )-1)) . " minutes") );
 		return $oppmote;
 	}
 	
