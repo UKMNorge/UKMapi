@@ -27,7 +27,7 @@ class forestilling_v2 extends forestilling {
 		$this->setMonstringId( $this->info['pl_id'] );
 		$this->setSynligRammeprogram( 'true' == $this->info['c_visible_program'] );
 		$this->setSynligDetaljprogram( 'true' == $this->info['c_visible_detail'] );
-		$this->setSynligOppmote( 'true' == $this->info['c_visible_oppmote'] );
+		$this->setSynligOppmotetid( 'true' == $this->info['c_visible_oppmote'] );
 	}
 	
 	public function setContext( $context ) {
@@ -223,7 +223,7 @@ class forestilling_v2 extends forestilling {
 	 *
 	 * @return bool
 	**/
-	public function erSynligOppmote() {
+	public function erSynligOppmotetid() {
 		return $this->synlig_oppmotetid;
 	}
 	
@@ -233,7 +233,7 @@ class forestilling_v2 extends forestilling {
 	 * @param bool synlig
 	 * @return $this
 	**/
-	public function setSynligOppmote( $synlig ) {
+	public function setSynligOppmotetid( $synlig ) {
 		$this->synlig_oppmotetid = $synlig;
 		return $this;
 	}
