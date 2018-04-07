@@ -204,10 +204,10 @@ class forestilling_v2 extends forestilling {
 	/**
 	 * Hent start-justering for oppmøte-beregning
 	 *
-	 * @return int sekunder før forestillingsstart
+	 * @return int minutter før forestillingsstart
 	**/
 	public function getOppmoteFor() {
-		return 0 - $this->oppmote_for;
+		return $this->oppmote_for;
 	}
 	/**
 	 * Sett start-justering for oppmøte-beregning
@@ -245,8 +245,10 @@ class forestilling_v2 extends forestilling {
 	 * @return DateTime oppmøtetidspunkt
 	**/
 	public function getOppmoteTid( $searchfor ) {
-		$justering = $this->getOppmoteFor() + ( $this->getOppmoteDelay() * $this->getNummer( $searchfor ) );
-		return $this->getStart()->sub( DateInterval::createFromDateString("$justering minutes") );
+		$oppmote = $this->getStart();
+		$oppmote->sub( DateInterval::createFromDateString( $this->getOppmoteFor() . " minutes") );
+		$oppmote->add( DateInterval::createFromDateString( ($this->getOppmoteDelay() * $this->getNummer( $searchfor )) . " minutes") );
+		return $oppmote;
 	}
 	
 	/**
