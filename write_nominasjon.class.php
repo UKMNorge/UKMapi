@@ -166,6 +166,9 @@ class write_nominasjon extends nominasjon {
 		$sql->add('samarbeid', $nominasjon->getSamarbeid() );
 		$sql->add('erfaring', $nominasjon->getErfaring() );
 		$res = $sql->run();
+		
+		ini_set("error_log", "/tmp/error_log_write_nominasjon.log");
+		error_log( $sql->debug() );
 	}
 
 
@@ -189,6 +192,9 @@ class write_nominasjon extends nominasjon {
 		$sql->add('fil-plassering', $nominasjon->getFilPlassering() );
 		$sql->add('fil-url', $nominasjon->getFilUrl() );
 		$res = $sql->run();
+		
+		ini_set("error_log", "/tmp/error_log_write_nominasjon.log");
+		error_log( $sql->debug() );
 	}
 	
 	public static function saveArrangor( $nominasjon ) {
@@ -234,6 +240,9 @@ class write_nominasjon extends nominasjon {
 		$sql->add('voksen-annet', $nominasjon->getVoksenAnnet() );
 		
 		$res = $sql->run();
+		
+		ini_set("error_log", "/tmp/error_log_write_nominasjon.log");
+		error_log( $sql->debug() );
 	}
 	
 	
