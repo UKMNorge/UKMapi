@@ -4,6 +4,7 @@ require_once('UKM/bilde_storrelse.class.php');
 
 class bilde {
 	var $id = null;
+	var $rel_id = null;
 	var $blog_id = null;
 	var $blog_url = null;
 	var $album_id = null;
@@ -63,6 +64,34 @@ class bilde {
 	**/
 	public function getId() {
 		return $this->id;
+	}
+	
+	/**
+	 * Sett relasjonsID (fra ukmno_wp_related)
+	 *
+	 * Tabellen joines alltid inn, både fra getBilder() og getBildeById
+	 * og både ukmno_wp_related.rel_id og ukm_bilder.id vil alltid være tilgjengelig.
+	 * Begge disse unike nøklene representerer kun ett bilde,
+	 * og vi har derfor to måter å finne samme bilde på.
+	 *
+	 * Videresendingsssystemet (og getValgtBilde()) bruker rel_id,
+	 * og kunne like gjerne brukt id. Men, ettersom de er det samme, bruker
+	 * vi rel_id, som det opprinnelig var kodet.
+	 *
+	 * @param integer $rel_id
+	 * @return $this
+	**/ 
+	public function setRelId( $rel_id ) {
+		$this->rel_id = $rel_id;
+		return $this;
+	}
+	/**
+	 * Hent relasjonsID (fra ukmno_wp_related)
+	 *
+	 * @return int $rel_id
+	**/
+	public function getRelId() {
+		return $this->rel_id;
 	}
 	
 	/**
@@ -416,6 +445,7 @@ class bilde {
 	**/
 	private function _loadByArray( $bilde ) {
 		$this->setId( $bilde['id'] );
+		$this->setRelId( $bilde['rel_id'] );
 		$this->setBlogId( $bilde['blog_id'] );
 		$this->setBlogUrl( $bilde['blog_url'] );
 
