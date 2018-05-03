@@ -83,7 +83,7 @@ class bilder {
 		
 		if( is_numeric( $media_id ) && $media_id > 0 ) {
 			foreach( $this->getAll() as $bilde ) {
-				if( $bilde->getId() == $media_id ) {
+				if( $bilde->getRelId() == $media_id ) {
 					return $bilde;
 				}
 			}
