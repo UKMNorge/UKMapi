@@ -13,6 +13,7 @@ class forestilling_v2 extends forestilling {
 	var $synlig_oppmotetid = false;
 	var $oppmote_for = null;
 	var $oppmote_delay = null;
+	var $intern = false;
 	var $type = null;
 	var $type_post_id = null;
 	var $type_category_id = null;
@@ -38,6 +39,7 @@ class forestilling_v2 extends forestilling {
 		$this->setType( $this->info['c_type'] );
 		$this->setTypePostId( $this->info['c_type_post_id'] );
 		$this->setTypeCategoryId( $this->info['c_type_category_id'] );
+		$this->setIntern( 'true' == $this->info['c_intern'] );
 	}
 	
 	public function getType() {
@@ -46,6 +48,17 @@ class forestilling_v2 extends forestilling {
 	public function setType( $type ) {
 		$this->type = $type;
 		return $this;
+	}
+	
+	public function setIntern( $intern ) {
+		$this->intern = $intern;
+		return $this;
+	}
+	public function erIntern() {
+		return $this->intern;
+	}
+	public function getIntern() {
+		return $this->erIntern();
 	}
 	
 	public function getTypePostId() {
