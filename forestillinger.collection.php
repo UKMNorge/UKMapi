@@ -117,24 +117,36 @@ class program {
 	public function getAllInkludertInterne() {
 		$alle = [];
 		if( is_array( $this->getAll() ) ) {
-			$alle = $this->getAll();
+			foreach( $this->getAll() as $hendelse ) {
+				$alle[ $hendelse->getStart()->getTimestamp() ] = $hendelse;
+			}
 		}
 		
 		if( is_array( $this->getAllInterne() ) ) {
-			$alle = array_merge( $alle, $this->getAllInterne() );
+			foreach( $this->getAllInterne() as $hendelse ) {
+				$alle[ $hendelse->getStart()->getTimestamp() ] = $hendelse;
+			}
 		}
+		
+		ksort( $alle );
 		return $alle;
 	}
 	
 	public function getAllInkludertSkjulte() {
-		$alle = array();
+		$alle = [];
 		if( is_array( $this->getAll() ) ) {
-			$alle = $this->getAll();
+			foreach( $this->getAll() as $hendelse ) {
+				$alle[ $hendelse->getStart()->getTimestamp() ] = $hendelse;
+			}
 		}
 		
 		if( is_array( $this->getAllSkjulte() ) ) {
-			$alle = array_merge( $alle, $this->getAllSkjulte() );
+			foreach( $this->getAllSkjulte() as $hendelse ) {
+				$alle[ $hendelse->getStart()->getTimestamp() ] = $hendelse;
+			}
 		}
+		
+		ksort( $alle );
 		return $alle;
 	}
 	
