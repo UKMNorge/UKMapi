@@ -41,6 +41,7 @@ class program {
 			}
 			$sortert[ $key ]->forestillinger[] = $forestilling;
 		}
+		ksort( $sortert );
 		return $sortert;
 	}
 	
