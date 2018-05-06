@@ -13,6 +13,8 @@ class forestilling_v2 extends forestilling {
 	var $synlig_oppmotetid = false;
 	var $oppmote_for = null;
 	var $oppmote_delay = null;
+	var $type = null;
+	var $type_post_id = null;
 	
 	var $collection_innslag = null;
 	
@@ -32,6 +34,24 @@ class forestilling_v2 extends forestilling {
 		$this->setSynligOppmotetid( 'true' == $this->info['c_visible_oppmote'] );
 		$this->setOppmoteFor( $this->info['c_before'] );
 		$this->setOppmoteDelay( $this->info['c_delay'] );
+		$this->setType( $this->info['c_type'] );
+		$this->setTypePostId( $this->info['c_type_post_id'] );
+	}
+	
+	public function getType() {
+		return $this->type;
+	}
+	public function setType( $type ) {
+		$this->type = $type;
+		return $this;
+	}
+	
+	public function getTypePostId() {
+		return $this->type_post_id;
+	}
+	public function setTypePostId( $post_id ) {
+		$this->type_post_id = $post_id;
+		return $this;
 	}
 	
 	public function setContext( $context ) {
@@ -491,7 +511,6 @@ class forestilling {
 
 		$qry = new SQLins('smartukm_concert', array('c_id'=>$this->info['c_id']));
 		$qry->add($field, $_POST[$post_key]);
-#		echo $qry->debug();
 		$qry->run();
 
 		
