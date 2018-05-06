@@ -839,7 +839,7 @@ class monstring_v2 {
 		$crnt->mnd= (int)date('m', $this->getStart()->getTimestamp());
 		$crnt->ar  = (int)date('Y', $this->getStart()->getTimestamp());
 		
-		for( $i=0; $i < $num_dager+1; $i++ ) {	
+		for( $i=0; $i < $num_dager; $i++ ) {	
 			if( $crnt->dag > cal_days_in_month( CAL_GREGORIAN, $crnt->mnd, $crnt->ar ) ) {
 				$crnt->dag = 1;
 				$crnt->mnd++;
