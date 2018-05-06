@@ -15,6 +15,7 @@ class forestilling_v2 extends forestilling {
 	var $oppmote_delay = null;
 	var $type = null;
 	var $type_post_id = null;
+	var $type_category_id = null;
 	
 	var $collection_innslag = null;
 	
@@ -36,6 +37,7 @@ class forestilling_v2 extends forestilling {
 		$this->setOppmoteDelay( $this->info['c_delay'] );
 		$this->setType( $this->info['c_type'] );
 		$this->setTypePostId( $this->info['c_type_post_id'] );
+		$this->setTypeCategoryId( $this->info['c_type_category_id'] );
 	}
 	
 	public function getType() {
@@ -51,6 +53,14 @@ class forestilling_v2 extends forestilling {
 	}
 	public function setTypePostId( $post_id ) {
 		$this->type_post_id = $post_id;
+		return $this;
+	}
+	
+	public function getTypeCategoryId() {
+		return $this->type_category_id;
+	}
+	public function setTypeCategoryId( $category_id ) {
+		$this->type_category_id = $category_id;
 		return $this;
 	}
 	
