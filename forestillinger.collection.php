@@ -101,6 +101,23 @@ class program {
 		return $this->skjulte_forestillinger;
 	}
 	
+	public function getAllInterne() {
+		$this->_load();
+		return $this->interne_forestillinger;
+	}
+	
+	public function getAllInkludertInterne() {
+		$alle = [];
+		if( is_array( $this->getAll() ) ) {
+			$alle = $this->getAll();
+		}
+		
+		if( is_array( $this->getAllInterne() ) ) {
+			$alle = array_merge( $alle, $this->getAllInterne() );
+		}
+		return $alle;
+	}
+	
 	public function getAllInkludertSkjulte() {
 		$alle = array();
 		if( is_array( $this->getAll() ) ) {
@@ -129,9 +146,10 @@ class program {
 			return true;
 		}
 
-		$this->forestillinger = [];
-		$this->skjulte_forestillinger = [];
-
+		$this->forestillinger = []; // Alle synlige (ikke interne) forestillinger
+		$this->skjulte_forestillinger = []; // Alle skjulte (interne + ikke interne) forestillinger
+		$this->interne_forestillinger = []; // Alle synlige, men interne forestillinger
+		
 		$SQL = $this->_getQuery();
 #		echo $SQL->debug();
 		$res = $SQL->run();
@@ -146,7 +164,11 @@ class program {
 			);
 			$forestilling->setContext( $context );
 			if( $forestilling->erSynligRammeprogram() ) {
-				$this->forestillinger[] = $forestilling;
+				if( $forestilling->erIntern() ) {
+					$this->interne_forestillinger[] = $forestilling;
+				} else {
+					$this->forestillinger[] = $forestilling;
+				}
 			} else {
 				$this->skjulte_forestillinger[] = $forestilling;
 			}
