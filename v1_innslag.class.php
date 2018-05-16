@@ -579,7 +579,7 @@ class innslag {
 	
 	private function _load_ikke_videresendte_personer() {
 		$this->ikke_videresendte_personer = array();
-		$qry = $this->_load_personer_qry("LEFT JOIN `smartukm_fylkestep_p` AS `fs` ON (`fs`.`p_id` = `smartukm_participant`.`p_id`) "," AND `fs`.`b_id` IS NULL");
+		$qry = $this->_load_personer_qry("LEFT JOIN `smartukm_fylkestep_p` AS `fs` ON (`fs`.`p_id` = `smartukm_participant`.`p_id` AND `fs`.`b_id` = `smartukm_rel_b_p`.`b_id`) "," AND `fs`.`b_id` IS NULL");
 		$qry = new SQL($qry);
 		$res = $qry->run();
 		if($res&&mysql_num_rows($res)>0)
@@ -607,7 +607,7 @@ class innslag {
 		&& is_numeric($this->visKunVideresendte) 
 		&& $this->info['bt_form'] != 'smartukm_titles_scene') {
 			$extraJoin = 'JOIN `smartukm_fylkestep_p` AS `fs` 
-							ON (`fs`.`p_id` = `smartukm_participant`.`p_id`) ';
+							ON (`fs`.`p_id` = `smartukm_participant`.`p_id` AND `fs`.`b_id` = `smartukm_rel_b_p`.`b_id`) ';
 			$extraWhere  = ' AND `fs`.`pl_id` = '.$this->visKunVideresendte.'';
 		} else
 			$extraJoin = $extraWhere = '';
