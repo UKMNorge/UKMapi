@@ -10,21 +10,11 @@ class PiAColl extends RFIDColl {
 	public static $models = null;
 		
 	public function getAllByArea( $id ) {
-		self::load('area_id', $id);
+		self::loadByKey('area_id', $id);
 		return self::$models;
 	}
 	
-	public static function load( $whereKey, $where ) {
-		self::$models = [];
-		
-		$rows = POSTGRES::getResults("SELECT * FROM ". self::TABLE_NAME .' WHERE '. $whereKey .'=$1', [ $where ]);
-		
-		if( is_array( $rows ) ) {
-			foreach( $rows as $row ) {
-				$object_class = str_replace('Coll', '', get_called_class());
-				self::$models[] = new $object_class( $row );
-			}
-		}
+	public static function getAreaCount( $area ) {
+		return POSTGRES::getValue("SELECT COUNT(id) AS id FROM ". self::TABLE_NAME .' WHERE area_id=$1', [$area]);
 	}
-
 }
