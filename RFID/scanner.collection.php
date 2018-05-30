@@ -12,4 +12,9 @@ class ScannerColl extends RFIDColl {
 	public function getByGUID( $guid ) {
 		return parent::getByKey("GUID", $guid);
 	}
+
+	public static function getAllByArea( $id ) {
+		self::loadByKey('area', $id);
+		return self::$models;
+	}
 }

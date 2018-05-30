@@ -11,6 +11,15 @@ abstract class RFIDColl {
 		$object_class = str_replace('Coll', '', $child);
 		return new $object_class( $row );
 	}
+	
+
+	public static function getByKey( $key, $value ) {
+		$child = get_called_class();
+		$row = POSTGRES::getRow("SELECT * FROM ". $child::TABLE_NAME .' WHERE '.$key.'=$1', [$value]);
+		
+		$object_class = str_replace('Coll', '', $child);
+		return new $object_class( $row );
+	}
 
 	public static function getAllByName() {
 		$child = get_called_class();
@@ -48,4 +57,17 @@ abstract class RFIDColl {
 			}
 		}
 	}
+	
+	public static function loadByKey( $whereKey, $where ) {
+		$child = get_called_class();
+		$child::$models = [];
+		$rows = POSTGRES::getResults("SELECT * FROM ". $child::TABLE_NAME .' WHERE '. $whereKey .'=$1', [ $where ]);		
+		if( is_array( $rows ) ) {
+			foreach( $rows as $row ) {
+				$object_class = str_replace('Coll', '', $child);
+				$child::$models[] = new $object_class( $row );
+			}
+		}
+	}
+
 }

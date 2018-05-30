@@ -10,21 +10,7 @@ class ScanColl extends RFIDColl {
 	public static $models = null;
 	
 	public function getAllByArea( $id ) {
-		self::load('area', $id);
+		self::loadByKey('area', $id);
 		return self::$models;
 	}
-	
-	public static function load( $whereKey, $where ) {
-		self::$models = [];
-		
-		$rows = POSTGRES::getResults("SELECT * FROM ". self::TABLE_NAME .' WHERE '. $whereKey .'=$1', [ $where ]);
-		
-		if( is_array( $rows ) ) {
-			foreach( $rows as $row ) {
-				$object_class = str_replace('Coll', '', get_called_class());
-				self::$models[] = new $object_class( $row );
-			}
-		}
-	}
-
 }
