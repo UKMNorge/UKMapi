@@ -44,4 +44,16 @@ class Area extends RFIDORM {
 		);
 		return $object;
 	}
+	
+	public function getScanners() {
+		return ScannerColl::getAllByArea( $this->getId() );
+	}
+	
+	public function getPersonsInAreaCount() {
+		return PiAColl::getAreaCount( $this->getId() );
+	}
+	
+	public function getPersonsInArea() {
+		throw new Exception('Mangler implementering');
+	}
 }
