@@ -5,12 +5,13 @@ namespace UKMNorge\RFID;
 require_once('UKM/postgres.class.php');
 
 abstract class RFIDORM {
-	
+	var $attr = null;
 	var $id = null;
 	
 	abstract public function populate( $row );
 	
 	public function __construct( $id_or_row ) {
+		$this->attr = [];
 		if( !is_null( $id_or_row ) && !$dummy ) {
 			if( is_numeric( $id_or_row ) ) {
 				$id_or_row = self::getRowFromDb( $id_or_row );
@@ -20,6 +21,17 @@ abstract class RFIDORM {
 			
 			$this->populate( $id_or_row );
 		}
+	}
+	
+	public function setAttr( $key, $val ) {
+		$this->attr[ $key ] = $val;
+		return $this;
+	}
+	public function getAttr( $key ) {
+		if( !isset( $this->attr[ $key ] ) ) {
+			return false;
+		}
+		return $this->attr[ $key ];
 	}
 	
 	public static function getTableName() {

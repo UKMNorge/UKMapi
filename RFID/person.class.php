@@ -80,9 +80,11 @@ class Person extends RFIDORM {
 		return $this->herd;
 	}
 	
-	
-	public function __toString() {
+	public function getName() {
 		return $this->getFirstName() .' '. $this->getLastName();
+	}
+	public function __toString() {
+		return $this->getName();
 	}
 	
 	

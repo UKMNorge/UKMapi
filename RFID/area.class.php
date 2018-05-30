@@ -50,6 +50,9 @@ class Area extends RFIDORM {
 		return ScannerColl::getAllByArea( $this->getId() );
 	}
 	
+	public function getPiACount() {
+		return $this->getPersonsInAreaCount();
+	}
 	public function getPersonsInAreaCount() {
 		require_once('pia.collection.php');
 		return PiAColl::getAreaCount( $this->getId() );

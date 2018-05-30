@@ -15,7 +15,7 @@ class POSTGRES {
 		if( isset( $result[0] ) ) {
 			return $result[0];
 		}
-		throw new Exception('POSTGRES did not return any rows');
+		throw new Exception('POSTGRES did not return any rows', 3);
 	}
 	
 	public static function getValue( $query, $parameters=false ) {
@@ -25,13 +25,15 @@ class POSTGRES {
 			return reset( $result );
 		}
 		
-		throw new Exception('POSTGRES did not return any values');
+		throw new Exception('POSTGRES did not return any values', 3);
 	}
 	
 	public static function getResults( $query, $parameters=false ) {
 		if( null == self::$connection ) {
-			throw new Exception('POSTGRES not connected. Please run connect');
+			throw new Exception('POSTGRES not connected. Please run connect', 2);
 		}
+
+		#var_dump( $query, $parameters );
 
 		if( $parameters !== false ) {
 			$result = pg_query_params( self::$connection, $query, $parameters );
@@ -53,7 +55,7 @@ class POSTGRES {
 	
 	private static function _query( $query, $parameters ) {
 		if( null == self::$connection ) {
-			throw new Exception('POSTGRES not connected. Please run connect');
+			throw new Exception('POSTGRES not connected. Please run connect', 2);
 		}
 		$result = @pg_query_params( self::$connection, $query, $parameters );
 		

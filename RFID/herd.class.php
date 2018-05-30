@@ -40,4 +40,19 @@ class Herd extends RFIDORM {
 		);
 		return $object;
 	}
+	
+	public function getHerdMembersInArea( $area ) {
+		require_once('pia.collection.php');
+		return PiAColl::getAreaHerd( $area, $this->getId() );
+	}
+	
+	public function getHerdMembersInAreaCount( $area ) {
+		require_once('pia.collection.php');
+		return PiAColl::getAreaHerdCount( $area, $this->getId() );
+	}
+	
+	public function getPersonsInArea() {
+		throw new Exception('Mangler implementering');
+	}
+
 }
