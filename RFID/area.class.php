@@ -7,7 +7,7 @@ require_once('orm.class.php');
 class Area extends RFIDORM {
 	const TABLE_NAME = 'area';
 	
-	var $name = null;
+	var $name = 'OBS: Ikke tilknyttet område';
 	var $capacity = null;
 	
 	public function populate( $row ) {

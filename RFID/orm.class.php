@@ -11,13 +11,15 @@ abstract class RFIDORM {
 	abstract public function populate( $row );
 	
 	public function __construct( $id_or_row ) {
-		if( is_numeric( $id_or_row ) ) {
-			$id_or_row = self::getRowFromDb( $id_or_row );
+		if( !is_null( $id_or_row ) && !$dummy ) {
+			if( is_numeric( $id_or_row ) ) {
+				$id_or_row = self::getRowFromDb( $id_or_row );
+			}
+			
+			$this->setId( $id_or_row['id'] );
+			
+			$this->populate( $id_or_row );
 		}
-		
-		$this->setId( $id_or_row['id'] );
-		
-		$this->populate( $id_or_row );
 	}
 	
 	public static function getTableName() {

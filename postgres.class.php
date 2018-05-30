@@ -29,6 +29,10 @@ class POSTGRES {
 	}
 	
 	public static function getResults( $query, $parameters=false ) {
+		if( null == self::$connection ) {
+			throw new Exception('POSTGRES not connected. Please run connect');
+		}
+
 		if( $parameters !== false ) {
 			$result = pg_query_params( self::$connection, $query, $parameters );
 		} else {

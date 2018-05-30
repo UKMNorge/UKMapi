@@ -1,7 +1,8 @@
 <?php
 
 namespace UKMNorge\RFID;
-	
+use Exception;
+
 require_once('orm.class.php');
 	
 class Scanner extends RFIDORM {
@@ -92,7 +93,11 @@ class Scanner extends RFIDORM {
 		require_once('area.collection.php');
 
 		if( $this->area == null ) {
-			$this->area = AreaColl::getById( $this->getAreaId() );
+			try {
+				$this->area = AreaColl::getById( $this->getAreaId() );
+			} catch( Exception $e ) {
+				return new Area(null);
+			}
 		}
 		return $this->area;
 	}
