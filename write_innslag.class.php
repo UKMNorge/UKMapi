@@ -833,7 +833,7 @@ class write_innslag {
 			);
 		}
 
-		if( !in_array($type->getKey(), array('scene', 'musikk', 'dans', 'teater', 'litteratur', 'film', 'video', 'utstilling', 'konferansier', 'nettredaksjon', 'arrangor') ) ) {
+		if( !in_array($type->getKey(), array('scene', 'musikk', 'dans', 'teater', 'litteratur', 'film', 'video', 'utstilling', 'konferansier', 'nettredaksjon', 'arrangor','ressurs') ) ) {
 			throw new Exception(
 				"Kan ikke opprette ".$type->getKey()."-innslag.",
 				50507
