@@ -46,6 +46,7 @@ class Area extends RFIDORM {
 	}
 	
 	public function getScanners() {
+		require_once('scanner.collection.php');
 		return ScannerColl::getAllByArea( $this->getId() );
 	}
 	
