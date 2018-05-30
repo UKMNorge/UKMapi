@@ -2,7 +2,7 @@
 
 namespace UKMNorge\RFID;
 
-require_once(UKMRFID .'/models/orm.class.php');
+require_once('orm.class.php');
 	
 class Person extends RFIDORM {
 	const TABLE_NAME = 'person';
@@ -74,7 +74,7 @@ class Person extends RFIDORM {
 	
 	public function getHerd() {
 		if( $this->herd == null ) {
-			require_once(UKMRFID .'/models/herd.collection.php');
+			require_once('herd.collection.php');
 			$this->herd = HerdColl::getById( $this->getHerdId() );
 		}
 		return $this->herd;

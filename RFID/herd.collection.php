@@ -2,8 +2,8 @@
 
 namespace UKMNorge\RFID;
 
-require_once(UKMRFID .'/models/orm.collection.php');
-require_once(UKMRFID .'/models/herd.class.php');
+require_once('orm.collection.php');
+require_once('herd.class.php');
 	
 class HerdColl extends RFIDColl {
 	const TABLE_NAME = Herd::TABLE_NAME;

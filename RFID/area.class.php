@@ -2,7 +2,7 @@
 
 namespace UKMNorge\RFID;
 
-require_once(UKMRFID .'/models/orm.class.php');
+require_once('orm.class.php');
 	
 class Area extends RFIDORM {
 	const TABLE_NAME = 'area';

@@ -2,8 +2,8 @@
 
 namespace UKMNorge\RFID;
 
-require_once(UKMRFID .'/models/orm.collection.php');
-require_once(UKMRFID .'/models/pia.class.php');
+require_once('orm.collection.php');
+require_once('pia.class.php');
 	
 class PiAColl extends RFIDColl {
 	const TABLE_NAME = PiA::TABLE_NAME;

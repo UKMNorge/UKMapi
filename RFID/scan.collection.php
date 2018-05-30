@@ -2,8 +2,8 @@
 
 namespace UKMNorge\RFID;
 
-require_once(UKMRFID .'/models/orm.collection.php');
-require_once(UKMRFID .'/models/scan.class.php');
+require_once('orm.collection.php');
+require_once('scan.class.php');
 	
 class ScanColl extends RFIDColl {
 	const TABLE_NAME = Scan::TABLE_NAME;

@@ -2,7 +2,7 @@
 	
 namespace UKMNorge\RFID;
 
-require_once(UKMRFID .'/class/postgres.class.php');
+require_once('UKM/postgres.class.php');
 
 abstract class RFIDORM {
 	

@@ -2,7 +2,7 @@
 
 namespace UKMNorge\RFID;
 	
-require_once(UKMRFID .'/models/orm.class.php');
+require_once('orm.class.php');
 	
 class Scan extends RFIDORM {
 	const TABLE_NAME = 'scan';
@@ -39,7 +39,7 @@ class Scan extends RFIDORM {
 	}
 
 	public function getArea() {
-		require_once(UKMRFID .'/models/area.collection.php');
+		require_once('area.collection.php');
 
 		if( $this->area == null ) {
 			$this->area = AreaColl::getById( $this->getAreaId() );
