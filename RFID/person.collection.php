@@ -10,7 +10,7 @@ class PersonColl extends RFIDColl {
 	public static $models = null;
 	
 	public static function getByRFID( $rfid ) {
-		$row = POSTGRES::getRow("SELECT * FROM ". self::TABLE_NAME ." WHERE rfid=$1", [$id]);
+		$row = POSTGRES::getRow("SELECT * FROM ". self::TABLE_NAME ." WHERE rfid=$1", [$rfid]);
 		
 		$object_class = str_replace('Coll', '', get_called_class());
 		return new $object_class( $row );
@@ -18,7 +18,7 @@ class PersonColl extends RFIDColl {
 	
 	public static function hasRFID( $rfid ) {
 		try {
-			$row = POSTGRES::getRow("SELECT * FROM ". self::TABLE_NAME ." WHERE rfid=$1", [$id]);
+			$row = POSTGRES::getRow("SELECT * FROM ". self::TABLE_NAME ." WHERE rfid=$1", [$rfid]);
 			return true;
 		} catch( Exception $e ) {
 			return false;
