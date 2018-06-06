@@ -57,7 +57,7 @@ class related {
 							  );
 		else
 			$del = new SQLdel($this->table,
-							  array(/*'blog_id'=>$this->blog_id,*/
+							  array('blog_id'=>$this->blog_id,
 							  		'post_id'=>$post_id,
 							  		'post_type'=>$post_type)
 							  );
