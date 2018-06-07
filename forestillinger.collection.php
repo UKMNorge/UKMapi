@@ -118,13 +118,13 @@ class program {
 		$alle = [];
 		if( is_array( $this->getAll() ) ) {
 			foreach( $this->getAll() as $hendelse ) {
-				$alle[ $hendelse->getStart()->getTimestamp() ] = $hendelse;
+				$alle[ $hendelse->getStart()->getTimestamp() .'-'. $hendelse->getId() ] = $hendelse;
 			}
 		}
 		
 		if( is_array( $this->getAllInterne() ) ) {
 			foreach( $this->getAllInterne() as $hendelse ) {
-				$alle[ $hendelse->getStart()->getTimestamp() ] = $hendelse;
+				$alle[ $hendelse->getStart()->getTimestamp() .'-'. $hendelse->getId() ] = $hendelse;
 			}
 		}
 		
@@ -136,13 +136,13 @@ class program {
 		$alle = [];
 		if( is_array( $this->getAll() ) ) {
 			foreach( $this->getAll() as $hendelse ) {
-				$alle[ $hendelse->getStart()->getTimestamp() ] = $hendelse;
+				$alle[ $hendelse->getStart()->getTimestamp() .'-'. $hendelse->getId() ] = $hendelse;
 			}
 		}
 		
 		if( is_array( $this->getAllSkjulte() ) ) {
 			foreach( $this->getAllSkjulte() as $hendelse ) {
-				$alle[ $hendelse->getStart()->getTimestamp() ] = $hendelse;
+				$alle[ $hendelse->getStart()->getTimestamp() .'-'. $hendelse->getId() ] = $hendelse;
 			}
 		}
 		
