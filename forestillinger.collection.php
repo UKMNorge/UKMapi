@@ -45,6 +45,16 @@ class program {
 		return $sortert;
 	}
 	
+	public static function filterByDato( $timestamp, $forestillinger ) { 
+		$filtrert = [];
+		foreach( $forestillinger as $forestilling ) {
+			if( $forestilling->getStart()->format('d_m') == $timestamp->format('d_m') ) {
+				$filtrert[] = $forestilling;
+			}
+		}
+		return $filtrert;
+	}
+	
 	public function get( $id ) {
 		if( is_object( $id ) && get_class( $id ) == 'forestilling_v2' ) {
 			$id = $id->getId();
