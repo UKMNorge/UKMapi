@@ -57,8 +57,6 @@ abstract class ORM {
 		foreach( $mapped_values as $key => $val) {
 			$sqlUpd->add( $key, $val );
 		}
-		echo $sqlUpd->debug();
-		return;
 		return $sqlUpd->run();
 	}
 

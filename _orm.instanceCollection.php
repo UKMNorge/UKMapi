@@ -9,6 +9,10 @@ abstract class InstanceColl {
 		$this->parent_id = $parent_id;
 	}
 	
+	public function getParentId() {
+		return $this->parent_id;
+	}
+	
 	public function getById( $id ) {
 		$child = get_called_class();
 		
@@ -123,10 +127,9 @@ abstract class InstanceColl {
 		foreach( $mapped_values as $key => $val ) {
 			$sqlIns->add( $key, $val );
 		}
-		echo $sqlIns->debug();
 		$res = $sqlIns->run();
 
-		return new $child( $sqlIns->insid() );
+		return new $child( $sqlIns->insid(), $mapped_values['type'] );
 	}
 
 	public function _delete( $mapped_values ) {
