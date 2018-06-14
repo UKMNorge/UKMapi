@@ -11,10 +11,12 @@ class person_v2 {
 	var $mobil = null;
 	var $rolle = null;
 	var $epost = null;
+	var $attributes = null;
 	
 	var $videresendtTil = null;
 	
 	public function __construct( $person ) {
+		$this->attributes = [];
 		if( is_numeric( $person ) ) {
 			$this->_load_from_db( $person );
 		} elseif( is_array( $person ) ) {
@@ -35,6 +37,29 @@ class person_v2 {
 		return $this->context;
 	}
 
+	/**
+	 * Sett attributt
+	 * Sett egenskaper som for enkelhets skyld kan følge innslaget et lite stykke
+	 * Vil aldri kunne lagres
+	 *
+	 * @param string $key
+	 * @param $value
+	 *
+	 * @return innslag
+	**/
+	public function setAttr( $key, $value ) {
+		$this->attributes[ $key ] = $value;
+		return $this;
+	}
+	
+	/**
+	 * Hent attributt
+	 * @param string $key
+	 * @return value
+	**/
+	public function getAttr( $key ) {
+		return isset( $this->attributes[ $key ] ) ? $this->attributes[ $key ] : false;
+	}
 	
 	public static function getLoadQuery() {
 		return "SELECT * FROM `smartukm_participant` ";
