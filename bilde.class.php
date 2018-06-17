@@ -462,7 +462,7 @@ class bilde {
 			$this->setAuthorId( $this->post_meta['author'] );
 		}
 		
-		foreach( array('thumbnail','medium','large') as $size ) {
+		foreach( array('thumbnail','medium','large','lite') as $size ) {
 			if( isset( $this->post_meta['sizes'][ $size ] ) ) {
 				$this->addSize( $size, $this->post_meta['sizes'][$size] );
 			}
@@ -511,9 +511,13 @@ class bilde {
 	 * @return bilde_storrelse
 	 *
 	**/
-	public function getSize( $id ) {
+	public function getSize( $id, $id2=false ) {
 		if( isset( $this->sizes[ $id ] ) ) {
 			return $this->sizes[ $id ];
+		}
+		
+		if( $id2 != false && isset( $this->sizes[ $id2 ] ) ) {
+			return $this->sizes[ $id2 ];
 		}
 		
 		if( isset( $this->sizes['original'] ) ) {
