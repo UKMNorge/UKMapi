@@ -40,4 +40,11 @@ class PersonColl extends RFIDColl {
 			return false;
 		}
 	}
+
+	public static function getAll( ) {
+		$row = POSTGRES::getRow("SELECT * FROM ". self::TABLE_NAME, array());
+
+		$object_class = str_replace('Coll', '', get_called_class());
+		return new $object_class( $row );
+	}
 }
