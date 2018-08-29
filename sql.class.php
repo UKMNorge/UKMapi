@@ -50,6 +50,14 @@ if(!class_exists('SQL')) {
 			$this->error = true;
 		}
 		
+		public static function fetch( $result ) {
+			if( is_object( $result ) ) {
+				return mysqli_fetch_assoc( $result );
+			}
+			return mysql_fetch_assoc( $result );
+		}
+
+		
 		function run($what='resource', $name='') {
 			if(!$this->db) {
 				$this->connect();
