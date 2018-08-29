@@ -41,7 +41,18 @@ class program {
 			}
 			$sortert[ $key ]->forestillinger[] = $forestilling;
 		}
+		ksort( $sortert );
 		return $sortert;
+	}
+	
+	public static function filterByDato( $timestamp, $forestillinger ) { 
+		$filtrert = [];
+		foreach( $forestillinger as $forestilling ) {
+			if( $forestilling->getStart()->format('d_m') == $timestamp->format('d_m') ) {
+				$filtrert[] = $forestilling;
+			}
+		}
+		return $filtrert;
 	}
 	
 	public function get( $id ) {
@@ -61,6 +72,13 @@ class program {
 				return $item;
 			}
 		}
+		
+		foreach( $this->getAllInterne() as $item ) {
+			if( $item->getId() == $id ) {
+				return $item;
+			}
+		}
+
 		throw new Exception('Kunne ikke finne hendelse '. $id .'.', 2); // OBS: code brukes av har()
 	}
 	
@@ -101,15 +119,44 @@ class program {
 		return $this->skjulte_forestillinger;
 	}
 	
-	public function getAllInkludertSkjulte() {
-		$alle = array();
+	public function getAllInterne() {
+		$this->_load();
+		return $this->interne_forestillinger;
+	}
+	
+	public function getAllInkludertInterne() {
+		$alle = [];
 		if( is_array( $this->getAll() ) ) {
-			$alle = $this->getAll();
+			foreach( $this->getAll() as $hendelse ) {
+				$alle[ $hendelse->getStart()->getTimestamp() .'-'. $hendelse->getId() ] = $hendelse;
+			}
+		}
+		
+		if( is_array( $this->getAllInterne() ) ) {
+			foreach( $this->getAllInterne() as $hendelse ) {
+				$alle[ $hendelse->getStart()->getTimestamp() .'-'. $hendelse->getId() ] = $hendelse;
+			}
+		}
+		
+		ksort( $alle );
+		return $alle;
+	}
+	
+	public function getAllInkludertSkjulte() {
+		$alle = [];
+		if( is_array( $this->getAll() ) ) {
+			foreach( $this->getAll() as $hendelse ) {
+				$alle[ $hendelse->getStart()->getTimestamp() .'-'. $hendelse->getId() ] = $hendelse;
+			}
 		}
 		
 		if( is_array( $this->getAllSkjulte() ) ) {
-			$alle = array_merge( $alle, $this->getAllSkjulte() );
+			foreach( $this->getAllSkjulte() as $hendelse ) {
+				$alle[ $hendelse->getStart()->getTimestamp() .'-'. $hendelse->getId() ] = $hendelse;
+			}
 		}
+		
+		ksort( $alle );
 		return $alle;
 	}
 	
@@ -129,9 +176,10 @@ class program {
 			return true;
 		}
 
-		$this->forestillinger = [];
-		$this->skjulte_forestillinger = [];
-
+		$this->forestillinger = []; // Alle synlige (ikke interne) forestillinger
+		$this->skjulte_forestillinger = []; // Alle skjulte (interne + ikke interne) forestillinger
+		$this->interne_forestillinger = []; // Alle synlige, men interne forestillinger
+		
 		$SQL = $this->_getQuery();
 #		echo $SQL->debug();
 		$res = $SQL->run();
@@ -146,7 +194,11 @@ class program {
 			);
 			$forestilling->setContext( $context );
 			if( $forestilling->erSynligRammeprogram() ) {
-				$this->forestillinger[] = $forestilling;
+				if( $forestilling->erIntern() ) {
+					$this->interne_forestillinger[] = $forestilling;
+				} else {
+					$this->forestillinger[] = $forestilling;
+				}
 			} else {
 				$this->skjulte_forestillinger[] = $forestilling;
 			}

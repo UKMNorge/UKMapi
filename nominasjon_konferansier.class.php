@@ -16,7 +16,7 @@ class nominasjon_konferansier extends nominasjon {
 		$this->setFilPlassering( $row['fil-plassering'] );
 		$this->setFilUrl( $row['fil-url'] );
 
-		if( !empty( $row['hvorfor'] ) && !empty( $row['erfaring'] ) ) {
+		if( !empty( $row['hvorfor'] ) && !empty( $row['beskrivelse'] ) ) {
 			$this->setHarVoksenskjema( true );
 		}
 	}
