@@ -188,13 +188,13 @@ class write_monstring {
 		}
 
 		// Sjekk kontaktpersoner og lagre endringer
-		foreach( $monstring_save->getKontakter()->getAll() as $kontakt ) {
-			if( !$monstring_db->getKontakter()->har( $kontakt ) ) {
+		foreach( $monstring_save->getKontaktpersoner()->getAll() as $kontakt ) {
+			if( !$monstring_db->getKontaktpersoner()->har( $kontakt ) ) {
 				self::_leggTilKontaktperson( $monstring_save, $kontakt ); 
 			}
 		}
-		foreach( $monstring_db->getKommuner()->getAll() as $kontakt ) {
-			if( $monstring_save->getKontakter()->har( $kontakt ) ) {
+		foreach( $monstring_db->getKontaktpersoner()->getAll() as $kontakt ) {
+			if( $monstring_save->getKontaktpersoner()->har( $kontakt ) ) {
 				self::_fjernKontaktperson( $monstring_save, $kontakt );
 			}
 		}
