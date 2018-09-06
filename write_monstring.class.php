@@ -181,7 +181,7 @@ class write_monstring {
 				}
 			}
 			foreach( $monstring_db->getKommuner()->getAll() as $kommune ) {
-				if( $monstring_save->getKommuner()->har( $kommune ) ) {
+				if( !$monstring_save->getKommuner()->har( $kommune ) ) {
 					self::_fjernKommune( $monstring_save, $kommune );
 				}
 			}
@@ -194,7 +194,7 @@ class write_monstring {
 			}
 		}
 		foreach( $monstring_db->getKontaktpersoner()->getAll() as $kontakt ) {
-			if( $monstring_save->getKontaktpersoner()->har( $kontakt ) ) {
+			if( !$monstring_save->getKontaktpersoner()->har( $kontakt ) ) {
 				self::_fjernKontaktperson( $monstring_save, $kontakt );
 			}
 		}
