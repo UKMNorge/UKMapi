@@ -142,10 +142,13 @@ class write_monstring {
 		$properties = [
 			'Navn' 			=> ['smartukm_place', 'pl_name', 100],
 			'Path' 			=> ['smartukm_place', 'pl_link', 110],
-			'Skjema'		=> ['smartukm_place', 'pl_form', 113],
 			'Uregistrerte'	=> ['smartukm_place', 'pl_missing', 108],
 			'Publikum'		=> ['smartukm_place', 'pl_public', 109],
 		];
+		// VERDIER SOM KUN KAN OPPDATERES HVIS FYLKE
+		if( $monstring_save->getType() == 'fylke' ) {
+			$properties['Skjema'] = ['smartukm_place', 'pl_form', 113];
+		}
 		
 		// LOOP ALLE VERDIER, OG EVT LEGG TIL I SQL
 		foreach( $properties as $functionName => $logValues ) {
