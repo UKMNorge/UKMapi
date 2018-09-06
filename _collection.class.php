@@ -8,6 +8,13 @@ abstract class Collection implements Iterator
 	    $this->var[] = $item;
 	    return $this;
     }
+
+    public function leggTil( $item ) {
+        $this->add( $item );
+    }
+    public function fjern( $item ) {
+        $this->remove( $item );
+    }
     
     public function har( $object ) {
 	    return $this->find( $object->getId() );
@@ -31,6 +38,9 @@ abstract class Collection implements Iterator
     }
     
     public function remove( $id ) {
+        if( is_object( $id ) ) {
+            $id = $id->getId();
+        }
 		if( false == $this->find( $id ) ) {
 			throw new Exception('Could not find '. $id );
 		}
