@@ -614,7 +614,15 @@ class write_wp_blog {
 				$page_id = $eksisterer->ID;
 			}
 			if( isset( $side['viseng'] ) && !empty( $side['viseng'] ) ) {
+				// Først delete, så add, fordi update_post_meta ikke gjør nok
+				// (hvis current_value er et array, vil update_post_meta 
+				// ikke gjøre noe/oppdatere alle verdiene (uvisst)
+				//
+				// VISENG håndterer arrays i visningen, men det er likevel greit å 
+				// ha riktig data.
+				delete_post_meta($page_id, 'UKMviseng');
 				add_post_meta($page_id, 'UKMviseng', $side['viseng']);
+				
 			}
 		}
 		

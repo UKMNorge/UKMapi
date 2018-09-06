@@ -149,7 +149,7 @@ class write_monstring {
 		if( $monstring_save->getType() == 'fylke' ) {
 			$properties['Skjema'] = ['smartukm_place', 'pl_form', 113];
 		}
-		
+
 		// LOOP ALLE VERDIER, OG EVT LEGG TIL I SQL
 		foreach( $properties as $functionName => $logValues ) {
 			$function = 'get'.$functionName;
@@ -168,9 +168,13 @@ class write_monstring {
 			}
 		}
 		
+		$res = true; // Fordi smartukm_place->run() vil overskrive hvis det oppstår feil
 		if( $smartukm_place->hasChanges() ) {
 			#echo $smartukm_place->debug();
-			$smartukm_place->run();
+			$res = $smartukm_place->run();
+		}
+		if( !$res ) {
+			throw new Exception('Kunne ikke opprette mønstring skikkelig, da lagring av detaljer feilet');
 		}
 
 		// Hvis lokalmønstring, sjekk og lagre kommunesammensetning
