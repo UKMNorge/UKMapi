@@ -96,7 +96,7 @@ class write_monstring {
 				break;
 		}
 
-		$place->add('pl_name', $navn);
+		$place->add('pl_name', ltrim( rtrim( $navn ) ));
 		$place->add('season', $sesong);
 		
 		$result = $place->run();
@@ -113,7 +113,7 @@ class write_monstring {
 		
 		$monstring->setPath( 
 			self::generatePath(
-				'kommune',
+				$type,
 				$geografi,
 				$sesong
 			)
@@ -212,10 +212,10 @@ class write_monstring {
 	 * @param kontakt_v2 $kontakt
 	 * @return bool $sucess
 	**/
-	public function _leggTilKontaktperson( $monstring_save, $kontakt ) {
+	public static function _leggTilKontaktperson( $monstring_save, $kontakt ) {
 		try {
 			self::controlMonstring( $monstring_save );
-			self::controlKontakt( $kontakt );
+			self::controlKontaktperson( $kontakt );
 		} catch( Exception $e ) {
 			throw new Exception('Kan ikke legge til kontaktperson da '. $e->getMessage() );
 		}
@@ -263,10 +263,10 @@ class write_monstring {
 	 * @param kontakt_v2 $kontakt
 	 * @return void
 	**/
-	public function _fjernKontaktperson( $monstring_save, $kontakt ) {
+	public static function _fjernKontaktperson( $monstring_save, $kontakt ) {
 		try {
 			self::controlMonstring( $monstring_save );
-			self::controlKontakt( $kontakt );
+			self::controlKontaktperson( $kontakt );
 		} catch( Exception $e ) {
 			throw new Exception('Kan ikke fjerne kontaktperson da '. $e->getMessage() );
 		}
