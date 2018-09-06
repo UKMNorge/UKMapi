@@ -10,6 +10,13 @@ class forestilling_v2 extends forestilling {
 	var $start_datetime = null;
 	var $synlig_i_rammeprogram = null;
 	var $synlig_detaljprogram = null;
+	var $synlig_oppmotetid = false;
+	var $oppmote_for = null;
+	var $oppmote_delay = null;
+	var $intern = false;
+	var $type = null;
+	var $type_post_id = null;
+	var $type_category_id = null;
 	
 	var $collection_innslag = null;
 	
@@ -26,6 +33,48 @@ class forestilling_v2 extends forestilling {
 		$this->setMonstringId( $this->info['pl_id'] );
 		$this->setSynligRammeprogram( 'true' == $this->info['c_visible_program'] );
 		$this->setSynligDetaljprogram( 'true' == $this->info['c_visible_detail'] );
+		$this->setSynligOppmotetid( 'true' == $this->info['c_visible_oppmote'] );
+		$this->setOppmoteFor( $this->info['c_before'] );
+		$this->setOppmoteDelay( $this->info['c_delay'] );
+		$this->setType( $this->info['c_type'] );
+		$this->setTypePostId( $this->info['c_type_post_id'] );
+		$this->setTypeCategoryId( $this->info['c_type_category_id'] );
+		$this->setIntern( 'true' == $this->info['c_intern'] );
+	}
+	
+	public function getType() {
+		return $this->type;
+	}
+	public function setType( $type ) {
+		$this->type = $type;
+		return $this;
+	}
+	
+	public function setIntern( $intern ) {
+		$this->intern = $intern;
+		return $this;
+	}
+	public function erIntern() {
+		return $this->intern;
+	}
+	public function getIntern() {
+		return $this->erIntern();
+	}
+	
+	public function getTypePostId() {
+		return $this->type_post_id;
+	}
+	public function setTypePostId( $post_id ) {
+		$this->type_post_id = $post_id;
+		return $this;
+	}
+	
+	public function getTypeCategoryId() {
+		return $this->type_category_id;
+	}
+	public function setTypeCategoryId( $category_id ) {
+		$this->type_category_id = $category_id;
+		return $this;
 	}
 	
 	public function setContext( $context ) {
@@ -196,6 +245,56 @@ class forestilling_v2 extends forestilling {
 	}
 
 	/**
+	 * Hent start-justering for oppmøte-beregning
+	 *
+	 * @return int minutter før forestillingsstart
+	**/
+	public function getOppmoteFor() {
+		return $this->oppmote_for;
+	}
+	/**
+	 * Sett start-justering for oppmøte-beregning
+	 *
+	 * @param int minutter
+	 * @return this
+	**/
+	public function setOppmoteFor( $minutter ) {
+		$this->oppmote_for = $minutter;
+		return $this;
+	}
+	
+	/**
+	 * Hent justering per innslag for oppmøte-beregning
+	 *
+	 * @param int minutter
+	 * @return int sekunder delay per innslag
+	**/
+	public function setOppmoteDelay( $minutter ) {
+		$this->oppmote_delay = $minutter;
+		return $this;
+	}
+	/**
+	 * Sett justering per innslag for oppmøte-beregning
+	 *
+	 * @return this
+	**/
+	public function getOppmoteDelay() {
+		return $this->oppmote_delay;
+	}
+	
+	/**
+	 * Hent oppmøtetidspunkt for et gitt innslag
+	 *
+	 * @return DateTime oppmøtetidspunkt
+	**/
+	public function getOppmoteTid( $searchfor ) {
+		$oppmote = clone $this->getStart();
+		$oppmote->sub( DateInterval::createFromDateString( $this->getOppmoteFor() . " minutes") );
+		$oppmote->add( DateInterval::createFromDateString( ($this->getOppmoteDelay() * ($this->getNummer( $searchfor )-1)) . " minutes") );
+		return $oppmote;
+	}
+	
+	/**
 	 * Skal forestillingen vises i rammeprogrammet?
 	 *
 	 * @return bool
@@ -212,6 +311,27 @@ class forestilling_v2 extends forestilling {
 	**/
 	public function setSynligRammeprogram( $synlig ) {
 		$this->synlig_i_rammeprogram = $synlig;
+		return $this;
+	}
+
+	
+	/**
+	 * Skal forestillingen vises i rammeprogrammet?
+	 *
+	 * @return bool
+	**/
+	public function erSynligOppmotetid() {
+		return $this->synlig_oppmotetid;
+	}
+	
+	/**
+	 * Set om forestillingen skal vises i rammeprogrammet
+	 *
+	 * @param bool synlig
+	 * @return $this
+	**/
+	public function setSynligOppmotetid( $synlig ) {
+		$this->synlig_oppmotetid = $synlig;
 		return $this;
 	}
 
@@ -414,7 +534,6 @@ class forestilling {
 
 		$qry = new SQLins('smartukm_concert', array('c_id'=>$this->info['c_id']));
 		$qry->add($field, $_POST[$post_key]);
-#		echo $qry->debug();
 		$qry->run();
 
 		

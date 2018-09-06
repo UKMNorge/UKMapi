@@ -74,6 +74,17 @@ class bilde_storrelse {
 	}
 	
 	/**
+	 * Hent bildets orientering
+	 *
+	 * @return string 'portrait'|'landscape'
+	**/
+	public function getOrientation() {
+		if( $this->getWidth() < $this->getHeight() ) {
+			return 'portrait';
+		}
+		return 'landscape';
+	}
+	/**
 	 * Sett bildehøyde (px)
 	 *
 	 * @param int høyde

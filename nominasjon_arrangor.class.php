@@ -30,6 +30,8 @@ class nominasjon_arrangor extends nominasjon {
 	var $voksen_efaring;
 	var $voksen_samarbeid;
 	
+	var $sorry;
+	
 	public function _loadByRow( $row ) {
 		parent::_loadByRow( $row );
 		
@@ -60,6 +62,8 @@ class nominasjon_arrangor extends nominasjon {
 		$this->setLysErfaring5( $row['lys-erfaring-5'] );
 		$this->setLysErfaring6( $row['lys-erfaring-6'] );
 		
+		$this->sorry = $row['sorry'];
+		
 		if( !empty( $row['samarbeid'] ) ) {
 			$this->setHarDeltakerskjema( true );
 		}
@@ -68,6 +72,10 @@ class nominasjon_arrangor extends nominasjon {
 		}
 
 
+	}
+	
+	public function getSorry() {
+		return $this->sorry;
 	}
 	
 	public function setLydtekniker( $bool ) {

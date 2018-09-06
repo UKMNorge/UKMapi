@@ -168,8 +168,11 @@ class innslag_collection {
 					if( !$innslag->erVideresendtTil( $videresendTil ) ) {
 						continue;
 					}
-					$innslag->getContext()->setVideresendTil( $videresendTil[ $innslag->getFylke()->getId() ] );
-
+					if( is_object( $videresendTil ) ) { 
+						$innslag->getContext()->setVideresendTil( $videresendTil );
+					} else {
+						$innslag->getContext()->setVideresendTil( $videresendTil[ $innslag->getFylke()->getId() ] );
+					}
 					$this->videresendte[] = $innslag;
 				}
 			}

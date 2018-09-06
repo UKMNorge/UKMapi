@@ -25,7 +25,7 @@ class innslag_typer extends Collection {
 	
 	static function getAllTyper() {
 		if( null == self::$all ) {
-			foreach( array(1,2,3,4,5,6,8) as $id ) {
+			foreach( array(1,2,3,4,5,6,8,10) as $id ) {
 				self::$all[] = self::getById( $id );
 			}
 		}
@@ -168,6 +168,18 @@ class innslag_typer extends Collection {
 							  'database_table' => false,
 							  );
 				break;
+			case 10:
+				$data = array('id' => 10,
+							  'key' => 'ressurs',
+							  'name' => 'UKM-ressurs',
+							  'icon' => 'https://ico.ukm.no/delta/delta-arrangor-64.png',
+							  'har_filmer' => false,
+							  'har_titler' => false,
+							  'har_tekniske_behov' => false,
+							  'database_table' => false,
+							  );
+				break;
+
 			default:
 				$data = array('id' => 'missing '. $id);
 		}
@@ -191,6 +203,7 @@ class innslag_typer extends Collection {
 			case 'arrangor': 		$bt_id = 8; break;
 			case 'sceneteknikk': 	$bt_id = 9; break;
 			case 'annet': 			$bt_id = 1; break;
+			case 'ressurs': 		$bt_id = 10; break;
 			default:				$bt_id = false;
 		}
 		return $bt_id;
