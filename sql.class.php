@@ -276,6 +276,14 @@ if(!class_exists('SQL')) {
 			return $this->showError();
 		}
 
+		public static function fetch( $result ) {
+                        if( is_object( $result ) ) {
+                                return mysqli_fetch_assoc( $result );
+                        }
+                        return mysql_fetch_assoc( $result );
+                }
+
+
 		/**
 		 * Prepare and run query
 		**/

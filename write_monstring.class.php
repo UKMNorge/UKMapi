@@ -96,7 +96,7 @@ class write_monstring {
 				break;
 		}
 
-		$place->add('pl_name', $navn);
+		$place->add('pl_name', ltrim( rtrim( $navn ) ));
 		$place->add('season', $sesong);
 		
 		$result = $place->run();
@@ -113,7 +113,7 @@ class write_monstring {
 		
 		$monstring->setPath( 
 			self::generatePath(
-				'kommune',
+				$type,
 				$geografi,
 				$sesong
 			)
@@ -142,11 +142,14 @@ class write_monstring {
 		$properties = [
 			'Navn' 			=> ['smartukm_place', 'pl_name', 100],
 			'Path' 			=> ['smartukm_place', 'pl_link', 110],
-			'Skjema'		=> ['smartukm_place', 'pl_form', 113],
 			'Uregistrerte'	=> ['smartukm_place', 'pl_missing', 108],
 			'Publikum'		=> ['smartukm_place', 'pl_public', 109],
 		];
-		
+		// VERDIER SOM KUN KAN OPPDATERES HVIS FYLKE
+		if( $monstring_save->getType() == 'fylke' ) {
+			$properties['Skjema'] = ['smartukm_place', 'pl_form', 113];
+		}
+
 		// LOOP ALLE VERDIER, OG EVT LEGG TIL I SQL
 		foreach( $properties as $functionName => $logValues ) {
 			$function = 'get'.$functionName;
@@ -165,9 +168,39 @@ class write_monstring {
 			}
 		}
 		
+		$res = true; // Fordi smartukm_place->run() vil overskrive hvis det oppstår feil
 		if( $smartukm_place->hasChanges() ) {
 			#echo $smartukm_place->debug();
-			$smartukm_place->run();
+			$res = $smartukm_place->run();
+		}
+		if( !$res ) {
+			throw new Exception('Kunne ikke opprette mønstring skikkelig, da lagring av detaljer feilet');
+		}
+
+		// Hvis lokalmønstring, sjekk og lagre kommunesammensetning
+		if( $monstring_save->getType() == 'kommune') {
+			foreach( $monstring_save->getKommuner()->getAll() as $kommune ) {
+				if( !$monstring_db->getKommuner()->har( $kommune ) ) {
+					self::_leggTilKommune( $monstring_save, $kommune ); 
+				}
+			}
+			foreach( $monstring_db->getKommuner()->getAll() as $kommune ) {
+				if( !$monstring_save->getKommuner()->har( $kommune ) ) {
+					self::_fjernKommune( $monstring_save, $kommune );
+				}
+			}
+		}
+
+		// Sjekk kontaktpersoner og lagre endringer
+		foreach( $monstring_save->getKontaktpersoner()->getAll() as $kontakt ) {
+			if( !$monstring_db->getKontaktpersoner()->har( $kontakt ) ) {
+				self::_leggTilKontaktperson( $monstring_save, $kontakt ); 
+			}
+		}
+		foreach( $monstring_db->getKontaktpersoner()->getAll() as $kontakt ) {
+			if( !$monstring_save->getKontaktpersoner()->har( $kontakt ) ) {
+				self::_fjernKontaktperson( $monstring_save, $kontakt );
+			}
 		}
 
 		// Hvis lokalmønstring, sjekk og lagre kommunesammensetning
@@ -209,10 +242,10 @@ class write_monstring {
 	 * @param kontakt_v2 $kontakt
 	 * @return bool $sucess
 	**/
-	public function _leggTilKontaktperson( $monstring_save, $kontakt ) {
+	public static function _leggTilKontaktperson( $monstring_save, $kontakt ) {
 		try {
 			self::controlMonstring( $monstring_save );
-			self::controlKontakt( $kontakt );
+			self::controlKontaktperson( $kontakt );
 		} catch( Exception $e ) {
 			throw new Exception('Kan ikke legge til kontaktperson da '. $e->getMessage() );
 		}
@@ -260,10 +293,10 @@ class write_monstring {
 	 * @param kontakt_v2 $kontakt
 	 * @return void
 	**/
-	public function _fjernKontaktperson( $monstring_save, $kontakt ) {
+	public static function _fjernKontaktperson( $monstring_save, $kontakt ) {
 		try {
 			self::controlMonstring( $monstring_save );
-			self::controlKontakt( $kontakt );
+			self::controlKontaktperson( $kontakt );
 		} catch( Exception $e ) {
 			throw new Exception('Kan ikke fjerne kontaktperson da '. $e->getMessage() );
 		}
