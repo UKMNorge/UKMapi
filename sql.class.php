@@ -590,7 +590,7 @@ if(!class_exists('SQLins')) {
 				(strlen($values)-2)
 			);
 			
-			$this->real_query = 'INSERT INTO `'.$this->table.'` ('. $keys .') VALUES ('. $values .');';
+			$this->real_query = 'INSERT IGNORE INTO `'.$this->table.'` ('. $keys .') VALUES ('. $values .');';
 			return $this->real_query;
 		}
 
