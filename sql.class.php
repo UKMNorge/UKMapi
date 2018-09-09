@@ -277,12 +277,22 @@ if(!class_exists('SQL')) {
 		}
 
 		public static function fetch( $result ) {
-                        if( is_object( $result ) ) {
-                                return mysqli_fetch_assoc( $result );
-                        }
-                        return SQL::fetch( $result );
-                }
+			if( self::_isMysqliResult() ) {
+				return mysqli_fetch_assoc( $result );
+			}
+			return mysql_fetch_assoc( $result );
+		}
 
+		public static function numRows( $result ) {
+			if( self::_isMysqliResult() ) {
+				return mysqli_num_rows( $result );
+			}
+			return mysql_num_rows( $result );
+		}
+
+		private static function _isMysqliResult( $result ) {
+			return is_object( $result );
+		}
 
 		/**
 		 * Prepare and run query
