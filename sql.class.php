@@ -277,14 +277,14 @@ if(!class_exists('SQL')) {
 		}
 
 		public static function fetch( $result ) {
-			if( self::_isMysqliResult() ) {
+			if( self::_isMysqliResult($result) ) {
 				return mysqli_fetch_assoc( $result );
 			}
 			return mysql_fetch_assoc( $result );
 		}
 
 		public static function numRows( $result ) {
-			if( self::_isMysqliResult() ) {
+			if( self::_isMysqliResult($result) ) {
 				return mysqli_num_rows( $result );
 			}
 			return SQL::numRows( $result );
