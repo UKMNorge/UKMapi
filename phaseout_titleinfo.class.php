@@ -12,7 +12,7 @@
 			#if($_SERVER['REMOTE_ADDR'] == '193.214.121.5') { echo '<pre>'; var_dump(mysql_num_rows($sql)); echo '</pre>'; }
 			
 			if($sql&&mysql_num_rows($sql)>0)
-				while( $r = mysql_fetch_assoc( $sql ) ) {
+				while( $r = SQL::fetch( $sql ) ) {
 					if($placetype=='fylke') {
 						$sqlTest = new SQL("SELECT * FROM `smartukm_fylkestep` WHERE `b_id` = '#bid' AND `t_id` = '#tid'",
 										array('bid'=>$b_id, 'tid'=>$r['t_id']));

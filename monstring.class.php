@@ -662,7 +662,7 @@ class monstring_v2 {
 						   array('pl_id'=> $this->getId() )
 						  );
 			$res = $sql->run();
-			while( $r = mysql_fetch_assoc( $res ) ) {
+			while( $r = SQL::fetch( $res ) ) {
 				if( 1 == $r['bt_id'] ) {
 					foreach( innslag_typer::getAllScene() as $type ) {
 						$this->innslagTyper->add( $type );

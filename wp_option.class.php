@@ -26,7 +26,7 @@ class wp_option {
 		$query = "SELECT `option_value` FROM `$table` WHERE `option_name` = '$key'";
 		$res = self::_query( $query );
 		
-		$row = mysql_fetch_assoc( $res );
+		$row = SQL::fetch( $res );
 		$data = $row['option_value'];
 #		echo '<h3>'. $query .'</h3>';
 
@@ -51,7 +51,7 @@ class wp_option {
 	private static function _getBlogId( $path ) {
 		$query = "SELECT `blog_id` FROM `wpms2012_blogs` WHERE `path` = '/$path/'";
 		$res = self::_query( $query );
-		$row = mysql_fetch_assoc( $res );
+		$row = SQL::fetch( $res );
 		
 		if( false === $res || false === $row ) {
 			throw new Exception('WP_OPTION: bloggen finnes ikke (/'. $path .'/)');

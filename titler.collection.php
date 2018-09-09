@@ -282,7 +282,7 @@ class titler {
 		}
 		
 		if( $res ) {
-			while( $row = mysql_fetch_assoc( $res ) ) {
+			while( $row = SQL::fetch( $res ) ) {
 				// Hvis innslaget er pre 2014 og på landsmønstring jukser vi
 				// til at den har pl_ids for å få lik funksjonalitet videre
 				if( isset( $row['videre_if_not_empty'] ) ) {

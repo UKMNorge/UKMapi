@@ -18,7 +18,7 @@ class mediabrukere_collection {
 		$sql = new SQL( mediabruker::loadQuery() );
 		$res = $sql->run();
 		
-		while( $row = mysql_fetch_assoc( $res ) ) {
+		while( $row = SQL::fetch( $res ) ) {
 			$this->mediabrukere[] = new mediabruker( $row );
 		}
 	}

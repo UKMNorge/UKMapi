@@ -70,7 +70,7 @@ class leder {
 					);
 		$res = $sql->run();
 		
-		while( $r = mysql_fetch_assoc( $res ) ) {
+		while( $r = SQL::fetch( $res ) ) {
 			$this->natt[ $r['dato'] ] = $this->_natt( $r );
 		}
 		
@@ -89,7 +89,7 @@ class leder {
 		$res = $sql->run();
 		
 		if( mysql_num_rows( $res ) == 1 ) {
-			$r = mysql_fetch_assoc( $res );
+			$r = SQL::fetch( $res );
 			
 			$natt = $this->_natt( $r );
 			
@@ -155,7 +155,7 @@ class leder {
 		if( mysql_num_rows( $res ) == 0 )
 			return false;
 		
-		$row = mysql_fetch_assoc( $res );
+		$row = SQL::fetch( $res );
 		
 		foreach( $row as $key => $val ) {
 			$this->$key = $val;

@@ -84,7 +84,7 @@ class avis {
 			);
 		$res = $sql->run();
 		
-		while( $r = mysql_fetch_assoc( $res ) ) {
+		while( $r = SQL::fetch( $res ) ) {
 			$this->kommuner[] = new kommune( $r['kommune_id'] );
 			$this->kommuneid_array[] = $r['kommune_id'];
 		}

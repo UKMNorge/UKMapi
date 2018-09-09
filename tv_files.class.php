@@ -138,7 +138,7 @@ class tv_files {
 				$res = $qry->run();
 				$i = 0;
 				if($res) {
-					while( $r = mysql_fetch_assoc( $res ) ) {
+					while( $r = SQL::fetch( $res ) ) {
 						$videos[$r['tv_id']] = $r['score'];
 						$titles[] = $r['tv_id'];
 					}
@@ -162,7 +162,7 @@ class tv_files {
 				$res = $qry->run();
 				$i = 0;
 				if($res) {
-					while( $r = mysql_fetch_assoc( $res ) ) {
+					while( $r = SQL::fetch( $res ) ) {
 						if(is_array($titles) && in_array($r['tv_id'], $titles)) {
 							$videos[$r['tv_id']] = $videos[$r['tv_id']] + $r['score'];
 						} else
@@ -254,7 +254,7 @@ class tv_files {
 			echo $this->sql->debug();
 		}
 		if($result) {
-			while($r = mysql_fetch_assoc($result)) {
+			while($r = SQL::fetch($result)) {
 				if($this->type=='featured')
 					$this->new_titles[$r['tv_id']] = $r['feature_name'];
 				

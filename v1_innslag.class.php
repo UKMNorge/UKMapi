@@ -583,7 +583,7 @@ class innslag {
 		$qry = new SQL($qry);
 		$res = $qry->run();
 		if($res&&mysql_num_rows($res)>0)
-			while($set = mysql_fetch_assoc($res))
+			while($set = SQL::fetch($res))
 				$this->ikke_videresendte_personer[] = array('p_id'=>$set['p_id'], 
 															'p_firstname'=>utf8_encode($set['p_firstname']), 
 															'p_lastname'=>utf8_encode($set['p_lastname']), 
@@ -618,7 +618,7 @@ class innslag {
 		$res = $qry->run();
 		#$res = $wpdb->get_results($qry,'ARRAY_A');
 		if($res&&mysql_num_rows($res)>0)
-			while($set = mysql_fetch_assoc($res))
+			while($set = SQL::fetch($res))
 				$this->personer[] = array('p_id'=>$set['p_id'], 'p_firstname'=>utf8_encode($set['p_firstname']), 'p_lastname'=>utf8_encode($set['p_lastname']), 'instrument'=>utf8_encode($set['instrument']), 'p_phone'=>$set['p_phone']);
 		
 		$this->personer_loaded = true;
@@ -692,7 +692,7 @@ class innslag {
 		$res = $sql->run();
 
 		if( $res ) {
-			while( $r = mysql_fetch_assoc( $res ) ) {
+			while( $r = SQL::fetch( $res ) ) {
 				$this->playback[] = new playback( $r['pb_id'] );
 			}
 		}
@@ -855,7 +855,7 @@ class innslag {
 		$res = $sql->run();
 		if(!$res)
 			return;
-		while($r = mysql_fetch_assoc($res))
+		while($r = SQL::fetch($res))
 			$this->forestillinger[$r['c_id']] = $r['order']+1;
 	}
 	
@@ -873,7 +873,7 @@ class innslag {
 
 		$res = $sql->run();
 		if($res&&mysql_num_rows($res)>0) {
-			while($r = mysql_fetch_assoc($res)){
+			while($r = SQL::fetch($res)){
 				$videresendt = new SQL("SELECT * FROM `smartukm_fylkestep`
 										WHERE `b_id` = '#bid'
 										AND `t_id` = '#tid'",
@@ -898,7 +898,7 @@ class innslag {
 
 		$res = $sql->run();
 		if($res&&mysql_num_rows($res)>0) {
-			while($r = mysql_fetch_assoc($res)){
+			while($r = SQL::fetch($res)){
 				/// LUK UT TITLER HVIS FYLKESMØNSTRING
 				if($place->g('type')=='fylke' && !$uavhengig_av_monstring) {
 					if( $forwardToPLID ) {
@@ -1362,7 +1362,7 @@ class innslag {
 		$missing = array();
 		
 		## LOOP ALL TITLES
-		while($title = mysql_fetch_assoc($res)) {
+		while($title = SQL::fetch($res)) {
 			for($i=0; $i<sizeof($fields); $i++) {
 				if(empty($title[$fields[$i]])) {
 					## IF DANCE AND NOT MANDATORY FIELD
@@ -1406,7 +1406,7 @@ class innslag {
 			//return $header. ' Det er ingen deltakere i innslaget';
 
 		## LOOP FOR PARTICIPANTS
-		while($p = mysql_fetch_assoc($participants)) {
+		while($p = SQL::fetch($participants)) {
 	    	$test = $this->participant($p);
 	        if($test !== true) {
 	        	$whatwrong[] = array($p['p_id'], $test);

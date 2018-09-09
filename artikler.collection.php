@@ -64,7 +64,7 @@ class artikler {
 		if( !$get ) {
 			return false;
 		}		
-		while( $r = mysql_fetch_assoc( $get ) ) {
+		while( $r = SQL::fetch( $get ) ) {
 			$artikkel = new artikkel( $r );
 			$this->artikler[ $artikkel->getId() ] = $artikkel;
 		}

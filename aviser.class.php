@@ -69,7 +69,7 @@ class aviser {
 					);
 		$res = $sql->run();
 
-		while( $r = mysql_fetch_assoc( $res ) ) {
+		while( $r = SQL::fetch( $res ) ) {
 			$this->aviser[] = new avis( $r );
 		}
 	}

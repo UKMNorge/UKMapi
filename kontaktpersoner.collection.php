@@ -21,7 +21,7 @@ class kontaktpersoner extends Collection {
 					array('id' => $this->pl_id )
 					);
 		$res = $sql->run();
-		while( $rad = mysql_fetch_assoc( $res ) ) {
+		while( $rad = SQL::fetch( $res ) ) {
 			$this->add( new kontakt_v2( $rad ) );
 		}
 	}

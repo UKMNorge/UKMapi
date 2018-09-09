@@ -438,7 +438,7 @@ class innslag_collection {
 		if( $countOnly ) {
 			return mysql_num_rows( $res );
 		}
-		while( $row = mysql_fetch_assoc( $res ) ) {
+		while( $row = SQL::fetch( $res ) ) {
 			$innslag = new innslag_v2( $row, true );
 			$innslag->setContext( $this->getContext() );
 			array_push( $this->$internal_var, $innslag);

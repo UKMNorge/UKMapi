@@ -25,7 +25,7 @@ class monstring_skjema {
 
 		$res = $sql->run();
 		$questions = array();
-		while ($row = mysql_fetch_assoc($res)) {
+		while ($row = SQL::fetch($res)) {
 			$questions[] = $this->getQuestionFromData($row);
 		}
 		return $questions;
@@ -86,7 +86,7 @@ class monstring_skjema {
 		$res = $sql->run();
 		$data = array();
 		$qs = '(';
-		while ($row = mysql_fetch_assoc($res)) {
+		while ($row = SQL::fetch($res)) {
 			$data[$row['q_id']] = $row;
 			$qs .= $row['q_id'].','; 
 		}	
@@ -101,7 +101,7 @@ class monstring_skjema {
 		$res = $sql->run();
 
 		$replies = array();
-		while($row = mysql_fetch_assoc($res)) {
+		while($row = SQL::fetch($res)) {
 			$replies[$row['q_id']] = $row['answer'];
 		}
 		// Data har alle spørsmål

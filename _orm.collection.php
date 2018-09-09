@@ -61,7 +61,7 @@ abstract class Coll {
 		$sql = new SQL("SELECT * FROM `". $child::TABLE_NAME ."`");
 		$res = $sql->run();
 
-		while( $row = mysql_fetch_assoc( $res ) ) {
+		while( $row = SQL::fetch( $res ) ) {
 			$object_class = str_replace('Coll', '', $child);
 			$child::$models[] = new $object_class( $row );
 		}
@@ -77,7 +77,7 @@ abstract class Coll {
 		);
 		$res = $sql->run();
 
-		while( $row = mysql_fetch_assoc( $res ) ) {
+		while( $row = SQL::fetch( $res ) ) {
 			$object_class = str_replace('Coll', '', $child);
 			$child::$models[] = new $object_class( $row );
 		}

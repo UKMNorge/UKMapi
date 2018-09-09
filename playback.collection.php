@@ -45,7 +45,7 @@ class playback_collection {
 		$res = $sql->run();
 
 		if( $res ) {
-			while( $r = mysql_fetch_assoc( $res ) ) {
+			while( $r = SQL::fetch( $res ) ) {
 				$this->filer[] = new playback( $r['pb_id'] );
 			}
 		}

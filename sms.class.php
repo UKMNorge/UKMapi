@@ -107,7 +107,7 @@ class SMS {
 		$sql = new SQL("SELECT `number`	FROM `sms_block`");
 		$res = $sql->run();
 		
-		while( $row = mysql_fetch_assoc( $res ) ) {
+		while( $row = SQL::fetch( $res ) ) {
 			$this->blocked[] = $row['number'];
 		}
 	}

@@ -432,7 +432,7 @@ class bilde {
 							  'id'=>$id)
 						);
 		$res = $SQL->run();
-		$row = mysql_fetch_assoc( $res );
+		$row = SQL::fetch( $res );
 		$this->_loadByArray( $row );
 	}
 	

@@ -66,7 +66,7 @@ class monstring{
 								 ORDER BY `name` ASC",
 								 array('fylke' => $this->info['fylke_id']));
 			$kommuner = $kommuner->run();
-			while( $r = mysql_fetch_assoc( $kommuner ) ) {
+			while( $r = SQL::fetch( $kommuner ) ) {
 				$this->info['kommuner_i_fylket'][$r['id']] = utf8_encode($r['name']);
 			}
 		}
@@ -80,7 +80,7 @@ class monstring{
 								 array('plid'=>$pl_id));
 			$kommuner = $kommuner->run();
 			$idfylke = false;
-			while($r = mysql_fetch_assoc($kommuner)) {
+			while($r = SQL::fetch($kommuner)) {
 				if(!$idfylke)
 					$idfylke = $r['idfylke'];
 				$this->info['kommuner'][] = array('id'=>$r['id'], 'name'=>utf8_encode($r['name']));
@@ -140,7 +140,7 @@ class monstring{
 		
 		$personer = array();
 		if($result) {
-			while($row = mysql_fetch_assoc($result)) {
+			while($row = SQL::fetch($result)) {
 				$personer[$row['p_id']] = new person($row['p_id']);
 			}
 		}
@@ -165,7 +165,7 @@ class monstring{
 	public function fylkeArray() {
 		$sql = new SQL("SELECT * FROM `smartukm_fylke` ORDER BY `name` ASC");
 		$res = $sql->run();
-		while($r = mysql_fetch_assoc($res)) {
+		while($r = SQL::fetch($res)) {
 			$this->alle_fylker[$r['id']] = $r['name'];
 		}
 		return $this->alle_fylker;
@@ -401,7 +401,7 @@ class monstring{
 
 		## LOOP OG SETT VARIABLER FOR HVA SOM ER TILLATT
 		if($result) {
-			while($row = mysql_fetch_assoc($result)) {
+			while($row = SQL::fetch($result)) {
 				$row['bt_id'] = (int) $row['bt_id'];
 				$row['bt_name'] = utf8_encode($row['bt_name']);
 				$this->band_types_allowed[$row['bt_id']] = $row;
@@ -419,7 +419,7 @@ class monstring{
 						WHERE `bt_id`<'4'");
 		$default = $qry->run();
 		
-		while($r = mysql_fetch_assoc($default)) {
+		while($r = SQL::fetch($default)) {
 			$r['bt_id'] = (int) $r['bt_id'];
 			$row['bt_name'] = utf8_encode($row['bt_name']);
 			$this->band_types_allowed[$r['bt_id']] = $r;
@@ -443,7 +443,7 @@ class monstring{
 				);
 		$res = $qry->run();
 				
-		while($r = mysql_fetch_assoc($res))
+		while($r = SQL::fetch($res))
 			$this->all_band_types[] = array('bt_name'=>utf8_encode($r['bt_name']),
 											'bt_id'=>(int)$r['bt_id'],
 											'allowed'=>isset($this->band_types_allowed[(int)$r['bt_id']])
@@ -916,7 +916,7 @@ class monstring{
 		$res = $qry->run();
 		$bands = array();
 		if($res)
-		while($set = mysql_fetch_assoc($res)) {
+		while($set = SQL::fetch($res)) {
 			## Hopper over hvis innslaget er logget avmeldt (og status tilfeldigvis glemt oppdatert (bug høsten 2011))
 			if(!$this->_load_innslag_clean($set))
 				continue;
@@ -1165,7 +1165,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 								array('plid'=>$this->get('pl_id'),
 									  'season'=>$this->get('season')));
 			$kommuner = $kommuner->run();
-			while($r = mysql_fetch_assoc($kommuner)) {
+			while($r = SQL::fetch($kommuner)) {
 				$kommunearray[] = $r['k_id'];
 			}
 			
@@ -1173,7 +1173,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 								 FROM `smartukm_rel_pl_k`
 								 WHERE `k_id` IN ('".implode("','",$kommunearray)."')");
 			$kommuner = $kommuner->run();
-			while($r = mysql_fetch_assoc($kommuner)) {
+			while($r = SQL::fetch($kommuner)) {
 				$plarray[] = $r['pl_id'];
 			}
 			$pl_ids = "'".implode("','",$plarray)."'";
@@ -1183,7 +1183,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 								 array('fylke'=>$this->get('fylke_id')));
 			$kommuner = $kommuner->run();
 			$kommunearray = array();
-			while($r = mysql_fetch_assoc($kommuner)) {
+			while($r = SQL::fetch($kommuner)) {
 				$kommunearray[] = $r['id'];
 			}
 			$kommuner = new SQL("SELECT `pl_id`
@@ -1191,7 +1191,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 								 WHERE `k_id` IN ('".implode("','",$kommunearray)."')");
 			$kommuner = $kommuner->run();
 			$plarray = array();
-			while($r = mysql_fetch_assoc($kommuner)) {
+			while($r = SQL::fetch($kommuner)) {
 				$plarray[] = $r['pl_id'];
 			}
 //				$plarray[] = get_option('pl_id');
@@ -1204,7 +1204,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 						`amb_lastname` ASC"
 						);
 		$res = $qry->run();
-		while($r = mysql_fetch_assoc($res)) {
+		while($r = SQL::fetch($res)) {
 			$this->ambassadorer[] = new ambassador($r['amb_faceID']);
 		}
 		return $this->ambassadorer;
@@ -1269,7 +1269,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 		
 		$concertsRows = array();
 		
-		while( $concertsRow = mysql_fetch_assoc($concertsResult) ) {
+		while( $concertsRow = SQL::fetch($concertsResult) ) {
 			$concertsRow['c_name'] = utf8_encode($concertsRow['c_name']);
 			$concertsRow['c_place'] = utf8_encode($concertsRow['c_place']);
 			$concertsRows[] = $concertsRow;
@@ -1295,7 +1295,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 		$bandResult = $bandSql->run();
 		$bandRows = array();
 		
-		while( $bandRow = mysql_fetch_assoc( $bandResult ) )
+		while( $bandRow = SQL::fetch( $bandResult ) )
 			$bandRows[] = $bandRow;
 			
 		return $bandRows;
@@ -1322,7 +1322,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 						ORDER BY `order` ASC",
 						array('plid'=>$this->info['pl_id']));
 		$res = $sql->run();
-		while($r = mysql_fetch_assoc($res))
+		while($r = SQL::fetch($res))
 			$liste[$r['id']] = new kontakt($r['id'], $r['pl_ab_id']);
 
 		return $liste;
@@ -1372,7 +1372,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 			
 			#!#!# FELLESMØNSTRING, FOUND CONTACT FOR GIVEN KOMMUNE
 			} else {
-				$pl_contact = mysql_fetch_assoc($pl_contact);	
+				$pl_contact = SQL::fetch($pl_contact);	
 			}				
 		#!# ENKELMØNSTRING, FETCH TOP ONE
 		} else {
@@ -1507,7 +1507,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 		#echo $sql->debug();
 		$res = $sql->run();
 		if($res)
-			while( $r = mysql_fetch_assoc( $res ) ) {
+			while( $r = SQL::fetch( $res ) ) {
 				$plids[] = $r['pl_id'];
 			}
 		
@@ -1522,7 +1522,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 						array('plid' => $this->info['pl_id']));
 		$res = $sql->run();
 		if($res)
-			while( $r = mysql_fetch_assoc( $res ) ) {
+			while( $r = SQL::fetch( $res ) ) {
 				$svar[$r['q_id']] = utf8_encode($r['answer']);
 			}
 		return $svar;

@@ -29,7 +29,7 @@ class monstringer{
 		$list = array();
 		$monstringer = array();
 		
-		while( $row = mysql_fetch_assoc( $res ) ) {
+		while( $row = SQL::fetch( $res ) ) {
 			// Fylket er ikke lagt til i listen
 			if( !isset( $list[ $row['f_id'] ] ) ) {
 				$fylke = new stdClass();
@@ -89,7 +89,7 @@ class monstringer{
 			$sesong = $this->season;
 		}
 		$monstringer = $this->etter_sesong($sesong);
-		while($r = mysql_fetch_assoc($monstringer))
+		while($r = SQL::fetch($monstringer))
 			$places[$r['pl_id']] = utf8_encode($r['pl_name']);
 		return $places;
 	}
@@ -108,7 +108,7 @@ class monstringer{
 						array('fylke'=>$fylke, 'season'=>$season));
 		$res = $qry->run();
 
-		while($r = mysql_fetch_assoc($res))
+		while($r = SQL::fetch($res))
 			$liste[utf8_encode($r['kommune'])] = utf8_encode($r['pl_id']);
 		
 		return $liste;
@@ -128,7 +128,7 @@ class monstringer{
 	
 	public function etter_kommune_array() {
 		$res = $this->etter_kommune();
-		while($r = mysql_fetch_assoc($res)) {
+		while($r = SQL::fetch($res)) {
 			$liste[$r['pl_id']] = utf8_encode($r['pl_name']);
 		}
 		return $liste;
@@ -147,7 +147,7 @@ class monstringer{
 
 	public function etter_fylke_array() {
 		$res = $this->etter_fylke();
-		while($r = mysql_fetch_assoc($res)) {
+		while($r = SQL::fetch($res)) {
 			$liste[$r['pl_id']] = utf8_encode($r['pl_name']);
 		}
 		return $liste;

@@ -483,7 +483,7 @@ class forestilling {
 		$res = $sql->run();
 		
 		$count = 0;
-		while( $r = mysql_fetch_assoc( $res ) ) {
+		while( $r = SQL::fetch( $res ) ) {
 			$update = new SQLins('smartukm_rel_b_c', array('c_id' => $this->g('c_id'), 'bc_id' => $r['bc_id']));
 			$update->add($order, $count);
 			#echo $update->debug();#. '<br />';
@@ -651,7 +651,7 @@ class forestilling {
 		
 		$kunstutstilling = true;
 		if( $bandResult ) {
-			while( $bandRow = mysql_fetch_assoc( $bandResult ) ) {
+			while( $bandRow = SQL::fetch( $bandResult ) ) {
 				$this->bandRows[] = $bandRow;
 				$this->index[] = $bandRow['b_id'];
 				if($kunstutstilling && $bandRow['bt_id']!=3)

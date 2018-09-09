@@ -280,7 +280,7 @@ if(!class_exists('SQL')) {
                         if( is_object( $result ) ) {
                                 return mysqli_fetch_assoc( $result );
                         }
-                        return mysql_fetch_assoc( $result );
+                        return SQL::fetch( $result );
                 }
 
 

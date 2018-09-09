@@ -187,7 +187,7 @@ function titles($b, $fields, $tittelnavn=false) {
 	$missing = '';
 	
 	## LOOP ALL TITLES
-	while($title = mysql_fetch_assoc($res)) {
+	while($title = SQL::fetch($res)) {
 		for($i=0; $i<sizeof($fields); $i++) {
 			if(empty($title[$fields[$i]])) {
 				## IF DANCE AND NOT MANDATORY FIELD
@@ -229,7 +229,7 @@ function participants($band) {
 		return $header. ' Det er ingen deltakere i innslaget';
 
 	## LOOP FOR PARTICIPANTS
-	while($p = mysql_fetch_assoc($participants)) {
+	while($p = SQL::fetch($participants)) {
     	$test = participant($p);
         if($test !== true) $whatwrong .= $test;
 	}

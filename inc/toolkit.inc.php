@@ -152,14 +152,14 @@ function UKMN_config($name) {
 	if(mysql_num_rows($sql) == 0)
 		return false;
 	
-	$sql = mysql_fetch_assoc($sql);
+	$sql = SQL::fetch($sql);
 	return $sql['conf_value'];
 }
 
 function UKMN_fylker() {
 	$query = new SQL('SELECT `id`,`name` FROM smartukm_fylke ORDER BY `name` ASC');
 	$result = $query->run();
-	while($r=mysql_fetch_assoc($result)) 
+	while($r=SQL::fetch($result)) 
 		$fylker[(int)$r['id']] = utf8_encode($r['name']);
 	return $fylker;
 
@@ -185,7 +185,7 @@ function UKMN_kommune($id) {
 function UKMN_kommuner() {
 	$query = new SQL('SELECT `name`,`id` FROM `smartukm_kommune` ORDER BY `name` ASC');
 	$result = $query->run();
-		while($r = mysql_fetch_assoc($result))
+		while($r = SQL::fetch($result))
 			$kommuner[] = array('id'=>$r['id'], 'name'=>utf8_encode($r['name']));
 	return $kommuner;
 }

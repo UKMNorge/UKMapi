@@ -256,7 +256,7 @@ public function getByPhone( $phone, $b_id=false ) {
 					   );
 		$res = $sql->run();
 		$innslag = array();
-		while( $r = mysql_fetch_assoc( $res ) ) {
+		while( $r = SQL::fetch( $res ) ) {
 			$innslag[] = $r['b_id'];
 		}
 		
@@ -464,7 +464,7 @@ public function getByPhone( $phone, $b_id=false ) {
 			$videresend_person->add('t_ids', '|t_'. $tittel.'|');
 			$videresend_person->run();
 		} else {
-			$row = mysql_fetch_assoc( $test_relasjon );
+			$row = SQL::fetch( $test_relasjon );
 			$new_t_ids = $row['t_ids'] . '|t_'. $tittel .'|';
 			$videresend_person = new SQLins('smartukm_fylkestep_p', 
 											array('pl_id' => $videresendTil,
@@ -494,7 +494,7 @@ public function getByPhone( $phone, $b_id=false ) {
 										'p_id'=>$this->g('p_id'), 
 										'pl_from'=>$videresendFra));
 		$test_relasjon = $test_relasjon->run();
-		$row = mysql_fetch_assoc( $test_relasjon );
+		$row = SQL::fetch( $test_relasjon );
 		$new_t_ids = str_replace('|t_'. $tittel .'|','', $row['t_ids']);
 				
 		// Hvis vedkommende ikke følger noen titler, fjern fra fylkestep

@@ -90,7 +90,7 @@ abstract class InstanceColl {
 		);
 		$res = $sql->run();
 
-		while( $row = mysql_fetch_assoc( $res ) ) {
+		while( $row = SQL::fetch( $res ) ) {
 			$object_class = str_replace('Coll', '', $child);
 			$this->models[] = new $object_class( $row );
 		}
@@ -113,7 +113,7 @@ abstract class InstanceColl {
 		);
 		$res = $sql->run();
 
-		while( $row = mysql_fetch_assoc( $res ) ) {
+		while( $row = SQL::fetch( $res ) ) {
 			$object_class = str_replace('Coll', '', $child);
 			$this->models[] = new $object_class( $row );
 		}

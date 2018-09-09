@@ -17,7 +17,7 @@ class wp_author {
 		$query = "SELECT * FROM `wpms2012_users` WHERE `id` = '". ( (int) $id ) ."'";
 		$res = mysql_query( $query );
 		
-		$row = mysql_fetch_assoc( $res );
+		$row = SQL::fetch( $res );
 		$this->setId( $row['ID'] );
 		$this->setLoginName( $row['user_login'] );
 		$this->setNiceName( $row['user_nicename'] );

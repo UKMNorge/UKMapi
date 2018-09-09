@@ -280,7 +280,7 @@ class personer {
 		if($res === false) {
 			throw new Exception("PERSONER_COLLECTION: Klarte ikke hente personer og roller - kan databaseskjema være utdatert?");
 		}
-		while( $r = mysql_fetch_assoc( $res ) ) {
+		while( $r = SQL::fetch( $res ) ) {
 			$person = new person_v2( $r );
 			$person->setContext( $this->getContextInnslag() );
 			$this->personer[ $person->getId() ] = $person;
