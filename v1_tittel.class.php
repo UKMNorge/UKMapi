@@ -17,7 +17,7 @@
 										't_id'=>$this->t_id));
 		$test_fylkestep = $test_fylkestep->run();
 
-		if (mysql_num_rows($test_fylkestep)==0) {
+		if (SQL::numRows($test_fylkestep)==0) {
 			$videresend_innslag = new SQLins('smartukm_fylkestep');
 			$videresend_innslag->add('pl_id', $videresendTil);
 			$videresend_innslag->add('pl_from', $videresendFra);
@@ -138,7 +138,7 @@
 					      't_id'=>$this->t_id)
 				       );
 		$videresendt = $videresendt->run();
-		return !mysql_num_rows($videresendt) == 0;
+		return !SQL::numRows($videresendt) == 0;
 	}
 	
 	/**

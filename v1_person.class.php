@@ -134,7 +134,7 @@ switch( $field ) {
 							 array('pid' => $this->info['p_id'],
 							 	   'bid' => $use_b_id));
 			$test = $test->run();
-			if(mysql_num_rows( $test ) == 0) {
+			if(SQL::numRows( $test ) == 0) {
 				$qry = new SQLins('smartukm_rel_b_p');
 				$qry->add('p_id', $this->info['p_id']);
 				$qry->add('b_id', $use_b_id);
@@ -437,7 +437,7 @@ public function getByPhone( $phone, $b_id=false ) {
 								       );
 		}
 		$videresendt = $videresendt->run();
-		return !mysql_num_rows($videresendt) == 0;
+		return !SQL::numRows($videresendt) == 0;
 	}
 	
 	public function videresend($videresendFra, $videresendTil, $tittel) {
@@ -455,7 +455,7 @@ public function getByPhone( $phone, $b_id=false ) {
 										'pl_from'=>$videresendFra));
 		$test_relasjon = $test_relasjon->run();
 		
-		if(mysql_num_rows($test_relasjon)==0) {
+		if(SQL::numRows($test_relasjon)==0) {
 			$videresend_person = new SQLins('smartukm_fylkestep_p');
 			$videresend_person->add('pl_id', $videresendTil);
 			$videresend_person->add('pl_from', $videresendFra);

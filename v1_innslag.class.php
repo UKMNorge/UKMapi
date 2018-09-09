@@ -582,7 +582,7 @@ class innslag {
 		$qry = $this->_load_personer_qry("LEFT JOIN `smartukm_fylkestep_p` AS `fs` ON (`fs`.`p_id` = `smartukm_participant`.`p_id` AND `fs`.`b_id` = `smartukm_rel_b_p`.`b_id`) "," AND `fs`.`b_id` IS NULL");
 		$qry = new SQL($qry);
 		$res = $qry->run();
-		if($res&&mysql_num_rows($res)>0)
+		if($res&&SQL::numRows($res)>0)
 			while($set = SQL::fetch($res))
 				$this->ikke_videresendte_personer[] = array('p_id'=>$set['p_id'], 
 															'p_firstname'=>utf8_encode($set['p_firstname']), 
@@ -617,7 +617,7 @@ class innslag {
 		$qry = new SQL($qry);
 		$res = $qry->run();
 		#$res = $wpdb->get_results($qry,'ARRAY_A');
-		if($res&&mysql_num_rows($res)>0)
+		if($res&&SQL::numRows($res)>0)
 			while($set = SQL::fetch($res))
 				$this->personer[] = array('p_id'=>$set['p_id'], 'p_firstname'=>utf8_encode($set['p_firstname']), 'p_lastname'=>utf8_encode($set['p_lastname']), 'instrument'=>utf8_encode($set['instrument']), 'p_phone'=>$set['p_phone']);
 		
@@ -720,7 +720,7 @@ class innslag {
 								  array('plid'=>$videresendTil, 'bid'=>$this->g('b_id'), 'season'=>$season));
 		$test_relasjon = $test_relasjon->run();	
 		
-		if(mysql_num_rows($test_relasjon)==0) {		
+		if(SQL::numRows($test_relasjon)==0) {		
 			$videresend_innslag_relasjon = new SQLins('smartukm_rel_pl_b');
 			$videresend_innslag_relasjon->add('pl_id', $videresendTil);
 			$videresend_innslag_relasjon->add('b_id', $this->g('b_id'));
@@ -739,7 +739,7 @@ class innslag {
 											't_id'=>$tittel));
 		$test_fylkestep = $test_fylkestep->run();
 
-		if (mysql_num_rows($test_fylkestep)==0) {
+		if (SQL::numRows($test_fylkestep)==0) {
 			$videresend_innslag = new SQLins('smartukm_fylkestep');
 			$videresend_innslag->add('pl_id', $videresendTil);
 			$videresend_innslag->add('pl_from', $videresendFra);
@@ -872,14 +872,14 @@ class innslag {
 						array('form'=>$this->g('bt_form'), 'bid'=>$this->g('b_id')));
 
 		$res = $sql->run();
-		if($res&&mysql_num_rows($res)>0) {
+		if($res&&SQL::numRows($res)>0) {
 			while($r = SQL::fetch($res)){
 				$videresendt = new SQL("SELECT * FROM `smartukm_fylkestep`
 										WHERE `b_id` = '#bid'
 										AND `t_id` = '#tid'",
 										array('bid'=>$this->g('b_id'), 'tid'=>$r['t_id']));
 				$videresendt = $videresendt->run();
-				if(mysql_num_rows($videresendt)!=0)
+				if(SQL::numRows($videresendt)!=0)
 					continue;
 				
 				$this->ikke_videresendte_titler[] = new tittel($r['t_id'],$this->g('bt_form'));
@@ -897,7 +897,7 @@ class innslag {
 						array('form'=>$this->g('bt_form'), 'bid'=>$this->g('b_id')));
 
 		$res = $sql->run();
-		if($res&&mysql_num_rows($res)>0) {
+		if($res&&SQL::numRows($res)>0) {
 			while($r = SQL::fetch($res)){
 				/// LUK UT TITLER HVIS FYLKESMØNSTRING
 				if($place->g('type')=='fylke' && !$uavhengig_av_monstring) {
@@ -920,7 +920,7 @@ class innslag {
 												array('bid'=>$this->g('b_id'), 'tid'=>$r['t_id']));
 					}
 					$videresendt = $videresendt->run();
-					if(mysql_num_rows($videresendt)==0)
+					if(SQL::numRows($videresendt)==0)
 						continue;
 				}
 				/// LUK UT TITLER HVIS LANDSMØNSTRING
@@ -939,7 +939,7 @@ class innslag {
 												  /*'plid'=>$forwardToPLID));*/
 												  'plid'=>$pl_id));
 					$videresendt = $videresendt->run();
-					if(mysql_num_rows($videresendt)==0) {
+					if(SQL::numRows($videresendt)==0) {
 					// 20.01.2013 Lagt til sjekk nr 2 for at APIet skal håndtere gamle videresendinger
 					$landstep = new SQL("SELECT * FROM `smartukm_landstep`
 											WHERE `b_id` = '#bid'
@@ -950,7 +950,7 @@ class innslag {
 	#					echo $landstep->debug();
 					$landstep = $landstep->run();
 
-						if(mysql_num_rows($landstep)==0) {
+						if(SQL::numRows($landstep)==0) {
 							continue;
 						}
 					}
@@ -1116,7 +1116,7 @@ class innslag {
 						" AND `season` = '" . $stats_info["season"] . "'";
 				$sql = new SQL($qry);
 				// Sjekke om ting skal settes inn eller oppdateres
-				if (mysql_num_rows($sql->run()) > 0)
+				if (SQL::numRows($sql->run()) > 0)
 					$sql_ins = new SQLins('ukm_statistics', array(
 						"b_id" => $stats_info["b_id"], // innslag-id
 						"p_id" => $stats_info["p_id"], // person-id
@@ -1356,7 +1356,7 @@ class innslag {
 		$header = '<strong>'.ucfirst($tittelnavn).':</strong><br />';
 
 		## IF NO TITLES, RETURN
-		if(mysql_num_rows($res)==0)
+		if(SQL::numRows($res)==0)
 			return array('titler' => array('tittel.mangler'));
 
 		$missing = array();
@@ -1401,7 +1401,7 @@ class innslag {
 	                                array('bid'=>$band['the_real_b_id'], 'season'=>$SEASON));
 	    $participants = $participants->run();
 		## IF NO PARTICIPANTS
-		if(mysql_num_rows($participants)==0)
+		if(SQL::numRows($participants)==0)
 			return array('innslag' => array('innslag.ingendeltakere'));
 			//return $header. ' Det er ingen deltakere i innslaget';
 

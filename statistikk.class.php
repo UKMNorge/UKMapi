@@ -299,7 +299,7 @@ class statistikk {
 						" AND `season` = '" . $stats_info["season"] . "'";
 				$sql = new SQL($qry);
 				// Sjekke om ting skal settes inn eller oppdateres
-				if (mysql_num_rows($sql->run()) > 0) {
+				if (SQL::numRows($sql->run()) > 0) {
 					$sql_ins = new SQLins('ukm_statistics', array(
 						"b_id" => $stats_info["b_id"], // innslag-id
 						"p_id" => $stats_info["p_id"], // person-id

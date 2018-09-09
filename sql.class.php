@@ -287,7 +287,7 @@ if(!class_exists('SQL')) {
 			if( self::_isMysqliResult() ) {
 				return mysqli_num_rows( $result );
 			}
-			return mysql_num_rows( $result );
+			return SQL::numRows( $result );
 		}
 
 		private static function _isMysqliResult( $result ) {

@@ -44,7 +44,7 @@ class innslag_collection {
 	/**
 	 * Hurtig-funksjon for å avgjøre om samlingen har innslag
 	 *
-	 * Kjører _load() i countOnly-modus, som returnerer mysql_num_rows
+	 * Kjører _load() i countOnly-modus, som returnerer SQL::numRows
 	 *
 	 * Funksjonen henter alle rader fra databasen med joins
 	 * så krever litt, men likevel mye mindre enn å loope 
@@ -436,7 +436,7 @@ class innslag_collection {
 			return false;
 		}
 		if( $countOnly ) {
-			return mysql_num_rows( $res );
+			return SQL::numRows( $res );
 		}
 		while( $row = SQL::fetch( $res ) ) {
 			$innslag = new innslag_v2( $row, true );

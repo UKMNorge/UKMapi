@@ -149,7 +149,7 @@ function UKMN_config($name) {
 				array('name'=>$name));
 	$sql = $sql->run();
 	
-	if(mysql_num_rows($sql) == 0)
+	if(SQL::numRows($sql) == 0)
 		return false;
 	
 	$sql = SQL::fetch($sql);

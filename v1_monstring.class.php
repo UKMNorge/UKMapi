@@ -1219,7 +1219,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 						    	 WHERE `pl_id` = ' . $this->info['pl_id'] . '
 						    	 LIMIT 1 ' );
 		$res = $concertsSql->run();
-		return mysql_num_rows( $res ) > 0;
+		return SQL::numRows( $res ) > 0;
 	}
 	
 	public function forestilling( $c_id ){
@@ -1360,7 +1360,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 			$pl_contact = $pl_contact->run();
 			
 			#!#!# FELLESMØNSTRING, FOUND TOP CONTACT , NOT ASSOCIATED TO KOMMUNE
-			if(mysql_num_rows($pl_contact) != 1) {
+			if(SQL::numRows($pl_contact) != 1) {
 				$pl_contact = "SELECT `smartukm_contacts`.`id`, `name`,`tlf`,`email`,`picture`,`facebook`
 							FROM `smartukm_contacts`
 							JOIN `smartukm_rel_pl_ab` ON (`smartukm_contacts`.`id` = `smartukm_rel_pl_ab`.`ab_id`)
@@ -1612,6 +1612,6 @@ $test = new SQL("SELECT `s_id` AS `personer`
     					LIMIT 1",
     					array('plid' => $this->g('pl_id')) );
     	$res = $sql->run();
-    	return mysql_num_rows( $res ) > 0;
+    	return SQL::numRows( $res ) > 0;
 	}
 }

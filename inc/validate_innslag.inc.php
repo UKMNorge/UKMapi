@@ -181,7 +181,7 @@ function titles($b, $fields, $tittelnavn=false) {
 	$header = '<strong>'.ucfirst($tittelnavn).':</strong><br />';
 
 	## IF NO TITLES, RETURN
-	if(mysql_num_rows($res)==0)
+	if(SQL::numRows($res)==0)
 		return $header . ' Det er ikke lagt til noen '.$tittelnavn;
 
 	$missing = '';
@@ -225,7 +225,7 @@ function participants($band) {
                                 array('bid'=>$band['the_real_b_id'], 'season'=>$SEASON));
     $participants = $participants->run();
 	## IF NO PARTICIPANTS
-	if(mysql_num_rows($participants)==0)
+	if(SQL::numRows($participants)==0)
 		return $header. ' Det er ingen deltakere i innslaget';
 
 	## LOOP FOR PARTICIPANTS

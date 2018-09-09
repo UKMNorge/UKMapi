@@ -409,7 +409,7 @@ class write_person {
 		$test_relasjon = $test_relasjon->run();
 		
 		// Hvis allerede videresendt, alt ok
-		if( mysql_num_rows($test_relasjon) > 0 ) {
+		if( SQL::numRows($test_relasjon) > 0 ) {
 			return true;
 		}
 		// Videresend personen

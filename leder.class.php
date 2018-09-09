@@ -88,7 +88,7 @@ class leder {
 					);
 		$res = $sql->run();
 		
-		if( mysql_num_rows( $res ) == 1 ) {
+		if( SQL::numRows( $res ) == 1 ) {
 			$r = SQL::fetch( $res );
 			
 			$natt = $this->_natt( $r );
@@ -152,7 +152,7 @@ class leder {
 					);
 		$res = $sql->run();
 		
-		if( mysql_num_rows( $res ) == 0 )
+		if( SQL::numRows( $res ) == 0 )
 			return false;
 		
 		$row = SQL::fetch( $res );

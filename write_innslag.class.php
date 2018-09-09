@@ -695,7 +695,7 @@ class write_innslag {
 		$test_relasjon = $test_relasjon->run();
 		
 		// Hvis allerede videresendt, alt ok
-		if( mysql_num_rows($test_relasjon) > 0 ) {
+		if( SQL::numRows($test_relasjon) > 0 ) {
 			return true;
 		}
 		// Videresend innslaget
@@ -719,7 +719,7 @@ class write_innslag {
 				]
 			);
 			$test_relasjon_2 = $test_relasjon_2->run();
-			if( mysql_num_rows( $test_relasjon_2 ) == 0 ) {
+			if( SQL::numRows( $test_relasjon_2 ) == 0 ) {
 				$rel_pl_b = new SQLins('smartukm_rel_pl_b');
 				$rel_pl_b->add('b_id', $innslag->getId() );
 				$rel_pl_b->add('pl_id', $innslag->getContext()->getMonstring()->getId() );
@@ -742,7 +742,7 @@ class write_innslag {
 					]
 				);
 				$test_relasjon_3 = $test_relasjon_3->run();
-				if( mysql_num_rows( $test_relasjon_3 ) == 0 ) {
+				if( SQL::numRows( $test_relasjon_3 ) == 0 ) {
 					$fylkestep_p = new SQLins('smartukm_fylkestep_p');
 					$fylkestep_p->add('pl_id', $innslag->getContext()->getMonstring()->getId() );
 					$fylkestep_p->add('b_id', $innslag->getId() );

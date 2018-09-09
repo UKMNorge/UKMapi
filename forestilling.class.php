@@ -510,7 +510,7 @@ class forestilling {
 								array('cid'=>$this->g('c_id'),
 									  'bid'=>$order[$i]));
 				$check = $check->run();
-				if(mysql_num_rows($check)==0){
+				if(SQL::numRows($check)==0){
 					$ins = new SQLins('smartukm_rel_b_c');
 					$ins->add('c_id', $this->g('c_id'));
 					$ins->add('b_id', $order[$i]);
@@ -610,7 +610,7 @@ class forestilling {
 							 WHERE `c_id` = ' . $this->info['c_id'] . '
 							 ORDER BY `'.$this->orderby.'` ASC');
 		$bandResult = $bandSql->run();
-		$this->info['antall_innslag'] = mysql_num_rows($bandResult);
+		$this->info['antall_innslag'] = SQL::numRows($bandResult);
 	}
 */
 	
@@ -658,7 +658,7 @@ class forestilling {
 					$kunstutstilling = false;
 			}
 			
-			$this->info['antall_innslag'] = mysql_num_rows($bandResult);
+			$this->info['antall_innslag'] = SQL::numRows($bandResult);
 		} else {
 			$this->info['antall_innslag'] = 0;
 		}
