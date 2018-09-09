@@ -24,7 +24,7 @@ class kommune {
 	}
 	private function _loadByRow( $res ) {
 		$this->id = $res['id'];
-		$this->name = utf8_encode($res['name']);
+		$this->name = $res['name'];
 		$this->fylke = fylker::getById( $res['idfylke'] );
 		$this->name_nonutf8 = $res['name'];
 	}
