@@ -150,6 +150,9 @@ class DB {
 	 * @return int insert_id
 	**/
 	public static function getInsertId() {
+		if( self::$connection->insert_id == 0 ) {
+			throw new Exception('System-error: Insert ID == 0 (database-spørringen feilet)');
+		}
 		return self::$connection->insert_id;
 	}
 
