@@ -48,11 +48,11 @@ class kontakt_v2 {
 			throw new Exception('KONTAKT: _load_by_row krever dataarray!');
 		}
 		$this->id = $row['id'];
-		$this->fornavn = utf8_encode( $row['firstname'] );
-		$this->etternavn = utf8_encode( $row['lastname'] );
+		$this->fornavn =  $row['firstname'];
+		$this->etternavn = $row['lastname'];
 		$this->telefon = $row['tlf'];
 		$this->epost = $row['email'];
-		$this->tittel = utf8_encode( $row['title'] );
+		$this->tittel = $row['title'];
 		$this->facebook = $row['facebook'];
 		$this->bilde = $row['picture'];
 		$this->adresse = $row['adress'];
