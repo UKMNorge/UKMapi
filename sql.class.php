@@ -280,6 +280,9 @@ if(!class_exists('SQL')) {
 		}
 
 		public static function fetch( $result ) {
+			if( $result === false ) {
+				return false;
+			}
 			if( self::_isMysqliResult($result) ) {
 				return mysqli_fetch_assoc( $result );
 			}
@@ -287,6 +290,9 @@ if(!class_exists('SQL')) {
 		}
 
 		public static function numRows( $result ) {
+			if( $result === false ) {
+				return false;
+			}
 			if( self::_isMysqliResult($result) ) {
 				return mysqli_num_rows( $result );
 			}
