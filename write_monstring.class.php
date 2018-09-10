@@ -204,7 +204,7 @@ class write_monstring {
 		}
 
 		// Hvis lokalmønstring, sjekk og lagre kommunesammensetning
-		if( $monstring->getType() == 'kommune') {
+		if( $monstring_save->getType() == 'kommune') {
 			foreach( $monstring_save->getKommuner()->getAll() as $kommune ) {
 				if( !$monstring_db->getKommuner()->har( $kommune ) ) {
 					self::_leggTilKommune( $monstring_save, $kommune ); 
