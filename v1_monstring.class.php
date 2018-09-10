@@ -67,7 +67,7 @@ class monstring{
 								 array('fylke' => $this->info['fylke_id']));
 			$kommuner = $kommuner->run();
 			while( $r = SQL::fetch( $kommuner ) ) {
-				$this->info['kommuner_i_fylket'][$r['id']] = utf8_encode($r['name']);
+				$this->info['kommuner_i_fylket'][$r['id']] = $r['name'];
 			}
 		}
 		
@@ -83,7 +83,7 @@ class monstring{
 			while($r = SQL::fetch($kommuner)) {
 				if(!$idfylke)
 					$idfylke = $r['idfylke'];
-				$this->info['kommuner'][] = array('id'=>$r['id'], 'name'=>utf8_encode($r['name']));
+				$this->info['kommuner'][] = array('id'=>$r['id'], 'name'=>$r['name']);
 			}
 			
 			$fylke = new SQL("SELECT * FROM `smartukm_fylke` WHERE `id` = '#id'",
@@ -113,9 +113,7 @@ class monstring{
 	    if( !isset( $this->info[$key] ) ) {
 		    return false;
 	    }
-		return is_array($this->info[$key]) 
-				? $this->info[$key]
-				: utf8_encode($this->info[$key]);
+		return $this->info[$key];
 	}
 	
 	############################################
@@ -403,7 +401,7 @@ class monstring{
 		if($result) {
 			while($row = SQL::fetch($result)) {
 				$row['bt_id'] = (int) $row['bt_id'];
-				$row['bt_name'] = utf8_encode($row['bt_name']);
+				$row['bt_name'] = $row['bt_name'];
 				$this->band_types_allowed[$row['bt_id']] = $row;
 			}
 		}
@@ -421,7 +419,7 @@ class monstring{
 		
 		while($r = SQL::fetch($default)) {
 			$r['bt_id'] = (int) $r['bt_id'];
-			$row['bt_name'] = utf8_encode($row['bt_name']);
+			$row['bt_name'] = $row['bt_name'];
 			$this->band_types_allowed[$r['bt_id']] = $r;
 		}
 		// EOF ADDED 23.11.2010
@@ -444,7 +442,7 @@ class monstring{
 		$res = $qry->run();
 				
 		while($r = SQL::fetch($res))
-			$this->all_band_types[] = array('bt_name'=>utf8_encode($r['bt_name']),
+			$this->all_band_types[] = array('bt_name'=>$r['bt_name'],
 											'bt_id'=>(int)$r['bt_id'],
 											'allowed'=>isset($this->band_types_allowed[(int)$r['bt_id']])
 											);
@@ -804,10 +802,10 @@ class monstring{
 		for($i=0; $i<sizeof($bands); $i++) {
 			$set = $bands[$i];
 			if($this->g('type')=='land')
-				$geonokkel = utf8_encode($set['fylke']);
+				$geonokkel = $set['fylke'];
 			else
-				$geonokkel = utf8_encode($set['kommune']);#$k_id['id'];
-			$set['b_name'] = utf8_encode($set['b_name']);
+				$geonokkel = $set['kommune'];#$k_id['id'];
+			$set['b_name'] = $set['b_name'];
 			$infos = array('b_id'=>$set['b_id'],
 						   'b_status'=>$set['b_status'],
 						   'bt_id'=>$set['bt_id'],
@@ -1232,8 +1230,8 @@ $test = new SQL("SELECT `s_id` AS `personer`
 							    		  
 		$ret = $concertSql->run( 'array' );
 
-		$ret['c_name'] = utf8_encode($ret['c_name']);
-		$ret['c_place'] = utf8_encode($ret['c_place']);
+		$ret['c_name'] = $ret['c_name'];
+		$ret['c_place'] = $ret['c_place'];
 		
 		return $ret;
 	}
@@ -1270,8 +1268,8 @@ $test = new SQL("SELECT `s_id` AS `personer`
 		$concertsRows = array();
 		
 		while( $concertsRow = SQL::fetch($concertsResult) ) {
-			$concertsRow['c_name'] = utf8_encode($concertsRow['c_name']);
-			$concertsRow['c_place'] = utf8_encode($concertsRow['c_place']);
+			$concertsRow['c_name'] = $concertsRow['c_name'];
+			$concertsRow['c_place'] = $concertsRow['c_place'];
 			$concertsRows[] = $concertsRow;
 		}
 		
@@ -1402,7 +1400,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 		$bands = $this->_load_innslag_loop($k_id['id'],8,false,true);
 		for($i=0; $i<sizeof($bands); $i++) {
 			$set = $bands[$i];
-			$set['b_name'] = utf8_encode($set['b_name']);
+			$set['b_name'] = $set['b_name'];
 			$infos = array('b_id'=>$set['b_id'],
 						   'b_status'=>$set['b_status'],
 						   'bt_id'=>$set['bt_id'],
@@ -1523,7 +1521,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 		$res = $sql->run();
 		if($res)
 			while( $r = SQL::fetch( $res ) ) {
-				$svar[$r['q_id']] = utf8_encode($r['answer']);
+				$svar[$r['q_id']] = $r['answer'];
 			}
 		return $svar;
 	}
