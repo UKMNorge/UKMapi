@@ -28,7 +28,7 @@ class ambassador {
 				return false;
 			foreach($res as $key => $val) {
 				$newkey = str_replace('amb_','',$key);
-				$this->$newkey = is_string($val) ? utf8_encode($val) : $val;
+				$this->$newkey = $val;
 			}
 			
 			$this->link = '//facebook.com/'.$this->faceID;
