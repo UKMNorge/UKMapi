@@ -197,12 +197,12 @@
 
 	
 	private function _scene($r) {
-		$this->tittel = utf8_encode(stripslashes($r['t_name']));
-		$this->tekst_av = utf8_encode($r['t_titleby']);
+		$this->tittel = stripslashes($r['t_name']);
+		$this->tekst_av = $r['t_titleby'];
 		if($this->tekst_av=='instrumental')
 			$this->tekst_av = '';
-		$this->melodi_av = utf8_encode($r['t_musicby']);
-		$this->koreografi = utf8_encode($r['t_coreography']);
+		$this->melodi_av = $r['t_musicby'];
+		$this->koreografi = $r['t_coreography'];
 		$this->varighet = (int) $r['t_time'];
 		$this->selvlaget = $r['t_selfmade'];
 		$this->instrumental = $r['t_instrumental'];
@@ -225,37 +225,37 @@
 	}
 	
 	private function _utstilling($r) {
-		$this->tittel = utf8_encode(stripslashes($r['t_e_title']));
-		$this->type = utf8_encode($r['t_e_type']);
-		$this->teknikk = utf8_encode($r['t_e_technique']);
-		$this->format = utf8_encode($r['t_e_format']);
-		$this->beskrivelse = utf8_encode($r['t_e_comments']);
+		$this->tittel = stripslashes($r['t_e_title']);
+		$this->type = $r['t_e_type'];
+		$this->teknikk = $r['t_e_technique'];
+		$this->format = $r['t_e_format'];
+		$this->beskrivelse = $r['t_e_comments'];
 		$this->varighet = 0;
 
 		$this->parentes = '(';
 
-			if(!empty($this->type))
-				# fjernet utf8_encode fordi det gjøres over
+			if(!empty($this->type)) {
 				$this->parentes .= 'Type: '. $this->type;
-			if(!empty($this->tekst_av))
-				# fjernet utf8_encode fordi det gjøres over
+			}
+			if(!empty($this->tekst_av)) {
 				$this->parentes .= 'Teknikk: '. $this->teknikk;
+			}
 		$this->parentes .= ')';
 	}
 	
 	private function _film($r) {
-		$this->tittel = utf8_encode(stripslashes($r['t_v_title']));
-		$this->format = utf8_encode($r['t_v_format']);
+		$this->tittel = stripslashes($r['t_v_title']);
+		$this->format = $r['t_v_format'];
 		$this->varighet = (int) $r['t_v_time'];
-		$this->parentes = '('.utf8_encode($r['t_v_format']).')';
+		$this->parentes = '('.$r['t_v_format'].')';
 	}
 	
 	private function _annet($r) {
-		$this->tittel = utf8_encode(stripslashes($r['t_o_function']));
-		$this->erfaring = utf8_encode($r['t_o_experience']);
-		$this->kommentar = utf8_encode($r['t_o_comments']);
+		$this->tittel = stripslashes($r['t_o_function']);
+		$this->erfaring = $r['t_o_experience'];
+		$this->kommentar = $r['t_o_comments'];
 		$this->varighet = 0;
-		$this->parentes = '('.utf8_encode($r['t_o_comments']).')';
+		$this->parentes = '('.$r['t_o_comments'].')';
 	}
 
 	private function _secondtominutes($sec) {

@@ -404,9 +404,6 @@ public function getByPhone( $phone, $b_id=false ) {
 		if ($key == 'p_phone' && $this->info[$key] == 0)
 			return '';
 			
-        if($encode)
-		    return utf8_encode($this->info[$key]);	
-		    
         return $this->info[$key];
 	}
 	

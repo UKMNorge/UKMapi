@@ -423,10 +423,10 @@ class tittel_v2 {
 	 *
 	**/
 	private function _load_scene( $row ) {
-		$this->setTittel( utf8_encode( stripslashes($row['t_name']) ) );
-		$this->setTekstAv( utf8_encode( $row['t_titleby'] ) );
-		$this->setMelodiAv( utf8_encode( $row['t_musicby'] ) );
-		$this->setKoreografiAv( utf8_encode($row['t_coreography'] ) );
+		$this->setTittel( stripslashes($row['t_name']) );
+		$this->setTekstAv( $row['t_titleby'] );
+		$this->setMelodiAv( $row['t_musicby'] );
+		$this->setKoreografiAv( $row['t_coreography'] );
 		
 		$this->setVarighet( (int) $row['t_time'] );
 		
@@ -462,11 +462,11 @@ class tittel_v2 {
 	 * @param databaserad
 	**/	
 	private function _load_utstilling( $row ) {
-		$this->setTittel( utf8_encode( stripslashes( $row['t_e_title'] ) ) );
-		$this->setType( utf8_encode( $row['t_e_type'] ) );
-		$this->setTeknikk( utf8_encode( $row['t_e_technique'] ));
-		$this->setFormat( utf8_encode( $row['t_e_format'] ) );
-		$this->setBeskrivelse( utf8_encode( $row['t_e_comments'] ));
+		$this->setTittel( stripslashes( $row['t_e_title'] ) );
+		$this->setType( $row['t_e_type'] );
+		$this->setTeknikk( $row['t_e_technique'] );
+		$this->setFormat( $row['t_e_format'] );
+		$this->setBeskrivelse( $row['t_e_comments'] );
 		$this->setVarighet( 0 );
 	}
 	
@@ -476,8 +476,8 @@ class tittel_v2 {
 	 * @param databaserad
 	**/
 	private function _load_film( $row ) {
-		$this->setTittel( utf8_encode( stripslashes( $row['t_v_title'] ) ) );
-		$this->setFormat( utf8_encode( $row['t_v_format'] ) );
+		$this->setTittel( stripslashes( $row['t_v_title'] ) );
+		$this->setFormat( $row['t_v_format'] );
 		$this->setVarighet( (int) $row['t_v_time'] );
 	}
 	
@@ -487,9 +487,9 @@ class tittel_v2 {
 	 * @param databaserad
 	**/
 	private function _load_annet( $row ) {
-		$this->setTittel( utf8_encode( stripslashes( $row['t_o_function'] ) ) );
-		$this->setErfaring( utf8_encode( $row['t_o_experience'] ) );
-		$this->setKommentar( utf8_encode( $row['t_o_comments'] ) );
+		$this->setTittel( stripslashes( $row['t_o_function'] ) );
+		$this->setErfaring( $row['t_o_experience'] );
+		$this->setKommentar( $row['t_o_comments'] );
 		$this->setVarighet( 0 );
 	}
 
@@ -499,10 +499,10 @@ class tittel_v2 {
 		$tekst = '';
 		switch( $this->getTable() ) {
 			case 'smartukm_titles_video':
-				return utf8_encode($r['t_v_format']);
+				return $r['t_v_format'];
 				
 			case 'smartukm_titles_other':
-				return utf8_encode($r['t_v_format']);
+				return $r['t_v_format'];
 
 			case 'smartukm_titles_scene':
 				if( $this->getTekstAv() == $this->getMelodiAv() ) {
