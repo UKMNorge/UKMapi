@@ -285,7 +285,7 @@ class tv {
 		$this->set_url = $this->tvurl.'samling/'.$this->set;
 		
 		// CATEGORY
-		$this->category = utf8_encode($this->category);
+		$this->category = $this->category;
 		$this->category_url = $this->tvurl.'kategorier/'.$this->category;
 	}
 	
