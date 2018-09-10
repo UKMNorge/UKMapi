@@ -467,11 +467,6 @@ class innslag {
 	}	
 	
 	private function __charset() {
-		//$this->info['bt_name'] = utf8_encode($this->info['bt_name']);
-
-		//$this->info['b_name'] = mb_detect_encoding($this->info['b_name'], "UTF-8") == "UTF-8" 
-		//					 ? utf8_encode($this->info['b_name'])
-		//					 : ($this->info['b_name']);
 	}
 	
 	private function correctName() {
@@ -1375,7 +1370,6 @@ class innslag {
 					elseif($b['b_kategori']=='annet' && in_array($fields[$i],array('t_musicby','t_titleby','t_coreography')))
 						continue;
 		
-					## Added utf8_encode because this doesn't use it. :/
 					$missing[] = array($title['t_id'], array("tittel.".$fields[$i]));//$title[$titleKey].$fields[$i];
 					break;
 				}
