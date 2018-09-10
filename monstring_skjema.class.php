@@ -148,9 +148,9 @@ class monstring_skjema {
 		echo '</pre>';*/
 		$q = new stdClass();
 		$q->id = $data['q_id'];
-		$q->title = utf8_encode($data['q_title']); 
+		$q->title = $data['q_title']; 
 		$q->type = $data['q_type']; // May be 'janei', 'korttekst', 'langtekst', 'kontakt', 'overskrift'. Mulig mer?
-		$q->help = utf8_encode($data['q_help']); 
+		$q->help = $data['q_help'];
 		$q->order = $data['order']; // Rekkefølgehjelper, for å sortere elementer.
 		$q->f_id = $data['f_id']; // Fylke-ID - trengs denne?
 		$q->fylke = $this->fylke;
@@ -158,7 +158,7 @@ class monstring_skjema {
 		if ($q->type == 'kontakt') 
 			$q->value = $this->getKontakt($data['answer']);
 		else
-			$q->value = stripslashes( utf8_encode($data['answer']) );
+			$q->value = stripslashes( $data['answer'] );
 		return $q;
 	}
 
@@ -166,9 +166,9 @@ class monstring_skjema {
 		#var_dump($str);
 		$str = explode('__||__', $str);
 		$answer = new stdClass();
-		$answer->navn = stripslashes( utf8_encode($str[0]) );
-		$answer->mobil = utf8_encode($str[1]);
-		$answer->epost = utf8_encode($str[2]);
+		$answer->navn = stripslashes( $str[0] );
+		$answer->mobil = $str[1];
+		$answer->epost = $str[2];
 
 		return $answer;
 	}
