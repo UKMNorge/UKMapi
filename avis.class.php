@@ -99,7 +99,7 @@ class avis {
 	
 	private function _load_from_row( $row ) {
 		$this->id = $row['id'];
-		$this->name = utf8_encode($row['name']);
+		$this->name = $row['name'];
 		$this->url = $row['url'];
 		$this->email = $row['email'];
 		$this->fylke = $row['fylke'];
