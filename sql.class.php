@@ -150,7 +150,7 @@ class DB {
 	**/
 	public static function getInsertId() {
 		if( self::$connection->insert_id == 0 ) {
-			throw new Exception('System-error: Insert ID == 0 (database-spørringen feilet)');
+			throw new Exception('System-error: Insert ID == 0 (database-spørringen feilet) => ' . self::getError() );
 		}
 		return self::$connection->insert_id;
 	}
@@ -462,7 +462,7 @@ if(!class_exists('SQLins')) {
 		 * @return bool
 		**/
 		function hasChanges() {
-			return sizeof( $this->keys ) > 0;
+			return is_array( $this->insert_keys ) && sizeof( $this->insert_keys ) > 0;
 		}
 
 		
