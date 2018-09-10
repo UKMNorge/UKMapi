@@ -13,7 +13,7 @@ class playback {
 		
 		foreach( $res as $key => $val ) {
 			$new_key = str_replace('pb_', '', $key );
-			$this->$new_key = utf8_encode($val);
+			$this->$new_key = $val;
 		}
 		
 		$this->local_file();
