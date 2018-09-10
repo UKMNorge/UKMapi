@@ -8,10 +8,7 @@ class urg {
 		$res = $sql->run('array');
 		foreach($res as $key => $val) {
 			$newkey = str_replace(array('urg_','-'),'', $key);
-			if(is_string($val))
-				$this->$newkey = utf8_encode($val);
-			else
-				$this->$newkey = $val;
+			$this->$newkey = $val;
 		}
 		
 		$name = explode(' ', $this->navn);
