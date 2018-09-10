@@ -470,7 +470,7 @@ class person_v2 {
 	 * @return string kjønn
 	**/
 	public function getKjonn() {
-		$first_name = split(" ", str_replace("-", " ", $this->getFornavn()) );
+		$first_name = explode(" ", str_replace("-", " ", $this->getFornavn()) );
 		$first_name = $first_name[0];
 		
 		$qry = "SELECT `kjonn`
