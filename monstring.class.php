@@ -402,6 +402,9 @@ class monstring_v2 {
 	 *
 	**/
 	public function erFellesmonstring() {
+		if( $this->getType() != 'kommune' ) {
+			return false;
+		}
 		return 1 < sizeof( $this->kommuner_id );
 	}
 
