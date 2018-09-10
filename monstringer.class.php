@@ -145,7 +145,7 @@ class stat_monstringer_v2 {
 					array('season' => $season ));
 		$res = $qry->run();
 		while($r = SQL::fetch($res)) {
-			$kommuner[] = array('id' => $r['kommune_id'], 'navn' => utf8_encode( $r['kommune'] ), 'fylke' => utf8_encode($r['fylke']) );
+			$kommuner[] = array('id' => $r['kommune_id'], 'navn' => $r['kommune'], 'fylke' => $r['fylke'] );
 		}
 		return $kommuner;
 	}
