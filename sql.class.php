@@ -119,8 +119,7 @@ class DB {
 		self::$hasError = false;
 		
 		$result = self::$connection->query( $query );
-
-		if( !$result ) {
+		if( !empty( self::$connection->error ) ) {
 			self::$hasError = true;
 		}
 		return $result;
@@ -203,6 +202,14 @@ abstract class SQL_common {
 	**/
 	public function showError() {
 		$this->showError = true;
+	}
+
+
+	/**
+	 * Get current error
+	 */
+	public function getError() {
+		return DB::getError();
 	}
 
 	/**
@@ -508,6 +515,11 @@ if(!class_exists('SQLins')) {
 			if( DB::wasError() && $this->_error_log ) {
 				error_log('SQL.class: '. DB::getError() );
 			}
+			
+			if( DB::wasError() ) {
+				return false;
+			}
+
 			if( $this->type == 'insert' ) {
 				return DB::getInsertId();
 			}
