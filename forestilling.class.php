@@ -27,9 +27,9 @@ class forestilling_v2 extends forestilling {
 
 		parent::__construct($c_id,$tekniskprove);
 		$this->setId( $this->info['c_id'] );
-		$this->setNavn( utf8_encode( $this->info['c_name'] ) );
+		$this->setNavn( $this->info['c_name'] );
 		$this->setStart( $this->info['c_start'] );
-		$this->setSted( utf8_encode( $this->info['c_place'] ) );
+		$this->setSted( $this->info['c_place'] );
 		$this->setMonstringId( $this->info['pl_id'] );
 		$this->setSynligRammeprogram( 'true' == $this->info['c_visible_program'] );
 		$this->setSynligDetaljprogram( 'true' == $this->info['c_visible_detail'] );
@@ -554,8 +554,8 @@ class forestilling {
 	{
 		/* Henter ut en konsert */
 
-		$ret['c_name'] = utf8_encode($this->info['c_name']);
-		$ret['c_place'] = utf8_encode($this->info['c_place']);
+		$ret['c_name'] = $this->info['c_name'];
+		$ret['c_place'] = $this->info['c_place'];
 		
 		
 		return $ret;
@@ -719,10 +719,7 @@ class forestilling {
 	## Returnerer verdien til attributten (key)
 	public function g($key) {	return $this->get($key);	}
 	public function get($key) {
-		if(is_array($this->info[$key]))
-			return $this->info[$key];
-			
-		return utf8_encode($this->info[$key]);	
+		return $this->info[$key];
 	}
 		
 	public function starter() {
