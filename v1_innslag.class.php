@@ -389,7 +389,7 @@ class innslag {
 		if(is_array($this->info[$key]))
 			return $this->info[$key];
 			
-		return utf8_encode($this->info[$key]);	
+		return $this->info[$key];
 	}
 		
 	## Returnerer hele objektet for var-dump
@@ -427,10 +427,10 @@ class innslag {
 						WHERE `smartukm_kommune`.`id` = '#id'",
 						array('id'=>$this->info['b_kommune']));
 		$res = $qry->run('array');
-		$this->info['kommune_utf8'] = utf8_encode($res['kommune']);
+		$this->info['kommune_utf8'] = $res['kommune'];
 		$this->info['kommune'] = ($res['kommune']);
 		$this->info['kommuneID'] = $res['kommuneID'];
-		$this->info['fylke_utf8'] = utf8_encode($res['fylke']);
+		$this->info['fylke_utf8'] = $res['fylke'];
 		$this->info['fylke'] = ($res['fylke']);
 		$this->info['fylkeID'] = $res['fylkeID'];
 				 
@@ -440,7 +440,7 @@ class innslag {
 		$this->info['kategori'] = ($this->info['bt_id']==1 
 									? ($this->info['b_kategori'] == 'scene' 
 										? 'Musikk' 
-										: ucfirst(utf8_decode($this->info['b_kategori']))
+										: ucfirst($this->info['b_kategori'])
 									  )
 									: $this->info['bt_name']
 								  );
@@ -585,9 +585,9 @@ class innslag {
 		if($res&&SQL::numRows($res)>0)
 			while($set = SQL::fetch($res))
 				$this->ikke_videresendte_personer[] = array('p_id'=>$set['p_id'], 
-															'p_firstname'=>utf8_encode($set['p_firstname']), 
-															'p_lastname'=>utf8_encode($set['p_lastname']), 
-															'instrument'=>utf8_encode($set['instrument']), 
+															'p_firstname'=>$set['p_firstname'], 
+															'p_lastname'=>$set['p_lastname'], 
+															'instrument'=>$set['instrument'], 
 															'p_phone'=>$set['p_phone']);
 
 	}
@@ -619,7 +619,7 @@ class innslag {
 		#$res = $wpdb->get_results($qry,'ARRAY_A');
 		if($res&&SQL::numRows($res)>0)
 			while($set = SQL::fetch($res))
-				$this->personer[] = array('p_id'=>$set['p_id'], 'p_firstname'=>utf8_encode($set['p_firstname']), 'p_lastname'=>utf8_encode($set['p_lastname']), 'instrument'=>utf8_encode($set['instrument']), 'p_phone'=>$set['p_phone']);
+				$this->personer[] = array('p_id'=>$set['p_id'], 'p_firstname'=>$set['p_firstname'], 'p_lastname'=>$set['p_lastname'], 'instrument'=>$set['instrument'], 'p_phone'=>$set['p_phone']);
 		
 		$this->personer_loaded = true;
 	}
@@ -1376,7 +1376,7 @@ class innslag {
 						continue;
 		
 					## Added utf8_encode because this doesn't use it. :/
-					$missing[] = array($title['t_id'], array(utf8_encode("tittel.".$fields[$i])));//$title[$titleKey].$fields[$i];
+					$missing[] = array($title['t_id'], array("tittel.".$fields[$i]));//$title[$titleKey].$fields[$i];
 					break;
 				}
 			}

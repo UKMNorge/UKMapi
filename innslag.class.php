@@ -111,16 +111,16 @@ class innslag_v2 {
 		if( null == $this->getId() ) {
 			throw new Exception("INNSLAG_V2: Klarte ikke å laste inn innslagsdata");
 		}
-		$this->setNavn( utf8_encode( $row['b_name'] ) );
+		$this->setNavn(  $row['b_name'] );
 		$this->setType( $row['bt_id'], $row['b_kategori'] );
-		$this->setBeskrivelse( utf8_encode($row['b_description']) );
+		$this->setBeskrivelse( $row['b_description'] );
 		$this->setKommune( $row['b_kommune'] );
-		$this->setKategori( utf8_decode( $row['b_kategori'] ) );
-		$this->setSjanger( (string) utf8_encode($row['b_sjanger'] ) );
+		$this->setKategori( $row['b_kategori'] );
+		$this->setSjanger( (string) $row['b_sjanger'] );
 		$this->setKontaktpersonId( $row['b_contact'] );
 		$this->_setSubscriptionTime( $row['b_subscr_time'] );
 		$this->setStatus( $row['b_status'] );
-		$this->setTekniskeBehov( utf8_encode( $row['td_demand'] ) );
+		$this->setTekniskeBehov( $row['td_demand'] );
 
 		if( isset( $row['order'] ) ) {
 			$this->setAttr('order', $row['order'] );
