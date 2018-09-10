@@ -24,7 +24,7 @@ class wp_author {
 		$this->setEmail( $row['user_email'] );
 		$this->setUrl( $row['user_url'] );	
 		$this->setRegistered( $row['user_registered'] );
-		$this->setDisplayName( utf8_encode($row['display_name']) );
+		$this->setDisplayName( $row['display_name'] );
 		
  		mysql_close( $link );
 	}
