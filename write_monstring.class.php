@@ -203,32 +203,6 @@ class write_monstring {
 			}
 		}
 
-		// Hvis lokalmønstring, sjekk og lagre kommunesammensetning
-		if( $monstring_save->getType() == 'kommune') {
-			foreach( $monstring_save->getKommuner()->getAll() as $kommune ) {
-				if( !$monstring_db->getKommuner()->har( $kommune ) ) {
-					self::_leggTilKommune( $monstring_save, $kommune ); 
-				}
-			}
-			foreach( $monstring_db->getKommuner()->getAll() as $kommune ) {
-				if( $monstring_save->getKommuner()->har( $kommune ) ) {
-					self::_fjernKommune( $monstring_save, $kommune );
-				}
-			}
-		}
-
-		// Sjekk kontaktpersoner og lagre endringer
-		foreach( $monstring_save->getKontakter()->getAll() as $kontakt ) {
-			if( !$monstring_db->getKontakter()->har( $kontakt ) ) {
-				self::_leggTilKontaktperson( $monstring_save, $kontakt ); 
-			}
-		}
-		foreach( $monstring_db->getKommuner()->getAll() as $kontakt ) {
-			if( $monstring_save->getKontakter()->har( $kontakt ) ) {
-				self::_fjernKontaktperson( $monstring_save, $kontakt );
-			}
-		}
-
 	}
 
 
