@@ -22,10 +22,9 @@ class UKMlogger {
 		$sql->add( 'log_the_object_id', $object_id );
 
 		#$sql->add( 'log_time', $time ); // GJØRES AV MYSQL (DEFAULT: CURRENT_TIMESTAMP)
-		#echo $sql->debug();
 		$res = $sql->run();
 		if( 1 != $res ) {
-			throw new Exception("UKMlogger: Klarte ikke å logge til log_log! Feilmelding: ".$sql->error());
+			throw new Exception("UKMlogger: Klarte ikke å logge til log_log! Feilmelding: ".$sql->getError());
 		}
 
 		$id = $sql->insid();
