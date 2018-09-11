@@ -1,6 +1,5 @@
 <?php
-require_once('PHPSpreadsheet/autoload.php');
-
+require_once('lib/autoload.php');
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
@@ -191,21 +190,10 @@ function excond($celle) {
 
 function exWrite($objPHPExcel,$filename) {
 	$filename = $filename .'.xlsx';
-	
-	if( defined('EXCEL_WRITE_PATH') ) {
-		$internal = EXCEL_WRITE_PATH;
-	} elseif( strpos( $_SERVER['HTTP_HOST'], 'ukm.dev') !== false ) {
-		$internal = '/var/www/download/excel/';
-	} else {
-		$internal = '/home/ukmno/public_html/temp/phpexcel/';
-	}
-	$external = 'http://download.ukm.no/excel/'. $filename;
-
 	$objPHPExcel->setActiveSheetIndex(0);
-
 	$objWriter = new Xlsx( $objPHPExcel );
-	$res = $objWriter->save($internal.$filename);
-	return $external;
+	$res = $objWriter->save( DOWNLOAD_PATH_EXCEL . $filename );
+	return DOWNLOAD_URL_EXCEL . $filename;
 }
 
 function exInit() {

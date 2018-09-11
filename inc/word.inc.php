@@ -1,12 +1,13 @@
 <?php
-define('PHPWORD_BASE_PATH','/usr/local/lib/php/');
-require_once('PHPWord/PHPWord.php');
+require_once('lib/autoload.php');
+use PhpOffice\PhpWord\PhpWord;
+use \PhpOffice\PhpWord\IOFactory;
 global $PHPWord;
 
 $PHPWord = new PHPWord();
 
 function woText(&$section, $text, $style=false) {
-	$text = utf8_decode($text);
+	$text = htmlspecialchars( $text );
 	if(!$style)
 		$section->addText($text, 'f_p','p_p');
 	else
@@ -37,23 +38,13 @@ function woListItem(&$section, $text, $depth=0, $fontStyle='f_p', $listStyle=PHP
 }
 
 function woWrite($filename){
-	$filename = $filename .'.docx';
-	
-	if (UKM_HOSTNAME == 'ukm.dev') {
-		#$internal = WORD_WRITE_PATH;
-		$internal = '/tmp/';
-	}
-	else {
-		$internal = '/home/ukmno/public_html/temp/phpword/';
-	}
-	$external = 'http://ukm.no/UKM/subdomains/download/?folder=phpword&filename='.urlencode($filename);
-	$external = 'http://download.ukm.no/?folder=phpword&filename='.urlencode($filename);
-	global $PHPWord;
-	$objWriter = PHPWord_IOFactory::createWriter($PHPWord, 'Word2007');
-	$objWriter->save($internal.$filename);
-	return $external;
-}
+	$filename = $filename .'.docx';	
 
+	global $PHPWord;
+	$objWriter = IOFactory::createWriter($PHPWord, 'Word2007');
+	$objWriter->save( DOWNLOAD_PATH_WORD . $filename );
+	return DOWNLOAD_URL_WORD . $filename;
+}
 
 function word_init($name,$orientation='portrait') {
 	global $PHPWord;
