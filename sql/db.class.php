@@ -35,7 +35,10 @@ class DB {
             case 'ukmdelta': 
                 self::_connectDelta();
 				break;
-            default:
+			case 'wordpress':
+				self::_connectWordpress();
+				break;
+			default:
                 self::_connectUKM();
 		}
 		
@@ -62,6 +65,9 @@ class DB {
 	 * @return void
 	**/
 	public static function setDatabase( $database ) {
+		if( $database !== self::$database ) {
+			self::$connection = false;
+		}
 		self::$database = $database;
 	}
 
@@ -113,7 +119,6 @@ class DB {
 		if( !empty( self::$connection->error ) ) {
 			self::$hasError = true;
         }
-
 		return $result;
 	}
 
@@ -163,22 +168,10 @@ class DB {
     private static function _connectDelta() {
         // Initiate with write access (SQLins, SQLdel, SQLwrite)
         if( self::_hasWriteAccess() ) {
-            self::$connection = new mysqli(
-                UKM_DELTA_DB_HOST, 
-                UKM_DELTA_DB_WRITE_USER, 
-                UKM_DELTA_DB_WRITE_PASSWORD, 
-                UKM_DELTA_DB_NAME
-            );
+            return self::_init( UKM_DELTA_DB_HOST, UKM_DELTA_DB_NAME, UKM_DELTA_DB_WRITE_USER, UKM_DELTA_DB_WRITE_PASSWORD );
         }
         // Initiate with read access (SQL)
-        else {
-            self::$connection = new mysqli(
-                UKM_DELTA_DB_HOST, 
-                UKM_DELTA_DB_USER, 
-                UKM_DELTA_DB_PASSWORD, 
-                UKM_DELTA_DB_NAME
-            );
-        }
+		return self::init(UKM_DELTA_DB_HOST, UKM_DELTA_DB_NAME, UKM_DELTA_DB_USER, UKM_DELTA_DB_PASSWORD );
     }
 
     /**
@@ -188,23 +181,31 @@ class DB {
     private static function _connectUKM() {
         // Initiate with write access (SQLins, SQLdel, SQLwrite)
         if( self::_hasWriteAccess() ) {
-            self::$connection = new mysqli(
-                UKM_DB_HOST, 
-                UKM_DB_WRITE_USER, 
-                UKM_DB_WRITE_PASSWORD,
-                UKM_DB_NAME
-            );
+            return self::_init(UKM_DB_HOST, UKM_DB_NAME, UKM_DB_WRITE_USER, UKM_DB_WRITE_PASSWORD );
         }
         // Initiate with read access (SQL)
-        else {
-            self::$connection = new mysqli(
-                UKM_DB_HOST, 
-                UKM_DB_USER, 
-                UKM_DB_PASSWORD,
-                UKM_DB_NAME
-            );
-        }
-    }
+		return self::_init( UKM_DB_HOST, UKM_DB_NAME, UKM_DB_USER, UKM_DB_PASSWORD );
+	}
+	
+	private static function _connectWordpress() {
+		// Initiate with write access (SQLins, SQLdel, SQLwrite)
+		if( self::_hasWriteAccess() ) {
+			return self::_init( UKM_WP_DB_HOST, UKM_WP_DB_NAME, UKM_WP_DB_WRITE_USER, UKM_WP_DB_WRITE_PASSWORD );
+		}
+        // Initiate with read access (SQL)
+		return self::_init( UKM_WP_DB_HOST, UKM_WP_DB_NAME, UKM_WP_DB_USER, UKM_WP_DB_PASSWORD );
+	}
+
+
+	private static function _init( $host, $database, $user, $password ) {
+		self::$connection = new mysqli(
+			$host,
+			$user,
+			$password,
+			$database
+		);
+		return true;
+	}
 
     private static function _hasWriteAccess() {
         return get_called_class()::WRITE_ACCESS;
