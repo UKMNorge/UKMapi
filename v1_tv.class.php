@@ -104,7 +104,7 @@ class tv {
 				continue;
 			}
 			$tag = explode('_', $string);
-			$this->tagObject->$tag[0] = $tag[1];
+			$this->tagObject->{$tag[0]} = $tag[1];
 		}
 	}
 	public function getCacheIP() {
