@@ -297,7 +297,7 @@ class write_person {
 		}
 		
 		if( $res ) {
-			return $this;
+			return $person_save;
 		}
 		
 		throw new Exception(
