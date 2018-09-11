@@ -5,8 +5,6 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 $objPHPExcel = new Spreadsheet();
-$sheet = $objPHPExcel->getActiveSheet();
-$sheet->setCellValue('A1', 'Hello World !');
 
 if(!function_exists('i2a')) {
 	function i2a($a) {
@@ -193,46 +191,18 @@ function excond($celle) {
 
 function exWrite($objPHPExcel,$filename) {
 	$filename = $filename .'.xlsx';
+	
 	if( defined('EXCEL_WRITE_PATH') ) {
 		$internal = EXCEL_WRITE_PATH;
+	} elseif( strpos( $_SERVER['HTTP_HOST'], 'ukm.dev') !== false ) {
+		$internal = '/var/www/download/excel/';
 	} else {
 		$internal = '/home/ukmno/public_html/temp/phpexcel/';
 	}
-	if( strpos( $_SERVER['HTTP_HOST'], 'ukm.dev' ) !== false ) {
-		$internal = '/phpexcel/';
-		if( !file_exists( $internal ) ) {
-			mkdir( $internal, 0777, true );
-		}
-	}
-	$external = 'http://ukm.no/UKM/subdomains/download/?folder=phpexcel&filename='.urlencode($filename);
-	$external = 'http://download.ukm.no/?folder=phpexcel&filename='.urlencode($filename);
+	$external = 'http://download.ukm.no/excel/'. $filename;
 
 	$objPHPExcel->setActiveSheetIndex(0);
 
-	ini_set('display_errors', true);
-	error_log(E_ALL);
-	if( !is_writable( $internal ) ) {
-		echo 'AU, KAN IKKE SKRIVE TIL '. $internal;
-	} else {
-		echo 'kan skrive til '. $internal;
-	}
-
-	$handle = fopen( $internal.$filename, 'w+' );
-
-	if( !is_writable( $internal.$filename ) ) {
-		echo 'AU, KAN IKKE SKRIVE TIL '. $internal.$filename;
-	} else {
-		echo 'kan skrive til '. $internal.$filename;
-	}
-
-	
-	fwrite( $handle, 'heihei' );
-	fclose( $handle );
-
-	$username = posix_getpwuid(posix_geteuid())['name'];
-	var_dump( $username );
-
-	echo 'Write to: '. $internal.$filename;
 	$objWriter = new Xlsx( $objPHPExcel );
 	$res = $objWriter->save($internal.$filename);
 	return $external;
