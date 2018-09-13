@@ -198,7 +198,7 @@ function exWrite($objPHPExcel,$filename) {
 
 function exInit() {
 	global $objPHPExcel;
-	$objPHPExcel = new PHPExcel($docTitle='Dokument uten navn', $orientation='portrait');
+	$objPHPExcel = new Spreadsheet($docTitle='Dokument uten navn', $orientation='portrait');
 	exorientation($orientation);
 
 	$objPHPExcel->getProperties()->setCreator('UKM Norges arrangørsystem');
