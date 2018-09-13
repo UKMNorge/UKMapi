@@ -41,10 +41,14 @@ abstract class Collection implements Iterator
         if( is_object( $id ) ) {
             $id = $id->getId();
         }
-		if( false == $this->find( $id ) ) {
-			throw new Exception('Could not find '. $id );
-		}
-		throw new Exception('IMPLEMENT remove');
+    
+        foreach( $this->getAll() as $key => $val ) {
+            if( $id == $val->getId() ) {
+                unset( $this->var[ $key ] );
+                return true;
+            }
+        }
+        throw new Exception('Could not find and remove '. $id, 110001 );
     }
     
     public function first() {

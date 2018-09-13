@@ -305,6 +305,7 @@ class monstring_v2 {
 	**/
 	public function setStart( $unixtime ) {
 		$this->start = $unixtime;
+		$this->start_datetime = null;
 		return $this;
 	}
 	/**
@@ -328,6 +329,7 @@ class monstring_v2 {
 	**/
 	public function setStop( $unixtime ) {
 		$this->stop = $unixtime;
+		$this->stop_datetime = null;
 		return $this;
 	}
 	/**
@@ -351,6 +353,7 @@ class monstring_v2 {
 	**/
 	public function setFrist1( $unixtime ) {
 		$this->frist_1 = $unixtime;
+		$this->frist_1_datetime = 0;
 		return $this;
 	}
 	/**
@@ -373,6 +376,7 @@ class monstring_v2 {
 	**/
 	public function setFrist2( $unixtime ) {
 		$this->frist_2 = $unixtime;
+		$this->frist_2_datetime = null;
 		return $this;
 	}
 	/**
