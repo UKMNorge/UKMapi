@@ -16,3 +16,4 @@ prefix | objekt | les | skriv
 7 | Person | 107yyy | 507yyy
 8 | TitlerCollection | 108yyy | 508yyy
 9 | Tittel | 109yyy | 509yyy
+10 | _collection | 110yyy | 510yyy
