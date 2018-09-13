@@ -129,6 +129,12 @@ class kontakt_v2 {
 		return $this;
 	}
 	
+	public function erLast() {
+		return $this->isLocked();
+	}
+	public function isLocked() {
+		return $this->getSystem_locked() == 'true';
+	}
 	public function getSystem_locked(){
 		return $this->system_locked;
 	}

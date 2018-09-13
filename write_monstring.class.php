@@ -144,6 +144,11 @@ class write_monstring {
 			'Path' 			=> ['smartukm_place', 'pl_link', 110],
 			'Uregistrerte'	=> ['smartukm_place', 'pl_missing', 108],
 			'Publikum'		=> ['smartukm_place', 'pl_public', 109],
+			'Sted'			=> ['smartukm_place', 'pl_place', 101],
+			'Start'			=> ['smartukm_place', 'pl_start', 102],
+			'Stop'			=> ['smartukm_place', 'pl_stop', 103],
+			'Frist1'		=> ['smartukm_place', 'pl_deadline', 106],
+			'Frist2'		=> ['smartukm_place', 'pl_deadline2', 107] 
 		];
 		// VERDIER SOM KUN KAN OPPDATERES HVIS FYLKE
 		if( $monstring_save->getType() == 'fylke' ) {
@@ -161,6 +166,10 @@ class write_monstring {
 			if( $monstring_db->$function() != $monstring_save->$function() ) {
 				# Mellomlagre verdi som skal settes
 				$value = $monstring_save->$function();
+
+				if( is_object( $value ) && get_class( $value ) == 'DateTime' ) {
+					$value = $value->getTimestamp(); // Fordi databasen lagrer datoer som int
+				}
 				# Legg til i SQL
 				$sql->add( $field, $value ); 	// SQL satt dynamisk i foreach til $$table
 				# Logg (eller dø) før vi kjører run
@@ -174,8 +183,9 @@ class write_monstring {
 			$res = $smartukm_place->run();
 		}
 		if( !$res ) {
-			throw new Exception('Kunne ikke opprette mønstring skikkelig, da lagring av detaljer feilet');
+			throw new Exception('Kunne ikke lagre mønstring skikkelig, da lagring av detaljer feilet');
 		}
+
 
 		// Hvis lokalmønstring, sjekk og lagre kommunesammensetning
 		if( $monstring_save->getType() == 'kommune') {
@@ -203,6 +213,20 @@ class write_monstring {
 			}
 		}
 
+
+		// Sjekk tillatte typer innslag og lagre endringer
+		foreach( $monstring_save->getInnslagtyper()->getAll() as $innslag_type ) {
+			if( !$monstring_db->getInnslagtyper()->har( $innslag_type ) ) {
+				self::_leggTilInnslagtype( $monstring_save, $innslag_type ); 
+			}
+		}
+		foreach( $monstring_db->getInnslagtyper()->getAll() as $innslag_type ) {
+			if( !$monstring_save->getInnslagtyper()->har( $innslag_type ) ) {
+				self::_fjernInnslagtype( $monstring_save, $innslag_type );
+			}
+		}
+
+		return $res;
 	}
 
 
@@ -536,5 +560,104 @@ class write_monstring {
 	**/
 	public function addKontaktperson( $kontakt ) {
 		die('DEPRECATED: Endre kontaktpersoner direkte på mønstringen, og kall write_monstring::save( $monstring )');
+	}
+
+	/**
+	 * Faktisk legg til en ny type innslag til mønstringen (db-modifier)
+	 * 
+	 * Sjekker at databaseraden ikke allerede eksisterer, og
+	 * setter inn ny rad ved behov
+	 *
+	 * @param monstring_v2 $monstring
+	 * @param innslag_type $innslag_type
+	 * @return bool $sucess
+	**/
+	public static function _leggTilInnslagtype( $monstring_save, $innslag_type ) {
+		try {
+			self::controlMonstring( $monstring_save );
+		} catch( Exception $e ) {
+			throw new Exception('Kan ikke legge til innslagstype da '. $e->getMessage() );
+		}
+
+		$test = new SQL("
+			SELECT `pl_bt_id`
+			FROM `smartukm_rel_pl_bt`
+			WHERE `pl_id` = '#pl_id'
+			AND `bt_id` = '#bt_id'",
+			[
+				'pl_id' => $monstring_save->getId(),
+				'bt_id' => $innslag_type->getId()
+			]
+		);
+		$testRes = $test->run('field', 'pl_bt_id');
+		if( is_numeric( $testRes ) && $testRes > 0 ) {
+			return true;
+		}
+
+		$insert = new SQLins('smartukm_rel_pl_bt');
+		$insert->add('pl_id', $monstring_save->getId());
+		$insert->add('bt_id', $innslag_type->getId());
+		$res = $insert->run();
+		
+		if( !$res ) {
+			return false;
+		}
+
+		UKMlogger::log( 
+			117, 
+			$monstring_save->getId(), 
+			$innslag_type->getId()
+		);
+		return true;
+	}
+
+	/**
+	 * Faktisk legg til en ny type innslag til mønstringen (db-modifier)
+	 * 
+	 * Sjekker at databaseraden ikke allerede eksisterer, og
+	 * setter inn ny rad ved behov
+	 *
+	 * @param monstring_v2 $monstring
+	 * @param innslag_type $innslag_type
+	 * @return bool $sucess
+	**/
+	public static function _fjernInnslagtype( $monstring_save, $innslag_type ) {
+		try {
+			self::controlMonstring( $monstring_save );
+		} catch( Exception $e ) {
+			throw new Exception('Kan ikke fjerne innslagstype da '. $e->getMessage() );
+		}
+
+
+		$delete = new SQLdel(
+			'smartukm_rel_pl_bt',
+			[
+				'pl_id' => $monstring_save->getId(),
+				'bt_id' => $innslag_type->getId()
+			]
+		);
+		$res = $delete->run();
+
+		if( in_array( $innslag_type->getId(), [8,9] ) ) {
+			$delete2 = new SQLdel(
+				'smartukm_rel_pl_bt',
+				[
+					'pl_id' => $monstring_save->getId(),
+					'bt_id' => $innslag_type->getId() == 8 ? 9 : 8
+				]
+			);
+			$res = $delete2->run();
+		}
+			
+		if( !$res ) {
+			return false;
+		}
+
+		UKMlogger::log( 
+			118, 
+			$monstring_save->getId(), 
+			$innslag_type->getId()
+		);
+		return true;
 	}
 }
