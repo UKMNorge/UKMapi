@@ -25,7 +25,12 @@ abstract class SQLcommon {
 				$charset = 'utf8';
 				break;
 		}
-		DB::setCharset( $charset );
+		
+		if( static::WRITE_ACCESS_DATABASE ) {
+			DBwrite::setCharset( $charset );
+		} else {
+			DBread::setCharset( $charset );
+		}
 	}
 
 	/**
@@ -42,7 +47,10 @@ abstract class SQLcommon {
 	 * Get current error
 	 */
 	public function getError() {
-		return DB::getError();
+		if( static::WRITE_ACCESS_DATABASE ) {
+			return DBwrite::getError();
+		}
+		return DBread::getError();
 	}
 
 	/**
@@ -73,7 +81,10 @@ abstract class SQLcommon {
 	 * @return string sanitized value
 	**/
 	public function sanitize( $value ) {
-		return DB::real_escape_string( trim( strip_tags( $value ) ) );
+		if( static::WRITE_ACCESS_DATABASE ) {
+			return DBwrite::real_escape_string( trim( strip_tags( $value ) ) );
+		}
+		return DBread::real_escape_string( trim( strip_tags( $value ) ) );
 	}
 
 }

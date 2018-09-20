@@ -4,6 +4,7 @@
  * Used only to insert stuff, never from a query.
 **/
 class SQLins extends SQLcommon {
+    const WRITE_ACCESS_DATABASE = true;
     var $insert_keys = array();
     var $insert_values = array();
     var $_error_log = true;

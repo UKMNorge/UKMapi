@@ -5,18 +5,21 @@
 **/
 
 class DBread extends DB {
-    const WRITE_ACCESS = false;
+	const WRITE_ACCESS = false;
+	protected static $connection = false;
+	protected static $database = null;
+	protected static $charset = 'utf8';
+	protected static $hasError = false;
 }
 class DBwrite extends DB {
-    const WRITE_ACCESS = true;
+	const WRITE_ACCESS = true;
+	protected static $connection = false;
+	protected static $database = null;
+	protected static $charset = 'utf8';
+	protected static $hasError = false;
 }
 
-class DB {
-	private static $connection = false;
-	private static $database = null;
-	private static $charset = 'utf8';
-	private static $hasError = false;
-	
+class DB {	
 	/**
 	 * Establish mysqli connection
 	 *
@@ -31,7 +34,7 @@ class DB {
 	 * @return void
 	**/
 	static function connect() {
-        switch ( self::$database ) {
+        switch ( static::$database ) {
             case 'ukmdelta': 
                 self::_connectDelta();
 				break;
@@ -42,12 +45,12 @@ class DB {
                 self::_connectUKM();
 		}
 		
-		if ( self::$connection->connect_errno ) {
+		if ( static::$connection->connect_errno ) {
 			echo 'Database connection failed.';
 			die();
 		}
 		
-		self::$connection->set_charset( self::$charset );
+		static::$connection->set_charset( static::$charset );
 	}
 	
 	/**
@@ -56,7 +59,7 @@ class DB {
 	 * @return bool
 	**/
 	public static function connected() {
-		return self::$connection !== false;
+		return static::$connection !== false;
 	}
 
 	/**
@@ -65,10 +68,10 @@ class DB {
 	 * @return void
 	**/
 	public static function setDatabase( $database ) {
-		if( $database !== self::$database ) {
-			self::$connection = false;
+		if( $database !== static::$database ) {
+			static::$connection = false;
 		}
-		self::$database = $database;
+		static::$database = $database;
 	}
 
 	/**
@@ -77,10 +80,10 @@ class DB {
 	 * @return MySQLi->set_charset() or bool false
 	**/
 	public static function setCharset( $charset ) {
-		self::$charset = $charset;
+		static::$charset = $charset;
 		
 		if( self::connected() ) {
-			return self::$connection->set_charset( self::$charset );
+			return static::$connection->set_charset( static::$charset );
 		}
 		return false;
 	}
@@ -105,7 +108,7 @@ class DB {
 		if( !self::connected() ) {
 			die('Kan ikke kjøre real_escape_string uten databasetilkobling');
 		}
-		return self::$connection->real_escape_string( $value );
+		return static::$connection->real_escape_string( $value );
 	}
 
 	/**
@@ -113,11 +116,11 @@ class DB {
 	 * Run MySQLi query
 	**/
 	public static function query( $query ) {
-		self::$hasError = false;
+		static::$hasError = false;
 		
-		$result = self::$connection->query( $query );
-		if( !empty( self::$connection->error ) ) {
-			self::$hasError = true;
+		$result = static::$connection->query( $query );
+		if( !empty( static::$connection->error ) ) {
+			static::$hasError = true;
         }
 		return $result;
 	}
@@ -128,7 +131,7 @@ class DB {
 	 * @return bool query_encountered_error
 	**/
 	public static function wasError() {
-		return self::$hasError;
+		return static::$hasError;
 	}
 
 	/**
@@ -137,7 +140,7 @@ class DB {
 	 * @return string MySQLi->error
 	**/
 	public static function getError() {
-		return self::$connection->error;
+		return static::$connection->error;
 	}
 
 	/**
@@ -146,10 +149,10 @@ class DB {
 	 * @return int insert_id
 	**/
 	public static function getInsertId() {
-		if( self::$connection->insert_id == 0 ) {
+		if( static::$connection->insert_id == 0 ) {
 			throw new Exception('System-error: Insert ID == 0 (database-spørringen feilet) => ' . self::getError() );
 		}
-		return self::$connection->insert_id;
+		return static::$connection->insert_id;
 	}
 
 	/**
@@ -158,7 +161,7 @@ class DB {
 	 * @return int affected_rows
 	**/
 	public static function getAffectedRows() {
-		return self::$connection->affected_rows;
+		return static::$connection->affected_rows;
     }
     
     /**
@@ -198,7 +201,7 @@ class DB {
 
 
 	private static function _init( $host, $database, $user, $password ) {
-		self::$connection = new mysqli(
+		static::$connection = new mysqli(
 			$host,
 			$user,
 			$password,

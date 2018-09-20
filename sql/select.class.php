@@ -5,6 +5,7 @@
  *
 **/
 class SQL extends SQLcommon {
+    const WRITE_ACCESS_DATABASE = false;
     private $key_value_map = null;
     private $database = null;
 

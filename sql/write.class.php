@@ -5,6 +5,7 @@
  * 
 **/
 class SQLwrite extends SQLcommon {
+    const WRITE_ACCESS_DATABASE = true;
     private $key_value_map = null;
     private $database = null;
 

@@ -4,6 +4,7 @@
 * Used only to delete stuff.
 **/
 class SQLdel extends SQLcommon {
+    const WRITE_ACCESS_DATABASE = true;
     public $query = null;
     private $table = null;
     private $key_value_map = null;
