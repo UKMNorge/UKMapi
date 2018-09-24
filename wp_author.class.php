@@ -11,13 +11,15 @@ class wp_author {
 	var $registered = null;
 	
 	public function __construct( $id ) {
-		$link = mysql_connect( UKM_WP_DB_HOST, UKM_WP_DB_USER, UKM_WP_DB_PASSWORD );
-		mysql_select_db(UKM_WP_DB_NAME, $link);
-		mysql_set_charset('utf-8', $link);
-		$query = "SELECT * FROM `wpms2012_users` WHERE `id` = '". ( (int) $id ) ."'";
-		$res = mysql_query( $query );
-		
-		$row = SQL::fetch( $res );
+		$sql = new SQL(
+			"SELECT * FROM `wpms2012_users` WHERE `id` = '#id'",
+			[
+				'id' => (int) $id 
+			],
+			'wordpress'
+		);
+
+		$row = $sql->run('array');
 		$this->setId( $row['ID'] );
 		$this->setLoginName( $row['user_login'] );
 		$this->setNiceName( $row['user_nicename'] );
@@ -25,8 +27,6 @@ class wp_author {
 		$this->setUrl( $row['user_url'] );	
 		$this->setRegistered( $row['user_registered'] );
 		$this->setDisplayName( $row['display_name'] );
-		
- 		mysql_close( $link );
 	}
 	
 	public function setId( $id ) {
