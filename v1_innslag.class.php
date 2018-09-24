@@ -345,7 +345,7 @@ class innslag {
 	}
 
 	## Henter et innslags innebygde attributter fra b_id
-	public function innslag($b_id, $onlyifsubscribed=true) {
+	public function __construct($b_id, $onlyifsubscribed=true) {
 		$qry = "SELECT `smartukm_band`.*, 
 					   `smartukm_band_type`.`bt_name`, 
 					   `smartukm_band_type`.`bt_form`,

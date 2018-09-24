@@ -34,7 +34,7 @@ class monstring{
 	## KONSTRUKTØR
 	## Laster inn en mønstrings attributter fra PL_ID
 	############################################
-	public function monstring($pl_id){
+	public function __construct($pl_id){
 		if(isset($_GET['log_monstring'])) {
 			$start = microtime();
 			error_log('MONSTRING START'. $start);
