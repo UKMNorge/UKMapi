@@ -1,6 +1,6 @@
 <?php
 class monstringer{
-	public function monstringer($season=false){
+	public function __construct($season=false){
 		$this->season = $season;
 	}
 	public function alle_kommuner_med_lokalmonstringer($inkluder_testfylke=false) {
