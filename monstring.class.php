@@ -648,7 +648,7 @@ class monstring_v2 {
 	 * @return string url
 	**/
 	public function getLink() {
-		return '//'. UKM_HOSTNAME .'/'. $this->getPath() .'/';
+		return 'https://'. UKM_HOSTNAME .'/'. $this->getPath() .'/';
 	}
 		
 	/**
