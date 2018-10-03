@@ -33,6 +33,8 @@ class monstring_v2 {
 	var $skjema = null;
 	var $kontaktpersoner = null;
 	
+	var $innslagTyper = null;
+	
 	var $uregistrerte = null;
 	var $publikum = null;
 	
