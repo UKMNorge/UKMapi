@@ -423,7 +423,7 @@ class write_monstring {
 	 *
 	 * @param monstring_v2 $monstring
 	**/
-	public function avlys( $monstring ) {
+	public static function avlys( $monstring ) {
 		if( $monstring->getType() != 'kommune' ) {
 			throw new Exception('Mønstring: kun lokalmønstringer kan avlyses');
 		}
@@ -440,7 +440,7 @@ class write_monstring {
 		self::_fjernKommune( $monstring, $monstring->getKommune() );
 		
 		// Fjern databasefelter som identifiserer mønstringen ("soft delete")
-		$monstringsnavn = $this->getNavn();
+		$monstringsnavn = $monstring->getNavn();
 		$monstring->setNavn( 'SLETTET: '. $monstring->getNavn() );
 		$monstring->setPath( NULL );
 		self::save( $monstring );
