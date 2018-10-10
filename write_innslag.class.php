@@ -415,7 +415,7 @@ class write_innslag {
 	 * Legger til et innslag i collection og database
 	 *
 	 * @param write_innslag $innslag
-	 * @return $this
+	 * @return $innslag
 	 */
 	public function leggTil( $innslag ) {
 		write_innslag::validerLeggtil( $innslag );
@@ -428,7 +428,7 @@ class write_innslag {
 				write_innslag::_leggTilMonstring( $innslag );
 				break;
 		}
-		return $this;
+		return $innslag;
 	}	
 	
 	/**
