@@ -46,7 +46,7 @@ class write_innslag {
 		}
 
 		$bandres = $band->run();
-		if( 1 != $bandres ) {
+		if( !$bandres ) {
 			throw new Exception(
 				"Klarte ikke å opprette et nytt innslag.",
 				50508
@@ -58,7 +58,7 @@ class write_innslag {
 		$tech->add('pl_id', $monstring->getId() );
 		
 		$techres = $tech->run();
-		if( 1 != $techres ) {
+		if( !$techres ) {
 			throw new Exception(
 				"Klarte ikke å opprette tekniske behov-rad i tabellen.",
 				50509
@@ -72,7 +72,7 @@ class write_innslag {
 		$rel->add('season', $monstring->getSesong() );
 		
 		$relres = $rel->run();
-		if( 1 != $relres ) {
+		if( !$relres ) {
 			throw new Exception(
 				"Klarte ikke å melde på det nye innslaget til mønstringen.",
 				50510
@@ -609,7 +609,7 @@ class write_innslag {
 		$slett_relasjon->run();
 
 	
-		if(1 == $res) {
+		if($res) {
 			return true;
 		}
 		
@@ -654,7 +654,7 @@ class write_innslag {
 		$qry->add('order', $order);
 		$res = $qry->run();
 		
-		if( 1 != $res ) {
+		if( !$res ) {
 			throw new Exception(
 				'Klarte ikke å legge til innslaget i forestillingen.',
 				50513
