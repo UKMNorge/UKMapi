@@ -6,19 +6,17 @@ class write_samtykke {
 		require_once('UKM/samtykke/prosjekt.class.php');
 		$sql = new SQLins('samtykke_prosjekt');
 		$sql->add('tittel', $tittel);
-		$res = $sql->run();
-
-		$id = $sql->insId();
+		$insert_id = $sql->run();
 			
-		if( $res == -1 ) {
+		if( !$insert_id ) {
 			$error = $sql->error();
 			if( strpos($error, 'Duplicate') == 0 ) {
 				throw new Exception('Et annet prosjekt med samme tittel finnes fra før');
 			}
 			throw new Exception('Kunne ikke opprette samtykke-prosjekt, ukjent feil');
 		}
-		if( is_numeric( $id ) ) {
-			return new samtykke_prosjekt( $id );
+		if( is_numeric( $insert_id ) ) {
+			return new samtykke_prosjekt( $insert_id );
 		}
 		
 		throw new Exception('Kunne ikke opprette samtykke-prosjekt');
@@ -103,9 +101,9 @@ class write_samtykke {
 		$sql->add('lenker', json_encode( $lenker ));
 		$sql->add('hash', $hash );
 		$sql->add('hash-excerpt', $hashexcerpt );
-		$res = $sql->run();
+		$insert_id = $sql->run();
 		
-		return new samtykke_request( $sql->insId() );
+		return new samtykke_request( $insert_id );
 	}
 	
 	public static function godta( $request, $alder ) {

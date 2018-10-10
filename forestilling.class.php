@@ -385,7 +385,7 @@ class forestilling {
 				$new_c->add($key, $val);
 
 		$new_c_res = $new_c->run();
-		$duplicate = new forestilling($new_c->insid());
+		$duplicate = new forestilling($new_c_res);
 
 
 		$innslag = $this->innslag();

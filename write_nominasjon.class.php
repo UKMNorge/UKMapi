@@ -41,14 +41,14 @@ class write_nominasjon extends nominasjon {
 			$sql->add('kommune_id', $kommune->getId());
 			$sql->add('fylke_id', $kommune->getFylke()->getId());
 			$sql->add('type', $innslag_type );
-			$res = $sql->run();
+			$insert_id = $sql->run();
 			
-			if( !$res ) {
+			if( !$insert_id ) {
 				throw new Exception('WRITE_NOMINASJON: Kunne ikke opprette nominasjon!');
 			}
 			
 			$sql2 = new SQLins('ukm_nominasjon_'. $innslag_type);
-			$sql2->add('nominasjon', $sql->insId());
+			$sql2->add('nominasjon', $insert_id);
 			$res2 = $sql2->run();
 			
 			if( !$res2 ) {

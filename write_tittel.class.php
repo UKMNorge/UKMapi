@@ -49,12 +49,12 @@ class write_tittel {
 					50902
 				);
 		}
-		// Logg (eller dø) før insert
-		UKMlogger::log( $action, $innslag->getId(), $qry->insid() );
 		
-		$res = $qry->run();
-		if( $res ) {
-			return $qry->insid();
+		$insert_id = $qry->run();
+		UKMlogger::log( $action, $innslag->getId(), $insert_id );
+
+		if( $insert_id ) {
+			return $insert_id;
 		}
 
 		throw new Exception(

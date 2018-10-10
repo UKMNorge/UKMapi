@@ -87,16 +87,16 @@ class write_person {
 			$sql->add('p_phone', $mobil);
 			$sql->add('p_kommune', $kommune->getId());
 			$sql->add('p_dob', $fodselsdato);
-			$res = $sql->run(); 
+			$insert_id = $sql->run(); 
 			
 			// Database-oppdatering feilet
-			if( !$res ) {
+			if( !$insert_id ) {
 				throw new Exception(
 					"Klarte ikke å opprette et personobjekt for ".$fornavn." ". $etternavn.".",
 					50706
 				);
 			}
-			$p_id = $sql->insid();
+			$p_id = $insert_id;
 		}
 		// Personen finnes i databasen, oppdater kommune og fødselsdato
 		else {
