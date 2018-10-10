@@ -45,8 +45,9 @@ class write_innslag {
 			$band->add('b_kategori', $type->getKey() );
 		}
 
-		$bandres = $band->run();
-		if( !$bandres ) {
+		$band_id = $band->run();
+		if( !$band_id ) {
+
 			throw new Exception(
 				"Klarte ikke å opprette et nytt innslag.",
 				50508
@@ -54,7 +55,7 @@ class write_innslag {
 		}
 
 		$tech = new SQLins('smartukm_technical');
-		$tech->add('b_id', $band->insid() );
+		$tech->add('b_id', $band_id );
 		$tech->add('pl_id', $monstring->getId() );
 		
 		$techres = $tech->run();
@@ -68,7 +69,7 @@ class write_innslag {
 		// TODO: Burde benytte $monstring->getInnslag()->leggTil( $innslag );
 		$rel = new SQLins('smartukm_rel_pl_b');
 		$rel->add('pl_id', $monstring->getId() );
-		$rel->add('b_id', $band->insid() );
+		$rel->add('b_id', $band_id );
 		$rel->add('season', $monstring->getSesong() );
 		
 		$relres = $rel->run();
@@ -80,11 +81,11 @@ class write_innslag {
 		}
 		
 		// TODO: KREVER at relasjonen over gjøres riktig (leggTil, ikke db-insert)
-		return $monstring->getInnslag()->get( $band->insid() );
+		return $monstring->getInnslag()->get( $band_id );
 		// TODO: Oppdater statistikk
 		#$innslag = new innslag( $b_id, false );
 		#$innslag->statistikk_oppdater();
-		return new innslag_v2( (int)$band->insid() ); // Tror ikke cast er nødvendig, men det er gjort sånn i write_person.
+		return new innslag_v2( (int)$band_id ); // Tror ikke cast er nødvendig, men det er gjort sånn i write_person.
 	}	
 
 
