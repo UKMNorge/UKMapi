@@ -186,7 +186,7 @@ class write_tittel {
 		}
 		
 		if( $res ) {
-			return $this;
+			return $tittel_save;
 		}
 		
 		throw new Exception(
