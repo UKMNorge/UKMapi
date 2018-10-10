@@ -435,7 +435,7 @@ class write_innslag {
 	 * Fjern et innslag
 	 *
 	 * @param innslag_v2 $innslag
-	 * @return $this
+	 * @return void
 	 */
 	public static function fjern( $innslag ) {
 		write_innslag::validerLeggtil( $innslag );
@@ -453,7 +453,7 @@ class write_innslag {
 				break;
 			default: 
 				throw new Exception(
-					'Kan ikke fjerne innslag fra ukjent collection type: ' . $this->getContext()->getType(),
+					'Kan ikke fjerne innslag fra ukjent collection type: ' . $innslag->getContext()->getType(),
 					50511
 				);
 		}
@@ -473,7 +473,7 @@ class write_innslag {
 	 * Dette vil endre innslaget status, og effektivt melde det av
 	 * 
 	 * @param write_innslag $innslag
-	 * @return $this
+	 * @return $innslag
 	**/
 	private static function _fjernFraLokalMonstring( $innslag ) {
 		require_once('UKM/write_forestilling.class.php');
@@ -512,14 +512,14 @@ class write_innslag {
 		$innslag->setStatus(77);
 		write_innslag::saveStatus( $innslag );
 		
-		return $this;
+		return $innslag;
 	}
 	
 	/**
 	 * Fjern et innslag fra denne forestillingen
 	 *
 	 * @param innslag_v2 $innslag
-	 * @return $this
+	 * @return $innslag
 	**/
 	private function _fjernFraForestilling( $innslag ) {
 		// Sjekk at vi har riktig context
@@ -545,7 +545,7 @@ class write_innslag {
 				50520
 			);
 		}
-		return $this;
+		return $innslag;
 	}
 	
 	/**
@@ -553,7 +553,7 @@ class write_innslag {
 	 * Vil fjerne videresendingen av innslaget
 	 *
 	 * @param innslag_v2 $innslag
-	 * @return $this
+	 * @return $innslag
 	**/
 	private function _fjernVideresending( $innslag ) {
 		// Sjekk at vi har riktig context
@@ -614,7 +614,7 @@ class write_innslag {
 			return true;
 		}
 		
-		return $this;
+		return $innslag;
 	}
 
 	/********************************************************************************
@@ -661,7 +661,7 @@ class write_innslag {
 				50513
 			);
 		}
-		return $this;
+		return $innslag;
 	}
 	
 	/**
