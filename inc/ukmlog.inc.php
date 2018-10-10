@@ -28,8 +28,7 @@ function UKMlog($table, $field, $post_key, $object_id = false) {
     $qry->add('log_the_object_id', $object_id);
     $qry->add('log_pl_id', $pl_id);
 	
-	$res = $qry->run();
-	$id = $qry->insid();
+	$id = $qry->run();
 	
 	if(strtolower($_POST[$post_key])==='false')
 		$_POST[$post_key] = 0;
@@ -37,9 +36,8 @@ function UKMlog($table, $field, $post_key, $object_id = false) {
 		$_POST[$post_key] = 1;
 	
 	UKMlog_value($id, $_POST[$post_key]);
-#	echo UKMlog_read($id);
 	
-	return $res;
+	return $id;
 }
 
 function UKMlog_value($row_id, $value) {

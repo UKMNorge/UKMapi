@@ -190,8 +190,7 @@ class SMS {
 		$transaction->add('t_comment',	$this->message);
 		$transaction->add('t_action',	'sendte_sms_for');
 		
-		$transaction_res = $transaction->run();
-		$this->transaction_id = $transaction->insid();
+		$this->transaction_id = $transaction->run();
 		
 		return $this->transaction_id;
 	}

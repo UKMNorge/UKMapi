@@ -35,12 +35,12 @@ function tv_update($data) {
 		$ins->add('tv_tags', $data['tags']);
 		$ins->add('tv_description', str_replace("'", "\'", $data['description']));
 		$ins->add('b_id', $data['b_id']);	
-		$res = $ins->run();
+		$insert_id = $ins->run();
 		error_log('CRON:TV_UPDATE: SQL: '. $ins->debug());
 
 		
 		if(!isset($tv_id)||!is_numeric($tv_id))
-			$tv_id = $ins->insid();
+			$tv_id = $insert_id;
 	
 		error_log('CRON:TV_UPDATE: Update category');
 		tv_category_update($data['category']);

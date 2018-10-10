@@ -19,7 +19,7 @@ class leder {
 		$sql = new SQLins('smartukm_videresending_ledere_ny', array('l_id' => $this->ID));
 		$this->_add_sql_values( $sql );
 		$res = $sql->run();
-		return $res != -1;
+		return $res !== false;
 	}
 	
 	public function create( $pl_from, $pl_to, $season ) {
@@ -29,9 +29,7 @@ class leder {
 		
 		$sql = new SQLins('smartukm_videresending_ledere_ny');
 		$this->_add_sql_values( $sql );
-		$res = $sql->run();
-		
-		$this->ID = $sql->insid();
+		$this->ID = $sql->run();
 	}
 	
 	public function load_by_type( $pl_from, $pl_to, $type ) {
@@ -54,9 +52,9 @@ class leder {
 		$sql = new SQLdel('smartukm_videresending_ledere_ny', array('l_id' => $this->ID, 'pl_id_from' => $pl_from ));
 		$res = $sql->run();
 		
-		if( $res != -1 ) {
+		if( $res ) {
 			$sql = new SQLdel('smartukm_videresending_ledere_natt', array('l_id' => $this->ID));
-			return $sql->run() != -1;
+			return $sql->run() !== false;
 		}
 		return false;
 	}
@@ -105,7 +103,10 @@ class leder {
 				$SQLupd->add('sted', $natt->sted);
 				$res = $SQLupd->run();
 				
-				return $res != -1 ? $natt : false;
+				if( !$res ) {
+					return false;
+				}
+				return $natt;
 			}
 			return $natt;
 		} else {
@@ -115,7 +116,7 @@ class leder {
 			$SQLins->add('sted', $sted);
 			$res = $SQLins->run();
 			
-			return $res != -1 ? $this->_natt( array('dato'=>$dato, 'sted'=>$sted ) ) : false; 
+			return $res > 0 ? $this->_natt( array('dato'=>$dato, 'sted'=>$sted ) ) : false; 
 		}
 	}
 	

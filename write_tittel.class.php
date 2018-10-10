@@ -53,7 +53,7 @@ class write_tittel {
 		UKMlogger::log( $action, $innslag->getId(), $qry->insid() );
 		
 		$res = $qry->run();
-		if( 1 == $res ) {
+		if( $res ) {
 			return $qry->insid();
 		}
 

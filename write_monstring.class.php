@@ -99,8 +99,7 @@ class write_monstring {
 		$place->add('pl_name', ltrim( rtrim( $navn ) ));
 		$place->add('season', $sesong);
 		
-		$result = $place->run();
-		$pl_id = $place->insid();
+		$pl_id = $place->run();
 		
 		$monstring = new monstring_v2( $pl_id );
 

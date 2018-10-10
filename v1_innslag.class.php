@@ -18,8 +18,7 @@ function create_innslag($bt_id, $season, $pl_id, $kommune, $contact=false){
 		$band->add('b_contact', $contact->g('p_id'));
 
 #	echo $band->debug();
-	$bandres = $band->run();
-	$b_id = $band->insid();
+	$b_id = $band->run();
 	
 	$tech = new SQLins('smartukm_technical');
 	$tech->add('b_id', $b_id);
@@ -147,10 +146,9 @@ class innslag {
 	    $qry->add('log_the_object_id', $this->info['b_id']);
 	    $qry->add('log_pl_id', $this->log_pl_id);
 		
-		$res = $qry->run();
-		$log_id = $qry->insid();
+		$log_id = $qry->run();
 		
-		if( !is_numeric( $log_id ) ) {
+		if( !$log_id ) {
 			throw new Exception('Kan ikke lagre endringene i innslaget på grunn av logg-feil!');
 		}
 		// Logg ny verdi

@@ -120,10 +120,10 @@ class Levendefodte extends SSBapi {
 			$log_entry = new stdClass();
 			$log_entry->id = $k_id;
 			$log_entry->antall = $antall;
-			if($res != 1 && $qry->error()) {	
+			if( !$res && $qry->error()) {	
 				$log_entry->success = false;
 				$log_entry->message = $qry->error();
-			} elseif($res != 1) {
+			} elseif( !$res ) {
 				$log_entry->success = true;
 				$log_entry->message = 'Ingen endring.';
 			} 

@@ -63,10 +63,9 @@
 	    $qry->add('log_the_object_id', $this->info['p_id']);
 	    $qry->add('log_pl_id', $this->log_pl_id);
 		
-		$res = $qry->run();
-		$log_id = $qry->insid();
+		$log_id = $qry->run();
 		
-		if( !is_numeric( $log_id ) ) {
+		if( !$log_id ) {
 			throw new Exception('Cannot save participant due to log error');
 		}
 		// Logg ny verdi
@@ -151,8 +150,7 @@ switch( $field ) {
 	
 	public function create($b_id=false) {
 		$qry = new SQLins('smartukm_participant');
-		$qry->run();
-		$this->info['p_id'] = $qry->insid();
+		$this->info['p_id'] = $qry->run();
 
 		if($b_id)		
 			$this->relate($b_id);

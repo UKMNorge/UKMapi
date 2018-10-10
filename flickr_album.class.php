@@ -56,13 +56,13 @@ class flickr_album {
 		$sql->add('object_id', $object_id);
 		$sql->add('flickr_album_id', $flickr_album_id);
 		$sql->add('flickr_album_name', $flickr_album_name);
-		$res = $sql->run();
+		$insert_id = $sql->run();
 		
 		$this->flickr_album_name = $album_name;
 		$this->flickr_id = $flickr_album_id;
 		$this->object_type = $object_type;
 		$this->object_id = $object_id;		
-		$this->id = $sql->insId();
+		$this->id = $insert_id;
 		
 		return $this->id;
 	}

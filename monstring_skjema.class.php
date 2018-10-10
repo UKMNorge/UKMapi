@@ -40,8 +40,9 @@ class monstring_skjema {
 		
 		$res = $sql->run();
 		
-		if($res == 0 && $sql->error)
+		if($res == 0 && $sql->error) {
 			return false;
+		}
 		return true;
 	}
 
@@ -66,9 +67,7 @@ class monstring_skjema {
 		$res = $sql->run();
 		
 		// If insert worked
-		if ($res > 0)
-			return true;
-		return false;
+		return $res > 0;
 	}
 
 	public function getQuestionsWithAnswers() {
@@ -200,9 +199,11 @@ class monstring_skjema {
 		
 		$res = $sql->run();
 
-		if ($res != 1)
-			if ($sql->error())
+		if ( !$res ) {
+			if ($sql->error()) {
 				return $sql; 
+			}
+		}
 		return $res;
 	}
 

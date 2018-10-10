@@ -90,9 +90,9 @@ abstract class Coll {
 		foreach( $mapped_values as $key => $val ) {
 			$sqlIns->add( $key, $val );
 		}
-		$res = $sqlIns->run();
+		$insert_id = $sqlIns->run();
 
-		return new $child( $sqlIns->insid() );
+		return new $child( $insert_id );
 	}
 
 	public static function _delete( $mapped_values ) {

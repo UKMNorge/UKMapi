@@ -54,8 +54,7 @@
 		$qry = new SQLins($this->form);
 		$qry->add('b_id', $b_id);
 //		var_dump($qry->debug());
-		$qry->run();
-		$this->t_id = $qry->insid();
+		$this->t_id = $qry->run();
 		
 		$this->__construct($this->t_id, $this->form);
 	}

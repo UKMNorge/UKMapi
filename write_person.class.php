@@ -90,7 +90,7 @@ class write_person {
 			$res = $sql->run(); 
 			
 			// Database-oppdatering feilet
-			if(false == $res) {
+			if( !$res ) {
 				throw new Exception(
 					"Klarte ikke å opprette et personobjekt for ".$fornavn." ". $etternavn.".",
 					50706
@@ -378,9 +378,9 @@ class write_person {
 		UKMlogger::log( 324, $person_save->getContext()->getInnslag()->getId(), $person_save->getId().': '. $person_save->getNavn() );
 		$res = $sql->run();
 		
-		if(false == $res)
+		if( !$res ) {
 			return false;
-		
+		}
 		return true;
 	}
 	
