@@ -2,6 +2,7 @@
 
 require_once('UKM/fylker.class.php');
 require_once('UKM/write_wp_user.class.php');
+require_once('UKM/write_monstring.class.php');
 
 	
 class write_wp_blog {
@@ -251,7 +252,7 @@ class write_wp_blog {
 		
 		// Avlys mønstringen (og trekk ut kommune)
 		try {
-			$monstring->avlys();
+			write_monstring::avlys( $monstring );
 		} catch( Exception $e ) {
 			throw new Exception('WRITE_WP_BLOG: Kunne ikke avlyse mønstringen! ('. $e->getMessage() .')' );
 		}

@@ -33,6 +33,8 @@ class monstring_v2 {
 	var $skjema = null;
 	var $kontaktpersoner = null;
 	
+	var $innslagTyper = null;
+	
 	var $uregistrerte = null;
 	var $publikum = null;
 	
@@ -651,7 +653,7 @@ class monstring_v2 {
 	 * @return string url
 	**/
 	public function getLink() {
-		return '//'. UKM_HOSTNAME .'/'. $this->getPath() .'/';
+		return 'https://'. UKM_HOSTNAME .'/'. $this->getPath() .'/';
 	}
 		
 	/**
@@ -682,20 +684,6 @@ class monstring_v2 {
 						$this->innslagTyper->addById( $r['bt_id'] );
 					}
 				}
-			}
-			if( $this->innslagTyper->getAntall() == 0 ) {
-				foreach( innslag_typer::getAllScene() as $type ) {
-					$this->innslagTyper->add( $type );
-				}
-				$this->innslagTyper->add( innslag_typer::getByName('video') );
-				$this->innslagTyper->add( innslag_typer::getByName('utstilling') );
-			}
-			if( $this->innslagTyper->getAntall() == 0 ) {
-				foreach( innslag_typer::getAllScene() as $type ) {
-					$this->innslagTyper->add( $type );
-				}
-				$this->innslagTyper->add( innslag_typer::getByName('video') );
-				$this->innslagTyper->add( innslag_typer::getByName('utstilling') );
 			}
 			if( $this->innslagTyper->getAntall() == 0 ) {
 				foreach( innslag_typer::getAllScene() as $type ) {
