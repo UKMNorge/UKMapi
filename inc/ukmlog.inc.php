@@ -28,8 +28,7 @@ function UKMlog($table, $field, $post_key, $object_id = false) {
     $qry->add('log_the_object_id', $object_id);
     $qry->add('log_pl_id', $pl_id);
 	
-	$res = $qry->run();
-	$id = $qry->insid();
+	$id = $qry->run();
 	
 	if(strtolower($_POST[$post_key])==='false')
 		$_POST[$post_key] = 0;
@@ -37,9 +36,8 @@ function UKMlog($table, $field, $post_key, $object_id = false) {
 		$_POST[$post_key] = 1;
 	
 	UKMlog_value($id, $_POST[$post_key]);
-#	echo UKMlog_read($id);
 	
-	return $res;
+	return $id;
 }
 
 function UKMlog_value($row_id, $value) {
@@ -60,8 +58,7 @@ function UKMlog_read($row) {
 	$r = $qry->run('array');
 	
 	#if($r['log_action_datatype']=='bool') var_dump($r['log_value'].' => '.(bool)$r['log_value']);
-	return utf8_encode(
-			$r['log_time'].' '
+	return $r['log_time'].' '
 		.  ' '. UKMlog_user($r['log_u_id'])
 		.  ' '. $r['log_action_verb']
 		.  ($r['log_action_datatype']=='bool'&&(bool)$r['log_value']==0 ? ' ikke ' : '')
@@ -70,7 +67,7 @@ function UKMlog_read($row) {
 		.  ($r['log_action_datatype']=='bool' ? '' : ' til ' . UKMlog_formatvalue($r['log_action_datatype'], $r['log_value']))
 		. ' ('.$r['log_object_table_idcol'].'='.$r['log_the_object_id'].')'
 		. '<br />'
-		);
+		;
 }
 
 function UKMlog_formatvalue($type, $value) {

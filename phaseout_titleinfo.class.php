@@ -9,15 +9,15 @@
 		public function titleInfo($b_id, $bt_form,$placetype='kommune',$forwardToPLID=false) {
 			$sql = new SQL("SELECT * FROM `#form` WHERE `b_id` = '#bid'", array('form'=>$bt_form, 'bid'=>$b_id));
 			$sql = $sql->run();
-			#if($_SERVER['REMOTE_ADDR'] == '193.214.121.5') { echo '<pre>'; var_dump(mysql_num_rows($sql)); echo '</pre>'; }
+			#if($_SERVER['REMOTE_ADDR'] == '193.214.121.5') { echo '<pre>'; var_dump(SQL::numRows($sql)); echo '</pre>'; }
 			
-			if($sql&&mysql_num_rows($sql)>0)
-				while( $r = mysql_fetch_assoc( $sql ) ) {
+			if($sql&&SQL::numRows($sql)>0)
+				while( $r = SQL::fetch( $sql ) ) {
 					if($placetype=='fylke') {
 						$sqlTest = new SQL("SELECT * FROM `smartukm_fylkestep` WHERE `b_id` = '#bid' AND `t_id` = '#tid'",
 										array('bid'=>$b_id, 'tid'=>$r['t_id']));
 						$sqlTest = $sqlTest->run();
-						if(mysql_num_rows($sqlTest)==0)
+						if(SQL::numRows($sqlTest)==0)
 							continue;
 					}
 					if($placetype=='land') {
@@ -27,13 +27,13 @@
 											AND `pl_id` = '#plid'",
 										array('bid'=>$b_id, 'tid'=>$r['t_id'], 'plid'=>$forwardToPLID));
 						$sqlTest = $sqlTest->run();
-						if(mysql_num_rows($sqlTest)==0)
+						if(SQL::numRows($sqlTest)==0)
 							continue;					
 					}
 				/*	if($_SESSION['onlyForwardedToLand'] == true||(isset($_GET['_fake_this_is_land']) && $_GET['_fake_this_is_land'] == 'true')) {
 						$sqlTest = new SQL("SELECT * FROM `smartukm_landstep` WHERE `b_id` = '#b_id' AND `t_id` = '#t_id'", array('b_id'=>$b_id, 't_id'=>$r['t_id']));
 						$sqlTest = $sqlTest->run();
-						if(mysql_num_rows($sqlTest) == 0) continue;	
+						if(SQL::numRows($sqlTest) == 0) continue;	
 					} elseif($_SESSION['this_is_a_fylkesmonstring_report'] == true||$_SESSION['onlyForwardedFrom'] == true) {
 						$sqlTest = new SQL('smartukm_fylkestep', array('b_id'=>$b_id, 't_id'=>$sql[2][$i]['t_id']));
 						$sqlTest = $sqlTest->run();

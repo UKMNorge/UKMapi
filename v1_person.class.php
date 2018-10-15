@@ -63,10 +63,9 @@
 	    $qry->add('log_the_object_id', $this->info['p_id']);
 	    $qry->add('log_pl_id', $this->log_pl_id);
 		
-		$res = $qry->run();
-		$log_id = $qry->insid();
+		$log_id = $qry->run();
 		
-		if( !is_numeric( $log_id ) ) {
+		if( !$log_id ) {
 			throw new Exception('Cannot save participant due to log error');
 		}
 		// Logg ny verdi
@@ -134,7 +133,7 @@ switch( $field ) {
 							 array('pid' => $this->info['p_id'],
 							 	   'bid' => $use_b_id));
 			$test = $test->run();
-			if(mysql_num_rows( $test ) == 0) {
+			if(SQL::numRows( $test ) == 0) {
 				$qry = new SQLins('smartukm_rel_b_p');
 				$qry->add('p_id', $this->info['p_id']);
 				$qry->add('b_id', $use_b_id);
@@ -151,8 +150,7 @@ switch( $field ) {
 	
 	public function create($b_id=false) {
 		$qry = new SQLins('smartukm_participant');
-		$qry->run();
-		$this->info['p_id'] = $qry->insid();
+		$this->info['p_id'] = $qry->run();
 
 		if($b_id)		
 			$this->relate($b_id);
@@ -256,7 +254,7 @@ public function getByPhone( $phone, $b_id=false ) {
 					   );
 		$res = $sql->run();
 		$innslag = array();
-		while( $r = mysql_fetch_assoc( $res ) ) {
+		while( $r = SQL::fetch( $res ) ) {
 			$innslag[] = $r['b_id'];
 		}
 		
@@ -404,9 +402,6 @@ public function getByPhone( $phone, $b_id=false ) {
 		if ($key == 'p_phone' && $this->info[$key] == 0)
 			return '';
 			
-        if($encode)
-		    return utf8_encode($this->info[$key]);	
-		    
         return $this->info[$key];
 	}
 	
@@ -437,7 +432,7 @@ public function getByPhone( $phone, $b_id=false ) {
 								       );
 		}
 		$videresendt = $videresendt->run();
-		return !mysql_num_rows($videresendt) == 0;
+		return !SQL::numRows($videresendt) == 0;
 	}
 	
 	public function videresend($videresendFra, $videresendTil, $tittel) {
@@ -455,7 +450,7 @@ public function getByPhone( $phone, $b_id=false ) {
 										'pl_from'=>$videresendFra));
 		$test_relasjon = $test_relasjon->run();
 		
-		if(mysql_num_rows($test_relasjon)==0) {
+		if(SQL::numRows($test_relasjon)==0) {
 			$videresend_person = new SQLins('smartukm_fylkestep_p');
 			$videresend_person->add('pl_id', $videresendTil);
 			$videresend_person->add('pl_from', $videresendFra);
@@ -464,7 +459,7 @@ public function getByPhone( $phone, $b_id=false ) {
 			$videresend_person->add('t_ids', '|t_'. $tittel.'|');
 			$videresend_person->run();
 		} else {
-			$row = mysql_fetch_assoc( $test_relasjon );
+			$row = SQL::fetch( $test_relasjon );
 			$new_t_ids = $row['t_ids'] . '|t_'. $tittel .'|';
 			$videresend_person = new SQLins('smartukm_fylkestep_p', 
 											array('pl_id' => $videresendTil,
@@ -494,7 +489,7 @@ public function getByPhone( $phone, $b_id=false ) {
 										'p_id'=>$this->g('p_id'), 
 										'pl_from'=>$videresendFra));
 		$test_relasjon = $test_relasjon->run();
-		$row = mysql_fetch_assoc( $test_relasjon );
+		$row = SQL::fetch( $test_relasjon );
 		$new_t_ids = str_replace('|t_'. $tittel .'|','', $row['t_ids']);
 				
 		// Hvis vedkommende ikke følger noen titler, fjern fra fylkestep
@@ -538,7 +533,7 @@ public function getByPhone( $phone, $b_id=false ) {
 	
 	function kjonn() {
 		$first_name = $this->get("p_firstname");
-		$first_name = split(" ", str_replace("-", " ", $first_name) );
+		$first_name = explode(" ", str_replace("-", " ", $first_name) );
 		$first_name = $first_name[0];
 		
 		$qry = "SELECT `kjonn`

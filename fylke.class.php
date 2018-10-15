@@ -86,7 +86,7 @@ class fylke {
 			$res = $sql->run();
 			
 			if( $res ) {
-				while( $r = mysql_fetch_assoc( $res ) ) {
+				while( $r = SQL::fetch( $res ) ) {
 					$this->kommuner->add( new kommune( $r ) );
 				}
 			}

@@ -28,7 +28,7 @@ class ambassador {
 				return false;
 			foreach($res as $key => $val) {
 				$newkey = str_replace('amb_','',$key);
-				$this->$newkey = is_string($val) ? utf8_encode($val) : $val;
+				$this->$newkey = $val;
 			}
 			
 			$this->link = '//facebook.com/'.$this->faceID;
@@ -173,11 +173,11 @@ class ambassador {
 		$qry->add('pl_id', $pl_id);
 		$res = $qry->run();
 		
-		if($res==-1)
+		if( !$res ) {
 			return array('phone' => $phone,
 						 'success' => false,
 						 'message' => 'Personen er allerede invitert');
-		
+		}
 		$message = 'Hei!
 	Vi håper at du vil bli ambassadør for UKM. Du gjør så mye eller lite du vil :)
 	Svar UKM AMB for å motta mer informasjon!

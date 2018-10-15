@@ -117,7 +117,7 @@ class bilder {
 		if( !$get ) {
 			return false;
 		}		
-		while( $r = mysql_fetch_assoc( $get ) ) {
+		while( $r = SQL::fetch( $get ) ) {
 			$bilde = new bilde( $r );
 			$this->bilder[ $bilde->getId() ] = $bilde;
 		}

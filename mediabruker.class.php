@@ -7,11 +7,9 @@ class write_mediabruker extends mediabruker {
 		$SQL->add('delta_user_id', $delta_user_id);
 		$SQL->add('wp_user_id', $wp_user_id);
 		$SQL->add('region', $region);
-		$res = $SQL->run();
-
-		$insid = $SQL->insid();
+		$insert_id = $SQL->run();
 		
-		return new write_mediabruker( $insid );
+		return new write_mediabruker( $insert_id );
 	}
 }
 

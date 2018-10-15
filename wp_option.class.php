@@ -1,16 +1,13 @@
 <?php
+require_once('UKM/sql.class.php');
 
 class wp_option {
 	static $pl_id = false;
 	static $path = false;
 	
-	private static function _query( $query ) {
-		$link = mysql_connect( UKM_WP_DB_HOST, UKM_WP_DB_USER, UKM_WP_DB_PASSWORD );
-		mysql_select_db(UKM_WP_DB_NAME, $link);
-		mysql_set_charset('utf-8', $link);
-		$res = mysql_query( $query );
- 		mysql_close( $link );
- 		return $res;
+	private static function _query( $query, $key_val_map=[] ) {
+		$sql = new SQL( $query, $key_val_map, 'wordpress' );
+		return $sql->run('field', 'value');
 	}
 	
 	public static function setMonstring( $pl_id, $path ) {
@@ -23,12 +20,8 @@ class wp_option {
 			throw new Exception('WP_OPTION: getOption krever at setMonstring er kjørt først');
 		}
 		$table = 'wpms2012_'. self::_getBlogId( self::$path ) .'_options';
-		$query = "SELECT `option_value` FROM `$table` WHERE `option_name` = '$key'";
-		$res = self::_query( $query );
-		
-		$row = mysql_fetch_assoc( $res );
-		$data = $row['option_value'];
-#		echo '<h3>'. $query .'</h3>';
+		$query = "SELECT `option_value` AS `value` FROM `$table` WHERE `option_name` = '#key'";
+		$data = self::_query( $query, ['key' => $key] );
 
 		// Empty means no result or false
 		if( empty( $data ) ) {
@@ -49,13 +42,12 @@ class wp_option {
 	}
 	
 	private static function _getBlogId( $path ) {
-		$query = "SELECT `blog_id` FROM `wpms2012_blogs` WHERE `path` = '/$path/'";
-		$res = self::_query( $query );
-		$row = mysql_fetch_assoc( $res );
+		$query = "SELECT `blog_id` AS `value` FROM `wpms2012_blogs` WHERE `path` = '/#path/'";
+		$res = self::_query( $query, ['path'=>$path] );
 		
-		if( false === $res || false === $row ) {
+		if( false === $res ) {
 			throw new Exception('WP_OPTION: bloggen finnes ikke (/'. $path .'/)');
 		}
-		return $row['blog_id'];
+		return $res;
 	}
 }

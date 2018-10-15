@@ -84,7 +84,7 @@ class avis {
 			);
 		$res = $sql->run();
 		
-		while( $r = mysql_fetch_assoc( $res ) ) {
+		while( $r = SQL::fetch( $res ) ) {
 			$this->kommuner[] = new kommune( $r['kommune_id'] );
 			$this->kommuneid_array[] = $r['kommune_id'];
 		}
@@ -99,7 +99,7 @@ class avis {
 	
 	private function _load_from_row( $row ) {
 		$this->id = $row['id'];
-		$this->name = utf8_encode($row['name']);
+		$this->name = $row['name'];
 		$this->url = $row['url'];
 		$this->email = $row['email'];
 		$this->fylke = $row['fylke'];

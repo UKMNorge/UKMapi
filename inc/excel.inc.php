@@ -1,10 +1,9 @@
 <?php
-require_once('PHPExcel/PHPExcel.php');
-if (UKM_HOSTNAME != 'ukm.dev') {
-	require_once('PHPExcel/IOFactory.php');
-}
+require_once('lib/autoload.php');
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
-$objPHPExcel = new PHPExcel();
+$objPHPExcel = new Spreadsheet();
 
 if(!function_exists('i2a')) {
 	function i2a($a) {
@@ -191,24 +190,15 @@ function excond($celle) {
 
 function exWrite($objPHPExcel,$filename) {
 	$filename = $filename .'.xlsx';
-	if( defined('EXCEL_WRITE_PATH') ) {
-		$internal = EXCEL_WRITE_PATH;
-	} else {
-		$internal = '/home/ukmno/public_html/temp/phpexcel/';
-	}
-	$external = 'http://ukm.no/UKM/subdomains/download/?folder=phpexcel&filename='.urlencode($filename);
-	$external = 'http://download.ukm.no/?folder=phpexcel&filename='.urlencode($filename);
-
 	$objPHPExcel->setActiveSheetIndex(0);
-	
-	$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-	$objWriter->save($internal.$filename);
-	return $external;
+	$objWriter = new Xlsx( $objPHPExcel );
+	$res = $objWriter->save( DOWNLOAD_PATH_EXCEL . $filename );
+	return DOWNLOAD_URL_EXCEL . $filename;
 }
 
 function exInit() {
 	global $objPHPExcel;
-	$objPHPExcel = new PHPExcel($docTitle='Dokument uten navn', $orientation='portrait');
+	$objPHPExcel = new Spreadsheet($docTitle='Dokument uten navn', $orientation='portrait');
 	exorientation($orientation);
 
 	$objPHPExcel->getProperties()->setCreator('UKM Norges arrangørsystem');

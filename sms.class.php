@@ -107,7 +107,7 @@ class SMS {
 		$sql = new SQL("SELECT `number`	FROM `sms_block`");
 		$res = $sql->run();
 		
-		while( $row = mysql_fetch_assoc( $res ) ) {
+		while( $row = SQL::fetch( $res ) ) {
 			$this->blocked[] = $row['number'];
 		}
 	}
@@ -190,8 +190,7 @@ class SMS {
 		$transaction->add('t_comment',	$this->message);
 		$transaction->add('t_action',	'sendte_sms_for');
 		
-		$transaction_res = $transaction->run();
-		$this->transaction_id = $transaction->insid();
+		$this->transaction_id = $transaction->run();
 		
 		return $this->transaction_id;
 	}

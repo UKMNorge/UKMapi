@@ -12,21 +12,15 @@ class zip {
 	
 	var $files = array();
 	
-	public function __construct($destination, $overwrite) {
-		$destination = str_replace(' ','_', preg_replace("[^A-Za-z0-9?!]", "_", $destination).'.zip');
-	
-		$this->destination = $destination;
+	public function __construct( $destination, $overwrite ) {
 		$this->overwrite = $overwrite;
-
-		$this->folder = ZIP_WRITE_PATH;
-		$this->destination = $this->folder. $destination;
-		$this->download = 'http://download.ukm.no/zip/'. basename($this->destination);
-	
-		if(!file_exists($this->folder))
-			mkdir($this->folder);
-			
-		if(file_exists($this->destination) && !$this->overwrite)
+		$this->filename = basename( str_replace(' ','_', preg_replace("[^A-Za-z0-9?!]", "_", $destination).'.zip') );
+		$this->destination = DOWNLOAD_PATH_ZIP . $this->filename;
+		$this->download = DOWNLOAD_URL_ZIP . $this->filename;
+				
+		if(file_exists($this->destination) && !$this->overwrite) {
 			return $this->_error('Fil finnes, overskriver ikke', 10);
+		}
 	}
 	
 	public function tryCatchAdd() {
@@ -82,15 +76,21 @@ class zip {
 	    		}
 			}
 		}
-		if(count($valid_files)) {
+		if( sizeof( $valid_files ) > 0 ) {
 			if( sizeof( $valid_files ) > $this->maxNumFiles ) {
 				return $this->_error('Du prøver å legge til for mange filer (maks '. $this->maxNumFiles.')', 40);
 			}
 			$zip = new ZipArchive();
-	    	$open = $zip->open($this->destination, $this->overwrite ? ZIPARCHIVE::OVERWRITE : ZIPARCHIVE::CREATE);
+			if( !file_exists( $this->destination ) ) {
+				$open = $zip->open($this->destination, ZIPARCHIVE::CREATE);
+			} elseif( $this->overwrite ) {
+				$open = $zip->open($this->destination, ZIPARCHIVE::OVERWRITE);
+			} else {
+				return $this->_error('Fil finnes, overskriver ikke', 10);
+			}
 
 			if($open !== true) {
-	      		return $this->_error($this->_ZipStatusString($open), 11);
+	      		return $this->_error($this->_ZipStatusString($open) . ' => '. $this->destination, 11);
 			}
 			foreach($valid_files as $file => $name) {
 				$zip->addFile($file,$name);

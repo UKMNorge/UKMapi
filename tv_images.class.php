@@ -17,7 +17,7 @@ class tv_images
         $query = new SQL('SELECT * FROM ukm_tv_files WHERE tv_img NOT IN (SELECT path FROM ukm_tv_img)');
         $result = $query->run();
         
-        while($row = mysql_fetch_assoc($result)) {
+        while($row = SQL::fetch($result)) {
             $data[] = $row;
         }
         $this->data = $data;

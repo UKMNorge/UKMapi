@@ -56,7 +56,7 @@ class stat_monstringer_v2 {
 		$qry = new SQL( $query , array('season'=>$season, 'fylke'=>$fylkeId));
 		$res = $qry->run();
 		if( $res ) {
-			while( $row = mysql_fetch_assoc( $res ) ) {
+			while( $row = SQL::fetch( $res ) ) {
 				$monstringer[] = new monstring_v2( $row );
 			}
 		}
@@ -89,7 +89,7 @@ class stat_monstringer_v2 {
 		$qry = new SQL( $query , array('season'=>$season, 'fylke'=>$fylkeId));
 		$res = $qry->run();
 		if( $res ) {
-			while( $row = mysql_fetch_assoc( $res ) ) {
+			while( $row = SQL::fetch( $res ) ) {
 				$monstringer[] = new monstring_v2( $row );
 			}
 		}
@@ -112,7 +112,7 @@ class stat_monstringer_v2 {
 		$qry = new SQL( $query , array('season'=>$season));
 		$res = $qry->run();
 		if( $res ) {
-			while( $row = mysql_fetch_assoc( $res ) ) {
+			while( $row = SQL::fetch( $res ) ) {
 				$monstring = new monstring_v2( $row );
 				if( $monstring->getType() == 'kommune' && $monstring->getAntallKommuner() == 0 ) {
 					continue;
@@ -144,8 +144,8 @@ class stat_monstringer_v2 {
 						ORDER BY `kommune`.`name` ASC",
 					array('season' => $season ));
 		$res = $qry->run();
-		while($r = mysql_fetch_assoc($res)) {
-			$kommuner[] = array('id' => $r['kommune_id'], 'navn' => utf8_encode( $r['kommune'] ), 'fylke' => utf8_encode($r['fylke']) );
+		while($r = SQL::fetch($res)) {
+			$kommuner[] = array('id' => $r['kommune_id'], 'navn' => $r['kommune'], 'fylke' => $r['fylke'] );
 		}
 		return $kommuner;
 	}

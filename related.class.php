@@ -75,7 +75,7 @@ class related {
 							  'aid'=>$this->album_id)
 						);
 		$get = $get->run();
-		while($r = mysql_fetch_assoc($get)) {
+		while($r = SQL::fetch($get)) {
 			$r['post_meta'] = unserialize($r['post_meta']);
 			$ret[$r['post_id']] = $r;
 		}	
@@ -93,7 +93,7 @@ class related {
 		$get = $get->run();
 		if(!$get)
 			return false;
-		while($r = mysql_fetch_assoc($get)){
+		while($r = SQL::fetch($get)){
 			$r['post_meta'] = unserialize($r['post_meta']);
 			$r['post_meta'] = $this->loadAuthor($r['post_meta']);
 			$r['post_meta'] = $this->missingLarge($r['post_meta']);

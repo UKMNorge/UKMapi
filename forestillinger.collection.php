@@ -186,7 +186,7 @@ class program {
 		if( !$res ) {
 			return array();
 		}
-		while( $row = mysql_fetch_assoc( $res ) ) {
+		while( $row = SQL::fetch( $res ) ) {
 			$forestilling = new forestilling_v2( $row );
 			
 			$context = context::createForestilling(

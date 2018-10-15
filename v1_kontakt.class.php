@@ -46,7 +46,7 @@ class kontakt {
 		}
 		
 		public function get($key) {
-			return utf8_encode($this->info[$key]);
+			return $this->info[$key];
 		}
 		
 		public function g($key) {

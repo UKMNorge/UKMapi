@@ -1,5 +1,9 @@
 <?php
-require_once('UKM/mail/class.phpmailer.php');
+require_once('vendor/autoload.php');
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+use Misd\Linkify\Linkify;
 
 class UKMmail {
 	var $reply_to = null;
@@ -31,8 +35,8 @@ class UKMmail {
 			$text = utf8_encode($text);
 
 		if(strlen($text) == strlen(strip_tags($text))) {
-			$text = $this->_find_links($text);
-			$text = nl2br($text);
+			$linkify = new Linkify();
+			$text = nl2br( $linkify->process( $text ) );
 		}
 	
 		$this->message = $text;
@@ -101,7 +105,7 @@ class UKMmail {
 			#  $mail->AltBody = 'To view the message, please use an HTML compatible email viewer!'; 
 			// optional - MsgHTML will create an alternate automatically
 
-			$res = $mail->Send();
+			$res = $mail->send();
 			return $res;
 		} catch (phpmailerException $e) {
 			return 'Mailer: '. $e->errorMessage(); //Pretty error messages from PHPMailer
@@ -110,30 +114,5 @@ class UKMmail {
 		}
 	error_log('mail.class.php: Failed to return or catch exception!');
 	return true;
-	}
-	
-	private function _find_links($text) {
-		return  preg_replace(
-			array(
-			'/(?(?=<a[^>]*>.+<\/a>)
-			     (?:<a[^>]*>.+<\/a>)
-			     |
-			     ([^="\']?)((?:https?|ftp|bf2|):\/\/[^<> \n\r]+)
-			 )/iex',
-			'/<a([^>]*)target="?[^"\']+"?/i',
-			'/<a([^>]+)>/i',
-			'/(^|\s)(www.[^<> \n\r]+)/iex',
-			'/(([_A-Za-z0-9-]+)(\\.[_A-Za-z0-9-]+)*@([A-Za-z0-9-]+)
-			(\\.[A-Za-z0-9-]+)*)/iex'
-			),
-			array(
-			"stripslashes((strlen('\\2')>0?'\\1<a href=\"\\2\">\\2</a>\\3':'\\0'))",
-			'<a\\1',
-			'<a\\1 target="_blank">',
-			"stripslashes((strlen('\\2')>0?'\\1<a href=\"http://\\2\">\\2</a>\\3':'\\0'))",
-			"stripslashes((strlen('\\2')>0?'<a href=\"mailto:\\0\">\\0</a>':'\\0'))"
-			),
-			$text
-		);
 	}
 }

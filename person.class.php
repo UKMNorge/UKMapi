@@ -98,14 +98,6 @@ class person_v2 {
 		return $this->_load_from_array( $res );
 	}
 	private function _load_from_array( $person ) {
-		
-		foreach( ['p_firstname', 'p_lastname', 'p_email', 'instrument'] as $key ) {
-			if( isset( $person[ $key ] ) && !preg_match('!!u', $person[ $key ]) ) {
-				$person[ $key ] = utf8_encode( $person[ $key ] );
-			}
-		}
-		
-		
 		$this->setId( $person['p_id'] );
 		$this->setFornavn( $person['p_firstname'] );
 		$this->setEtternavn( $person['p_lastname'] );
@@ -470,7 +462,7 @@ class person_v2 {
 	 * @return string kjønn
 	**/
 	public function getKjonn() {
-		$first_name = split(" ", str_replace("-", " ", $this->getFornavn()) );
+		$first_name = explode(" ", str_replace("-", " ", $this->getFornavn()) );
 		$first_name = $first_name[0];
 		
 		$qry = "SELECT `kjonn`

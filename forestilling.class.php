@@ -27,9 +27,9 @@ class forestilling_v2 extends forestilling {
 
 		parent::__construct($c_id,$tekniskprove);
 		$this->setId( $this->info['c_id'] );
-		$this->setNavn( utf8_encode( $this->info['c_name'] ) );
+		$this->setNavn( $this->info['c_name'] );
 		$this->setStart( $this->info['c_start'] );
-		$this->setSted( utf8_encode( $this->info['c_place'] ) );
+		$this->setSted( $this->info['c_place'] );
 		$this->setMonstringId( $this->info['pl_id'] );
 		$this->setSynligRammeprogram( 'true' == $this->info['c_visible_program'] );
 		$this->setSynligDetaljprogram( 'true' == $this->info['c_visible_detail'] );
@@ -385,7 +385,7 @@ class forestilling {
 				$new_c->add($key, $val);
 
 		$new_c_res = $new_c->run();
-		$duplicate = new forestilling($new_c->insid());
+		$duplicate = new forestilling($new_c_res);
 
 
 		$innslag = $this->innslag();
@@ -483,7 +483,7 @@ class forestilling {
 		$res = $sql->run();
 		
 		$count = 0;
-		while( $r = mysql_fetch_assoc( $res ) ) {
+		while( $r = SQL::fetch( $res ) ) {
 			$update = new SQLins('smartukm_rel_b_c', array('c_id' => $this->g('c_id'), 'bc_id' => $r['bc_id']));
 			$update->add($order, $count);
 			#echo $update->debug();#. '<br />';
@@ -510,7 +510,7 @@ class forestilling {
 								array('cid'=>$this->g('c_id'),
 									  'bid'=>$order[$i]));
 				$check = $check->run();
-				if(mysql_num_rows($check)==0){
+				if(SQL::numRows($check)==0){
 					$ins = new SQLins('smartukm_rel_b_c');
 					$ins->add('c_id', $this->g('c_id'));
 					$ins->add('b_id', $order[$i]);
@@ -554,8 +554,8 @@ class forestilling {
 	{
 		/* Henter ut en konsert */
 
-		$ret['c_name'] = utf8_encode($this->info['c_name']);
-		$ret['c_place'] = utf8_encode($this->info['c_place']);
+		$ret['c_name'] = $this->info['c_name'];
+		$ret['c_place'] = $this->info['c_place'];
 		
 		
 		return $ret;
@@ -610,7 +610,7 @@ class forestilling {
 							 WHERE `c_id` = ' . $this->info['c_id'] . '
 							 ORDER BY `'.$this->orderby.'` ASC');
 		$bandResult = $bandSql->run();
-		$this->info['antall_innslag'] = mysql_num_rows($bandResult);
+		$this->info['antall_innslag'] = SQL::numRows($bandResult);
 	}
 */
 	
@@ -651,14 +651,14 @@ class forestilling {
 		
 		$kunstutstilling = true;
 		if( $bandResult ) {
-			while( $bandRow = mysql_fetch_assoc( $bandResult ) ) {
+			while( $bandRow = SQL::fetch( $bandResult ) ) {
 				$this->bandRows[] = $bandRow;
 				$this->index[] = $bandRow['b_id'];
 				if($kunstutstilling && $bandRow['bt_id']!=3)
 					$kunstutstilling = false;
 			}
 			
-			$this->info['antall_innslag'] = mysql_num_rows($bandResult);
+			$this->info['antall_innslag'] = SQL::numRows($bandResult);
 		} else {
 			$this->info['antall_innslag'] = 0;
 		}
@@ -719,10 +719,7 @@ class forestilling {
 	## Returnerer verdien til attributten (key)
 	public function g($key) {	return $this->get($key);	}
 	public function get($key) {
-		if(is_array($this->info[$key]))
-			return $this->info[$key];
-			
-		return utf8_encode($this->info[$key]);	
+		return $this->info[$key];
 	}
 		
 	public function starter() {

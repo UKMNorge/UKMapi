@@ -108,13 +108,13 @@ class monstring_v2 {
 			}
 		}
 		$this->setId( $row['pl_id'] );
-		$this->setNavn( utf8_encode($row['pl_name']) );
+		$this->setNavn( $row['pl_name']);
 		$this->setStart( $row['pl_start'] );
 		$this->setStop( $row['pl_stop'] );
 		$this->setFrist1( $row['pl_deadline'] );
 		$this->setFrist2( $row['pl_deadline2'] );
 		$this->setSesong( $row['season'] );
-		$this->setSted( utf8_encode( $row['pl_place'] ) );
+		$this->setSted( $row['pl_place'] );
 		$this->_setSkjemaId( $row['pl_form'] );
 		$this->setPublikum( $row['pl_public'] );
 		$this->setUregistrerte( $row['pl_missing'] );
@@ -408,6 +408,9 @@ class monstring_v2 {
 	 *
 	**/
 	public function erFellesmonstring() {
+		if( $this->getType() != 'kommune' ) {
+			return false;
+		}
 		return 1 < sizeof( $this->kommuner_id );
 	}
 
@@ -668,7 +671,7 @@ class monstring_v2 {
 						   array('pl_id'=> $this->getId() )
 						  );
 			$res = $sql->run();
-			while( $r = mysql_fetch_assoc( $res ) ) {
+			while( $r = SQL::fetch( $res ) ) {
 				if( 1 == $r['bt_id'] ) {
 					foreach( innslag_typer::getAllScene() as $type ) {
 						$this->innslagTyper->add( $type );

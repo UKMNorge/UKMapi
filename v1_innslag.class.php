@@ -18,8 +18,7 @@ function create_innslag($bt_id, $season, $pl_id, $kommune, $contact=false){
 		$band->add('b_contact', $contact->g('p_id'));
 
 #	echo $band->debug();
-	$bandres = $band->run();
-	$b_id = $band->insid();
+	$b_id = $band->run();
 	
 	$tech = new SQLins('smartukm_technical');
 	$tech->add('b_id', $b_id);
@@ -147,10 +146,9 @@ class innslag {
 	    $qry->add('log_the_object_id', $this->info['b_id']);
 	    $qry->add('log_pl_id', $this->log_pl_id);
 		
-		$res = $qry->run();
-		$log_id = $qry->insid();
+		$log_id = $qry->run();
 		
-		if( !is_numeric( $log_id ) ) {
+		if( !$log_id ) {
 			throw new Exception('Kan ikke lagre endringene i innslaget på grunn av logg-feil!');
 		}
 		// Logg ny verdi
@@ -345,7 +343,7 @@ class innslag {
 	}
 
 	## Henter et innslags innebygde attributter fra b_id
-	public function innslag($b_id, $onlyifsubscribed=true) {
+	public function __construct($b_id, $onlyifsubscribed=true) {
 		$qry = "SELECT `smartukm_band`.*, 
 					   `smartukm_band_type`.`bt_name`, 
 					   `smartukm_band_type`.`bt_form`,
@@ -389,7 +387,7 @@ class innslag {
 		if(is_array($this->info[$key]))
 			return $this->info[$key];
 			
-		return utf8_encode($this->info[$key]);	
+		return $this->info[$key];
 	}
 		
 	## Returnerer hele objektet for var-dump
@@ -427,10 +425,10 @@ class innslag {
 						WHERE `smartukm_kommune`.`id` = '#id'",
 						array('id'=>$this->info['b_kommune']));
 		$res = $qry->run('array');
-		$this->info['kommune_utf8'] = utf8_encode($res['kommune']);
+		$this->info['kommune_utf8'] = $res['kommune'];
 		$this->info['kommune'] = ($res['kommune']);
 		$this->info['kommuneID'] = $res['kommuneID'];
-		$this->info['fylke_utf8'] = utf8_encode($res['fylke']);
+		$this->info['fylke_utf8'] = $res['fylke'];
 		$this->info['fylke'] = ($res['fylke']);
 		$this->info['fylkeID'] = $res['fylkeID'];
 				 
@@ -440,7 +438,7 @@ class innslag {
 		$this->info['kategori'] = ($this->info['bt_id']==1 
 									? ($this->info['b_kategori'] == 'scene' 
 										? 'Musikk' 
-										: ucfirst(utf8_decode($this->info['b_kategori']))
+										: ucfirst($this->info['b_kategori'])
 									  )
 									: $this->info['bt_name']
 								  );
@@ -467,11 +465,6 @@ class innslag {
 	}	
 	
 	private function __charset() {
-		//$this->info['bt_name'] = utf8_encode($this->info['bt_name']);
-
-		//$this->info['b_name'] = mb_detect_encoding($this->info['b_name'], "UTF-8") == "UTF-8" 
-		//					 ? utf8_encode($this->info['b_name'])
-		//					 : ($this->info['b_name']);
 	}
 	
 	private function correctName() {
@@ -582,12 +575,12 @@ class innslag {
 		$qry = $this->_load_personer_qry("LEFT JOIN `smartukm_fylkestep_p` AS `fs` ON (`fs`.`p_id` = `smartukm_participant`.`p_id` AND `fs`.`b_id` = `smartukm_rel_b_p`.`b_id`) "," AND `fs`.`b_id` IS NULL");
 		$qry = new SQL($qry);
 		$res = $qry->run();
-		if($res&&mysql_num_rows($res)>0)
-			while($set = mysql_fetch_assoc($res))
+		if($res&&SQL::numRows($res)>0)
+			while($set = SQL::fetch($res))
 				$this->ikke_videresendte_personer[] = array('p_id'=>$set['p_id'], 
-															'p_firstname'=>utf8_encode($set['p_firstname']), 
-															'p_lastname'=>utf8_encode($set['p_lastname']), 
-															'instrument'=>utf8_encode($set['instrument']), 
+															'p_firstname'=>$set['p_firstname'], 
+															'p_lastname'=>$set['p_lastname'], 
+															'instrument'=>$set['instrument'], 
 															'p_phone'=>$set['p_phone']);
 
 	}
@@ -617,9 +610,9 @@ class innslag {
 		$qry = new SQL($qry);
 		$res = $qry->run();
 		#$res = $wpdb->get_results($qry,'ARRAY_A');
-		if($res&&mysql_num_rows($res)>0)
-			while($set = mysql_fetch_assoc($res))
-				$this->personer[] = array('p_id'=>$set['p_id'], 'p_firstname'=>utf8_encode($set['p_firstname']), 'p_lastname'=>utf8_encode($set['p_lastname']), 'instrument'=>utf8_encode($set['instrument']), 'p_phone'=>$set['p_phone']);
+		if($res&&SQL::numRows($res)>0)
+			while($set = SQL::fetch($res))
+				$this->personer[] = array('p_id'=>$set['p_id'], 'p_firstname'=>$set['p_firstname'], 'p_lastname'=>$set['p_lastname'], 'instrument'=>$set['instrument'], 'p_phone'=>$set['p_phone']);
 		
 		$this->personer_loaded = true;
 	}
@@ -692,7 +685,7 @@ class innslag {
 		$res = $sql->run();
 
 		if( $res ) {
-			while( $r = mysql_fetch_assoc( $res ) ) {
+			while( $r = SQL::fetch( $res ) ) {
 				$this->playback[] = new playback( $r['pb_id'] );
 			}
 		}
@@ -720,7 +713,7 @@ class innslag {
 								  array('plid'=>$videresendTil, 'bid'=>$this->g('b_id'), 'season'=>$season));
 		$test_relasjon = $test_relasjon->run();	
 		
-		if(mysql_num_rows($test_relasjon)==0) {		
+		if(SQL::numRows($test_relasjon)==0) {		
 			$videresend_innslag_relasjon = new SQLins('smartukm_rel_pl_b');
 			$videresend_innslag_relasjon->add('pl_id', $videresendTil);
 			$videresend_innslag_relasjon->add('b_id', $this->g('b_id'));
@@ -739,7 +732,7 @@ class innslag {
 											't_id'=>$tittel));
 		$test_fylkestep = $test_fylkestep->run();
 
-		if (mysql_num_rows($test_fylkestep)==0) {
+		if (SQL::numRows($test_fylkestep)==0) {
 			$videresend_innslag = new SQLins('smartukm_fylkestep');
 			$videresend_innslag->add('pl_id', $videresendTil);
 			$videresend_innslag->add('pl_from', $videresendFra);
@@ -855,7 +848,7 @@ class innslag {
 		$res = $sql->run();
 		if(!$res)
 			return;
-		while($r = mysql_fetch_assoc($res))
+		while($r = SQL::fetch($res))
 			$this->forestillinger[$r['c_id']] = $r['order']+1;
 	}
 	
@@ -872,14 +865,14 @@ class innslag {
 						array('form'=>$this->g('bt_form'), 'bid'=>$this->g('b_id')));
 
 		$res = $sql->run();
-		if($res&&mysql_num_rows($res)>0) {
-			while($r = mysql_fetch_assoc($res)){
+		if($res&&SQL::numRows($res)>0) {
+			while($r = SQL::fetch($res)){
 				$videresendt = new SQL("SELECT * FROM `smartukm_fylkestep`
 										WHERE `b_id` = '#bid'
 										AND `t_id` = '#tid'",
 										array('bid'=>$this->g('b_id'), 'tid'=>$r['t_id']));
 				$videresendt = $videresendt->run();
-				if(mysql_num_rows($videresendt)!=0)
+				if(SQL::numRows($videresendt)!=0)
 					continue;
 				
 				$this->ikke_videresendte_titler[] = new tittel($r['t_id'],$this->g('bt_form'));
@@ -897,8 +890,8 @@ class innslag {
 						array('form'=>$this->g('bt_form'), 'bid'=>$this->g('b_id')));
 
 		$res = $sql->run();
-		if($res&&mysql_num_rows($res)>0) {
-			while($r = mysql_fetch_assoc($res)){
+		if($res&&SQL::numRows($res)>0) {
+			while($r = SQL::fetch($res)){
 				/// LUK UT TITLER HVIS FYLKESMØNSTRING
 				if($place->g('type')=='fylke' && !$uavhengig_av_monstring) {
 					if( $forwardToPLID ) {
@@ -920,7 +913,7 @@ class innslag {
 												array('bid'=>$this->g('b_id'), 'tid'=>$r['t_id']));
 					}
 					$videresendt = $videresendt->run();
-					if(mysql_num_rows($videresendt)==0)
+					if(SQL::numRows($videresendt)==0)
 						continue;
 				}
 				/// LUK UT TITLER HVIS LANDSMØNSTRING
@@ -939,7 +932,7 @@ class innslag {
 												  /*'plid'=>$forwardToPLID));*/
 												  'plid'=>$pl_id));
 					$videresendt = $videresendt->run();
-					if(mysql_num_rows($videresendt)==0) {
+					if(SQL::numRows($videresendt)==0) {
 					// 20.01.2013 Lagt til sjekk nr 2 for at APIet skal håndtere gamle videresendinger
 					$landstep = new SQL("SELECT * FROM `smartukm_landstep`
 											WHERE `b_id` = '#bid'
@@ -950,7 +943,7 @@ class innslag {
 	#					echo $landstep->debug();
 					$landstep = $landstep->run();
 
-						if(mysql_num_rows($landstep)==0) {
+						if(SQL::numRows($landstep)==0) {
 							continue;
 						}
 					}
@@ -1116,7 +1109,7 @@ class innslag {
 						" AND `season` = '" . $stats_info["season"] . "'";
 				$sql = new SQL($qry);
 				// Sjekke om ting skal settes inn eller oppdateres
-				if (mysql_num_rows($sql->run()) > 0)
+				if (SQL::numRows($sql->run()) > 0)
 					$sql_ins = new SQLins('ukm_statistics', array(
 						"b_id" => $stats_info["b_id"], // innslag-id
 						"p_id" => $stats_info["p_id"], // person-id
@@ -1356,13 +1349,13 @@ class innslag {
 		$header = '<strong>'.ucfirst($tittelnavn).':</strong><br />';
 
 		## IF NO TITLES, RETURN
-		if(mysql_num_rows($res)==0)
+		if(SQL::numRows($res)==0)
 			return array('titler' => array('tittel.mangler'));
 
 		$missing = array();
 		
 		## LOOP ALL TITLES
-		while($title = mysql_fetch_assoc($res)) {
+		while($title = SQL::fetch($res)) {
 			for($i=0; $i<sizeof($fields); $i++) {
 				if(empty($title[$fields[$i]])) {
 					## IF DANCE AND NOT MANDATORY FIELD
@@ -1375,8 +1368,7 @@ class innslag {
 					elseif($b['b_kategori']=='annet' && in_array($fields[$i],array('t_musicby','t_titleby','t_coreography')))
 						continue;
 		
-					## Added utf8_encode because this doesn't use it. :/
-					$missing[] = array($title['t_id'], array(utf8_encode("tittel.".$fields[$i])));//$title[$titleKey].$fields[$i];
+					$missing[] = array($title['t_id'], array("tittel.".$fields[$i]));//$title[$titleKey].$fields[$i];
 					break;
 				}
 			}
@@ -1401,12 +1393,12 @@ class innslag {
 	                                array('bid'=>$band['the_real_b_id'], 'season'=>$SEASON));
 	    $participants = $participants->run();
 		## IF NO PARTICIPANTS
-		if(mysql_num_rows($participants)==0)
+		if(SQL::numRows($participants)==0)
 			return array('innslag' => array('innslag.ingendeltakere'));
 			//return $header. ' Det er ingen deltakere i innslaget';
 
 		## LOOP FOR PARTICIPANTS
-		while($p = mysql_fetch_assoc($participants)) {
+		while($p = SQL::fetch($participants)) {
 	    	$test = $this->participant($p);
 	        if($test !== true) {
 	        	$whatwrong[] = array($p['p_id'], $test);

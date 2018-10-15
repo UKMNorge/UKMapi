@@ -149,7 +149,7 @@ class statistikk {
 		
 		//echo($sql->debug());
 		
-		while ($r = mysql_fetch_assoc($result)) {
+		while ($r = SQL::fetch($result)) {
 			// var_dump($r);
 			$array['bt_'.$r['bt_id']] = $r['count'];
 			
@@ -161,7 +161,7 @@ class statistikk {
 				$subcat_result = $sql2->run();
 				//echo($sql2->debug());
 				
-				while ($sr = mysql_fetch_assoc($subcat_result)) {
+				while ($sr = SQL::fetch($subcat_result)) {
 					if ($sr['subcat'] == "")
 						$array['annet'] += $sr['count'];
 					else
@@ -233,7 +233,7 @@ class statistikk {
 			
 			// echo($sql->debug());
 			
-			while ($r = mysql_fetch_assoc($result)) {
+			while ($r = SQL::fetch($result)) {
 				// var_dump($r);
 				$array['bt_'.$r['bt_id']] = $r['count'];
 				
@@ -245,7 +245,7 @@ class statistikk {
 					$subcat_result = $sql2->run();
 					// var_dump($sql->debug());
 					
-					while ($sr = mysql_fetch_assoc($subcat_result)) {
+					while ($sr = SQL::fetch($subcat_result)) {
 						if ($sr['subcat'] == "")
 							$array['annet'] += $sr['count'];
 						else
@@ -299,7 +299,7 @@ class statistikk {
 						" AND `season` = '" . $stats_info["season"] . "'";
 				$sql = new SQL($qry);
 				// Sjekke om ting skal settes inn eller oppdateres
-				if (mysql_num_rows($sql->run()) > 0) {
+				if (SQL::numRows($sql->run()) > 0) {
 					$sql_ins = new SQLins('ukm_statistics', array(
 						"b_id" => $stats_info["b_id"], // innslag-id
 						"p_id" => $stats_info["p_id"], // person-id

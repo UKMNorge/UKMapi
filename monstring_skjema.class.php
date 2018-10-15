@@ -25,7 +25,7 @@ class monstring_skjema {
 
 		$res = $sql->run();
 		$questions = array();
-		while ($row = mysql_fetch_assoc($res)) {
+		while ($row = SQL::fetch($res)) {
 			$questions[] = $this->getQuestionFromData($row);
 		}
 		return $questions;
@@ -40,8 +40,9 @@ class monstring_skjema {
 		
 		$res = $sql->run();
 		
-		if($res == 0 && $sql->error)
+		if($res == 0 && $sql->error) {
 			return false;
+		}
 		return true;
 	}
 
@@ -66,9 +67,7 @@ class monstring_skjema {
 		$res = $sql->run();
 		
 		// If insert worked
-		if ($res > 0)
-			return true;
-		return false;
+		return $res > 0;
 	}
 
 	public function getQuestionsWithAnswers() {
@@ -86,7 +85,7 @@ class monstring_skjema {
 		$res = $sql->run();
 		$data = array();
 		$qs = '(';
-		while ($row = mysql_fetch_assoc($res)) {
+		while ($row = SQL::fetch($res)) {
 			$data[$row['q_id']] = $row;
 			$qs .= $row['q_id'].','; 
 		}	
@@ -101,7 +100,7 @@ class monstring_skjema {
 		$res = $sql->run();
 
 		$replies = array();
-		while($row = mysql_fetch_assoc($res)) {
+		while($row = SQL::fetch($res)) {
 			$replies[$row['q_id']] = $row['answer'];
 		}
 		// Data har alle spørsmål
@@ -148,9 +147,9 @@ class monstring_skjema {
 		echo '</pre>';*/
 		$q = new stdClass();
 		$q->id = $data['q_id'];
-		$q->title = utf8_encode($data['q_title']); 
+		$q->title = $data['q_title']; 
 		$q->type = $data['q_type']; // May be 'janei', 'korttekst', 'langtekst', 'kontakt', 'overskrift'. Mulig mer?
-		$q->help = utf8_encode($data['q_help']); 
+		$q->help = $data['q_help'];
 		$q->order = $data['order']; // Rekkefølgehjelper, for å sortere elementer.
 		$q->f_id = $data['f_id']; // Fylke-ID - trengs denne?
 		$q->fylke = $this->fylke;
@@ -158,7 +157,7 @@ class monstring_skjema {
 		if ($q->type == 'kontakt') 
 			$q->value = $this->getKontakt($data['answer']);
 		else
-			$q->value = stripslashes( utf8_encode($data['answer']) );
+			$q->value = stripslashes( $data['answer'] );
 		return $q;
 	}
 
@@ -166,9 +165,9 @@ class monstring_skjema {
 		#var_dump($str);
 		$str = explode('__||__', $str);
 		$answer = new stdClass();
-		$answer->navn = stripslashes( utf8_encode($str[0]) );
-		$answer->mobil = utf8_encode($str[1]);
-		$answer->epost = utf8_encode($str[2]);
+		$answer->navn = stripslashes( $str[0] );
+		$answer->mobil = $str[1];
+		$answer->epost = $str[2];
 
 		return $answer;
 	}
@@ -200,9 +199,11 @@ class monstring_skjema {
 		
 		$res = $sql->run();
 
-		if ($res != 1)
-			if ($sql->error())
+		if ( !$res ) {
+			if ($sql->error()) {
 				return $sql; 
+			}
+		}
 		return $res;
 	}
 

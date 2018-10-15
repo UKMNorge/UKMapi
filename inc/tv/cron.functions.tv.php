@@ -35,12 +35,12 @@ function tv_update($data) {
 		$ins->add('tv_tags', $data['tags']);
 		$ins->add('tv_description', str_replace("'", "\'", $data['description']));
 		$ins->add('b_id', $data['b_id']);	
-		$res = $ins->run();
+		$insert_id = $ins->run();
 		error_log('CRON:TV_UPDATE: SQL: '. $ins->debug());
 
 		
 		if(!isset($tv_id)||!is_numeric($tv_id))
-			$tv_id = $ins->insid();
+			$tv_id = $insert_id;
 	
 		error_log('CRON:TV_UPDATE: Update category');
 		tv_category_update($data['category']);
@@ -107,8 +107,8 @@ function video_calc_data($algorithm, $res) {
 		case 'standalone_video':
 			$data['img'] = $res['video_image'];
 			$data['file'] = $res['video_file'];
-			$data['category'] = utf8_encode($res['video_category']);
-			$data['title'] = utf8_encode($res['video_name']);
+			$data['category'] = $res['video_category'];
+			$data['title'] = $res['video_name'];
 			$data['b_id'] = 0;
 			$data['tags'] = video_calc_tag_standalone( $res );
 			$data['description'] = $res['video_description'];
@@ -134,12 +134,10 @@ function video_calc_data($algorithm, $res) {
 			$data['description']= $tittelparentes;
 			$data['img']		= video_calc_img($post_meta);
 			$data['file']		= $post_meta['file'];
-			$data['category']	= utf8_encode($kategori);
-			$data['title']		= utf8_encode($inn->g('b_name')) .' - '. utf8_encode($tittel);
+			$data['category']	= $kategori;
+			$data['title']		= $inn->g('b_name') .' - '. $tittel;
 			$data['b_id']		= $inn->g('b_id');
 			$data['tags']		= video_calc_tag($inn, $res['pl_type'], $pl->g('pl_id'));
-			#echo '<h2>'. utf8_decode($inn->g('b_name')).'</h2>';
-			#echo '<pre>'; var_dump($data); echo '</pre>';
 			return $data;
 			
 		case 'smartukm_tag':
@@ -359,14 +357,12 @@ function video_calc_data($algorithm, $res) {
 			$data['description']= $titler[0]->g('parentes');
 			$data['img']		= $res['file'].'/'.$res['id'].'.jpg';
 			$data['file']		= $res['file'].'/'.$res['id'].'.flv';
-			$data['category']	= utf8_encode($kategori);
-			$data['title']		= utf8_encode($inn->g('b_name')) .' - '. utf8_encode($titler[0]->g('tittel'));
+			$data['category']	= $kategori;
+			$data['title']		= $inn->g('b_name') .' - '. $titler[0]->g('tittel');
 			$data['b_id']		= $inn->g('b_id');
 			#$data['tags']		= video_calc_tag($inn, $pl->g('type'), $pl->g('pl_id'));
 			$data['tags']		= video_calc_tag_smartukm_tag($inn, $pl->g('type'), $pl->g('pl_id'), $geo['k_id'], $fylkeid, $geo['season']);
 
-			#echo '<h2>'. utf8_decode($inn->g('b_name')).'</h2>';
-			#echo '<pre>'; var_dump($data); echo '</pre>';
 			return $data;
 	}
 }
@@ -415,7 +411,7 @@ function video_calc_monstring($b_id, $pl_type, $kommune, $season) {
 			$fylke = $fylke->run('array');
 			$fm = new fylke_monstring($fylke['id'], $season);
 			return array('pl' => $fm->monstring_get(),
-						 'kategori' => ('Fylkesmønstringen i '). utf8_encode($fylke['name']).' '.$season);
+						 'kategori' => ('Fylkesmønstringen i '). $fylke['name'].' '.$season);
 		case 'land':
 			$land = new landsmonstring($season);
 			return array('pl' => $land->monstring_get(),
@@ -430,7 +426,7 @@ function video_calc_monstring($b_id, $pl_type, $kommune, $season) {
 			$kommune = $kommune->run('array');
 			$monstring = new kommune_monstring($kommune['id'], $season);
 			return array('pl' => $monstring->monstring_get(),
-						 'kategori' => utf8_encode($kommune['name']).' '.$season);
+						 'kategori' => $kommune['name'].' '.$season);
 	}
 }
 function video_calc_tag_standalone($res) {

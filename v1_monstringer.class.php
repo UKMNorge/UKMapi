@@ -1,6 +1,6 @@
 <?php
 class monstringer{
-	public function monstringer($season=false){
+	public function __construct($season=false){
 		$this->season = $season;
 	}
 	public function alle_kommuner_med_lokalmonstringer($inkluder_testfylke=false) {
@@ -29,12 +29,12 @@ class monstringer{
 		$list = array();
 		$monstringer = array();
 		
-		while( $row = mysql_fetch_assoc( $res ) ) {
+		while( $row = SQL::fetch( $res ) ) {
 			// Fylket er ikke lagt til i listen
 			if( !isset( $list[ $row['f_id'] ] ) ) {
 				$fylke = new stdClass();
 				$fylke->id = $row['f_id'];
-				$fylke->name = utf8_encode( $row['f_name'] );
+				$fylke->name = $row['f_name'];
 				$fylke->monstringer = array();
 
 				$list[ $row['f_id'] ] = $fylke;
@@ -53,7 +53,7 @@ class monstringer{
 				}
 				$monstring->id = $row['pl_id'];
 				$monstring->k_id = $row['k_id'];
-				$monstring->name = utf8_encode($row['pl_name']);
+				$monstring->name = $row['pl_name'];
 				$monstring->kommuner = array();
 				
 				$fylke->monstringer[ $row['pl_id'] ] = $monstring;
@@ -64,7 +64,7 @@ class monstringer{
 			}
 			
 			$monstringer[] = $row['pl_id'];
-			$monstring->kommuner[ $row['k_id'] ] = utf8_encode( $row['k_name']);
+			$monstring->kommuner[ $row['k_id'] ] = $row['k_name'];
 		}
 		
 		return $list;
@@ -89,8 +89,8 @@ class monstringer{
 			$sesong = $this->season;
 		}
 		$monstringer = $this->etter_sesong($sesong);
-		while($r = mysql_fetch_assoc($monstringer))
-			$places[$r['pl_id']] = utf8_encode($r['pl_name']);
+		while($r = SQL::fetch($monstringer))
+			$places[$r['pl_id']] = $r['pl_name'];
 		return $places;
 	}
 	
@@ -108,8 +108,8 @@ class monstringer{
 						array('fylke'=>$fylke, 'season'=>$season));
 		$res = $qry->run();
 
-		while($r = mysql_fetch_assoc($res))
-			$liste[utf8_encode($r['kommune'])] = utf8_encode($r['pl_id']);
+		while($r = SQL::fetch($res))
+			$liste[$r['kommune']] = $r['pl_id'];
 		
 		return $liste;
 	}
@@ -128,8 +128,8 @@ class monstringer{
 	
 	public function etter_kommune_array() {
 		$res = $this->etter_kommune();
-		while($r = mysql_fetch_assoc($res)) {
-			$liste[$r['pl_id']] = utf8_encode($r['pl_name']);
+		while($r = SQL::fetch($res)) {
+			$liste[$r['pl_id']] = $r['pl_name'];
 		}
 		return $liste;
 	}
@@ -147,8 +147,8 @@ class monstringer{
 
 	public function etter_fylke_array() {
 		$res = $this->etter_fylke();
-		while($r = mysql_fetch_assoc($res)) {
-			$liste[$r['pl_id']] = utf8_encode($r['pl_name']);
+		while($r = SQL::fetch($res)) {
+			$liste[$r['pl_id']] = $r['pl_name'];
 		}
 		return $liste;
 	}

@@ -61,7 +61,7 @@ abstract class Coll {
 		$sql = new SQL("SELECT * FROM `". $child::TABLE_NAME ."`");
 		$res = $sql->run();
 
-		while( $row = mysql_fetch_assoc( $res ) ) {
+		while( $row = SQL::fetch( $res ) ) {
 			$object_class = str_replace('Coll', '', $child);
 			$child::$models[] = new $object_class( $row );
 		}
@@ -77,7 +77,7 @@ abstract class Coll {
 		);
 		$res = $sql->run();
 
-		while( $row = mysql_fetch_assoc( $res ) ) {
+		while( $row = SQL::fetch( $res ) ) {
 			$object_class = str_replace('Coll', '', $child);
 			$child::$models[] = new $object_class( $row );
 		}
@@ -90,9 +90,9 @@ abstract class Coll {
 		foreach( $mapped_values as $key => $val ) {
 			$sqlIns->add( $key, $val );
 		}
-		$res = $sqlIns->run();
+		$insert_id = $sqlIns->run();
 
-		return new $child( $sqlIns->insid() );
+		return new $child( $insert_id );
 	}
 
 	public static function _delete( $mapped_values ) {

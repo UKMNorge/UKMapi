@@ -49,12 +49,12 @@ class write_tittel {
 					50902
 				);
 		}
-		// Logg (eller dø) før insert
-		UKMlogger::log( $action, $innslag->getId(), $qry->insid() );
 		
-		$res = $qry->run();
-		if( 1 == $res ) {
-			return $qry->insid();
+		$insert_id = $qry->run();
+		UKMlogger::log( $action, $innslag->getId(), $insert_id );
+
+		if( $insert_id ) {
+			return $insert_id;
 		}
 
 		throw new Exception(
@@ -186,7 +186,7 @@ class write_tittel {
 		}
 		
 		if( $res ) {
-			return $this;
+			return $tittel_save;
 		}
 		
 		throw new Exception(
@@ -258,7 +258,7 @@ class write_tittel {
 		$test_relasjon = $test_relasjon->run();
 		
 		// Hvis allerede videresendt, alt ok
-		if( mysql_num_rows($test_relasjon) > 0 ) {
+		if( SQL::numRows($test_relasjon) > 0 ) {
 			return true;
 		}
 		// Videresend tittelen

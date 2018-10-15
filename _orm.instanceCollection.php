@@ -90,7 +90,7 @@ abstract class InstanceColl {
 		);
 		$res = $sql->run();
 
-		while( $row = mysql_fetch_assoc( $res ) ) {
+		while( $row = SQL::fetch( $res ) ) {
 			$object_class = str_replace('Coll', '', $child);
 			$this->models[] = new $object_class( $row );
 		}
@@ -113,7 +113,7 @@ abstract class InstanceColl {
 		);
 		$res = $sql->run();
 
-		while( $row = mysql_fetch_assoc( $res ) ) {
+		while( $row = SQL::fetch( $res ) ) {
 			$object_class = str_replace('Coll', '', $child);
 			$this->models[] = new $object_class( $row );
 		}
@@ -127,9 +127,9 @@ abstract class InstanceColl {
 		foreach( $mapped_values as $key => $val ) {
 			$sqlIns->add( $key, $val );
 		}
-		$res = $sqlIns->run();
+		$insert_id = $sqlIns->run();
 
-		return new $child( $sqlIns->insid(), $mapped_values['type'] );
+		return new $child( $insert_id, $mapped_values['type'] );
 	}
 
 	public function _delete( $mapped_values ) {

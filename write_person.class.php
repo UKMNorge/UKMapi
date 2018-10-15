@@ -87,16 +87,16 @@ class write_person {
 			$sql->add('p_phone', $mobil);
 			$sql->add('p_kommune', $kommune->getId());
 			$sql->add('p_dob', $fodselsdato);
-			$res = $sql->run(); 
+			$insert_id = $sql->run(); 
 			
 			// Database-oppdatering feilet
-			if(false == $res) {
+			if( !$insert_id ) {
 				throw new Exception(
 					"Klarte ikke å opprette et personobjekt for ".$fornavn." ". $etternavn.".",
 					50706
 				);
 			}
-			$p_id = $sql->insid();
+			$p_id = $insert_id;
 		}
 		// Personen finnes i databasen, oppdater kommune og fødselsdato
 		else {
@@ -297,7 +297,7 @@ class write_person {
 		}
 		
 		if( $res ) {
-			return $this;
+			return $person_save;
 		}
 		
 		throw new Exception(
@@ -378,9 +378,9 @@ class write_person {
 		UKMlogger::log( 324, $person_save->getContext()->getInnslag()->getId(), $person_save->getId().': '. $person_save->getNavn() );
 		$res = $sql->run();
 		
-		if(false == $res)
+		if( !$res ) {
 			return false;
-		
+		}
 		return true;
 	}
 	
@@ -409,7 +409,7 @@ class write_person {
 		$test_relasjon = $test_relasjon->run();
 		
 		// Hvis allerede videresendt, alt ok
-		if( mysql_num_rows($test_relasjon) > 0 ) {
+		if( SQL::numRows($test_relasjon) > 0 ) {
 			return true;
 		}
 		// Videresend personen

@@ -22,20 +22,19 @@ class UKMlogger {
 		$sql->add( 'log_the_object_id', $object_id );
 
 		#$sql->add( 'log_time', $time ); // GJØRES AV MYSQL (DEFAULT: CURRENT_TIMESTAMP)
-		#echo $sql->debug();
-		$res = $sql->run();
-		if( 1 != $res ) {
-			throw new Exception("UKMlogger: Klarte ikke å logge til log_log! Feilmelding: ".$sql->error());
+		$sql->showError();
+		$insert_id = $sql->run();
+		if( !$insert_id ) {
+			#debug_print_backtrace();
+			throw new Exception("UKMlogger: Klarte ikke å logge til log_log! Feilmelding: ".$sql->getError());
 		}
-
-		$id = $sql->insid();
 		
 		$sql = new SQLins('log_value');
-		$sql->add('log_id', $id);
+		$sql->add('log_id', $insert_id);
 		$sql->add('log_value', addslashes( $value ));
 		$res = $sql->run();
-		if( 1 != $res ) {
-			throw new Exception("UKMlogger: Klarte ikke å logge til log_value!");
+		if( !$res ) {
+			throw new Exception("UKMlogger: Klarte ikke å logge til log_value!  Feilmelding: ".$sql->getError());
 		}
 
 		return true;

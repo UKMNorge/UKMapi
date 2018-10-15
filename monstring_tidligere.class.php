@@ -27,9 +27,9 @@ require_once('UKM/monstring.class.php');
 										array('new'=>$search_pl_id)
 									   );
 						$res = $qry->run();
-						if(mysql_num_rows($res)==0)
+						if(SQL::numRows($res)==0)
 							$search = false;
-						while($r = mysql_fetch_assoc($res)){
+						while($r = SQL::fetch($res)){
 							if( $season == $r['season'] ) {
 								$this->monstring = new monstring( $r['pl_new'] );
 								$search = false;

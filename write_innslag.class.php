@@ -45,8 +45,9 @@ class write_innslag {
 			$band->add('b_kategori', $type->getKey() );
 		}
 
-		$bandres = $band->run();
-		if( 1 != $bandres ) {
+		$band_id = $band->run();
+		if( !$band_id ) {
+
 			throw new Exception(
 				"Klarte ikke å opprette et nytt innslag.",
 				50508
@@ -54,11 +55,11 @@ class write_innslag {
 		}
 
 		$tech = new SQLins('smartukm_technical');
-		$tech->add('b_id', $band->insid() );
+		$tech->add('b_id', $band_id );
 		$tech->add('pl_id', $monstring->getId() );
 		
 		$techres = $tech->run();
-		if( 1 != $techres ) {
+		if( !$techres ) {
 			throw new Exception(
 				"Klarte ikke å opprette tekniske behov-rad i tabellen.",
 				50509
@@ -68,11 +69,11 @@ class write_innslag {
 		// TODO: Burde benytte $monstring->getInnslag()->leggTil( $innslag );
 		$rel = new SQLins('smartukm_rel_pl_b');
 		$rel->add('pl_id', $monstring->getId() );
-		$rel->add('b_id', $band->insid() );
+		$rel->add('b_id', $band_id );
 		$rel->add('season', $monstring->getSesong() );
 		
 		$relres = $rel->run();
-		if( 1 != $relres ) {
+		if( !$relres ) {
 			throw new Exception(
 				"Klarte ikke å melde på det nye innslaget til mønstringen.",
 				50510
@@ -80,11 +81,11 @@ class write_innslag {
 		}
 		
 		// TODO: KREVER at relasjonen over gjøres riktig (leggTil, ikke db-insert)
-		return $monstring->getInnslag()->get( $band->insid() );
+		return $monstring->getInnslag()->get( $band_id );
 		// TODO: Oppdater statistikk
 		#$innslag = new innslag( $b_id, false );
 		#$innslag->statistikk_oppdater();
-		return new innslag_v2( (int)$band->insid() ); // Tror ikke cast er nødvendig, men det er gjort sånn i write_person.
+		return new innslag_v2( (int)$band_id ); // Tror ikke cast er nødvendig, men det er gjort sånn i write_person.
 	}	
 
 
@@ -414,7 +415,7 @@ class write_innslag {
 	 * Legger til et innslag i collection og database
 	 *
 	 * @param write_innslag $innslag
-	 * @return $this
+	 * @return $innslag
 	 */
 	public function leggTil( $innslag ) {
 		write_innslag::validerLeggtil( $innslag );
@@ -427,14 +428,14 @@ class write_innslag {
 				write_innslag::_leggTilMonstring( $innslag );
 				break;
 		}
-		return $this;
+		return $innslag;
 	}	
 	
 	/**
 	 * Fjern et innslag
 	 *
 	 * @param innslag_v2 $innslag
-	 * @return $this
+	 * @return void
 	 */
 	public static function fjern( $innslag ) {
 		write_innslag::validerLeggtil( $innslag );
@@ -452,7 +453,7 @@ class write_innslag {
 				break;
 			default: 
 				throw new Exception(
-					'Kan ikke fjerne innslag fra ukjent collection type: ' . $this->getContext()->getType(),
+					'Kan ikke fjerne innslag fra ukjent collection type: ' . $innslag->getContext()->getType(),
 					50511
 				);
 		}
@@ -472,7 +473,7 @@ class write_innslag {
 	 * Dette vil endre innslaget status, og effektivt melde det av
 	 * 
 	 * @param write_innslag $innslag
-	 * @return $this
+	 * @return $innslag
 	**/
 	private static function _fjernFraLokalMonstring( $innslag ) {
 		require_once('UKM/write_forestilling.class.php');
@@ -511,14 +512,14 @@ class write_innslag {
 		$innslag->setStatus(77);
 		write_innslag::saveStatus( $innslag );
 		
-		return $this;
+		return $innslag;
 	}
 	
 	/**
 	 * Fjern et innslag fra denne forestillingen
 	 *
 	 * @param innslag_v2 $innslag
-	 * @return $this
+	 * @return $innslag
 	**/
 	private function _fjernFraForestilling( $innslag ) {
 		// Sjekk at vi har riktig context
@@ -544,7 +545,7 @@ class write_innslag {
 				50520
 			);
 		}
-		return $this;
+		return $innslag;
 	}
 	
 	/**
@@ -552,7 +553,7 @@ class write_innslag {
 	 * Vil fjerne videresendingen av innslaget
 	 *
 	 * @param innslag_v2 $innslag
-	 * @return $this
+	 * @return $innslag
 	**/
 	private function _fjernVideresending( $innslag ) {
 		// Sjekk at vi har riktig context
@@ -609,11 +610,11 @@ class write_innslag {
 		$slett_relasjon->run();
 
 	
-		if(1 == $res) {
+		if($res) {
 			return true;
 		}
 		
-		return $this;
+		return $innslag;
 	}
 
 	/********************************************************************************
@@ -654,13 +655,13 @@ class write_innslag {
 		$qry->add('order', $order);
 		$res = $qry->run();
 		
-		if( 1 != $res ) {
+		if( !$res ) {
 			throw new Exception(
 				'Klarte ikke å legge til innslaget i forestillingen.',
 				50513
 			);
 		}
-		return $this;
+		return $innslag;
 	}
 	
 	/**
@@ -695,7 +696,7 @@ class write_innslag {
 		$test_relasjon = $test_relasjon->run();
 		
 		// Hvis allerede videresendt, alt ok
-		if( mysql_num_rows($test_relasjon) > 0 ) {
+		if( SQL::numRows($test_relasjon) > 0 ) {
 			return true;
 		}
 		// Videresend innslaget
@@ -719,7 +720,7 @@ class write_innslag {
 				]
 			);
 			$test_relasjon_2 = $test_relasjon_2->run();
-			if( mysql_num_rows( $test_relasjon_2 ) == 0 ) {
+			if( SQL::numRows( $test_relasjon_2 ) == 0 ) {
 				$rel_pl_b = new SQLins('smartukm_rel_pl_b');
 				$rel_pl_b->add('b_id', $innslag->getId() );
 				$rel_pl_b->add('pl_id', $innslag->getContext()->getMonstring()->getId() );
@@ -742,7 +743,7 @@ class write_innslag {
 					]
 				);
 				$test_relasjon_3 = $test_relasjon_3->run();
-				if( mysql_num_rows( $test_relasjon_3 ) == 0 ) {
+				if( SQL::numRows( $test_relasjon_3 ) == 0 ) {
 					$fylkestep_p = new SQLins('smartukm_fylkestep_p');
 					$fylkestep_p->add('pl_id', $innslag->getContext()->getMonstring()->getId() );
 					$fylkestep_p->add('b_id', $innslag->getId() );
