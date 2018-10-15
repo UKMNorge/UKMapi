@@ -2,7 +2,7 @@
 class kontakt {
 	var $info = array();
 		
-		public function kontakt($id,$rel_id=false){/* legger en place inn i $info */
+		public function __construct($id,$rel_id=false){/* legger en place inn i $info */
 			$qry	= new SQL("SELECT `smartukm_contacts`.*,
 									  `smartukm_kommune`.`name` AS `kommunenavn`,
 									  `smartukm_contacts`.`adress` AS `address`
