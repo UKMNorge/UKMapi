@@ -181,7 +181,7 @@ class innslag_typer extends Collection {
 				break;
 
 			default:
-				$data = array('id' => 'missing '. $id);
+				$data = array('id' => 'missing '. $id, 'key' => 'missing');
 		}
 		return new innslag_type( $data['id'], $data['key'], $data['name'], $data['icon'], $data['har_filmer'], $data['har_titler'], $data['database_table'], $data['har_tekniske_behov'] );
 	}

@@ -685,12 +685,19 @@ class monstring_v2 {
 					}
 				}
 			}
-			if( $this->innslagTyper->getAntall() == 0 ) {
+			// Alltid legg til scene
+			if( $this->innslagTyper->getById( 1 )->getKey() == 'missing' ) {
 				foreach( innslag_typer::getAllScene() as $type ) {
 					$this->innslagTyper->add( $type );
 				}
-				$this->innslagTyper->add( innslag_typer::getByName('video') );
+			}
+			// Alltid legg til utstilling
+			if( $this->innslagTyper->getByName('utstilling')->getKey() == 'missing' ) {
 				$this->innslagTyper->add( innslag_typer::getByName('utstilling') );
+			}
+			// Alltid legg til utstilling
+			if( $this->innslagTyper->getByName('video')->getKey() == 'missing' ) {
+				$this->innslagTyper->add( innslag_typer::getByName('video') );
 			}
 		}
 		return $this->innslagTyper;
