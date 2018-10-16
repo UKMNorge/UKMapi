@@ -686,17 +686,17 @@ class monstring_v2 {
 				}
 			}
 			// Alltid legg til scene
-			if( $this->innslagTyper->getById( 1 )->getKey() == 'missing' ) {
+			if( !$this->innslagTyper->har( innslag_typer::getById( 1 ) ) ) {
 				foreach( innslag_typer::getAllScene() as $type ) {
 					$this->innslagTyper->add( $type );
 				}
 			}
 			// Alltid legg til utstilling
-			if( $this->innslagTyper->getByName('utstilling')->getKey() == 'missing' ) {
+			if( !$this->innslagTyper->har( innslag_typer::getById( 3 ) ) ) {
 				$this->innslagTyper->add( innslag_typer::getByName('utstilling') );
 			}
 			// Alltid legg til utstilling
-			if( $this->innslagTyper->getByName('video')->getKey() == 'missing' ) {
+			if( !$this->innslagTyper->har( innslag_typer::getById( 2 ) ) ) {
 				$this->innslagTyper->add( innslag_typer::getByName('video') );
 			}
 		}
