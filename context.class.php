@@ -23,7 +23,7 @@ class context {
 	public static function createForestilling( $id, $monstring_context=false ) {
 		$context = new context( 'forestilling' );
 		$context->forestilling = new context_forestilling( $id );
-		if( $monstring_context !== false && get_class( $monstring_context ) == 'context_monstring' ) {
+		if( $monstring_context !== false && get_class( $monstring_context ) == 'context' && $monstring_context->getType() == 'monstring' ) {
 			$context->monstring = $monstring_context;
 		}
 		return $context;
