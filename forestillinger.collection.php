@@ -190,7 +190,8 @@ class program {
 			$forestilling = new forestilling_v2( $row );
 			
 			$context = context::createForestilling(
-				$row['c_id'] 		// Forestilling Id
+				$row['c_id'], 		// Forestilling Id
+				$this->getContext()
 			);
 			$forestilling->setContext( $context );
 			if( $forestilling->erSynligRammeprogram() ) {
