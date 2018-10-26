@@ -191,7 +191,7 @@ class program {
 			
 			$context = context::createForestilling(
 				$row['c_id'], 		// Forestilling Id
-				$this->getContext()
+				$this->getContext()->getMonstring()
 			);
 			$forestilling->setContext( $context );
 			if( $forestilling->erSynligRammeprogram() ) {

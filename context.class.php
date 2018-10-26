@@ -20,11 +20,11 @@ class context {
 		return $context;
 	}
 	
-	public static function createForestilling( $id, $monstring_context=false ) {
+	public static function createForestilling( $id, $context_monstring=false ) {
 		$context = new context( 'forestilling' );
 		$context->forestilling = new context_forestilling( $id );
-		if( $monstring_context !== false && get_class( $monstring_context ) == 'context' && $monstring_context->getType() == 'monstring' ) {
-			$context->monstring = $monstring_context;
+		if( $context_monstring !== false && get_class( $context_monstring ) == 'context_monstring' ) {
+			$context->monstring = $context_monstring;
 		}
 		return $context;
 	}
