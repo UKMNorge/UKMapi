@@ -395,6 +395,14 @@ class write_monstring {
 			throw new Exception('Kan ikke fjerne kommune da '. $e->getMessage() );
 		}
 
+		// Hvis mønstringen på dette tidspunktet
+		// fortsattt har kommunen i kommune-collection
+		// er det på høy tid å fjerne den.
+		// (avlys kan finne på å gjøre dette tror Marius (26.10.2018))
+		if( $monstring_save->getKommuner()->har( $kommune ) ) {
+			$monstring_save->getKommuner()->fjern( $kommune );
+		}
+
 		$rel_pl_k = new SQLdel(
 			'smartukm_rel_pl_k',
 			[
