@@ -208,7 +208,7 @@ class monstringer_v2 {
 				return $monstring;
 			}
 		}
-		$fylke = new fylke( $fylke_id );
+		$fylke = fylker::getById( $fylker_id );
 		throw new Exception('Fant ingen mønstring for '. $fylke->getNavn() .' i '. $season );
 	}
 	
