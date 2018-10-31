@@ -258,5 +258,65 @@ class monstringer_v2 {
 		throw new Exception('Fant ingen nasjonal mønstring for '. $sesong );
 	}
 
+
+	public static function getAntallUregistrerte( $sesong ) {
+		$query ="SELECT COUNT( DISTINCT(`smartukm_place`.`pl_id`) ) AS `count`
+			FROM `smartukm_place`
+			JOIN `smartukm_rel_pl_k`
+				ON (`smartukm_rel_pl_k`.`pl_id` = `smartukm_place`.`pl_id`)
+			WHERE `smartukm_place`.`season` = '#season'
+			AND `pl_start` = 0
+			AND `pl_fylke` = 0"
+		;
+		$qry = new SQL(
+			$query, 
+			['season' => $this->season]
+		);
+		$lokalmonstringer = (int) $qry->run('field', 'count');
+		
+		$query ="SELECT COUNT( DISTINCT(`smartukm_place`.`pl_id`) ) AS `count`
+			FROM `smartukm_place`
+			WHERE `smartukm_place`.`season` = '#season'
+			AND `pl_start` = 0
+			AND `pl_fylke` > 0"
+		;
+		$qry = new SQL(
+			$query, 
+			['season' => $this->season]
+		);
+		$fylkesmonstringer = (int) $qry->run('field', 'count');
+
+		return $lokalmonstringer + $fylkesmonstringer;
+	}
+
+	public function getAntallRegistrerte() {
+		$query ="SELECT COUNT( DISTINCT(`smartukm_place`.`pl_id`) ) AS `count`
+			FROM `smartukm_place`
+			JOIN `smartukm_rel_pl_k`
+				ON (`smartukm_rel_pl_k`.`pl_id` = `smartukm_place`.`pl_id`)
+			WHERE `smartukm_place`.`season` = '#season'
+			AND `pl_start` > 0
+			AND `pl_fylke` = 0"
+		;
+		$qry = new SQL(
+			$query, 
+			['season' => $this->season]
+		);
+		$lokalmonstringer = (int) $qry->run('field', 'count');
+		
+		$query ="SELECT COUNT( DISTINCT(`smartukm_place`.`pl_id`) ) AS `count`
+			FROM `smartukm_place`
+			WHERE `smartukm_place`.`season` = '#season'
+			AND `pl_start` > 0
+			AND `pl_fylke` > 0"
+		;
+		$qry = new SQL(
+			$query, 
+			['season' => $this->season]
+		);
+		$fylkesmonstringer = (int) $qry->run('field', 'count');
+
+		return $lokalmonstringer + $fylkesmonstringer;
+	}
 }
 ?>
