@@ -270,7 +270,7 @@ class monstringer_v2 {
 		;
 		$qry = new SQL(
 			$query, 
-			['season' => $this->season]
+			['season' => $sesong]
 		);
 		$lokalmonstringer = (int) $qry->run('field', 'count');
 		
@@ -282,14 +282,14 @@ class monstringer_v2 {
 		;
 		$qry = new SQL(
 			$query, 
-			['season' => $this->season]
+			['season' => $sesong]
 		);
 		$fylkesmonstringer = (int) $qry->run('field', 'count');
 
 		return $lokalmonstringer + $fylkesmonstringer;
 	}
 
-	public function getAntallRegistrerte() {
+	public static function getAntallRegistrerte( $sesong ) {
 		$query ="SELECT COUNT( DISTINCT(`smartukm_place`.`pl_id`) ) AS `count`
 			FROM `smartukm_place`
 			JOIN `smartukm_rel_pl_k`
@@ -300,7 +300,7 @@ class monstringer_v2 {
 		;
 		$qry = new SQL(
 			$query, 
-			['season' => $this->season]
+			['season' => $sesong]
 		);
 		$lokalmonstringer = (int) $qry->run('field', 'count');
 		
@@ -312,7 +312,7 @@ class monstringer_v2 {
 		;
 		$qry = new SQL(
 			$query, 
-			['season' => $this->season]
+			['season' => $sesong]
 		);
 		$fylkesmonstringer = (int) $qry->run('field', 'count');
 
