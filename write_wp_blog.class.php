@@ -590,6 +590,8 @@ class write_wp_blog {
 		
 		// Sider
 		$sider = array(
+					['id' => 'forside', 'name' => 'Forside', 'viseng' => null],
+					['id' => 'nyheter', 'name' => 'Nyheter', 'viseng' => null],
 					['id' => 'bilder', 'name' => 'Bilder', 'viseng' => 'bilder' ],
 					['id' => 'pameldte', 'name' => 'Påmeldte', 'viseng' => 'pameldte'],
 					['id' => 'program', 'name' => 'Program', 'viseng' => 'program'],
@@ -623,7 +625,6 @@ class write_wp_blog {
 				// ha riktig data.
 				delete_post_meta($page_id, 'UKMviseng');
 				add_post_meta($page_id, 'UKMviseng', $side['viseng']);
-				
 			}
 		}
 		
@@ -632,7 +633,15 @@ class write_wp_blog {
 		if( is_object( $hello_world ) ) {
 			wp_delete_post( $hello_world->ID );
 		}
+
+		$page_on_front = get_page_by_path('forside');
+		$page_for_posts = get_page_by_path('nyheter');
 		
+		// Sett standard visningssider
+		update_blog_option( $blog_id, 'show_on_front', 'page');
+		update_blog_option( $blog_id, 'page_on_front', $page_on_front->ID);
+		update_blog_option( $blog_id, 'page_for_posts', $page_for_posts->ID);
+
 		restore_current_blog();
 	}
 	
