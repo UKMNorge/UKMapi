@@ -264,9 +264,12 @@ class monstringer_v2 {
 			FROM `smartukm_place`
 			JOIN `smartukm_rel_pl_k`
 				ON (`smartukm_rel_pl_k`.`pl_id` = `smartukm_place`.`pl_id`)
+			JOIN `smartukm_kommune` AS `kommune`
+				ON (`kommune`.`id` = `smartukm_rel_pl_k`.`k_id`)
 			WHERE `smartukm_place`.`season` = '#season'
 			AND `pl_start` = 0
-			AND `pl_fylke` = 0"
+			AND `pl_fylke` = 0
+			AND `kommune`.`name` != 'Gjester'"
 		;
 		$qry = new SQL(
 			$query, 
@@ -278,7 +281,8 @@ class monstringer_v2 {
 			FROM `smartukm_place`
 			WHERE `smartukm_place`.`season` = '#season'
 			AND `pl_start` = 0
-			AND `pl_fylke` > 0"
+			AND `pl_fylke` > 0
+			AND `pl_fylke` < 21"
 		;
 		$qry = new SQL(
 			$query, 
@@ -291,12 +295,15 @@ class monstringer_v2 {
 
 	public static function getAntallRegistrerte( $sesong ) {
 		$query ="SELECT COUNT( DISTINCT(`smartukm_place`.`pl_id`) ) AS `count`
-			FROM `smartukm_place`
-			JOIN `smartukm_rel_pl_k`
-				ON (`smartukm_rel_pl_k`.`pl_id` = `smartukm_place`.`pl_id`)
-			WHERE `smartukm_place`.`season` = '#season'
-			AND `pl_start` > 0
-			AND `pl_fylke` = 0"
+		FROM `smartukm_place`
+		JOIN `smartukm_rel_pl_k`
+			ON (`smartukm_rel_pl_k`.`pl_id` = `smartukm_place`.`pl_id`)
+		JOIN `smartukm_kommune` AS `kommune`
+			ON (`kommune`.`id` = `smartukm_rel_pl_k`.`k_id`)
+		WHERE `smartukm_place`.`season` = '#season'
+		AND `pl_start` > 0
+		AND `pl_fylke` = 0
+		AND `kommune`.`name` != 'Gjester'"
 		;
 		$qry = new SQL(
 			$query, 
@@ -308,7 +315,8 @@ class monstringer_v2 {
 			FROM `smartukm_place`
 			WHERE `smartukm_place`.`season` = '#season'
 			AND `pl_start` > 0
-			AND `pl_fylke` > 0"
+			AND `pl_fylke` > 0
+			AND `pl_fylke` < 21"
 		;
 		$qry = new SQL(
 			$query, 
