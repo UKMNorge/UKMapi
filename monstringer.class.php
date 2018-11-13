@@ -269,7 +269,8 @@ class monstringer_v2 {
 			WHERE `smartukm_place`.`season` = '#season'
 			AND `pl_start` = 0
 			AND `pl_fylke` = 0
-			AND `kommune`.`name` != 'Gjester'"
+			AND `kommune`.`name` != 'Gjester'
+			AND `kommune`.`idfylke` < 21"
 		;
 		$qry = new SQL(
 			$query, 
@@ -303,7 +304,8 @@ class monstringer_v2 {
 		WHERE `smartukm_place`.`season` = '#season'
 		AND `pl_start` > 0
 		AND `pl_fylke` = 0
-		AND `kommune`.`name` != 'Gjester'"
+		AND `kommune`.`name` != 'Gjester'
+		AND `kommune`.`idfylke` < 21"
 		;
 		$qry = new SQL(
 			$query, 
