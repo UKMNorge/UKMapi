@@ -661,7 +661,7 @@ class monstring_v2 {
 	 *
 	 * @return Collection innslagstyper 
 	**/
-	public function getInnslagTyper() {
+	public function getInnslagTyper( $inkluder_ressurs=false ) {
 		if( null == $this->innslagTyper ) {
 			$this->innslagTyper = new innslag_typer();
 			$sql = new SQL("SELECT `bt_id`
@@ -699,6 +699,10 @@ class monstring_v2 {
 			if( !$this->innslagTyper->har( innslag_typer::getById( 2 ) ) ) {
 				$this->innslagTyper->add( innslag_typer::getByName('video') );
 			}
+		}
+
+		if( $inkluder_ressurs && !$this->innslagTyper->har( innslag_typer::getByName('ressurs') ) ) {
+			$this->innslagTyper->add( innslag_typer::getByName('ressurs') );
 		}
 		return $this->innslagTyper;
 	}
