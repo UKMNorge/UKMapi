@@ -10,13 +10,14 @@ class innslag_type {
 	var $tabell = false;
 	var $har_tekniske_behov = false;
 	
-	public function __construct($id, $key, $name, $icon, $har_filmer, $har_titler, $tabell, $har_tekniske_behov) {
+	public function __construct($id, $key, $name, $icon, $har_filmer, $har_titler, $funksjoner, $tabell, $har_tekniske_behov) {
 		$this->setId( $id );
 		$this->setKey( $key );
 		$this->setNavn( $name );
 		$this->setIcon( $icon );
 		$this->setHarFilmer( $har_filmer );
 		$this->setHarTitler( $har_titler );
+		$this->setFunksjoner( $funksjoner );
 		$this->setHarTekniskeBehov( $har_tekniske_behov );
 		$this->setTabell( $tabell );
 	}
@@ -51,6 +52,17 @@ class innslag_type {
 	}
 	public function getIcon() {
 		return $this->icon;
+	}
+
+	public function setFunksjoner( $funksjoner ) {
+		$this->funksjoner = $funksjoner;
+		return $this;
+	}
+	public function getFunksjoner() {
+		return $this->funksjoner;
+	}
+	public function harFunksjoner() {
+		return is_array( $this->funksjoner );
 	}
 	
 	public function setTabell($tabell) {
@@ -97,25 +109,4 @@ class innslag_type {
 	public function __toString() {
 		return $this->getNavn();
 	}
-
-	public function getFunksjoner() {
-        if( 5 == $this->getId() ) {
-            return array('tekst'=> 'Journalist',
-                         'foto' => 'Fotograf',
-                         'videoreportasjer' => 'Videoreportasjer',
-                         'flerkamera_regi' => 'Flerkamera, regi',
-                         'flerkamera_kamera' => 'Flerkamera, kamera',
-                         'pr' => 'PR og pressekontakt'
-                        );
-        } elseif( 8 == $this->getId() ) {
-            return array('lyd' => 'Lyd',
-                         'lys' => 'Lys',
-                         'scenearbeider' => 'Scenearbeider',
-                         'artistvert' => 'Artistvert',
-                         'info' => 'Info / sekretariat',
-                         'koordinator' => 'Koordinator / produsent'
-                        );
-        }
-        return [];
-    }
 }

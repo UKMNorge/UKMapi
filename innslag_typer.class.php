@@ -46,144 +46,185 @@ class innslag_typer extends Collection {
 			case 1:
 				switch( $kategori ) {
 					case 'musikk':
-						$data = array('id' => 1,
-									  'key' => 'musikk',
-									  'name' => 'Musikk',
-									  'icon' => 'https://ico.ukm.no/delta/delta-musikk-64.png',
-									  'har_filmer' => true,
-									  'har_titler' => true,
-									  'har_tekniske_behov' => true,
-									  'database_table' => 'smartukm_titles_scene',
-									  );
+						$data = [
+							'id' => 1,
+							'key' => 'musikk',
+							'name' => 'Musikk',
+							'icon' => 'https://ico.ukm.no/delta/delta-musikk-64.png',
+							'har_filmer' => true,
+							'har_titler' => true,
+							'har_tekniske_behov' => true,
+							'database_table' => 'smartukm_titles_scene',
+							'funksjoner' => false,
+						];
 						break;
 					case 'dans':
-						$data = array('id' => 1,
-									  'key' => 'dans',
-									  'name' => 'Dans',
-									  'icon' => 'https://ico.ukm.no/delta/delta-dans-64.png',
-									  'har_filmer' => true,
-									  'har_titler' => true,
-									  'har_tekniske_behov' => true,
-									  'database_table' => 'smartukm_titles_scene',
-									  );
+						$data = [
+							'id' => 1,
+							'key' => 'dans',
+							'name' => 'Dans',
+							'icon' => 'https://ico.ukm.no/delta/delta-dans-64.png',
+							'har_filmer' => true,
+							'har_titler' => true,
+							'har_tekniske_behov' => true,
+							'database_table' => 'smartukm_titles_scene',
+							'funksjoner' => false,
+						];
 						break;
 					case 'teater':
-						$data = array('id' => 1,
-									  'key' => 'teater',
-									  'name' => 'Teater',
-									  'icon' => 'https://ico.ukm.no/delta/delta-teater-64.png',
-									  'har_filmer' => true,
-									  'har_titler' => true,
-									  'har_tekniske_behov' => true,
-									  'database_table' => 'smartukm_titles_scene',
-									  );
+						$data = [
+							'id' => 1,
+							'key' => 'teater',
+							'name' => 'Teater',
+							'icon' => 'https://ico.ukm.no/delta/delta-teater-64.png',
+							'har_filmer' => true,
+							'har_titler' => true,
+							'har_tekniske_behov' => true,
+							'database_table' => 'smartukm_titles_scene',
+							'funksjoner' => false,
+						];
 						break;						
 					case 'litteratur':
-						$data = array('id' => 1,
-									  'key' => 'litteratur',
-									  'name' => 'Litteratur',
-									  'icon' => 'https://ico.ukm.no/delta/delta-litteratur-64.png',
-									  'har_filmer' => true,
-									  'har_titler' => true,
-									  'har_tekniske_behov' => false,
-									  'database_table' => 'smartukm_titles_scene',
-									  );
+						$data = [
+							'id' => 1,
+							'key' => 'litteratur',
+							'name' => 'Litteratur',
+							'icon' => 'https://ico.ukm.no/delta/delta-litteratur-64.png',
+							'har_filmer' => true,
+							'har_titler' => true,
+							'har_tekniske_behov' => false,
+							'database_table' => 'smartukm_titles_scene',
+							'funksjoner' => false,
+						];
 						break;
 					default:
-						$data = array('id' => 1,
-									  'key' => 'scene',
-									  'name' => ($kategori == false ? 'Scene' : 'Annet på scene'),
-									  'icon' => 'https://ico.ukm.no/delta/delta-annet-64.png',
-									  'har_filmer' => true,
-									  'har_titler' => true,
-									  'har_tekniske_behov' => true,
-									  'database_table' => 'smartukm_titles_scene',
-									  );
+						$data = [
+							'id' => 1,
+							'key' => 'scene',
+							'name' => ($kategori == false ? 'Scene' : 'Annet på scene'),
+							'icon' => 'https://ico.ukm.no/delta/delta-annet-64.png',
+							'har_filmer' => true,
+							'har_titler' => true,
+							'har_tekniske_behov' => true,
+							'database_table' => 'smartukm_titles_scene',
+							'funksjoner' => false,
+						];
 				}
 				break;
 			case 2:
-				$data = array('id' => 2,
-							  'key' => 'video',
-							  'name' => 'Film',
-							  'icon' => 'https://ico.ukm.no/delta/delta-film-64.png',
-							  'har_filmer' => true,
-							  'har_titler' => true,
-							  'har_tekniske_behov' => false,
-							  'database_table' => 'smartukm_titles_video',
-							  );
+				$data = [
+					'id' => 2,
+					'key' => 'video',
+					'name' => 'Film',
+					'icon' => 'https://ico.ukm.no/delta/delta-film-64.png',
+					'har_filmer' => true,
+					'har_titler' => true,
+					'har_tekniske_behov' => false,
+					'database_table' => 'smartukm_titles_video',
+					'funksjoner' => false,
+				];
 				break;
 			case 3:
-				$data = array('id' => 3,
-							  'key' => 'utstilling',
-							  'name' => 'Utstilling',
-							  'icon' => 'https://ico.ukm.no/delta/delta-utstilling-64.png',
-							  'har_filmer' => false,
-							  'har_titler' => true,
-							  'har_tekniske_behov' => false,
-							  'database_table' => 'smartukm_titles_exhibition',
-							  );
+				$data = [
+					'id' => 3,
+					'key' => 'utstilling',
+					'name' => 'Utstilling',
+					'icon' => 'https://ico.ukm.no/delta/delta-utstilling-64.png',
+					'har_filmer' => false,
+					'har_titler' => true,
+					'har_tekniske_behov' => false,
+					'database_table' => 'smartukm_titles_exhibition',
+					'funksjoner' => false,
+				];
 				break;
 			case 4:
-				$data = array('id' => 4,
-							  'key' => 'konferansier',
-							  'name' => 'Konferansier',
-							  'icon' => 'https://ico.ukm.no/delta/delta-konferansier-64.png',
-							  'har_filmer' => false,
-							  'har_titler' => false,
-							  'har_tekniske_behov' => false,
-							  'database_table' => false,
-							  );
+				$data = [
+					'id' => 4,
+					'key' => 'konferansier',
+					'name' => 'Konferansier',
+					'icon' => 'https://ico.ukm.no/delta/delta-konferansier-64.png',
+					'har_filmer' => false,
+					'har_titler' => false,
+					'har_tekniske_behov' => false,
+					'database_table' => false,
+					'funksjoner' => false,
+				];
 				break;
 			case 5:
-				$data = array('id' => 5,
-							  'key' => 'nettredaksjon',
-							  'name' => 'UKM Media',
-							  'icon' => 'https://ico.ukm.no/delta/delta-nettredaksjon-64.png',
-							  'har_filmer' => false,
-							  'har_titler' => false,
-							  'har_tekniske_behov' => false,
-							  'database_table' => false,
-							  );
+				$data = [
+					'id' => 5,
+					'key' => 'nettredaksjon',
+					'name' => 'UKM Media',
+					'icon' => 'https://ico.ukm.no/delta/delta-nettredaksjon-64.png',
+					'har_filmer' => false,
+					'har_titler' => false,
+					'har_tekniske_behov' => false,
+					'database_table' => false,
+					'funksjoner' => [
+						'tekst'=> 'Journalist',
+						'foto' => 'Fotograf',
+						'videoreportasjer' => 'Videoreportasjer',
+						'flerkamera_regi' => 'Flerkamera, regi',
+						'flerkamera_kamera' => 'Flerkamera, kamera',
+						'pr' => 'PR og pressekontakt'
+					],
+				];
 				break;
 			case 6:
-				$data = array('id' => 6,
-							  'key' => 'matkultur',
-							  'name' => 'Matkultur',
-							  'icon' => 'https://ico.ukm.no/delta/delta-matkultur-64.png',
-							  'har_filmer' => true,
-							  'har_titler' => true,
-							  'har_tekniske_behov' => false,
-							  'database_table' => 'smartukm_titles_other',
-							  );
+				$data = [
+					'id' => 6,
+					'key' => 'matkultur',
+					'name' => 'Matkultur',
+					'icon' => 'https://ico.ukm.no/delta/delta-matkultur-64.png',
+					'har_filmer' => true,
+					'har_titler' => true,
+					'har_tekniske_behov' => false,
+					'database_table' => 'smartukm_titles_other',
+					'funksjoner' => false,
+				];
 				break;
 			case 8:
 			case 9:
-				$data = array('id' => 8,
-							  'key' => 'arrangor',
-							  'name' => 'Arrangør',
-							  'icon' => 'https://ico.ukm.no/delta/delta-arrangor-64.png',
-							  'har_filmer' => false,
-							  'har_titler' => false,
-							  'har_tekniske_behov' => false,
-							  'database_table' => false,
-							  );
+				$data = [
+					'id' => 8,
+					'key' => 'arrangor',
+					'name' => 'Arrangør',
+					'icon' => 'https://ico.ukm.no/delta/delta-arrangor-64.png',
+					'har_filmer' => false,
+					'har_titler' => false,
+					'har_tekniske_behov' => false,
+					'database_table' => false,
+					'funksjoner' => [
+						'lyd' => 'Lyd',
+						'lys' => 'Lys',
+						'scenearbeider' => 'Scenearbeider',
+						'artistvert' => 'Artistvert',
+						'info' => 'Info / sekretariat',
+						'koordinator' => 'Koordinator / produsent'
+					],
+				];
 				break;
 			case 10:
-				$data = array('id' => 10,
-							  'key' => 'ressurs',
-							  'name' => 'UKM-ressurs',
-							  'icon' => 'https://ico.ukm.no/delta/delta-arrangor-64.png',
-							  'har_filmer' => false,
-							  'har_titler' => false,
-							  'har_tekniske_behov' => false,
-							  'database_table' => false,
-							  );
+				$data = [
+					'id' => 10,
+					'key' => 'ressurs',
+					'name' => 'UKM-ressurs',
+					'icon' => 'https://ico.ukm.no/delta/delta-arrangor-64.png',
+					'har_filmer' => false,
+					'har_titler' => false,
+					'har_tekniske_behov' => false,
+					'database_table' => false,
+					'funksjoner' => [
+						'ambassador' => 'Ambassadør',
+						'ressurs' => 'Ressurs',
+					],
+				];
 				break;
 
 			default:
 				$data = array('id' => 'missing '. $id, 'key' => 'missing');
 		}
-		return new innslag_type( $data['id'], $data['key'], $data['name'], $data['icon'], $data['har_filmer'], $data['har_titler'], $data['database_table'], $data['har_tekniske_behov'] );
+		return new innslag_type( $data['id'], $data['key'], $data['name'], $data['icon'], $data['har_filmer'], $data['har_titler'], $data['funksjoner'], $data['database_table'], $data['har_tekniske_behov'] );
 	}
 	
 	

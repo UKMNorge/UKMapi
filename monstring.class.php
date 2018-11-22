@@ -648,6 +648,13 @@ class monstring_v2 {
 	}
 	
 	/**
+	 * Nullstill innslag-collection
+	 */
+	public function reloadInnslag() {
+		$this->innslag = null;
+	}
+	
+	/**
 	 * Hent lenke for mønstringen
 	 *
 	 * @return string url
