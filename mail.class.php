@@ -1,5 +1,9 @@
 <?php
 require_once('lib/autoload.php');
+#require_once('lib/phpmailer/phpmailer/src/PHPMailer.php');
+#require_once('lib/phpmailer/phpmailer/src/Exception.php');
+#require_once('lib/misd/linkify/src/Misd/Linkify/Linkify.php');
+#require_once('lib/misd/linkify/src/Misd/Linkify/LinkifyInterface.php');
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
