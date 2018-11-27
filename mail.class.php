@@ -78,9 +78,15 @@ class UKMmail {
 		$mail->IsSMTP();
 		$mail->CharSet = 'UTF-8';
 		try {
-			$mail->SMTPAuth   = true; 
-			$mail->SMTPSecure = "";
-			$mail->Port		  = 25;
+			$mail->SMTPAuth   = true;
+            //$mail->SMTPDebug  = 2;
+            $mail->SMTPSecure = "tls";
+            $mail->Port = 587;
+            $mail->SMTPOptions = array(
+                'ssl' => array(
+                	'verify_peer_name' => false,
+             	)
+           	);
 			$mail->Host       = UKM_MAIL_HOST;
 			$mail->Username   = UKM_MAIL_USER;
 			$mail->Password   = UKM_MAIL_PASS;
