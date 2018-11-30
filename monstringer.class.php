@@ -258,6 +258,14 @@ class monstringer_v2 {
 		throw new Exception('Fant ingen nasjonal mønstring for '. $sesong );
 	}
 
+	public static function getFylker( $season ) {
+		require_once('UKM/fylker.class.php');
+		$monstringer = [];
+		foreach( fylker::getAll() as $fylke ) {
+			$monstringer[] = monstringer_v2::fylke( $fylke, $season );
+		}
+		return $monstringer;
+	}
 
 	public static function getAntallUregistrerte( $sesong ) {
 		$query ="SELECT COUNT( DISTINCT(`smartukm_place`.`pl_id`) ) AS `count`
