@@ -266,6 +266,16 @@ class monstringer_v2 {
 		}
 		return $monstringer;
 	}
+	
+	
+	public static function getFylkerInkludertFalske( $season ) {
+		require_once('UKM/fylker.class.php');
+		$monstringer = [];
+		foreach( fylker::getAllInkludertFalske() as $fylke ) {
+			$monstringer[] = monstringer_v2::fylke( $fylke, $season );
+		}
+		return $monstringer;
+	}
 
 	public static function getAntallUregistrerte( $sesong ) {
 		$query ="SELECT COUNT( DISTINCT(`smartukm_place`.`pl_id`) ) AS `count`
