@@ -20,6 +20,9 @@ abstract class Collection implements Iterator
 	    return $this->find( $object->getId() );
     }
 
+    public function get( $id ) {
+        return $this->find( $id );
+    }
     public function find( $id ) {
 	    foreach( $this as $item ) {
 		    if( $id == $item->getId() ) {
