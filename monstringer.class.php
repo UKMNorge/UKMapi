@@ -272,7 +272,12 @@ class monstringer_v2 {
 		require_once('UKM/fylker.class.php');
 		$monstringer = [];
 		foreach( fylker::getAllInkludertFalske() as $fylke ) {
-			$monstringer[] = monstringer_v2::fylke( $fylke, $season );
+			try {
+				$monstringer[] = monstringer_v2::fylke( $fylke, $season );
+			} catch( Exception $e ) {
+				// Ignorer fylker som ikke har mønstring 
+				//(dette skjer kun forde falske)
+			}
 		}
 		return $monstringer;
 	}
