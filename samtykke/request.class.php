@@ -1,6 +1,10 @@
 <?php
-	
-class samtykke_request {
+
+namespace UKMNorge\Samtykke;
+use SQL;
+use Exception;
+
+class Request {
 	var $id;
 	var $prosjekt = null;
 	var $prosjekt_id;
@@ -134,7 +138,7 @@ class samtykke_request {
 	}
 	public function getProsjekt() {
 		if( null == $this->prosjekt ) {
-			$this->prosjekt = new samtykke_prosjekt( $this->getProsjektId() );
+			$this->prosjekt = new Prosjekt( $this->getProsjektId() );
 		}
 		return $this->prosjekt;
 	}
@@ -168,7 +172,7 @@ class samtykke_request {
 	public function getApproval() {
 		require_once('UKM/samtykke/approval.class.php');
 		if( null == $this->approval ) {
-			$this->approval = new samtykke_approval( $this->getId() );
+			$this->approval = new Approval( $this->getId() );
 		}
 		return $this->approval;
 	}
@@ -239,7 +243,7 @@ class samtykke_request {
 		$res = $sql->run('array');
 		
 		if( is_array( $res ) ) {
-			return new samtykke_request( $res );
+			return new Request( $res );
 		}
 		throw new Exception('Kunne ikke finne gitt samtykke-forespørsel');
 	}

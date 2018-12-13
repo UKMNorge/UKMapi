@@ -1,5 +1,21 @@
 <?php
-class samtykke_person {
+
+namespace UKMNorge\Samtykke;
+
+use SQL;
+use SQLins;
+use Exception;
+use person_v2;
+use DateTime;
+
+require_once('UKM/samtykke/personkategori.class.php');
+require_once('UKM/samtykke/status.class.php');
+require_once('UKM/samtykke/kommunikasjon.collection.php');
+require_once('UKM/samtykke/foresatt.class.php');
+require_once('UKM/person.class.php');
+
+
+class Person {
 	
 	var $id = null;
 	var $person = null;
@@ -40,7 +56,7 @@ class samtykke_person {
 		}
 		
 		$person = new person_v2( $row['p_id'] );
-		return new samtykke_person( $person, $row['year'] );
+		return new Person( $person, $row['year'] );
 	}
 	
 	public function setAttr( $key, $value ) {
@@ -88,14 +104,14 @@ class samtykke_person {
 	
 	public function getKommunikasjon() {
 		if( $this->kommunikasjon == null ) {
-			$this->kommunikasjon = new samtykke_kommunikasjon_collection( $this->getId() );
+			$this->kommunikasjon = new Kommunikasjon( $this->getId() );
 		}
 		return $this->kommunikasjon;
 	}
 	
 	
 	public function setStatus( $status, $ip ) {
-		$this->status = new samtykke_person_status( $status, new DateTime(), $ip );
+		$this->status = new Status( $status, new DateTime(), $ip );
 
 		$this->_update('status', $this->getStatus()->getId());
 		$this->_update('status_timestamp', $this->getStatus()->getTimestamp()->getForDatabase());
@@ -103,7 +119,7 @@ class samtykke_person {
 	}
 	
 	public function setForesattStatus( $status, $ip ) {
-		$this->getForesatt()->status = new samtykke_person_status( $status, new DateTime(), $ip );
+		$this->getForesatt()->status = new Status( $status, new DateTime(), $ip );
 
 		$this->_update('foresatt_status', $this->getForesatt()->getStatus()->getId());
 		$this->_update('foresatt_status_timestamp', $this->getForesatt()->getStatus()->getTimestamp()->getForDatabase());
@@ -111,7 +127,7 @@ class samtykke_person {
 	}
 	
 	public function setForesatt( $navn, $mobil ) {
-		$this->foresatt = new samtykke_person_foresatt( $navn, $mobil, 'ikke_sendt', null, null );
+		$this->foresatt = new Foresatt( $navn, $mobil, 'ikke_sendt', null, null );
 		
 		$this->_update('foresatt_navn', $navn);
 		$this->_update('foresatt_mobil', $mobil);
@@ -137,15 +153,15 @@ class samtykke_person {
 	private function _populate( $db_row ) {
 		$this->id = $db_row['id'];
 		$this->year = $db_row['year'];
-		$this->kategori = new samtykke_person_kategori( $this->person );
+		$this->kategori = new PersonKategori( $this->person );
 		$this->p_id = $db_row['p_id'];
 		$this->mobil = $db_row['mobil'];
-		$this->status = new samtykke_person_status( 
+		$this->status = new Status( 
 			$db_row['status'], 
 			$db_row['status_timestamp'], 
-			$db_row['status_timestamp_ip']
+			$db_row['status_ip']
 		);
-		$this->foresatt = new samtykke_person_foresatt( 
+		$this->foresatt = new Foresatt( 
 			$db_row['foresatt_navn'],
 			$db_row['foresatt_mobil'],
 			$db_row['foresatt_status'], 
@@ -158,7 +174,7 @@ class samtykke_person {
 		$row = self::_load( $person, $year );
 		
 		if( !$row ) {
-			$row = samtykke_person::create(
+			$row = Person::create(
 				$person,
 				$year
 			);
@@ -183,7 +199,7 @@ class samtykke_person {
 	
 	
 	public static function create( $person, $year ) {
-		$kategori = new samtykke_person_kategori( $person );
+		$kategori = new PersonKategori( $person );
 		
 		$sql = new SQLins('samtykke_deltaker');
 		$sql->add('year', $year);
@@ -193,11 +209,10 @@ class samtykke_person {
 #		$sql->add('status', 'ikke_sendt');
 		$sql->run();
 		
-try {	
-		$rad_id = $sql->insid();
-} catch( Exception $e ) {
- echo 'oops';
-}		
+        try {	
+            $rad_id = $sql->insid();
+        } catch( Exception $e ) {
+        }		
 		return self::_load( $person, $year );
 	}
 }

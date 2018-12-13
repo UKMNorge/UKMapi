@@ -1,6 +1,10 @@
 <?php
-	
-class samtykke_approval_foresatt {
+
+namespace UKMNorge\Samtykke;
+use SQL;
+use Exception;
+
+class ForesattApproval {
 	var $id;
 	var $approval = null;
 	var $approval_id;

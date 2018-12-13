@@ -1,7 +1,13 @@
 <?php
-require_once('UKM/samtykke/approval_foresatt.class.php');
+
+namespace UKMNorge\Samtykke;
+
+use Exception;
+use SQL;
+
+require_once('UKM/samtykke/foresattapproval.class.php');
 	
-class samtykke_approval {
+class Approval {
 	var $id;
 	var $prosjekt = null;
 	var $prosjekt_id;
@@ -72,7 +78,7 @@ class samtykke_approval {
 	}
 	public function getProsjekt() {
 		if( null == $this->prosjekt ) {
-			$this->prosjekt = new samtykke_prosjekt( $this->getProsjektId() );
+			$this->prosjekt = new Prosjekt( $this->getProsjektId() );
 		}
 		return $this->prosjekt;
 	}
@@ -82,7 +88,7 @@ class samtykke_approval {
 	}
 	public function getRequest() {
 		if( null == $this->request ) {
-			$this->request = new samtykke_request( $this->getRequestId() );
+			$this->request = new Request( $this->getRequestId() );
 		}
 		return $this->request;
 	}
@@ -112,7 +118,7 @@ class samtykke_approval {
 	
 	public function getForesattApproval() {
 		if( null == $this->foresatt_approval ) {
-			$this->foresatt_approval = new samtykke_approval_foresatt( $this->getId() );
+			$this->foresatt_approval = new ForesattApproval( $this->getId() );
 		}
 		return $this->foresatt_approval;
 	}

@@ -1,5 +1,8 @@
 <?php
-class samtykke_person_kategori {
+
+namespace UKMNorge\Samtykke;
+
+class PersonKategori {
 	var $id = null;
 	var $navn = null;
 	

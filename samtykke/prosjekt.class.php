@@ -1,7 +1,12 @@
 <?php
+
+namespace UKMNorge\Samtykke;
+use SQL;
+use Exception;
+
 require_once('UKM/sql.class.php');
 	
-class samtykke_prosjekt {
+class Prosjekt {
 	
 	var $id;
 	var $tittel;

@@ -1,6 +1,8 @@
 <?php
-	
-class samtykke_sms {
+
+namespace UKMNorge\Samtykke;
+
+class SMS {
 	const LINK = 'https://samtykke.ukm.no/eula/?id=%link_id';
 	const LINK_FORESATT = 'https://samtykke.ukm.no/eula/?id=%link_id&foresatt=true';
 	

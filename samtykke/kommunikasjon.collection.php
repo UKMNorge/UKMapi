@@ -1,6 +1,10 @@
 <?php
-	
-class samtykke_kommunikasjon_collection {
+    
+namespace UKMNorge\Samtykke;
+use SQL;
+use Exception;
+
+class Kommunikasjon {
 	
 	var $id = null;
 	var $meldinger = null;
@@ -50,7 +54,7 @@ class samtykke_kommunikasjon_collection {
 		$res = $sql->run();
 		$this->meldinger = [];
 		while( $row = SQL::fetch( $res ) ) {
-			$this->meldinger[] = new samtykke_melding( $row );
+			$this->meldinger[] = new Melding( $row );
 		}
 	}
 	

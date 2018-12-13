@@ -1,6 +1,10 @@
 <?php
-	
-class write_samtykke {
+    
+namespace UKMNorge\Samtykke;
+use Exception;
+use SQLins;
+
+class Write {
 	
 	public static function createProsjekt( $tittel ) {
 		require_once('UKM/samtykke/prosjekt.class.php');
@@ -16,7 +20,7 @@ class write_samtykke {
 			throw new Exception('Kunne ikke opprette samtykke-prosjekt, ukjent feil');
 		}
 		if( is_numeric( $insert_id ) ) {
-			return new samtykke_prosjekt( $insert_id );
+			return new Prosjekt( $insert_id );
 		}
 		
 		throw new Exception('Kunne ikke opprette samtykke-prosjekt');
@@ -24,7 +28,7 @@ class write_samtykke {
 	
 	public static function saveProsjekt( $prosjekt ) {
 		require_once('UKM/samtykke/prosjekt.class.php');
-		$prosjekt_db = new samtykke_prosjekt( $prosjekt->getId() );
+		$prosjekt_db = new Prosjekt( $prosjekt->getId() );
 		
 		$sql = new SQLins(
 			'samtykke_prosjekt',
@@ -89,7 +93,7 @@ class write_samtykke {
 
 		$hash = sha1( $fornavn .'-'. $etternavn .'-'. $mobil .'-'. var_export($lenker,true) );
 		$hashexcerpt = substr( $hash, 6, 10 );
-		$melding_fixed = samtykke_request::createMelding( $prosjekt, $melding, $lenker, $fornavn, $mobil, $hashexcerpt );
+		$melding_fixed = Request::createMelding( $prosjekt, $melding, $lenker, $fornavn, $mobil, $hashexcerpt );
 		
 		
 		$sql = new SQLins('samtykke_request');
@@ -103,7 +107,7 @@ class write_samtykke {
 		$sql->add('hash-excerpt', $hashexcerpt );
 		$insert_id = $sql->run();
 		
-		return new samtykke_request( $insert_id );
+		return new Request( $insert_id );
 	}
 	
 	public static function godta( $request, $alder ) {
@@ -128,7 +132,7 @@ class write_samtykke {
 		$sql->add('hash-excerpt', $hashexcerpt );
 		$res = $sql->run();
 		
-		return new samtykke_approval( $request->getId() );
+		return new Approval( $request->getId() );
 	}
 	
 		
@@ -148,7 +152,7 @@ class write_samtykke {
 		$sql->add('hash-excerpt', $hashexcerpt );
 		$res = $sql->run();
 		
-		return new samtykke_approval( $request->getId() );
+		return new Approval( $request->getId() );
 	}
 	
 	

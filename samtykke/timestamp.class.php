@@ -1,5 +1,8 @@
 <?php
-class samtykke_timestamp {
+namespace UKMNorge\Samtykke;
+use DateTime;
+
+class Timestamp {
 	var $timestamp = null;
 
 	public function __construct( $timestamp ) {

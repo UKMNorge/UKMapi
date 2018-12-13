@@ -1,6 +1,8 @@
 <?php
 
-class samtykke_melding {
+namespace UKMNorge\Samtykke;
+
+class Melding {
 	
 	var $id = null;
 	var $samtykke_id = null;
@@ -18,7 +20,7 @@ class samtykke_melding {
 		$this->samtykke_id = $row['samtykke_id'];
 		$this->mobil = $row['mobil'];
 		$this->type = $row['type'];
-		$this->timestamp = new samtykke_timestamp( $row['timestamp'] );
+		$this->timestamp = new Timestamp( $row['timestamp'] );
 		$this->melding = $row['melding'];
 	}
 	

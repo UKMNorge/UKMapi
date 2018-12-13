@@ -1,12 +1,16 @@
 <?php
-class samtykke_person_status {
+namespace UKMNorge\Samtykke;
+
+require_once('UKM/samtykke/timestamp.class.php');
+
+class Status {
 	var $id = null;
 	var $timestamp = null;
 	var $ip = null;
 	
 	public function __construct( $id, $timestamp, $ip ) {
 		$this->id = $id;
-		$this->timestamp = new samtykke_timestamp( $timestamp );
+		$this->timestamp = new Timestamp( $timestamp );
 		$this->ip = $ip;
 	}
 	

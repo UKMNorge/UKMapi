@@ -1,5 +1,8 @@
 <?php
-class samtykke_person_foresatt {
+
+namespace UKMNorge\Samtykke;
+
+class Foresatt {
 	var $navn = null;
 	var $mobil = null;
 	var $status = null;
@@ -7,7 +10,7 @@ class samtykke_person_foresatt {
 	public function __construct( $navn, $mobil, $status, $status_timestamp, $status_ip ) {
 		$this->navn = $navn;
 		$this->mobil = $mobil;
-		$this->status = new samtykke_person_status( $status, $status_timestamp, $status_ip );
+		$this->status = new Status( $status, $status_timestamp, $status_ip );
 	}
 	
 	public function getNavn() {
