@@ -182,7 +182,8 @@ class write_monstring {
 			$res = $smartukm_place->run();
 		}
 		if( !$res ) {
-			throw new Exception('Kunne ikke lagre mønstring skikkelig, da lagring av detaljer feilet');
+            # echo $smartukm_place->getError();
+			throw new Exception('Kunne ikke lagre mønstring skikkelig, da lagring av detaljer feilet.');
 		}
 
 
