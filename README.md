@@ -7,6 +7,7 @@ API V2 skal kaste kodede exceptions. For exceptions benyttes følgende struktur 
 
 prefix | objekt | les | skriv
 ------------ | ------------- | ------------ | -------------
+ x | SQL | - | 901yyy 
 1 | Mønstring | 101yyy | 501yyy
 2 | Kommune | 102yyy | 502yyy
 3 | Fylke | 103yyy | 503yyy
@@ -18,4 +19,3 @@ prefix | objekt | les | skriv
 9 | Tittel | 109yyy | 509yyy
 10 | _collection | 110yyy | 511yyy
 11 | Kontaktperson | 111yyy | 511yyy
-12 | SQL | - | 901yyy 
