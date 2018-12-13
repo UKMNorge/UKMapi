@@ -18,4 +18,4 @@ prefix | objekt | les | skriv
 9 | Tittel | 109yyy | 509yyy
 10 | _collection | 110yyy | 511yyy
 11 | Kontaktperson | 111yyy | 511yyy
-12 | SQL | - | 901yyy 
+- | SQL | - | 901yyy 
