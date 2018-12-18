@@ -55,7 +55,7 @@ class Request {
 		$this->melding = $row['melding'];
 		$this->lenker = json_decode( $row['lenker'] );
 		$this->hash = $row['hash'];
-		$this->timestamp = $row['created'];
+        $this->timestamp = $row['created'];
 	}
 	
 	
@@ -163,7 +163,7 @@ class Request {
 	}
 	public function getHash() {
 		return $this->hash;
-	}
+    }
 	
 	public function getLenkeHash() {
 		return substr( $this->getHash(), 6, 10 );

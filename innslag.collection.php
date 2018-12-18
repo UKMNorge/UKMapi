@@ -548,7 +548,30 @@ class innslag_collection {
 								ORDER BY `order` ASC",
 								array( 'c_id' => $this->getContext()->getForestilling()->getId() ) );
 				return $sql;
-				break;
+                break;
+            case 'sesong':
+                return new SQL(
+                    "SELECT `band`.*, 
+                        `td`.`td_demand`,
+                        `td`.`td_konferansier`
+                    FROM `smartukm_band` AS `band`    
+                    LEFT JOIN `smartukm_rel_pl_b` 
+                        AS `pl_b` 
+                        ON (`pl_b`.`b_id` = `band`.`b_id`)
+                    LEFT JOIN `smartukm_technical` 
+                        AS `td` 
+                        ON (`td`.`b_id` = `band`.`b_id`) 
+                    WHERE `b_season` = '#season'
+                    AND `b_status` $operand '8'
+                    GROUP BY 
+                        `band`.`b_id`
+                    ORDER BY 
+                        `bt_id` ASC,
+                        `band`.`b_name` ASC",
+                    array(
+                        'season' => $this->getContext()->getSesong(),
+                    )
+                );
 			default:
 				throw new Exception('innslag: Har ikke støtte for '. $this->getContext()->getType() .'-collection (#2)');
 		}

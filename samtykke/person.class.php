@@ -4,6 +4,7 @@ namespace UKMNorge\Samtykke;
 
 use SQL;
 use SQLins;
+use SQLdel;
 use Exception;
 use person_v2;
 use DateTime;
@@ -27,17 +28,25 @@ class Person {
 	var $status = null;
 	var $foresatt = null;
 	var $last_change = null;
+    var $antall_innslag = null;
 	
 	var $updates = null;
 	var $kommunikasjon = null;
 	
 	var $attr = null;
 	
-	public function __construct( $person, $year ) {
+	public function __construct( $person, $innslag ) {
+        if( get_class( $innslag ) != 'innslag_v2' ) {
+            throw new Exception(
+                'Samtykke\Person krever innslag_v2 som parameter 2',
+                113001
+            );
+        }
 		$this->attr = [];
 		$this->person = $person;
-		$row = $this->_createIfNotExists( $person, $year );
-		$this->_populate( $row );
+		$row = $this->_createIfNotExists( $person, $innslag->getSesong() );
+        $this->_populate( $row );
+        $this->leggTilInnslag( $innslag->getId() );
 	}
 	
 	public static function getById( $samtykke_id ) {
@@ -96,7 +105,41 @@ class Person {
 	}
 	public function getLastChange() {
 		return $this->last_change;
-	}
+    }
+    
+    public function getAntallInnslag() {
+        return $this->antall_innslag;
+    }
+
+    public function fjernInnslag ( $innslag_id ) {
+        $this->antall_innslag--;
+        
+        try {
+            $SQLdel = new SQLdel(
+                'samtykke_deltaker_innslag',
+                [
+                    'p_id' => $this->getPerson()->getId(),
+                    'b_id' => $innslag_id
+                ]
+            );
+            $SQLdel->run();
+        } catch( Exception $e ) {
+            // Do nothing
+        }
+    }
+
+    public function leggTilInnslag( $innslag_id ) {
+        $this->antall_innslag++;
+        try {
+            $SQLins = new SQLins('samtykke_deltaker_innslag');
+            $SQLins->add('p_id', $this->getPerson()->getId());
+            $SQLins->add('b_id', $innslag_id);
+            $SQLins->run();
+        } catch( Exception $e ) {
+            // Ganske vanlig å få feil på denne, pga
+            // unique-constraint. Do nothing then
+        }
+       }
 	
 	public function harForesatt() {
 		return $this->getForesatt()->har();
@@ -196,8 +239,6 @@ class Person {
 		return $sql->run('array');
 	}
 	
-	
-	
 	public static function create( $person, $year ) {
 		$kategori = new PersonKategori( $person );
 		
@@ -207,9 +248,9 @@ class Person {
 		$sql->add('p_id', $person->getId() );
 		$sql->add('mobil', $person->getMobil() );
 #		$sql->add('status', 'ikke_sendt');
-		$sql->run();
 		
         try {	
+            $sql->run();
             $rad_id = $sql->insid();
         } catch( Exception $e ) {
         }		
