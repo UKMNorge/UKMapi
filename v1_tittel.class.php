@@ -203,9 +203,9 @@
 		$this->melodi_av = $r['t_musicby'];
 		$this->koreografi = $r['t_coreography'];
 		$this->varighet = (int) $r['t_time'];
-		$this->selvlaget = $r['t_selfmade'];
-		$this->instrumental = $r['t_instrumental'];
-		$this->litterature_read = $r['t_litterature_read'];
+		$this->selvlaget = isset( $r['t_selfmade'] ) ? $r['t_selfmade'] : false;
+		$this->instrumental = isset( $r['t_instrumental'] ) ? $r['t_instrumental'] : false;
+		$this->litterature_read = isset( $r['t_litterature_read'] ) ? $r['t_litterature_read'] : false;
 		
 		$this->parentes = '(';
 		if($this->melodi_av == $this->tekst_av && !empty($this->melodi_av))
