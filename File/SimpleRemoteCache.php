@@ -54,10 +54,8 @@ class SimpleRemoteCache {
         }
         
         $expire = time() - $this->getValidTime();
-        $file_change_time = false;
-        throw new Exception('TODO: Get file change time');
-        if( $file_change_time < $expire ) {
-            unlink( $this->getPath( $file ) );
+        if( filemtime( $this->getFile() ) < $expire ) {
+            unlink( $this->getFile() );
             return false;
         }
         return true;
@@ -182,7 +180,6 @@ class SimpleRemoteCache {
      * @return void
      */
     private function _store( $data ) {
-        throw new Exception('TODO: check fopen write mode');
         $fh = fopen( $this->getFile(), 'w');
         $result = fwrite( $fh, $data );
         fclose( $fh );
