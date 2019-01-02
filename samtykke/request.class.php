@@ -179,7 +179,7 @@ class Request {
 
 	
 	public static function createMelding( $prosjekt, $melding, $lenker, $fornavn, $mobil, $hashexcerpt ) {
-		$lenke = 'https://samtykke.'. UKM_HOSTNAME .'/'. 
+		$lenke = 'https://personvern.'. UKM_HOSTNAME .'/samtykke/'. 
 			'?prosjekt='. $prosjekt->getLenkeHash() .
 			'&samtykke='. $hashexcerpt
 			;
@@ -198,7 +198,7 @@ class Request {
 	}
 
 	public static function createMeldingForeldre( $request, $foresatt_navn, $foresatt_mobil ) {
-		$lenke = 'https://samtykke.'. UKM_HOSTNAME .'/'. 
+		$lenke = 'https://personvern.'. UKM_HOSTNAME .'/samtykke/'. 
 			'?prosjekt='. $request->getProsjekt()->getLenkeHash() .
 			'&samtykke='. $request->getLenkeHash() .
 			'&foresatt='. $foresatt_mobil

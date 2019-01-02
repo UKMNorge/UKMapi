@@ -9,7 +9,7 @@ use Exception;
 use person_v2;
 use DateTime;
 
-require_once('UKM/samtykke/personkategori.class.php');
+require_once('UKM/samtykke/kategorier.class.php');
 require_once('UKM/samtykke/status.class.php');
 require_once('UKM/samtykke/kommunikasjon.collection.php');
 require_once('UKM/samtykke/foresatt.class.php');
@@ -35,18 +35,24 @@ class Person {
 	
 	var $attr = null;
 	
-	public function __construct( $person, $innslag ) {
-        if( get_class( $innslag ) != 'innslag_v2' ) {
-            throw new Exception(
-                'Samtykke\Person krever innslag_v2 som parameter 2',
-                113001
-            );
+	public function __construct( $person, $innslag, $year=null ) {
+        if( $innslag != false ) {
+            if( get_class( $innslag ) != 'innslag_v2' ) {
+                throw new Exception(
+                    'Samtykke\Person krever innslag_v2 som parameter 2',
+                    113001
+                );
+            }
+            $year = $innslag->getSesong();
         }
 		$this->attr = [];
 		$this->person = $person;
-		$row = $this->_createIfNotExists( $person, $innslag->getSesong() );
+		$row = $this->_createIfNotExists( $person, $year );
         $this->_populate( $row );
-        $this->leggTilInnslag( $innslag->getId() );
+
+        if( $innslag != false ) {
+            $this->leggTilInnslag( $innslag->getId() );
+        }
 	}
 	
 	public static function getById( $samtykke_id ) {
@@ -65,7 +71,7 @@ class Person {
 		}
 		
 		$person = new person_v2( $row['p_id'] );
-		return new Person( $person, $row['year'] );
+		return new Person( $person, false, $row['year'] );
 	}
 	
 	public function setAttr( $key, $value ) {
@@ -138,6 +144,23 @@ class Person {
         } catch( Exception $e ) {
             // Ganske vanlig å få feil på denne, pga
             // unique-constraint. Do nothing then
+            try {
+                // Slett relasjonen og re-insert så count-trigger
+                // kjøres og beregner riktig antall innslag-relasjoner
+                $SQLdel = new SQLdel(
+                    'samtykke_deltaker_innslag',
+                    [
+                        'p_id' => $this->getPerson()->getId(),
+                        'b_id' => $innslag_id
+                    ]
+                );
+                $SQLdel->run();
+                // Re-insert
+                $SQLins->run();
+            } catch( Exception $e_second ) {
+                echo 'Feil oppsto: '. $e->getMessage() .
+                 ' og deretter '. $e_second->getMessage(); 
+            }
         }
        }
 	
@@ -196,7 +219,7 @@ class Person {
 	private function _populate( $db_row ) {
 		$this->id = $db_row['id'];
 		$this->year = $db_row['year'];
-		$this->kategori = new PersonKategori( $this->person );
+		$this->kategori = Kategorier::getFromPerson( $this->person );
 		$this->p_id = $db_row['p_id'];
 		$this->mobil = $db_row['mobil'];
 		$this->status = new Status( 
@@ -240,7 +263,7 @@ class Person {
 	}
 	
 	public static function create( $person, $year ) {
-		$kategori = new PersonKategori( $person );
+		$kategori = Kategorier::getFromPerson( $person );
 		
 		$sql = new SQLins('samtykke_deltaker');
 		$sql->add('year', $year);

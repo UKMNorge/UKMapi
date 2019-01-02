@@ -4,8 +4,9 @@ namespace UKMNorge\Samtykke;
 use SQL;
 use Exception;
 
+require_once('Melding/melding.class.php');
+
 class Kommunikasjon {
-	
 	var $id = null;
 	var $meldinger = null;
 	
@@ -54,11 +55,63 @@ class Kommunikasjon {
 		$res = $sql->run();
 		$this->meldinger = [];
 		while( $row = SQL::fetch( $res ) ) {
-			$this->meldinger[] = new Melding( $row );
+			$this->meldinger[] = new Meldinger\Melding( $row );
 		}
 	}
-	
+    
+    /**
+     * Hent Samtykke\Person-ID
+     * 
+     * @return int Samtykke\Person::id
+     */
 	public function getId() {
 		return $this->id;
-	}
+    }
+    
+    /**
+     * Send gitt $melding_type til deltakeren / foresatte
+     * 
+     * Sjekker om meldingen er sendt tidligere (purring kan sendes flere ganger),
+     * sender meldingen og logger dette.
+     * 
+     * @param string $melding_type
+     * @return string Meldingen som ble sendt, eller årsak til at den ikke ble sendt.
+     */
+    public function sendMelding( $melding_type ) {
+        switch( $melding_type ) {
+            case 'samtykke':
+            case 'samtykke_foresatt':
+                if( $this->har( $melding_type ) ) {
+                    $melding = $this->get( $melding_type);
+                    return 'Kunne ikke sende melding da den allerede er sendt tidligere ('. $melding->getTimestamp() .')';
+                } else {
+                    return $this->_send( $melding_type );
+                }
+            break;
+            case 'purring_deltaker':
+            case 'purring_foresatt':
+                // TODO: BURDE SJEKKE TID SIDEN SIST
+                return $this->_send( $melding_type );
+
+            default:
+                throw new Exception('Beklager, støtter ikke sending av meldinger av typen `'. $melding_type .'`');
+        }
+    }
+
+
+    /**
+     * Faktisk send melding. Trigges av sendMelding() som sjekker
+     * om meldingen er sendt tidligere eller, ikke.
+     * 
+     * Henter automatisk samtykke-objekt og oppdaterer dette
+     * Lagrer også kommunikasjon i databasen for historikkens skyld
+     * 
+     * @param string $melding_type
+     * @return string Meldingen som ble sendt
+     */
+    private function _send( $melding_type ) {
+        require_once('Melding/sms.class.php');
+        $samtykke_object = Person::getById( $this->getId() );
+        return Meldinger\SMS::send( $melding_type, $samtykke_object );
+    }
 }
