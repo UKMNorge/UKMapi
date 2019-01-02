@@ -1,4 +1,7 @@
 <?php
+
+use UKMNorge\Samtykke;
+
 require_once('UKM/monstring.class.php');
 require_once('UKM/innslag.class.php');
 require_once('UKM/person.class.php');
@@ -291,6 +294,22 @@ class write_person {
 			write_person::saveRolle( $person_save );
 		}
 
+
+        /**
+         * SAMTYKKE:
+         * Legger til samtykke-forespørsel for denne personen.
+         * Hvis personen allerede har godkjent gjøres ingenting.
+         * Hvis personen deltar i flere innslag legges innslaget til i listen over
+         * relevante innslag, slik at hvis personen blir fjernet fra alle innslag, 
+         * blir også forespørselen satt på vent
+         */
+        // Hvis innslaget er påmeldt ønsker vi å innhente samtykke for denne personen
+        if( $innslag_db->getStatus() == 8 ) {
+            $samtykke = new Samtykke\Person( $person, $sesong );
+            $samtykke->leggTilInnslag( $innslag_db->getId() );
+        }
+
+
 		// Videresend personen hvis ikke lokalmønstring
 		if( $res && $monstring->getType() != 'kommune' ) {
 			$res = write_person::_leggTilVideresend( $person_save );
@@ -321,14 +340,23 @@ class write_person {
 		$monstring = new monstring_v2( $person_save->getContext()->getMonstring()->getId() );
 		// Hent innslaget fra gitt mønstring
 		$innslag_db = $monstring->getInnslag()->get( $person_save->getContext()->getInnslag()->getId(), true );
-		
 
 		if( $monstring->getType() == 'kommune' || $person_save->getContext()->getInnslag()->getType()->getId() == 1 ) {
 			$res = write_person::_fjernLokalt( $person_save );
 		} else {
 			$res = write_person::_fjernVideresend( $person_save );
 		}
-		
+        
+        /**
+         * SAMTYKKE:
+         * Fjerner samtykke-forespørsel for dette innslaget.
+         * Hvis personen allerede har godkjent gjøres ingenting.
+         * Hvis personen deltar i flere innslag fjernes kun forespørsel for dette
+         * innslaget, mens for andre innslag vil den fortsatt stå.
+         */
+        $samtykke = new Samtykke\Person( $person, $sesong );
+        $samtykke->fjernInnslag( $innslag_db->getId() );
+
 		if( $res ) {
 			return true;
 		}

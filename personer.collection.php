@@ -316,6 +316,24 @@ class personer {
 	}
 	
 	public function getContextInnslag() {
+        /**
+         * Hvis kontekst er sesong, snakker vi om lokal-nivået.
+         * Det vil da ikke være behov for å filtrere videresendte personer, og
+         * det vil teknisk være mulig å hente ut all informasjon uten mønstrings-objektet.
+         * 
+         * Hvorvidt dette funker 100% som tenkt er vanskelig å si enda, da dette må testes ut over tid.
+         * Implementert desember 2018.
+         */
+        if( $this->getContext()->getType() == 'sesong' && null == $this->getContext()->getMonstring()) {
+            return context::createInnslag(
+                $this->getInnslagId(),								// Innslag ID
+                $this->getInnslagType(),							// Innslag type (objekt)
+                null,                                               // Mønstring ID
+                'kommune',                                          // Mønstring type
+                $this->getContext()->getSesong()                    // Mønstring sesong
+            );    
+        }
+        
 		return context::createInnslag(
 			$this->getInnslagId(),								// Innslag ID
 			$this->getInnslagType(),							// Innslag type (objekt)

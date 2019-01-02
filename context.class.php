@@ -1,7 +1,8 @@
 <?php
 class context {
 	var $type = null;
-	
+    
+    var $sesong = null;
 	var $monstring = null;
 	var $innslag = null;
 	var $forestilling = null;
@@ -27,7 +28,13 @@ class context {
 			$context->monstring = $context_monstring;
 		}
 		return $context;
-	}
+    }
+    
+    public static function createSesong( $sesong ) {
+        $context = new context( 'sesong' );
+        $context->sesong = $sesong;
+        return $context;
+    }
 	
 	public function __construct( $type ) {
 		$this->type = $type;
@@ -45,7 +52,25 @@ class context {
 	}
 	public function getForestilling() {
 		return $this->forestilling;
-	}
+    }
+    
+    /**
+     * Hvilken sesong er etterspurt?
+     */
+    public function getSesong() {
+        switch( $this->getType() ) {
+            case 'sesong':
+                return $this->sesong;
+            case 'forestilling':
+            case 'monstring':
+                return $this->getMonstring()->getSesong();
+            default:
+                throw new Exception(
+                    'CONTEXT: Denne typen context ('. $this->getType() .') støtter ikke getSesong()',
+                    112001
+                );
+        }
+    }
 	
 	/**
 	 * Hvis innslaget er hentet ut som en del av en innslag-collection,

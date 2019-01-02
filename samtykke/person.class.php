@@ -4,11 +4,12 @@ namespace UKMNorge\Samtykke;
 
 use SQL;
 use SQLins;
+use SQLdel;
 use Exception;
 use person_v2;
 use DateTime;
 
-require_once('UKM/samtykke/personkategori.class.php');
+require_once('UKM/samtykke/kategorier.class.php');
 require_once('UKM/samtykke/status.class.php');
 require_once('UKM/samtykke/kommunikasjon.collection.php');
 require_once('UKM/samtykke/foresatt.class.php');
@@ -27,17 +28,31 @@ class Person {
 	var $status = null;
 	var $foresatt = null;
 	var $last_change = null;
+    var $antall_innslag = null;
 	
 	var $updates = null;
 	var $kommunikasjon = null;
 	
 	var $attr = null;
 	
-	public function __construct( $person, $year ) {
+	public function __construct( $person, $innslag, $year=null ) {
+        if( $innslag != false ) {
+            if( get_class( $innslag ) != 'innslag_v2' ) {
+                throw new Exception(
+                    'Samtykke\Person krever innslag_v2 som parameter 2',
+                    113001
+                );
+            }
+            $year = $innslag->getSesong();
+        }
 		$this->attr = [];
 		$this->person = $person;
 		$row = $this->_createIfNotExists( $person, $year );
-		$this->_populate( $row );
+        $this->_populate( $row );
+
+        if( $innslag != false ) {
+            $this->leggTilInnslag( $innslag->getId() );
+        }
 	}
 	
 	public static function getById( $samtykke_id ) {
@@ -56,7 +71,7 @@ class Person {
 		}
 		
 		$person = new person_v2( $row['p_id'] );
-		return new Person( $person, $row['year'] );
+		return new Person( $person, false, $row['year'] );
 	}
 	
 	public function setAttr( $key, $value ) {
@@ -96,7 +111,58 @@ class Person {
 	}
 	public function getLastChange() {
 		return $this->last_change;
-	}
+    }
+    
+    public function getAntallInnslag() {
+        return $this->antall_innslag;
+    }
+
+    public function fjernInnslag ( $innslag_id ) {
+        $this->antall_innslag--;
+        
+        try {
+            $SQLdel = new SQLdel(
+                'samtykke_deltaker_innslag',
+                [
+                    'p_id' => $this->getPerson()->getId(),
+                    'b_id' => $innslag_id
+                ]
+            );
+            $SQLdel->run();
+        } catch( Exception $e ) {
+            // Do nothing
+        }
+    }
+
+    public function leggTilInnslag( $innslag_id ) {
+        $this->antall_innslag++;
+        try {
+            $SQLins = new SQLins('samtykke_deltaker_innslag');
+            $SQLins->add('p_id', $this->getPerson()->getId());
+            $SQLins->add('b_id', $innslag_id);
+            $SQLins->run();
+        } catch( Exception $e ) {
+            // Ganske vanlig å få feil på denne, pga
+            // unique-constraint. Do nothing then
+            try {
+                // Slett relasjonen og re-insert så count-trigger
+                // kjøres og beregner riktig antall innslag-relasjoner
+                $SQLdel = new SQLdel(
+                    'samtykke_deltaker_innslag',
+                    [
+                        'p_id' => $this->getPerson()->getId(),
+                        'b_id' => $innslag_id
+                    ]
+                );
+                $SQLdel->run();
+                // Re-insert
+                $SQLins->run();
+            } catch( Exception $e_second ) {
+                echo 'Feil oppsto: '. $e->getMessage() .
+                 ' og deretter '. $e_second->getMessage(); 
+            }
+        }
+       }
 	
 	public function harForesatt() {
 		return $this->getForesatt()->har();
@@ -153,7 +219,7 @@ class Person {
 	private function _populate( $db_row ) {
 		$this->id = $db_row['id'];
 		$this->year = $db_row['year'];
-		$this->kategori = new PersonKategori( $this->person );
+		$this->kategori = Kategorier::getFromPerson( $this->person );
 		$this->p_id = $db_row['p_id'];
 		$this->mobil = $db_row['mobil'];
 		$this->status = new Status( 
@@ -196,10 +262,8 @@ class Person {
 		return $sql->run('array');
 	}
 	
-	
-	
 	public static function create( $person, $year ) {
-		$kategori = new PersonKategori( $person );
+		$kategori = Kategorier::getFromPerson( $person );
 		
 		$sql = new SQLins('samtykke_deltaker');
 		$sql->add('year', $year);
@@ -207,9 +271,9 @@ class Person {
 		$sql->add('p_id', $person->getId() );
 		$sql->add('mobil', $person->getMobil() );
 #		$sql->add('status', 'ikke_sendt');
-		$sql->run();
 		
         try {	
+            $sql->run();
             $rad_id = $sql->insid();
         } catch( Exception $e ) {
         }		

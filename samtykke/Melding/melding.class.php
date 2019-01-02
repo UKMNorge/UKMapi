@@ -1,6 +1,8 @@
 <?php
 
-namespace UKMNorge\Samtykke;
+namespace UKMNorge\Samtykke\Meldinger;
+
+use UKMNorge\Samtykke\Timestamp;
 
 class Melding {
 	
