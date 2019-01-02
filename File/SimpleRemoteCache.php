@@ -54,7 +54,10 @@ class SimpleRemoteCache {
         }
         
         $expire = time() - $this->getValidTime();
-        if( filemtime( $this->getFile() ) < $expire ) {
+        $modified = filemtime( $this->getFile() );
+        $diff = $modified - $expire;
+        
+        if( $diff < 0 ) {
             unlink( $this->getFile() );
             return false;
         }
@@ -169,7 +172,7 @@ class SimpleRemoteCache {
             );
         }
 
-        $this->store( $result );
+        $this->_store( $result );
 		return $result;
     }
 
