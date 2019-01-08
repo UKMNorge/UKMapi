@@ -3,7 +3,8 @@ function TWIG($template, $dataarray, $templatefolder, $debug=false) {
 	require_once('Twig/Autoloader.php');
 	Twig_Autoloader::register();
 	$loader = new Twig_Loader_Filesystem($templatefolder.'/twig/');
-	
+    
+    $dataarray['UKM_HOSTNAME'] = UKM_HOSTNAME;
 	$environment = array('debug' => $debug);
 	if( defined('TWIG_CACHE_PATH') ) {
 		$environment['cache'] = TWIG_CACHE_PATH;
