@@ -17,7 +17,7 @@ class PurringDeltaker {
 	}
 	
 	public static function getMelding() {
-		return 'Hei %fornavn! Vi trenger et svar fra deg om bilder og film på UKM. '. "\r\n ".
+		return 'Hei %fornavn! Vi trenger et svar fra deg om bilder og film på UKM.'. "\r\n ".
 			'Gi oss beskjed på lenken nedenfor. '.
 			SMS::LINK;
 	}
@@ -34,7 +34,7 @@ class PurringForesatt {
 	}
 	
 	public static function getMelding() {
-		return 'Hei! Vi savner et svar fra deg om bilder og film '
+		return 'Hei! Vi savner et svar fra deg om bilder og film'
 			.' i forbindelse med %fornavn sin deltakelse på UKM. '. "\r\n ".
 			'Gi oss beskjed på lenken nedenfor. '.
 			SMS::LINK_FORESATT;

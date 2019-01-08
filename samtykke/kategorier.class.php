@@ -84,7 +84,7 @@ class Kategorier {
             [
                 'id' => 'u13', // tom 12
                 'navn' => 'Under 13 år',
-                'krav' => 'Bes om å oppgi forelder/foresatt, og det er ønskelig at de har sett informasjonen.',
+                'krav' => 'Bes om å oppgi forelder/foresatt, og det er ønskelig at foresatt har sett informasjonen.',
                 'sms' => Meldinger\Meldinger::getById('deltaker_u15')
             ],
             [
