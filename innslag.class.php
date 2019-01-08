@@ -1,4 +1,7 @@
 <?php
+
+use UKMNorge\Samtykke;
+
 require_once('UKM/sql.class.php');
 require_once('UKM/person.class.php');
 require_once('UKM/personer.collection.php');
@@ -177,7 +180,16 @@ class innslag_v2 {
 	private function _getNewOrOld($new, $old) {
 		return null == $this->$new ? $this->info[$old] : $this->$new;
 	}
-	
+    
+    public function getSamtykke() {
+        require_once('UKM/samtykke/innslag.class.php');
+
+        if( null == $this->samtykker ) {
+            $this->samtykker = new Samtykke\Innslag( $this );
+        }
+        return $this->samtykker;
+    }
+
 	public function getNominasjon( $monstring ) {
 		require_once('UKM/nominasjon.class.php');
 		if( null == $this->nominasjon ) {
