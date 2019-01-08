@@ -3,7 +3,7 @@
 namespace UKMNorge\Samtykke\Meldinger;
 
 use SQL, SQLins;
-
+use Exception;
 use \SMS as UKMlibSMS;
 
 require_once('meldinger.collection.php');
@@ -57,14 +57,14 @@ class SMS {
 			case 'samtykke_foresatt':
 				$melding_id = $samtykke->getStatus()->getId() == 'godkjent' ? 'foresatt_deltakergodkjent' : 'foresatt';
                 break;
-            case 'purring':
-                $melding_id = 'purring';
+            case 'purring_deltaker':
+                $melding_id = 'purring_deltaker';
                 break;
             case 'purring_foresatt':
                 $melding_id = 'purring_foresatt';
                 break;
             default:
-                throw new Exception('Systemet støtter ikke meldingen `'. $id .'`');
+                throw new \Exception('Systemet støtter ikke meldingen `'. $id .'`');
         }
 
         $melding = Meldinger::getById( $melding_id );
