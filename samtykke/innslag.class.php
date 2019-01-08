@@ -25,6 +25,10 @@ class Innslag {
         }
     }
 
+    public function getAll() {
+        return $this->samtykker;
+    }
+    
     public function harNei() {
         return $this->countNei > 0;
     }
