@@ -68,7 +68,10 @@ class SQLins extends SQLcommon {
         $result = DBwrite::query( $this->_prepare() );
         
         if( DBwrite::wasError() && $this->_error_log ) {
-            error_log('SQL.class: '. DBwrite::getError() );
+            $exception = new Exception();
+            error_log('SQL.insert '. DBwrite::getError() );
+            error_log('  - QUERY: '. $this->real_query );
+            error_log('  - TRACE: '.  $exception->getTraceAsString() );
         }
         
         if( DBwrite::wasError() ) {
