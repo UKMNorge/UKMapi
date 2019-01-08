@@ -4,6 +4,7 @@ namespace UKMNorge\Samtykke;
 use Exception;
 
 require_once('kategori.class.php');
+require_once('Melding/meldinger.collection.php');
 
 /**
  * Alle samtykke-kategorier som finnes
@@ -67,7 +68,7 @@ class Kategorier {
     private static function _init() {
         if( !self::$initiated ) {
             foreach( self::_getKategoriDefinisjoner() as $data ) {
-                self::$kategorier[ $data['id'] ] = new Kategori( $data['id'], $data['navn'], $data['krav'] );
+                self::$kategorier[ $data['id'] ] = new Kategori( $data['id'], $data['navn'], $data['krav'], $data['sms'] );
             }
             self::$initiated = true;
         }
@@ -82,18 +83,21 @@ class Kategorier {
         return [
             [
                 'id' => 'u13', // tom 12
-                'navn' => 'Under 13',
-                'krav' => 'Foresatte må ha bekreftet informasjonen'
+                'navn' => 'Under 13 år',
+                'krav' => 'Bes om å oppgi forelder/foresatt, og det er ønskelig at de har sett informasjonen.',
+                'sms' => Meldinger\Meldinger::getById('deltaker_u15')
             ],
             [
                 'id' => 'u15', // fom 13 tom 14
-                'navn' => 'Under 15',
-                'krav' => 'Foresatte må ha sett informasjonen'
+                'navn' => 'Under 15 år',
+                'krav' => 'Bes om å oppgi forelder/foresatt, men bør kunne ta valget selv.',
+                'sms' => Meldinger\Meldinger::getById('deltaker_u15')
             ],
             [
                 'id' => '15o', // fom15
-                'navn' => '15år eller eldre',
-                'krav' => 'Deltakeren bør ha sett informasjonen'
+                'navn' => '15 år eller eldre',
+                'krav' => 'Deltakeren kan selv forholde seg til personvern og datalagring og har fått informasjon om hvor dette er.',
+                'sms' => Meldinger\Meldinger::getById('deltaker')
             ]
         ];
     }
