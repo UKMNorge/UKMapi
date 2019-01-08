@@ -2,6 +2,8 @@
 
 namespace UKMNorge\Samtykke\Meldinger;
 
+require_once('sms.class.php');
+
 /**
  * MELDING TIL DELTAKERE
  */
@@ -19,32 +21,23 @@ namespace UKMNorge\Samtykke\Meldinger;
 	}
 	
 	public static function getMelding() {
-        return 'Velkommen til UKM, %fornavn! '.
-            'UKM er et offentlig arrangement, og det kan bli tatt bilder og film av deg. '.
-            'Les mer om dette, hvordan vi lagrer påmeldingen din, '.
-            'og gi oss beskjed hvis du ikke vil at UKM skal ta bilder av deg her: '. 
+        return 'Som du sikkert vet, har du blitt påmeldt UKM. '.
+            'Fordi UKM er et offentlig arrangement kan det bli tatt bilder og film av deg. '.
+            'Du kan reservere deg og lese om personvern og datalagring her: '.
             SMS::LINK;
-        /*
-            return 'Hei %fornavn! Om det ikke er ønskelig at vi tar bilder og/eller film av deg på UKM, må vi ha beskjed. ' ."\r\n". 
-                'Svar oss på lenken nedenfor. '.
-                SMS::LINK;
-        */
-	}
+    }
+    
+    public function __toString() {
+        return static::getMelding();
+    }
 }
 
 // DELTAKERE UNDER 15
 class DeltakerU15 extends Deltaker {
 	public static function getMelding() {
-        return 'Velkommen til UKM, %fornavn! '.
-            'Vi trenger mobilnummeret til en av dine foreldre/foresatte fordi UKM er et offentlig arrangement, '.
-            'og det kan bli tatt bilder og film av deg. '.
-            'Gi oss dette, les om hvordan vi lagrer påmeldingen din, '.
-            'og si fra hvis du ikke vil at UKM skal ta bilder av deg her: ' .
+        return 'Som du sikkert vet, har du blitt påmeldt UKM. '.
+            'Vi trenger mobilnummeret til en av dine foreldre/foresatte. '.
+            'Gi oss dette og si fra hvis du ikke vil at UKM skal ta bilder av deg her: ' .
             SMS::LINK;
-        /*
-            return 'Hei %fornavn! Om det ikke er ønskelig at vi tar bilder og/eller film av deg på UKM, må vi ha beskjed. ' ."\r\n". 
-                'Svar oss på lenken nedenfor. '.
-                SMS::LINK;
-        */
 	}
 }
