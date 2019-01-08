@@ -6,6 +6,7 @@ require_once('UKM/monstring.class.php');
 require_once('UKM/innslag.class.php');
 require_once('UKM/person.class.php');
 require_once('UKM/kommune.class.php');
+require_once('UKM/samtykke/person.class.php');
 
 class write_person {
 	/**
@@ -305,7 +306,7 @@ class write_person {
          */
         // Hvis innslaget er påmeldt ønsker vi å innhente samtykke for denne personen
         if( $innslag_db->getStatus() == 8 ) {
-            $samtykke = new Samtykke\Person( $person, $sesong );
+            $samtykke = new Samtykke\Person( $person_save, $innslag_db );
             $samtykke->leggTilInnslag( $innslag_db->getId() );
         }
 
