@@ -42,7 +42,7 @@
 				$sql_instrument->run();
 			}
 		}
-		if($counter > 0) {
+		if( $sql_participant->hasChanges() ) {
 			//echo 'sql_p: '. $sql_participant->debug();
 			$sql_participant->run();
 		}
