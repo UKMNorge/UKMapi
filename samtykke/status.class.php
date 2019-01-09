@@ -37,7 +37,9 @@ class Status {
 			case 'ikke_sett':
 				return 'Har ikke sett informasjonen';
 			case 'ikke_sendt':
-				return 'IKKE SENDT!';
+                return 'IKKE SENDT!';
+            case 'ikke_send':
+                return 'Ikke send. Masse-kontaktperson';
 		}
 		return 'UKJENT FEIL';
 	}
@@ -51,6 +53,7 @@ class Status {
 			case 'ikke_godkjent':
 				return 'danger';
 
+            case 'ikke_send':
 			case 'ikke_svart':
 				return 'info';
 
