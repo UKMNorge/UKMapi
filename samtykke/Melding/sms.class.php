@@ -42,8 +42,7 @@ class SMS {
 	private static function _doSend( $mottaker, $melding ) {
 		require_once('UKM/sms.class.php');
 		$sms = new UKMlibSMS('samtykke', 0);
-        // DEBUG: DO NOT ATTEMPT TO SEND:
-        //$sms->text($melding)->to($mottaker)->from('UKMNorge')->ok();
+        $sms->text($melding)->to($mottaker)->from('UKMNorge')->ok();
 	}
 	
 	public static function getMelding( $id, $samtykke ) {
