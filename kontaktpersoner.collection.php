@@ -17,7 +17,9 @@ class kontaktpersoner extends Collection {
 	private function _load() {
 		$sql = new SQL( kontakt_v2::getLoadQry() 
 						. " JOIN `smartukm_rel_pl_ab` AS `rel` ON (`rel`.`ab_id` = `kontakt`.`id`) "
-						. " WHERE `rel`.`pl_id` = '#id'",
+                        . " WHERE `rel`.`pl_id` = '#id'"
+                        . " ORDER BY `rel`.`order` ASC, "
+                        . " `kontakt`.`firstname` ASC",
 					array('id' => $this->pl_id )
 					);
 		$res = $sql->run();
