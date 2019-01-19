@@ -36,6 +36,7 @@ class innslag_v2 {
 	var $sesong = null;
 	var $avmeldbar = false;
 	var $advarsler = null;
+	var $titler = null;
 
 	var $erVideresendt = null;
 	var $nominasjon = null;
