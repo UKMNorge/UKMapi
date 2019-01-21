@@ -41,18 +41,18 @@ class SQLwrite extends SQLcommon {
             '<p><b>'. $query .'</b></p>'.
             '<p>Mvh, UKMapi</p>';
 
-        $mail = new UKMMail();
-        $res = $mail->to('support@ukm.no')
-            ->subject('Potensielt farlig SQL-spørring utført.')
-            ->message($melding)
-			->setFrom('arrangorsystemet@ukm.no', 'Arrangørsystemet')
-            ->ok();
-
         if( strpos( $_SERVER['HTTP_HOST'], 'ukm.dev' ) !== false ) {
             echo '<h3>DEV ALERT: SQLwrite auto-varsler support@ukm.no. </h3>'.
                 '<p>Hadde dette vært i produksjon, ville følgende e-post blitt sendt:'.
                 '<pre>'. $melding .'</pre>'.
                 '</p>'; 
+        } else {
+            $mail = new UKMMail();
+            $res = $mail->to('support@ukm.no')
+                ->subject('Potensielt farlig SQL-spørring utført.')
+                ->message($melding)
+                ->setFrom('arrangorsystemet@ukm.no', 'Arrangørsystemet')
+                ->ok();
         }
     
         $result = DBwrite::query( $query );

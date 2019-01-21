@@ -8,14 +8,14 @@ class DBread extends DB {
 	const WRITE_ACCESS = false;
 	protected static $connection = false;
 	protected static $database = null;
-	protected static $charset = 'utf8';
+	protected static $charset = 'utf8mb4';
 	protected static $hasError = false;
 }
 class DBwrite extends DB {
 	const WRITE_ACCESS = true;
 	protected static $connection = false;
 	protected static $database = null;
-	protected static $charset = 'utf8';
+	protected static $charset = 'utf8mb4';
 	protected static $hasError = false;
 }
 

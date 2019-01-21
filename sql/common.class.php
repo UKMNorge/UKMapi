@@ -22,7 +22,7 @@ abstract class SQLcommon {
 		switch( $charset ) {
 			case 'UTF-8':
 			case 'UTF8':
-				$charset = 'utf8';
+				$charset = 'utf8mb4';
 				break;
 		}
 		
