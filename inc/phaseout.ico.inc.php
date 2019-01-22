@@ -16,41 +16,11 @@ function UKMN_iphone($ico, $size=32) {
 }
 
 function UKMN_ico($ico, $size=16, $wrapper=true, $alttext='') {
-	global $UKMN;
-	
-	if(sizeof($UKMN['icosize']) == 0)
-		$UKMN['icosize'] = array(16,32,64,128,256);
 
-	## IF IT IS SMALLER OR EQUAL TO THE SMALLEST ONE - GIVE THE SMALLEST ONE!
-	if($size <= $UKMN['icosize'][0] && file_exists(UKM_HOME.'/UKM/ico/'.$ico.'-'.$UKMN['icosize'][0].'.png')) {
-		$icoSize = 0;
-	## IF IT IS BIGGER OR EQUAL TO THE LARGEST ONE - GIVE THE LARGEST ONE!
-	} elseif($size >= $UKMN['icosize'][sizeof($UKMN['icosize'])-1] && file_exists(UKM_HOME.'/UKM/ico/'.$ico.'-'.$UKMN['icosize'][sizeof($UKMN['icosize'])-1].'.png')) {
-		$icoSize = sizeof($UKMN['icosize'])-1;
-	## CALCULATE THE MOST APPROPRIATE ICON
-	} else {	
-		for($i=1; $i<sizeof($UKMN['icosize']); $i++) {	
-			## IF COUNTED ALL TO THE AND (POSSIBLY NOT NEEDED)
-			if($i == sizeof($UKMN['icosize'])-1) {
-				$icoSize = $i;
-				break;
-			## IF IT IS NOT BETWEEN THE TWO, BUT EXACTLY THE BOTTOM ONE, GIVE THE BOTTOM ONE - DOES NOT WORK?
-			} elseif(($size == $UKMN['icosize'][$i]) && file_exists('../'.$UKMN['ico'].$ico.'-'.$UKMN['icosize'][$i].'.png')) {
-				$icoSize = $i;
-				break;
-			## GIVE THE MIDDLE ONE
-			} elseif(($UKMN['icosize'][$i-1] < $size && $UKMN['icosize'][$i] > $size) && file_exists(UKM_HOME.'/UKM/ico/'.$ico.'-'.$UKMN['icosize'][$i].'.png')) {
-				$icoSize = $i;	
-				break;
-			}
-		}
-	}
-	
-	if(!$wrapper)
-		return 'http://ico.ukm.no/'.$ico.'-'.$UKMN['icosize'][$icoSize].'.png';
+    if(!$wrapper)
+		return 'http://ico.ukm.no/'.$ico.'-'.$size.'.png';
 		
-	return '<img src="http://ico.ukm.no/'.$ico.'-'.$UKMN['icosize'][$icoSize].'.png" width="'.$size.'" alt="'.$alttext.'" style="border: 0px none; margin: 2px; margin-bottom: -2px; padding: 0px;" border="0" />';
-
+	return '<img src="http://ico.ukm.no/'.$ico.'-'.$size.'.png" width="'.$size.'" style="border: 0px none; margin: 2px; margin-bottom: -2px; padding: 0px;" border="0" />';
 }
 
 function UKMN_icoButton($ico, $size, $text, $fontsize=9) {
