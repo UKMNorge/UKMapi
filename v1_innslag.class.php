@@ -1539,6 +1539,7 @@ class innslag {
 	########     EMAIL-VALIDATIONS				 ##############
 	###########################################################
 	function validEmail($email) {
+        return true;
 	   $isValid = true;
 	   $atIndex = strrpos($email, "@");
 	   if (is_bool($atIndex) && !$atIndex)
