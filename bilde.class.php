@@ -133,7 +133,27 @@ class bilde {
 	public function getBlogUrl() {
 		return $this->blog_url;
 	}	
-	
+    
+    /**
+     * Sett Post-ID (wordpress)
+     *
+     * @param Integer $post_id
+     * @return $this
+     */
+    public function setPostId( $post_id ) {
+        $this->post_id = $post_id;
+        return $this;
+    }
+
+    /**
+     * Hent Post-ID (wordpress)
+     *
+     * @return Integer $post_id
+     */
+    public function getPostId() {
+        return $this->post_id;
+    }
+
 	/**
 	 * Sett album-id
 	 * Hvis bildet er lastet opp som en del av en forestilling, hent forestilling-ID
@@ -448,13 +468,15 @@ class bilde {
 		$this->setRelId( $bilde['rel_id'] );
 		$this->setBlogId( $bilde['blog_id'] );
 		$this->setBlogUrl( $bilde['blog_url'] );
+        $this->setPostId( $bilde['post_id'] );
 
 		$this->setAlbumId( $bilde['c_id'] );
 		$this->setKommuneId( $bilde['b_kommune'] );		
 		$this->setSesong( $bilde['b_season'] );
 		$this->setPlId( $bilde['pl_id'] );
 		$this->setMonstringType( $bilde['pl_type'] );
-		$this->setInnslagId( $bilde['b_id'] );
+        $this->setInnslagId( $bilde['b_id'] );
+        
 
 		$this->post_meta	= unserialize( $bilde['post_meta'] );
 		

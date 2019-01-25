@@ -28,7 +28,16 @@ class bilder {
 		$bilder = $this->getAll();
 		$bilde = array_shift( $bilder );
 		return $bilde;
-	}
+    }
+    
+    public function get( $id ) {
+        foreach( $this->getAll() as $bilde ) {
+            if( $bilde->getId() == $id ) {
+                return $bilde;
+            }
+        }
+        throw new Exception('Innslaget har ikke bilde '. $id );
+    }
 	
 	/**
 	 * Alle bilder for gitt innslag
