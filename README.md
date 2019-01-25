@@ -21,3 +21,6 @@ prefix | objekt | les | skriv
 11 | Kontaktperson | 111yyy | 511yyy
 12 | Context | 112yyy | -
 13 | Samtykke | 113yyy | -
+14 | Bilde | 114yyy | 514yyy
+15 | Film | 115yyy | 515yyy
+16 | Post | 116yyy | 516yyy
