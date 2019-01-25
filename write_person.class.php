@@ -321,7 +321,7 @@ class write_person {
 		}
 		
 		throw new Exception(
-			'Kunne ikke legge til '. $person->getNavn() .' i innslaget. ',
+			'Kunne ikke legge til '. $person_save->getNavn() .' i innslaget. ',
 			50513
 		);
 	}
