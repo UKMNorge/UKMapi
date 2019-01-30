@@ -2,22 +2,27 @@
 
 require_once('UKM/flashbag.class.php');
 
+
 /**
  * Modul for å bygge plugins over
  * 
  * Bygger på UKMRFIDwp::UKMModul som igjen bygger på UKMVideresending::UKMModul
  * Kun denne skal brukes fra nå
  */
-class UKMWPmodul {
+abstract class UKMWPmodul {
     public static $view_data = null;
     public static $ajax_response = null;
+
+    public static $path_plugin = null;
+    public static $path_twig = null;
+    public static $path_twigjs = null;
+
+    public static $flashbag = null;
+    
+    // ABSTRACT METHODS AND VARIABLES
     public static $action = null;
-
-    private static $path_plugin = null;
-    private static $path_twig = null;
-    private static $path_twigjs = null;
-
-    private static $flashbag = null;
+    abstract static function hook();
+    abstract static function meny();
     
     /**
      * Initier modulen
@@ -25,12 +30,12 @@ class UKMWPmodul {
      * @param string __DIR__
      */
     public static function init( $plugin_path ) {
-        self::$flashbag = new UKMflash( basename( $plugin_path ) );
-        self::$view_data = [];
+        static::$flashbag = new UKMflash( basename( $plugin_path ) );
+        static::$view_data = [];
         if( isset( $_GET['action'] ) ) {
-            self::setAction( $_GET['action'] );
+            static::setAction( $_GET['action'] );
         }
-        self::setPluginPath( $plugin_path );
+        static::setPluginPath( $plugin_path );
     }
     
     /**
@@ -40,17 +45,17 @@ class UKMWPmodul {
      * @return UKMflashbag
      */
     public static function getFlash() {
-        return self::$flashbag;
+        return static::$flashbag;
     }
 
     /**
      * Get Flashbag
-     * ALIAS: self::getFlash()
+     * ALIAS: static::getFlash()
      * 
      * @return UKMflashbag
      */
     public static function getFlashbag() {
-        return self::getFlash();
+        return static::getFlash();
     }
 
     /**
@@ -59,22 +64,22 @@ class UKMWPmodul {
      * @return string $path_to_plugin
      */
     public static function getPluginPath() {
-        return self::$path_plugin;
+        return static::$path_plugin;
     }
 
     /**
      * Render admin-GUI
      */
     public static function renderAdmin() {
-        self::init();
+        //static::init();
         ## ACTION CONTROLLER
-        require_once('controller/'. self::getAction() .'.controller.php');
+        static::require('controller/'. static::getAction() .'.controller.php');
         
         ## RENDER
-        echo TWIG( strtolower(self::getAction()) .'.html.twig', self::getViewData() , dirname(__FILE__), true);
+        echo TWIG( strtolower(static::getAction()) .'.html.twig', static::getViewData() , static::getPath(), true);
 
         // Hvis modulen bruker TwigJS
-        if( file_exists( self::$path_twigjs ) ) {
+        if( file_exists( static::$path_twigjs ) ) {
             require_once('UKM/inc/twig-js.inc.php');
             echo TWIGjs( dirname(__FILE__) );
         }
@@ -83,12 +88,24 @@ class UKMWPmodul {
 
     /**
      * Sett plugin path for inkludering av filer fra riktig sted
-     * Initieres fra self::init()
+     * Initieres fra static::init()
      */
     public static function setPluginPath( $dir ) {
-        self::$path_plugin  = $dir .'/';
-        self::$path_twig    = self::$path_plugin .'twig/';
-        self::$path_twigjs  = self::$path_twig .'js/';
+        static::$path_plugin  = $dir .'/';
+        static::$path_twig    = static::$path_plugin .'twig/';
+        static::$path_twigjs  = static::$path_twig .'js/';
+    }
+
+    public static function getPath() {
+        return static::$path_plugin;
+    }
+
+    public static function getTwigPath() {
+        return static::$path_twig;
+    }
+
+    public static function getTwigJsPath() {
+        return static::$path_twigjs;
     }
 
     /**
@@ -97,7 +114,7 @@ class UKMWPmodul {
      * @return string
     **/
     public static function getAction() {
-        return self::$action;
+        return static::$action;
     }
     
     /**
@@ -107,7 +124,7 @@ class UKMWPmodul {
      * @return void
      */
     public static function setAction( $action ) {
-        self::$action = $action;
+        static::$action = $action;
     }
         
     /**
@@ -116,8 +133,8 @@ class UKMWPmodul {
      * @return array
     **/
     public static function getViewData() {
-        self::$view_data['UKMmodul_messages'] = self::getMessages();
-        return self::$view_data;
+        static::$view_data['UKMmodul_messages'] = static::getFlashbag();
+        return static::$view_data;
     }
 
     /**
@@ -132,9 +149,9 @@ class UKMWPmodul {
     **/
     public static function addViewData( $key_or_array, $data=null ) {
         if( is_array( $key_or_array ) ) {
-            self::$view_data = array_merge( self::$view_data, $key_or_array );
+            static::$view_data = array_merge( static::$view_data, $key_or_array );
         } else {
-            self::$view_data[ $key_or_array ] = $data;
+            static::$view_data[ $key_or_array ] = $data;
         }
     }
     
@@ -144,7 +161,7 @@ class UKMWPmodul {
      * @return array
     **/
     public static function getResponseData() {
-        return self::$ajax_response;
+        return static::$ajax_response;
     }
 
     /**
@@ -159,9 +176,9 @@ class UKMWPmodul {
     **/
     public static function addResponseData( $key_or_array, $data=null ) {
         if( is_array( $key_or_array ) ) {
-            self::$ajax_response = array_merge( self::$ajax_response, $key_or_array );
+            static::$ajax_response = array_merge( static::$ajax_response, $key_or_array );
         } else {
-            self::$ajax_response[ $key_or_array ] = $data;
+            static::$ajax_response[ $key_or_array ] = $data;
         }
     }
 
@@ -169,7 +186,7 @@ class UKMWPmodul {
         if( strpos( $file, 'UKM/' ) === 0 ) {
             require_once( $file );
         } else {
-            require_once( self::getPluginPath() . $file );
+            require_once( static::getPluginPath() . $file );
         }
     }
 }
