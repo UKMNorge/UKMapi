@@ -139,7 +139,15 @@ class write_tittel {
 			
 			if( $tittel_db->$function() != $tittel_save->$function() ) {
 				# Mellomlagre verdi som skal settes
-				$value = $tittel_save->$function();
+                $value = $tittel_save->$function();
+                
+                # Konverter booleans til '0' eller '1' som er standard i databasen
+                if( true === $value ) {
+                    $value = '1';
+                } elseif( false === $value ) {
+                    $value = '0';
+                }
+
 				# Legg til i SQL
 				$sql->add( $field, $value );
 				# Logg (eller dø) før vi kjører run
