@@ -13,10 +13,6 @@ abstract class UKMWPmodul {
     public static $view_data = null;
     public static $ajax_response = null;
 
-    public static $path_plugin = null;
-    public static $path_twig = null;
-    public static $path_twigjs = null;
-
     public static $flashbag = null;
     
     // ABSTRACT METHODS AND VARIABLES
@@ -35,7 +31,7 @@ abstract class UKMWPmodul {
         if( isset( $_GET['action'] ) ) {
             static::setAction( $_GET['action'] );
         }
-        static::setPluginPath( $plugin_path );
+        self::setPluginPath( $plugin_path );
     }
     
     /**
@@ -64,6 +60,7 @@ abstract class UKMWPmodul {
      * @return string $path_to_plugin
      */
     public static function getPluginPath() {
+        $child = get_called_class();
         return static::$path_plugin;
     }
 
@@ -79,9 +76,9 @@ abstract class UKMWPmodul {
         echo TWIG( strtolower(static::getAction()) .'.html.twig', static::getViewData() , static::getPath(), true);
 
         // Hvis modulen bruker TwigJS
-        if( file_exists( static::$path_twigjs ) ) {
+        if( file_exists( static::getTwigJsPath() ) ) {
             require_once('UKM/inc/twig-js.inc.php');
-            echo TWIGjs( dirname(__FILE__) );
+            echo TWIGjs( static::getTwigJsPath() );
         }
         return;
     }
@@ -92,8 +89,6 @@ abstract class UKMWPmodul {
      */
     public static function setPluginPath( $dir ) {
         static::$path_plugin  = $dir .'/';
-        static::$path_twig    = static::$path_plugin .'twig/';
-        static::$path_twigjs  = static::$path_twig .'js/';
     }
 
     public static function getPath() {
@@ -101,11 +96,11 @@ abstract class UKMWPmodul {
     }
 
     public static function getTwigPath() {
-        return static::$path_twig;
+        return static::getPath() .'twig/';;
     }
 
     public static function getTwigJsPath() {
-        return static::$path_twigjs;
+        return static::getTwigPath() .'js/';
     }
 
     /**
