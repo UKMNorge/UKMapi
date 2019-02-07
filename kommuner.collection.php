@@ -25,5 +25,23 @@ class kommuner extends Collection {
 			$string .= $kommune->getNavn() .', ';
 		}
 		return rtrim( $string, ', ');
-	}
+    }
+    
+    /*
+     * Hent alle fylker (til kommunene) i samlingen
+     * 
+     * @return Array[ Fylke ] $fylker
+    **/
+    public function getFylker() {
+        $added = [];
+        $fylker = [];
+        foreach( $this->getAll() as $kommune ) {
+            $fylke = $kommune->getFylke();
+            if( !in_array( $fylke->getId(), $added ) ) {
+                $fylker[] = $fylke;
+                $added[] = $fylke->getId();
+            }
+        }
+        return $fylker;
+    }
 }
