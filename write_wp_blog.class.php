@@ -534,7 +534,7 @@ class write_wp_blog {
 
 		# ADDS META OPTIONS TO NEW SITE
 		$meta = array(
-					  'show_on_front'		=>'page',
+					  'show_on_front'		=>'posts',
 					  'page_on_front'		=>'2',
 					  'template'			=>'UKMresponsive',
 					  'stylesheet'			=>'UKMresponsive',
@@ -638,7 +638,7 @@ class write_wp_blog {
 		$page_for_posts = get_page_by_path('nyheter');
 		
 		// Sett standard visningssider
-		update_blog_option( $blog_id, 'show_on_front', 'page');
+		update_blog_option( $blog_id, 'show_on_front', 'posts'); // 2019-02-07: endret til posts for at paginering skal funke
 		update_blog_option( $blog_id, 'page_on_front', $page_on_front->ID);
 		update_blog_option( $blog_id, 'page_for_posts', $page_for_posts->ID);
 
