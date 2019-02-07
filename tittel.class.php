@@ -430,9 +430,9 @@ class tittel_v2 {
 		
 		$this->setVarighet( (int) $row['t_time'] );
 		
-		$this->setSelvlaget( 1 == $row['t_selfmade'] );
-		$this->setLitteraturLesOpp( 1 == $row['t_litterature_read'] );
-		$this->setInstrumental( 1 == $row['t_instrumental'] );
+		$this->setSelvlaget( 1 == (int) $row['t_selfmade'] );
+		$this->setLitteraturLesOpp( 1 == (int) $row['t_litterature_read'] );
+		$this->setInstrumental( 1 == (int) $row['t_instrumental'] );
 
 		if( $this->erInstrumental() ) {
 			$this->setTekstAv('');
