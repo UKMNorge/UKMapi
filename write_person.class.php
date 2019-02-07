@@ -355,7 +355,7 @@ class write_person {
          * Hvis personen deltar i flere innslag fjernes kun forespørsel for dette
          * innslaget, mens for andre innslag vil den fortsatt stå.
          */
-        $samtykke = new Samtykke\Person( $person, $sesong );
+        $samtykke = new Samtykke\Person( $person_save, $innslag_db->getSesong() );
         $samtykke->fjernInnslag( $innslag_db->getId() );
 
 		if( $res ) {
