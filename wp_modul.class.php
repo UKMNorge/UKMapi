@@ -68,17 +68,35 @@ abstract class UKMWPmodul {
      * Render admin-GUI
      */
     public static function renderAdmin() {
-        //static::init();
-        ## ACTION CONTROLLER
-        static::require('controller/'. static::getAction() .'.controller.php');
-        
-        ## RENDER
-        echo TWIG( strtolower(static::getAction()) .'.html.twig', static::getViewData() , static::getPath(), true);
+        try {
+            ## ACTION CONTROLLER
+            static::require('controller/'. static::getAction() .'.controller.php');
+            
+            ## RENDER
+            echo TWIG( strtolower(static::getAction()) .'.html.twig', static::getViewData() , static::getPath(), true);
 
-        // Hvis modulen bruker TwigJS
-        if( file_exists( static::getTwigJsPath() ) ) {
-            require_once('UKM/inc/twig-js.inc.php');
-            echo TWIGjs( static::getTwigJsPath() );
+            // Hvis modulen bruker TwigJS
+            if( file_exists( static::getTwigJsPath() ) ) {
+                require_once('UKM/inc/twig-js.inc.php');
+                echo TWIGjs( static::getTwigJsPath() );
+            }
+        } catch( Exception $e  ) {
+            // Attempt to die gracefully
+            $exceptionFile = static::getTwigPath('exception') . static::getAction() .'.html.twig';
+            if( file_exists( $exceptionFile ) ) {
+                echo TWIG( 
+                    'exception.html.twig',
+                    [
+                        'message' => $e->getMessage(),
+                        'code' => $e->getCode()
+                    ],
+                    static::getPath(),
+                    true
+                );
+                return;
+            }
+            // Graceful not possible. Throw it!
+            throw $e;
         }
         return;
     }
