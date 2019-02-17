@@ -11,7 +11,9 @@ class person_v2 {
 	var $mobil = null;
 	var $rolle = null;
 	var $epost = null;
-	var $attributes = null;
+    var $attributes = null;
+    
+    private $sensitivt = null;
 	
 	var $videresendtTil = null;
 	
@@ -485,7 +487,16 @@ class person_v2 {
 			default: 
 				return 'han/hun';
 		}
-	}
+    }
+
+    public function getSensitivt() {
+        if( null == $this->sensitivt ) {
+            require_once('UKM/Sensitivt/Person.php');
+            $this->sensitivt = new UKMNorge\Sensitivt\Person( $this->getId() );
+        }
+        return $this->sensitivt;
+    }
+
 
 	/**
 	 * Set BT_ID (innslagstype)
