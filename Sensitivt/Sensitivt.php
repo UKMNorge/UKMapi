@@ -111,15 +111,35 @@ abstract class Sensitivt {
             $this->log('write');
 
             // TODO: SJEKK OM RAD ER SATT INN FRA FØR AV, ELLER OM DEN SKAL INSERTES
-            $sql = new SQLins( 
-                static::DB_TABLE, 
+            $sql = new SQL("
+                SELECT `#db_id`
+                FROM `#db_table`
+                WHERE `#db_id` = '#id'",
                 [
-                    static::DB_ID => $this->getId()
-                 ]
+                    'db_id' => static::DB_ID,
+                    'db_table' => static::DB_TABLE,
+                    'id' => $this->getId()
+                ]
             );
-            $sql->add( $field, $value );
-            echo $sql->debug();
+
             $res = $sql->run();
+            
+            if( SQL::numRows( $res ) == 0 ) {
+                $insupd = new SQLins( 
+                    static::DB_TABLE
+                );
+                $insupd->add( static::DB_ID, $this->getId() );
+            } else {
+                $insupd = new SQLins( 
+                    static::DB_TABLE, 
+                    [
+                        static::DB_ID => $this->getId()
+                     ]
+                );
+            }
+            
+            $insupd->add( $field, $value );
+            $res = $insupd->run();
             
             if( $res ) {
                 return true;

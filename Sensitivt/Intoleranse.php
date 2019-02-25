@@ -12,7 +12,7 @@ namespace UKMNorge\Sensitivt;
 
 class Intoleranse extends Sensitivt {    
     const DB_TABLE = 'ukm_sensitivt_intoleranse';
-    const DB_ID = 'id';
+    const DB_ID = 'p_id';
 
     private $har = null;
     private $tekst = null;
@@ -27,11 +27,12 @@ class Intoleranse extends Sensitivt {
     private function _load( $id ) {
         $res = self::query("
             SELECT * 
-            FROM `#table`
-            WHERE `p_id` = '#id'",
+            FROM `#db_table`
+            WHERE `#db_id` = '#id'",
             [
                 'id' => $id,
-                'table' => static::DB_TABLE
+                'db_id' => static::DB_ID,
+                'db_table' => static::DB_TABLE
             ]
         );
 

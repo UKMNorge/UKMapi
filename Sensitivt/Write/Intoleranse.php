@@ -8,6 +8,6 @@ require_once('UKM/Sensitivt/Intoleranse.php');
 class Intoleranse extends ReadIntoleranse {
     
     public function setTekst( $tekst ) {
-        $this->update('tekst', $tekst);
+        return $this->update('tekst', $tekst);
     }
 }
