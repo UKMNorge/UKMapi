@@ -146,7 +146,9 @@ class SMS {
 			.  '?user='.UKM_SVEVE_ACCOUNT
 			.  '&to='.(int)$recipient
 			.  '&from='.$this->from
-			.  '&msg='.urlencode($this->message);
+			.  '&msg='.urlencode($this->message)
+			.  '&user='. UKM_SVEVE_ACCOUNT
+			.  '&passwd='. UKM_SVEVE_PASSWORD;
 /*
 		if($_SERVER['REMOTE_ADDR']=='81.0.146.162')
 			var_dump($url);
