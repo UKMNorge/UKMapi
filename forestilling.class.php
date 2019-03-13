@@ -1,7 +1,5 @@
 <?php
 	
-class hendelse_v2 extends forestilling_v2 {}
-	
 class forestilling_v2 extends forestilling {
 	// Midlertidig hack i påvente av omskriving
 	var $id = null;
@@ -774,4 +772,6 @@ class forestilling {
 }
 
 class concert extends forestilling {}
+class hendelse_v2 extends forestilling_v2 {}
+
 ?>
