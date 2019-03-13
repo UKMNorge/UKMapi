@@ -149,9 +149,17 @@ class related {
 	
 	private function missingLarge($post_meta) {
 		
-		if(!isset($post_meta['sizes']['large']))
+		if( is_array( $post_meta['sizes'] ) && !isset( $post_meta['sizes']['large'] ) ) {
 			$post_meta['sizes']['large']['file'] = isset( $post_meta['file'] ) ? $post_meta['file'] : '';
-				
+		}
+
+		if( !is_array( $post_meta['sizes'] ) ) {
+			$post_meta['sizes'] = [
+				'large' => [
+					'file' => (isset( $post_meta['file'] ) ? $post_meta['file'] : '' )
+				]
+			];
+		}
 		return $post_meta;
 	}
 	
