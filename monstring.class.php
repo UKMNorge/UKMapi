@@ -798,71 +798,33 @@ class monstring_v2 {
 	 *
 	 * @return int $dager
 	**/
-	public function getAntallDager() {
-		$start = explode('.', date('d.m.Y.H.i', $this->getStart()->getTimestamp()));
-		$stop = explode('.', date('d.m.Y.H.i', $this->getStop()->getTimestamp()));
-		
-		$maned = $start[1];
-		$ar	   = $start[2];
-		
-		if($stop[0] >= $start[0]) {
-			for($i=$start[0]-1; $i<$stop[0]; $i++)
-				$days[($i+1).'.'.$maned] = date('N', mktime(0,0,0,$maned, $i+1, $ar));
-				
-			$this->dager = sizeof($days);
-		## Sluttdato er mindre enn startdato, ergo er sluttdato neste måned!
-		} else {
-			for($i=$start[0]-1; $i<cal_days_in_month(CAL_GREGORIAN, $maned, $ar); $i++)
-				$days[($i+1).'.'.$maned] = date('N', mktime(0,0,0,$maned, $i+1, $ar));
-			for($i=0; $i<$stop[0]; $i++) 
-				$days[($i+1).'.'.$maned+1] = date('N', mktime(0,0,0,$maned+1, $i+1, $ar));
-			
-			$this->dager = sizeof($days);
+	public function getDager() {
+		if( null == $this->dager ) {
+			$period = new DatePeriod(
+				$this->getStart(),
+				new DateInterval('P1D'),
+				$this->getStop()
+			);
+			$this->dager = iterator_to_array( $period );
 		}
-		
 		return $this->dager;
+	}
+
+	public function getAntallDager() {
+		return sizeof( $this->getDager() );
 	}
 	
 	/**
-	 * Hvor mange netter varer mønstringen?
+	 * Hvilke netter går mønstringen over?
 	 *
-	 * @return int $dager
+	 * @return array $netter
 	**/
 	public function getNetter() {
-		if( isset( $this->netter ) ) {
-			return $this->netter;
+		if( !isset( $this->netter ) ) {
+			$netter = $this->getDager();
+			array_pop( $netter );
+			$this->netter = $netter;
 		}
-		$netter = array();
-		
-		if( $this->getStart()->format('m') < $this->getStop()->format('m') ) {
-			$dager_ny_mnd 		= $this->getStart()->format('d');
-			$dager_forrige_mnd = cal_days_in_month( 
-				CAL_GREGORIAN, 
-				$this->getStart()->format('m'),
-				$this->getStart()->format('Y')
-			)
-			- $this->getStart()->format('d');
-			$num_dager = $dager_ny_mnd + $dager_forrige_mnd;
-		} else {
-			$num_dager = $this->getStop()->format('d') - $this->getStart()->format('d');
-		}
-		
-		$crnt = new stdClass();
-		$crnt->dag = (int)date('d', $this->getStart()->getTimestamp());
-		$crnt->mnd= (int)date('m', $this->getStart()->getTimestamp());
-		$crnt->ar  = (int)date('Y', $this->getStart()->getTimestamp());
-		
-		for( $i=0; $i < $num_dager; $i++ ) {	
-			if( $crnt->dag > cal_days_in_month( CAL_GREGORIAN, $crnt->mnd, $crnt->ar ) ) {
-				$crnt->dag = 1;
-				$crnt->mnd++;
-			}
-			$crnt->timestamp = strtotime( $crnt->dag.'-'.$crnt->mnd.'-'.$crnt->ar );
-			$netter[] = clone $crnt;
-		
-			$crnt->dag++;
-		}
-		$this->netter = $netter;
 		return $this->netter;
 	}
 
