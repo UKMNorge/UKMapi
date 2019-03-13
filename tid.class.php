@@ -46,7 +46,7 @@ class tid {
 	}
 
 	private function _getHuman( $sek, $min ) {
-		list( $m, $s ) = $this->getData();
+		list( $m, $s ) = $this->_getData();
 		
 		if ($m == 0)
 			return $s.' '.$sek;
