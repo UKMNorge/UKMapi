@@ -69,7 +69,15 @@ abstract class UKMWPmodul {
      */
     public static function renderAdmin() {
         try {
-            ## ACTION CONTROLLER
+
+			// Håndter lagring før visning
+			if( $_SERVER['REQUEST_METHOD'] == 'POST' && isset( $_GET['save'] ) ) {
+				static::setupLogger();
+				static::save( $_GET['save'] );
+			}
+			
+			
+			## ACTION CONTROLLER
             static::require('controller/'. static::getAction() .'.controller.php');
             
             ## RENDER
@@ -106,7 +114,7 @@ abstract class UKMWPmodul {
      * Initieres fra static::init()
      */
     public static function setPluginPath( $dir ) {
-        static::$path_plugin  = $dir .'/';
+        static::$path_plugin  = rtrim( $dir, '/') .'/';
     }
 
     public static function getPath() {
@@ -114,7 +122,7 @@ abstract class UKMWPmodul {
     }
 
     public static function getTwigPath() {
-        return static::getPath() .'twig/';;
+        return static::getPath() .'twig/';
     }
 
     public static function getTwigJsPath() {
@@ -146,7 +154,7 @@ abstract class UKMWPmodul {
      * @return array
     **/
     public static function getViewData() {
-        static::$view_data['UKMmodul_messages'] = static::getFlashbag();
+        static::$view_data['flashbag'] = static::getFlashbag();
         return static::$view_data;
     }
 
@@ -167,7 +175,36 @@ abstract class UKMWPmodul {
             static::$view_data[ $key_or_array ] = $data;
         }
     }
-    
+	
+	/**
+	 * Default ajax handler
+	 *
+	 * @return void
+	 */
+	public static function ajax() {
+		if( is_array( $_POST ) ) {
+			self::addResponseData('POST', $_POST );
+		}
+		
+		try {
+			static::setupLogger();
+
+			$controller = basename( $_POST['controller'] );
+			if( $controller == 'save' ) {
+				$controller = 'save/'. basename( $_POST['save'] );
+			}
+			self::require('ajax/'. $controller .'.ajax.php');
+		} catch( Exception $e ) {
+			self::addResponseData('success', false);
+			self::addResponseData('message', $e->getMessage() );
+			self::addResponseData('code', $e->getCode() );
+		}
+		
+		$data = json_encode( self::getResponseData() );
+		echo $data;
+		die();
+	}	
+
     /**
      * Hent alle ajax response-data
      *
@@ -195,11 +232,25 @@ abstract class UKMWPmodul {
         }
     }
 
+	/**
+	 * Require a file from the plugin directory
+	 *
+	 * @param string $file_path_in_plugin_dir
+	 * @return void
+	 */
     public function require( $file ) {
         if( strpos( $file, 'UKM/' ) === 0 ) {
             require_once( $file );
         } else {
             require_once( static::getPluginPath() . $file );
         }
-    }
+	}
+	
+	public static function setupLogger() {
+		## SETUP LOGGER
+		global $current_user;
+		get_currentuserinfo();
+		require_once('UKM/logger.class.php'); 
+		UKMlogger::setID( 'wordpress', $current_user->ID, get_option('pl_id') );
+	}
 }
