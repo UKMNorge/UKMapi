@@ -159,6 +159,33 @@ class program {
 		ksort( $alle );
 		return $alle;
 	}
+
+		
+	public function getAbsoluteAll() {
+		$alle = [];
+		if( is_array( $this->getAll() ) ) {
+			foreach( $this->getAll() as $hendelse ) {
+				$alle[ $hendelse->getStart()->getTimestamp() .'-'. $hendelse->getId() ] = $hendelse;
+			}
+		}
+		
+		if( is_array( $this->getAllInterne() ) ) {
+			foreach( $this->getAllInterne() as $hendelse ) {
+				$alle[ $hendelse->getStart()->getTimestamp() .'-'. $hendelse->getId() ] = $hendelse;
+			}
+		}
+
+		if( is_array( $this->getAllSkjulte() ) ) {
+			foreach( $this->getAllSkjulte() as $hendelse ) {
+				$alle[ $hendelse->getStart()->getTimestamp() .'-'. $hendelse->getId() ] = $hendelse;
+			}
+		}
+		
+		ksort( $alle );
+		return $alle;
+	}
+	
+
 	
 	public function getIdArray( $method='getAll' ) {
 		if( !in_array( $method, array('getAll', 'getAllSkjulte', 'getAllInkludertSkjulte') ) ) {
