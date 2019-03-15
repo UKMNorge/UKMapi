@@ -12,8 +12,10 @@ require_once('lib/misd/linkify/src/Misd/Linkify/Linkify.php');
 require_once('lib/misd/linkify/src/Misd/Linkify/LinkifyInterface.php');
 
 use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 use Misd\Linkify\Linkify;
+use Misd\Linkify\LinkifyInterface;
 
 class UKMmail {
 	var $reply_to = null;
