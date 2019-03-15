@@ -1,6 +1,11 @@
 <?php
 
 namespace UKMNorge\Sensitivt;
+use Exception;
+use Allergener;
+use Allergen;
+
+require_once('UKM/allergener.class.php');
 
 /**
  * 
@@ -16,14 +21,20 @@ class Intoleranse extends Sensitivt {
 
     private $har = null;
     private $tekst = null;
-    private $liste = null;
+	private $_liste = null;
+	private $intoleranser = null;
 
     public function __construct( $id ) {
         parent::__construct( $id );
         $this->_load( $id );
     }
 
-
+	/**
+	 * Load from database
+	 *
+	 * @param Integer $id
+	 * @return void
+	 */
     private function _load( $id ) {
         $res = self::query("
             SELECT * 
@@ -44,6 +55,12 @@ class Intoleranse extends Sensitivt {
         $this->_populate( self::getFirstRow( $res ) );
     }
 
+	/**
+	 * Populate data from database
+	 *
+	 * @param [type] $data
+	 * @return void
+	 */
     private function _populate( $data ) {
         if( null == $data ) {
             $this->har = false;
@@ -51,14 +68,95 @@ class Intoleranse extends Sensitivt {
         }
 
         $this->har = true;
-        $this->tekst = $data['tekst'];
+		$this->tekst = $data['tekst'];
+		$this->setListe( $data['liste'] );
     }
 
-    public function har() {
+	/**
+	 * Hvorvidt personen har en registrert intoleranse
+	 *
+	 * @return Bool
+	 */
+	public function har() {
         return $this->har;
     }
 
+	/**
+	 * Hent beskrivelse / tekst
+	 *
+	 * @return String
+	 */
     public function getTekst() {
         return $this->tekst;
-    }
+	}
+
+	/**
+	 * Set ny liste med intoleranser
+	 * Trigger re-load av human-liste og intoleranse-objekt
+	 *
+	 * @param String|Array $liste
+	 * @return void
+	 */
+	public function setListe( $liste ) {
+		$this->intoleranser = null;
+		$this->liste_human = null;
+		
+		if( is_string( $liste ) ) {
+			$this->_liste = explode('|', $liste);
+		} elseif( is_array( $liste ) ) {
+			$this->_liste = $liste;
+		} elseif( is_null( $liste ) ) {
+			$this->_liste = [];
+		} else {
+			throw new Exception('Beklager, gitt liste må være array eller string');
+		}
+	}
+
+	/**
+	 * Hent liste
+	 * 
+	 * @return Array $liste
+	 */
+	public function getListe() {
+		return $this->_liste;
+	}
+
+	/**
+	 * Hent string-representasjon av listen (human)
+	 *
+	 * @return String csv-liste
+	 */
+	public function getListeHuman() {
+		if( null == $this->liste_human ) {
+			$this->getIntoleranser();
+		}
+		return $this->liste_human;
+	}
+	
+	/**
+	 * Hent alle intoleranse-objekt
+	 *
+	 * @return Array<Intoleranse>
+	 */
+	public function getIntoleranser() {
+		if( null == $this->intoleranser ) {
+			$intoleranser = [];
+			$human = '';
+			
+			foreach( $this->getListe() as $id ) {
+				$intoleranse = Allergener::getById( $id );
+				$intoleranser[] = $intoleranse;
+				$human .= $intoleranse->getNavn() .', ';
+			}			
+			$human = rtrim($human, ', ');
+
+			if( !empty( $this->getTekst() ) ) {
+				$human .= ' ⚠ ';
+			}
+			
+			$this->intoleranser = $intoleranser;
+			$this->liste_human = $human;
+		}
+		return $this->intoleranser;
+	}
 }
