@@ -8,8 +8,8 @@
 require_once('lib/phpmailer/phpmailer/src/PHPMailer.php');
 require_once('lib/phpmailer/phpmailer/src/SMTP.php');
 require_once('lib/phpmailer/phpmailer/src/Exception.php');
-require_once('lib/misd/linkify/src/Misd/Linkify/Linkify.php');
 require_once('lib/misd/linkify/src/Misd/Linkify/LinkifyInterface.php');
+require_once('lib/misd/linkify/src/Misd/Linkify/Linkify.php');
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
