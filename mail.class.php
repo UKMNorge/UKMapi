@@ -1,9 +1,15 @@
 <?php
-require_once('lib/autoload.php');
-#require_once('lib/phpmailer/phpmailer/src/PHPMailer.php');
-#require_once('lib/phpmailer/phpmailer/src/Exception.php');
-#require_once('lib/misd/linkify/src/Misd/Linkify/Linkify.php');
-#require_once('lib/misd/linkify/src/Misd/Linkify/LinkifyInterface.php');
+#require_once('lib/autoload.php');
+/*
+ * Symfony overloader twig hvis lib/autoload.php brukes, 
+ * med det fine resultatet at hele dritten kræsjer.
+ * Oh happy day.
+*/
+require_once('lib/phpmailer/phpmailer/src/PHPMailer.php');
+require_once('lib/phpmailer/phpmailer/src/SMTP.php');
+require_once('lib/phpmailer/phpmailer/src/Exception.php');
+require_once('lib/misd/linkify/src/Misd/Linkify/Linkify.php');
+require_once('lib/misd/linkify/src/Misd/Linkify/LinkifyInterface.php');
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
