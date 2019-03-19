@@ -140,8 +140,13 @@ abstract class Sensitivt {
             
             $insupd->add( $field, $value );
             $res = $insupd->run();
-            
-            if( $res ) {
+			
+			/*
+			 * $res == bool success || affected_rows($res) == 0
+			 * Hvis endret, eller ingen endring, er det ingen feil
+			 * Feil vil gi bool false
+			*/
+            if( $res || $res == 0 ) {
                 return true;
             }
 

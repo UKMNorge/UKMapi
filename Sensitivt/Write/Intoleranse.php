@@ -9,13 +9,32 @@ require_once('UKM/Sensitivt/Intoleranse.php');
 class Intoleranse extends ReadIntoleranse {
     
     public function saveTekst( $tekst ) {
-        return $this->update('tekst', $tekst);
+		$this->setTekst( $tekst );
+		$res = $this->update('tekst', $tekst);
+		if( $res || $res == 0 ) {
+			$this->tekst = null;
+			$this->har = null;
+		}
+		return $res;
 	}
 	
 	public function saveListe( $liste ) {
 		if( is_array( $liste ) ) {
-			$string = implode('|', $liste);
-			return $this->update('liste', $string);
+			if( sizeof( $liste ) == 0 ) {
+				$string = '';
+			} else {
+				$string = implode('|', $liste);
+			}
+			$this->setListe( $liste );
+			$res = $this->update('liste', $string);
+
+			if( $res || $res == 0 ) {
+				$this->_liste = null;
+				$this->liste_human = null;
+				$this->intoleranser = null;
+				$this->saveListeHuman( $this->getListeHuman() );
+			}
+			return $res;
 		}
 		throw new Exception('SetListe krever array som input');
 	}

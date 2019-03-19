@@ -47,6 +47,9 @@ class Intoleranse extends Sensitivt {
             ]
         );
 
+		$this->_liste = [];
+		$this->intoleranser = [];
+
         if( !$res ) {
             $this->har = false;
             return false;
@@ -78,8 +81,23 @@ class Intoleranse extends Sensitivt {
 	 * @return Bool
 	 */
 	public function har() {
+		if( $this->har == null ) {
+			$this->har = !empty( $this->getTekst() ) || !empty( $this->getListeHuman() );
+		}
         return $this->har;
     }
+
+
+	/**
+	 * Sett tekst
+	 *
+	 * @param [type] $tekst
+	 * @return void
+	 */
+	public function setTekst( $tekst ) {
+		$this->tekst = $tekst;
+		return $this;
+	}
 
 	/**
 	 * Hent beskrivelse / tekst
@@ -100,9 +118,9 @@ class Intoleranse extends Sensitivt {
 	public function setListe( $liste ) {
 		$this->intoleranser = null;
 		$this->liste_human = null;
-		
+
 		if( is_string( $liste ) ) {
-			$this->_liste = explode('|', $liste);
+			$this->_liste = strlen( $liste ) > 0 ? explode('|', $liste) : [];
 		} elseif( is_array( $liste ) ) {
 			$this->_liste = $liste;
 		} elseif( is_null( $liste ) ) {
@@ -142,7 +160,11 @@ class Intoleranse extends Sensitivt {
 		if( null == $this->intoleranser ) {
 			$intoleranser = [];
 			$human = '';
-			
+
+			if( !is_array( $this->getListe() ) ) {
+				debug_print_backtrace();
+				die();
+			}
 			foreach( $this->getListe() as $id ) {
 				$intoleranse = Allergener::getById( $id );
 				$intoleranser[] = $intoleranse;
