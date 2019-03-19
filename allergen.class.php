@@ -10,6 +10,7 @@ class Allergen {
 		$this->id = $data['id'];
 		$this->navn = $data['navn'];
 		$this->beskrivelse = $data['beskrivelse'];
+		$this->kategori = $data['kategori'];
 	}
 
 	public function getId() {
@@ -20,5 +21,8 @@ class Allergen {
 	}
 	public function getBeskrivelse() {
 		return $this->beskrivelse;
+	}
+	public function getKategori() {
+		return $this->kategori;
 	}
 }
