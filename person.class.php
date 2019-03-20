@@ -415,7 +415,12 @@ class person_v2 {
 	 * @return $this
 	**/
 	public function setKommune( $kommune_id ) {
-		$this->kommune_id = $kommune_id;
+		if( is_object( $kommune_id ) && get_class($kommune_id) == 'kommune' ) {
+			$this->kommune_id = $kommune_id->getId();
+		} else {
+			$this->kommune_id = $kommune_id;
+		}
+		$this->kommune = null;
 		return $this;
 	}
 	/**
