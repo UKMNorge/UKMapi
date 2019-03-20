@@ -11,7 +11,9 @@ class person_v2 {
 	var $mobil = null;
 	var $rolle = null;
 	var $epost = null;
-	var $attributes = null;
+    var $attributes = null;
+    
+    private $sensitivt = null;
 	
 	var $videresendtTil = null;
 	
@@ -413,7 +415,12 @@ class person_v2 {
 	 * @return $this
 	**/
 	public function setKommune( $kommune_id ) {
-		$this->kommune_id = $kommune_id;
+		if( is_object( $kommune_id ) && get_class($kommune_id) == 'kommune' ) {
+			$this->kommune_id = $kommune_id->getId();
+		} else {
+			$this->kommune_id = $kommune_id;
+		}
+		$this->kommune = null;
 		return $this;
 	}
 	/**
@@ -485,7 +492,16 @@ class person_v2 {
 			default: 
 				return 'han/hun';
 		}
-	}
+    }
+
+    public function getSensitivt() {
+        if( null == $this->sensitivt ) {
+            require_once('UKM/Sensitivt/Person.php');
+            $this->sensitivt = new UKMNorge\Sensitivt\Person( $this->getId() );
+        }
+        return $this->sensitivt;
+    }
+
 
 	/**
 	 * Set BT_ID (innslagstype)

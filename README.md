@@ -24,4 +24,8 @@ prefix | objekt | les | skriv
 14 | Bilde | 114yyy | 514yyy
 15 | Film | 115yyy | 515yyy
 16 | Post | 116yyy | 516yyy
-17 | Hendelse/forestilling | 117yyy | 517yyy
+17 | Sensitivt | 117yyy | -
+18 | SensitivtRequester | 118yyy | - 
+19 | Intoleranse | 119yyy | -
+20 | Hendelse/forestilling | 120yyy | 520yyy
+21 | HendelseCollection | 121yyy | 521yyy
