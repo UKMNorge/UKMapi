@@ -85,7 +85,11 @@ class Intoleranse extends Sensitivt {
 			$this->har = !empty( $this->getTekst() ) || !empty( $this->getListeHuman() );
 		}
         return $this->har;
-    }
+	}
+
+	public function harDenne( $id ) {
+		return in_array( $id, $this->getListe() );
+	}
 
 
 	/**
