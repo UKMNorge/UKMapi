@@ -212,6 +212,11 @@ class forestilling_v2 extends forestilling {
 	 * @return $this
 	**/
 	public function setStart( $unixtime ) {
+		// Hvis gitt "unixtime" egentlig er DateTime
+		if( !is_numeric( $unixtime ) && get_class( $unixtime ) == 'DateTime' ) {
+			$this->start = $unixtime->getTimestamp();
+			$this->start_datetime = $unixtime;
+		}
 		$this->start = $unixtime;
 		return $this;
 	}
@@ -302,6 +307,9 @@ class forestilling_v2 extends forestilling {
 	public function erSynligRammeprogram() {
 		return $this->synlig_i_rammeprogram;
 	}
+	public function getSynligRammeprogram() {
+		return $this->erSynligRammeprogram();
+	}
 	
 	/**
 	 * Set om forestillingen skal vises i rammeprogrammet
@@ -322,6 +330,9 @@ class forestilling_v2 extends forestilling {
 	**/
 	public function erSynligOppmotetid() {
 		return $this->synlig_oppmotetid;
+	}
+	public function getSynligOppmotetid() {
+		return $this->erSynligOppmotetid();
 	}
 	
 	/**
@@ -344,6 +355,9 @@ class forestilling_v2 extends forestilling {
 		return $this->synlig_detaljprogram;
 	}
 	public function erSynligDetaljProgram() {
+		return $this->harSynligDetaljprogram();
+	}
+	public function getSynligDetaljprogram() {
 		return $this->harSynligDetaljprogram();
 	}
 	
@@ -758,4 +772,6 @@ class forestilling {
 }
 
 class concert extends forestilling {}
+class hendelse_v2 extends forestilling_v2 {}
+
 ?>

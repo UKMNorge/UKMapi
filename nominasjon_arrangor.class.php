@@ -6,6 +6,7 @@ class nominasjon_arrangor extends nominasjon {
 	var $type_lydtekniker = false;
 	var $type_lystekniker = false;
 	var $type_vertskap = false;
+	var $type_produsent = false;
 	
 	var $samarbeid;
 	var $erfaring;
@@ -38,7 +39,8 @@ class nominasjon_arrangor extends nominasjon {
 		$this->setLydtekniker( $row['type_lydtekniker'] == 'true' );
 		$this->setLystekniker( $row['type_lystekniker'] == 'true' );
 		$this->setVertskap( $row['type_vertskap'] == 'true' );
-		
+		$this->setProdusent( $row['type_produsent'] == 'true' );
+
 		$this->setSamarbeid( $row['samarbeid'] );
 		$this->setErfaring( $row['erfaring'] );
 		$this->setSuksesskriterie( $row['suksesskriterie'] );
@@ -102,6 +104,14 @@ class nominasjon_arrangor extends nominasjon {
 		return $this->type_vertskap;
 	}
 	
+	public function setProdusent( $bool ) {
+		$this->type_produsent = $bool;
+		return $this;
+	}
+	public function getProdusent() {
+		return $this->type_produsent;
+	}	
+
 	
 	public function setSamarbeid( $samarbeid ) {
 		$this->samarbeid = $samarbeid;

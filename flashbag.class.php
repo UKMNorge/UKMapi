@@ -20,9 +20,9 @@ class UKMflash {
      * @return this
      */
     public function add( $level, $message ) {
-        $_SESSION['UKMmodul_messages'][] = [
+        $_SESSION[ $this->_sessid() ][] = [
             'level' => $level, 
-            'message' => $message,
+            'text' => $message,
         ];
 
         return $this;
@@ -34,12 +34,12 @@ class UKMflash {
      * 
      * @return array $messages
      */
-    public static function getAll() {
+    public function getAll() {
         $messages = [];
-        if( is_array( $_SESSION['UKMmodul_messages'] ) ) {
-            foreach( $_SESSION['UKMmodul_messages'] as $message ) {
+        if( is_array( $_SESSION[$this->_sessid()] ) ) {
+            foreach( $_SESSION[$this->_sessid()] as $message ) {
                 $messages[] = $message;
-                unset( $_SESSION['UKMmodul_messages'] );
+                unset( $_SESSION[$this->_sessid()] );
             }
         }
         return $messages;
@@ -51,7 +51,7 @@ class UKMflash {
      * 
      * @return bool
      */
-    public static function needToSpeak() {
+    public function needToSpeak() {
         return self::has();
     }
 
@@ -60,10 +60,10 @@ class UKMflash {
      * 
      * @return bool
      */
-    public static function has() {
+    public function has() {
         return isset( $_SESSION[ $this->_sessid() ] ) && 
-            is_array( $_SESSION['UKMmodul_messages'] ) &&
-            sizeof( $_SESSION['UKMmodul_messages'] ) > 0;
+            is_array( $_SESSION[ $this->_sessid() ] ) &&
+            sizeof( $_SESSION[ $this->_sessid() ] ) > 0;
     }
 
     /**
@@ -79,6 +79,7 @@ class UKMflash {
      * Hent current flashbag ID
      */
     private function _sessid() {
-        return $_SESSION['UKMflash_'. $this->id];
-    }
+        return 'UKMflash_'. $this->id;
+	}
+
 }

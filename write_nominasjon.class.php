@@ -215,6 +215,7 @@ class write_nominasjon extends nominasjon {
 		$sql->add('type_lydtekniker', $nominasjon->getLydtekniker() ? 'true':'false' );
 		$sql->add('type_lystekniker', $nominasjon->getLystekniker() ? 'true':'false' );
 		$sql->add('type_vertskap', $nominasjon->getVertskap() ? 'true':'false' );
+		$sql->add('type_produsent', $nominasjon->getProdusent() ? 'true':'false');
 
 		$sql->add('samarbeid', $nominasjon->getSamarbeid() );
 		$sql->add('erfaring', $nominasjon->getErfaring() );

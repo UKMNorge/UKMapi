@@ -27,3 +27,5 @@ prefix | objekt | les | skriv
 17 | Sensitivt | 117yyy | -
 18 | SensitivtRequester | 118yyy | - 
 19 | Intoleranse | 119yyy | -
+20 | Hendelse/forestilling | 120yyy | 520yyy
+21 | HendelseCollection | 121yyy | 521yyy
