@@ -7,7 +7,7 @@ class Config extends Coll {
 	const TABLE_NAME = 'konkurranse_config';
 	const PARENT_FIELD = 'name';
 
-	public function getTableName() {
+	public static function getTableName() {
 		return self::TABLE_NAME;
 	}
 
@@ -39,7 +39,7 @@ class Config extends Coll {
 		return $value;
 	}
 
-	public function get( $name ) {
+	public static function get( $name ) {
 		$sql = new SQL(
 			"SELECT * FROM `". self::TABLE_NAME ."` WHERE `name` = '#id' ",
 			['id' => $name]
