@@ -10,7 +10,7 @@ abstract class ORM {
 	
 	public function __construct( $id_or_row ) {
 		$this->attr = [];
-		if( !is_null( $id_or_row ) && !$dummy ) {
+		if( !is_null( $id_or_row ) ) {
 			if( is_numeric( $id_or_row ) ) {
 				$id_or_row = self::getRowFromDb( $id_or_row );
 			}
