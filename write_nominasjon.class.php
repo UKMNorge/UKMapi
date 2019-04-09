@@ -42,7 +42,9 @@ class write_nominasjon extends nominasjon {
 			$sql->add('fylke_id', $kommune->getFylke()->getId());
 			$sql->add('type', $innslag_type );
 			$insert_id = $sql->run();
-			
+
+			self::log( $sql->debug() );
+
 			if( !$insert_id ) {
 				throw new Exception('WRITE_NOMINASJON: Kunne ikke opprette nominasjon!');
 			}
@@ -50,6 +52,7 @@ class write_nominasjon extends nominasjon {
 			$sql2 = new SQLins('ukm_nominasjon_'. $innslag_type);
 			$sql2->add('nominasjon', $insert_id);
 			$res2 = $sql2->run();
+			self::log( $sql2->debug() );
 			
 			if( !$res2 ) {
 				throw new Exception('WRITE_NOMINASJON: Kunne ikke opprette nominasjon (opprettelse detaljrad feilet)');
@@ -87,6 +90,8 @@ class write_nominasjon extends nominasjon {
 		$sql->add('nominert', $state ? 'true':'false');
 		$sql->run();
 		
+		self::log( $sql->debug() );
+
 		return true;
 	}
 	
@@ -106,6 +111,8 @@ class write_nominasjon extends nominasjon {
 			$sql->add('nominasjon', $nominasjon_id );
 			$res = $sql->run();
 			
+			self::log( $sql->debug() );
+
 			if( !$res ) {
 				throw new Exception('WRITE_NOMINASJON_VOKSEN: Kunne ikke opprette voksen!');
 			}
@@ -140,6 +147,8 @@ class write_nominasjon extends nominasjon {
 		$sql->add('rolle', $voksen->getRolle());
 		$res = $sql->run();
 
+		self::log( $sql->debug() );
+
 		return true;
 	}
 	
@@ -167,8 +176,7 @@ class write_nominasjon extends nominasjon {
 		$sql->add('erfaring', $nominasjon->getErfaring() );
 		$res = $sql->run();
 		
-		ini_set("error_log", "/tmp/error_log_write_nominasjon.log");
-		error_log( $sql->debug() );
+		self::log( $sql->debug() );
 	}
 
 
@@ -193,8 +201,7 @@ class write_nominasjon extends nominasjon {
 		$sql->add('fil-url', $nominasjon->getFilUrl() );
 		$res = $sql->run();
 		
-		ini_set("error_log", "/tmp/error_log_write_nominasjon.log");
-		error_log( $sql->debug() );
+		self::log( $sql->debug() );
 	}
 	
 	public static function saveArrangor( $nominasjon ) {
@@ -242,8 +249,7 @@ class write_nominasjon extends nominasjon {
 		
 		$res = $sql->run();
 		
-		ini_set("error_log", "/tmp/error_log_write_nominasjon.log");
-		error_log( $sql->debug() );
+		self::log( $sql->debug() );
 	}
 	
 	
@@ -268,7 +274,17 @@ class write_nominasjon extends nominasjon {
 		);
 		$sql->add('sorry', $flagg);
 		$sql->run();
-		
+
+		self::log( $sql->debug() );
 		return true;
+	}
+
+
+	public static function log( $string ) {
+		if( !isset( $_ENV['HOME'] ) ) {
+            $_ENV['HOME'] = sys_get_temp_dir();
+		}
+		ini_set("error_log", $_ENV['HOME']. "/logs/error_log_write_nominasjon.log");
+		error_log( $string );
 	}
 }
