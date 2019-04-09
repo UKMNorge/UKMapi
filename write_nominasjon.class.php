@@ -284,6 +284,7 @@ class write_nominasjon extends nominasjon {
 		if( !isset( $_ENV['HOME'] ) ) {
             $_ENV['HOME'] = sys_get_temp_dir();
 		}
+		error_log( $string );
 		ini_set("error_log", $_ENV['HOME']. "/logs/error_log_write_nominasjon.log");
 		error_log( $string );
 	}
