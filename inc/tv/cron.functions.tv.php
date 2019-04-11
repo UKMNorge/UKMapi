@@ -88,17 +88,24 @@ function tv_person_update($tags, $tv_id) {
 }
 
 function tv_category_update($category) {
-	$qry = new SQLins('ukm_tv_categories');
-	$qry->add('c_name', $category);
+	try {
+		$qry = new SQLins('ukm_tv_categories');
+		$qry->add('c_name', $category);
 
-	if(strpos($category, 'UKM-F') !== false)
-		$qry->add('f_id', 6);
-	elseif(strpos($category, 'Fylkesm') !== false)
-		$qry->add('f_id', 3);
-	elseif(strpos($category, 'URG') !== false) 
-		$qry->add('f_id', 4);
+		if(strpos($category, 'UKM-F') !== false)
+			$qry->add('f_id', 6);
+		elseif(strpos($category, 'Fylkesm') !== false)
+			$qry->add('f_id', 3);
+		elseif(strpos($category, 'URG') !== false) 
+			$qry->add('f_id', 4);
 
-	$res = $qry->run();
+		$res = $qry->run();
+	} catch( Exception $e ) {
+		if( $e->getCode() == 901001 ) {
+			return true;
+		}
+		throw $e;
+	}
 }
 
 
