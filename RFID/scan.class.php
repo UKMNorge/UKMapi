@@ -63,7 +63,7 @@ class Scan extends RFIDORM {
 		$object = self::_create( [
 			'rfid' => $rfid,
 			'direction' => $direction,
-			'area' => $scanner->getArea(),
+			'area' => $scanner->getAreaId(),
 			'scanner' => $scanner->getId(),
 			]
 		);
