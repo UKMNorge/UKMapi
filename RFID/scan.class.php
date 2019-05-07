@@ -59,11 +59,12 @@ class Scan extends RFIDORM {
 		return $this->timestamp;
 	}	
 	
-	public static function create( $rfid, $direction, $area ) {
+	public static function create( $rfid, $direction, $scanner ) {
 		$object = self::_create( [
 			'rfid' => $rfid,
 			'direction' => $direction,
-			'area' => $area,
+			'area' => $scanner->getArea(),
+			'scanner' => $scanner->getId(),
 			]
 		);
 		return $object;
