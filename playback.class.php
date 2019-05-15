@@ -45,5 +45,13 @@ class playback {
 		$this->extension = $this->ext = substr($this->file, $extPos);
 		return $this->ext;
 	}
+
+	public function downloadNiceName( $iWoudLikeThisName ) {
+		return $this->download() . $this->_san( $iWoudLikeThisName ) . ' - '. $this->file;
+	}
+
+	private function _san( $name ) {
+		return preg_replace("/[^[:alnum:][:space:]-_]/ui", '', $name);
+	}
 }
 ?>
