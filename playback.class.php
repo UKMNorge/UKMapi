@@ -47,7 +47,7 @@ class playback {
 	}
 
 	public function downloadNiceName( $iWoudLikeThisName ) {
-		return $this->download() . $this->_san( $iWoudLikeThisName ) . ' - '. $this->file;
+		return $this->download() . $this->_san( $iWoudLikeThisName ) . '-'. $this->file;
 	}
 
 	private function _san( $name ) {
