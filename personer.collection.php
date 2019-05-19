@@ -168,7 +168,8 @@ class personer {
 	 * @param int pl_id
 	 *
 	**/
-	public function harVideresendtPerson( $har_person, $pl_id ) {
+	public function harVideresendtPerson( $har_person, $pl_id=false ) {
+		$pl_id = $this->_autoloadPlidParameter( $pl_id );
 		foreach( $this->getAll() as $person ) {
 			if( $person->getId() == $har_person->getId() && $person->erVideresendt( $pl_id ) ) {
 				return true;
