@@ -54,11 +54,7 @@ class personer {
 	 * @return bool
 	**/
 	public function getAllVideresendt( $pl_id=false ) {
-		if( $pl_id == false ) {
-			$pl_id = $this->getContext()->getMonstring()->getId();
-		} elseif( is_object( $pl_id ) && get_class( $pl_id ) == 'monstring_v2' ) {
-			$pl_id = $pl_id->getId();
-		}
+		$pl_id = $this->_autoloadPlidParameter( $pl_id );
 		if( null == $this->personer_videresendt ) {
 			$this->personer_videresendt = array();
 			foreach( $this->getAll() as $person ) {
@@ -341,5 +337,14 @@ class personer {
 			$this->getContext()->getMonstring()->getType(),		// Mønstring type
 			$this->getContext()->getMonstring()->getSesong()	// Mønstring sesong
 		);
+	}
+
+	private function _autoloadPlidParameter( $pl_id ) {
+		if( $pl_id == false ) {
+			return $this->getContext()->getMonstring()->getId();
+		} elseif( is_object( $pl_id ) && get_class( $pl_id ) == 'monstring_v2' ) {
+			return $pl_id->getId();
+		}
+		return $pl_id;
 	}
 }
