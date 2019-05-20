@@ -113,7 +113,7 @@ function word_init($name, $orientation='portrait') {
 	else
 		woText($section, '','rapportIkonSpacer');
 	
-	$section->addImage(dirname( __FILE__ ) . '/img/UKM_logo.png', array('width'=>300, 'height'=>164, 'align'=>'center'));
+	$section->addImage('https://grafikk.ukm.no/profil/logoer/UKM_logo_sort_0300.png', array('width'=>300, 'height'=>164, 'align'=>'center'));
 
 	woText($section, ucfirst(str_replace('_',' ',$name)), 'rapport');
 	woText($section, $this->m->g('pl_name').' ('.$this->m->g('season').')','place');
