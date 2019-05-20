@@ -53,6 +53,7 @@ class wordSettings {
 	private $title;
 	private $description;
 	private $info;
+	private $headers = true;
 
 	public function __construct( $orientation = 'portrait' ) {
 		$this->info = [];
@@ -101,6 +102,16 @@ class wordSettings {
 
 	public function getInfo() {
 		return $this->info;
+	}
+
+	public function addHeaders() {
+		$this->headers = true;
+	}
+	public function removeHeaders() {
+		$this->headers = false;
+	}
+	public function showHeaders() {
+		return $this->headers;
 	}
 
 }
@@ -184,7 +195,7 @@ function word_init($wordConfig) {
 	}
 	$section->addPageBreak();
 	
-	if(!isset($this->wordWithoutHeaders)) {
+	if( $wordConfig->showHeaders() ) {
 		// Add header
 		$header = $section->createHeader();
 		$HT = $header->addTable();
