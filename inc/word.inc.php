@@ -46,15 +46,73 @@ function woWrite($filename){
 	return DOWNLOAD_URL_WORD . $filename;
 }
 
+
+class wordSettings {
+	private $orientation;
+	private $name;
+	private $title;
+	private $description;
+	private $info;
+
+	public function __construct( $orientation = 'portrait' ) {
+		$this->info = [];
+		$this->setOrientation( $orientation );
+	}
+
+	public function setName( $name ) {
+		$this->name = $name;
+		return $this;
+	}
+	public function getName() {
+		return $this->name;
+	}
+
+	public function setTitle( $title ) {
+		$this->title = $title;
+		return $this;
+	}
+	public function getTitle() {
+		return $this->title;
+	}
+
+	public function setDescription( $description ) {
+		$this->description = $description;
+		return $this;
+	}
+	public function getDescription() {
+		return $this->description;
+	}
+
+	public function setOrientation( $orientation ) {
+		if( !in_array( $orientation, ['portrait','landscape']) ) {
+			throw new Exception('Ukjent orientering');
+		}
+		$this->orientation = $orientation;
+		return $this;
+	}
+	public function getOrientation() {
+		return $this->orientation;
+	}
+
+	public function addInfo( $info ) {
+		$this->info[] = $info;
+		return $this;
+	}
+
+	public function getInfo() {
+		return $this->info;
+	}
+
+}
 /**
  * TODO: class.rapport.php burde bruke denne som utgangspunkt.
  * Akkurat nå er denne en klone med motsatt parameter-rekkefølge.
  * 
  * 
  */
-function word_init($name, $orientation='portrait') {
+function word_init($wordConfig) {
 	global $PHPWord;
-	$section = $PHPWord->createSection(array('orientation' => $orientation,
+	$section = $PHPWord->createSection(array('orientation' => $wordConfig->getOrientation(),
 			'marginLeft' => 1100,
 			'marginRight' => 1100,
 			'marginTop' => 1100,
@@ -62,7 +120,7 @@ function word_init($name, $orientation='portrait') {
 	$properties = $PHPWord->getDocInfo(); 
 	$properties->setCreator('UKM Norge'); 
 	$properties->setCompany('UKM Norges arrangørsystem');
-	$properties->setTitle('UKM '. ucfirst(str_replace('_',' ',$name)));
+	$properties->setTitle('UKM '. $wordConfig->getTitle() );
 	$properties->setDescription('Generert fra UKM Norges arrangørsystem'); 
 	$properties->setCategory('UKM');
 	$properties->setLastModifiedBy('UKM Norges arrangørsystem');
@@ -115,17 +173,14 @@ function word_init($name, $orientation='portrait') {
 	
 	$section->addImage('https://grafikk.ukm.no/profil/logoer/UKM_logo_sort_0300.png', array('width'=>300, 'height'=>164, 'align'=>'center'));
 
-	woText($section, ucfirst(str_replace('_',' ',$name)), 'rapport');
-	woText($section, $this->m->g('pl_name').' ('.$this->m->g('season').')','place');
-	$t = $this->frontInfo();
-	if ($t) {
-		woText($section, ''); // Adds an empty line before contacts
-		if( is_array( $t ) ) {
-			woText($section, array_shift($t), 'diplom_mellom'); 
-			foreach ($t as $v) {
-				woText($section, $v, 'diplom_monstring');
-			}
-		}
+	woText($section, $wordConfig->getTitle(), 'rapport');
+	woText($section, $wordConfig->getDescription(), 'place');
+	
+	if( sizeof( $wordConfig->getInfo() ) > 0 ) {
+		woText($section, ''); // Adds an empty line before contacts/add. info
+	}
+	foreach( $wordConfig->getInfo() as $line ) {
+		woText($section, $line, 'diplom_monstring');
 	}
 	$section->addPageBreak();
 	
@@ -135,13 +190,13 @@ function word_init($name, $orientation='portrait') {
 		$HT = $header->addTable();
 		$HT->addRow(720);
 		if($orientation == 'landscape')
-			$HT->addCell(10000)->addText('UKM-rapporter : '.utf8_decode($name), array('align'=>'left'));
+			$HT->addCell(10000)->addText('UKM-rapporter : '. $wordConfig->getName(), array('align'=>'left'));
 		else
-			$HT->addCell(5000)->addText('UKM-rapporter : '.utf8_decode($name), array('align'=>'left'));
+			$HT->addCell(5000)->addText('UKM-rapporter : '. $wordConfig->getName(), array('align'=>'left'));
 		$HT->addCell(5000, array('align'=>'right'))->addText(date('d.m.Y H:i:s'), array('align'=>'right'), array('align'=>'right'));
 		// Add footer
 		$footer = $section->createFooter();
 		$footer->addPreserveText('Side {PAGE} av {NUMPAGES}.', array('align'=>'right'));
-	}	
+	}
 	return $section;
 }
