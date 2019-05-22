@@ -118,7 +118,7 @@ class bilder {
 	 *
 	**/
 	public function getLast() {
-		$bilder_copy = copy( $this->bilder );
+		$bilder_copy = $this->bilder;
 		ksort( $bilder_copy );
 		$last = end( $bilder_copy );
 		unset( $bilder_copy );
