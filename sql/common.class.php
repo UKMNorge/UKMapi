@@ -48,7 +48,7 @@ abstract class SQLcommon {
 	 * @param string $database
 	 * @return void
 	 */
-	public function setDatabase( $database ) {
+	public static function setDatabase( $database ) {
 		if( static::WRITE_ACCESS_DATABASE ) {
 			return DBwrite::setDatabase( $database );
 		}
