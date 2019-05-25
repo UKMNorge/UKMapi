@@ -52,7 +52,7 @@ class playback {
 
 	private function _san( $name ) {
 		$name = str_replace([' - ', ' '], ['-','_'], $name);
-		return preg_replace("/[^[:alnum:][:space:]-_]/ui", '', $name);
+		return preg_replace('/[^a-zA-Z0-9]/', '', $name);
 	}
 }
 ?>
