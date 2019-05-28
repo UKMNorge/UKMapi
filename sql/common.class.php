@@ -42,6 +42,19 @@ abstract class SQLcommon {
 		$this->showError = true;
 	}
 
+	/**
+	 * Set aktiv database
+	 *
+	 * @param string $database
+	 * @return void
+	 */
+	public static function setDatabase( $database ) {
+		if( static::WRITE_ACCESS_DATABASE ) {
+			return DBwrite::setDatabase( $database );
+		}
+		return DBread::setDatabase( $database );
+	}
+
 
 	/**
 	 * Get current error

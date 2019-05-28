@@ -72,17 +72,29 @@ class bilder {
 			return false;
 		}
 	}
+
+
+	public function getValgtOrFirst() {
+		try {
+			return $this->getValgt(false);
+		} catch( Exception $e ) {
+			return $this->getFirst();
+		}
+		throw new Exception('Innslaget har ingen bilder');
+	}
 	/**
 	 * Hent det bildet som er valgt ved videresending
-	 * For kunstner-bilde: velg tittel = 0;
+	 * For kunstner-bilde: velg tittel = 0
+	 * For ett gitt valgt bilde, uavhengig av tittel: input bool false
+	 * 
+	 * @param $tittel [0 | Integer | false]
 	**/
 	public function getValgt( $tittel=0 ) {
 		$sql = new SQL("
 			SELECT `rel_id` 
 			FROM `smartukm_videresending_media`
 			WHERE `b_id` = '#innslag'
-			AND `t_id` = '#tittel'
-			",
+			". ( $tittel === false ? '' :  "AND `t_id` = '#tittel'" ),
 			[
 				'innslag'	=> $this->b_id,
 				'tittel'	=> $tittel,
@@ -106,7 +118,7 @@ class bilder {
 	 *
 	**/
 	public function getLast() {
-		$bilder_copy = copy( $this->bilder );
+		$bilder_copy = $this->bilder;
 		ksort( $bilder_copy );
 		$last = end( $bilder_copy );
 		unset( $bilder_copy );
