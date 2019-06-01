@@ -37,7 +37,7 @@ class OAuth extends API {
 
 	public static function getButton() {
 		return '<a href="'.
-			'https://slack.com/oauth/authorize?scope=incoming-webhook,commands'.
+			'https://slack.com/oauth/authorize?scope=incoming-webhook,commands,users.profile:read'.
 			'&client_id='. SLACK_CLIENT_ID .
 			'&redirect_uri='. self::getRedirectUrl() .
 			'">'.
