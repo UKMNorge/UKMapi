@@ -10,3 +10,4 @@ require_once('Option.php');
 
 require_once('API/API.php');
 require_once('API/Users.php');
+require_once('API/OAuth.php');
