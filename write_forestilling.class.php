@@ -168,6 +168,7 @@ class write_forestilling {
 	 * @param innslag_v2 $innslag_save
 	**/
 	public static function leggTil( $innslag_save ) {
+		throw new \Exception('SORRY: Systemet har en feil i implementeringen av leggTil. Kontakt support@ukm.no');
 		// Valider inputs
 		write_forestilling::_validerLeggtil( $innslag_save );
 
