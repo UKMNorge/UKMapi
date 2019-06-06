@@ -17,6 +17,7 @@ class forestilling_v2 extends forestilling {
 	var $type = null;
 	var $type_post_id = null;
 	var $type_category_id = null;
+	var $beskrivelse = null;
 	
 	var $collection_innslag = null;
 	
@@ -40,6 +41,7 @@ class forestilling_v2 extends forestilling {
 		$this->setTypePostId( $this->info['c_type_post_id'] );
 		$this->setTypeCategoryId( $this->info['c_type_category_id'] );
 		$this->setIntern( 'true' == $this->info['c_intern'] );
+		$this->setBeskrivelse( $this->info['c_beskrivelse'] );
 	}
 	
 	public function getType() {
@@ -50,6 +52,14 @@ class forestilling_v2 extends forestilling {
 		return $this;
 	}
 	
+	public function setBeskrivelse( $beskrivelse ) {
+		$this->beskrivelse = $beskrivelse;
+		return $this;
+	}
+	public function getBeskrivelse() {
+		return $this->beskrivelse;
+	}
+
 	public function setIntern( $intern ) {
 		$this->intern = $intern;
 		return $this;
