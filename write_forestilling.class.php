@@ -122,7 +122,8 @@ class write_forestilling {
 			'TypePostId'			=> ['c_type_post_id', 'Int', 222],
 			'TypeCategoryId'		=> ['c_type_category_id', 'Int', 223],
 			'Intern'				=> ['c_intern', 'Bool', 225],
-			'Beskrivelse'			=> ['c_beskrivelse', 'String', 226]
+			'Beskrivelse'			=> ['c_beskrivelse', 'String', 226],
+			'Color'					=> ['c_color', 'String', 227]
 		];
 		
 		// LOOP ALLE VERDIER, OG EVT LEGG TIL I SQL

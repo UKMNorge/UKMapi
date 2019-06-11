@@ -18,6 +18,7 @@ class forestilling_v2 extends forestilling {
 	var $type_post_id = null;
 	var $type_category_id = null;
 	var $beskrivelse = null;
+	var $color = null;
 	
 	var $collection_innslag = null;
 	
@@ -42,6 +43,15 @@ class forestilling_v2 extends forestilling {
 		$this->setTypeCategoryId( $this->info['c_type_category_id'] );
 		$this->setIntern( 'true' == $this->info['c_intern'] );
 		$this->setBeskrivelse( $this->info['c_beskrivelse'] );
+		$this->setColor( $this->info['c_color'] );
+	}
+
+	public function getColor() {
+		return $this->color;
+	}
+	public function setColor( $color ) {
+		$this->color = $color;
+		return $this;
 	}
 	
 	public function getType() {
