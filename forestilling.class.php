@@ -18,7 +18,7 @@ class forestilling_v2 extends forestilling {
 	var $type_post_id = null;
 	var $type_category_id = null;
 	var $beskrivelse = null;
-	var $color = null;
+	var $farge = null;
 	var $fremhevet = null;
 	
 	var $collection_innslag = null;
@@ -44,7 +44,7 @@ class forestilling_v2 extends forestilling {
 		$this->setTypeCategoryId( $this->info['c_type_category_id'] );
 		$this->setIntern( 'true' == $this->info['c_intern'] );
 		$this->setBeskrivelse( $this->info['c_beskrivelse'] );
-		$this->setColor( $this->info['c_color'] );
+		$this->setFarge( $this->info['c_color'] );
 		$this->setFremhevet( 'true' == $this->info['c_fremhevet'] );
 	}
 
@@ -59,11 +59,11 @@ class forestilling_v2 extends forestilling {
 		return $this;
 	}
 	
-	public function getColor() {
-		return $this->color;
+	public function getFarge() {
+		return $this->farge;
 	}
-	public function setColor( $color ) {
-		$this->color = $color;
+	public function setColor( $farge ) {
+		$this->farge = $farge;
 		return $this;
 	}
 	
