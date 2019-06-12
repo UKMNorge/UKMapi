@@ -62,7 +62,7 @@ class forestilling_v2 extends forestilling {
 	public function getFarge() {
 		return $this->farge;
 	}
-	public function setColor( $farge ) {
+	public function setFarge( $farge ) {
 		$this->farge = $farge;
 		return $this;
 	}
