@@ -123,7 +123,7 @@ class write_forestilling {
 			'TypeCategoryId'		=> ['c_type_category_id', 'Int', 223],
 			'Intern'				=> ['c_intern', 'Bool', 225],
 			'Beskrivelse'			=> ['c_beskrivelse', 'String', 226],
-			'Color'					=> ['c_color', 'String', 227],
+			'Farge'					=> ['c_color', 'String', 227],
 			'Fremhevet'				=> ['c_fremhevet', 'Bool', 228]
 		];
 		
