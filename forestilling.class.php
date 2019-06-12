@@ -19,6 +19,7 @@ class forestilling_v2 extends forestilling {
 	var $type_category_id = null;
 	var $beskrivelse = null;
 	var $color = null;
+	var $fremhevet = null;
 	
 	var $collection_innslag = null;
 	
@@ -44,8 +45,20 @@ class forestilling_v2 extends forestilling {
 		$this->setIntern( 'true' == $this->info['c_intern'] );
 		$this->setBeskrivelse( $this->info['c_beskrivelse'] );
 		$this->setColor( $this->info['c_color'] );
+		$this->setFremhevet( 'true' == $this->info['c_fremhevet'] );
 	}
 
+	public function erFremhevet() {
+		return $this->getFremhevet();
+	}
+	public function getFremhevet() {
+		return $this->fremhevet;
+	}
+	public function setFremhevet( $bool ) {
+		$this->fremhevet = $bool;
+		return $this;
+	}
+	
 	public function getColor() {
 		return $this->color;
 	}
@@ -793,5 +806,3 @@ class forestilling {
 
 class concert extends forestilling {}
 class hendelse_v2 extends forestilling_v2 {}
-
-?>
