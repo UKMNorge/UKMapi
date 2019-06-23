@@ -8,13 +8,13 @@ require_once('orm.class.php');
 class MonitorAccess extends RFIDORM {
 	const TABLE_NAME = 'monitor_access';
 	
-	var $id = null;
+	var $ID = null;
 	var $session_id = null;
 	var $scanner_id = null;
 
 	
 	public function populate( $row ) {
-		$this->setID( $row['id'] );
+		$this->setID( $row['ID'] );
 		$this->setSessionId( $row['session_id'] );
 		$this->setScannerId( $row['scanner_id'] );
 	}
@@ -25,7 +25,7 @@ class MonitorAccess extends RFIDORM {
 		return $this;
 	}
 	public function getID() {
-		return $this->id;
+		return $this->ID;
 	}
 	
 	public function getSessionId() {
