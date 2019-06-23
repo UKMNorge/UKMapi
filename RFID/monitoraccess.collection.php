@@ -3,7 +3,7 @@
 namespace UKMNorge\RFID;
 
 require_once('orm.collection.php');
-require_once('scanner.class.php');
+require_once('monitoraccess.class.php');
 	
 class MonitorAccessColl extends RFIDColl {
 	const TABLE_NAME = MonitorAccess::TABLE_NAME;
