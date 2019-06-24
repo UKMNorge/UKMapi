@@ -10,7 +10,7 @@ class MonitorAccessColl extends RFIDColl {
 	public static $models = null;
 
 	public function getForSessionId( $session_id ) {
-		return parent::getResults("session_id", $session_id);
+		return parent::getMatching("session_id", $session_id);
 	}
 	
 }
