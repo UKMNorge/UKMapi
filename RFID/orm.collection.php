@@ -29,7 +29,7 @@ abstract class RFIDColl {
 		$returns = [];
 		if( is_array( $rows ) ) {
 			foreach( $rows as $row ) {
-				$returns[] == new $object_class( $row );
+				$returns[] = new $object_class( $row );
 			}
 		}
 		return $returns;
