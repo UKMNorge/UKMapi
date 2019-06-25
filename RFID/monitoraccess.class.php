@@ -14,7 +14,7 @@ class MonitorAccess extends RFIDORM {
 
 	
 	public function populate( $row ) {
-		$this->setID( $row['ID'] );
+		$this->setID( $row['id'] );
 		$this->setSessionId( $row['session_id'] );
 		$this->setScannerId( $row['scanner_id'] );
 	}
