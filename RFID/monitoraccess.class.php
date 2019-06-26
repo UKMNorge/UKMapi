@@ -48,8 +48,8 @@ class MonitorAccess extends RFIDORM {
 	
 	public static function create( $session_id, $scanner_id ) {
 		$object = self::_create( [
-			'session_id' => $guid,
-			'scanner_id' => $ip,
+			'session_id' => $session_id,
+			'scanner_id' => $scanner_id,
 			]
 		);
 		return $object;
