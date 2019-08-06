@@ -1,7 +1,7 @@
 <?php
 
 require_once('UKM/flashbag.class.php');
-
+require_once('UKM/inc/twig-admin.inc.php');
 
 /**
  * Modul for å bygge plugins over
@@ -38,7 +38,7 @@ abstract class UKMWPmodul {
      * Get Flashbag 
      * Instance of UKMflashbag.class
      * 
-     * @return UKMflashbag
+     * @return UKMflash
      */
     public static function getFlash() {
         return static::$flashbag;
@@ -48,7 +48,7 @@ abstract class UKMWPmodul {
      * Get Flashbag
      * ALIAS: static::getFlash()
      * 
-     * @return UKMflashbag
+     * @return UKMflash
      */
     public static function getFlashbag() {
         return static::getFlash();
