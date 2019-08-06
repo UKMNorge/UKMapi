@@ -2,7 +2,13 @@
 function TWIG($template, $dataarray, $templatefolder, $debug=false) {
 	require_once('Twig/Autoloader.php');
 	Twig_Autoloader::register();
-	$loader = new Twig_Loader_Filesystem($templatefolder.'/twig/');
+	$paths = [$templatefolder.'/twig/'];
+	if( class_exists('UKMwp_innhold') ) {
+		$paths[] = UKMwp_innhold::getPath().'twig/';
+	}
+
+	$paths[] = dirname( __DIR__ ). '/twig/';
+	$loader = new Twig_Loader_Filesystem($paths);
     
     $dataarray['UKM_HOSTNAME'] = UKM_HOSTNAME;
 	$environment = array('debug' => $debug);
@@ -98,4 +104,3 @@ function TWIGfilesize( $size, $precision = 2 ) {
     for($i = 0; ($size / 1024) > 0.9; $i++, $size /= 1024) {}
     return round($size, $precision).['B','kB','MB','GB','TB','PB','EB','ZB','YB'][$i];
 }
-?>
