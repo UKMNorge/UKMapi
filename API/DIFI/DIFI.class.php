@@ -15,7 +15,7 @@ class DIFI {
 	}
 
 	public function getAllPages() {
-		$url = self::API_URL . $this->resource;
+		$url = static::API_URL . $this->resource;
 		$curl = new UKMCURL();
 		$res = $curl->process($url);
 
@@ -37,10 +37,12 @@ class DIFI {
 	}
 
 	public static function parseKommuneData($kommuner) {
-		$kommuneListe = array();
-		foreach($kommuner as $kommune) {
-			$kommuneListe[(int)$kommune->kode] = $kommune;
-		}
+        $kommuneListe = array();
+        if( is_array( $kommuner ) ) {
+            foreach($kommuner as $kommune) {
+                $kommuneListe[(int)$kommune->kode] = $kommune;
+            }
+        }
 		return $kommuneListe;
 	}
 }
