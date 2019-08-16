@@ -1,11 +1,15 @@
 <?php
+
+use UKMNorge\Nettverk\Administratorer;
+
 class fylke {
 	var $id = null;
 	var $link = null;
 	var $navn = null;
 	var $attributes = null;
 	var $kommuner = null;
-	
+    var $administratorer = null;
+    
 	public function __construct( $id, $link, $name ) {
 		$this->setId( $id );
 		$this->setLInk( $link );
@@ -42,7 +46,20 @@ class fylke {
 	
 	public function erOslo() {
 		return $this->getId() == 3;
-	}
+    }
+    
+    /**
+     * Hent administratorer for fylket
+     *
+     * @return Administratorer
+     */
+    public function getAdministratorer() {
+        if( $this->administratorer == null ) {
+            require_once('UKM/Nettverk/Administrator.collection.php');
+            $this->administratorer = new Administratorer( $this->getId(), 'fylke');
+        }
+        return $this->administratorer;
+    }
 	
 	/**
 	 * Sett attributt

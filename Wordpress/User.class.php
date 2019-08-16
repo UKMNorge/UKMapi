@@ -157,9 +157,16 @@ class User
     {
         $this->id = $id;
 
+        if( false && $id == 0 ) {
+            throw new Exception(
+                'Kan ikke laste inn bruker med ID==0',
+                171003
+            );
+        }
+
         if ($load) {
             $data = get_user_by('ID', $id);
-
+            
             $this->setEmail($data->data->user_email);
             $this->setUsername($data->data->user_login);
             $this->setFirstName(get_user_meta($data->ID, 'first_name', true));
@@ -329,6 +336,9 @@ class User
      *
      * @return String concat getFirstname() + ' ' + getLastname()
      */
+    public function getNavn() {
+        return $this->getName();
+    }
     public function getName() {
         return $this->getFirstName() .' '. $this->getLastName();
     }
