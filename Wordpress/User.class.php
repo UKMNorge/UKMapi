@@ -157,7 +157,7 @@ class User
     {
         $this->id = $id;
 
-        if( false && $id == 0 ) {
+        if (false && $id == 0) {
             throw new Exception(
                 'Kan ikke laste inn bruker med ID==0',
                 171003
@@ -166,12 +166,12 @@ class User
 
         if ($load) {
             $data = get_user_by('ID', $id);
-            
-            $this->setEmail($data->data->user_email);
-            $this->setUsername($data->data->user_login);
-            $this->setFirstName(get_user_meta($data->ID, 'first_name', true));
-            $this->setLastName(get_user_meta($data->ID, 'last_name', true));
-            $this->setPhone( (Int) get_user_meta($data->ID, 'user_phone', true));
+
+            $this->setEmail((string) $data->data->user_email);
+            $this->setUsername((string) $data->data->user_login);
+            $this->setFirstName((string) get_user_meta($data->ID, 'first_name', true));
+            $this->setLastName((string) get_user_meta($data->ID, 'last_name', true));
+            $this->setPhone((int) get_user_meta($data->ID, 'user_phone', true));
         }
     }
 
@@ -336,10 +336,12 @@ class User
      *
      * @return String concat getFirstname() + ' ' + getLastname()
      */
-    public function getNavn() {
+    public function getNavn()
+    {
         return $this->getName();
     }
-    public function getName() {
-        return $this->getFirstName() .' '. $this->getLastName();
+    public function getName()
+    {
+        return $this->getFirstName() . ' ' . $this->getLastName();
     }
 }

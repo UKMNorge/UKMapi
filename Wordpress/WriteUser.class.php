@@ -18,7 +18,7 @@ class WriteUser
         // Opprett bruker hvis det var en placeholder
         if( !$user->isReal() ) {
             // Sjekk at brukernavn ikke er tatt
-            if( User::isAvailableUsername( $user->getUsername() ) ) {
+            if( !User::isAvailableUsername( $user->getUsername() ) ) {
                 throw new Exception(
                     'Kan ikke opprette wordpress-bruker. Brukernavnet er allerede tatt.',
                     571002
@@ -26,7 +26,7 @@ class WriteUser
             }
 
             // Sjekk at e-post ikke er tatt
-            if( User::isAvailableEmail( $user->getEmail() ) ) {
+            if( !User::isAvailableEmail( $user->getEmail() ) ) {
                 throw new Exception(
                     'Kan ikke opprette wordpress-bruker. E-postadressen er allerede tatt.',
                     571003
@@ -42,13 +42,15 @@ class WriteUser
             );
 
             // Bruker ble ikke opprettet - dø.
-            if( get_class( $wp_user ) == 'WP_Error' ) {
+            if( !is_numeric( $wp_user ) ) {
                 throw new Exception(
                     'Wordpress feilet i å opprette bruker. '.
                     'Wordpress sa: '. $wp_user->get_error_message(),
                     571001
                 );
             }
+
+            $user->setId( $wp_user );
         }
         // Herfra er user for real (🎉)
 

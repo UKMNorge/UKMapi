@@ -1,6 +1,7 @@
 <?php
 
 use UKMNorge\Nettverk\Administratorer;
+use UKMNorge\Nettverk\Omrade;
 
 class fylke {
 	var $id = null;
@@ -8,7 +9,7 @@ class fylke {
 	var $navn = null;
 	var $attributes = null;
 	var $kommuner = null;
-    var $administratorer = null;
+    var $nettverk_omrade = null;
     
 	public function __construct( $id, $link, $name ) {
 		$this->setId( $id );
@@ -53,12 +54,12 @@ class fylke {
      *
      * @return Administratorer
      */
-    public function getAdministratorer() {
-        if( $this->administratorer == null ) {
-            require_once('UKM/Nettverk/Administrator.collection.php');
-            $this->administratorer = new Administratorer( $this->getId(), 'fylke');
+    public function getNettverkOmrade() {
+        if( $this->nettverk_omrade == null ) {
+            require_once('UKM/Nettverk/Omrade.class.php');
+            $this->nettverk_omrade = Omrade::getByFylke( (Int) $this->getId());
         }
-        return $this->administratorer;
+        return $this->nettverk_omrade;
     }
 	
 	/**

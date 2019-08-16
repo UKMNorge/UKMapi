@@ -2,7 +2,6 @@
 
 namespace UKMNorge\Nettverk;
 
-use UKMNorge\Nettverk\Administrator;
 use SQL;
 use Exception;
 
@@ -10,14 +9,13 @@ require_once('UKM/Nettverk/Administrator.class.php');
 
 class Administratorer {
 
-    private $id = null;
-    private $geo_type = null;
-    private $geo_id = null;
+    private $type = null;
+    private $id = 0;
     private $admins = [];
 
-    public function __construct( $geo_id, $geo_type ) {
-        $this->geo_id = $geo_id;
-        $this->geo_type = $geo_type;
+    public function __construct( String $geo_type, Int $geo_id ) {
+        $this->type = $geo_type;
+        $this->id = $geo_id;
     }
 
     public static function getLoadQuery() {
@@ -29,8 +27,8 @@ class Administratorer {
             WHERE `geo_type` = '#geo_type'
             AND `geo_id` = '#geo_id'",
             [
-                'geo_type' => $this->getGeoType(),
-                'geo_id' => $this->getGeoId()
+                'geo_type' => $this->getType(),
+                'geo_id' => $this->getId()
             ]
         );
         $res = $sql->run();
@@ -69,25 +67,17 @@ class Administratorer {
     /**
      * Get the value of geo_id
      */ 
-    public function getGeoId()
+    public function getId()
     {
-        return $this->geo_id;
+        return $this->id;
     }
 
     /**
      * Get the value of geo_type
      */ 
-    public function getGeoType()
+    public function getType()
     {
-        return $this->geo_type;
-    }
-
-    /**
-     * Get the value of id
-     */ 
-    public function getId()
-    {
-        return $this->id;
+        return $this->type;
     }
 
     public function getNavn() {
