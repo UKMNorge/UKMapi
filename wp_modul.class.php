@@ -10,7 +10,7 @@ require_once('UKM/inc/twig-admin.inc.php');
  * Kun denne skal brukes fra nå
  */
 abstract class UKMWPmodul {
-    public static $view_data = null;
+    public static $view_data = [];
     public static $ajax_response = null;
 
     public static $flashbag = null;
@@ -192,7 +192,12 @@ abstract class UKMWPmodul {
 			$controller = basename( $_POST['controller'] );
 			if( $controller == 'save' ) {
 				$controller = 'save/'. basename( $_POST['save'] );
-			}
+            }
+            
+            if( isset( $_POST['module'] ) ) {
+                $controller = basename( $_POST['module'] ) .'/'. $controller;
+            }
+
 			self::require('ajax/'. $controller .'.ajax.php');
 		} catch( Exception $e ) {
 			self::addResponseData('success', false);
