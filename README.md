@@ -29,4 +29,5 @@ prefix | objekt | les | skriv
 19 | Intoleranse | 119yyy | -
 20 | Hendelse/forestilling | 120yyy | 520yyy
 21 | HendelseCollection | 121yyy | 521yyy
-81 | Slack | 181yyy | 581ttt
+71 | Wordpress/User | 171yyy | 571yyy
+81 | Slack | 181yyy | 581yyy
