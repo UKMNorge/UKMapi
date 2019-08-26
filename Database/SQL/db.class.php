@@ -3,6 +3,7 @@
 namespace UKMNorge\Database\SQL;
 
 use mysqli;
+use Exception;
 
 /**********************************************************************************************
  * DATABASE CONNECTION CLASS
