@@ -31,7 +31,8 @@ class monstring_v2 {
 	var $path = null;
 	var $skjema_id = null;
 	var $skjema = null;
-	var $kontaktpersoner = null;
+    var $kontaktpersoner = null;
+    var $pamelding = null;
 	
 	var $innslagTyper = null;
 	
@@ -117,7 +118,8 @@ class monstring_v2 {
 		$this->setSted( $row['pl_place'] );
 		$this->_setSkjemaId( $row['pl_form'] );
 		$this->setPublikum( $row['pl_public'] );
-		$this->setUregistrerte( $row['pl_missing'] );
+        $this->setUregistrerte( $row['pl_missing'] );
+        $this->setPamelding( $row['pl_pamelding'] == 'true' );
 
 		// SET PATH TO BLOG
 		if( isset( $row['pl_link'] ) || ( isset( $row['pl_link'] ) && empty( $row['pl_link'] ) ) ) {
@@ -871,46 +873,25 @@ class monstring_v2 {
 		return $this;
 	}
 
-/* UTGÅR	
-	public function getNominerteFraMeg() {
-		require_once('UKM/nominasjoner.collection.php');
-		if( null == $this->nominert_fra_meg ) {
-			if( $this->getType() == 'kommune' ) {
-				$geografi = $this->getKommune();
-			} elseif( $this->getType() == 'fylke' ) {
-				$geografi = $this->getFylke();
-			} else {
-				$geografi = null;
-			}
-			$this->nominert_fra_meg = new nominert_fra(
-				$this->getId(), 
-				$this->getType(), 
-				$geografi,
-				$this->getSesong()
-			);
-		}
-		return $this->nominert_fra_meg;
-	}
-	
-	public function getNominerteTilMeg() {
-		require_once('UKM/nominasjoner.collection.php');
-		if( null == $this->nominert_til_meg ) {
-			if( $this->getType() == 'kommune' ) {
-				$geografi = $this->getKommune();
-			} elseif( $this->getType() == 'fylke' ) {
-				$geografi = $this->getFylke();
-			} else {
-				$geografi = null;
-			}
-			$this->nominert_fra_meg = new nominert_til(
-				$this->getId(), 
-				$this->getType(), 
-				$geografi,
-				$this->getSesong()
-			);
-		}
-		return $this->nominert_til_meg;
-	}
-*/
+    /**
+     * Tar mønstringen i mot påmelding fra deltakere
+     */ 
+    public function harPamelding()
+    {
+        return $this->pamelding;
+    }
+
+    /**
+     * Si om mønstringen skal ta i mot påmelding fra deltakere
+     *
+     * @param Bool $pamelding
+     * @return  self
+     */ 
+    public function setPamelding($pamelding)
+    {
+        $this->pamelding = $pamelding;
+
+        return $this;
+    }
 }
 ?>
