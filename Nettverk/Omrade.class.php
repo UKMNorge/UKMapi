@@ -2,6 +2,10 @@
 
 namespace UKMNorge\Nettverk;
 
+require_once('UKM/Arrangement/Arrangementer.collection.php');
+
+use UKMNorge\Arrangement\Arrangementer;
+use UKMNorge\Arrangement\Arrangement;
 use Fylker;
 use kommune;
 
@@ -33,7 +37,8 @@ class Omrade
     private $type = null;
     private $id = 0;
     private $navn = null;
-    private $administratorer;
+    private $administratorer = null;
+    private $arrangementer = [];
 
     public function __construct(String $type, Int $id)
     {
@@ -57,7 +62,7 @@ class Omrade
                     $this->navn = $kommune->getNavn();
                     break;
                 case 'monstring':
-                    $monstring = new monstring_v2($this->getForeignId());
+                    $monstring = new Arrangement($this->getForeignId());
                     $this->navn = $monstring->getNavn();
                     break;
             }
@@ -66,33 +71,74 @@ class Omrade
     }
 
     /**
-     * Get ID of område
+     * Områdets ID (concat string av type + id)
      *
-     * @return Int $id
+     * @return String concat( $type_$id )
      */
     public function getId()
     {
-        return $this->getType() . '_' . $this->id;
+        return strtolower($this->getType()) . '_' . $this->id;
     }
 
+    /**
+     * Hent områdets faktiske ID (foreign ID)
+     *
+     * @return Int $id
+     */
     public function getForeignId()
     {
         return $this->id;
     }
 
     /**
-     * Get the value of type
+     * Hvilken type område er dette?
      */
     public function getType()
     {
         return $this->type;
     }
 
+    /**
+     * Hent administratorer for området
+     *
+     * @return void
+     */
     public function getAdministratorer()
     {
         if (null == $this->administratorer) {
             $this->administratorer = new Administratorer($this->getType(), $this->getForeignId());
         }
         return $this->administratorer;
+    }
+
+    public function getArrangementer( Int $season ) {
+        if ( !isset( $this->arrangementer[ $season ] ) ) {
+            $this->arrangementer[ $season ] = new Arrangementer(
+                $season,
+                $this->getType(),
+                (int) $this->getForeignId()
+            );
+        }
+        return $this->arrangementer;
+    }
+
+    /**
+     * Get the value of season
+     */ 
+    public function getSeason()
+    {
+        return $this->season;
+    }
+
+    /**
+     * Set the value of season
+     *
+     * @return  self
+     */ 
+    public function setSeason($season)
+    {
+        $this->season = $season;
+
+        return $this;
     }
 }

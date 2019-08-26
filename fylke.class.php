@@ -50,14 +50,16 @@ class fylke {
     }
     
     /**
-     * Hent administratorer for fylket
+     * Hent geografisk administrasjons-område for fylket
      *
-     * @return Administratorer
+     * @return UKMNorge\Nettverk\Omrade
      */
-    public function getNettverkOmrade() {
+    public function getNettverkOmrade( Int $season ) {
         if( $this->nettverk_omrade == null ) {
             require_once('UKM/Nettverk/Omrade.class.php');
-            $this->nettverk_omrade = Omrade::getByFylke( (Int) $this->getId());
+            $this->nettverk_omrade = Omrade::getByFylke( 
+                (Int) $this->getId()
+            );
         }
         return $this->nettverk_omrade;
     }

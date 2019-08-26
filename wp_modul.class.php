@@ -11,7 +11,7 @@ require_once('UKM/inc/twig-admin.inc.php');
  */
 abstract class UKMWPmodul {
     public static $view_data = [];
-    public static $ajax_response = null;
+    public static $ajax_response = [];
 
     public static $flashbag = null;
     
@@ -27,7 +27,9 @@ abstract class UKMWPmodul {
      */
     public static function init( $plugin_path ) {
         static::$flashbag = new UKMflash( basename( $plugin_path ) );
-        static::$view_data = [];
+        static::$view_data = [
+            'season' => get_option('season')
+        ];
         if( isset( $_GET['action'] ) ) {
             static::setAction( $_GET['action'] );
         }
