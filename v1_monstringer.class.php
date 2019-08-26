@@ -119,7 +119,7 @@ class monstringer{
 		$query ="SELECT `pl_id`, `pl_name`
 				 FROM `smartukm_place`
 				 WHERE `season` = '#season'
-				 AND `pl_fylke` = '0'
+				 AND `pl_type` = 'kommune'
 				 ORDER BY `pl_name` ASC";
 		$qry = new SQL($query, array('season'=>$this->season));
 		return $qry->run();
@@ -138,7 +138,7 @@ class monstringer{
 		$query ="SELECT `pl_id`, `pl_name`
 				 FROM `smartukm_place`
 				 WHERE `season` = '#season'
-				 AND `pl_fylke` != '0'
+				 AND `pl_type` = 'fylke'
 				 ORDER BY `pl_name` ASC";
 		$qry = new SQL($query, array('season'=>$this->season));
 		return $qry->run();
@@ -160,7 +160,7 @@ class monstringer{
 		$query ="SELECT COUNT(`pl_id`) AS `count`
 				 FROM `smartukm_place`
 				 WHERE `season` = '#season'
-				 AND `pl_start` = '0'";
+				 AND `pl_registered` = 'false'";
 		$qry = new SQL($query, array('season'=>$this->season));
 
 		return $qry->run('field', 'count');
@@ -172,7 +172,7 @@ class monstringer{
 		$query ="SELECT COUNT(`pl_id`) AS `count`
 				 FROM `smartukm_place`
 				 WHERE `season` = '#season'
-				 AND `pl_start` > '0'";
+				 AND `pl_registered` = 'true'";
 		$qry = new SQL($query, array('season'=>$this->season));
 
 		return $qry->run('field', 'count');

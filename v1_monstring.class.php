@@ -10,6 +10,10 @@ class monstring{
 	
 	
 	public function update($field, $post_key=false) {
+        throw new Exception(
+            'NOT SUPPORTED: monstring->update is no longer supported. '.
+            'Rewrite to monstring_v2'
+        );
 		if(!$post_key)
 			$post_key = $field;
 /*
@@ -43,14 +47,16 @@ class monstring{
 		$this->info = $qry->run('array');
 		
 		// TYPE MØNSTRING
-		## Finn hvilken type mønstring dette er
-		if($this->info['pl_fylke'] == 0)
-			$this->info['type'] = 'kommune';
-		elseif($this->info['pl_fylke'] == 123456789)
-			$this->info['type'] = 'land';
-		else
-			$this->info['type'] = 'fylke';
-
+        ## Finn hvilken type mønstring dette er
+        $this->info['type'] = $this->info['pl_type'];
+        /*
+            if($this->info['pl_fylke'] == 0)
+                $this->info['type'] = 'kommune';
+            elseif($this->info['pl_fylke'] == 123456789)
+                $this->info['type'] = 'land';
+            else
+                $this->info['type'] = 'fylke';
+        */
 		// FINN FYLKE
 		if($this->info['type'] == 'fylke') {
 			$fylke = new SQL("SELECT * FROM `smartukm_fylke` WHERE `id` = '#id'", 
@@ -191,54 +197,6 @@ class monstring{
 		
 		return date('d.m.Y', $this->info[$what]) . ' kl. ' . date('H:i', $this->info[$what]);
 	}
-	
-	################################################
-	## Laster inn en kalender for start/stopp
-	################################################
-	private function _load_calendar() {
-		UKM_loader('calendar');
-
-		$start = explode('.', date('d.m.Y.H.i', $this->g('pl_start')));
-		$stop = explode('.', date('d.m.Y.H.i', $this->g('pl_stop')));
-
-		$maned = $start[1];
-		$ar	   = $start[2];
-
-		$title = $this->g('type')=='fylke' ? 'Fylkesm&oslash;nstringen' : 'Tid og sted';
-
-		if($stop[0] >= $start[0]) {
-			for($i=$start[0]-1; $i<$stop[0]; $i++)
-				$days[$i+1] = array(null, 'selected', null);
-		
-			$this->info['calendar'] = '<span style="font-size: 11px; padding-top: 2px;">'
-					.'Starter '.$start[0].'.'.$start[1].' kl '.$start[3].':'.$start[4]
-					.'<br />'
-					.'</span>'
-					. generate_calendar($ar, $maned, $days)
-					;
-			return;
-		## Sluttdato er mindre enn startdato, ergo er sluttdato neste måned!
-		} else {
-			for($i=$start[0]-1; $i<cal_days_in_month(CAL_GREGORIAN, $maned, $ar); $i++)
-				$days1[$i+1] = array(null, 'selected', null);
-			for($i=0; $i<$stop[0]; $i++) 
-				$days2[$i+1] = array(null, 'selected', null);
-	
-			$this->info['calendar'] = '<span style="font-size: 11px; padding-top: 2px;">'
-					.'Starter '.$start[0].'.'.$start[1].' kl '.$start[3].':'.$start[4]
-					.'<br />'
-					.'</span>'
-					. generate_calendar($ar, $maned, $days1)
-					. generate_calendar($ar, $maned+1, $days2)
-					;
-			return;
-	}
-	$this->info['calendar'] = '<span style="font-size: 12px;">'
-		.  '<strong>Starter: </strong>' . $this->starter()
-		.  '<br />'
-		.  '<strong>Slutter: </strong>' . $this->slutter()
-		.  '</span>';
-	}
 
 	########################################   PUBLIC  #######################################
 
@@ -246,7 +204,7 @@ class monstring{
 	## Er mønstringen i det heletatt registrert, eller er den bare opprettet?
 	############################################
 	public function registered() {
-		return !$this->info['pl_start'] == 0;
+		return $this->info['pl_registered'] == 'true';
 	}
 
 	############################################
@@ -254,49 +212,49 @@ class monstring{
 	## Sjekker default frist 1, kan spesifiseres til frist 2
 	############################################
 	public function subscribable($deadline = 'pl_deadline') {
-		return @$this->info[$deadline] > time();
+		return @$this->info['old_'.$deadline] > time();
 	}
 
 	############################################
 	## Er mønstringen åpnet for påmelding?
 	############################################
 	public function subscriptionOpened() {
-		return time() > $this->info['pl_deadline2'];
+		return time() > $this->info['old_pl_deadline2'];
 	}
 
 	############################################
 	## Er mønstringen aktiv akkurat nå? (BOOL)
 	############################################
 	public function aktiv() {
-		return (time() > $this->info['pl_start']) && (time() < $this->info['pl_stop']);
+		return (time() > $this->info['old_pl_start']) && (time() < $this->info['old_pl_stop']);
 	}
 
 	############################################
 	## Når starter mønstringen? KLARTEKST!
 	############################################
 	public function starter() {
-		return $this->_startstop('pl_start');
+		return $this->_startstop('old_pl_start');
 	}
 
 	############################################
 	## Når slutter mønstringen? KLARTEKST!
 	############################################
 	public function slutter() {
-		return $this->_startstop('pl_stop');
+		return $this->_startstop('old_pl_stop');
 	}
 
 	############################################
 	## Er mønstringen avsluttet? (BOOL)
 	############################################
 	public function ferdig() {
-		return $this->info['pl_stop'] < time();
+		return $this->info['old_pl_stop'] < time();
 	}
 	
 	############################################
 	## Når er fristen for mønstringen? KLARTEKST!
 	############################################
 	public function frist($hvilken='') {
-		return $this->_startstop('pl_deadline'.($hvilken==2?'2':''));
+		return $this->_startstop('old_pl_deadline'.($hvilken==2?'2':''));
 	}
 
 	############################################
@@ -319,8 +277,8 @@ class monstring{
 	}
 	
 	public function dager() {
-		$start = explode('.', date('d.m.Y.H.i', $this->g('pl_start')));
-		$stop = explode('.', date('d.m.Y.H.i', $this->g('pl_stop')));
+		$start = explode('.', date('d.m.Y.H.i', $this->g('old_pl_start')));
+		$stop = explode('.', date('d.m.Y.H.i', $this->g('old_pl_stop')));
 		
 		$maned = $start[1];
 		$ar	   = $start[2];
@@ -346,8 +304,8 @@ class monstring{
 		}
 		$netter = array();
 		
-		$start = (int)$this->g('pl_start');
-		$stop  = (int)$this->g('pl_stop');
+		$start = (int)$this->g('old_pl_start');
+		$stop  = (int)$this->g('old_pl_stop');
 		
 		if( date('m', $start ) < date('m', $stop ) ) {
 			$dager_ny_mnd = date('d', $stop);
@@ -633,7 +591,7 @@ class monstring{
 		#### TYPE "ANDRE INNSLAG" - JOBBE MED UKM
 		########
 		## SJEKKER OM FRISTEN ER UTE
-		$subscribable = $this->subscribable('pl_deadline2');
+		$subscribable = $this->subscribable('old_pl_deadline2');
 		
 		
 		$CONTENT_ADD2 = '<br clear="all" />';
@@ -1460,6 +1418,12 @@ $test = new SQL("SELECT `s_id` AS `personer`
 	## @return Object monstring
 	############################################
 	public function hent_fylkesmonstring() {
+        if( get_option('season') > 2019 ) {
+            # REGION-REFORM IMPLEMENT
+            throw new Exception(
+                'UNSUPPORTED FUNCTION monstring::hent_fylkesmonstring() for season '. get_option('season')
+            );
+        }
 		$sql = new SQL("SELECT `pl_id`
 						FROM `smartukm_place`
 						WHERE `pl_fylke` = '#fylke'
@@ -1478,8 +1442,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 	public function hent_landsmonstring() {
 		$sql = new SQL("SELECT `pl_id`
 						FROM `smartukm_place`
-						WHERE `pl_fylke` = '123456789'
-						AND `pl_kommune` = '123456789'
+						WHERE `pl_type` = 'land'
 						AND `season` = '#season'",
 						array('season'=>get_option('season')));
 		$landPL = $sql->run('field','pl_id');
@@ -1499,6 +1462,7 @@ $test = new SQL("SELECT `s_id` AS `personer`
 						JOIN `smartukm_place` AS `pl` ON (`pl`.`pl_id` = `rel`.`pl_id`)
 						WHERE `k`.`idfylke` = '#f_id'
 						AND `rel`.`season` = '#season'
+                        AND `pl`.`pl_type` = 'kommune'
 						ORDER BY `pl`.`pl_name` ASC",
 						array('f_id' => $this->info['pl_fylke'],
 							  'season' => $this->info['season'] ));
