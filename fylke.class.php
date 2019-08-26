@@ -54,7 +54,7 @@ class fylke {
      *
      * @return UKMNorge\Nettverk\Omrade
      */
-    public function getNettverkOmrade( Int $season ) {
+    public function getNettverkOmrade() {
         if( $this->nettverk_omrade == null ) {
             require_once('UKM/Nettverk/Omrade.class.php');
             $this->nettverk_omrade = Omrade::getByFylke( 
