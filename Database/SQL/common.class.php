@@ -1,4 +1,10 @@
 <?php
+
+namespace UKMNorge\Database\SQL;
+
+require_once('UKMconfig.inc.php');
+require_once('UKM/Database/SQL/db.class.php');
+
 /**********************************************************************************************
  * DATABASE SQL COMMON FUNCTIONS CLASS
  * Helper class for all SQL classes, containing common functions across SQL classes

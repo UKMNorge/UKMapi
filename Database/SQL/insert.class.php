@@ -1,9 +1,14 @@
 <?php
+
+namespace UKMNorge\Database\SQL;
+
+require_once('UKM/Database/SQL/common.class.php');
+
 /**********************************************************************************************
  * SQL INSERTION AND UPDATE CLASS
  * Used only to insert stuff, never from a query.
 **/
-class SQLins extends SQLcommon {
+class Insert extends SQLcommon {
     const WRITE_ACCESS_DATABASE = true;
     var $insert_keys = array();
     var $insert_values = array();
