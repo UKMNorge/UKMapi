@@ -121,10 +121,10 @@ class monstring_v2 {
 		}
 		$this->setId( $row['pl_id'] );
 		$this->setNavn( $row['pl_name']);
-		$this->setStart( $row['pl_start'] );
-		$this->setStop( $row['pl_stop'] );
-		$this->setFrist1( $row['pl_deadline'] );
-		$this->setFrist2( $row['pl_deadline2'] );
+		$this->setStart( new DateTime($row['pl_start']) );
+		$this->setStop( new DateTime($row['pl_stop']) );
+		$this->setFrist1( new DateTime($row['pl_deadline']) );
+		$this->setFrist2( new DateTime($row['pl_deadline2']) );
 		$this->setSesong( $row['season'] );
 		$this->setSted( $row['pl_place'] );
 		$this->_setSkjemaId( $row['pl_form'] );
@@ -315,14 +315,20 @@ class monstring_v2 {
 	/**
 	 * Sett start-tidspunkt
 	 *
-	 * @param unixtime $start
+	 * @param DateTime $start
 	 * @return $this
 	**/
-	public function setStart( $unixtime ) {
-		$this->start = $unixtime;
-		$this->start_datetime = null;
+	public function setStart( $time ) {
+        if( !is_string( $time ) && get_class( $time ) == 'DateTime' ) {
+            $this->start_datetime = $time;
+            $this->start = $time->getTimestamp();
+        } else {
+            $this->start = $time;
+            $this->start_datetime = null;
+        }
 		return $this;
-	}
+    }
+    
 	/**
 	 * Hent start-tidspunkt
 	 *
@@ -339,12 +345,17 @@ class monstring_v2 {
 	/**
 	 * Sett stopp-tidspunkt
 	 *
-	 * @param unixtime $stop
+	 * @param DateTime $stop
 	 * @return $this
 	**/
-	public function setStop( $unixtime ) {
-		$this->stop = $unixtime;
-		$this->stop_datetime = null;
+	public function setStop( $time ) {
+        if( !is_string( $time ) && get_class( $time ) == 'DateTime' ) {
+            $this->stop_datetime = $time;
+            $this->stop = $time->getTimestamp();
+        } else {
+            $this->stop = $time;
+            $this->stop_datetime = null;
+        }
 		return $this;
 	}
 	/**
@@ -363,12 +374,17 @@ class monstring_v2 {
 	/**
 	 * Sett frist 1-tidspunkt
 	 *
-	 * @param unixtime $frist1
+	 * @param DateTime $frist1
 	 * @return $this
 	**/
-	public function setFrist1( $unixtime ) {
-		$this->frist_1 = $unixtime;
-		$this->frist_1_datetime = 0;
+	public function setFrist1( $time ) {
+        if( !is_string( $time ) && get_class( $time ) == 'DateTime' ) {
+            $this->frist_1_datetime = $time;
+            $this->frist_1 = $time->getTimestamp();
+        } else {
+            $this->frist_1 = $time;
+            $this->frist_1_datetime = 0;
+        }
 		return $this;
 	}
 	/**
@@ -386,12 +402,17 @@ class monstring_v2 {
 	/**
 	 * Sett frist 2-tidspunkt
 	 *
-	 * @param unixtime $frist2
+	 * @param DateTime $frist2
 	 * @return $this
 	**/
-	public function setFrist2( $unixtime ) {
-		$this->frist_2 = $unixtime;
-		$this->frist_2_datetime = null;
+	public function setFrist2( $time ) {
+        if( !is_string( $time ) && get_class( $time ) == 'DateTime' ) {
+            $this->frist_2_datetime = $time;
+            $this->frist_2 = $time->getTimestamp();
+        } else {
+            $this->frist_2 = $time;
+            $this->frist_2_datetime = null;
+        }
 		return $this;
 	}
 	/**
