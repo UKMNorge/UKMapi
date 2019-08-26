@@ -33,7 +33,11 @@ class monstring_v2 {
 	var $skjema = null;
     var $kontaktpersoner = null;
     var $pamelding = null;
-	
+    var $registrert = null;
+    var $eier_fylke = null;
+    var $eier_fylke_id = null;
+    var $eier_kommune = null;
+    var $eier_kommune_id = null;
 	var $innslagTyper = null;
 	
 	var $uregistrerte = null;
@@ -86,41 +90,34 @@ class monstring_v2 {
 		if( !is_array( $row ) ) {
 			throw new Exception('MONSTRING_V2: _load_by_row krever dataarray!');
 		}
-        // Beregn type
-        $this->setType( $row['pl_type'] );
-        /*
-         * ENDRET DB-STRUKTUR 2019-08-23
-            if( 0 == $row['pl_fylke'] ) {
-                $this->setType('kommune');
-            } elseif( 123456789 == $row['pl_fylke'] ) {
-                $this->setType('land');
-            } else {
-                $this->setType('fylke');
-            }
-        */
-        if( $this->getType() == 'ukjent') {
+        
+        if( $row['pl_type'] == 'ukjent') {
             throw new Exception(
                 'Beklager, kan ikke hente mønstring '. $row['pl_id'] .
                 ' da mønstringstypen er ukjent',
                 101001
             );
         }
+		// Beregn type
+        $this->setType( $row['pl_type'] );
+
+
+        $this->setFylke( $row['pl_owner_fylke'] );
+        $this->setEierFylke( $row['pl_owner_fylke'] );
+        $this->setEierKommune( $row['pl_owner_kommune'] );
+        
+        // Legg til kommuner
+        if( $this->getType() == 'kommune' ) {
+            if( null == $row['k_ids'] ) {
+                $this->setKommuner( array() );
+            } else {
+                $this->setKommuner( explode(',', $row['k_ids'] ) );
+            }
+        }
 		
-		
-		// Sett opp fylkesmønstringen
-		if( 'fylke' == $this->getType() ) {
-			$this->setFylke( $row['pl_fylke'] );
-		} elseif( 'land' == $this->getType() ) {
-			
-		} else {
-			if( null == $row['k_ids'] ) {
-				$this->setKommuner( array() );
-			} else {
-				$this->setKommuner( explode(',', $row['k_ids'] ) );
-			}
-		}
 		$this->setId( $row['pl_id'] );
-		$this->setNavn( $row['pl_name']);
+        $this->setNavn( $row['pl_name']);
+        $this->setRegistrert( $row['pl_registered'] );
 		$this->setStart( new DateTime($row['pl_start']) );
 		$this->setStop( new DateTime($row['pl_stop']) );
 		$this->setFrist1( new DateTime($row['pl_deadline']) );
@@ -131,6 +128,8 @@ class monstring_v2 {
 		$this->setPublikum( $row['pl_public'] );
         $this->setUregistrerte( $row['pl_missing'] );
         $this->setPamelding( $row['pl_pamelding'] == 'true' );
+        $this->setEierFylke( $row['pl_owner_fylke'] );
+        $this->setEierKommune( $row['pl_owner_kommune'] );
 
 		// SET PATH TO BLOG
 		if( isset( $row['pl_link'] ) || ( isset( $row['pl_link'] ) && empty( $row['pl_link'] ) ) ) {
@@ -319,7 +318,7 @@ class monstring_v2 {
 	 * @return $this
 	**/
 	public function setStart( $time ) {
-        if( !is_string( $time ) && get_class( $time ) == 'DateTime' ) {
+        if( !is_numeric( $time ) && get_class( $time ) == 'DateTime' ) {
             $this->start_datetime = $time;
             $this->start = $time->getTimestamp();
         } else {
@@ -349,7 +348,7 @@ class monstring_v2 {
 	 * @return $this
 	**/
 	public function setStop( $time ) {
-        if( !is_string( $time ) && get_class( $time ) == 'DateTime' ) {
+        if( !is_numeric( $time ) && get_class( $time ) == 'DateTime' ) {
             $this->stop_datetime = $time;
             $this->stop = $time->getTimestamp();
         } else {
@@ -378,7 +377,7 @@ class monstring_v2 {
 	 * @return $this
 	**/
 	public function setFrist1( $time ) {
-        if( !is_string( $time ) && get_class( $time ) == 'DateTime' ) {
+        if( !is_numeric( $time ) && get_class( $time ) == 'DateTime' ) {
             $this->frist_1_datetime = $time;
             $this->frist_1 = $time->getTimestamp();
         } else {
@@ -406,7 +405,7 @@ class monstring_v2 {
 	 * @return $this
 	**/
 	public function setFrist2( $time ) {
-        if( !is_string( $time ) && get_class( $time ) == 'DateTime' ) {
+        if( !is_numeric( $time ) && get_class( $time ) == 'DateTime' ) {
             $this->frist_2_datetime = $time;
             $this->frist_2 = $time->getTimestamp();
         } else {
@@ -787,7 +786,7 @@ class monstring_v2 {
 	}
 	
 	public function erRegistrert() {
-		return $this->start > 0;
+		return $this->registrert;
 	}
 	
 	public function erStartet() {
@@ -914,6 +913,13 @@ class monstring_v2 {
     }
 
     /**
+     * @alias harPamelding
+     */ 
+    public function getPamelding() {
+        return $this->harPamelding();
+    }
+
+    /**
      * Si om mønstringen skal ta i mot påmelding fra deltakere
      *
      * @param Bool $pamelding
@@ -922,6 +928,92 @@ class monstring_v2 {
     public function setPamelding($pamelding)
     {
         $this->pamelding = $pamelding;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of registrert
+     */ 
+    public function getRegistrert()
+    {
+        return $this->registrert;
+    }
+
+    /**
+     * Sett om mønstringen er registrert eller ikke
+     *
+     * @param bool $registrert
+     * @return  self
+     */ 
+    public function setRegistrert($registrert)
+    {
+        $this->registrert = $registrert;
+
+        return $this;
+    }
+
+    /**
+     * Hvilket fylke tilhører eieren av arrangementet
+     */ 
+    public function getEierFylke()
+    {
+        if( null == $this->eier_fylke ) {
+            $this->eier_fylke = fylker::getById( $this->eier_fylke_id );
+        }
+        return $this->eier_fylke;
+    }
+
+    /**
+     * Sett hvilket fylke eieren av arrangementet tilhører
+     *
+     * @param (Int|Fylke) $fylke
+     * @return  self
+     */ 
+    public function setEierFylke($fylke)
+    {
+        if( is_object( $fylke ) && get_class( $fylke ) == 'Fylke' ) {
+            $this->eier_fylke = $fylke;
+            $this->eier_fylke_id = $fylke->getId();
+        } else {
+            $this->eier_fylke = null;
+            $this->eier_fylke_id = $fylke;
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Hvilken kommune tilhører eieren av arrangementet
+     */ 
+    public function getEierKommune()
+    {
+        if( 0 === $this->eier_kommune_id ) {
+            return false;
+        }
+
+        if( null == $this->eier_kommune ) {
+            $this->eier_kommune = new kommune( $this->eier_kommune_id );
+        }
+        return $this->eier_kommune;
+    }
+
+    /**
+     * Sett hvilken kommune eieren av arrangementet tilhører
+     *
+     * @param (Int|Kommune) $kommune
+     * @return  self
+     */ 
+    public function setEierKommune($kommune)
+    {
+        if( is_object( $kommune ) && get_class( $kommune ) == 'Kommune' ) {
+            $this->eier_kommune = $kommune;
+            $this->eier_kommune_id = $kommune->getId();
+        } else {
+            $this->eier_kommune = null;
+            $this->eier_kommune_id = $kommune;
+        }
 
         return $this;
     }

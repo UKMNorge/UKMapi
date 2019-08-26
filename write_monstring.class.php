@@ -4,7 +4,18 @@ require_once('UKM/logger.class.php');
 
 
 class write_monstring {
-	public static function create( $type, $sesong, $navn, $datoer, $geografi ) {
+    /**
+     * Undocumented function
+     *
+     * @param Enum[kommune,fylke,land] $type
+     * @param Int $eier: fylke_id, eller kommune_id av eier
+     * @param Int $sesong
+     * @param String $navn
+     * @param StdClass $datoer
+     * @param Array[Kommune] $geografi
+     * @return Monstring $created_monstring
+     */
+	public static function create( $type, $eier_id, $sesong, $navn, $datoer, $geografi ) {
 		// Oppdater loggeren til å bruke riktig PL_ID
 		UKMlogger::setPlId( 0 );
 		
@@ -72,25 +83,32 @@ class write_monstring {
 		$place->add('pl_stop', 0);
 		$place->add('pl_public', 0);
 		$place->add('pl_missing', 0);
-		$place->add('pl_contact', 0);
 		$place->add('pl_form', 0);
-		
+        $place->add('pl_type', $type);
+
 		switch( $type ) {
-			case 'kommune':
-				$place->add('pl_fylke', 0);
-				$place->add('pl_kommune', time());
+            case 'kommune':
+                $kommune = new kommune($eier_id);
+                $place->add('pl_owner_kommune', $eier_id);
+                $place->add('pl_owner_fylke', $kommune->getFylke()->getId());
+				$place->add('old_pl_fylke', 0);
+				$place->add('old_pl_kommune', time());
 				$place->add('pl_deadline', $datoer->frist->getTimestamp());
 				$place->add('pl_deadline2', $datoer->frist->getTimestamp());
 				break;
-			case 'fylke':
-				$place->add('pl_fylke', $geografi->getId());
-				$place->add('pl_kommune', 0);
-				$place->add('pl_deadline', $datoer->frist->getTimestamp());
+            case 'fylke':
+                $place->add('pl_owner_kommune', 0);
+                $place->add('pl_owner_fylke', $eier_id);
+                $place->add('old_pl_fylke', $eier_id);
+				$place->add('old_pl_kommune', 0);
+                $place->add('pl_deadline', $datoer->frist->getTimestamp());
 				$place->add('pl_deadline2', $datoer->frist->getTimestamp());
 				break;
-			case 'land':
-				$place->add('pl_fylke', 123456789);
-				$place->add('pl_kommune', 123456789);
+            case 'land':
+                $place->add('pl_owner_kommune',0);
+                $place->add('pl_owner_fylke',0);
+				$place->add('old_pl_fylke', 123456789);
+				$place->add('old_pl_kommune', 123456789);
 				$place->add('pl_deadline', $datoer->frist->getTimestamp());
 				$place->add('pl_deadline2', $datoer->frist->getTimestamp());
 				break;
@@ -147,7 +165,10 @@ class write_monstring {
 			'Start'			=> ['smartukm_place', 'pl_start', 102],
 			'Stop'			=> ['smartukm_place', 'pl_stop', 103],
 			'Frist1'		=> ['smartukm_place', 'pl_deadline', 106],
-			'Frist2'		=> ['smartukm_place', 'pl_deadline2', 107] 
+            'Frist2'		=> ['smartukm_place', 'pl_deadline2', 107],
+            'Pamelding'     => ['smartukm_place', 'pl_pamelding', 119],
+            'EierFylke'    => ['smartukm_place', 'pl_owner_fylke',120],
+            'EierKommune'  => ['smartukm_place', 'pl_owner_kommune',121]
 		];
 		// VERDIER SOM KUN KAN OPPDATERES HVIS FYLKE
 		if( $monstring_save->getType() == 'fylke' ) {
@@ -161,19 +182,24 @@ class write_monstring {
 			$field = $logValues[1];
 			$action = $logValues[2];
 			$sql = $$table;
-			
-			if( $monstring_db->$function() != $monstring_save->$function() ) {
-				# Mellomlagre verdi som skal settes
-				$value = $monstring_save->$function();
+            
+            try {
+                if( $monstring_db->$function() != $monstring_save->$function() ) {
+                    # Mellomlagre verdi som skal settes
+                    $value = $monstring_save->$function();
 
-				if( is_object( $value ) && get_class( $value ) == 'DateTime' ) {
-					$value = $value->getTimestamp(); // Fordi databasen lagrer datoer som int
-				}
-				# Legg til i SQL
-				$sql->add( $field, $value ); 	// SQL satt dynamisk i foreach til $$table
-				# Logg (eller dø) før vi kjører run
-				UKMlogger::log( $action, $monstring_save->getId(), $value );
-			}
+                    if( is_object( $value ) && get_class( $value ) == 'DateTime' ) {
+                        $value = $value->format('Y-m-d H:i:s'); // Fordi databasen lagrer datoer som int
+                    }
+                    # Legg til i SQL
+                    $sql->add( $field, $value ); 	// SQL satt dynamisk i foreach til $$table
+                    # Logg (eller dø) før vi kjører run
+                    UKMlogger::log( $action, $monstring_save->getId(), $value );
+                }
+            } catch ( Exception $e ) {
+                // Noen verdier kan ikke lagres, som f.eks fylke:0
+                // Lagrer likevel resten
+            }
 		}
 		
 		$res = true; // Fordi smartukm_place->run() vil overskrive hvis det oppstår feil
