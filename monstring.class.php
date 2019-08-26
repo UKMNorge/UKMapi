@@ -86,14 +86,25 @@ class monstring_v2 {
 		if( !is_array( $row ) ) {
 			throw new Exception('MONSTRING_V2: _load_by_row krever dataarray!');
 		}
-		// Beregn type
-		if( 0 == $row['pl_fylke'] ) {
-			$this->setType('kommune');
-		} elseif( 123456789 == $row['pl_fylke'] ) {
-			$this->setType('land');
-		} else {
-			$this->setType('fylke');
-		}
+        // Beregn type
+        $this->setType( $row['pl_type'] );
+        /*
+         * ENDRET DB-STRUKTUR 2019-08-23
+            if( 0 == $row['pl_fylke'] ) {
+                $this->setType('kommune');
+            } elseif( 123456789 == $row['pl_fylke'] ) {
+                $this->setType('land');
+            } else {
+                $this->setType('fylke');
+            }
+        */
+        if( $this->getType() == 'ukjent') {
+            throw new Exception(
+                'Beklager, kan ikke hente mønstring '. $row['pl_id'] .
+                ' da mønstringstypen er ukjent',
+                101001
+            );
+        }
 		
 		
 		// Sett opp fylkesmønstringen
