@@ -5,12 +5,16 @@ namespace UKMNorge\Arrangement;
 use UKMNorge\Database\SQL\Query;
 require_once 'UKM/sql.class.php';
 
-use DateTime;
+use DateTime,DatePeriod,DateInterval;
 use kommuner, kommune;
 use fylker, fylke;
 use innslag, innslag_v2, innslag_type, innslag_typer, innslag_collection;
+use monstringer_v2;
 use kontaktpersoner;
 use context;
+use monstring_skjema;
+use forestillinger, forestilling, forestilling_v2;
+use statistikk;
 
 require_once 'UKM/context.class.php';
 require_once 'UKM/statistikk.class.php';
@@ -72,6 +76,20 @@ class Arrangement {
 				LEFT JOIN `smartukm_rel_pl_k` AS `kommuner`
 					ON (`kommuner`.`pl_id` = `place`.`pl_id`)
 				";
+    }
+    
+	/**
+	 * getLoadQryFylke
+	 * Brukes for å få standardiserte databaserader inn for 
+	 * generering via _load_by_row
+	 *
+	 * WHERE-selector og evt ekstra joins må legges på manuelt
+	**/
+	static function getLoadQryFylke() {
+		return "SELECT `place`.*,
+					NULL AS `k_ids`
+				FROM `smartukm_place` AS `place`
+				";
 	}
 	
 	public function __construct( $id_or_row ) {
@@ -127,7 +145,7 @@ class Arrangement {
 		
 		$this->setId( $row['pl_id'] );
         $this->setNavn( $row['pl_name']);
-        $this->setRegistrert( $row['pl_registered'] );
+        $this->setRegistrert( $row['pl_registered'] == 'true' );
 		$this->setStart( new DateTime($row['pl_start']) );
 		$this->setStop( new DateTime($row['pl_stop']) );
 		$this->setFrist1( new DateTime($row['pl_deadline']) );
@@ -206,7 +224,7 @@ class Arrangement {
 	/**
 	 * Sett type
 	 *
-	 * @param integer $type
+	 * @param String $type
 	 *
 	 * @return $this;
 	**/
@@ -217,7 +235,7 @@ class Arrangement {
 	/**
 	 * Hent type
 	 *
-	 * @return innslag_type $type
+	 * @return String $type
 	**/
 	public function getType( ) {
 		return $this->type;
