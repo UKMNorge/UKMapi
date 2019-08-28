@@ -85,7 +85,7 @@ abstract class Modul {
 			
 			
 			## ACTION CONTROLLER
-            static::require('controller/'. static::getAction() .'.controller.php');
+            static::include('controller/'. static::getAction() .'.controller.php');
             
             ## RENDER
             echo TWIG( strtolower(static::getAction()) .'.html.twig', static::getViewData() , static::getPath(), true);
@@ -257,7 +257,21 @@ abstract class Modul {
             require_once( static::getPluginPath() . $file );
         }
 	}
-	
+
+	/**
+	 * Include a file from the plugin directory if it exists
+	 *
+	 * @param string $file_path_in_plugin_dir
+	 * @return void
+	 */
+    public function include( $file ) {
+        if( strpos( $file, 'UKM/' ) !== 0 ) {
+            $file = static::getPluginPath() . $file;
+        }
+        if( file_exists( $file ) ) {
+            include_once( $file );
+        }
+	}
 	public static function setupLogger() {
 		## SETUP LOGGER
 		global $current_user;
