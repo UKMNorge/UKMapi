@@ -35,6 +35,9 @@ abstract class Modul {
         static::$view_data = [
             'season' => get_option('season')
         ];
+        if( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
+            static::$view_data['POST'] = $_POST;
+        }
         if( isset( $_GET['action'] ) ) {
             static::setAction( $_GET['action'] );
         }
