@@ -39,6 +39,8 @@ class Omrade
     private $navn = null;
     private $administratorer = null;
     private $arrangementer = [];
+    private $fylke = null;
+    private $kommune = null;
 
     public function __construct(String $type, Int $id)
     {
@@ -55,10 +57,12 @@ class Omrade
                     break;
                 case 'fylke':
                     require_once('UKM/fylker.class.php');
-                    $this->navn = Fylker::getById($this->getForeignId())->getNavn();
+                    $this->fylke = Fylker::getById($this->getForeignId());
+                    $this->navn = $this->fylke->getNavn();
                     break;
                 case 'kommune':
-                    $kommune = new kommune($this->getForeignId());
+                    $this->kommune = new kommune($this->getForeignId());
+                    $this->fylke = $kommune->getFylke();
                     $this->navn = $kommune->getNavn();
                     break;
                 case 'monstring':
@@ -119,9 +123,28 @@ class Omrade
                 (int) $this->getForeignId()
             );
         }
-        return $this->arrangementer;
+        
+        return $this->arrangementer[ $season ];
     }
 
+
+    public function getFylke() {
+        if( null == $this->fylke ) {
+            throw new Exception(
+                'Dette området tilhører ikke et fylke'
+            );
+        }
+        return $this->fylke;
+    }
+
+    public function getKommune() {
+        if( null == $this->kommune ) {
+            throw new Exception(
+                'Dette området tilhører ikke en kommune'
+            );
+        }
+        return $this->kommune;
+    }
     /**
      * Get the value of season
      */ 
