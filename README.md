@@ -32,4 +32,5 @@ prefix | objekt | les | skriv
 61 | Nettverk/Administrator | 161yyy | 561yyy
 62 | Nettverk/Omrade | 162yyy | 562yyy
 71 | Wordpress/User | 171yyy | 571yyy
+72 | Wordpress/Blog | 172yyy | 572yyy
 81 | Slack | 181yyy | 581yyy
