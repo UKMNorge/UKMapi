@@ -100,6 +100,9 @@ abstract class SQLcommon {
 	 * @return string sanitized value
 	**/
 	public function sanitize( $value ) {
+        if( is_object( $value ) && get_class( $value ) == 'DateTime' ) {
+            $value = $value->format('Y-m-d H:i:s'); // Fordi databasen lagrer datoer som int
+        }
 		if( static::WRITE_ACCESS_DATABASE ) {
 			return DBwrite::real_escape_string( trim( strip_tags( $value ) ) );
 		}
