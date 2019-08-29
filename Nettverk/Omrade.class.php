@@ -46,31 +46,30 @@ class Omrade
     {
         $this->type = $type;
         $this->id = $id;
+
+        switch ($this->getType()) {
+            case 'land':
+                $this->navn = 'Norge';
+                break;
+            case 'fylke':
+                require_once('UKM/fylker.class.php');
+                $this->fylke = Fylker::getById($this->getForeignId());
+                $this->navn = $this->fylke->getNavn();
+                break;
+            case 'kommune':
+                $this->kommune = new kommune($this->getForeignId());
+                $this->fylke = $this->kommune->getFylke();
+                $this->navn = $this->kommune->getNavn();
+                break;
+            case 'monstring':
+                $monstring = new Arrangement($this->getForeignId());
+                $this->navn = $monstring->getNavn();
+                break;
+        }
     }
 
     public function getNavn()
     {
-        if ($this->navn == null) {
-            switch ($this->getType()) {
-                case 'land':
-                    $this->navn = 'Norge';
-                    break;
-                case 'fylke':
-                    require_once('UKM/fylker.class.php');
-                    $this->fylke = Fylker::getById($this->getForeignId());
-                    $this->navn = $this->fylke->getNavn();
-                    break;
-                case 'kommune':
-                    $this->kommune = new kommune($this->getForeignId());
-                    $this->fylke = $kommune->getFylke();
-                    $this->navn = $kommune->getNavn();
-                    break;
-                case 'monstring':
-                    $monstring = new Arrangement($this->getForeignId());
-                    $this->navn = $monstring->getNavn();
-                    break;
-            }
-        }
         return $this->navn;
     }
 
