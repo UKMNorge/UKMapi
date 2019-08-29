@@ -100,7 +100,8 @@ class fylke {
 
 			$sql = new SQL("SELECT * 
 							FROM `smartukm_kommune` 
-							WHERE `idfylke` = '#fylke'",
+                            WHERE `idfylke` = '#fylke'
+                            ORDER BY `name` ASC",
 						  array('fylke'=>$this->getId() )
 						);
 			$res = $sql->run();
