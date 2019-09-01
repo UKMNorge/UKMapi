@@ -13,6 +13,9 @@ interface Klassapi_interface {
 	# Datasettene er sortert etter codes
 	public function getCodes($debug = false);
 
+	# Henter alle endringer i datasettet i gitt range.
+	public function getChanges($debug = false);
+
 	# Dette er funksjonen som kjører spørringen mot SSBs systemer.
 	public function run();
 
@@ -39,6 +42,27 @@ class Klassapi implements Klassapi_interface {
 		}
 
 		$url = self::API_URL . $this->classificationId . "/codes?";
+
+		$url .= "from=".$this->start->format("Y-m-d");
+		$url .= "&to=" .$this->stop->format("Y-m-d");
+
+		$curl = new UKMCURL();
+		$curl->addHeader("Accept: application/json; charset: UTF-8");
+		return $curl->request($url);
+	}
+
+	public function getChanges($debug = false) {
+		if(null == $this->classificationId) {
+			throw new Exception("Kan ikke kjøre en Klass-spørring mot ukjent klassifisering.");
+		}
+
+		if(null == $this->start || null == $this->stop || $this->start > $this->stop) {
+			echo "Start: " . var_export($this->start, true);
+			echo "Stop: " . var_export($this->stop, true);
+			throw new Exception("Klass-spørring for koder krever en gyldig dato-range. Kjør setRange()");
+		}
+
+		$url = self::API_URL . $this->classificationId . "/changes?";
 
 		$url .= "from=".$this->start->format("Y-m-d");
 		$url .= "&to=" .$this->stop->format("Y-m-d");
