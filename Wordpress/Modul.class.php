@@ -96,7 +96,7 @@ abstract class Modul {
             // Hvis modulen bruker TwigJS
             if( file_exists( static::getTwigJsPath() ) ) {
                 require_once('UKM/inc/twig-js.inc.php');
-                echo TWIGjs( static::getTwigJsPath() );
+                echo TWIGjs_simple( static::getTwigJsPath() );
             }
         } catch( Exception $e  ) {
             // Attempt to die gracefully
@@ -192,6 +192,8 @@ abstract class Modul {
 	 * @return void
 	 */
 	public static function ajax() {
+        header('Content-Type: application/json');
+
 		if( is_array( $_POST ) ) {
 			self::addResponseData('POST', $_POST );
 		}
