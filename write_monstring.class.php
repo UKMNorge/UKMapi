@@ -1,5 +1,5 @@
 <?php
-require_once('UKM/Arrangement/Arrangement.class.php');
+require_once('UKM/Arrangement/Arrangement.php');
 require_once('UKM/logger.class.php');
 require_once('UKM/monstring.class.php');
 

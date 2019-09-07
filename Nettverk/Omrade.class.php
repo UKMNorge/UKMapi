@@ -2,7 +2,7 @@
 
 namespace UKMNorge\Nettverk;
 
-require_once('UKM/Arrangement/Arrangementer.collection.php');
+require_once('UKM/Arrangement/Arrangementer.php');
 
 use UKMNorge\Arrangement\Arrangementer;
 use UKMNorge\Arrangement\Arrangement;

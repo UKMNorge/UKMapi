@@ -5,6 +5,8 @@ namespace UKMNorge\Wordpress;
 use Exception;
 use UKMNorge\Arrangement\Arrangement;
 use innslag_type;
+use fylke;
+use kommune;
 
 class Blog
 {
@@ -89,11 +91,70 @@ class Blog
      */
     public static function opprettForArrangement(Arrangement $arrangement, String $path)
     {
+        $blog_id = static::opprett( $path, $arrangement->getNavn());
+        static::oppdaterFraArrangement($blog_id, $arrangement);
+        return $blog_id;
+    }
 
-        $path = static::controlPath($path);
+    /**
+     * Opprett en blogg for et fylke
+     *
+     * @param fylke $fylke
+     * @return Int $blog_id
+     */
+    public static function opprettForFylke(fylke $fylke)
+    {
+        $path = static::controlPath(
+            static::sanitizePath( '/'. $fylke->getNavn() )
+        );
+        $blog_id = static::opprett( $path, $fylke->getNavn());        
+        
+        static::applyMeta(
+            $blog_id, 
+            [
+                'fylke'             => $fylke->getId(),
+                'site_type'         => 'fylke'
+            ]
+        );
+    
+        return $blog_id;
+    }
+
+    /**
+     * Opprett en blogg for en kommune/bydel
+     *
+     * @param kommune $kommune
+     * @return Int $blog_id
+     */
+    public static function opprettForKommune(kommune $kommune)
+    {
+        $path = static::controlPath(
+            static::sanitizePath( '/'. $kommune->getNavn() )
+        );
+        $blog_id = static::opprett( $path, $kommune->getNavn());
+        
+        static::applyMeta(
+            $blog_id, 
+            [
+                'kommuner'           => $kommune->getId(),
+                'site_type'         => 'kommune'
+            ]
+        );
+    
+        return $blog_id;
+    }
+
+    /**
+     * Opprett en blogg
+     *
+     * @param String $path
+     * @param String $navn
+     * @return Int $blog_id
+     */
+    public static function opprett( String $path, String $navn ) {
         if (static::eksisterer($path)) {
             throw new Exception(
-                'Kunne ikke opprette blogg da mønstringen allerede eksisterer',
+                'Kunne ikke opprette blogg da siden allerede eksisterer',
                 172008
             );
         }
@@ -105,17 +166,19 @@ class Blog
                 'path' => $path,
                 'network_id' => 1,
                 'user_id' => 1,
-                'title' => $arrangement->getNavn()
+                'title' => $navn
             ]
         );
         if( is_numeric( $blog_id ) ) {
             $blog_id = (Int) $blog_id;
         }
         static::controlBlogId($blog_id);
-        static::oppdaterFraArrangement($blog_id, $arrangement);
+        static::setStandardInnstillinger( $blog_id );
+        static::setStandardInnhold($blog_id);
 
         return $blog_id;
     }
+
 
     /**
      * Oppdater en blogg til å stemme med standardinnhold og -innstillinger
@@ -127,10 +190,8 @@ class Blog
     public static function oppdaterFraArrangement(Int $blog_id, Arrangement $arrangement)
     {
         static::controlBlogId($blog_id);
-        // Fellesinnstillinger for alle blogger (tema, frontpage osv)
-        static::setStandardInnstillinger($blog_id);
         static::setArrangementData($blog_id, $arrangement);
-        static::setStandardInnhold($blog_id, $arrangement->getType());
+        static::setStandardInnholdArrangement($blog_id, $arrangement->getType());        
     }
 
     /**
@@ -361,13 +422,43 @@ class Blog
             'fylke'             => $arrangement->getFylke()->getId(),
             'site_type'         => $arrangement->getType(),
             'pl_id'             => $arrangement->getId(),
-            'ukm_pl_id'         => $arrangement->getId(),
             'season'            => $arrangement->getSesong(),
         ];
         if ($arrangement->getType() == 'kommune') {
             $meta['kommuner'] = implode(',', $arrangement->getKommuner()->getIdArray());
         }
         static::applyMeta($blog_id, $meta);
+    }
+
+    /**
+     * Slett all arrangement-data fra en gitt blogg
+     *
+     * @param Int $blog_id
+     * @return void
+     */
+    public static function fjernArrangementData( Int $blog_id ) {
+        // META-DATA
+        $metas = [
+            'pl_id',
+            'season',
+            'kommuner',
+            'ukm_pl_id'
+        ];
+
+        foreach( $metas as $meta ) {
+            delete_blog_option( $blog_id, $meta );
+        }
+
+        // STANDARD-SIDER
+        $pages = [
+            'bilder',
+            'pameldte',
+            'program',
+            'kontaktpersoner',
+            'lokalmonstringer',
+            'info' // TODO: sjekk om dette er slug for standard infoside
+        ];
+        static::fjernSider( $blog_id, $pages );
     }
 
     /**
@@ -393,24 +484,68 @@ class Blog
         static::applyMeta($blog_id, $meta);
     }
 
-    public static function setStandardInnhold(Int $blog_id, String $arrangement_type)
+    /**
+     * Legg til standard-innhold på bloggen
+     *
+     * @param Int $blog_id
+     * @return void
+     */
+    public static function setStandardInnhold(Int $blog_id)
     {
         static::controlBlogId($blog_id);
-        switch_to_blog($blog_id);
-
+        
         // Kategorier
-        $cat_defaults = array(
-            'cat_name' => 'Nyheter',
-            'category_description' => 'nyheter',
-            'category_nicename' => 'Nyheter',
-            'category_parent' => 0,
-            'taxonomy' => 'category'
+        static::leggTilKategorier(
+            $blog_id,
+            [
+                [
+                    'cat_name' => 'Nyheter',
+                    'category_description' => 'nyheter',
+                    'category_nicename' => 'Nyheter',
+                    'category_parent' => 0,
+                    'taxonomy' => 'category'
+                ]
+            ]
         );
-        wp_insert_category($cat_defaults);
+        
         // Sider
+        static::leggTilSider(
+            $blog_id,
+            [
+                ['id' => 'forside', 'name' => 'Forside', 'viseng' => null],
+                ['id' => 'nyheter', 'name' => 'Nyheter', 'viseng' => null]
+            ]
+        );
+
+        // Fjern standard-sider
+        static::fjernSider(
+            $blog_id,
+            [
+                'hei-verden'
+            ]
+        );
+
+        // Sett standard-front
+        static::switchTo($blog_id);
+        $page_on_front = get_page_by_path('forside');
+        $page_for_posts = get_page_by_path('nyheter');
+        static::restore();
+
+        // Sett standard visningssider
+        update_blog_option($blog_id, 'show_on_front', 'posts'); // 2019-02-07: endret til posts for at paginering skal funke
+        update_blog_option($blog_id, 'page_on_front', $page_on_front->ID);
+        update_blog_option($blog_id, 'page_for_posts', $page_for_posts->ID);
+    }
+
+    /**
+     * Sett standard-innhold for en arrangement-side
+     *
+     * @param Int $blog_id
+     * @param String $arrangement_type
+     * @return void
+     */
+    public static function setStandardInnholdArrangement( Int $blog_id, String $arrangement_type) {
         $sider = [
-            ['id' => 'forside', 'name' => 'Forside', 'viseng' => null],
-            ['id' => 'nyheter', 'name' => 'Nyheter', 'viseng' => null],
             ['id' => 'bilder', 'name' => 'Bilder', 'viseng' => 'bilder'],
             ['id' => 'pameldte', 'name' => 'Påmeldte', 'viseng' => 'pameldte'],
             ['id' => 'program', 'name' => 'Program', 'viseng' => 'program'],
@@ -419,6 +554,20 @@ class Blog
         if ($arrangement_type !== 'kommune') {
             $sider[] = ['id' => 'lokalmonstringer', 'name' => 'Lokalmønstringer', 'viseng' => 'lokalmonstringer'];
         }
+        static::leggTilSider( $blog_id, $sider );
+    }
+
+    /**
+     * Legg til et array av sider til gitt blogg
+     * Eksempel-data side: ['id' => 'bilder', 'name' => 'Bilder', 'viseng' => 'bilder']
+     * Eksempel-data side: ['id' => 'forside', 'name' => 'Forside', 'viseng' => null]
+     *
+     * @param Int $blog_id
+     * @param Array $sider
+     * @return void
+     */
+    public static function leggTilSider( Int $blog_id, Array $sider ) {
+        static::switchTo($blog_id);
 
         foreach ($sider as $side) {
             $page = array(
@@ -446,23 +595,54 @@ class Blog
                 add_post_meta($page_id, 'UKMviseng', $side['viseng']);
             }
         }
+        static::restore();
+    }
 
-        // Slett "hei verden"
-        $hello_world = get_page_by_path('hei-verden', OBJECT, 'post');
-        if (is_object($hello_world)) {
-            wp_delete_post($hello_world->ID);
+    /**
+     * Fjern er array av page-slugs fra gitt blogg
+     *
+     * @param Int $blog_id
+     * @param Array $sider
+     * @return void
+     */
+    public static function fjernSider( Int $blog_id, Array $sider ) {
+        static::switchTo($blog_id);
+        
+        foreach( $sider as $side ) {
+            $page = get_page_by_path($side, OBJECT, 'post');
+            if (is_object($page)) {
+                wp_delete_post($page->ID);
+            }
         }
 
-        $page_on_front = get_page_by_path('forside');
-        $page_for_posts = get_page_by_path('nyheter');
-
-        // Sett standard visningssider
-        update_blog_option($blog_id, 'show_on_front', 'posts'); // 2019-02-07: endret til posts for at paginering skal funke
-        update_blog_option($blog_id, 'page_on_front', $page_on_front->ID);
-        update_blog_option($blog_id, 'page_for_posts', $page_for_posts->ID);
-
-        restore_current_blog();
+        static::restore();
     }
+
+    /**
+     * Legg til et array med kategorier til gitt blogg
+     * Eksempel-data kategori:  [
+     *          'cat_name' => 'Nyheter',
+     *          'category_description' => 'nyheter',
+     *          'category_nicename' => 'Nyheter',
+     *          'category_parent' => 0,
+     *          'taxonomy' => 'category'
+     *     ]
+     * 
+     * 
+     * @param Int $blog_id
+     * @param Array $kategorier
+     * @return void
+     */
+    public static function leggTilKategorier( Int $blog_id, Array $kategorier ) {
+        static::switchTo($blog_id);
+
+        foreach( $kategorier as $kategori ) {
+            wp_insert_category($kategori);
+        }
+        
+        static::restore();
+    }
+
 
     /**
      * Sett meta-data på bloggen
@@ -473,10 +653,23 @@ class Blog
      */
     public static function applyMeta(Int $blog_id, array $meta)
     {
-        static::controlBlogId($blog_id);
+        static::switchTo($blog_id);
+
         foreach ($meta as $key => $value) {
             add_blog_option($blog_id, $key, $value);
             update_blog_option($blog_id, $key, $value, true);
         }
+
+        static::restore();
     }
+
+    public static function switchTo( Int $blog_id ) {
+        static::controlBlogId($blog_id);
+        switch_to_blog($blog_id);
+    }
+
+    public static function restore() {
+        restore_current_blog();
+    }
+
 }
