@@ -17,6 +17,7 @@ use monstring_skjema;
 use forestillinger, forestilling, forestilling_v2;
 use statistikk;
 use UKMNorge\Google\StaticMap;
+use UKMNorge\Arrangement\Videresending\Videresending;
 
 require_once 'UKM/context.class.php';
 require_once 'UKM/statistikk.class.php';
@@ -67,7 +68,10 @@ class Arrangement {
 	var $fylkesmonstringer = null;
 	
 	var $dager = null;
-	var $netter = null;
+    var $netter = null;
+    
+    var $videresending = null;
+
 	/**
 	 * getLoadQry
 	 * Brukes for å få standardiserte databaserader inn for 
@@ -1121,6 +1125,19 @@ class Arrangement {
         $this->er_monstring = $erMonstring;
 
         return $this;
+    }
+
+    /**
+     * Hent informasjon om videresending til og fra denne mønstringen
+     * Alle mønstringer kan ta i mot videresendinger
+     */ 
+    public function getVideresending()
+    {
+        if( null == $this->videresending ) {
+            require_once('UKM/Arrangement/Videresending/Videresending.php');
+            $this->videresending = new Videresending( (Int) $this->getId() );
+        }
+        return $this->videresending;
     }
 }
 ?>
