@@ -504,12 +504,19 @@ class Arrangement {
 	 * @return bool
 	**/
 	public function harKommune( $kommune ) {
+        if( $this->kommuner_id == null ) {
+            return false;
+        }
+        
 		if( is_numeric( $kommune ) ) {
 			$kommuneId = $kommune;
 		} else {
 			$kommuneId = $kommune->getId();
 		}
-		return in_array($kommuneId, $this->kommuner_id );
+		return in_array(
+            $kommuneId, 
+            $this->kommuner_id == null ? [] : $this->kommuner_id // For å ikke forvirre intelliphens 
+        );
 	}
 	/**
 	 * Sett kommuner
