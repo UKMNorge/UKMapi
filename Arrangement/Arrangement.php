@@ -162,7 +162,7 @@ class Arrangement {
 		$this->_setSkjemaId( $row['pl_form'] );
 		$this->setPublikum( $row['pl_public'] );
         $this->setUregistrerte( $row['pl_missing'] );
-        $this->setPamelding( $row['pl_pamelding'] == 'true' );
+        $this->setPamelding( $row['pl_pamelding'] );
         $this->setEierFylke( $row['pl_owner_fylke'] );
         $this->setEierKommune( $row['pl_owner_kommune'] );
         $this->setErMonstring( in_array( $this->getType(), ['kommune','fylke','land'] ) );
@@ -942,23 +942,28 @@ class Arrangement {
 
     /**
      * Tar mønstringen i mot påmelding fra deltakere
+     * Skiller ikke på åpen eller betinget påmelding
+     * @return Bool
      */ 
     public function harPamelding()
     {
-        return $this->pamelding;
+        return in_array(
+            $this->getPamelding(),
+            ['apen','betinget']
+        );
     }
 
     /**
-     * @alias harPamelding
+     * Hvilken type påmelding har mønstringen
      */ 
     public function getPamelding() {
-        return $this->harPamelding();
+        return $this->pamelding;
     }
 
     /**
      * Si om mønstringen skal ta i mot påmelding fra deltakere
      *
-     * @param Bool $pamelding
+     * @param String $pamelding
      * @return  self
      */ 
     public function setPamelding($pamelding)
