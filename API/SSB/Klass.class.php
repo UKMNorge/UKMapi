@@ -36,8 +36,6 @@ class Klassapi implements Klassapi_interface {
 		}
 
 		if(null == $this->start || null == $this->stop || $this->start > $this->stop) {
-			echo "Start: " . var_export($this->start, true);
-			echo "Stop: " . var_export($this->stop, true);
 			throw new Exception("Klass-spørring for koder krever en gyldig dato-range. Kjør setRange()");
 		}
 
