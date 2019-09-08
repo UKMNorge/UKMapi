@@ -23,7 +23,7 @@ class write_kontakt {
         $sql = new SQLins('smartukm_contacts');
         $sql->add('firstname', $fornavn);
         $sql->add('lastname', $etternavn);
-        $sql->add('tlf', $mobil);
+        $sql->add('tlf', $telefon);
         $kontakt_id = $sql->run(); 
         
         // Database-oppdatering feilet
