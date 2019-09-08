@@ -25,7 +25,8 @@ ADD COLUMN `pl_deadline2` DATETIME AFTER `pl_deadline`,
 ADD COLUMN `pl_pamelding` ENUM('apen','betinget','videresending') NOT NULL DEFAULT 'apen' AFTER `pl_deadline2`,
 ADD COLUMN `pl_owner_fylke` INT(3) AFTER `pl_pamelding`,
 ADD COLUMN `pl_owner_kommune` INT(4) AFTER `pl_fylke`,
-ADD COLUMN `pl_type` ENUM('kommune','fylke','land','ukjent') NOT NULL DEFAULT 'ukjent' AFTER `pl_name`;
+ADD COLUMN `pl_type` ENUM('kommune','fylke','land','ukjent') NOT NULL DEFAULT 'ukjent' AFTER `pl_name`,
+ADD COLUMN `pl_location` JSON AFTER `pl_place`;
 #ADD COLUMN `pl_type` ENUM('monstring_liten','monstring_stor','monstring','workshop') NOT NULL DEFAULT 'monstring' AFTER `pl_name`;
 
 # OVERFØR TIMESTAMPS
@@ -120,4 +121,5 @@ INSERT INTO `log_actions` (`log_action_id`, `log_action_verb`, `log_action_eleme
 VALUES
 	(119, 'endret', 'mønstringen har påmelding', 'bool', 'smartukm_place|pl_pamelding', 1),
 	(120, 'endret', 'eier, fylke', 'int', 'smartukm_place|pl_owner_fylke', 1),
-	(121, 'endret', 'eier, kommune', 'int', 'smartukm_place|pl_owner_kommune', 1);
+	(121, 'endret', 'eier, kommune', 'int', 'smartukm_place|pl_owner_kommune', 1),
+    (122, 'endret', 'lokasjon (kart)', 'text', 'smartukm_place|pl_location', 1);
