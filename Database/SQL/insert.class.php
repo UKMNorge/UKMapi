@@ -1,6 +1,7 @@
 <?php
 
 namespace UKMNorge\Database\SQL;
+use Exception;
 
 require_once('UKM/Database/SQL/common.class.php');
 
