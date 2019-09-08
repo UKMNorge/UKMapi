@@ -9,16 +9,15 @@ class write_monstring {
     /**
      * Opprett ny mønstring (Arrangement)
      *
-     * @param Enum[kommune,fylke,land] $type
+     * @param String [kommune|fylke|land] $type
      * @param Int $eier: fylke_id, eller kommune_id av eier
      * @param Int $sesong
      * @param String $navn
-     * @param DateTime $frist
      * @param Array[Kommune] $geografi
      * @param String $path
      * @return Arrangement $created_monstring
      */
-	public static function create( $type, $eier_id, $sesong, $navn, $frist, $geografi, $path ) {
+	public static function create( $type, $eier_id, $sesong, $navn, $geografi, $path ) {
 		// Oppdater loggeren til å bruke riktig PL_ID
 		UKMlogger::setPlId( 0 );
 		
@@ -32,9 +31,6 @@ class write_monstring {
 		}
 		if( !is_int( $sesong ) ) {
 			throw new Exception('Monstring_v2::create: Sesong må være integer');
-		}
-		if( !is_object( $frist ) || get_class( $frist ) !== 'DateTime' ) {
-			throw new Exception('Monstring_v2::create: Frist må være DateTime-objekt');
 		}
 		
 		switch( $type ) {
@@ -76,8 +72,8 @@ class write_monstring {
 		$place->add('pl_missing', 0);
 		$place->add('pl_form', 0);
         $place->add('pl_type', $type);
-        $place->add('pl_deadline', $frist);
-        $place->add('pl_deadline2', $frist);
+        $place->add('pl_deadline', static::getStandardFrist( $sesong, $type));
+        $place->add('pl_deadline2', static::getStandardFrist( $sesong, $type));
 
 		switch( $type ) {
             case 'kommune':
