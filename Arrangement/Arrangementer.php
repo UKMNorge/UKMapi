@@ -38,7 +38,7 @@ class Arrangementer
                 break;
             case 'fylke':
                 $sql = new Query(
-                    Arrangement::getLoadQry()
+                    Arrangement::getLoadQryFylke()
                         . "WHERE `pl_type` = 'fylke'
                         AND `pl_owner_fylke` = '#omrade_id'",
                     [
