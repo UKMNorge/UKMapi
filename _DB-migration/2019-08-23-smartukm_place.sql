@@ -22,7 +22,7 @@ ADD COLUMN `pl_start` DATETIME AFTER `pl_registered`,
 ADD COLUMN `pl_stop` DATETIME AFTER `pl_start`,
 ADD COLUMN `pl_deadline` DATETIME AFTER `pl_stop`,
 ADD COLUMN `pl_deadline2` DATETIME AFTER `pl_deadline`,
-ADD COLUMN `pl_pamelding` ENUM('true','false') NOT NULL DEFAULT 'true' AFTER `pl_deadline2`,
+ADD COLUMN `pl_pamelding` ENUM('apen','betinget','videresending') NOT NULL DEFAULT 'apen' AFTER `pl_deadline2`,
 ADD COLUMN `pl_owner_fylke` INT(3) AFTER `pl_pamelding`,
 ADD COLUMN `pl_owner_kommune` INT(4) AFTER `pl_fylke`,
 ADD COLUMN `pl_type` ENUM('kommune','fylke','land','ukjent') NOT NULL DEFAULT 'ukjent' AFTER `pl_name`;
