@@ -16,6 +16,7 @@ use context;
 use monstring_skjema;
 use forestillinger, forestilling, forestilling_v2;
 use statistikk;
+use UKMNorge\Google\StaticMap;
 
 require_once 'UKM/context.class.php';
 require_once 'UKM/statistikk.class.php';
@@ -27,7 +28,9 @@ class Arrangement {
 	var $id = null;
 	var $type = null;
 	var $navn = null;
-	var $sted = null;
+    var $sted = null;
+    var $googleMap = null;
+    var $googleMapData = null;
 	var $start = null;
 	var $start_datetime = null;
 	var $stop = null;
@@ -54,7 +57,9 @@ class Arrangement {
     var $eier_kommune = null;
     var $eier_kommune_id = null;
 	var $innslagTyper = null;
-	
+    
+    var $er_monstring = null;
+
 	var $uregistrerte = null;
 	var $publikum = null;
 	
@@ -152,13 +157,15 @@ class Arrangement {
 		$this->setFrist1( new DateTime($row['pl_deadline']) );
 		$this->setFrist2( new DateTime($row['pl_deadline2']) );
 		$this->setSesong( $row['season'] );
-		$this->setSted( $row['pl_place'] );
+        $this->setSted( $row['pl_place'] );
+        $this->setGoogleMapData( $row['pl_location'] );
 		$this->_setSkjemaId( $row['pl_form'] );
 		$this->setPublikum( $row['pl_public'] );
         $this->setUregistrerte( $row['pl_missing'] );
         $this->setPamelding( $row['pl_pamelding'] == 'true' );
         $this->setEierFylke( $row['pl_owner_fylke'] );
         $this->setEierKommune( $row['pl_owner_kommune'] );
+        $this->setErMonstring( in_array( $this->getType(), ['kommune','fylke','land'] ) );
 
 		// SET PATH TO BLOG
 		if( isset( $row['pl_link'] ) || ( isset( $row['pl_link'] ) && empty( $row['pl_link'] ) ) ) {
@@ -1043,6 +1050,63 @@ class Arrangement {
             $this->eier_kommune = null;
             $this->eier_kommune_id = $kommune;
         }
+
+        return $this;
+    }
+
+    /**
+     * Get the value of googleMap
+     */ 
+    public function getGoogleMap()
+    {
+        require_once('UKM/Google/StaticMap.php');
+        if( null == $this->googleMap ) {
+            $this->googleMap = StaticMap::fromJSON( json_decode( $this->getGoogleMapData() ) );
+        }
+        return $this->googleMap;
+    }
+
+    /**
+     * Set the value of googleMapData
+     *
+     * @return  self
+     */ 
+    public function setGoogleMapData($jsonData)
+    {
+        $this->googleMapData = $jsonData;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of googleMapData
+     *
+     * @return Json $googleMapData
+     */ 
+    public function getGoogleMapData()
+    {
+        return $this->googleMapData;
+    }
+
+    /**
+     * Get the value of erMonstring
+     * 
+     * @return Bool $erMonstring
+     */ 
+    public function getErMonstring()
+    {
+        return $this->er_monstring;
+    }
+
+    /**
+     * Set the value of erMonstring
+     *
+     * @param Bool $erMonstring
+     * @return  self
+     */ 
+    public function setErMonstring( Bool $erMonstring )
+    {
+        $this->er_monstring = $erMonstring;
 
         return $this;
     }

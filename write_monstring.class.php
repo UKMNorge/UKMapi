@@ -2,6 +2,7 @@
 require_once('UKM/Arrangement/Arrangement.php');
 require_once('UKM/logger.class.php');
 require_once('UKM/monstring.class.php');
+require_once('UKM/Google/StaticMap.php');
 
 use UKMNorge\Arrangement\Arrangement;
 
@@ -157,8 +158,9 @@ class write_monstring {
 			'Frist1'		=> ['smartukm_place', 'pl_deadline', 106],
             'Frist2'		=> ['smartukm_place', 'pl_deadline2', 107],
             'Pamelding'     => ['smartukm_place', 'pl_pamelding', 119],
-            'EierFylke'    => ['smartukm_place', 'pl_owner_fylke',120],
-            'EierKommune'  => ['smartukm_place', 'pl_owner_kommune',121]
+            'EierFylke'     => ['smartukm_place', 'pl_owner_fylke',120],
+            'EierKommune'   => ['smartukm_place', 'pl_owner_kommune',121],
+            'GoogleMapData' => ['smartukm_place', 'pl_location',122]
 		];
 		// VERDIER SOM KUN KAN OPPDATERES HVIS FYLKE
 		if( $monstring_save->getType() == 'fylke' ) {
