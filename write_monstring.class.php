@@ -582,7 +582,21 @@ class write_monstring {
 	**/
 	public function addKontaktperson( $kontakt ) {
 		die('DEPRECATED: Endre kontaktpersoner direkte på mønstringen, og kall write_monstring::save( $monstring )');
-	}
+    }
+    
+    /**
+     * Konverter input-data til DateTime for dato+tid-lagring
+     *
+     * @param String $date d.m.Y
+     * @param String $time H:i, default 00:00
+     * @return DateTime
+     */
+    public static function inputToDateTime( String $date, String $time='00:00' ) {
+        return DateTime::createFromFormat(
+            'd.m.Y-H:i', 
+            $date.'-'.$time
+        );
+    }
 
 	/**
 	 * Faktisk legg til en ny type innslag til mønstringen (db-modifier)
