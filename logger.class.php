@@ -77,5 +77,14 @@ class UKMlogger {
 		self::setUser( $user );
 		self::setPlId( $pl_id );
 	}
-	
+    
+    static function initWP( $pl_id ) {
+        self::setSystem('wordpress');
+        global $current_user;
+        if( get_class( $current_user ) !== 'WP_User' ) {
+            throw new Exception('UKMlogger: ugyldig $current_user');
+        }
+        self::setUser(  $current_user->ID );
+        self::setPlId( $pl_id );
+    }
 }
