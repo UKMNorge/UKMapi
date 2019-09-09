@@ -6,6 +6,7 @@ require_once('UKM/Arrangement/Arrangementer.php');
 
 use UKMNorge\Arrangement\Arrangementer;
 use UKMNorge\Arrangement\Arrangement;
+use UKMNorge\Nettverk\Administratorer;
 use Fylker;
 use kommune;
 
@@ -109,6 +110,7 @@ class Omrade
     public function getAdministratorer()
     {
         if (null == $this->administratorer) {
+            require_once('UKM/Nettverk/Administrator.collection.php');
             $this->administratorer = new Administratorer($this->getType(), $this->getForeignId());
         }
         return $this->administratorer;

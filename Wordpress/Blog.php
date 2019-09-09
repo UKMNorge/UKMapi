@@ -72,7 +72,7 @@ class Blog
     public static function sanitizePath(String $path)
     {
         return preg_replace(
-            "/[^a-z0-9_]/",
+            "/[^a-z0-9-]/",
             '',
             str_replace(
                 ['æ', 'ø', 'å', 'ü', 'é', 'è'],

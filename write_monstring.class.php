@@ -521,8 +521,8 @@ class write_monstring {
 
 
 	public static function controlMonstring( $monstring ) {
-		if( get_class( $monstring ) !== 'monstring_v2' ) {
-			throw new Exception('mønstring ikke er objekt av typen monstring_v2');
+		if( !in_array( get_class( $monstring ), ['monstring_v2','UKMNorge\Arrangement\Arrangement']) ) {
+			throw new Exception('mønstring ikke er objekt av typen monstring_v2 / Arrangement. Fikk ('. get_class( $monstring ).')');
 		}
 		if( !is_numeric( $monstring->getId() ) ) {
 			throw new Exception('mønstring ikke har numerisk ID');
