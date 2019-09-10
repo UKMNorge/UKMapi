@@ -88,7 +88,7 @@ abstract class Modul {
 			
 			
 			## ACTION CONTROLLER
-            static::include('controller/'. static::getAction() .'.controller.php');
+            static::includeActionController();
             
             ## RENDER
             echo TWIG( strtolower(static::getAction()) .'.html.twig', static::getViewData() , static::getPath(), true);
@@ -276,7 +276,12 @@ abstract class Modul {
         if( file_exists( $file ) ) {
             include_once( $file );
         }
-	}
+    }
+    
+    public static function includeActionController() {
+        static::include('controller/'. static::getAction() .'.controller.php');
+    }
+
 	public static function setupLogger() {
 		## SETUP LOGGER
 		global $current_user;
