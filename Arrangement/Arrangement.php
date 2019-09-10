@@ -19,7 +19,6 @@ use statistikk;
 use UKMNorge\Google\StaticMap;
 use UKMNorge\Arrangement\Videresending\Videresending;
 use UKMNorge\Meta\Collection;
-use UKMNorge\Meta\ParentObject;
 
 require_once 'UKM/context.class.php';
 require_once 'UKM/statistikk.class.php';
@@ -1133,6 +1132,8 @@ class Arrangement {
     /**
      * Hent informasjon om videresending til og fra denne mønstringen
      * Alle mønstringer kan ta i mot videresendinger
+     * 
+     * @return Videresending
      */ 
     public function getVideresending()
     {
@@ -1144,25 +1145,39 @@ class Arrangement {
     }
 
     /**
-     * Hent en meta-verdi
+     * Hent metadata
+     * 
+     * @param String $key
+     * @return Value $metadata
      */ 
     public function getMeta( $key )
     {
         if( null == $this->meta ) {
             require_once('UKM/Meta/Collection.php');
             $this->meta = Collection::createByParentInfo(
-                'monstring',
+                'arrangement',
                 $this->getId()
             );
         }
         return $this->meta->get( $key );
     }
 
+    /**
+     * Hent verdi av metadata
+     *
+     * @param String $key
+     * @return Any $metadata
+     */
     public function getMetaValue( $key ) {
         return $this->getMeta( $key )->getValue();
     }
 
 
+    /**
+     * Hent informasjonstekst som skal vises ved videresending til dette arrangementet
+     *
+     * @return String $html_text
+     */
     public function getInformasjonstekst() {
         return $this->getMetaValue('infotekst_videresending');
     }
