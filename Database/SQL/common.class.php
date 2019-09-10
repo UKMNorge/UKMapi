@@ -13,7 +13,8 @@ require_once('UKM/Database/SQL/db.class.php');
 abstract class SQLcommon {
 	public $showError = false;
 	public $query = null;
-	public $real_query = null;
+    public $real_query = null;
+    public $html_allowed = [];
 
 	/**
 	 * Set charset of connection
@@ -94,19 +95,47 @@ abstract class SQLcommon {
 	}
 
 	/**
-	 * Sanitize a string
+	 * sanitize a string
 	 * PROXY: DB::real_escape_string
 	 *
+     * @param String $value
+     * @param Bool $strip_tags
 	 * @return string sanitized value
 	**/
-	public function sanitize( $value ) {
+	public function sanitize( $value, $strip_tags=true ) {
         if( is_object( $value ) && get_class( $value ) == 'DateTime' ) {
             $value = $value->format('Y-m-d H:i:s'); // Fordi databasen lagrer datoer som int
         }
-		if( static::WRITE_ACCESS_DATABASE ) {
-			return DBwrite::real_escape_string( trim( strip_tags( $value ) ) );
+
+        if( $strip_tags ) {
+            $value = strip_tags( $value );
+        }
+
+        if( static::WRITE_ACCESS_DATABASE ) {
+			return DBwrite::real_escape_string( trim( $value ) );
 		}
-		return DBread::real_escape_string( trim( strip_tags( $value ) ) );
+		return DBread::real_escape_string( trim( $value ) );
 	}
 
+    /**
+     * Sanitize a value, but possibly allow HTML, based on key
+     *
+     * @param String $key
+     * @param String $value
+     * @return void
+     */
+    public function sanitizeValue( $key, $value ) {
+        return $this->sanitize(
+            $value,
+            !$this->canContainHtml( $key )
+        );
+    }
+
+    public function allowHtmlFor( $key ) {
+        $this->html_allowed[] = $key;
+    }
+    
+    public function canContainHtml( $key ) {
+        return in_array( $key, $this->html_allowed );
+    }
 }

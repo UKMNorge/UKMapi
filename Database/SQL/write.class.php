@@ -87,7 +87,7 @@ class Write extends SQLcommon {
         foreach( $this->key_value_map as $key => $value ) {
             $query = str_replace(
                 '#'.$key, 
-                $this->sanitize( $value ),
+                $this->sanitizeValue( $key, $value ),
                 $query
             );
         }
