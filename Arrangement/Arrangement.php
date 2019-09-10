@@ -60,7 +60,8 @@ class Arrangement {
     var $eier_kommune_id = null;
     var $innslagTyper = null;
     var $meta = null;
-    
+    var $har_videresending = null;
+
     var $er_monstring = null;
 
 	var $uregistrerte = null;
@@ -172,6 +173,7 @@ class Arrangement {
         $this->setEierFylke( $row['pl_owner_fylke'] );
         $this->setEierKommune( $row['pl_owner_kommune'] );
         $this->setErMonstring( in_array( $this->getType(), ['kommune','fylke','land'] ) );
+        $this->setHarVideresending( $row['pl_videresending'] == 'true' );
 
 		// SET PATH TO BLOG
 		if( isset( $row['pl_link'] ) || ( isset( $row['pl_link'] ) && empty( $row['pl_link'] ) ) ) {
@@ -986,6 +988,28 @@ class Arrangement {
         return $this;
     }
 
+
+    /**
+     * Tar mønstringen i mot videresendte?
+     *
+     * @return bool
+     */
+    public function harVideresending()
+    {
+        return $this->har_videresending;
+    }
+
+    /**
+     * Angi om mønstringen tar i mot videresendte
+     *
+     * @param Bool $bool
+     * @return Arrangement $this
+     */
+    public function setHarVideresending( Bool $bool ) {
+        $this->har_videresending = $bool;
+        return $this;
+    }
+
     /**
      * Get the value of registrert
      */ 
@@ -1043,7 +1067,7 @@ class Arrangement {
      */ 
     public function getEierKommune()
     {
-        if( 0 === $this->eier_kommune_id ) {
+        if( 0 == $this->eier_kommune_id ) {
             return false;
         }
 

@@ -102,11 +102,11 @@ class write_monstring {
 		$place->add('season', $sesong);
 		
 		$pl_id = $place->run();
+		// Oppdater loggeren til å bruke riktig PL_ID
+		UKMlogger::setPlId( $pl_id );
 		
 		$monstring = new Arrangement( $pl_id );
 
-		// Oppdater loggeren til å bruke riktig PL_ID
-		UKMlogger::setPlId( $monstring->getId() );
 
 		foreach( $geografi as $kommune ) {
 			$monstring->getKommuner()->leggTil( $kommune );
@@ -148,33 +148,39 @@ class write_monstring {
 		
 		// VERDIER SOM KAN OPPDATERES
 		$properties = [
-			'Navn' 			=> ['smartukm_place', 'pl_name', 100],
-			'Path' 			=> ['smartukm_place', 'pl_link', 110],
-			'Uregistrerte'	=> ['smartukm_place', 'pl_missing', 108],
-			'Publikum'		=> ['smartukm_place', 'pl_public', 109],
-			'Sted'			=> ['smartukm_place', 'pl_place', 101],
-			'Start'			=> ['smartukm_place', 'pl_start', 102],
-			'Stop'			=> ['smartukm_place', 'pl_stop', 103],
-			'Frist1'		=> ['smartukm_place', 'pl_deadline', 106],
-            'Frist2'		=> ['smartukm_place', 'pl_deadline2', 107],
-            'Pamelding'     => ['smartukm_place', 'pl_pamelding', 119],
-            'EierFylke'     => ['smartukm_place', 'pl_owner_fylke',120],
-            'EierKommune'   => ['smartukm_place', 'pl_owner_kommune',121],
-            'GoogleMapData' => ['smartukm_place', 'pl_location',122]
+			'Navn' 	    		=> ['smartukm_place', 'pl_name', 100],
+			'Path' 		    	=> ['smartukm_place', 'pl_link', 110],
+			'Uregistrerte'	    => ['smartukm_place', 'pl_missing', 108],
+			'Publikum'  		=> ['smartukm_place', 'pl_public', 109],
+			'Sted'		    	=> ['smartukm_place', 'pl_place', 101],
+			'Start'			    => ['smartukm_place', 'pl_start', 102],
+			'Stop'  			=> ['smartukm_place', 'pl_stop', 103],
+			'Frist1'    		=> ['smartukm_place', 'pl_deadline', 106],
+            'Frist2'	    	=> ['smartukm_place', 'pl_deadline2', 107],
+            'Skjema'            => ['smartukm_place', 'pl_form', 113],
+            'Pamelding'         => ['smartukm_place', 'pl_pamelding', 119],
+            'EierFylke'         => ['smartukm_place', 'pl_owner_fylke',120],
+            'EierKommune'       => ['smartukm_place', 'pl_owner_kommune',121],
+            'GoogleMapData'     => ['smartukm_place', 'pl_location',122],
+            'harVideresending'  => ['smartukm_place', 'pl_videresending',123],
+            'Pamelding'         => ['smartukm_place', 'pl_pamelding',124],
 		];
-		// VERDIER SOM KUN KAN OPPDATERES HVIS FYLKE
-		if( $monstring_save->getType() == 'fylke' ) {
-			$properties['Skjema'] = ['smartukm_place', 'pl_form', 113];
-		}
 
 		// LOOP ALLE VERDIER, OG EVT LEGG TIL I SQL
 		foreach( $properties as $functionName => $logValues ) {
-			$function = 'get'.$functionName;
+            
+            if( strpos( $functionName, 'har' ) === 0 ) {
+                $function = $functionName;
+            } else {
+                $function = 'get'.$functionName;
+            }
 			$table = $logValues[0];
 			$field = $logValues[1];
 			$action = $logValues[2];
 			$sql = $$table;
             
+            #echo '$monstring_db->'.$function.'() != $monstring_save->'.$function.'() => '.
+            #    ($monstring_db->$function() != $monstring_save->$function() ? 'true' : 'false') .'<br />';
             try {
                 if( $monstring_db->$function() != $monstring_save->$function() ) {
                     # Mellomlagre verdi som skal settes

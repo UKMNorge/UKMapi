@@ -22,7 +22,8 @@ ADD COLUMN `pl_start` DATETIME AFTER `pl_registered`,
 ADD COLUMN `pl_stop` DATETIME AFTER `pl_start`,
 ADD COLUMN `pl_deadline` DATETIME AFTER `pl_stop`,
 ADD COLUMN `pl_deadline2` DATETIME AFTER `pl_deadline`,
-ADD COLUMN `pl_pamelding` ENUM('apen','betinget','videresending') NOT NULL DEFAULT 'apen' AFTER `pl_deadline2`,
+ADD COLUMN `pl_pamelding` ENUM('apen','betinget','ingen') NOT NULL DEFAULT 'apen' AFTER `pl_deadline2`,
+ADD COLUMN `pl_videresending` ENUM('true','false') NOT NULL DEFAULT 'true' AFTER `pl_pamelding`,
 ADD COLUMN `pl_owner_fylke` INT(3) AFTER `pl_pamelding`,
 ADD COLUMN `pl_owner_kommune` INT(4) AFTER `pl_fylke`,
 ADD COLUMN `pl_type` ENUM('kommune','fylke','land','ukjent') NOT NULL DEFAULT 'ukjent' AFTER `pl_name`,
@@ -122,7 +123,9 @@ VALUES
 	(119, 'endret', 'mønstringen har påmelding', 'bool', 'smartukm_place|pl_pamelding', 1),
 	(120, 'endret', 'eier, fylke', 'int', 'smartukm_place|pl_owner_fylke', 1),
 	(121, 'endret', 'eier, kommune', 'int', 'smartukm_place|pl_owner_kommune', 1),
-    (122, 'endret', 'lokasjon (kart)', 'text', 'smartukm_place|pl_location', 1);
+    (122, 'endret', 'lokasjon (kart)', 'text', 'smartukm_place|pl_location', 1),
+    (123, 'endret', 'om arrangementet tar i mot videresendinger', 'text', 'smartukm_place|pl_videresending', 1),
+    (124, 'endret', 'om arrangementet tar i mot påmeldinger', 'text', 'smartukm_place|pl_pamelding', 1);
 
 
 ## VIDERESENDINGS-RELASJON
