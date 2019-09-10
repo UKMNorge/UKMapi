@@ -103,8 +103,16 @@ abstract class SQLcommon {
 	 * @return string sanitized value
 	**/
 	public function sanitize( $value, $strip_tags=true ) {
+        // Standard-format for DateTime i databasen
+        // Skal det lagres i annet format, send inn data som String
         if( is_object( $value ) && get_class( $value ) == 'DateTime' ) {
             $value = $value->format('Y-m-d H:i:s'); // Fordi databasen lagrer datoer som int
+        }
+        
+        // Standard-format for DateTime i databasen
+        // Skal det lagres i annet format, send inn data som String        
+        if( is_bool( $value ) ) {
+            $value = $value ? 'true' : 'false';
         }
 
         if( $strip_tags ) {
