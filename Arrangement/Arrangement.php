@@ -18,6 +18,8 @@ use forestillinger, forestilling, forestilling_v2;
 use statistikk;
 use UKMNorge\Google\StaticMap;
 use UKMNorge\Arrangement\Videresending\Videresending;
+use UKMNorge\Meta\Collection;
+use UKMNorge\Meta\ParentObject;
 
 require_once 'UKM/context.class.php';
 require_once 'UKM/statistikk.class.php';
@@ -57,7 +59,8 @@ class Arrangement {
     var $eier_fylke_id = null;
     var $eier_kommune = null;
     var $eier_kommune_id = null;
-	var $innslagTyper = null;
+    var $innslagTyper = null;
+    var $meta = null;
     
     var $er_monstring = null;
 
@@ -1138,6 +1141,30 @@ class Arrangement {
             $this->videresending = new Videresending( (Int) $this->getId() );
         }
         return $this->videresending;
+    }
+
+    /**
+     * Hent en meta-verdi
+     */ 
+    public function getMeta( $key )
+    {
+        if( null == $this->meta ) {
+            require_once('UKM/Meta/Collection.php');
+            $this->meta = Collection::createByParentInfo(
+                'monstring',
+                $this->getId()
+            );
+        }
+        return $this->meta->get( $key );
+    }
+
+    public function getMetaValue( $key ) {
+        return $this->getMeta( $key )->getValue();
+    }
+
+
+    public function getInformasjonstekst() {
+        return $this->getMetaValue('infotekst_videresending');
     }
 }
 ?>
