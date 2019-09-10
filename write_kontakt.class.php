@@ -1,4 +1,6 @@
 <?php
+require_once('UKM/kontakt.class.php');
+
 class write_kontakt {
 
     /**
