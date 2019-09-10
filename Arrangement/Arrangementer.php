@@ -30,7 +30,8 @@ class Arrangementer
                 $sql = new Query(
                     Arrangement::getLoadQry()
                         . "WHERE `pl_type` = 'kommune' 
-                        AND `pl_owner_kommune` = '#omrade_id'",
+                        AND `pl_owner_kommune` = '#omrade_id'
+                        GROUP BY `place`.`pl_id`",
                     [
                         'omrade_id' => $this->getOmradeId()
                     ]
@@ -74,8 +75,6 @@ class Arrangementer
             default:
                 throw new Exception('Ukjent type område '. $this->getOmradeType());
         }
-
-        
 
         $res = $sql->run();
         while ($row = Query::fetch($res)) {

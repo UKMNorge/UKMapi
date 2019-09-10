@@ -19,6 +19,7 @@ use statistikk;
 use UKMNorge\Google\StaticMap;
 use UKMNorge\Arrangement\Videresending\Videresending;
 use UKMNorge\Meta\Collection;
+use UKMNorge\Nettverk\Omrade;
 
 require_once 'UKM/context.class.php';
 require_once 'UKM/statistikk.class.php';
@@ -1094,6 +1095,39 @@ class Arrangement {
         }
 
         return $this;
+    }
+
+    /**
+     * Hvilken type eier har dette arrangementet
+     *
+     * @return String (kommune|fylke)
+     */
+    public function getEierType() {
+        if( $this->getEierKommune() ) {
+            return 'kommune';
+        }
+        return 'fylke';
+    }
+
+    /**
+     * Hent eier for dette arrangementet
+     *
+     * @return kommune|fylke
+     */
+    public function getEier() {
+        if( $this->getEierType() == 'kommune' ) {
+            return $this->getEierKommune();
+        }
+        return $this->getEierFylke();
+    }
+
+    public function getEierOmrade() {
+        require_once('UKM/Nettverk/Omrade.class.php');
+        
+        if( $this->getEierType() == 'kommune' ) {
+            return Omrade::getByKommune( $this->getEierKommune()->getId() );
+        }
+        return Omrade::getByFylke( $this->getEierFylke()->getId() );
     }
 
     /**
