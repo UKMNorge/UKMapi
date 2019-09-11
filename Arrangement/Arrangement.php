@@ -81,9 +81,21 @@ class Arrangement {
 	 * Brukes for å få standardiserte databaserader inn for 
 	 * generering via _load_by_row
 	 *
-	 * WHERE-selector og evt ekstra joins må legges på manuelt
+	 * WHERE-selector og evt joins må legges på manuelt
 	**/
 	static function getLoadQry() {
+        // Endret til Select in select fordi den forrige
+        // kunne returnere tom rad for fylker
+        return "SELECT `place`.*,
+        (
+            SELECT GROUP_CONCAT(`smartukm_rel_pl_k`.`k_id`)
+            FROM `smartukm_rel_pl_k`
+            WHERE `smartukm_rel_pl_k`.`pl_id` = `place`.`pl_id`
+        ) AS `k_ids`
+        FROM `smartukm_place` AS `place` 
+        ";
+
+        /* PRE 2019 */
 		return "SELECT `place`.*,
 					GROUP_CONCAT(`kommuner`.`k_id`) AS `k_ids`
 				FROM `smartukm_place` AS `place`
@@ -91,21 +103,7 @@ class Arrangement {
 					ON (`kommuner`.`pl_id` = `place`.`pl_id`)
 				";
     }
-    
-	/**
-	 * getLoadQryFylke
-	 * Brukes for å få standardiserte databaserader inn for 
-	 * generering via _load_by_row
-	 *
-	 * WHERE-selector og evt ekstra joins må legges på manuelt
-	**/
-	static function getLoadQryFylke() {
-		return "SELECT `place`.*,
-					NULL AS `k_ids`
-				FROM `smartukm_place` AS `place`
-				";
-	}
-	
+
 	public function __construct( $id_or_row ) {
 
 		if( is_numeric( $id_or_row ) ) {
