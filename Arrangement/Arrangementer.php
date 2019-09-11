@@ -3,6 +3,7 @@
 namespace UKMNorge\Arrangement;
 
 use UKMNorge\Database\SQL\Query;
+use Exception;
 
 class Arrangementer
 {
@@ -18,28 +19,66 @@ class Arrangementer
         $this->omrade_id = $omrade_id;
     }
 
+    public static function filterSkipEier( $eier, $arrangementer ) {
+        $filtered = [];
+        foreach( $arrangementer as $arrangement ) {
+            #echo 'SAMMENLIGN: '. $arrangement->getEier()->getId() .' MED '. $eier->getId() ."\r\n";
+            if( $arrangement->getEier()->getId() != $eier->getId() ) {
+                $filtered[] = $arrangement;
+            }
+        }
+        return $filtered;
+    }
+
     public function _load()
     {
         $this->arrangementer = [];
 
         switch ($this->getOmradeType()) {
-            /**
-             * HENT KOMMUNE & FYLKE FRA GITT OMRÅDE
-             */
+
+            case 'kommune2':
+                throw new Exception('load(' . $this->getOmradeType() . ') mangler implementering i Arrangementer');
+                break;
+            case 'fylke':
+                $sql = new Query(
+                    Arrangement::getLoadQry()
+                        . "WHERE
+                        `season` = '#season'
+                        AND (
+                            (#fylke) IN (
+                                SELECT `smartukm_kommune`.`idfylke`
+                                    FROM `smartukm_rel_pl_k` 
+                                    JOIN `smartukm_kommune`
+                                        ON (`smartukm_kommune`.`id` = `smartukm_rel_pl_k`.`k_id`)
+                                    WHERE `smartukm_rel_pl_k`.`pl_id` = `place`.`pl_id`
+                            )
+                            OR
+                            (`pl_type` != 'fylke' AND `pl_owner_fylke` = '#fylke')
+                        )",
+                    [
+                        'fylke' => $this->getOmradeId(),
+                        'season' => $this->getSesong()
+                    ]
+                );
+                break;
+                /**
+                 * HENT KOMMUNE & FYLKE FRA GITT OMRÅDE
+                 */
             case 'kommune':
+            case 'eier-kommune':
                 $sql = new Query(
                     Arrangement::getLoadQry()
                         . "WHERE `pl_type` = 'kommune' 
                         AND `pl_owner_kommune` = '#omrade_id'
-                        GROUP BY `place`.`pl_id`",
+                        ",
                     [
                         'omrade_id' => $this->getOmradeId()
                     ]
                 );
                 break;
-            case 'fylke':
+            case 'eier-fylke':
                 $sql = new Query(
-                    Arrangement::getLoadQryFylke()
+                    Arrangement::getLoadQry()
                         . "WHERE `pl_type` = 'fylke'
                         AND `pl_owner_fylke` = '#omrade_id'",
                     [
@@ -47,10 +86,10 @@ class Arrangementer
                     ]
                 );
                 break;
-            /**
-             * HENT ALLE ARRANGEMENT I EN KOMMUNE, UT
-             * FRA ET POSTNUMMER
-             */
+                /**
+                 * HENT ALLE ARRANGEMENT I EN KOMMUNE, UT
+                 * FRA ET POSTNUMMER
+                 */
             case 'postnummer':
                 $postnummer = new Query(
                     "SELECT `k_id`
@@ -73,9 +112,9 @@ class Arrangementer
             case 'land':
                 break;
             default:
-                throw new Exception('Ukjent type område '. $this->getOmradeType());
+                throw new Exception('Ukjent type område ' . $this->getOmradeType());
         }
-
+        #echo $sql->debug();
         $res = $sql->run();
         while ($row = Query::fetch($res)) {
             $this->arrangementer[$row['pl_id']] = new Arrangement($row);
@@ -114,6 +153,10 @@ class Arrangementer
      */
     public function getSeason()
     {
+        return $this->getSesong();
+    }
+
+    public function getSesong() {
         return $this->season;
     }
 }
