@@ -225,12 +225,12 @@ class Arrangement {
 	 * @return $this
 	**/
 	public function setId( $id ) {
-		$this->id = $id;
+		$this->id = (Int) $id;
 		return $this;
 	}
 	/**
 	 * hent ID
-	 * @return integer $id
+	 * @return Int $id
 	**/
 	public function getId() {
 		return $this->id;
@@ -835,7 +835,12 @@ class Arrangement {
 		return $this->statistikk;
 	}
 	
-	public function erRegistrert() {
+    /**
+     * Er mønstringen registrert?
+     *
+     * @return Bool $registrert
+     */
+    public function erRegistrert() {
 		return $this->registrert;
 	}
 	
