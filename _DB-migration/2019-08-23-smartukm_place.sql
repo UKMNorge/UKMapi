@@ -125,7 +125,9 @@ VALUES
 	(121, 'endret', 'eier, kommune', 'int', 'smartukm_place|pl_owner_kommune', 1),
     (122, 'endret', 'lokasjon (kart)', 'text', 'smartukm_place|pl_location', 1),
     (123, 'endret', 'om arrangementet tar i mot videresendinger', 'text', 'smartukm_place|pl_videresending', 1),
-    (124, 'endret', 'om arrangementet tar i mot påmeldinger', 'text', 'smartukm_place|pl_pamelding', 1);
+    (124, 'endret', 'om arrangementet tar i mot påmeldinger', 'text', 'smartukm_place|pl_pamelding', 1),
+    (125, 'la til', 'arrangement som får videresende', 'text', 'ukm_rel_pl_videresending', 1),
+    (126, 'fjernet', 'arrangement som får videresende', 'text', 'ukm_rel_pl_videresending', 1);
 
 
 ## VIDERESENDINGS-RELASJON

@@ -4,7 +4,7 @@ namespace UKMNorge\Arrangement\Videresending;
 use Exception, DateTime;
 use UKMNorge\Arrangement\Arrangement;
 
-class Videresender {
+abstract class Videresender {
     private $fra;
     private $til;
     private $arrangement;
@@ -14,7 +14,13 @@ class Videresender {
     private $navn;
     private $eier;
 
-    public function __construct( $pl_fra, $pl_til )
+    /**
+     * Opprett en videresender
+     *
+     * @param Int $pl_fra
+     * @param Int $pl_til
+     */
+    public function __construct( Int $pl_fra, Int $pl_til )
     {
         $this->fra = $pl_fra;
         $this->til = $pl_til;   
@@ -30,6 +36,13 @@ class Videresender {
 
     public function getVideresendte() {
         throw new Exception('Må implementeres!');
+    }
+
+    public function setProxyData( String $navn, Bool $registrert, DateTime $start, $eier) {
+        $this->setNavn( $navn );
+        $this->setRegistrert( $registrert );
+        $this->setStart( $start );
+        $this->setEier( $eier );
     }
 
     /**
@@ -56,6 +69,16 @@ class Videresender {
      */ 
     public function getNavn()
     {
+        if( empty( $this->navn ) ) {
+            $arrangement = $this->getArrangement();
+
+            $this->setProxyData(
+                $arrangement->getNavn(),
+                $arrangement->erRegistrert(),
+                $arrangement->getStart(),
+                $arrangement->getEier()
+            );
+        }
         return $this->navn;
     }
 

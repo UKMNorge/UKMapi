@@ -18,11 +18,45 @@ class Videresending
         $this->id = $pl_id;
     }
 
+    public function harMottaker( Int $mottaker_id ) {
+        try {
+            $this->getMottaker( $mottaker_id );
+            return true;
+        } catch( Exception $e ) {
+            return false;
+        }
+    }
 
+    public function getMottaker( Int $mottaker_id ) {
+        if( isset( $this->getMottakere()[$mottaker_id] ) ) {
+            return $this->mottakere[ $mottaker_id ];
+        }
+        throw new Exception(
+            'Har ikke mottaker '. $mottaker_id
+        );
+    }
+
+    public function harAvsender( Int $avsender_id ) {
+        try {
+            $this->getAvsender( $avsender_id );
+            return true;
+        } catch( Exception $e ) {
+            return false;
+        }
+    }
+
+    public function getAvsender( Int $avsender_id ) {
+        if( isset( $this->getAvsendere()[$avsender_id] ) ) {
+            return $this->avsendere[ $avsender_id ];
+        }
+        throw new Exception(
+            'Har ikke mottaker '. $avsender_id
+        );
+    }
     /**
      * Hvem kan denne mønstringen sende innslag til?
      *
-     * @return Array[Arrangement]
+     * @return Array Arrangement
      */
     public function getMottakere()
     {
@@ -36,7 +70,7 @@ class Videresending
     /**
      * Hvem kan sende innslag til denne mønstringen?
      *
-     * @return Array[Arrangement]
+     * @return Array Arrangement
      */
     public function getAvsendere()
     {
@@ -65,6 +99,17 @@ class Videresending
     private function _loadMottakere()
     {
         return $this->_load('mottakere');
+    }
+
+
+    public function leggTilMottaker( Mottaker $mottaker ) {
+        $this->mottakere[ $mottaker->getId() ] = $mottaker;
+        return $this;
+    }
+
+    public function leggTilAvsender( Avsender $avsender ) {
+        $this->avsendere[ $avsender->getId() ] = $avsender;
+        return $this;
     }
 
     /**
@@ -107,17 +152,19 @@ class Videresending
             }
 
             $class = $type == 'avsendere' ? 
-                new Avsender( $row['pl_id_receiver'], $row['pl_id_sender'] ) :
-                new Mottaker( $row['pl_id_receiver'], $row['pl_id_sender'] );
+                new Avsender( (Int) $row['pl_id_sender'], (Int) $row['pl_id_receiver'] ):
+                new Mottaker( (Int) $row['pl_id_receiver'], (Int) $row['pl_id_sender'] );
             ;
 
             // "Proxy" navn for hurtig-load
-            $class->setNavn( $row['pl_name'] );
-            $class->setRegistrert( $row['pl_registered'] == 'true');
-            $class->setStart( new DateTime($row['pl_start']) );
-            $class->setEier( $eier );
+            $class->setProxyData(
+                $row['pl_name'],
+                $row['pl_registered'] == 'true',
+                new DateTime($row['pl_start']),
+                $eier
+            );
             
-            $this->$type[ $class->getPlId() ] = $class;
+            $this->$type[ $class->getId() ] = $class;
         }
     }
 

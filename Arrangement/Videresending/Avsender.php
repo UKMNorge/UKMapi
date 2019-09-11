@@ -7,6 +7,10 @@ require_once('UKM/Arrangement/Videresending/Videresender.php');
 
 class Avsender extends Videresender {
     public function getPlId() {
-        return $this->getTil();
+        return $this->getFra();
+    }
+
+    public function getId() {
+        return $this->getPlId();
     }
 }
