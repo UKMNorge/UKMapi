@@ -29,6 +29,16 @@ prefix | objekt | les | skriv
 19 | Intoleranse | 119yyy | -
 20 | Hendelse/forestilling | 120yyy | 520yyy
 21 | HendelseCollection | 121yyy | 521yyy
+50 | Arrangement/Arrangementer | 150yyy | -
+51 | Arrangement/Skjema/Skjema | 151yyy | 551yyy
+52 | Arrangement/Skjema/Sporsmal | 152yyy | -
+53 | Arrangement/Skjema/SvarSett | 153yyy | -
+54 | Arrangement/Skjema/Svar | 154yyy | -  
+55 | Arrangement/Videresending/Videresending | 155yyy | - 
+56 | Arrangement/Videresending/Videresender | 156yyy | - 
+57 | Arrangement/Videresending/Mottaker | 157yyy | - 
+58 | Arrangement/Videresending/Avsender | 158yyy | - 
+59 | Arrangement/Eier | 159yyy | - 
 61 | Nettverk/Administrator | 161yyy | 561yyy
 62 | Nettverk/Omrade | 162yyy | 562yyy
 71 | Wordpress/User | 171yyy | 571yyy

@@ -16,6 +16,7 @@ use context;
 use monstring_skjema;
 use forestillinger, forestilling, forestilling_v2;
 use statistikk;
+use UKMNorge\Arrangement\Skjema\Skjema;
 use UKMNorge\Google\StaticMap;
 use UKMNorge\Arrangement\Videresending\Videresending;
 use UKMNorge\Meta\Collection;
@@ -50,7 +51,7 @@ class Arrangement {
 	var $sesong = null;
 	var $innslag = null;
 	var $path = null;
-	var $skjema_id = null;
+	var $har_skjema = false;
 	var $skjema = null;
     var $kontaktpersoner = null;
     var $pamelding = null;
@@ -165,7 +166,6 @@ class Arrangement {
 		$this->setSesong( $row['season'] );
         $this->setSted( $row['pl_place'] );
         $this->setGoogleMapData( $row['pl_location'] );
-		$this->_setSkjemaId( $row['pl_form'] );
 		$this->setPublikum( $row['pl_public'] );
         $this->setUregistrerte( $row['pl_missing'] );
         $this->setPamelding( $row['pl_pamelding'] );
@@ -173,6 +173,7 @@ class Arrangement {
         $this->setEierKommune( $row['pl_owner_kommune'] );
         $this->setErMonstring( in_array( $this->getType(), ['kommune','fylke','land'] ) );
         $this->setHarVideresending( $row['pl_videresending'] == 'true' );
+        $this->har_skjema = $row['pl_has_form'] == 'true';
 
 		// SET PATH TO BLOG
 		if( isset( $row['pl_link'] ) || ( isset( $row['pl_link'] ) && empty( $row['pl_link'] ) ) ) {
@@ -587,53 +588,51 @@ class Arrangement {
 	}
 	
 	/**
-	 * Har fylket et skjema?
+	 * Ønskjer arrangementet å bruke skjemaet sitt?
 	 *
+     * @return Bool $har_skjema
 	**/
 	public function harSkjema() {
-		try {
-			$skjema = $this->getSkjema();
-			return sizeof( $skjema->getQuestions() ) > 0;
-		} catch( Exception $e ) {
-			return false;
-		}
-	}
-	/**
-	 * Sett skjema
-	 *
-	 * @param skjema $skjema eller int $skjema_id
-	 * @return $this
-	**/
-	public function setSkjema( $skjema ) {
-		if( $this->getType() == 'kommune' ) {
-			throw new Exception('Mønstring: lokalmønstringer kan ikke ha skjema');
-		}
-		$skjema_id = is_int( $skjema ) ? $skjema : $skjema->getId();
+        return $this->har_skjema;
+    }
 
-		$this->_setSkjemaId( $skjema_id );
-		return $this;
-	}
+    /**
+     * Sett om arrangementet ønsker å bruke skjemaet sitt
+     *
+     * @param Bool $skjema_i_do_want_it
+     * @return $this
+     */
+    public function setHarSkjema( Bool $skjema_i_do_want_it ) {
+        $this->har_skjema = $skjema_i_do_want_it;
+        return $this;
+    }
 	
 	/**
 	 * Hent skjema
+     * OBS: du kan få et skjema, selv om arrangementet ikke ønsker
+     * å bruke det!
 	 *
 	 * @return skjema $skjema
 	**/
-	public function getSkjema( $fylke=null ) {
-		require_once('UKM/monstring_skjema.class.php');
+	public function getSkjema() {
+		require_once('UKM/Arrangement/Skjema/Skjema.php');
 		if( $this->getType() == 'land' ) {
 			throw new Exception('Videresendingsskjema ikke støttet for UKM-festivalen');
 		}
 		if( $this->skjema == null ) {
-			if( $this->getType() == 'fylke' ) {
-				$this->skjema = new monstring_skjema( $this->getFylke()->getId() );
-			} else {
-				$this->skjema = new monstring_skjema( $fylke==null ? $this->getFylke()->getId() : $fylke, $this->getId() );
-			}
+            try {
+                $this->skjema = Skjema::loadFromArrangement( $this->getId() );
+            } catch( Exception $e ) {
+                // Betyr at arrangementet ikke har skjeam
+                if( $e->getCode() == 151001 ) {
+                    return false;
+                }
+                throw $e;
+            }
 		}
 		return $this->skjema;
-	}
-
+    }
+	
 	/**
 	 * Hent ut fylkesmønstringene lokalmønstringen kan sende videre til
 	**/
@@ -651,19 +650,7 @@ class Arrangement {
 			}
 		}
 		return $this->fylkesmonstringer;
-	}
-	
-	/**
-	 * Sett skjemaId
-	 *
-	 * @param int $skjema_id
-	 * @return $this
-	**/
-	private function _setSkjemaId( $skjema_id ) {
-		$this->skjema_id = $skjema_id;
-	}
-	
-	
+	}	
 	
 	/**
 	 * Sett sesong
@@ -1122,6 +1109,11 @@ class Arrangement {
             return $this->getEierKommune();
         }
         return $this->getEierFylke();
+    }
+
+    public function getEierObjekt() {
+        require_once('UKM/Arrangement/Eier.php');
+        return new Eier($this->getEierType(), $this->getEier()->getId());
     }
 
     public function getEierOmrade() {

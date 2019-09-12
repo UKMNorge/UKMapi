@@ -28,6 +28,7 @@ ADD COLUMN `pl_owner_fylke` INT(3) AFTER `pl_pamelding`,
 ADD COLUMN `pl_owner_kommune` INT(4) AFTER `pl_fylke`,
 ADD COLUMN `pl_type` ENUM('kommune','fylke','land','ukjent') NOT NULL DEFAULT 'ukjent' AFTER `pl_name`,
 ADD COLUMN `pl_location` JSON AFTER `pl_place`;
+ADD COLUMN `pl_has_form` ENUM('false','true') DEFAULT 'false' AFTER `pl_videresending`;
 #ADD COLUMN `pl_type` ENUM('monstring_liten','monstring_stor','monstring','workshop') NOT NULL DEFAULT 'monstring' AFTER `pl_name`;
 
 # OVERFØR TIMESTAMPS
@@ -127,7 +128,8 @@ VALUES
     (123, 'endret', 'om arrangementet tar i mot videresendinger', 'text', 'smartukm_place|pl_videresending', 1),
     (124, 'endret', 'om arrangementet tar i mot påmeldinger', 'text', 'smartukm_place|pl_pamelding', 1),
     (125, 'la til', 'arrangement som får videresende', 'text', 'ukm_rel_pl_videresending', 1),
-    (126, 'fjernet', 'arrangement som får videresende', 'text', 'ukm_rel_pl_videresending', 1);
+    (126, 'fjernet', 'arrangement som får videresende', 'text', 'ukm_rel_pl_videresending', 1),
+    (127, 'endret', 'om arrangementet har videresendingsskjema', 'text', 'smartukm_place|pl_has_form', 1);
 
 
 ## VIDERESENDINGS-RELASJON

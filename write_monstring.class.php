@@ -163,6 +163,7 @@ class write_monstring
             'GoogleMapData'     => ['smartukm_place', 'pl_location', 122],
             'harVideresending'  => ['smartukm_place', 'pl_videresending', 123],
             'Pamelding'         => ['smartukm_place', 'pl_pamelding', 124],
+            'harSkjema'         => ['smartukm_place', 'pl_has_form', 127],
         ];
 
         // LOOP ALLE VERDIER, OG EVT LEGG TIL I SQL
