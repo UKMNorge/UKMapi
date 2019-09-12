@@ -120,7 +120,7 @@ class Omrade
         if ( !isset( $this->arrangementer[ $season ] ) ) {
             $this->arrangementer[ $season ] = new Arrangementer(
                 $season,
-                $this->getType(),
+                'eier-'.$this->getType(),
                 (int) $this->getForeignId()
             );
         }
