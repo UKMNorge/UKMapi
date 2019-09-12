@@ -39,6 +39,10 @@ class Arrangementer
             case 'kommune2':
                 throw new Exception('load(' . $this->getOmradeType() . ') mangler implementering i Arrangementer');
                 break;
+            /*
+             * Lokalmønstringer som er eid av en kommune i fylket, 
+             * eller som deltar i en fellesmønstring i fylket
+             */
             case 'fylke':
                 $sql = new Query(
                     Arrangement::getLoadQry()
@@ -61,9 +65,9 @@ class Arrangementer
                     ]
                 );
                 break;
-                /**
-                 * HENT KOMMUNE & FYLKE FRA GITT OMRÅDE
-                 */
+            /**
+             * HENT KOMMUNE & FYLKE FRA GITT OMRÅDE
+             */
             case 'kommune':
             case 'eier-kommune':
                 $sql = new Query(

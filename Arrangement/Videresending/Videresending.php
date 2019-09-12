@@ -32,7 +32,8 @@ class Videresending
             return $this->mottakere[ $mottaker_id ];
         }
         throw new Exception(
-            'Har ikke mottaker '. $mottaker_id
+            'Har ikke mottaker '. $mottaker_id,
+            155001
         );
     }
 
@@ -50,7 +51,8 @@ class Videresending
             return $this->avsendere[ $avsender_id ];
         }
         throw new Exception(
-            'Har ikke mottaker '. $avsender_id
+            'Har ikke mottaker '. $avsender_id,
+            155002
         );
     }
     /**
