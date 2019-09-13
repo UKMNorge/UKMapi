@@ -9,6 +9,7 @@ class UKMCURL {
 	var $json = false;
 	var $headerList = array();
 	var $error;
+	var $user = false;
 
 	public function __construct() {
 
@@ -22,6 +23,11 @@ class UKMCURL {
 	public function port( $port ) {
 		$this->port = $port;
 		return $this;
+	}
+
+	// Sets --user-option of curl to support HTTP Basic Authentication.
+	public function user( $userString) {
+		$this->user = $userString;
 	}
 	
 	public function post($postdata) {
@@ -80,6 +86,10 @@ class UKMCURL {
 			curl_setopt($this->curl, CURLOPT_NOBODY, 1); 
 		}
 		
+		if( $this->user ) {
+			curl_setopt($this->curl, CURLOPT_USERPWD, $this->user);
+		}
+
 		// Set extra headers	
 		if (!empty($this->headerList)) {
 			curl_setopt($this->curl, CURLOPT_HTTPHEADER, $this->headerList);
