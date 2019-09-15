@@ -27,20 +27,29 @@ class MailchimpTest extends TestCase {
 	 * @depends testInit
 	 */
 	public function testGetLists( $mailchimp ) {
-
+		$lists = $mailchimp->getLists();
+		$this->assertIsArray($lists);
+		$this->assertInstanceOf(stdClass::class, $lists[0]);
 	}
 
 	/**
 	 * @depends testInit
 	 */
-	public function testEmptyResource( $mailchimp ) {
-		//$this->assertThrows
+	public function testKnownGoodList( $mailchimp ) {
+		$list = $mailchimp->getList("2e6ef5e9fc");
+		$this->assertInstanceOf(MCList::class, $list);
+		$this->assertIsString($list->getName());
 	}
 
 	/**
 	 * @depends testInit
 	 */
 	public function testNonExistentList( $mailchimp ) {
-
+		$this->expectException(Exception::class);
+		try {
+			$mailchimp->getList("ikke-eksisterende-id");	
+		} finally {
+			$this->assertTrue(true);
+		}
 	}
 }

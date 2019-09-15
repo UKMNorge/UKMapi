@@ -7,7 +7,7 @@ require_once("UKM/curl.class.php");
 use stdClass;
 use Exception;
 use UKMCURL;
-use Mailchimp\MCList;
+use UKMNorge\API\Mailchimp\MCList;
 
 require_once("UKMconfig.inc.php");
 
@@ -17,10 +17,18 @@ require_once("UKMconfig.inc.php");
  */
 class Mailchimp {
 	
-	var $mailchimp_url = MAILCHIMP_API_BASE_URL;
+	var $mailchimp_url;
+
+	private $lists = null;
 	private $pageSize = 50;
 		
 	public function __construct() {
+		if( !defined("MAILCHIMP_API_BASE_URL") || !defined("MAILCHIMP_API_KEY")) {
+			throw new Exception("Missing mailchimp defines - see Readme.md");
+		}
+
+		$this->mailchimp_url = MAILCHIMP_API_BASE_URL;
+
 		if(substr($this->mailchimp_url, 0, 5) != "https") {
 			throw new Exception("Can't use Mailchimp-API without https to ensure API Key secrecy.");
 		}
@@ -31,7 +39,8 @@ class Mailchimp {
 	 * @return Array [List]
 	 */
 	public function getLists() {
-		$this->sendGetRequest("lists", 0);
+		$this->lists = $this->sendGetRequest("lists", 0)->lists;
+		return($this->lists);
 	}
 
 	/**
@@ -39,11 +48,25 @@ class Mailchimp {
 	 * @return List $list
 	 * @throws Exception $list_not_found
 	 */
-	public function getListId($id) {
+	public function getList($id) {
+		if($this->lists == null) {
+			$this->getLists();
+		}
+
+		foreach($this->lists as $list) {
+			if($list->id == $id) {
+				return new MCList($list->id, $list->name, $list->permission_reminder, $list->stats);
+			}
+		}
+		// Not found
+		throw new Exception("List not found!");
 
 	}
 
-	public function updateList($id, $values) {
+	/**
+	 * 
+	 */
+	public function saveListChanges(MCList $list) {
 
 	}
 
@@ -59,10 +82,9 @@ class Mailchimp {
 		}
 
 		$curl = new UKMCURL();
-
 		$curl->requestType("GET");
 		$curl->user('userpwd:'.MAILCHIMP_API_KEY);
-		// Todo: Support data set size
+
 		$response = $curl->request($url);
 
 		if($response == false) {
