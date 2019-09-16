@@ -45,7 +45,7 @@ class Mailchimp {
 
 	/**
 	 *
-	 * @return List $list
+	 * @return MCList $list
 	 * @throws Exception $list_not_found
 	 */
 	public function getList($id) {
@@ -60,14 +60,53 @@ class Mailchimp {
 		}
 		// Not found
 		throw new Exception("List not found!");
+	}
 
+	/**
+	 * @param MCList @list - the list object that has been modified.
+	 * @return Boolean - true if all changes passed. False if some changes failed. Call getFailedUpdates to retrieve the failed ones to modify or try again.
+	 */
+	public function saveListChanges(MCList $list) {
+		// You can add up to 500 members for each API call
+		$limit = 500;
+		$data['members'] = $list->getChangedSubscribers();
+		if(count($data['members']) > $limit) {
+			throw new Exception("Can only add 500 new members per API-call");
+		}
+
+		$data['update_existing'] = true;
+
+		$result = $this->sendPostRequest("lists/".$list->getId(), $data);
+
+		if($result->error_count == 0) {
+			return true;
+		}
+		else {
+			// TODO: Save failed updates or state somewhere.
+			return false;
+		}
 	}
 
 	/**
 	 * 
 	 */
-	public function saveListChanges(MCList $list) {
+	public function getFailedUpdates() {
 
+	}
+
+	/**
+	 * Sends a POST request to create new objects on the server
+	 */
+	private function sendPostRequest($resource, $data) {
+		$url = $this->mailchimp_url."/".$resource;
+
+
+		$curl = new UKMCURL();
+		$curl->json($data);
+		$curl->requestType("POST");
+		$response = $curl->request($url);
+
+		return $response;
 	}
 
 	/**

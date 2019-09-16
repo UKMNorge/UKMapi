@@ -36,7 +36,7 @@ class MailchimpTest extends TestCase {
 	 * @depends testInit
 	 */
 	public function testKnownGoodList( $mailchimp ) {
-		$list = $mailchimp->getList("2e6ef5e9fc");
+		$list = $mailchimp->getList("ca20f97cda");
 		$this->assertInstanceOf(MCList::class, $list);
 		$this->assertIsString($list->getName());
 	}
