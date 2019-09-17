@@ -47,8 +47,14 @@ class MCList {
 
 	// User is identified by email, right?
 	public function unsubscribePerson($data) {
-		if(!isset($data['email']) || $data['email'] == "") {
+		if(!isset($data['email_address']) || $data['email_address'] == "") {
 			throw new Exception("Mangler epostadresse å fjerne fra listen.");
+		}
+
+		foreach($this->changedSubscribers as $change) {
+			if($change['email_address'] == $data['email_address']) {
+				throw new Exception("Can't add and then remove a subscriber in the same operation!");
+			}
 		}
 
 		if(!isset($data['status'])) {

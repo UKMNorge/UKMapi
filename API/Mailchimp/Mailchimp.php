@@ -17,10 +17,10 @@ require_once("UKMconfig.inc.php");
  */
 class Mailchimp {
 	
-	var $mailchimp_url;
-
+	private $mailchimp_url;
 	private $lists = null;
 	private $pageSize = 50;
+	private $result = null;
 		
 	public function __construct() {
 		if( !defined("MAILCHIMP_API_BASE_URL") || !defined("MAILCHIMP_API_KEY")) {
@@ -74,24 +74,70 @@ class Mailchimp {
 			throw new Exception("Can only add 500 new members per API-call");
 		}
 
-		$data['update_existing'] = true;
+		$data['update_existing'] = $list->willUpdateExistingSubscribers();
 
-		$result = $this->sendPostRequest("lists/".$list->getId(), $data);
+		$this->result = $this->sendPostRequest("lists/".$list->getId(), $data);
 
-		if($result->error_count == 0) {
+		if($this->result->error_count == 0) {
 			return true;
 		}
 		else {
-			// TODO: Save failed updates or state somewhere.
 			return false;
 		}
 	}
 
 	/**
-	 * 
+	 * Gets the raw result object
+	 * @return stdClass
+	 */
+	public function getResult() {
+		if($this->result == null) {
+			throw new Exception("No result found");
+		}
+
+		return $this->result;
+	}
+	
+	/**
+	 * Returns an array of all failed updates
+	 * @return Array
 	 */
 	public function getFailedUpdates() {
+		if($this->result == null) {
+			throw new Exception("No result found");
+		}
 
+		return $this->result->errors;
+	}
+
+	/**
+	 * Returns the amount of fields that failed to update
+	 * @return int
+	 */
+	public function getTotalFailed() {
+		if($this->result == null) {
+			throw new Exception("No result found");
+		}
+	}
+
+	/**
+	 * Returns the amount of newly created fields
+	 * @return int
+	 */
+	public function getTotalCreated() {
+		if($this->result == null) {
+			throw new Exception("No result found");
+		}
+	}
+	
+	/**
+	 * Returns the amount of updated fields
+	 * @return int
+	 */
+	public function getTotalUpdated() {
+		if($this->result == null) {
+			throw new Exception("No result found");
+		}
 	}
 
 	/**
@@ -100,10 +146,10 @@ class Mailchimp {
 	private function sendPostRequest($resource, $data) {
 		$url = $this->mailchimp_url."/".$resource;
 
-
 		$curl = new UKMCURL();
 		$curl->json($data);
 		$curl->requestType("POST");
+		$curl->user('userpwd:'.MAILCHIMP_API_KEY);
 		$response = $curl->request($url);
 
 		return $response;
@@ -128,7 +174,6 @@ class Mailchimp {
 
 		if($response == false) {
 			// TODO: Do some error checking etc here.
-			var_dump($curl->error());
 		}
 
 		return $response;
