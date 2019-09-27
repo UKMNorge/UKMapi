@@ -2,6 +2,7 @@
 
 use UKMNorge\Twig\Twig as TwigAdmin;
 require_once('UKM/Twig/Twig.php');
+require_once('UKMconfig.inc.php');
 
 function TWIG($template, $dataarray, $templatefolder, $debug=false) {
     // Add template and default paths
@@ -10,11 +11,9 @@ function TWIG($template, $dataarray, $templatefolder, $debug=false) {
 		TwigAdmin::addPath( UKMwp_innhold::getPath().'twig/');
     }
     TwigAdmin::addPath(dirname( __DIR__ ). '/Twig/templates/');
-
-    // Add standard-data
+    TwigAdmin::addData( $dataarray );
     TwigAdmin::setData('UKM_HOSTNAME', UKM_HOSTNAME);
-    
-    
+        
     TwigAdmin::enableDebugMode( $debug );
 
 	if( defined('TWIG_CACHE_PATH') ) {
@@ -33,7 +32,7 @@ function TWIG($template, $dataarray, $templatefolder, $debug=false) {
 
 	$template = $template . (strpos($template,'.html.twig')===false ? '.twig.html' : '');
 	$template = str_replace('.twig.html.twig.html','.twig.html', str_replace(':',DIRECTORY_SEPARATOR,$template));
-	
+    
 	return TwigAdmin::render( $template, $dataarray);
 }
 function TWIG_GET( $var ) {

@@ -38,14 +38,22 @@ class Twig
         static::$data[$key] = $value;
     }
 
+    public static function addData( Array $key_val_array ) {
+        static::$data = array_merge( static::$data, $key_val_array );
+    }
+
     public function setEnvironment(String $key, $value)
     {
         static::$environment[$key] = $value;
     }
 
-    public static function enableDebugMode(Bool $enable)
+    public static function enableDebugMode()
     {
-        static::$debug = $enable;
+        static::$debug = true;
+    }
+
+    public static function disableDebugMode() {
+        static::$debug = false;
     }
 
     public static function init()
@@ -57,6 +65,7 @@ class Twig
     public static function render(String $template, array $data)
     {
         static::init();
+        static::addData( $data );
 
         if( static::$debug ) {
             static::setEnvironment('debug', true);
@@ -80,7 +89,7 @@ class Twig
             $twig->addExtension($extension);
         }
 
-        return $twig->render($template, $data);
+        return $twig->render($template, static::getData());
     }
 
     public static function getPaths()
