@@ -164,6 +164,7 @@ class write_monstring
             'harVideresending'  => ['smartukm_place', 'pl_videresending', 123],
             'Pamelding'         => ['smartukm_place', 'pl_pamelding', 124],
             'harSkjema'         => ['smartukm_place', 'pl_has_form', 127],
+            'Synlig'            => ['smartukm_place', 'pl_visible', 128]
         ];
 
         // LOOP ALLE VERDIER, OG EVT LEGG TIL I SQL
@@ -248,15 +249,19 @@ class write_monstring
 
         // Sjekk hvem som får videresende, og lagre endringer
         if ($monstring_save->harVideresending()) {
-            foreach ($monstring_save->getVideresending()->getAvsendere() as $avsender) {
-                if (!$monstring_db->getVideresending()->harAvsender($avsender->getId())) {
-                    self::_leggTilVideresendingAvsender($monstring_save, $avsender);
+            if( $monstring_save->getVideresending()->harAvsendere() ) {
+                foreach ($monstring_save->getVideresending()->getAvsendere() as $avsender) {
+                    if (!$monstring_db->getVideresending()->harAvsender($avsender->getId())) {
+                        self::_leggTilVideresendingAvsender($monstring_save, $avsender);
+                    }
                 }
             }
 
-            foreach ($monstring_db->getVideresending()->getAvsendere() as $avsender) {
-                if (!$monstring_save->getVideresending()->harAvsender($avsender->getId())) {
-                    self::_fjernVideresendingAvsender($monstring_save, $avsender);
+            if( $monstring_db->getVideresending()->harAvsendere() ) {
+                foreach ($monstring_db->getVideresending()->getAvsendere() as $avsender) {
+                    if (!$monstring_save->getVideresending()->harAvsender($avsender->getId())) {
+                        self::_fjernVideresendingAvsender($monstring_save, $avsender);
+                    }
                 }
             }
         }

@@ -18,6 +18,12 @@ class Videresending
         $this->id = $pl_id;
     }
 
+    /**
+     * Har gitt mottaker tilgang til dette arrangementet?
+     *
+     * @param Int $mottaker_id
+     * @return Bool true/false
+     */
     public function harMottaker( Int $mottaker_id ) {
         try {
             $this->getMottaker( $mottaker_id );
@@ -27,6 +33,13 @@ class Videresending
         }
     }
 
+    /**
+     * Hent en gitt mottaker
+     *
+     * @param Int $mottaker_id
+     * @return Bool true
+     * @throws Exception not_found
+     */
     public function getMottaker( Int $mottaker_id ) {
         if( isset( $this->getMottakere()[$mottaker_id] ) ) {
             return $this->mottakere[ $mottaker_id ];
@@ -37,6 +50,12 @@ class Videresending
         );
     }
 
+    /**
+     * Har gitt avsender tilgang til dette arrangementet?
+     *
+     * @param Int $avsender_id
+     * @return Bool true/false
+     */
     public function harAvsender( Int $avsender_id ) {
         try {
             $this->getAvsender( $avsender_id );
@@ -46,6 +65,13 @@ class Videresending
         }
     }
 
+    /**
+     * Hent en gitt avsender
+     *
+     * @param Int $avsender_id
+     * @return Bool true
+     * @throws Exception not_found
+     */
     public function getAvsender( Int $avsender_id ) {
         if( isset( $this->getAvsendere()[$avsender_id] ) ) {
             return $this->avsendere[ $avsender_id ];
@@ -54,6 +80,22 @@ class Videresending
             'Har ikke mottaker '. $avsender_id,
             155002
         );
+    }
+    /**
+     * Er det lagt til noen avsendere?
+     *
+     * @return Bool $har_avsendere
+     */
+    public function harAvsendere() {
+        return sizeof( $this->getAvsendere() ) > 0;
+    }
+    /**
+     * Er det lagt til noen mottakere?
+     *
+     * @return Bool $har_mottakere
+     */
+    public function harMottakere() {
+        return sizeof( $this->getMottakere() ) > 0;
     }
     /**
      * Hvem kan denne mønstringen sende innslag til?
@@ -144,6 +186,8 @@ class Videresending
         );
 
         $res = $sql->run();
+
+        $this->$type = [];
         while( $row = Query::fetch( $res ) ) {
 
             if( $row['pl_owner_fylke'] > 0 ) {
