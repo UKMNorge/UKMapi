@@ -49,7 +49,10 @@ class aviser {
 	public function unrelateAll( $kommuner ) {
 		if( is_array( $kommuner ) ) {
 			foreach( $kommuner as $kommune ) {
-				$this->unrelateAllForKommune( $kommune['id'] );
+				if( get_class( $kommune ) !== 'kommune' ) {
+					throw new Exception('unrelateAll krever et array av Kommune-objekter');
+				}
+				$this->unrelateAllForKommune( $kommune->getId() );
 			}
 		}
 	}

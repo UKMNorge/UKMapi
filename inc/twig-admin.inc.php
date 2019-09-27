@@ -1,46 +1,39 @@
 <?php
+
+use UKMNorge\Twig\Twig as TwigAdmin;
+require_once('UKM/Twig/Twig.php');
+require_once('UKMconfig.inc.php');
+
 function TWIG($template, $dataarray, $templatefolder, $debug=false) {
-	require_once('Twig/Autoloader.php');
-	Twig_Autoloader::register();
-	$loader = new Twig_Loader_Filesystem($templatefolder.'/twig/');
-    
-    $dataarray['UKM_HOSTNAME'] = UKM_HOSTNAME;
-	$environment = array('debug' => $debug);
+    // Add template and default paths
+    TwigAdmin::addPath($templatefolder.'/twig/');
+	if( class_exists('UKMwp_innhold') ) {
+		TwigAdmin::addPath( UKMwp_innhold::getPath().'twig/');
+    }
+    TwigAdmin::addPath(dirname( __DIR__ ). '/Twig/templates/');
+    TwigAdmin::addData( $dataarray );
+    TwigAdmin::setData('UKM_HOSTNAME', UKM_HOSTNAME);
+        
+    TwigAdmin::enableDebugMode( $debug );
+
 	if( defined('TWIG_CACHE_PATH') ) {
-		$environment['cache'] = TWIG_CACHE_PATH;
-		$environment['auto_reload'] = true;
-	}
-	$twig = new Twig_Environment($loader, $environment);
-	
-	
-	// Add dato-filter
-	$filter = new Twig_SimpleFilter('dato', 'TWIG_date');
-	$twig->addFilter($filter);
-	// Add filesize-filter
-	$filter = new Twig_SimpleFilter('filesize', 'TWIGfilesize');
-	$twig->addFilter($filter);
-	// Add kroner-filter
-	$filter = new Twig_SimpleFilter('kroner', 'TWIGkroner');
-	$twig->addFilter($filter);
-	// Add tid-filter
-	$filter = new Twig_SimpleFilter('varighet', 'TWIGtid');
-	$twig->addFilter($filter);
-	
-	$function = new Twig_SimpleFunction('GET', 'TWIG_GET');
-	$twig->addFunction($function);
-	
-	// Set language to French
+        TwigAdmin::setEnvironment('cache', TWIG_CACHE_PATH);
+        TwigAdmin::setEnvironment('auto_reload', true);
+    }
+    
+    TwigAdmin::addFilter('dato', 'TWIG_date');
+    TwigAdmin::addFilter('filesize', 'TWIGfilesize');
+    TwigAdmin::addFilter('kroner', 'TWIGkroner');
+    TwigAdmin::addFilter('varighet', 'TWIGtid');
+    TwigAdmin::addFunction('GET', 'TWIG_GET');
+
 	putenv('LC_ALL=nb_NO');
 	setlocale(LC_ALL, 'nb_NO');
 
-	
-	if($debug)
-		$twig->addExtension(new Twig_Extension_Debug());
-
 	$template = $template . (strpos($template,'.html.twig')===false ? '.twig.html' : '');
 	$template = str_replace('.twig.html.twig.html','.twig.html', str_replace(':',DIRECTORY_SEPARATOR,$template));
-	
-	return $twig->render($template, $dataarray);
+    
+	return TwigAdmin::render( $template, $dataarray);
 }
 function TWIG_GET( $var ) {
 	if( isset( $_GET[ $var ] ) ) {
@@ -98,4 +91,3 @@ function TWIGfilesize( $size, $precision = 2 ) {
     for($i = 0; ($size / 1024) > 0.9; $i++, $size /= 1024) {}
     return round($size, $precision).['B','kB','MB','GB','TB','PB','EB','ZB','YB'][$i];
 }
-?>

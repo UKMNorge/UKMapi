@@ -57,6 +57,12 @@ require_once('UKM/monstring.class.php');
 	
 	class postnummer_monstring {
 		public function __construct( $postnummer, $season ) {
+            if( $season > 2019 ) {
+                # REGION-REFORM IMPLEMENT
+                throw new Exception(
+                    'UNSUPPORTED FUNCTION postnummer_monstring() for season '. $season
+                );
+            }
 			$kommune_id = new SQL("SELECT `k_id`
 								   FROM `smartukm_postalplace`
 								   WHERE `postalcode` = '#postnummer'",
@@ -94,6 +100,12 @@ require_once('UKM/monstring.class.php');
 
 	class kommune_monstring{
 		public function __construct($kommune,$season) {
+            if( $season > 2019 ) {
+                # REGION-REFORM IMPLEMENT
+                throw new Exception(
+                    'UNSUPPORTED FUNCTION kommune_monstring() for season '. $season
+                );
+            }
 			$qry = new SQL("SELECT `pl_id`
 							FROM `smartukm_rel_pl_k`
 							WHERE `k_id` = '#kommune'
@@ -114,6 +126,12 @@ require_once('UKM/monstring.class.php');
 	}
 	class fylke_monstring{
 		public function __construct($fylke,$season) {
+            if( $season > 2019 ) {
+                # REGION-REFORM IMPLEMENT
+                throw new Exception(
+                    'UNSUPPORTED FUNCTION fylke_monstring() for season '. $season
+                );
+            }
 			$qry = new SQL("SELECT `pl_id`
 							FROM `smartukm_place`
 							WHERE `pl_fylke` = '#fylke'
@@ -128,10 +146,15 @@ require_once('UKM/monstring.class.php');
 	}
 	class landsmonstring{
 		public function __construct($season) {
+            if( $season > 2019 ) {
+                # REGION-REFORM IMPLEMENT
+                throw new Exception(
+                    'UNSUPPORTED FUNCTION landsmonstring() for season '. $season
+                );
+            }
 			$qry = new SQL("SELECT `pl_id`
 							FROM `smartukm_place`
-							WHERE `pl_fylke` = '123456789'
-							AND `pl_kommune` = '123456789'
+							WHERE `pl_type` = 'land'
 							AND `season` = '#season'",
 						array('season'=>$season));
 			$this->pl_id = $qry->run('field','pl_id');

@@ -336,7 +336,7 @@ public function getByPhone( $phone, $b_id=false ) {
 			$end_ts = get_site_option( 'ukm_pl_start' );
 
 		if($monstring && get_class($monstring) == 'monstring') {
-			$end_ts = $monstring->get('pl_start');
+			$end_ts = $monstring->get('old_pl_start');
 		}
 		if(!$end_ts)
 			$end_ts = time();

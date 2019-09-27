@@ -172,8 +172,7 @@ function video_calc_data($algorithm, $res) {
 									 JOIN `smartukm_rel_pl_k`
 									 	ON (`smartukm_rel_pl_k`.`pl_id` = `smartukm_place`.`pl_id`)
 									 WHERE `smartukm_rel_pl_b`.`b_id` = '#bid'
-									 AND `smartukm_place`.`pl_fylke` = 0
-									 AND `smartukm_place`.`pl_kommune` > 50",
+									 AND `smartukm_place`.`pl_type` = 'kommune'",
 									 array( 'bid' => $inn->g('b_id') ));
 				$geo = $geo->run('array');
 			}

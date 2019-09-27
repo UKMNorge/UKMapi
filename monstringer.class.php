@@ -49,7 +49,8 @@ class stat_monstringer_v2 {
 		
 		$query =  monstring_v2::getLoadQry()
 				."JOIN `smartukm_kommune` AS `k` ON (`k`.`id` = `kommuner`.`k_id`) 
-				  WHERE `place`.`season` = '#season' 
+                  WHERE `place`.`pl_type` = 'kommune'
+                    AND `place`.`season` = '#season' 
 					AND `k`.`idfylke` = '#fylke'
 				  GROUP BY `place`.`pl_id` 
 				  ORDER BY `place`.`pl_name` ASC";
@@ -82,7 +83,8 @@ class stat_monstringer_v2 {
 		
 		$query =  monstring_v2::getLoadQry()
 				."JOIN `smartukm_kommune` AS `k` ON (`k`.`id` = `kommuner`.`k_id`) 
-				  WHERE `place`.`season` = '#season' 
+                  WHERE `place`.`pl_type` = 'kommune'
+                    AND `place`.`season` = '#season' 
 					AND `k`.`idfylke` = '#fylke'
 				  GROUP BY `place`.`pl_id` 
 				  ORDER BY `place`.`pl_start` ASC";
@@ -187,6 +189,12 @@ class monstringer_v2 {
 		return stat_monstringer_v2::getAlleKommunerUtenMonstring( $season );
 	}
 	public static function fylke( $fylke, $season ) {
+        if( $season > 2019 ) {
+            # REGION-REFORM IMPLEMENT
+            throw new Exception(
+                'UNSUPPORTED FUNCTION monstringer_v2::fylke() for season '. $season
+            );
+        }
 		if( is_numeric( $fylke ) ) {
 			$fylke_id = $fylke;
 		} elseif( 'fylke' == get_class( $fylke ) ) {
@@ -197,7 +205,7 @@ class monstringer_v2 {
 		
 		$qry = new SQL("SELECT `pl_id`
 						FROM `smartukm_place`
-						WHERE `pl_fylke` = '#fylke'
+						WHERE `pl_owner_fylke` = '#fylke'
 						AND `season` = '#season'",
 					array('fylke'=>$fylke_id,'season'=>$season));
 		$pl_id = $qry->run('field','pl_id');
@@ -208,11 +216,17 @@ class monstringer_v2 {
 				return $monstring;
 			}
 		}
-		$fylke = fylker::getById( $fylker_id );
+		$fylke = fylker::getById( $fylke_id );
 		throw new Exception('Fant ingen mønstring for '. $fylke->getNavn() .' i '. $season );
 	}
 	
 	public static function kommune( $kommune, $season ) {
+        if( $season > 2019 ) {
+            # REGION-REFORM IMPLEMENT
+            throw new Exception(
+                'UNSUPPORTED FUNCTION monstringer_v2::fylke() for season '. $season
+            );
+        }
 		if( is_numeric( $kommune ) ) {
 			$kommune_id = $kommune;
 		} elseif( 'kommune' == get_class( $kommune ) ) {
@@ -240,10 +254,15 @@ class monstringer_v2 {
 	
 	
 	public static function land( $sesong ) {
+        if( $sesong > 2019 ) {
+            # REGION-REFORM IMPLEMENT
+            throw new Exception(
+                'UNSUPPORTED FUNCTION monstringer_v2::fylke() for season '. $sesong
+            );
+        }
 		$qry = new SQL(
 			monstring_v2::getLoadQry() ."
-			WHERE `pl_fylke` = '123456789'
-			AND `pl_kommune` = '123456789'
+			WHERE `pl_type` = 'land'
 			AND `place`.`season` = '#season'",
 			[
 				'season' => $sesong,
@@ -290,8 +309,8 @@ class monstringer_v2 {
 			JOIN `smartukm_kommune` AS `kommune`
 				ON (`kommune`.`id` = `smartukm_rel_pl_k`.`k_id`)
 			WHERE `smartukm_place`.`season` = '#season'
-			AND `pl_start` = 0
-			AND `pl_fylke` = 0
+			AND `pl_registered` = 'false'
+            AND `pl_type` = 'kommune'
 			AND `kommune`.`name` != 'Gjester'
 			AND `kommune`.`idfylke` < 21"
 		;
@@ -304,9 +323,9 @@ class monstringer_v2 {
 		$query ="SELECT COUNT( DISTINCT(`smartukm_place`.`pl_id`) ) AS `count`
 			FROM `smartukm_place`
 			WHERE `smartukm_place`.`season` = '#season'
-			AND `pl_start` = 0
-			AND `pl_fylke` > 0
-			AND `pl_fylke` < 21"
+			AND `pl_registered` = 'false'
+			AND `pl_type` = 'fylke'
+			AND `pl_owner_fylke` < 21"
 		;
 		$qry = new SQL(
 			$query, 
@@ -325,8 +344,8 @@ class monstringer_v2 {
 		JOIN `smartukm_kommune` AS `kommune`
 			ON (`kommune`.`id` = `smartukm_rel_pl_k`.`k_id`)
 		WHERE `smartukm_place`.`season` = '#season'
-		AND `pl_start` > 0
-		AND `pl_fylke` = 0
+		AND `pl_registered` = 'true'
+		AND `pl_type` = 'kommune'
 		AND `kommune`.`name` != 'Gjester'
 		AND `kommune`.`idfylke` < 21"
 		;
@@ -339,9 +358,9 @@ class monstringer_v2 {
 		$query ="SELECT COUNT( DISTINCT(`smartukm_place`.`pl_id`) ) AS `count`
 			FROM `smartukm_place`
 			WHERE `smartukm_place`.`season` = '#season'
-			AND `pl_start` > 0
-			AND `pl_fylke` > 0
-			AND `pl_fylke` < 21"
+			AND `pl_registered` = 'true'
+			AND `pl_type` = 'fylke'
+			AND `pl_owner_fylke` < 21"
 		;
 		$qry = new SQL(
 			$query, 

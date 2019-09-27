@@ -1,10 +1,15 @@
 <?php
+
+namespace UKMNorge\Database\SQL;
+
+require_once('UKM/Database/SQL/common.class.php');
+
 /**********************************************************************************************
  * SQL CLASS WITH WRITE PRIVILEGES
  * Used for database-altering queries. Will automatically notify support upon run.
  * 
 **/
-class SQLwrite extends SQLcommon {
+class Write extends SQLcommon {
     const WRITE_ACCESS_DATABASE = true;
     private $key_value_map = null;
     private $database = null;
@@ -82,7 +87,7 @@ class SQLwrite extends SQLcommon {
         foreach( $this->key_value_map as $key => $value ) {
             $query = str_replace(
                 '#'.$key, 
-                $this->sanitize( $value ),
+                $this->sanitizeValue( $key, $value ),
                 $query
             );
         }

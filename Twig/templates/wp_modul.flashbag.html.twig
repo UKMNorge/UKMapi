@@ -1,0 +1,9 @@
+<div class="flashbag">
+    {% if flashbag.needtospeak() %}
+        {% for message in flashbag.getAll() %}
+            <div class="message alert alert-{{ message.level }}" style="margin-top: 1em;">
+                {{ message.text|raw }}
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>

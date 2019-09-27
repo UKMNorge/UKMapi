@@ -1,9 +1,15 @@
 <?php
+
+namespace UKMNorge\Database\SQL;
+use Exception;
+
+require_once('UKM/Database/SQL/common.class.php');
+
 /**********************************************************************************************
  * SQL INSERTION AND UPDATE CLASS
  * Used only to insert stuff, never from a query.
 **/
-class SQLins extends SQLcommon {
+class Insert extends SQLcommon {
     const WRITE_ACCESS_DATABASE = true;
     var $insert_keys = array();
     var $insert_values = array();
@@ -113,7 +119,7 @@ class SQLins extends SQLcommon {
         for( $i=0; $i < sizeof( $this->insert_keys ); $i++) {
             $this->real_query .= 
                 "`". $this->sanitize( $this->insert_keys[$i] ) .
-                "` = '". $this->sanitize( $this->insert_values[$i] ) ."', ";
+                "` = '". $this->sanitizeValue( $this->insert_keys[$i], $this->insert_values[$i] ) ."', ";
         }
         // Remove the last comma
         $this->real_query = substr(
@@ -125,7 +131,7 @@ class SQLins extends SQLcommon {
         // Create the where-part of the query
         $this->real_query .= ' WHERE ';
         foreach( $this->key_value_map as $key => $val) {
-            $this->real_query .= "`". $this->sanitize($key) ."`='". $this->sanitize( $val ) ."' AND ";
+            $this->real_query .= "`". $this->sanitize($key) ."`='". $this->sanitizeValue( $key, $val ) ."' AND ";
         }
         // Remove last 5 chars (' AND ')
         $this->real_query = substr(
@@ -151,7 +157,7 @@ class SQLins extends SQLcommon {
         if ( sizeof( $this->insert_keys ) > 0 && sizeof( $this->insert_values ) > 0 ) {
             for( $i=0; $i < sizeof( $this->insert_keys ); $i++ ) {
                 $keys .= '`'. $this->sanitize( $this->insert_keys[$i] ) .'`, ';
-                $values .= "'". $this->sanitize( $this->insert_values[$i] ) ."', ";
+                $values .= "'". $this->sanitizeValue( $this->insert_keys[$i], $this->insert_values[$i] ) ."', ";
             }
         }
 

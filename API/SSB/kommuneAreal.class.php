@@ -29,7 +29,10 @@ class KommuneAreal extends SSBapi {
 	}
 
 	public function getLatestYearUpdated() {
-		$years = $this->getAllYears();
+        $years = $this->getAllYears();
+        if( !is_array( $years ) || sizeof( $years ) == 0) {
+            return 'ukjent';
+        }
 		return max($years);
 	}
 

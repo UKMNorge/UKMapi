@@ -1,11 +1,16 @@
 <?php
+
+use UKMNorge\Nettverk\Administratorer;
+use UKMNorge\Nettverk\Omrade;
+
 class fylke {
 	var $id = null;
 	var $link = null;
 	var $navn = null;
 	var $attributes = null;
 	var $kommuner = null;
-	
+    var $nettverk_omrade = null;
+    
 	public function __construct( $id, $link, $name ) {
 		$this->setId( $id );
 		$this->setLInk( $link );
@@ -42,7 +47,22 @@ class fylke {
 	
 	public function erOslo() {
 		return $this->getId() == 3;
-	}
+    }
+    
+    /**
+     * Hent geografisk administrasjons-område for fylket
+     *
+     * @return UKMNorge\Nettverk\Omrade
+     */
+    public function getNettverkOmrade() {
+        if( $this->nettverk_omrade == null ) {
+            require_once('UKM/Nettverk/Omrade.class.php');
+            $this->nettverk_omrade = Omrade::getByFylke( 
+                (Int) $this->getId()
+            );
+        }
+        return $this->nettverk_omrade;
+    }
 	
 	/**
 	 * Sett attributt
@@ -80,7 +100,8 @@ class fylke {
 
 			$sql = new SQL("SELECT * 
 							FROM `smartukm_kommune` 
-							WHERE `idfylke` = '#fylke'",
+                            WHERE `idfylke` = '#fylke'
+                            ORDER BY `name` ASC",
 						  array('fylke'=>$this->getId() )
 						);
 			$res = $sql->run();

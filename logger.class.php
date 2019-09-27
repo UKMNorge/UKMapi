@@ -28,7 +28,11 @@ class UKMlogger {
 			#debug_print_backtrace();
 			throw new Exception("UKMlogger: Klarte ikke å logge til log_log! Feilmelding: ".$sql->getError());
 		}
-		
+        
+        if( is_object( $value ) && get_class( $value ) == 'DateTime' ) {
+            $value = $value->format('Y-m-d H:i:s'); // Fordi databasen lagrer datoer som int
+        }
+
 		$sql = new SQLins('log_value');
 		$sql->add('log_id', $insert_id);
 		$sql->add('log_value', addslashes( $value ));
@@ -73,5 +77,14 @@ class UKMlogger {
 		self::setUser( $user );
 		self::setPlId( $pl_id );
 	}
-	
+    
+    static function initWP( $pl_id ) {
+        self::setSystem('wordpress');
+        global $current_user;
+        if( get_class( $current_user ) !== 'WP_User' ) {
+            throw new Exception('UKMlogger: ugyldig $current_user');
+        }
+        self::setUser(  $current_user->ID );
+        self::setPlId( $pl_id );
+    }
 }

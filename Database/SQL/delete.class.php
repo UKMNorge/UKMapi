@@ -1,9 +1,14 @@
 <?php
+
+namespace UKMNorge\Database\SQL;
+
+require_once('UKM/Database/SQL/common.class.php');
+
 /**********************************************************************************************
 * SQL DELETION CLASS
 * Used only to delete stuff.
 **/
-class SQLdel extends SQLcommon {
+class Delete extends SQLcommon {
     const WRITE_ACCESS_DATABASE = true;
     public $query = null;
     private $table = null;

@@ -1,4 +1,10 @@
 <?php
+
+namespace UKMNorge\Database\SQL;
+
+use mysqli;
+use Exception;
+
 /**********************************************************************************************
  * DATABASE CONNECTION CLASS
  * Helper class for all SQL classes, managing the connection

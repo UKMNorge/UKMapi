@@ -25,7 +25,7 @@ function TWIGjs($templatefolder, $prefix='') {
 function TWIGjs_simple($templatefolder) {
 	$SCRIPT = '<script type="text/javascript">';
 	
-	$templates = glob($templatefolder . "/twig/js/*.html.twig");
+	$templates = glob(str_replace('/twig/js/','',$templatefolder) . "/twig/js/*.html.twig");
 	
 	foreach($templates as $template) {
 		if($template != '.' && $template != '..') {
