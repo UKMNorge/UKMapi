@@ -21,6 +21,20 @@ abstract class RFIDColl {
 		return new $object_class( $row );
 	}
 
+	public static function getMatching( $key, $value ) {
+		$child = get_called_class();
+		$rows = POSTGRES::getResults("SELECT * FROM ". $child::TABLE_NAME.
+			' WHERE '. $key .'=$1', [ $value ]);
+		$object_class = str_replace('Coll', '', $child);
+		$returns = [];
+		if( is_array( $rows ) ) {
+			foreach( $rows as $row ) {
+				$returns[] = new $object_class( $row );
+			}
+		}
+		return $returns;
+	}
+
 	public static function getAllByName() {
 		$child = get_called_class();
 		if( $child::$models == null ) {
