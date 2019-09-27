@@ -23,7 +23,7 @@ class Skjema {
     private $arrangement_id;
     private $eier;
 
-    private function __construct( Int $id, Int $pl_id, String $eier_type, Int $eier_id ) {
+    public function __construct( Int $id, Int $pl_id, String $eier_type, Int $eier_id ) {
         $this->id = $id;
         $this->arrangement_id = $pl_id;
         $this->eier = new Eier( $eier_type, $eier_id );

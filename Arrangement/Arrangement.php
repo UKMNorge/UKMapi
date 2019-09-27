@@ -63,6 +63,7 @@ class Arrangement {
     var $innslagTyper = null;
     var $meta = null;
     var $har_videresending = null;
+    var $synlig = true;
 
     var $er_monstring = null;
 
@@ -174,6 +175,7 @@ class Arrangement {
         $this->setErMonstring( in_array( $this->getType(), ['kommune','fylke','land'] ) );
         $this->setHarVideresending( $row['pl_videresending'] == 'true' );
         $this->har_skjema = $row['pl_has_form'] == 'true';
+        $this->synlig = $row['pl_visible'] == 'true';
 
 		// SET PATH TO BLOG
 		if( isset( $row['pl_link'] ) || ( isset( $row['pl_link'] ) && empty( $row['pl_link'] ) ) ) {
@@ -1233,6 +1235,37 @@ class Arrangement {
      */
     public function getInformasjonstekst() {
         return $this->getMetaValue('infotekst_videresending');
+    }
+
+    /**
+     * Er arrangementet synlig?
+     * @alias erSynlig
+     */ 
+    public function getSynlig()
+    {
+        return $this->erSynlig();
+    }
+
+    /**
+     * Er arrangementet synlig?
+     *
+     * @return Bool $synlig
+     */
+    public function erSynlig() {
+        return $this->synlig;
+    }
+
+    /**
+     * Sett om arrangementet skal være synlig
+     *
+     * @param Bool $synlig
+     * @return $this
+     */ 
+    public function setSynlig( Bool $synlig)
+    {
+        $this->synlig = $synlig;
+
+        return $this;
     }
 }
 ?>

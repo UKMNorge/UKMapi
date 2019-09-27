@@ -5,6 +5,7 @@ namespace UKMNorge\Arrangement;
 use kommune;
 use fylke;
 use UKMNorge\Nettverk\Omrade;
+use Exception;
 
 require_once('UKM/Arrangement/Arrangementer.php');
 
@@ -18,7 +19,7 @@ class Load {
      * @return Arrangementer $arrangementer
      */
     public static function byEier( Int $season, $eier ) {
-        if( !in_array( get_class($eier), ['kommune','fylke'] ) ) {
+        if( is_string($eier) || !in_array( get_class($eier), ['kommune','fylke'] ) ) {
             throw new Exception('byEier krever at parameter 2 er enten kommune- eller fylke-objekt');
         }
         return static::byOmradeInfo( $season, 'eier-'.get_class( $eier ), $eier->getId());

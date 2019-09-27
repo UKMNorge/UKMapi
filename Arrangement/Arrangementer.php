@@ -64,6 +64,7 @@ class Arrangementer
                         'season' => $this->getSesong()
                     ]
                 );
+                #echo $sql->debug();
                 break;
             /**
              * HENT KOMMUNE & FYLKE FRA GITT OMRÅDE
@@ -134,6 +135,10 @@ class Arrangementer
             $this->_load();
         }
         return $this->arrangementer;
+    }
+
+    public function har() {
+        return sizeof( $this->getAll() ) > 0;
     }
 
     /**
