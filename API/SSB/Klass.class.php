@@ -25,6 +25,7 @@ class Klassapi implements Klassapi_interface {
 	private $classificationId = null;
 	private $start = null;
 	private $stop = null;
+	private $includeFutureChanges = "false";
 
 	public function setClassificationId($classificationId) {
 		$this->classificationId = $classificationId;
@@ -49,6 +50,15 @@ class Klassapi implements Klassapi_interface {
 		return $curl->request($url);
 	}
 
+	public function includeFutureChanges(bool $include) {
+		if($include) {
+			$this->includeFutureChanges = "true";
+		}
+		else {
+			$this->includeFutureChanges = "false";
+		}
+	}
+
 	public function getChanges($debug = false) {
 		if(null == $this->classificationId) {
 			throw new Exception("Kan ikke kjøre en Klass-spørring mot ukjent klassifisering.");
@@ -62,6 +72,7 @@ class Klassapi implements Klassapi_interface {
 
 		$url .= "from=".$this->start->format("Y-m-d");
 		$url .= "&to=" .$this->stop->format("Y-m-d");
+		$url .= "&includeFuture=".$this->includeFutureChanges;
 
 		$curl = new UKMCURL();
 		$curl->addHeader("Accept: application/json; charset: UTF-8");
