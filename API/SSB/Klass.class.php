@@ -44,6 +44,7 @@ class Klassapi implements Klassapi_interface {
 
 		$url .= "from=".$this->start->format("Y-m-d");
 		$url .= "&to=" .$this->stop->format("Y-m-d");
+		$url .= "&includeFuture=" .$this->includeFutureChanges;
 
 		$curl = new UKMCURL();
 		$curl->addHeader("Accept: application/json; charset: UTF-8");
