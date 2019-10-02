@@ -259,7 +259,7 @@ class Blog
      */
     public static function leggTilBruker(Int $blog_id, Int $user_id, String $role)
     {
-        static::controlBlogId($blog_id);
+        static::controlBlogId($blog_id, true);
         $result = add_user_to_blog($blog_id, $user_id, $role);
         if ($result) {
             return true;
@@ -389,9 +389,10 @@ class Blog
      * Sjekk at gitt blog-id er en gyldig id å jobbe med
      *
      * @param Any $blog_id
+     * @param Bool $allowBlogIdToBeOne
      * @return void
      */
-    public static function controlBlogId($blog_id)
+    public static function controlBlogId( Int $blog_id, Bool $allowBlogIdToBeOne=false)
     {
         if (empty($blog_id)) {
             throw new Exception('Gitt BlogId er tom');
@@ -399,7 +400,7 @@ class Blog
         if (!is_numeric($blog_id)) {
             throw new Exception('Gitt BlogId er ikke numerisk');
         }
-        if ($blog_id == 1) {
+        if ($blog_id == 1 && !$allowBlogIdToBeOne ) {
             throw new Exception('Gitt BlogId er 1 (hovedbloggen!)');
         }
         return $blog_id;
