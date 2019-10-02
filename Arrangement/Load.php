@@ -22,76 +22,85 @@ class Load {
      * @param kommune|fylke $eier
      * @return Arrangementer $arrangementer
      */
-    public static function byEier( Int $season, $eier ) {
-        if( is_string($eier) || !in_array( get_class($eier), ['kommune','fylke'] ) ) {
+    public static function byEier( Int $sesong, $eier ) {
+        if( is_string($eier) || !in_array( get_class($eier), ['kommune','fylke','UKMNorge\Geografi\Fylke','UKMNorge\Geografi\Kommune'] ) ) {
             throw new Exception('byEier krever at parameter 2 er enten kommune- eller fylke-objekt');
         }
-        return static::byOmradeInfo( $season, 'eier-'.get_class( $eier ), $eier->getId());
+        return static::byOmradeInfo( $sesong, 'eier-'.strtolower(str_replace('UKMNorge\Geografi\\','', get_class( $eier ))), $eier->getId());
     }
 
     /**
      * Alle lokal-arrangement hvor en kommune er involvert
      * (er eier, eller med-arrangør)
      *
-     * @param Int $season
+     * @param Int $sesong
      * @param kommune $kommune
      * @return Arrangementer
      */
-    public static function forKommune( Int $season, kommune $kommune ) {
-        return static::byOmradeInfo( $season, 'kommune', $kommune->getId() );
+    public static function forKommune( Int $sesong, Kommune $kommune, Filter $filter=null ) {
+        if( $filter == null ) {
+            $filter = new Filter();
+        }
+        return static::byOmradeInfo( $sesong, 'kommune', $kommune->getId(), $filter );
     }
 
     /**
      * Alle lokal-arrangement i et gitt fylke
      *
-     * @param Int $season
+     * @param Int $sesong
      * @param fylke $fylke
      * @return Arrangementer
      */
-    public static function iFylke( Int $season, fylke $fylke ) {
-        return static::byOmradeInfo( $season, 'fylke', $fylke->getId() );
+    public static function iFylke( Int $sesong, Fylke $fylke ) {
+        return static::byOmradeInfo( $sesong, 'fylke', $fylke->getId() );
     }
 
 
     /**
      * Alle fylkes-arrangement i et fylke
      *
-     * @param Int $season
+     * @param Int $sesong
      * @param fylke $fylke
      * @return Arrangementer
      */
-    public static function forFylke( Int $season, fylke $fylke ) {
-        return static::byEier( $season, $fylke);
+    public static function forFylke( Int $sesong, Fylke $fylke ) {
+        return static::byEier( $sesong, $fylke);
     }
 
     /**
      * Hent Arrangement-collection for gitt område,
      * Bruker 2 parametre i stedet for område-objektet
      *
-     * @param Int $season
+     * @param Int $sesong
      * @param String $omrade_type
      * @param Int $omrade_id
      * @return Arrangementer
      */
-    public static function byOmradeInfo( Int $season, String $omrade_type, Int $omrade_id ) {
-        return new Arrangementer( $season, $omrade_type, $omrade_id );
+    public static function byOmradeInfo( Int $sesong, String $omrade_type, Int $omrade_id, Filter $filter=null ) {
+        if( $filter == null ) {
+            $filter = new Filter();
+        }
+        return new Arrangementer( $sesong, $omrade_type, $omrade_id, $filter );
     }
 
     /**
      * Hent Arrangement-collection for gitt område
      *
-     * @param Int $season
+     * @param Int $sesong
      * @param Omrade $omrade
      * @return Arrangementer
      */
-    public static function byOmrade( Int $season, Omrade $omrade ) {
-        return static::byOmradeInfo( $season, $omrade->getType(), $omrade->getForeignId() );
+    public static function byOmrade( Int $sesong, Omrade $omrade, Filter $filter=null ) {
+        if( $filter == null ) {
+            $filter = new Filter();
+        }
+        return static::byOmradeInfo( $sesong, $omrade->getType(), $omrade->getForeignId(), $filter);
     }
 
 
     /* IMPLEMENT */
-    #public static function byPostnummer( Int $season, Int $postnummer ) {
-    #    return static::byOmradeInfo( $season, 'postnummer', $postnummer);
+    #public static function byPostnummer( Int $sesong, Int $postnummer ) {
+    #    return static::byOmradeInfo( $sesong, 'postnummer', $postnummer);
     #}
 
 }
