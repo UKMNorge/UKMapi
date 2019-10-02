@@ -3,14 +3,30 @@ require_once('UKM/sql.class.php');
 require_once('UKM/fylker.class.php');
 	
 class kommune {
+
+    private $id = null;
+    private $name = null;
+    private $fylke = null;
+    private $name_nonutf8 = null;
+    private $aktiv = true;
+    private $tidligere = null;
+    private $tidligere_list = null;
+
 	public function __construct( $kid_or_row ) {
 		if( is_numeric( $kid_or_row ) ) {
 			$this->_loadByID( $kid_or_row );
 		} else {
 			$this->_loadByRow( $kid_or_row );
 		}
-	}
-	private function _loadByID( $id ) {
+    }
+    
+    /**
+     * Hent kommune-data fra database basert på gitt ID
+     *
+     * @param Int $id
+     * @return $this
+     */
+	private function _loadByID( Int $id ) {
 		$sql = new SQL("SELECT *
 						FROM `smartukm_kommune`
 						WHERE `id` = '#id'",
@@ -20,37 +36,85 @@ class kommune {
 			$this->id = false;
 		} else {
 			$this->_loadByRow( $res );
-		}
-	}
+        }
+        return $this;
+    }
+    
+    /**
+     * Konverter database-rad til objekt
+     *
+     * @param Array $res
+     * @return $this
+     */
 	private function _loadByRow( $res ) {
-		$this->id = $res['id'];
+		$this->id = (int) $res['id'];
 		$this->name = $res['name'];
 		$this->fylke = fylker::getById( $res['idfylke'] );
-		$this->name_nonutf8 = $res['name'];
+        $this->name_nonutf8 = $res['name'];
+        $this->aktiv = ($res['active'] == 'true');
+        $this->tidligere_list = $res['superseed'];
+
+        // Hvis kommunen ikke har overtatt for noen, 
+        // mellomlagre det, så slipper vi å beregne flere ganger
+        if(empty($res['superseed'])) {
+            $this->tidligere = false;
+        }
+        return $this;
 	}
-	
+    
+    /**
+     * Hent ID
+     *
+     * @return Int $id
+     */
 	public function getId() {
 		return $this->id;
 	}
-	
+    
+    /**
+     * Hent navn
+     *
+     * @return String $navn
+     */
 	public function getNavn() {
 		if( null == $this->name ) {
 			return 'ukjent';
 		}
 		return $this->name;
 	}
-	
+    
+    /**
+     * Hent navn uten UTF8 (deprecated)
+     *
+     * @return String $navn
+     */
 	public function getNavnUtenUTF8() {
 		return $this->name_nonutf8;
 	}
-	
+    
+    /**
+     * Hent foreldre-fylke
+     *
+     * @return fylke $fylke
+     */
 	public function getFylke() {
 		return $this->fylke;
-	}
+    }
+    
+    /**
+     * Navnet er det viktigste
+     *
+     * @return string
+     */
 	public function __toString() {
 		return $this->getNavn();
 	}
-	
+    
+    /**
+     * URL-sanitizer (deprecated)
+     *
+     * @return String $urlsafe_name
+     */
 	public function getURLsafe() {
 		$text = mb_strtolower( $this->getNavn() );
 		$text = htmlentities($text);
@@ -63,4 +127,82 @@ class kommune {
 		$text = preg_replace("/[^A-Za-z0-9-]/","",$text);
 		return $text;
 	}
+
+    /**
+     * Er kommunen fortsatt aktiv, eller har den gått ut på dato?
+     * 
+     * @return Bool $aktiv
+     */ 
+    public function erAktiv()
+    {
+        return $this->aktiv;
+    }
+
+    /**
+     * Er kommunen aktiv?
+     * 
+     * @alias erAktiv
+     * @return Bool $aktiv
+     */
+    public function erAktivt() {
+        return $this->erAktiv();
+    }
+
+    /**
+     * Har kommunen overtatt for andre?
+     *
+     * @return Bool $har_overtatt
+     */
+    public function harTidligere() {
+        return $this->tidligere !== false;
+    }
+
+    /**
+     * Hvis kommunen har overtatt for andre,
+     * last inn og returner disse
+     * 
+     * @return Array<kommune> $inaktive kommuner
+     */ 
+    public function getTidligere()
+    {
+        if( $this->tidligere === false ) {
+            return [];
+        }
+
+        if( $this->tidligere === null ) {
+            $this->_loadTidligere();
+        }
+        return $this->tidligere;
+    }
+
+    /**
+     * Hent ID-listen for tidligere arrangementer
+     *
+     * @return String CSV ID-liste
+     */
+    public function getTidligereIdList() {
+        return $this->tidligere_list;
+    }
+
+    /**
+     * Last inn kommuner denne kommunen har overtatt for
+     *
+     * @return void
+     */
+    private function _loadTidligere() {
+        $this->tidligere = [];
+        $sql = new SQL(
+            "SELECT *
+            FROM `smartukm_kommune`
+            WHERE `id` IN(#liste)",
+            [
+                'liste' => rtrim($this->tidligere_list,',')
+            ]
+        );
+        $res = $sql->run();
+
+        while( $row = SQL::fetch( $res ) ) {
+            $this->tidligere[] = new kommune( $row );
+        }
+    }
 }

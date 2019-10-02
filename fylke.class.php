@@ -10,41 +10,87 @@ class fylke {
 	var $attributes = null;
 	var $kommuner = null;
     var $nettverk_omrade = null;
+    var $fake = false;
+    var $active = false;
     
-	public function __construct( $id, $link, $name ) {
-		$this->setId( $id );
-		$this->setLInk( $link );
-		$this->setNavn( $name );
+	public function __construct( Int $id, String $link, String $name, Bool $active, Bool $fake=false ) {
+		$this->id = (int) $id;
+		$this->link = $link;
+        $this->navn = $name;
+        $this->active = $active;
+        $this->fake = $fake;
 	}
-	
-	public function setId( $id ) {
-		$this->id = $id;
-		return $this;
-	}
+    
+    /**
+     * Hent fylkets ID
+     *
+     * @return Int $id
+     */
 	public function getId() {
 		return $this->id;
 	}
-	
-	public function setLink( $link ) {
-		$this->link = $link;
-		return $this;
-	}
+    
+    /**
+     * Hent link til fylkessiden
+     *
+     * @return String $link
+     */
 	public function getLink() {
 		return $this->link;
 	}
-	
-	public function setNavn( $navn ) {
-		$this->navn = $navn;
-		return $this;
-	}
+    
+    /**
+     * Hent fylkets navn
+     *
+     * @return String $navn
+     */
 	public function getNavn() {
 		if( null == $this->navn ) {
 			return 'ukjent';
 		}
 
 		return $this->navn;
-	}
-	
+    }
+
+    /**
+     * Er fylket falskt
+     * Falske fylker eksisterer kun i UKM-systemet. Snakk om å være inkluderende.
+     *
+     * @return Bool $fake
+     */
+    public function erFalskt()
+    {
+        return $this->fake;
+    }
+
+    /**
+     * Er fylket aktivt?
+     * Eller har det gått ut på dato?
+     *
+     * @return Bool $active
+     */
+    public function erAktiv()
+    {
+        return $this->active;
+    }
+
+    /**
+     * Er fylket aktivt?
+     * @alias erAktiv
+     *
+     * @return Bool $active
+     */
+    public function erAktivt() {
+        return $this->erAktiv();
+    }
+
+	/**
+     * Er dette fylket Oslo?
+     * I og for seg ikke såå nøye å vite, men kommunene liker å vite det,
+     * da vi lister ut bydeler og ikke kommuner for Oslo i systemet.
+     *
+     * @return Bool $er_oslo
+     */
 	public function erOslo() {
 		return $this->getId() == 3;
     }
@@ -90,7 +136,12 @@ class fylke {
 		return isset( $this->attributes[ $key ] ) ? $this->attributes[ $key ] : false;
 	}
 
-	
+    
+    /**
+     * Hent alle kommuner tilhørende fylket
+     *
+     * @return kommuner $kommuner;
+     */
 	public function getKommuner() {
 		if( null == $this->kommuner ) {
 			require_once('UKM/kommuner.collection.php');
@@ -101,6 +152,7 @@ class fylke {
 			$sql = new SQL("SELECT * 
 							FROM `smartukm_kommune` 
                             WHERE `idfylke` = '#fylke'
+                            AND `active` = 'true'
                             ORDER BY `name` ASC",
 						  array('fylke'=>$this->getId() )
 						);
@@ -119,7 +171,7 @@ class fylke {
 	 * getKommunerUtenGjester
 	 * fjerner gjestekommunen fra kommune-lista og returnerer forøvrig getKommuner
 	 *
-	 * @return array kommuner
+	 * @return Array kommuner
 	**/
 	public function getKommunerUtenGjester() {
 		$kommuner = [];
@@ -131,7 +183,11 @@ class fylke {
 		return $kommuner;
 	}
 
-	
+	/**
+     * Hvis fylket plutselig blir en string, så er navnet det viktigste.
+     *
+     * @return String $navn
+     */
 	public function __toString() {
 		return $this->getNavn();
 	}
