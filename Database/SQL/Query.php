@@ -2,14 +2,14 @@
 
 namespace UKMNorge\Database\SQL;
 
-require_once('UKM/Database/SQL/common.class.php');
+require_once('UKM/Autoloader.php');
 
 /**********************************************************************************************
  * READONLY SQL CLASS
  * Used for all select queries, and does not have write permissions as an extra security measure
  *
 **/
-class Query extends SQLcommon {
+class Query extends Common {
     const WRITE_ACCESS_DATABASE = false;
     private $key_value_map = null;
     private $database = null;

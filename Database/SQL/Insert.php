@@ -3,13 +3,13 @@
 namespace UKMNorge\Database\SQL;
 use Exception;
 
-require_once('UKM/Database/SQL/common.class.php');
+require_once('UKM/Autoloader.php');
 
 /**********************************************************************************************
  * SQL INSERTION AND UPDATE CLASS
  * Used only to insert stuff, never from a query.
 **/
-class Insert extends SQLcommon {
+class Insert extends Common {
     const WRITE_ACCESS_DATABASE = true;
     var $insert_keys = array();
     var $insert_values = array();

@@ -2,13 +2,13 @@
 
 namespace UKMNorge\Database\SQL;
 
-require_once('UKM/Database/SQL/common.class.php');
+require_once('UKM/Autoloader.php');
 
 /**********************************************************************************************
 * SQL DELETION CLASS
 * Used only to delete stuff.
 **/
-class Delete extends SQLcommon {
+class Delete extends Common {
     const WRITE_ACCESS_DATABASE = true;
     public $query = null;
     private $table = null;

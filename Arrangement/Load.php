@@ -2,19 +2,23 @@
 
 namespace UKMNorge\Arrangement;
 
-use kommune;
-use fylke;
 use UKMNorge\Nettverk\Omrade;
+use UKMNorge\Geografi\Fylke;
+use UKMNorge\Geografi\Kommune;
 use Exception;
 
-require_once('UKM/Arrangement/Arrangementer.php');
+require_once('UKM/Autoloader.php');
 
 class Load {
+
+    public static function bySesong( $sesong, $filter=false ) {
+        return new Arrangementer( $sesong, 'alle', 0);
+    }
 
     /**
      * Alle arrangementer av en gitt eier (fylke eller kommune)
      *
-     * @param Int $season
+     * @param Int $sesong
      * @param kommune|fylke $eier
      * @return Arrangementer $arrangementer
      */

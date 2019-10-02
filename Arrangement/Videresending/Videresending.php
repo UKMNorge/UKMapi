@@ -4,7 +4,10 @@ namespace UKMNorge\Arrangement\Videresending;
 
 use UKMNorge\Database\SQL\Query;
 use Exception, DateTime;
-use fylker, kommune;
+use UKMNorge\Geografi\Fylker;
+use UKMNorge\Geografi\Kommune;
+require_once('UKM/Autoloader.php');
+
 
 class Videresending
 {
@@ -105,7 +108,6 @@ class Videresending
     public function getMottakere()
     {
         if (null == $this->mottakere) {
-            require_once('UKM/Arrangement/Videresending/Mottaker.php');
             $this->_loadMottakere();
         }
         return $this->mottakere;
@@ -119,7 +121,6 @@ class Videresending
     public function getAvsendere()
     {
         if (null == $this->avsendere) {
-            require_once('UKM/Arrangement/Videresending/Avsender.php');
             $this->_loadAvsendere();
         }
         return $this->avsendere;
@@ -162,11 +163,7 @@ class Videresending
      * @param String $type (avsendere|mottakere)
      * @return void
      */
-    private function _load( $type ) {
-        require_once('UKM/Database/SQL/select.class.php');
-        require_once('UKM/fylker.class.php');
-        require_once('UKM/kommune.class.php');
-
+    private function _load( $type ) {        
         $sql = new Query(
             "SELECT `rel`.*,
             `place`.`pl_name`, 
@@ -191,10 +188,10 @@ class Videresending
         while( $row = Query::fetch( $res ) ) {
 
             if( $row['pl_owner_fylke'] > 0 ) {
-                $eier = fylker::getById( $row['pl_owner_fylke'] );
+                $eier = Fylker::getById( $row['pl_owner_fylke'] );
             }
             elseif( $row['pl_owner_kommune'] > 0 ) {
-                $eier = new kommune( $row['pl_owner_kommune'] );
+                $eier = new Kommune( $row['pl_owner_kommune'] );
             }
 
             $class = $type == 'avsendere' ? 

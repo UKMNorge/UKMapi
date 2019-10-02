@@ -3,9 +3,7 @@
 namespace UKMNorge\Database\SQL;
 use Exception;
 
-require_once('UKM/Database/SQL/common.class.php');
-require_once('UKM/Database/SQL/insert.class.php');
-
+require_once('UKM/Autoloader.php');
 
 class Update extends Insert {
     /**

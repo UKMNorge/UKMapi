@@ -8,7 +8,7 @@ use Exception;
 use SQLdel;
 use SQLins;
 
-require_once('UKM/Nettverk/Administrator.collection.php');
+require_once('UKM/Autoloader.php');
 
 class WriteAdministrator {
 

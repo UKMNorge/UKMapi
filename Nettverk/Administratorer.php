@@ -5,7 +5,7 @@ namespace UKMNorge\Nettverk;
 use SQL;
 use Exception;
 
-require_once('UKM/Nettverk/Administrator.class.php');
+require_once('UKM/Autoloader.php');
 
 class Administratorer {
 

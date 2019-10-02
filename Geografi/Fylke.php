@@ -1,9 +1,14 @@
 <?php
 
+namespace UKMNorge\Geografi;
+
 use UKMNorge\Nettverk\Administratorer;
 use UKMNorge\Nettverk\Omrade;
+use UKMNorge\Database\SQL\Query;
 
-class fylke {
+require_once('UKM/Autoloader.php');
+
+class Fylke {
 	var $id = null;
 	var $link = null;
 	var $navn = null;
@@ -102,7 +107,6 @@ class fylke {
      */
     public function getNettverkOmrade() {
         if( $this->nettverk_omrade == null ) {
-            require_once('UKM/Nettverk/Omrade.class.php');
             $this->nettverk_omrade = Omrade::getByFylke( 
                 (Int) $this->getId()
             );
@@ -147,9 +151,9 @@ class fylke {
 			require_once('UKM/kommuner.collection.php');
 			require_once('UKM/kommune.class.php');
 
-			$this->kommuner = new kommuner();
+			$this->kommuner = new Kommuner();
 
-			$sql = new SQL("SELECT * 
+			$sql = new Query("SELECT * 
 							FROM `smartukm_kommune` 
                             WHERE `idfylke` = '#fylke'
                             AND `active` = 'true'
@@ -159,8 +163,8 @@ class fylke {
 			$res = $sql->run();
 			
 			if( $res ) {
-				while( $r = SQL::fetch( $res ) ) {
-					$this->kommuner->add( new kommune( $r ) );
+				while( $r = Query::fetch( $res ) ) {
+					$this->kommuner->add( new Kommune( $r ) );
 				}
 			}
 		}

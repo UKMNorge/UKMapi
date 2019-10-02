@@ -2,8 +2,11 @@
 
 namespace UKMNorge\API\SSB;
 
+use Exception, DateTime;
+use UKMCURL;
+
 require_once('UKM/curl.class.php');
-require_once('UKM/API/SSB/KlassInterface.php');
+require_once('UKM/Autoloader.php');
 
 class Klass implements KlassInterface {
 	private $classificationId = null;

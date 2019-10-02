@@ -1,7 +1,15 @@
 <?php
-require_once('UKM/API/SSB/SSB.class.php');
 
-class KommuneAreal extends SSBapi {
+namespace UKMNorge\API\SSB;
+use UKMNorge\Database\SQL\Query;
+use UKMNorge\Database\SQL\Update;
+use UKMNorge\Database\SQL\Write;
+
+use stdClass;
+
+require_once('UKM/Autoloader.php');
+
+class KommuneAreal extends SSB {
 	public $year;
 	public $table = '09280';
 
@@ -17,10 +25,10 @@ class KommuneAreal extends SSBapi {
 
 	# Returnerer et array av kommuneIDer
 	private function _getAllKommuner() {
-		$qry = new SQL("SELECT id FROM smartukm_kommune");
+		$qry = new Query("SELECT id FROM smartukm_kommune");
 		$res = $qry->run();
 		$kommuner = array();
-		while ($row = SQL::fetch($res)) {
+		while ($row = Query::fetch($res)) {
 			$kommuner[] = $this->getSSBifiedKommuneId($row['id']);
 		}
 		return $kommuner;
@@ -37,12 +45,11 @@ class KommuneAreal extends SSBapi {
 	}
 
 	public function getAllYears() {
-		require_once('UKM/sql.class.php');
-		$sql = new SQL("DESCRIBE ssb_kommune_areal");
+		$sql = new Query("DESCRIBE ssb_kommune_areal");
 
 		$res = $sql->run();
 		$years = array();
-		while($row = SQL::fetch($res)) {
+		while($row = Query::fetch($res)) {
 			if(is_numeric($row['Field'])) {
 				$years[] = $row['Field'];
 			}
@@ -66,7 +73,7 @@ class KommuneAreal extends SSBapi {
 	# Adds a year-column for the selected year.
 	public function addYearColumn($year) {
 		require_once('UKM/sql.class.php');
-		$sql = new SQLwrite(
+		$sql = new Write(
 			'ALTER TABLE ssb_kommune_areal ADD `#year` DOUBLE(8,3) NOT NULL',
 			[
 				'year' => (int)$year
@@ -94,7 +101,7 @@ class KommuneAreal extends SSBapi {
 				var_dump($areal);
 				return "Kan ikke oppdatere uten k_id eller areal!";
 			}
-			$qry = new SQLins('ssb_kommune_areal', array('kommune_id' => $k_id));	
+			$qry = new Update('ssb_kommune_areal', array('kommune_id' => $k_id));	
 			$qry->add($year, $areal);
 			$res = $qry->run();
 			
@@ -127,10 +134,10 @@ class KommuneAreal extends SSBapi {
 		$log = array();
 		$log[] = 'Finner kommuner som mangler fra tabellen.';
 
-		$qry = new SQL("SELECT * FROM ssb_kommune_areal");
+		$qry = new Query("SELECT * FROM ssb_kommune_areal");
 		$res = $qry->run();
 		$kommuner = [];
-		while ($row = SQL::fetch($res)) {
+		while ($row = Query::fetch($res)) {
 			$kommuner[$this->getSSBifiedKommuneID($row['kommune_id'])] = $row['kommune_navn'];
 		}
 
@@ -148,11 +155,11 @@ class KommuneAreal extends SSBapi {
 		}	
 
 		## Finn navn og fylke på manglende kommuner
-		$qry = new SQL("SELECT * FROM smartukm_kommune");
+		$qry = new Query("SELECT * FROM smartukm_kommune");
 		$res = $qry->run();
 		$kommuneListe = [];
 		$fylkeListe = [];
-		while($row = SQL::fetch($res)) {
+		while($row = Query::fetch($res)) {
 			$id = $this->getSSBifiedKommuneID($row['id']);
 			$kommuneListe[$id] = $row['name'];
 			$fylkeListe[$id] = $row['idfylke'];
@@ -167,7 +174,7 @@ class KommuneAreal extends SSBapi {
 
 		## Legg til manglende i databasen!
 		foreach($missing as $k_id => $value) {
-			$sql = new SQLins("ssb_kommune_areal");
+			$sql = new Insert("ssb_kommune_areal");
 			$sql->add("kommune_id", (int)$k_id);
 			if(isset($fylkeListe[$k_id]))
 				$sql->add("fylke_id", $fylkeListe[$k_id]);

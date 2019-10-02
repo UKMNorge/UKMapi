@@ -2,7 +2,7 @@
 
 namespace UKMNorge\Nettverk;
 
-require_once('UKM/Arrangement/Arrangementer.php');
+require_once('UKM/Autoloader.php');
 
 use UKMNorge\Arrangement\Arrangementer;
 use UKMNorge\Arrangement\Arrangement;
@@ -110,12 +110,17 @@ class Omrade
     public function getAdministratorer()
     {
         if (null == $this->administratorer) {
-            require_once('UKM/Nettverk/Administrator.collection.php');
             $this->administratorer = new Administratorer($this->getType(), $this->getForeignId());
         }
         return $this->administratorer;
     }
 
+    /**
+     * Hent administratorer for området
+     *
+     * @param Int $season
+     * @return Array<Arrangementer>
+     */
     public function getArrangementer( Int $season ) {
         if ( !isset( $this->arrangementer[ $season ] ) ) {
             $this->arrangementer[ $season ] = new Arrangementer(

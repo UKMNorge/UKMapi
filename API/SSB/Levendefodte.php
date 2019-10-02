@@ -1,7 +1,15 @@
 <?php
-require_once('UKM/API/SSB/SSB.class.php');
 
-class Levendefodte extends SSBapi {
+namespace UKMNorge\API\SSB;
+
+use UKMNorge\Database\SQL\Query;
+use UKMNorge\Database\SQL\Write;
+
+use stdClass;
+
+require_once('UKM/Autoloader.php');
+
+class Levendefodte extends SSB {
 
 	public $year;
 	public $table = '04231';
@@ -19,10 +27,10 @@ class Levendefodte extends SSBapi {
 
 	# Returnerer et array av kommuneIDer
 	private function _getAllKommuner() {
-		$qry = new SQL("SELECT id FROM smartukm_kommune");
+		$qry = new Query("SELECT id FROM smartukm_kommune");
 		$res = $qry->run();
 		$kommuner = array();
-		while ($row = SQL::fetch($res)) {
+		while ($row = Query::fetch($res)) {
 			$kommuner[] = $this->getSSBifiedKommuneId($row['id']);
 		}
 		return $kommuner;
@@ -33,11 +41,11 @@ class Levendefodte extends SSBapi {
 	public function getAllYears() {
 		require_once('UKM/sql.class.php');
 	
-		$sql = new SQL("DESCRIBE ukm_befolkning_ssb");
+		$sql = new Query("DESCRIBE ukm_befolkning_ssb");
 	
 		$res = $sql->run();
 		$years = array();
-		while($row = SQL::fetch($res)) {
+		while($row = Query::fetch($res)) {
 			if(is_numeric($row['Field'])) {
 				$years[] = $row['Field'];
 			}
@@ -70,7 +78,7 @@ class Levendefodte extends SSBapi {
 	# Returnerer et array med kommune-ID som nøkkel og antall levendefødte som verdi.
 	public function getDataFromKommuneResult($results) {
 		$kommunedata = array();
-		// For hver kommune
+        // For hver kommune
 		foreach($results->dataset->dimension->Region->category->index as $k_id => $position) {
 			$kommunedata[$k_id] = $results->dataset->value[$position];
 		}
@@ -85,9 +93,7 @@ class Levendefodte extends SSBapi {
 
 	# Adds a year-column for the selected year.
 	public function addYearColumn($year) {
-		require_once('UKM/sql.class.php');
-
-		$sql = new SQLwrite(
+		$sql = new Write(
 			'ALTER TABLE ukm_befolkning_ssb ADD `#year` INTEGER NOT NULL',
 			[
 				'year' => (int)$year
@@ -113,7 +119,7 @@ class Levendefodte extends SSBapi {
 				var_dump($antall);
 				return "Kan ikke oppdatere uten k_id eller antall!";
 			}
-			$qry = new SQLins('ukm_befolkning_ssb', array('kommune_id' => $k_id));	
+			$qry = new Insert('ukm_befolkning_ssb', array('kommune_id' => $k_id));	
 			$qry->add($year, $antall);
 			$res = $qry->run();
 			
@@ -142,7 +148,6 @@ class Levendefodte extends SSBapi {
 	}
 
 	public function getData($year) {
-		require_once('UKM/API/SSB/levendefodte.class.php');
 		$this->year = $year;
 		$this->buildQuery();
 		/*echo '<pre>';

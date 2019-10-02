@@ -1,8 +1,7 @@
 <?php
-require_once('UKM/Arrangement/Arrangement.php');
+require_once('UKM/Autoloader.php');
 require_once('UKM/logger.class.php');
 require_once('UKM/monstring.class.php');
-require_once('UKM/Google/StaticMap.php');
 
 use UKMNorge\Arrangement\Arrangement;
 
@@ -44,13 +43,13 @@ class write_monstring
                     );
                 }
                 foreach ($geografi as $kommune) {
-                    if (!is_object($kommune) || get_class($kommune) !== 'kommune') {
+                    if (!is_object($kommune) || in_array(get_class($geografi), ['UKMNorge\Geografi\Kommune', 'kommune'])) {
                         throw new Exception('Monstring_v2::create: Alle Geografi->kommuneobjekt må være av typen UKMApi::kommune');
                     }
                 }
                 break;
             case 'fylke':
-                if (!is_object($geografi) || get_class($geografi) !== 'fylke') {
+                if (!is_object($geografi) || !in_array(get_class($geografi), ['UKMNorge\Geografi\Fylke', 'fylke'])) {
                     throw new Exception('Monstring_v2::create: Geografiobjekt må være av typen UKMApi::fylke');
                 }
                 break;

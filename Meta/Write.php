@@ -6,9 +6,7 @@ use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Insert;
 use Exception;
 
-require_once('UKM/Database/SQL/insert.class.php');
-require_once('UKM/Database/SQL/delete.class.php');
-require_once('UKM/Meta/Value.php');
+require_once('UKM/Autoloader.php');
 
 class Write {
 

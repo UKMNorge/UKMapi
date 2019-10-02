@@ -4,7 +4,7 @@ namespace UKMNorge\Nettverk;
 use UKMNorge\Wordpress\User;
 use SQL;
 
-require_once('UKM/Wordpress/User.class.php');
+require_once('UKM/Autoloader.php');
 
 class Administrator
 {
@@ -89,7 +89,6 @@ class Administrator
     }
 
     private function _loadOmrader() {
-        require_once('UKM/Nettverk/Omrade.class.php');
         $sql = new SQL("SELECT * 
             FROM `ukm_nettverk_admins`
             WHERE `wp_user_id` = '#userid'",

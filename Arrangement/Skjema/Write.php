@@ -7,11 +7,7 @@ use UKMNorge\Arrangement\Eier;
 use UKMNorge\Database\SQL\Insert;
 use Exception;
 
-require_once('UKM/Arrangement/Arrangement.php');
-require_once('UKM/Arrangement/Skjema/Skjema.php');
-require_once('UKM/Arrangement/Skjema/Sporsmal.php');
-require_once('UKM/Arrangement/Eier.php');
-require_once('UKM/Database/SQL/insert.class.php');
+require_once('UKM/Autoloader.php');
 
 class Write {
     /**

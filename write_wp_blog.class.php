@@ -1,6 +1,6 @@
 <?php
 
-require_once('UKM/fylker.class.php');
+require_once('UKM/Autoloader.php');
 require_once('UKM/write_wp_user.class.php');
 require_once('UKM/write_monstring.class.php');
 

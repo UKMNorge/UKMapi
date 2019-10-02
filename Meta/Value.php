@@ -3,7 +3,7 @@
 namespace UKMNorge\Meta;
 
 use UKMNorge\Database\SQL\Query;
-require_once('UKM/Database/SQL/select.class.php');
+require_once('UKM/Autoloader.php');
 
 class Value {
 

@@ -2,14 +2,14 @@
 
 namespace UKMNorge\Database\SQL;
 
-require_once('UKM/Database/SQL/common.class.php');
+require_once('UKM/Autoloader.php');
 
 /**********************************************************************************************
  * SQL CLASS WITH WRITE PRIVILEGES
  * Used for database-altering queries. Will automatically notify support upon run.
  * 
 **/
-class Write extends SQLcommon {
+class Write extends Common {
     const WRITE_ACCESS_DATABASE = true;
     private $key_value_map = null;
     private $database = null;

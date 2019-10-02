@@ -5,6 +5,7 @@ namespace UKMNorge\Arrangement;
 use UKMNorge\Database\SQL\Query;
 use Exception;
 require_once 'UKM/sql.class.php';
+require_once('UKM/Autoloader.php');
 
 use DateTime,DatePeriod,DateInterval;
 use kommuner, kommune;
@@ -617,7 +618,6 @@ class Arrangement {
 	 * @return skjema $skjema
 	**/
 	public function getSkjema() {
-		require_once('UKM/Arrangement/Skjema/Skjema.php');
 		if( $this->getType() == 'land' ) {
 			throw new Exception('Videresendingsskjema ikke støttet for UKM-festivalen');
 		}
@@ -1114,13 +1114,10 @@ class Arrangement {
     }
 
     public function getEierObjekt() {
-        require_once('UKM/Arrangement/Eier.php');
         return new Eier($this->getEierType(), $this->getEier()->getId());
     }
 
-    public function getEierOmrade() {
-        require_once('UKM/Nettverk/Omrade.class.php');
-        
+    public function getEierOmrade() {        
         if( $this->getEierType() == 'kommune' ) {
             return Omrade::getByKommune( $this->getEierKommune()->getId() );
         }
@@ -1132,7 +1129,6 @@ class Arrangement {
      */ 
     public function getGoogleMap()
     {
-        require_once('UKM/Google/StaticMap.php');
         if( null == $this->googleMap ) {
             $this->googleMap = StaticMap::fromJSON( json_decode( $this->getGoogleMapData() ) );
         }
@@ -1193,7 +1189,6 @@ class Arrangement {
     public function getVideresending()
     {
         if( null == $this->videresending ) {
-            require_once('UKM/Arrangement/Videresending/Videresending.php');
             $this->videresending = new Videresending( (Int) $this->getId() );
         }
         return $this->videresending;

@@ -8,10 +8,10 @@ Version: 4.0
 Comments: Now utilizes mysqli instead of mysql
 */
 
-require_once('UKM/Database/SQL/select.class.php');
-require_once('UKM/Database/SQL/insert.class.php');
-require_once('UKM/Database/SQL/delete.class.php');
-require_once('UKM/Database/SQL/write.class.php');
+require_once('UKM/Database/SQL/Query.php');
+require_once('UKM/Database/SQL/Insert.php');
+require_once('UKM/Database/SQL/Delete.php');
+require_once('UKM/Database/SQL/Write.php');
 
 class SQL extends UKMNorge\Database\SQL\Query {};
 class SQLins extends UKMNorge\Database\SQL\Insert {};

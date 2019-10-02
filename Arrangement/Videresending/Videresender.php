@@ -4,6 +4,8 @@ namespace UKMNorge\Arrangement\Videresending;
 use Exception, DateTime;
 use UKMNorge\Arrangement\Arrangement;
 
+require_once('UKM/Autoloader.php');
+
 abstract class Videresender {
     private $fra;
     private $til;
@@ -28,7 +30,6 @@ abstract class Videresender {
 
     public function getArrangement() {
         if( null == $this->arrangement ) {
-            require_once('UKM/Arrangement/Arrangement.php');
             $this->arrangement = new Arrangement( $this->getPlId() );
         }
         return $this->arrangement;
