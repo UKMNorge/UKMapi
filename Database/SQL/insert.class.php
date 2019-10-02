@@ -117,9 +117,15 @@ class Insert extends SQLcommon {
         
         // Add the new values to be set
         for( $i=0; $i < sizeof( $this->insert_keys ); $i++) {
-            $this->real_query .= 
+            if( $this->insert_values[$i] === null ) {
+                $this->real_query .= 
                 "`". $this->sanitize( $this->insert_keys[$i] ) .
-                "` = '". $this->sanitizeValue( $this->insert_keys[$i], $this->insert_values[$i] ) ."', ";
+                "` = NULL, ";
+            } else {
+                $this->real_query .= 
+                    "`". $this->sanitize( $this->insert_keys[$i] ) .
+                    "` = '". $this->sanitizeValue( $this->insert_keys[$i], $this->insert_values[$i] ) ."', ";
+            }
         }
         // Remove the last comma
         $this->real_query = substr(
@@ -157,7 +163,11 @@ class Insert extends SQLcommon {
         if ( sizeof( $this->insert_keys ) > 0 && sizeof( $this->insert_values ) > 0 ) {
             for( $i=0; $i < sizeof( $this->insert_keys ); $i++ ) {
                 $keys .= '`'. $this->sanitize( $this->insert_keys[$i] ) .'`, ';
-                $values .= "'". $this->sanitizeValue( $this->insert_keys[$i], $this->insert_values[$i] ) ."', ";
+                if( $this->insert_values[$i] === null ) {
+                    $values .= "NULL, ";
+                } else {
+                    $values .= "'". $this->sanitizeValue( $this->insert_keys[$i], $this->insert_values[$i] ) ."', ";
+                }
             }
         }
 
