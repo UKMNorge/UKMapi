@@ -1,27 +1,11 @@
 <?php
 
+namespace UKMNorge\API\SSB;
+
 require_once('UKM/curl.class.php');
+require_once('UKM/API/SSB/KlassInterface.php');
 
-interface Klassapi_interface {
-
-	const API_URL = 'http://data.ssb.no/api/klass/v1/classifications/';
-
-	# Denne funksjonen velger hvilken SSB-ressurs spørringen skal kjøre mot (oftest en tabell).
-	# Argument må være på formen 'ressurs/ressurs-id', ie 'table/04231' for Levendefødte.
-	public function setClassificationId($classificationId);
-
-	# Datasettene er sortert etter codes
-	public function getCodes($debug = false);
-
-	# Henter alle endringer i datasettet i gitt range.
-	public function getChanges($debug = false);
-
-	# Dette er funksjonen som kjører spørringen mot SSBs systemer.
-	public function run();
-
-}
-
-class Klassapi implements Klassapi_interface {
+class Klass implements KlassInterface {
 	private $classificationId = null;
 	private $start = null;
 	private $stop = null;
@@ -52,12 +36,7 @@ class Klassapi implements Klassapi_interface {
 	}
 
 	public function includeFutureChanges(bool $include) {
-		if($include) {
-			$this->includeFutureChanges = "true";
-		}
-		else {
-			$this->includeFutureChanges = "false";
-		}
+		$this->includeFutureChanges = $include ? "true" : "false";
 	}
 
 	public function getChanges($debug = false) {
