@@ -84,7 +84,16 @@ class Query extends SQLcommon {
         
         switch( $return_value ) {
             case 'field':
-                $return = $result->fetch_array( MYSQLI_ASSOC )[ $return_value_id ];
+                $data = $result->fetch_array( MYSQLI_ASSOC );
+                if( is_null( $data ) ) {
+                    return null;
+                }
+                
+                if( empty( $return_value_id ) ) {
+                    $return = reset( $data );
+                } else {
+                    $return = $data[ $return_value_id ];
+                }
                 DBread::free_result( $result );
                 break;
             case 'array':
