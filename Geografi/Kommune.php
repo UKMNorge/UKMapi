@@ -248,4 +248,12 @@ class Kommune {
 		return isset( $this->attributes[ $key ] ) ? $this->attributes[ $key ] : false;
 	}
 
+        
+    public static function validateClass( $object ) {
+        return is_object( $object ) &&
+            in_array( 
+                get_class($object),
+                ['UKMNorge\Geografi\Kommune','kommune']
+            );
+    }
 }

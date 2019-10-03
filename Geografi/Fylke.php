@@ -203,5 +203,13 @@ class Fylke {
 	**/
 	public function getURLsafe() {
 		return $this->getLink();
-	}
+    }
+    
+    public static function validateClass( $object ) {
+        return is_object( $object ) &&
+            in_array( 
+                get_class($object),
+                ['UKMNorge\Geografi\Fylke','fylke']
+            );
+    }
 }
