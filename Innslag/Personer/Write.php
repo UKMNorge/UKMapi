@@ -13,7 +13,7 @@ use UKMNorge\Logger\Logger;
 use UKMNorge\Samtykke\Person as PersonSamtykke;
 
 class Write {
-    	/**
+    /**
 	 * Hent ut fødselsdato som unixtimestamp fra int alder 
 	 *
 	 * @param integer $alder
@@ -62,9 +62,9 @@ class Write {
 	 * @param string $mobil
 	 * @param unixtime $fodselsdato
 	 * @param int $kommune_id
-	 * @return write_person
+	 * @return Person
 	 */
-	public static function create($fornavn, $etternavn, $mobil, $fodselsdato, $kommune_id) {
+	public static function create( String $fornavn, String $etternavn, Int $mobil, Kommune $kommune) {
 		// Valider logger
 		if( !Logger::ready() ) {
 			throw new Exception(
@@ -74,7 +74,7 @@ class Write {
 		}
 		// Valider input-data
 		try {
-			Write::_validerCreate( $fornavn, $etternavn, $mobil, $fodselsdato, $kommune_id );
+			Write::_validerCreate( $fornavn, $etternavn, $mobil, $kommune );
 		} catch( Exception $e ) {
 			throw new Exception(
 				'Kunne ikke opprette person. '. $e->getMessage(),
@@ -82,19 +82,16 @@ class Write {
 			);
 		}
 
-		// Opprett kommune-objekt
-		$kommune = new Kommune($kommune_id);
-
 		// Har vi denne personen?
 		$p_id = self::finnEksisterendePerson($fornavn, $etternavn, $mobil);
-		// Personen finnes ikke
+        
+        // Personen finnes ikke
 		if(false == $p_id) {
 			$sql = new Insert("smartukm_participant");
 			$sql->add('p_firstname', $fornavn);
 			$sql->add('p_lastname', $etternavn);
 			$sql->add('p_phone', $mobil);
 			$sql->add('p_kommune', $kommune->getId());
-			$sql->add('p_dob', $fodselsdato);
 			$insert_id = $sql->run(); 
 			
 			// Database-oppdatering feilet
@@ -106,11 +103,13 @@ class Write {
 			}
 			$p_id = $insert_id;
 		}
-		// Personen finnes i databasen, oppdater kommune og fødselsdato
+		// Personen finnes i databasen, oppdater kommune
 		else {
-			$sql = new Insert("smartukm_participant", array('p_id'=>$p_id));
+			$sql = new Insert(
+                "smartukm_participant",
+                ['p_id' => $p_id]
+            );
 			$sql->add('p_kommune', $kommune->getId());
-			$sql->add('p_dob', $fodselsdato);
 			$res = $sql->run(); 
 		}
 		
@@ -598,7 +597,7 @@ class Write {
 	 *
 	 * @see create()
 	**/
-	private static function _validerCreate( $fornavn, $etternavn, $mobil, $fodselsdato, $kommune_id ) {
+	private static function _validerCreate( $fornavn, $etternavn, $mobil, $kommune ) {
 		if(!is_string($fornavn) || empty($fornavn) || !is_string($etternavn) || empty($etternavn) ) {
 			throw new Exception(
 				"Fornavn og etternavn må være en streng.",
@@ -611,15 +610,9 @@ class Write {
 				50703
 			);
 		}
-		if( !is_numeric($fodselsdato) ) {
+		if( !Kommune::validateClass($kommune) ) {
 			throw new Exception(
-				"Fødselsdatoen må være et Unix Timestamp.",
-				50704
-			);
-		}
-		if( !is_numeric($kommune_id) ) {
-			throw new Exception(
-				"Kommune-ID må være et tall.",
+				"Kommune må være kommune-objekt.",
 				50705
 			);
 		}
