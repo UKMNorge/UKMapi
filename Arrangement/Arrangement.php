@@ -8,26 +8,24 @@ require_once 'UKM/sql.class.php';
 require_once('UKM/Autoloader.php');
 
 use DateTime,DatePeriod,DateInterval;
-use kommuner, kommune;
-use fylker, fylke;
-use innslag, innslag_v2, innslag_type, innslag_typer, innslag_collection;
-use monstringer_v2;
 use kontaktpersoner;
-use context;
-use monstring_skjema;
-use forestillinger, forestilling, forestilling_v2;
 use statistikk;
+use UKMNorge\Arrangement\Program\Hendelser;
 use UKMNorge\Arrangement\Skjema\Skjema;
 use UKMNorge\Google\StaticMap;
 use UKMNorge\Arrangement\Videresending\Videresending;
+use UKMNorge\Innslag\Context\Context;
 use UKMNorge\Meta\Collection;
 use UKMNorge\Nettverk\Omrade;
+use UKMNorge\Geografi\Kommune;
+use UKMNorge\Geografi\Fylke;
+use UKMNorge\Geografi\Fylker;
+use UKMNorge\Geografi\Kommuner;
+use UKMNorge\Innslag\Samling;
+use UKMNorge\Innslag\Typer;
 
-require_once 'UKM/context.class.php';
 require_once 'UKM/statistikk.class.php';
 require_once 'UKM/monstring_tidligere.class.php';
-require_once 'UKM/innslag.collection.php';
-require_once 'UKM/innslag_typer.class.php';
 
 class Arrangement {
 	var $id = null;
@@ -553,7 +551,7 @@ class Arrangement {
 		return $this->getKommuner()->first();
 		
 		if( null == $this->kommune ) {
-			$this->kommune = new kommune( $this->kommune_id );
+			$this->kommune = new Kommune( $this->kommune_id );
 		}
 		return $this->kommune;
 	}
@@ -567,9 +565,9 @@ class Arrangement {
 		
 		if( null == $this->kommuner ) {
 			if( 'kommune' == $this->getType() ) {
-				$this->kommuner = new kommuner();
+				$this->kommuner = new Kommuner();
 				foreach( $this->kommuner_id as $id ) {
-					$this->kommuner->add( new kommune( $id ) );
+					$this->kommuner->add( new Kommune( $id ) );
 				}
 			} elseif( 'fylke' == $this->getType() ) {
 				$this->kommuner = $this->getFylke()->getKommuner();
@@ -639,6 +637,7 @@ class Arrangement {
 	 * Hent ut fylkesmønstringene lokalmønstringen kan sende videre til
 	**/
 	public function getFylkesmonstringer() {
+        throw new Exception('DEVELOPER ALERT: getFylkesmonstringer() er ikke implementert. Kontakt support@ukm.no');
 		if( $this->getType() !== 'kommune' ) {
 			throw new Exception('MONSTRING_V2: Fylkesmønstringer kan ikke videresende til fylkesmønstringer');
 		}
@@ -702,19 +701,18 @@ class Arrangement {
 		if( null !== $this->program ) {
 			return $this->program;
 		}
-		require_once('UKM/forestillinger.collection.php');
-		$this->program = new forestillinger( $this->getContext() );
+		$this->program = new Hendelser( $this->getContext() );
 		return $this->program;
 	}
 	
 	/**
 	 * Hent innslag påmeldt mønstringen
 	 *
-	 * @return innslag collection
+	 * @return Samling 
 	**/
 	public function getInnslag() {
 		if( null == $this->innslag ) {
-			$this->innslag = new innslag_collection( $this->getContext() );
+			$this->innslag = new Samling( $this->getContext() );
 		}
 		return $this->innslag;
 	}
@@ -742,7 +740,7 @@ class Arrangement {
 	**/
 	public function getInnslagTyper( $inkluder_ressurs=false ) {
 		if( null == $this->innslagTyper ) {
-			$this->innslagTyper = new innslag_typer();
+			$this->innslagTyper = new Typer();
 			$sql = new Query("SELECT `bt_id`
 							FROM `smartukm_rel_pl_bt`
 							WHERE `pl_id` = '#pl_id'
@@ -752,7 +750,7 @@ class Arrangement {
 			$res = $sql->run();
 			while( $r = Query::fetch( $res ) ) {
 				if( 1 == $r['bt_id'] ) {
-					foreach( innslag_typer::getAllScene() as $type ) {
+					foreach( Typer::getAllScene() as $type ) {
 						$this->innslagTyper->add( $type );
 					}
 				} else {					
@@ -765,23 +763,23 @@ class Arrangement {
 				}
 			}
 			// Alltid legg til scene
-			if( !$this->innslagTyper->har( innslag_typer::getById( 1 ) ) ) {
-				foreach( innslag_typer::getAllScene() as $type ) {
+			if( !$this->innslagTyper->har( Typer::getById( 1 ) ) ) {
+				foreach( Typer::getAllScene() as $type ) {
 					$this->innslagTyper->add( $type );
 				}
 			}
 			// Alltid legg til utstilling
-			if( !$this->innslagTyper->har( innslag_typer::getById( 3 ) ) ) {
-				$this->innslagTyper->add( innslag_typer::getByName('utstilling') );
+			if( !$this->innslagTyper->har( Typer::getById( 3 ) ) ) {
+				$this->innslagTyper->add( Typer::getByName('utstilling') );
 			}
 			// Alltid legg til utstilling
-			if( !$this->innslagTyper->har( innslag_typer::getById( 2 ) ) ) {
-				$this->innslagTyper->add( innslag_typer::getByName('video') );
+			if( !$this->innslagTyper->har( Typer::getById( 2 ) ) ) {
+				$this->innslagTyper->add( Typer::getByName('video') );
 			}
 		}
 
-		if( $inkluder_ressurs && !$this->innslagTyper->har( innslag_typer::getByName('ressurs') ) ) {
-			$this->innslagTyper->add( innslag_typer::getByName('ressurs') );
+		if( $inkluder_ressurs && !$this->innslagTyper->har( Typer::getByName('ressurs') ) ) {
+			$this->innslagTyper->add( Typer::getByName('ressurs') );
 		}
 		return $this->innslagTyper;
 	}
@@ -812,6 +810,7 @@ class Arrangement {
 	 * @return statistikk
 	**/
 	public function getStatistikk() {
+        require_once('UKM/statistikk.class.php');
 		$this->statistikk = new statistikk();
 		
 		if('kommune' == $this->getType()) {
@@ -920,7 +919,7 @@ class Arrangement {
 	
 	public function getContext() {
 		if( 'land' == $this->getType() ) {
-			$context = context::createMonstring(
+			$context = Context::createMonstring(
 				$this->getId(),			// Mønstring id
 				$this->getType(),		// Møntring type
 				$this->getSesong(),		// Mønstring sesong
@@ -928,7 +927,7 @@ class Arrangement {
 				false					// Mønstring kommune ID array
 			);
 		} else {
-			$context = context::createMonstring(
+			$context = Context::createMonstring(
 				$this->getId(),						// Mønstring id
 				$this->getType(),					// Møntring type
 				$this->getSesong(),					// Mønstring sesong
@@ -1030,7 +1029,7 @@ class Arrangement {
     public function getEierFylke()
     {
         if( null == $this->eier_fylke ) {
-            $this->eier_fylke = fylker::getById( $this->eier_fylke_id );
+            $this->eier_fylke = Fylker::getById( $this->eier_fylke_id );
         }
         return $this->eier_fylke;
     }
@@ -1043,7 +1042,7 @@ class Arrangement {
      */ 
     public function setEierFylke($fylke)
     {
-        if( is_object( $fylke ) && get_class( $fylke ) == 'Fylke' ) {
+        if( Fylke::validateClass( $fylke ) ) {
             $this->eier_fylke = $fylke;
             $this->eier_fylke_id = $fylke->getId();
         } else {
@@ -1065,7 +1064,7 @@ class Arrangement {
         }
 
         if( null == $this->eier_kommune ) {
-            $this->eier_kommune = new kommune( $this->eier_kommune_id );
+            $this->eier_kommune = new Kommune( $this->eier_kommune_id );
         }
         return $this->eier_kommune;
     }
@@ -1078,7 +1077,7 @@ class Arrangement {
      */ 
     public function setEierKommune($kommune)
     {
-        if( is_object( $kommune ) && get_class( $kommune ) == 'Kommune' ) {
+        if( Kommune::validateClass($kommune) ) {
             $this->eier_kommune = $kommune;
             $this->eier_kommune_id = $kommune->getId();
         } else {
@@ -1203,7 +1202,6 @@ class Arrangement {
     public function getMeta( $key )
     {
         if( null == $this->meta ) {
-            require_once('UKM/Meta/Collection.php');
             $this->meta = Collection::createByParentInfo(
                 'arrangement',
                 $this->getId()
@@ -1261,6 +1259,15 @@ class Arrangement {
         $this->synlig = $synlig;
 
         return $this;
+    }
+
+
+    public static function validateClass( $object ) {
+        return is_object( $object ) &&
+            in_array( 
+                get_class($object),
+                ['UKMNorge\Arrangement\Arrangement','monstring_v2']
+            );
     }
 }
 ?>

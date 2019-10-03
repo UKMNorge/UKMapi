@@ -1,7 +1,6 @@
 <?php
 require_once('UKM/logger.class.php');
 require_once('UKM/innslag.class.php');
-require_once('UKM/advarsel.class.php');
 
 class write_bilde {
     
