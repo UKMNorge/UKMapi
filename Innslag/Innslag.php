@@ -44,6 +44,10 @@ class Innslag
     var $avmeldbar = false;
     var $advarsler = null;
     var $titler = null;
+    var $home = null;
+    var $home_id = null;
+
+    var $delta_eier = null;
 
     var $erVideresendt = null;
     var $nominasjon = null;
@@ -132,6 +136,9 @@ class Innslag
         $this->_setSubscriptionTime( $row['b_subscr_time'] );
         $this->setStatus( $row['b_status'] );
         $this->setTekniskeBehov( $row['td_demand'] );
+
+        $this->delta_eier = $row['b_password'];
+        $this->home_id = (Int) $row['b_home_pl'];
 
         if( isset( $row['order'] ) ) {
             $this->setAttr('order', $row['order'] );
@@ -831,5 +838,55 @@ class Innslag
                 get_class($object),
                 ['UKMNorge\Innslag\Innslag', 'innslag_v2']
             );
+    }
+
+    /**
+     * Hent eier
+     * Refererer til UKMDelta-bruker
+     * 
+     * @return String 'delta_$user_id'
+     */ 
+    public function getEier()
+    {
+        return $this->delta_eier;
+    }
+
+    /**
+     * Hent innslagets hjemme-arrangement
+     * (hvor det ble opprettet)
+     * 
+     * @return Arrangement
+     */ 
+    public function getHome()
+    {
+        if( null == $this->home ) {
+            $this->home = new Arrangement( $this->getHomeId() );
+        }
+        return $this->home;
+    }
+
+    /**
+     * Hent ID for innslagets hjemme-arrangement
+     * Hvor det ble opprettet
+     * 
+     * @return Int $id
+     */ 
+    public function getHomeId()
+    {
+        return $this->home_id;
+    }
+
+    /**
+     * Set the value of mangler
+     *
+     * @return  self
+     */ 
+    public function getMangler()
+    {
+        if( null == $this->mangler ) {
+            $mangler = new Mangler();
+            $this->mangler = $mangler->evaluer($this);
+        }
+        return $this->mangler;
     }
 }

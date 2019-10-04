@@ -12,6 +12,7 @@ use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Database\SQL\Update;
 use UKMNorge\Geografi\Kommune;
+use UKMNorge\Innslag\Personer\Person;
 use UKMNorge\Innslag\Personer\Write as WritePerson;
 use UKMNorge\Logger\Logger;
 
@@ -47,13 +48,14 @@ class Write {
 		## CREATE INNSLAG-SQL
 		$band = new Insert('smartukm_band');
 		$band->add('b_season', $monstring->getSesong() );
-		$band->add('b_status', 8); ## Hvorfor får innslaget b_status 8 her???
+		$band->add('b_status', 0); ## Hvorfor får innslaget b_status 8 her???
 		$band->add('b_name', $navn);
 		$band->add('b_kommune', $kommune->getId());
 		$band->add('b_year', date('Y'));
 		$band->add('b_subscr_time', time());
 		$band->add('bt_id', $type->getId() );
-		$band->add('b_contact', $contact->getId() );
+        $band->add('b_contact', $contact->getId() );
+        $band->add('b_home_pl', $monstring->getId());
 
 		if( 1 == $type->getId() ) {
 			$band->add('b_kategori', $type->getKey() );
@@ -95,7 +97,7 @@ class Write {
 		}
 		
 		// TODO: KREVER at relasjonen over gjøres riktig (leggTil, ikke db-insert)
-		return $monstring->getInnslag()->get( $band_id );
+		return $monstring->getInnslag()->get( $band_id, true );
 		// TODO: Oppdater statistikk
 		#$innslag = new innslag( $b_id, false );
 		#$innslag->statistikk_oppdater();
@@ -810,10 +812,10 @@ class Write {
 	 *
 	 * @see create()
 	**/
-	private static function _validerCreate( $kommune, $monstring, $type, $navn, $contact ) {
-		if( !Arrangement::validateClass($monstring) ) {
+	private static function _validerCreate( $kommune, $arrangement, $type, $navn, $kontaktperson ) {
+		if( !Arrangement::validateClass($arrangement) ) {
 			throw new Exception(
-				"Krever mønstrings-objekt, ikke ".get_class($monstring).".",
+				"Krever arrangement-objekt, ikke ".get_class($arrangement).".",
 				50502
 			);
 		}
@@ -823,15 +825,15 @@ class Write {
 				50503
 			);
 		}
-		if( !InnslagType::validateClass($type) ) {
+		if( !Type::validateClass($type) ) {
 			throw new Exception(
-				"Krever at $type er av klassen innslag_type.",
+				"Krever Type-objekt, ikke ". get_class($type) .".",
 				50504
 			);
 		}
-		if( Person::validateClass($contact) ) {
+		if( !Person::validateClass($kontaktperson) ) {
 			throw new Exception(
-				"Krever skrivbar person, ikke ".get_class($contact),
+				"Krever skrivbar person, ikke ".get_class($kontaktperson),
 				50505
 			);	
 		}
