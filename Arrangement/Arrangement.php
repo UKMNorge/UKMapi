@@ -772,7 +772,7 @@ class Arrangement {
 			if( !$this->innslagTyper->har( Typer::getById( 3 ) ) ) {
 				$this->innslagTyper->add( Typer::getByName('utstilling') );
 			}
-			// Alltid legg til utstilling
+			// Alltid legg til film
 			if( !$this->innslagTyper->har( Typer::getById( 2 ) ) ) {
 				$this->innslagTyper->add( Typer::getByName('video') );
 			}
