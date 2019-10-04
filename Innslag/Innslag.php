@@ -11,10 +11,11 @@ use artikler;
 use playback_collection;
 use program;
 use nominasjon_media, nominasjon_konferansier, nominasjon_arrangor, nominasjon_placeholder;
-
+use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Geografi\Kommune;
 use UKMNorge\Innslag\Context\Context;
+use UKMNorge\Innslag\Mangler\Mangler;
 use UKMNorge\Innslag\Personer\Person;
 use UKMNorge\Innslag\Personer\Personer;
 use UKMNorge\Innslag\Titler\Titler;
@@ -43,6 +44,7 @@ class Innslag
     var $sesong = null;
     var $avmeldbar = false;
     var $advarsler = null;
+    var $mangler = null;
     var $titler = null;
     var $home = null;
     var $home_id = null;
@@ -269,7 +271,16 @@ class Innslag
     public function getStatus() {
         return $this->status;
     }
-    
+
+    /**
+     * Er innslaget fullstendig påmeldt?
+     * Eller er det fortsatt i prosess?
+     *
+     * @return Bool
+     */
+    public function erPameldt() {
+        return $this->getStatus() == 8;
+    }
     
     /**
      * Sett navn på innslag
