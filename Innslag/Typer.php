@@ -16,11 +16,21 @@ class Typer extends \Collection
         return $this->add(self::getById($id));
     }
 
+    public function harJobbeMed() {
+        return $this->har( Typer::getByName('nettredaksjon') ) ||
+            $this->har( Typer::getByName('konferansier') ) ||
+            $this->har( Typer::getByName('arrangor') );
+    }
+
     static function getById($id, $kategori = false)
     {
         return self::_load($id, $kategori);
     }
 
+    static function getByKey($key) {
+        return static::getByName($key);
+    }  
+    
     static function getByName($key)
     {
         // Last med kategori om vi er på scene-innslag.
@@ -64,6 +74,7 @@ class Typer extends \Collection
                             'har_filmer' => true,
                             'har_titler' => true,
                             'har_tekniske_behov' => true,
+                            'har_sjanger' => true,
                             'database_table' => 'smartukm_titles_scene',
                             'funksjoner' => false,
                         ];
@@ -77,6 +88,7 @@ class Typer extends \Collection
                             'har_filmer' => true,
                             'har_titler' => true,
                             'har_tekniske_behov' => true,
+                            'har_sjanger' => true,
                             'database_table' => 'smartukm_titles_scene',
                             'funksjoner' => false,
                         ];
@@ -90,6 +102,7 @@ class Typer extends \Collection
                             'har_filmer' => true,
                             'har_titler' => true,
                             'har_tekniske_behov' => true,
+                            'har_sjanger' => true,
                             'database_table' => 'smartukm_titles_scene',
                             'funksjoner' => false,
                         ];
@@ -103,6 +116,7 @@ class Typer extends \Collection
                             'har_filmer' => true,
                             'har_titler' => true,
                             'har_tekniske_behov' => false,
+                            'har_sjanger' => true,
                             'database_table' => 'smartukm_titles_scene',
                             'funksjoner' => false,
                         ];
@@ -116,6 +130,7 @@ class Typer extends \Collection
                             'har_filmer' => true,
                             'har_titler' => true,
                             'har_tekniske_behov' => true,
+                            'har_sjanger' => true,
                             'database_table' => 'smartukm_titles_scene',
                             'funksjoner' => false,
                         ];
@@ -130,6 +145,7 @@ class Typer extends \Collection
                     'har_filmer' => true,
                     'har_titler' => true,
                     'har_tekniske_behov' => false,
+                    'har_sjanger' => true,
                     'database_table' => 'smartukm_titles_video',
                     'funksjoner' => false,
                 ];
@@ -143,6 +159,7 @@ class Typer extends \Collection
                     'har_filmer' => false,
                     'har_titler' => true,
                     'har_tekniske_behov' => false,
+                    'har_sjanger' => false,
                     'database_table' => 'smartukm_titles_exhibition',
                     'funksjoner' => false,
                 ];
@@ -156,6 +173,7 @@ class Typer extends \Collection
                     'har_filmer' => false,
                     'har_titler' => false,
                     'har_tekniske_behov' => false,
+                    'har_sjanger' => false,
                     'database_table' => false,
                     'funksjoner' => false,
                 ];
@@ -169,6 +187,7 @@ class Typer extends \Collection
                     'har_filmer' => false,
                     'har_titler' => false,
                     'har_tekniske_behov' => false,
+                    'har_sjanger' => false,
                     'database_table' => false,
                     'funksjoner' => [
                         'tekst' => 'Journalist',
@@ -189,6 +208,7 @@ class Typer extends \Collection
                     'har_filmer' => true,
                     'har_titler' => true,
                     'har_tekniske_behov' => false,
+                    'har_sjanger' => false,
                     'database_table' => 'smartukm_titles_other',
                     'funksjoner' => false,
                 ];
@@ -203,6 +223,7 @@ class Typer extends \Collection
                     'har_filmer' => false,
                     'har_titler' => false,
                     'har_tekniske_behov' => false,
+                    'har_sjanger' => false,
                     'database_table' => false,
                     'funksjoner' => [
                         'lyd' => 'Lyd',
@@ -223,6 +244,7 @@ class Typer extends \Collection
                     'har_filmer' => false,
                     'har_titler' => false,
                     'har_tekniske_behov' => false,
+                    'har_sjanger' => false,
                     'database_table' => false,
                     'funksjoner' => [
                         'ambassador' => 'Ambassadør',
@@ -243,7 +265,8 @@ class Typer extends \Collection
             $data['har_titler'],
             $data['funksjoner'],
             $data['database_table'],
-            $data['har_tekniske_behov']
+            $data['har_tekniske_behov'],
+            $data['har_sjanger']
         );
     }
 

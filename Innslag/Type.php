@@ -14,8 +14,9 @@ class Type
     var $har_titler = false;
     var $tabell = false;
     var $har_tekniske_behov = false;
+    var $har_sjanger = false;
 
-    public function __construct($id, $key, $name, $icon, $har_filmer, $har_titler, $funksjoner, $tabell, $har_tekniske_behov)
+    public function __construct($id, $key, $name, $icon, $har_filmer, $har_titler, $funksjoner, $tabell, $har_tekniske_behov, $har_sjanger)
     {
         $this->setId($id);
         $this->setKey($key);
@@ -26,6 +27,7 @@ class Type
         $this->setFunksjoner($funksjoner);
         $this->setHarTekniskeBehov($har_tekniske_behov);
         $this->setTabell($tabell);
+        $this->har_sjanger = $har_sjanger;
     }
 
     public function setId($id)
@@ -118,6 +120,10 @@ class Type
         return $this->har_titler;
     }
 
+    public function erJobbeMed() {
+        return !$this->hartitler();
+    }
+
     public function setHarTekniskeBehov($har_tekniske_behov)
     {
         $this->har_tekniske_behov = $har_tekniske_behov;
@@ -126,6 +132,9 @@ class Type
     public function harTekniskeBehov()
     {
         return $this->har_tekniske_behov;
+    }
+    public function harSjanger() {
+        return $this->har_sjanger;
     }
 
     public function getFrist()
