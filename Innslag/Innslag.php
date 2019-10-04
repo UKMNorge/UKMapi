@@ -81,6 +81,26 @@ class Innslag
         return $this->context;
     }
 
+    public static function getById( Int $id, Bool $also_if_incomplete=false ) {
+        $contextQry = new Query(
+            "SELECT `b_home_pl`
+            FROM `smartukm_band`
+            WHERE `b_id` = '#b_id'",
+            [
+                'b_id' => $id
+            ]
+        );
+        $homePlace = new Arrangement( $contextQry->run('field') );
+
+        $context = Context::createMonstring( $homePlace->getId(), $homePlace->getType(), $homePlace->getSesong(), false, false);
+
+        $innslag = new Innslag( $id, $also_if_incomplete );
+        $innslag->setContext( $context );
+        
+        return $innslag;
+    }
+
+
     public static function getLoadQuery() {
         return "SELECT `smartukm_band`.*, 
                         `td`.`td_demand`,
