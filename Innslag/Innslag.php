@@ -801,7 +801,12 @@ class Innslag
         return $this;
     }
     
-    // TODO: Load valideringsadvarsler fra b_status_text
+    /**
+     * Hent advarsler til administrator
+     * Dette er ikke samme som mangler
+     *
+     * @return void
+     */
     public function getAdvarsler() {
         if( null == $this->advarsler ) {
             $context = Context::createInnslag(
