@@ -3,7 +3,10 @@
 namespace UKMNorge\Innslag\Personer;
 
 use Exception;
+use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Innslag\Context\Context;
+use UKMNorge\Innslag\Type;
 
 require_once('UKM/Autoloader.php');
 
@@ -17,7 +20,7 @@ class Personer {
 	var $personer_ikke_videresendt = null;
 	var $debug = false;
 	
-	public function __construct( $innslag_id, $innslag_type, $context ) {
+	public function __construct( Int $innslag_id, Type $innslag_type, Context $context ) {
 		$this->_setInnslagId( $innslag_id );
 		$this->_setInnslagType( $innslag_type );
 		$this->_setContext( $context );
@@ -33,7 +36,16 @@ class Personer {
 	**/
 	public function getAll() {
 		return $this->personer;
-	}
+    }
+    
+    /**
+     * Hent ID-liste for alle personer i getAll()
+     *
+     * @return Array<Int> 
+     */
+    public function getAllIds() {
+        return array_keys( $this->getAll() );
+    }
 	
 	/**
 	 * getSingle
@@ -82,7 +94,7 @@ class Personer {
 	public function getAllIkkeVideresendt( $pl_id=false ) {
 		if( $pl_id == false ) {
 			$pl_id = $this->getContext()->getMonstring()->getId();
-		} elseif( is_object( $pl_id ) && $this->_erArrangement( $pl_id ) ) {
+		} elseif( Arrangement::validateClass( $pl_id ) ) {
 			$pl_id = $pl_id->getId();
 		}
 		if( null == $this->personer_ikke_videresendt ) {
@@ -126,7 +138,7 @@ class Personer {
 	 * @return person
 	**/
 	public function get( $id ) {
-		if( is_object( $id ) && $this->_erArrangement( $id ) ) {
+		if( Person::validateClass( $id ) ) {
 			$id = $id->getId();
 		}
 		
@@ -337,7 +349,7 @@ class Personer {
             );    
         }
         
-		return context::createInnslag(
+		return Context::createInnslag(
 			$this->getInnslagId(),								// Innslag ID
 			$this->getInnslagType(),							// Innslag type (objekt)
 			$this->getContext()->getMonstring()->getId(),		// Mønstring ID
@@ -349,16 +361,9 @@ class Personer {
 	private function _autoloadPlidParameter( $pl_id ) {
 		if( $pl_id == false ) {
 			return $this->getContext()->getMonstring()->getId();
-		} elseif( is_object( $pl_id ) && _erArrangement( $pl_id ) ) {
+		} elseif( Arrangement::validateClass( $pl_id ) ) {
 			return $pl_id->getId();
 		}
 		return $pl_id;
-    }
-    
-    private function _erArrangement( $arrangement ) {
-        return in_array( 
-            get_class( $arrangement ), 
-            ['UKMNorge\Innslag\Person', 'person_v2']
-        );
     }
 }

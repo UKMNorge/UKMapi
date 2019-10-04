@@ -5,6 +5,7 @@ namespace UKMNorge\Innslag\Personer;
 use Exception;
 use DateTime;
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Geografi\Kommune;
 use UKMNorge\Sensitivt\Person as PersonSensitivt;
 
 require_once('UKM/Autoloader.php');
@@ -17,10 +18,16 @@ class Person {
 	var $etternavn = null;
 	var $mobil = null;
 	var $rolle = null;
+    var $rolleObject = null;
 	var $epost = null;
-    var $attributes = null;
-    
+    var $fodselsdato = null;
+
+    var $adresse = null;
+    var $postnummer = null;
+    var $poststed = null;
+
     private $sensitivt = null;
+    var $attributes = null;
 	
 	var $videresendtTil = null;
 	
@@ -72,7 +79,18 @@ class Person {
 	
 	public static function getLoadQuery() {
 		return "SELECT * FROM `smartukm_participant` ";
-	}
+    }
+    
+    public static function loadFromId( Int $id ) {
+        $person = new Person($id);
+        if( !$person ) {
+            throw new Exception(
+                'Fant ikke person '. $id,
+                109005
+            );
+        }
+        return $person;
+    }
 	
 	public static function loadFromData( $fornavn, $etternavn, $mobil ) {
 		$qry = new Query(
@@ -380,6 +398,9 @@ class Person {
 	 * @return $this
 	**/
 	public function setFodselsdato( $fodselsdato ) {
+        if( is_object( $fodselsdato ) && get_class($fodselsdato) == 'DateTime') {
+            $fodselsdato = $fodselsdato->getTimestamp();
+        }
 		$this->fodselsdato = $fodselsdato;
 		return $this;
 	}
@@ -390,7 +411,8 @@ class Person {
 	**/
 	public function getFodselsdato() {
 		return $this->fodselsdato;
-	}
+    }
+    
 	
 	/**
 	 * Hent alder
@@ -536,5 +558,69 @@ class Person {
                 get_class($object),
                 ['UKMNorge\Innslag\Personer\Person','person_v2']
             );
+    }
+
+    /**
+     * Hent personens adresse
+     * Sjeldent vi har dette
+     * 
+     * @return String $adresse
+     */ 
+    public function getAdresse()
+    {
+        return $this->adresse;
+    }
+
+    /**
+     * Sett personens adresse
+     * 
+     * @param String $adresse
+     * @return $this
+     */ 
+    public function setAdresse( String $adresse)
+    {
+        $this->adresse = $adresse;
+
+        return $this;
+    }
+
+    /**
+     * Hent postnummer
+     */ 
+    public function getPostnummer()
+    {
+        return $this->postnummer;
+    }
+
+    /**
+     * Sett nytt postnummer
+     *
+     * @param String $postnummer
+     * @return self
+     */ 
+    public function setPostnummer( String $postnummer)
+    {
+        $this->postnummer = $postnummer;
+        return $this;
+    }
+
+    /**
+     * Hent poststed
+     */ 
+    public function getPoststed()
+    {
+        return $this->poststed;
+    }
+
+    /**
+     * Sett nytt poststed
+     *
+     * @return self
+     */ 
+    public function setPoststed( String $poststed)
+    {
+        $this->poststed = $poststed;
+
+        return $this;
     }
 }

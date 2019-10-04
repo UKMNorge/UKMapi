@@ -310,7 +310,7 @@ class Innslag
      * Hent type
      * Hvilken kategori innslaget faller inn under
      *
-     * @return innslag_type $type
+     * @return Type $type
     **/
     public function getType( ) {
         return $this->type;
@@ -751,7 +751,7 @@ class Innslag
         return $this->getFylke();
     }
     
-    private function _calcAdvarsler( $context) {        
+    private function _calcAdvarsler() {        
         $this->advarsler = new Advarsler();
 
         // Har 0 personer

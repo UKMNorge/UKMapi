@@ -6,6 +6,7 @@ use Exception;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Insert;
+use UKMNorge\Database\SQL\Query;
 use UKMNorge\Database\SQL\Update;
 use UKMNorge\Geografi\Kommune;
 use UKMNorge\Logger\Logger;
@@ -31,13 +32,13 @@ class Write {
 	 * 
 	 * Henter P_ID hvis kombinasjonen fornavn, etternavn, mobil finnes i databasen
 	 *
-	 * @param string $firstname
-	 * @param string $lastname
-	 * @param string $phone
-	 * @return int $person_id
+	 * @param String $firstname
+	 * @param String $lastname
+	 * @param  $phone
+	 * @return Int $person_id
 	**/
-	public static function finnEksisterendePerson($firstname, $lastname, $phone) {
-		$qry = new SQL("SELECT `p_id` FROM `smartukm_participant` 
+	public static function finnEksisterendePerson( String $firstname, String $lastname, $phone) {
+		$qry = new Query("SELECT `p_id` FROM `smartukm_participant` 
 						WHERE `p_firstname`='#firstname' 
 						AND `p_lastname`='#lastname' 
 						AND `p_phone`='#phone'", 
@@ -57,11 +58,10 @@ class Write {
 	 * Finnes kombinasjonen av fornavn, etternavn og mobil fra før,
 	 * slås personene sammen
 	 *
-	 * @param string $fornavn
-	 * @param string $etternavn
-	 * @param string $mobil
-	 * @param unixtime $fodselsdato
-	 * @param int $kommune_id
+	 * @param String $fornavn
+	 * @param String $etternavn
+	 * @param Int $mobil
+	 * @param Kommune $kommune_id
 	 * @return Person
 	 */
 	public static function create( String $fornavn, String $etternavn, Int $mobil, Kommune $kommune) {
@@ -121,10 +121,10 @@ class Write {
 	 *
 	 * Lagring av rolle skjer via write_innslag::setRolle( $innslag, $person );
 	 *
-	 * @param person_v2 $person_save
+	 * @param Person $person_save
 	 * @return bool true
 	**/
-	public static function save( $person_save ) {
+	public static function save( Person $person_save ) {
 		// Valider logger
 		if( !Logger::ready() ) {
 			throw new Exception(
@@ -159,7 +159,10 @@ class Write {
 			'Mobil'				=> ['smartukm_participant', 'p_phone', 405],
 			'Epost'				=> ['smartukm_participant', 'p_email', 404],
 			'Fodselsdato'		=> ['smartukm_participant', 'p_dob', 403],
-			'Epost'				=> ['smartukm_participant', 'p_email', 404],
+            'Epost'				=> ['smartukm_participant', 'p_email', 404],
+            'Adresse'           => ['smartukm_participant', 'p_adress', 412],
+            'Postnummer'        => ['smartukm_participant', 'p_postnumber', 407],
+            'Poststed'          => ['smartukm_participant', 'p_postplace', 408],
 		];
 		
 		// LOOP ALLE VERDIER, OG EVT LEGG TIL I SQL
@@ -200,12 +203,11 @@ class Write {
 	 * Kan ikke alltid kjøres som en del av savePerson da personer
 	 * kan redigeres uten å ha en rolle i et innslag (og da mangle relasjonen)
 	 *
-	 * @param Write $person_save
-	 * @param rolle string
+	 * @param Person $person_save
 	 *
 	 * @return this
 	 */
-	public function saveRolle( $person_save ) {
+	public function saveRolle( Person $person_save ) {
 		// Valider input-data
 		try {
 			Write::validerPerson( $person_save );
@@ -278,11 +280,11 @@ class Write {
 	 * Legg til person i innslaget
 	 * Videresender automatisk til context-mønstring
 	 * 
-	 * @param person_v2 $person_save
+	 * @param Person $person_save
 	**/
-	public static function leggTil( $person_save ) {
+	public static function leggTil( Person $person_save ) {
 		// Valider inputs
-		Person::_validerLeggtil( $person_save );
+		static::_validerLeggtil( $person_save );
 
 		// Opprett mønstringen personen kommer fra
 		$monstring = new Arrangement( $person_save->getContext()->getMonstring()->getId() );
@@ -332,13 +334,14 @@ class Write {
 	/**
 	 * Fjern en videresendt person, og avmelder hvis gitt lokalmønstring
 	 *
-	 * @param person_v2 $person_save
+	 * @param Person $person_save
 	 *
-	 * @return (bool true|throw exception)
+	 * @return Bool true
+     * @throws Exception hvis feilet
 	 */
-	public function fjern( $person_save ) {
+	public function fjern( Person $person_save ) {
 		// Valider inputs
-		Write::_validerLeggtil( $person_save );
+		static::_validerLeggtil( $person_save );
 
 		// Opprett mønstringen personen kommer fra
 		$monstring = new Arrangement( $person_save->getContext()->getMonstring()->getId() );
@@ -372,8 +375,6 @@ class Write {
 	}
 
 
-
-
 	/********************************************************************************
 	 *
 	 *
@@ -385,12 +386,12 @@ class Write {
 	/**
 	 * Legg til en person på lokalnivå (ikke videresend)
 	 *
-	 * @param person_v2 $person
-	 * @return bool $success
+	 * @param Person $person
+	 * @return Bool $success
 	**/
-	private static function _leggTilLokalt( $person_save ) {
+	private static function _leggTilLokalt( Person $person_save ) {
 		// Er personen allerede lagt til i innslaget?
-		$sql = new SQL("SELECT COUNT(*) 
+		$sql = new Query("SELECT COUNT(*) 
 						FROM smartukm_rel_b_p 
 						WHERE 'b_id' = '#b_id' 
 							AND 'p_id' = '#p_id'",
@@ -419,9 +420,9 @@ class Write {
 	/**
 	 * Legg til en person på videresendt nivå
 	 *
-	 * @param person_v2 $person_save
+	 * @param Person $person_save
 	**/
-	private function _leggTilVideresend( $person_save ) {
+	private function _leggTilVideresend( Person $person_save ) {
 		// FOR INNSLAG I KATEGORI 1 (SCENE) FØLGER ALLE DELTAKERE ALLTID INNSLAGET VIDERE
 		if( $person_save->getContext()->getInnslag()->getType()->getId() == 1 ) {
 			return true;
@@ -479,11 +480,12 @@ class Write {
 	/**
 	 * Fjerner en person helt fra innslaget (avmelding lokalnivå)
 	 *
-	 * @param person_v2 $person
+	 * @param Person $person
 	 *
-	 * @return (bool true|throw exception)
+	 * @return Bool true|
+     * @throws Exception hvis feilet)
 	 */	 
-	private function _fjernLokalt( $person_save ) {
+	private function _fjernLokalt( Person $person_save ) {
 		$sql = new Delete("smartukm_rel_b_p", 
 			array( 	'b_id' => $person_save->getContext()->getInnslag()->getId(),
 					'p_id' => $person_save->getId(),
@@ -504,12 +506,12 @@ class Write {
 	 * 
 	 * Avrelaterer en person til dette innslaget.
 	 *
-	 * @param write_person $person
-	 * @param write_monstring $monstring
+	 * @param Person $person
 	 *
-	 * @return (bool true|throw exception)
+	 * @return Bool true
+     * @throws Exception hvis feilet
 	 */
-	public function _fjernVideresend( $person_save ) {
+	public function _fjernVideresend( Person $person_save ) {
 		// FOR INNSLAG I KATEGORI 1 (SCENE) FØLGER ALLE DELTAKERE ALLTID INNSLAGET VIDERE
 		if( $person_save->getContext()->getInnslag()->getType()->getId() == 1 ) {
 			return false;
