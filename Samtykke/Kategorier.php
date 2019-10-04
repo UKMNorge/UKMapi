@@ -5,6 +5,8 @@ namespace UKMNorge\Samtykke;
 use Exception;
 use UKMNorge\Samtykke\Meldinger\Meldinger;
 
+require_once('UKM/Autoloader.php');
+
 /**
  * Alle samtykke-kategorier som finnes
  */

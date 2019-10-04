@@ -11,12 +11,7 @@ use UKMNorge\Database\SQL\Update;
 use UKMNorge\Innslag\Innslag;
 use UKMNorge\RFID\Person as InnslagPerson;
 
-require_once('UKM/samtykke/kategorier.class.php');
-require_once('UKM/samtykke/status.class.php');
-require_once('UKM/samtykke/kommunikasjon.collection.php');
-require_once('UKM/samtykke/foresatt.class.php');
-require_once('UKM/person.class.php');
-
+require_once('UKM/Autoloader.php');
 
 class Person {
 	
