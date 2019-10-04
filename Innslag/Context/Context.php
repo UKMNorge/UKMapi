@@ -3,6 +3,8 @@
 namespace UKMNorge\Innslag\Context;
 
 use Exception;
+use UKMNorge\Innslag\Personer\Person;
+
 require_once('UKM/Autoloader.php');
 
 
@@ -14,7 +16,8 @@ class Context {
 	var $innslag = null;
 	var $forestilling = null;
 	var $videresend_til = false;
-	
+    var $kontaktperson = null;
+    
 	public static function createMonstring( $id, $type, $sesong, $fylke, $kommuner ) {
 		$context = new Context( 'monstring' );
 		$context->monstring = new Monstring( $id, $type, $sesong, $fylke, $kommuner );
@@ -22,19 +25,26 @@ class Context {
 	}
 	
 	public static function createInnslag( $id, $type, $monstring_id, $monstring_type, $monstring_sesong) {
-		$context = new context( 'innslag' );
+		$context = new Context( 'innslag' );
 		$context->monstring = new Monstring( $monstring_id, $monstring_type, $monstring_sesong, false, false );
 		$context->innslag = new Innslag( $id, $type );
 		return $context;
 	}
 	
 	public static function createForestilling( $id, $context_monstring=false ) {
-		$context = new context( 'forestilling' );
+		$context = new Context( 'forestilling' );
 		$context->forestilling = new Forestilling( $id );
 		if( $context_monstring !== false && get_class( $context_monstring ) == 'context_monstring' ) {
 			$context->monstring = $context_monstring;
 		}
 		return $context;
+    }
+
+    public static function createKontaktperson( Person $kontaktperson, Int $sesong ) {
+        $context = new Context('kontaktperson');
+        $context->sesong = $sesong;
+        $context->kontaktperson = new Kontaktperson( $kontaktperson->getId() );
+        return $context;
     }
     
     public static function createSesong( $sesong ) {
@@ -60,12 +70,16 @@ class Context {
 	public function getForestilling() {
 		return $this->forestilling;
     }
+    public function getKontaktperson() {
+        return $this->kontaktperson;
+    }
     
     /**
      * Hvilken sesong er etterspurt?
      */
     public function getSesong() {
         switch( $this->getType() ) {
+            case 'kontaktperson':
             case 'sesong':
                 return $this->sesong;
             case 'forestilling':

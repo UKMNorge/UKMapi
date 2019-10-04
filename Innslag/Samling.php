@@ -501,7 +501,6 @@ class Samling {
 											'pl_id' => $this->getContext()->getMonstring()->getId(),
 										)
 									);
-					break;
 					case 'fylke':
 						return new Query("SELECT `band`.*, 
 											   `td`.`td_demand`,
@@ -520,7 +519,6 @@ class Samling {
 											'fylke_id' => $this->getContext()->getMonstring()->getFylke(),
 										)
 									);
-					break;	
 					default:			
 						return new Query("SELECT `band`.*, 
 											   `td`.`td_demand`,
@@ -538,9 +536,7 @@ class Samling {
 											# IDs inputted directly to avoid escaping
 										)
 									);
-					break;
 				}
-				break;
 			case 'forestilling':
 				if( null == $this->getContext()->getForestilling()->getId() ) {
 					throw new Exception('INNSLAG_COLLECTION: Krever forestilling-ID for å hente forestillingens innslag', 2);
@@ -552,8 +548,16 @@ class Samling {
 								AND `smartukm_band`.`b_status` = '8'
 								ORDER BY `order` ASC",
 								array( 'c_id' => $this->getContext()->getForestilling()->getId() ) );
-				return $sql;
-                break;
+                return $sql;
+            case 'kontaktperson':
+                return new Query(
+                        Innslag::getLoadQuery()."
+                        WHERE `b_contact` = '#kontakt'
+                        AND `b_status` ". $operand ." '8'",
+                        [
+                            'kontakt' => $this->getContext()->getKontaktperson()->getId()
+                        ]
+                );
             case 'sesong':
                 return new Query(
                     "SELECT `band`.*, 
