@@ -56,7 +56,7 @@ class Titler {
 	 * @return person
 	**/
 	public function get( $id ) {
-		if( is_object( $id ) && get_class( $id ) == 'tittel_v2' ) {
+		if( is_object( $id ) && Tittel::validateClass( $id ) ) {
 			$id = $id->getId();
 		}
 		foreach( $this->getAll() as $tittel ) {

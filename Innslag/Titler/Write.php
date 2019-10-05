@@ -18,8 +18,8 @@ class Write {
 	/**
 	 * Oppretter et nytt tittel og lagrer i databasen.
 	 *
-	 * @param innslag_v2 $innslag
- 	 * @return false or integer (insert-ID).
+	 * @param Innslag $innslag
+ 	 * @return Tittel
  	 */
 	public static function create( $innslag ) {		
 		// Valider logger
@@ -31,7 +31,7 @@ class Write {
 		}
 		// Valider input-data
 		try {
-			Innslag::validerInnslag( $innslag );
+			Innslag::validateClass( $innslag );
 		} catch( Exception $e ) {
 			throw new Exception(
 				'Kunne ikke opprette tittel'. $e->getMessage(),
@@ -64,7 +64,7 @@ class Write {
 		Logger::log( $action, $innslag->getId(), $insert_id );
 
 		if( $insert_id ) {
-			return $insert_id;
+			return new Tittel( $insert_id, $innslag->getType()->getTabell() );
 		}
 
 		throw new Exception(
@@ -217,18 +217,17 @@ class Write {
 	/**
 	 * Fjern en videresendt tittel, og avmelder hvis gitt lokalmønstring
 	 *
-	 * @param tittel_v2 $tittel_save
+	 * @param Tittel $tittel_save
 	 *
-	 * @return (bool true|throw exception)
+	 * @return Bool
+     * @throws Exception 
 	 */
-	public function fjern( $tittel_save ) {
+	public function fjern( Tittel $tittel_save ) {
 		// Valider inputs
 		Write::_validerLeggtil( $tittel_save );
 
 		// Opprett mønstringen tittelen kommer fra
 		$monstring = new Arrangement( $tittel_save->getContext()->getMonstring()->getId() );
-		// Hent innslaget fra gitt mønstring
-		$innslag_db = $monstring->getInnslag()->get( $tittel_save->getContext()->getInnslag()->getId(), true );
 		
 		if( $monstring->getType() == 'kommune' ) {
 			$res = Write::_fjernLokalt( $tittel_save );

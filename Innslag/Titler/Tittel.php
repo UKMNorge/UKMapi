@@ -3,6 +3,7 @@
 namespace UKMNorge\Innslag\Titler;
 
 use Exception;
+use UKMNorge\Tid;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Arrangement\Write as WriteArrangement;
 use UKMNorge\Database\SQL\Query;
@@ -32,7 +33,9 @@ class Tittel {
 	var $beskrivelse = null;
 	
 	var $erfaring = null;
-	var $kommentar = null;
+    var $kommentar = null;
+    
+    var $sesong = null;
 	
 
 	public function __construct( $id_or_row, $table ) {
@@ -213,12 +216,22 @@ class Tittel {
 	/**
 	 * Hent varigheten, men som sekunder
 	 *
-	 * @return int tid
+	 * @return Int varighet i sekunder
 	**/
 	public function getVarighetSomSekunder() {
 		return $this->sekunder;
 	}
-	
+    
+    /**
+     * Hent varigheten av tittelen som sekunder
+     * 
+     * @alias getVarighetSomSekunder()
+     * @return Int $sekunder
+     */
+    public function getSekunder() {
+        return $this->getVarighetSomSekunder();
+    }
+
 	/**
 	 * Sett selvalget
 	 *
@@ -612,5 +625,28 @@ class Tittel {
                 get_class($object),
                 ['UKMNorge\Innslag\Titler\Tittel','tittel_v2']
             );
+    }
+
+    /**
+     * Hent hvilken sesong tittelen er fra
+     * Totalt unødvendig funksjon
+     * 
+     */ 
+    public function getSesong()
+    {
+        return $this->sesong;
+    }
+
+    /**
+     * Sett hvilken sesong tittelen er fra
+     * Totalt unødvendig funksjon
+     * 
+     * @param Int $seosng
+     * @return self
+     */ 
+    public function setSesong(Int $sesong)
+    {
+        $this->sesong = $sesong;
+        return $this;
     }
 }
