@@ -14,6 +14,8 @@ use nominasjon_media, nominasjon_konferansier, nominasjon_arrangor, nominasjon_p
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Geografi\Kommune;
+use UKMNorge\Innslag\Advarsler\Advarsel;
+use UKMNorge\Innslag\Advarsler\Advarsler;
 use UKMNorge\Innslag\Context\Context;
 use UKMNorge\Innslag\Mangler\Mangler;
 use UKMNorge\Innslag\Personer\Person;
@@ -913,10 +915,24 @@ class Innslag
     }
 
     /**
-     * Set the value of mangler
+     * Hent advarsler til administrator
+     * Dette er ikke samme som mangler
      *
-     * @return  self
-     */ 
+     * @return void
+     */
+    public function getAdvarsler()
+    {
+        if (null == $this->advarsler) {
+            $this->advarsler = $this->_calcAdvarsler();
+        }
+        return $this->advarsler;
+    }
+
+    /**
+     * Hent registrerte mangler på innslaget
+     * 
+     * @return Mangler
+     */
     public function getMangler()
     {
         if( null == $this->mangler ) {

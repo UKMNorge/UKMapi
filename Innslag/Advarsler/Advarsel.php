@@ -1,6 +1,6 @@
 <?php
 
-namespace UKMNorge\Innslag;
+namespace UKMNorge\Innslag\Advarsler;
 require_once('UKM/Autoloader.php');
 
 class Advarsel {
