@@ -27,7 +27,7 @@ use UKMNorge\Samtykke\Innslag as InnslagSamtykke;
 class Innslag
 {
     var $context = null;
-    
+
     var $id = null;
     var $navn = null;
     var $type = null;
@@ -47,6 +47,7 @@ class Innslag
     var $avmeldbar = false;
     var $advarsler = null;
     var $mangler = null;
+    var $mangler_json = '';
     var $titler = null;
     var $home = null;
     var $home_id = null;
@@ -162,7 +163,8 @@ class Innslag
         $this->setTekniskeBehov( $row['td_demand'] );
 
         $this->delta_eier = $row['b_password'];
-        $this->home_id = (Int) $row['b_home_pl'];
+        $this->home_id = (int) $row['b_home_pl'];
+        $this->mangler_json = (string) $row['b_status_object'];
 
         if( isset( $row['order'] ) ) {
             $this->setAttr('order', $row['order'] );
@@ -935,10 +937,31 @@ class Innslag
      */
     public function getMangler()
     {
-        if( null == $this->mangler ) {
-            $mangler = new Mangler();
-            $this->mangler = $mangler->evaluer($this);
+        if (null == $this->mangler) {
+            $this->mangler = Mangler::loadFromJSON($this->mangler_json);
         }
         return $this->mangler;
+    }
+
+    /**
+     * Hent registrerte mangler i JSON-format
+     * 
+     * @return String $json
+     */
+    public function getManglerJSON()
+    {
+        return $this->getMangler()->toJSON();
+    }
+
+    /**
+     * Evaluer et innslag for å se hvilke felt som mangler
+     * 
+     * @return $this
+     */
+    public function evaluerMangler()
+    {
+        $this->mangler = Mangler::evaluer($this);
+        $this->mangler_json = $this->mangler->toJSON();
+        return $this;
     }
 }

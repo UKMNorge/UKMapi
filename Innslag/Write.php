@@ -15,6 +15,7 @@ use UKMNorge\Geografi\Kommune;
 use UKMNorge\Innslag\Personer\Person;
 use UKMNorge\Innslag\Personer\Write as WritePerson;
 use UKMNorge\Logger\Logger;
+use UKMNorge\Samtykke\Person as PersonSamtykke;
 
 require_once('UKM/Autoloader.php');
 
@@ -33,7 +34,10 @@ class Write {
 	public static function create( $kommune, $monstring, $type, $navn, $contact ) {
 		// Valider at logger er på plass
 		if( !Logger::ready() ) {
-			throw new Exception('Logger is missing or incorrect set up.', 50501);
+			throw new Exception(
+                Logger::getError(),
+                50501
+            );
 		}
 		// Valider alle input-parametre
 		try {
@@ -124,12 +128,7 @@ class Write {
 	**/
 	public static function save( $innslag_save ) {
 		// Valider logger
-		if( !Logger::ready() ) {
-			throw new Exception(
-				'Logger is missing or incorrect set up.',
-				50501
-			);
-		}
+		static::validerLogger();
 		// Valider input-data
 		try {
 			Write::validerInnslag( $innslag_save );
@@ -148,7 +147,14 @@ class Write {
 				'Kan ikke lagre innslagets endringer. Feil ved henting av kontroll-innslag. '. $e->getMessage(),
 				$e->getCode()
 			);
-		}
+        }
+        
+        // EVALUER INNSLAGETS MANGLER
+        $innslag_save->evaluerMangler();
+        // Hvis innslaget ikke har noen mangler, er status=8 (påmeldt)
+        if( $innslag_save->getMangler()->getAntall() == 0 ) {
+            $innslag_save->setStatus(8);
+        }
 
 		// TABELLER SOM KAN OPPDATERES
 		$smartukm_band = new Update('smartukm_band', array('b_id'=>$innslag_save->getId()));
@@ -159,7 +165,8 @@ class Write {
 			'Navn' 			=> ['smartukm_band', 'b_name', 301],
 			'Sjanger' 		=> ['smartukm_band', 'b_sjanger', 306],
 			'Beskrivelse'	=> ['smartukm_band', 'b_description', 309],
-			'TekniskeBehov'	=> ['smartukm_technical', 'td_demand', 308],
+            'TekniskeBehov'	=> ['smartukm_technical', 'td_demand', 308],
+            'ManglerJSON'   => ['smartukm_band', 'b_status_object', 328]
 		];
 		
 		// LOOP ALLE VERDIER, OG EVT LEGG TIL I SQL
@@ -214,12 +221,7 @@ class Write {
 	**/
 	public static function saveStatus( $innslag_save ) {
 		// Valider logger
-		if( !Logger::ready() ) {
-			throw new Exception(
-				'Logger is missing or incorrect set up.',
-				50501
-			);
-		}
+		static::validerLogger();
 		// Valider input-data
 		try {
 			Write::validerInnslag( $innslag_save );
@@ -382,12 +384,7 @@ class Write {
 	**/
 	public static function saveProgram( $innslag_save ) {
 		// Valider logger
-		if( !Logger::ready() ) {
-			throw new Exception(
-				'Logger is missing or incorrect set up.',
-				50501
-			);
-		}
+		static::validerLogger();
 		// Valider input-data
 		try {
 			Write::validerInnslag( $innslag_save );
@@ -453,7 +450,7 @@ class Write {
 	 * @param Innslag $innslag
 	 * @return void
 	 */
-	public static function fjern( $innslag ) {
+	public static function fjern( Innslag $innslag ) {
 		Write::validerLeggtil( $innslag );
 		
 		switch( $innslag->getContext()->getType() ) {
@@ -784,7 +781,20 @@ class Write {
 	 *
 	 ********************************************************************************/
 
-	
+    /**
+     * Sjekk at loggeren er klar, og gi skikkelig tilbakemelding
+     *
+     * @throws Exception hvis ikke klar
+     */
+	public static function validerLogger() {
+        if( !Logger::ready() ) {
+			throw new Exception(
+				Logger::getError(),
+				50501
+			);
+		}
+    }
+
 	/**
 	 * Valider at gitt innslag-objekt er av riktig type
 	 * og har en numerisk Id som kan brukes til database-modifisering

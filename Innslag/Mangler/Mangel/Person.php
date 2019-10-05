@@ -4,6 +4,7 @@ namespace UKMNorge\Innslag\Mangler\Mangel;
 
 use UKMNorge\Innslag\Innslag;
 use UKMNorge\Innslag\Mangler\Mangel;
+use UKMNorge\Innslag\Mangler\Mangler;
 use UKMNorge\Innslag\Personer\Person as InnslagPerson;
 
 class Person
@@ -58,16 +59,25 @@ class Person
         else {
             if (!static::testMobil($person->getMobil())) {
                 $mangler[] = new Mangel(
-                    'kontaktperson.mobil',
+                    'kontakt.mobil',
                     'Ugyldig mobilnummer',
                     'Mobilnummer må bestå av 8 siffer og være et gyldig mobilnummer',
                     'person',
                     $person->getId()
                 );
             }
+            if( empty( $person->getMobil() ) ) {
+                $mangler[] = new Mangel(
+                    'kontakt.epost.mangler',
+                    'Mangler e-postadresse',
+                    'E-postadressen til kontaktpersonen mangler',
+                    'person',
+                    $person->getId()
+                );
+            }
             if (!static::testEpost($person->getEpost())) {
                 $mangler[] = new Mangel(
-                    'kontaktperson.epost',
+                    'kontakt.epost.ikkegyldig',
                     'Ugyldig e-postadresse',
                     'E-postadressen til kontaktpersonen må være en gyldig e-postadresse',
                     'person',
@@ -76,7 +86,7 @@ class Person
             }
         }
 
-        return $mangler;
+        return Mangler::manglerOrTrue( $mangler );
     }
 
     public static function testMobil($mobilnummer)
