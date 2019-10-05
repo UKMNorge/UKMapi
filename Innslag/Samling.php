@@ -456,7 +456,7 @@ class Samling {
 	 *
 	**/
 	private function _getQuery( $pameldte ) {
-		$operand = $pameldte ? '=' : '<';
+        $operand = $pameldte ? '=' : '<';
 		switch( $this->getContext()->getType() ) {
 			case 'monstring':
 				if( null == $this->getContext()->getMonstring()->getId() ) {
@@ -541,21 +541,22 @@ class Samling {
 				if( null == $this->getContext()->getForestilling()->getId() ) {
 					throw new Exception('INNSLAG_COLLECTION: Krever forestilling-ID for å hente forestillingens innslag', 2);
 				}
-				$sql = new Query(Innslag::getLoadQuery()."
+				return new Query(Innslag::getLoadQuery()."
 								JOIN `smartukm_rel_b_c` AS `rel`
 									ON `rel`.`b_id` = `smartukm_band`.`b_id`
 								WHERE `rel`.`c_id` = '#c_id'
 								AND `smartukm_band`.`b_status` = '8'
 								ORDER BY `order` ASC",
 								array( 'c_id' => $this->getContext()->getForestilling()->getId() ) );
-                return $sql;
             case 'kontaktperson':
                 return new Query(
                         Innslag::getLoadQuery()."
                         WHERE `b_contact` = '#kontakt'
-                        AND `b_status` ". $operand ." '8'",
+                        AND `b_season` = '#sesong'
+                        ",
                         [
-                            'kontakt' => $this->getContext()->getKontaktperson()->getId()
+                            'kontakt' => $this->getContext()->getKontaktperson()->getId(),
+                            'sesong' => $this->getContext()->getSesong()
                         ]
                 );
             case 'sesong':

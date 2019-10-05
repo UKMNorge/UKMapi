@@ -44,6 +44,7 @@ class Context {
         $context = new Context('kontaktperson');
         $context->sesong = $sesong;
         $context->kontaktperson = new Kontaktperson( $kontaktperson->getId() );
+        $context->sesong = $sesong;
         return $context;
     }
     
