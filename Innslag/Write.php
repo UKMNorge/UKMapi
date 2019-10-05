@@ -209,7 +209,12 @@ class Write {
 		}
 		
 		require_once('UKM/statistikk.class.php');
-		statistikk::oppdater_innslag( $innslag_save );
+        statistikk::oppdater_innslag( $innslag_save );
+        
+        // Etterspør samtykke fra alle deltakere i innslaget
+        static::requestSamtykke( $innslag_save );
+
+        #return $innslag_save;
 	}
 
 
@@ -469,7 +474,10 @@ class Write {
 					'Kan ikke fjerne innslag fra ukjent collection type: ' . $innslag->getContext()->getType(),
 					50511
 				);
-		}
+        }
+        
+        // Fjern samtykke-forespørsel for deltakerne i innslaget
+        static::requestSamtykkeCancel( $innslag );
 	}
 	
 
@@ -903,281 +911,53 @@ class Write {
 				);
 			}
 		}
-	}
+    }
+    
+    /**
+     * Etterspør samtykke fra alle deltakere
+     * 
+     * Iterer over alle personer og opprett samtykke-request hvis den
+     * ikke allerede eksisterer
+     * 
+     * Default-state er 'ikke_sendt'. Trenger derfor ikke å kjøre setStatus()
+     * 
+     * @param Innslag $innslag
+     * @return Bool true
+     */
+    public static function requestSamtykke( Innslag $innslag ) {
+        // Hvis innslaget ikke er fullstendig påmeldt, ikke send samtykke-sms
+        if( !$innslag->erPameldt() ) {
+            return true;
+        }
+        
+        // Varsle alle personer i innslaget
+        foreach ($innslag->getPersoner()->getAll() as $person) {
+            $samtykke = new PersonSamtykke($person, $innslag);
+        }
 
+        // Varsle kontaktpersonens foresatte
+        // (kontaktpersonen har selv svart tidligere)
+        $samtykke = new PersonSamtykke($innslag->getKontaktperson(), $innslag);
+        if ($samtykke->getKategori()->getId() != '15o' && $samtykke->harForesatt()) {
+            // SendMelding sjekker om den er sendt fra før, og dobbeltsender ikke
+            $samtykke->getKommunikasjon()->sendMelding('samtykke_foresatt');
+        }
 
-	/********************************************************************************
-	 *
-	 *
-	 * ADVARSEL-FUNKSJONER. SJEKKER OM ALT ER OK MED INNSLAG, EVT FLAGGER DET
-	 *
-	 *
-	 ********************************************************************************/
+        return true;
+    }
 
-	/**
-	 * Denne funksjonen validerer innslaget, sjekker at det har all påkrevd informasjon,
-	 * genererer evt. advarsler og oppgraderer b_status ut fra grad av fullførthet.
-	 *
-	 * Eventuelle feilmeldinger lagres i b_status_text som et serialisert array av objekter, 
-	 * slik at de kan hentes ut uten å kjøre hele valideringsprosessen på nytt. 
-	 *
-	 * Funksjonen er entry-point for validering, og kaller underfunksjoner som returnerer 
-	 * en advarsel (se Innslag/Advarsel.php), et array av advarsler eller null. 
-	 *
-	 * For å legge til en sjekk som returnerer advarsel eller null: $advarsler[] = $this->_valideringsTest();
-	 * For å legge til en sjekk som returnerer et array med advarsler eller null : $advarsler += $this->valideringsTest();
-	 * Dette kan gjøres sånn fordi vi tømmer arrayet for null-verdier før vi returnerer.
-	 *
-	 * Dette er den moderne utgaven av $innslag->validateBand2().
-	 *
-	 * @return array
-	 *
-	 */
-	public function valider() {
-		return array();
-		$advarsler = array();
-		// Felles for alle:
-		$advarsler[] = $this->validerInnslagsNavn();
-		$advarsler[] = $this->_validerBeskrivelse();
-		$advarsler += $this->_validerKontaktperson();
-		$advarsler += $this->_validerDeltakere();
-
-		// Type-spesifikke sjekker:
-		switch ( $this->getType()->getKey() ) {
-			case 'musikk':
-				$advarsler[] = $this->_validerSjanger();
-				$advarsler[] = $this->_validerTekniskeBehov();
-				break;
-			case 'scene':
-				break;
-			default:
-				throw new Exception("Kan ikke validere innslag av typen ".$this->getType()->getName() );
-		}
-
-		// Fjern null-verdier og verdier som er false fra arrayet.
-		$advarsler = array_filter($advarsler);
-		return $advarsler;
-	}
-
-	/**
-	 * Alle innslag må ha et innslagsnavn.
-	 * return advarsel or null
-	 */
-	private function validerInnslagsNavn() {
-		if( empty( $this->getNavn() ) ) {
-			return Advarsel::ny('innslag', 'Innslaget mangler navn', 'danger');
-		}
-		return null;
-	}
-
-	/**
-	 * Har innslaget en OK beskrivelse?
-	 */
-	private function _validerBeskrivelse() {
-		$advarsel = null;
-		$beskrivelse = $this->getBeskrivelse();
-
-		if( empty( $beskrivelse ) ) {
-			$advarsel = Advarsel::ny('innslag', 'Innslaget mangler beskrivelse', 'warning');
-		} elseif ( $beskrivelse < 5 ) {
-			$advarsel = Advarsel::ny('innslag', 'Beskrivelsen til innslaget er under 5 tegn', 'warning');
-		}
-
-		return $advarsel;
-	}
-
-	/**
-	 * Sjekk om innslaget har en sjanger
-	 */
-	private function _validerSjanger() {
-		$advarsel = null;
-		if( empty( $this->getSjanger() ) ) {
-			return Advarsel::ny('innslag', 'Innslaget mangler sjanger', 'warning');
-		}
-		return null;
-	}
-
-	/**
-	 * Sjekk at vi har all påkrevd informasjon om kontaktpersonen til innslaget
-	 * @return array
-	 */
-	private function _validerKontaktperson() {
-		$advarsler = array();
-		$kontaktperson = $this->getKontaktperson();
-
-		if ( null == $kontaktperson ) {
-			return array(Advarsel::ny('innslag', 'Innslaget manger kontaktperson', 'danger') );
-		}
-
-		if( empty( $kontaktperson->getFirstname() ) ) {
-			$advarsler[] = Advarsel::ny('kontaktperson', 'Kontaktpersonen mangler fornavn', 'danger');
-		}
-		if( empty( $kontaktperson->getLastname() ) ) {
-			$advarsler[] = Advarsel::ny('kontaktperson', 'Kontaktpersonen mangler etternavn', 'danger');
-		}
-
-		if( empty( $kontaktperson->getEpost() ) ) {
-			$advarsler[] = Advarsel::ny('kontaktperson', 'Kontaktpersonen mangler e-post-adresse', 'danger');
-		} else {
-			$advarsler[] = $this->_validerEpost( $kontaktperson->getEpost() );
-		}
-
-		$mobil = $kontaktperson->getMobil();
-		if ( null == $mobil || strlen( $mobil ) < 8 ) {
-			$advarsler[] = Advarsel::ny('kontaktperson', 'Kontaktpersonens mangler mobilnummer', 'danger');
-		}
-		if( '12345678' == $mobil ||
-			'00000000' == $mobil ||
-			'11111111' == $mobil ||
-			'22222222' == $mobil ||
-			'33333333' == $mobil ||
-			'44444444' == $mobil ||
-			'55555555' == $mobil ||
-			'66666666' == $mobil ||
-			'77777777' == $mobil ||
-			'88888888' == $mobil ||
-			'99999999' == $mobil ||
-			'12341234' == $mobil ||
-			'87654321' == $mobil ||
-			'23456789' == $mobil ||
-			'98765432' == $mobil
-			) {
-			$advarsler[] = Advarsel::ny('kontaktperson', 'Kontaktpersonen har et ugyldig mobilnummer', 'danger');
-		}
-
-		if( empty( $kontaktperson->getAdresse() ) || $kontaktperson->getAdresse() < 3 ) {
-			$advarsler[] = Advarsel::ny('kontaktperson', 'Adressen til kontaktpersonen må være lenger enn 3 bokstaver', 'warning');
-		}
-		if( empty( $kontaktperson->getPostnummer() || strlen( $kontaktperson->getPostnummer() ) !== 4) ) {
-			$advarsler[] = Advarsel::ny('kontaktperson', 'Postnummeret til kontaktpersonen må være på fire siffer', 'warning');
-		}
-
-		return $advarsler;
-	}
-
-	/**
-	 * Validerer en epostadresse. Returnerer et advarselobjekt hvis det er en feil, eller null hvis ingen feil.
-	 * @param $email
-	 * @return advarsel or null
-	 */
-	private function _validerEpost($email) {
-		$isValid = true;
-		$atIndex = strrpos($email, "@");
-		if( is_bool($atIndex) && !$atIndex )
-		{
-			$isValid = false;
-		}
-		else
-		{
-			$domain = substr($email, $atIndex+1);
-			$local = substr($email, 0, $atIndex);
-			$localLen = strlen($local);
-			$domainLen = strlen($domain);
-			if( $localLen < 1 || $localLen > 64 ) {
-				// local part length exceeded
-				$isValid = false;
-			}
-			elseif( $domainLen < 1 || $domainLen > 255 ) {
-				// domain part length exceeded
-				$isValid = false;
-			}
-			elseif( $local[0] == '.' || $local[$localLen-1] == '.' ) {
-				// local part starts or ends with '.'
-				$isValid = false;
-			}
-			elseif( preg_match('/\\.\\./', $local) ) {
-				// local part has two consecutive dots
-				$isValid = false;
-			}
-			elseif( !preg_match('/^[A-Za-z0-9\\-\\.]+$/', $domain) ) {
-				// character not valid in domain part
-				$isValid = false;
-			}
-			elseif( preg_match('/\\.\\./', $domain) ) {
-				// domain part has two consecutive dots
-				$isValid = false;
-			}
-			elseif( !preg_match('/^(\\\\.|[A-Za-z0-9!#%&`_=\\/$\'*+?^{}|~.-])+$/', str_replace("\\\\","",$local)) ) {
-				// character not valid in local part unless 
-				// local part is quoted
-				if( !preg_match('/^"(\\\\"|[^"])+"$/', str_replace("\\\\","",$local)) ) {
-					$isValid = false;
-				}
-			}
-	       	if( $isValid && !(checkdnsrr($domain,"MX") || checkdnsrr($domain,"A")) )
-	      	{
-	        	// domain not found in DNS
-	        	$isValid = false;
-	      	}
-	   	}
-
-		if( false == $isValid ) {
-			return Advarsel::ny('epost', 'E-postadressen er ikke en godkjent e-post-adresse', 'warning');
-		}
-		return null;
-	}
-
-	/**
-	 * Validerer alle deltakere i innslaget. Returnerer et array med eventuelle advarsler.
-	 *
-	 * @return array
-	 */
-	private function _validerDeltakere() {
-		$advarsler = array();
-		$deltakere = $this->getPersoner()->getAll();
-
-		if( count($deltakere) == 0 ) {
-			$advarsler[] = Advarsel::ny('innslag', 'Innslaget har ingen deltakere', 'danger');
-			return $advarsler;
-		}
-		foreach( $deltakere as $deltaker ) {
-			$w = $this->_validerEnkeltdeltaker($deltaker);
-			$advarsler = $advarsler + $w;
-		}
-		return $advarsler;
-	}
-
-	/**
-	 * Validerer en enkeltperson i innslaget. Skal kun brukes fra _validerDeltakere()
-	 *
-	 * @param person_v2
-	 * @return array
-	 */
-	private function _validerEnkeltdeltaker($deltaker) {
-		$advarsler = array();
-		$whatmissing = array();
-
-		if( empty( $deltaker->getFornavn() ) && strlen($deltaker->getFornavn()) < 3 ) {
-			$advarsler[] = Advarsel::ny('person', 'En deltaker mangler fornavn', 'warning');	
-	    }
-		if( empty( $deltaker->getEtternavn() ) && strlen( $deltaker->getEtternavn() < 3 ) ) {
-			$advarsler[] = Advarsel::ny('person', 'En deltaker mangler etternavn', 'warning');
-		}
-	    if( empty( $deltaker->getMobil() ) || strlen( $deltaker->getMobil() ) !== 8 ) {
-			$advarsler[] = Advarsel::ny('person', 'En deltaker mangler mobilnummer', 'danger');	
-	    }
-	    if( empty( $deltaker->getRolle() ) ) {
-	    	$advarsler[] = Advarsel::ny('person', 'En deltaker mangler rolle eller instrument', 'warning');
-	    }
-		
-	    return $advarsler;
-	}
-
-	/**
-	 * Valider tekniske behov, at de finnes og er lange nok.
-	 * @return advarsel or null
-	 */
-	private function _validerTekniskeBehov() {
-		$advarsel = null;
-		$teknisk = $this->getTekniskeBehov();
-
-		if( empty( $teknisk ) ) {
-			$advarsel = Advarsel::ny('innslag', 'Innslaget mangler tekniske behov', 'warning');
-		} elseif ( $teknisk < 5 ) {
-			$advarsel = Advarsel::ny('teknisk', 'De tekniske behovene til innslaget er under 5 tegn', 'warning');
-		}
-		return $advarsel;
-	}
-
-	// TODO: Tittel-validering + flere bandtyper
+    /**
+     * Avbryt samtykkeforespørsel for et innslag
+     * Brukes ved avmelding. Sletter ikke et evt mottatt samtykke,
+     * kun at denne personen er relatert til dette innslaget.
+     *
+     * @param Innslag $innslag
+     * @return void
+     */
+    public static function requestSamtykkeCancel( Innslag $innslag ) {
+        foreach ($innslag->getPersoner()->getAll() as $person) {
+            $samtykke = new PersonSamtykke($person, $innslag);
+            $samtykke->fjernInnslag($innslag->getId());
+        }
+    }
 }
