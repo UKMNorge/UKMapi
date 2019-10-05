@@ -14,7 +14,7 @@ class Logger {
 	
 	static function log( $action, $object_id, $value ) {
 		if( !self::ready() ) {
-			throw new Exception('Logger incorrect set up.');
+			throw new Exception( static::getError() );
 		}
 		
 		$object = substr($action, 0, (strlen($action)-2));
@@ -93,5 +93,19 @@ class Logger {
         }
         self::setUser(  $current_user->ID );
         self::setPlId( $pl_id );
+    }
+
+    public static function getError() {
+        $error = 'Logger incorrect set up. ';
+        if( null == self::getUser() ) {
+            $error .' Missing userID. ';
+        }
+        if(  null == self::getPlId() ) {
+            $error .= 'Missing placeID. ';
+        }
+        if( null == self::getSystem() ) {
+            $error .= 'Missing systemID. ';
+        }
+        return $error;
     }
 }
