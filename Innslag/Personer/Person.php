@@ -401,6 +401,9 @@ class Person {
         if( is_object( $fodselsdato ) && get_class($fodselsdato) == 'DateTime') {
             $fodselsdato = $fodselsdato->getTimestamp();
         }
+        if( is_null( $fodselsdato ) ) {
+            $fodselsdato = 0;
+        }
 		$this->fodselsdato = $fodselsdato;
 		return $this;
 	}
@@ -622,5 +625,19 @@ class Person {
         $this->poststed = $poststed;
 
         return $this;
+    }
+
+
+    /**
+     * Hent fødselsdato ut fra en gitt alder
+     *
+     * @param Int $alder
+     * @return DateTime
+     */
+    public static function getFodselsdatoFromAlder( Int $alder ) {
+        if( $alder == 0 ) {
+            return null;
+        }
+        return new DateTime( ((Int)date('Y')-$alder).'-01-01' );
     }
 }
