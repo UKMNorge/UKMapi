@@ -553,6 +553,7 @@ class Samling {
                         Innslag::getLoadQuery()."
                         WHERE `b_contact` = '#kontakt'
                         AND `b_season` = '#sesong'
+                        AND `b_status` <= 8
                         ",
                         [
                             'kontakt' => $this->getContext()->getKontaktperson()->getId(),
