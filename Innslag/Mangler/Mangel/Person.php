@@ -66,7 +66,7 @@ class Person
                     $person->getId()
                 );
             }
-            if( empty( $person->getMobil() ) ) {
+            if( empty( $person->getEpost() ) ) {
                 $mangler[] = new Mangel(
                     'kontakt.epost.mangler',
                     'Mangler e-postadresse',
@@ -75,6 +75,7 @@ class Person
                     $person->getId()
                 );
             }
+
             if (!static::testEpost($person->getEpost())) {
                 $mangler[] = new Mangel(
                     'kontakt.epost.ikkegyldig',
@@ -129,37 +130,40 @@ class Person
             $localLen = strlen($local);
             $domainLen = strlen($domain);
             if ($localLen < 1 || $localLen > 64) {
-                // local part length exceeded
+                //echo 'local part length exceeded';
                 $isValid = false;
             } else if ($domainLen < 1 || $domainLen > 255) {
-                // domain part length exceeded
+                //echo 'domain part length exceeded';
                 $isValid = false;
             } else if ($local[0] == '.' || $local[$localLen - 1] == '.') {
-                // local part starts or ends with '.'
+                //echo 'local part starts or ends with "."';
                 $isValid = false;
             } else if (preg_match('/\\.\\./', $local)) {
-                // local part has two consecutive dots
+                //echo 'local part has two consecutive dots';
                 $isValid = false;
             } else if (!preg_match('/^[A-Za-z0-9\\-\\.]+$/', $domain)) {
-                // character not valid in domain part
+                //echo 'character not valid in domain part';
                 $isValid = false;
             } else if (preg_match('/\\.\\./', $domain)) {
-                // domain part has two consecutive dots
+                //echo 'domain part has two consecutive dots';
                 $isValid = false;
             } else if (!preg_match(
                 '/^(\\\\.|[A-Za-z0-9!#%&`_=\\/$\'*+?^{}|~.-])+$/',
                 str_replace("\\\\", "", $local)
             )) {
-                // character not valid in local part unless 
-                // local part is quoted
+                //echo 'character not valid in local part unless local part is quoted';
                 if (!preg_match(
                     '/^"(\\\\"|[^"])+"$/',
                     str_replace("\\\\", "", $local)
                 )) {
+                    //echo 'local part is quouted';
                     $isValid = false;
                 }
             }
             if ($isValid && !(checkdnsrr($domain, "MX") || checkdnsrr($domain, "A"))) {
+                //echo 'DNS not found for '. $domain .'<br />';
+                //echo 'MX: '. var_export(true, checkdnsrr($domain, "MX")) .'<br />';
+                //echo 'A: '. var_export(true, checkdnsrr($domain, "A")) .'<br />';
                 // domain not found in DNS
                 $isValid = false;
             }

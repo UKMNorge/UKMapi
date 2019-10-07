@@ -21,6 +21,10 @@ class Mangler extends Collection
      */
     public function toJSON()
     {
+        if( $this->getAntall() == 0 ) {
+            return null;
+        }
+        
         return json_encode($this->getAll());
     }
 
