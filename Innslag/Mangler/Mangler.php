@@ -122,7 +122,7 @@ class Mangler extends Collection
     public static function evaluer(Innslag $innslag)
     {
         $tests = [
-            Mangel\Person::evaluer($innslag->getKontaktperson(), true),
+            Mangel\Person::evaluerKontaktperson($innslag->getKontaktperson()),
             Mangel\Personer::evaluer($innslag),
             Mangel\Navn::evaluer($innslag),
             Mangel\Sjanger::evaluer($innslag),
