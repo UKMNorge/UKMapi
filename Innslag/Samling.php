@@ -560,6 +560,17 @@ class Samling {
                             'sesong' => $this->getContext()->getSesong()
                         ]
                 );
+            case 'deltauser':
+                return new Query(
+                    Innslag::getLoadQuery()."
+                    WHERE `b_password` = 'delta_#user_id' 
+                    AND `b_season` = '#sesong'
+                    AND `b_status` <= 8",
+                    [
+                        'user_id' => $this->getContext()->getDeltaUserId(),
+                        'sesong' => $this->getContext()->getSesong()
+                    ]
+                );
             case 'sesong':
                 return new Query(
                     "SELECT `band`.*, 

@@ -6,10 +6,25 @@ use UKMNorge\Innslag\Innslag;
 use UKMNorge\Innslag\Mangler\Mangel;
 use UKMNorge\Innslag\Mangler\Mangler;
 use UKMNorge\Innslag\Personer\Person as InnslagPerson;
+use UKMNorge\Innslag\Type;
+use UKMNorge\Innslag\Typer;
 
 class Person
 {
-    public static function evaluer(InnslagPerson $person, Bool $kontaktperson = false)
+    public static function evaluerKontaktperson( InnslagPerson $person ) {
+        return static::_evaluerPerson( $person );
+    }
+
+    public static function evaluer( InnslagPerson $person ) {
+        return static::_evaluerPerson($person);
+    }
+
+    public static function evaluerKonferansier(InnslagPerson $person) {
+        return static::_evaluerPerson($person, false, Typer::getByKey('konferansier'));
+    }
+
+
+    private static function _evaluerPerson(InnslagPerson $person, Bool $kontaktperson = false, Type $type=null)
     {
         $mangler = [];
 
@@ -43,8 +58,15 @@ class Person
             );
         }
 
+        if( $type !== null && $type->getKey() == 'konferansier' ) {
+            $evaluerRolle = false;
+        } elseif ( $kontaktperson ) {
+            $evaluerRolle = false;
+        } else {
+            $evaluerRolle = true;
+        }
         // HVIS VANLIG DELTAKER (IKKE KONTAKTPERSON)
-        if (!$kontaktperson) {
+        if (!$evaluerRolle) {
             if (empty($person->getRolle())) {
                 $mangler[] = new Mangel(
                     'person.rolle',

@@ -17,6 +17,7 @@ class Context {
 	var $forestilling = null;
 	var $videresend_til = false;
     var $kontaktperson = null;
+    var $delta_user_id = null;
     
 	public static function createMonstring( $id, $type, $sesong, $fylke, $kommuner ) {
 		$context = new Context( 'monstring' );
@@ -42,9 +43,15 @@ class Context {
 
     public static function createKontaktperson( Person $kontaktperson, Int $sesong ) {
         $context = new Context('kontaktperson');
-        $context->sesong = $sesong;
         $context->kontaktperson = new Kontaktperson( $kontaktperson->getId() );
         $context->sesong = $sesong;
+        return $context;
+    }
+
+    public static function createDeltaUser( Int $user_id , Int $sesong ) {
+        $context = new Context('deltauser');
+        $context->sesong = $sesong;
+        $context->delta_user_id = $user_id;
         return $context;
     }
     
@@ -74,12 +81,16 @@ class Context {
     public function getKontaktperson() {
         return $this->kontaktperson;
     }
+    public function getDeltaUserId() {
+        return $this->delta_user_id;
+    }
     
     /**
      * Hvilken sesong er etterspurt?
      */
     public function getSesong() {
         switch( $this->getType() ) {
+            case 'deltauser':
             case 'kontaktperson':
             case 'sesong':
                 return $this->sesong;
