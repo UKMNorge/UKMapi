@@ -283,7 +283,7 @@ class Innslag
      **/
     public function setId($id)
     {
-        $this->id = $id;
+        $this->id = (Int) $id;
         return $this;
     }
     /**
@@ -782,7 +782,7 @@ class Innslag
             return $this->erVideresendt;
         }
 
-        $qry = new SQL(
+        $qry = new Query(
             "SELECT COUNT(*) FROM `smartukm_rel_pl_b` WHERE `b_id` = '#b_id'",
             array('b_id' => $this->getId())
         );
@@ -792,7 +792,7 @@ class Innslag
             return true;
         }
 
-        $qry = new SQL(
+        $qry = new Query(
             "SELECT COUNT(*) FROM `smartukm_fylkestep` WHERE `b_id` = '#b_id'",
             array('b_id' => $this->getId())
         );

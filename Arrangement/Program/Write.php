@@ -4,8 +4,10 @@ namespace UKMNorge\Arrangement\Program;
 
 use Exception;
 use UKMNorge\Arrangement\Arrangement;
+use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Database\SQL\Update;
+use UKMNorge\Innslag\Innslag;
 use UKMNorge\Logger\Logger;
 
 require_once('UKM/Autoloader.php');
@@ -203,7 +205,7 @@ class Write
             if ($forestilling->getInnslag()->har($innslag)) {
                 // Modifiserer ikke collectionen, da den kun eksisterer internt i funksjonen
                 Logger::log(220, $forestilling->getId(), $innslag->getId());
-                $qry = new SQLdel(
+                $qry = new Delete(
                     'smartukm_rel_b_c',
                     [
                         'c_id' => $forestilling->getId(),
