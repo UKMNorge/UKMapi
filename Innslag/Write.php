@@ -148,25 +148,27 @@ class Write {
 				$e->getCode()
 			);
         }
-        
+
+		// TABELLER SOM KAN OPPDATERES
+		$smartukm_band = new Update('smartukm_band', array('b_id'=>$innslag_save->getId()));
+		$smartukm_technical = new Update('smartukm_technical', array('b_id'=>$innslag_save->getId()));
+
         // EVALUER INNSLAGETS MANGLER
         $innslag_save->evaluerMangler();
         // Hvis innslaget ikke har noen mangler, er status=8 (påmeldt)
         if( $innslag_save->getMangler()->getAntall() == 0 ) {
             $innslag_save->setStatus(8);
+            $smartukm_band->add('b_status', 8);
+            Logger::log( 304, $innslag_save->getId(), '');
         }
-
-		// TABELLER SOM KAN OPPDATERES
-		$smartukm_band = new Update('smartukm_band', array('b_id'=>$innslag_save->getId()));
-		$smartukm_technical = new Update('smartukm_technical', array('b_id'=>$innslag_save->getId()));
-		
+        
 		// VERDIER SOM KAN OPPDATERES
 		$properties = [
 			'Navn' 			=> ['smartukm_band', 'b_name', 301],
 			'Sjanger' 		=> ['smartukm_band', 'b_sjanger', 306],
 			'Beskrivelse'	=> ['smartukm_band', 'b_description', 309],
             'TekniskeBehov'	=> ['smartukm_technical', 'td_demand', 308],
-            'ManglerJSON'   => ['smartukm_band', 'b_status_object', 328]
+            'ManglerJSON'   => ['smartukm_band', 'b_status_object', 328],
 		];
 		
 		// LOOP ALLE VERDIER, OG EVT LEGG TIL I SQL
