@@ -301,8 +301,9 @@ class Titler {
 						$row['pl_ids'] = null;
 					}
 				}
-				// Legg til tittel i array
-				$tittel = new Tittel( $row, $this->getInnslagType()->getTabell() );
+                // Legg til tittel i array
+                $tittel_type = 'UKMNorge\Innslag\Titler\\'. $this->getInnslagType()->getTittelClass();
+				$tittel = new $tittel_type( $row, $this->getInnslagType()->getTabell() );
 				$tittel->setContext( $this->getContextInnslag() );
 
 				

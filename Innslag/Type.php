@@ -2,6 +2,8 @@
 
 namespace UKMNorge\Innslag;
 
+use Exception;
+
 require_once('UKM/Autoloader.php');
 
 class Type
@@ -120,7 +122,8 @@ class Type
         return $this->har_titler;
     }
 
-    public function erJobbeMed() {
+    public function erJobbeMed()
+    {
         return !$this->hartitler();
     }
 
@@ -133,7 +136,8 @@ class Type
     {
         return $this->har_tekniske_behov;
     }
-    public function harSjanger() {
+    public function harSjanger()
+    {
         return $this->har_sjanger;
     }
 
@@ -147,11 +151,40 @@ class Type
         return $this->getNavn();
     }
 
-    public static function validateClass( $object ) {
-        return is_object( $object ) &&
-            in_array( 
+    public function getTittelClass()
+    {
+        switch ($this->getKey()) {
+            case 'musikk':
+                return 'Musikk';
+            case 'dans':
+                return 'Dans';
+            case 'teater':
+                return 'Teater';
+            case 'litteratur':
+                return 'Litteratur';
+            case 'matkultur':
+                return 'Matkultur';
+            case 'utstilling':
+                return 'Utstilling';
+            case 'film':
+            case 'video':
+                return 'Film';
+            case 'scene':
+            case 'annet':
+                return 'Annet';
+        }
+        throw new Exception(
+            'Innslag-type ' . $this->getNavn() . ' har ikke titler',
+            301001
+        );
+    }
+
+    public static function validateClass($object)
+    {
+        return is_object($object) &&
+            in_array(
                 get_class($object),
-                ['UKMNorge\Innslag\Type','innslag_type']
+                ['UKMNorge\Innslag\Type', 'innslag_type']
             );
     }
 }
