@@ -1,11 +1,10 @@
 <?php
 
-namespace UKMNorge\Arrangor;
+namespace UKMNorge\Wordpress;
 
-use SQL;
-use SQLins;
-use SQLdel;
-use DateTime;
+use UKMNorge\Database\SQL\Delete;
+use UKMNorge\Database\SQL\Insert;
+use UKMNorge\Database\SQL\Query;
 
 class Nyhet {
     private $blog_id;
@@ -47,7 +46,7 @@ class Nyhet {
     }
 
     private function _loadLikeCount() {
-        $sql = new SQL("
+        $sql = new Query("
             SELECT COUNT(`id`) AS `likes` 
             FROM `arrangor_news_like`
             WHERE `blog_id` = '#blog_id'
@@ -67,7 +66,7 @@ class Nyhet {
             $this->has_liked = [];
         }
 
-        $sql = new SQL("
+        $sql = new Query("
             SELECT COUNT(`id`) AS `likes` 
             FROM `arrangor_news_like`
             WHERE `blog_id` = '#blog_id'
@@ -86,7 +85,7 @@ class Nyhet {
     }
 
     public function doLike( $current_user ) {
-        $sql = new SQLins('arrangor_news_like');
+        $sql = new Insert('arrangor_news_like');
         $sql->add('blog_id', $this->getBlogId());
         $sql->add('post_id', $this->getPostId());
         $sql->add('user_id', $current_user);
@@ -97,7 +96,7 @@ class Nyhet {
     }
 
     public function doDislike( $current_user ) {
-        $sql = new SQLdel(
+        $sql = new Delete(
             'arrangor_news_like',
             [
                 'blog_id' => $this->getBlogId(),
@@ -142,7 +141,7 @@ class Nyhet {
     }
 
     public function doComment( $user_id, $user_name, $comment ) {
-        $sql = new SQLins('arrangor_news_comment');
+        $sql = new Insert('arrangor_news_comment');
         $sql->add('blog_id', $this->getBlogId());
         $sql->add('post_id', $this->getPostId());
         $sql->add('user_id', $user_id);
@@ -159,7 +158,7 @@ class Nyhet {
         foreach( $this->getComments() as $comment ) {
             if( $comment->getId() == $comment_id ) {
 
-                $sql = new SQLdel(
+                $sql = new Delete(
                     'arrangor_news_comment',
                     [
                         'blog_id' => $this->getBlogId(),
@@ -177,7 +176,7 @@ class Nyhet {
     }
 
     private function _loadComments() {
-        $sql = new SQL("
+        $sql = new Query("
             SELECT * 
             FROM `arrangor_news_comment`
             WHERE `blog_id` = '#blog_id'
@@ -192,12 +191,12 @@ class Nyhet {
         $this->comments = [];
         $res = $sql->run();
         while( $row = $sql->fetch( $res ) ) {
-            $this->comments[] = new arrangor_news_comment( $row );
+            $this->comments[] = new Kommentar( $row );
         }
     }
 
     private function _loadCommentCount() {
-        $sql = new SQL("
+        $sql = new Query("
             SELECT COUNT(`id`) AS `comments` 
             FROM `arrangor_news_comment`
             WHERE `blog_id` = '#blog_id'
@@ -210,41 +209,5 @@ class Nyhet {
 
         $res = $sql->run('field', 'comments');
         $this->comment_count = is_numeric( $res ) ? (int) $res : 0;
-    }
-}
-
-class arrangor_news_comment {
-    private $id = null;
-    private $author = null;
-    private $author_id = null;
-    private $text = null;
-    private $timestamp = null;
-
-    public function __construct( $database_row ) {
-        $this->id = $database_row['id'];
-        $this->author = $database_row['user_name'];
-        $this->author_id = $database_row['user_id'];
-        $this->text = $database_row['comment'];
-        $this->timestamp = new DateTime( $database_row['timestamp'] );
-    }
-
-    public function getAuthor() {
-        return $this->author;
-    }
-    public function getAuthorId() {
-        return $this->author_id;
-    }
-    public function getId() {
-        return $this->id;
-    }
-    public function getText() {
-        return $this->text;
-    }
-    public function getTimestamp() {
-        return $this->timestamp;
-    }
-    public function getAuthorNiceName() {
-        $userdata = get_userdata( $this->getAuthorId() );
-        return $userdata->user_nicename;
     }
 }
