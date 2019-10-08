@@ -25,6 +25,7 @@ function TWIG($template, $dataarray, $templatefolder, $debug=false) {
     TwigAdmin::addFilter('filesize', 'TWIGfilesize');
     TwigAdmin::addFilter('kroner', 'TWIGkroner');
     TwigAdmin::addFilter('varighet', 'TWIGtid');
+    TwigAdmin::addFilter('strips', 'TWIGstrips');
     TwigAdmin::addFunction('GET', 'TWIG_GET');
 
 	putenv('LC_ALL=nb_NO');
@@ -90,4 +91,10 @@ function TWIG_date($time, $format) {
 function TWIGfilesize( $size, $precision = 2 ) {
     for($i = 0; ($size / 1024) > 0.9; $i++, $size /= 1024) {}
     return round($size, $precision).['B','kB','MB','GB','TB','PB','EB','ZB','YB'][$i];
+function TWIGstrips($data)
+{
+    if (is_string($data)) {
+        return stripslashes($data);
+    }
+    return $data;
 }
