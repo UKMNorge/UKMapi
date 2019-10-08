@@ -2,9 +2,10 @@
 
 namespace UKMNorge\Arrangement\Kontaktperson;
 
+use UKMNorge\Collection;
 use UKMNorge\Database\SQL\Query;
 
-class Samling {
+class Samling extends Collection {
     public $pl_id = null;
 	
 	public function __construct( $pl_id ) {
