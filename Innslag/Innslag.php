@@ -22,6 +22,7 @@ use UKMNorge\Innslag\Personer\Person;
 use UKMNorge\Innslag\Personer\Personer;
 use UKMNorge\Innslag\Titler\Titler;
 use UKMNorge\Samtykke\Innslag as InnslagSamtykke;
+use UKMNorge\Log\Samling as LogSamling;
 
 
 class Innslag
@@ -63,6 +64,7 @@ class Innslag
     var $tekniske_behov = null;
 
     var $videresendt_til = null;
+    var $log = null;
 
     public function __construct($bid_or_row, $select_also_if_not_completed = false)
     {
@@ -1018,5 +1020,17 @@ class Innslag
         $this->mangler = Mangler::evaluer($this);
         $this->mangler_json = $this->mangler->toJSON();
         return $this;
+    }
+
+
+    /**
+     * Get the value of log
+     */ 
+    public function getLog()
+    {
+        if( null == $this->log ) {
+            $this->log = new LogSamling('innslag', $this->getId());
+        }
+        return $this->log;
     }
 }

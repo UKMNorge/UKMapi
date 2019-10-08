@@ -9,7 +9,7 @@ use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Database\SQL\Update;
 use UKMNorge\Geografi\Kommune;
-use UKMNorge\Logger\Logger;
+use UKMNorge\Log\Logger;
 
 use UKMNorge\Samtykke\Person as PersonSamtykke;
 

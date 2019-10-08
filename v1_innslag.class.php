@@ -188,15 +188,16 @@ class innslag {
 		// Tekniske krav skal i en annen tabell enn resten
 		if (in_array($field, array('td_demand', 'td_konferansier'))) {
 			$qry = new SQLins('smartukm_technical', array('b_id'=>$this->info['b_id']));
-			if (!$force)
-				UKMlog('smartukm_technical',$field,$post_key,$this->info['b_id']);
-				
+			if (!$force) {
+				#UKMlog('smartukm_technical',$field,$post_key,$this->info['b_id']);
+            }
 		}
 		// Alt annet
 		else {
 			$qry = new SQLins('smartukm_band', array('b_id'=>$this->info['b_id']));
-			if (!$force)
-				UKMlog('smartukm_band',$field,$post_key,$this->info['b_id']);
+			if (!$force) {
+                #UKMlog('smartukm_band',$field,$post_key,$this->info['b_id']);
+            }
 		}
 			
 		$qry->add($field, $_POST[$post_key]);

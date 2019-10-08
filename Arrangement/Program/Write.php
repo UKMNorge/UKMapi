@@ -8,7 +8,7 @@ use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Database\SQL\Update;
 use UKMNorge\Innslag\Innslag;
-use UKMNorge\Logger\Logger;
+use UKMNorge\Log\Logger;
 
 require_once('UKM/Autoloader.php');
 

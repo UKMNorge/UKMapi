@@ -2,7 +2,7 @@
 
 namespace UKMNorge\Arrangement;
 
-use UKMNorge\Logger\Logger;
+use UKMNorge\Log\Logger;
 use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Geografi\Fylke;
 use UKMNorge\Geografi\Kommune;

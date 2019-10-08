@@ -30,7 +30,7 @@ class monstring{
 		$qry = new SQLins('smartukm_place', array('pl_id'=>$this->info['pl_id']));
 		$qry->add($field, $_POST[$post_key]);
 		$qry->run();
-		UKMlog('smartukm_place',$field,$post_key);
+		#UKMlog('smartukm_place',$field,$post_key);
 #			return $qry->debug();
 	}
 	

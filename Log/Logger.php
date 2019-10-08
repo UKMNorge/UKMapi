@@ -1,6 +1,6 @@
 <?php
 
-namespace UKMNorge\Logger;
+namespace UKMNorge\Log;
 
 use Exception;
 use UKMNorge\Database\SQL\Insert;

@@ -1,4 +1,4 @@
 <?php
     
 require_once('UKM/Autoloader.php');
-class UKMlogger extends UKMNorge\Logger\Logger {}
+class UKMlogger extends UKMNorge\Log\Logger {}

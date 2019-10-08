@@ -25,6 +25,7 @@ use UKMNorge\Geografi\Fylker;
 use UKMNorge\Geografi\Kommuner;
 use UKMNorge\Innslag\Samling;
 use UKMNorge\Innslag\Typer;
+use UKMNorge\Log\Samling as LogSamling;
 
 require_once 'UKM/statistikk.class.php';
 require_once 'UKM/monstring_tidligere.class.php';
@@ -79,6 +80,7 @@ class Arrangement
     var $netter = null;
 
     var $videresending = null;
+    var $log = null;
 
     /**
      * getLoadQry
@@ -1367,5 +1369,16 @@ class Arrangement
                 get_class($object),
                 ['UKMNorge\Arrangement\Arrangement', 'monstring_v2']
             );
+    }
+
+    /**
+     * Get the value of log
+     */ 
+    public function getLog()
+    {
+        if( null == $this->log ) {
+            $this->log = new LogSamling('arrangement', $this->getId());
+        }
+        return $this->log;
     }
 }

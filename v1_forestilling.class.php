@@ -192,7 +192,7 @@ class forestilling
         $qry->run();
 
 
-        UKMlog('smartukm_concert', $field, $post_key, $this->info['c_id']);
+        #UKMlog('smartukm_concert', $field, $post_key, $this->info['c_id']);
     }
 
 

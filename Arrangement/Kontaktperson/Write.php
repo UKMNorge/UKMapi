@@ -5,7 +5,7 @@ namespace UKMNorge\Arrangement\Kontaktperson;
 use Exception;
 use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Insert;
-use UKMNorge\Logger\Logger;
+use UKMNorge\Log\Logger;
 
 class Write {
     

@@ -4,7 +4,7 @@ namespace UKMNorge\Innslag\Titler;
 
 use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Innslag\Innslag;
-use UKMNorge\Logger\Logger;
+use UKMNorge\Log\Logger;
 
 use Exception;
 use UKMNorge\Arrangement\Arrangement;
