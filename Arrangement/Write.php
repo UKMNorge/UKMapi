@@ -468,11 +468,12 @@ class Write
     {
         try {
             self::controlMonstring($monstring_save);
-            if ($monstring_save->getType() != 'kommune') {
+            if ( !Arrangement::validateClass($monstring_save)) {
                 throw new Exception('mønstring ikke er lokal-mønstring');
             }
             self::controlKommune($kommune);
         } catch (Exception $e) {
+            echo '<pre>';
             throw new Exception('Kan ikke legge til kommune da ' . $e->getMessage());
         }
 
@@ -668,10 +669,10 @@ class Write
 
     public static function controlKommune($kommune)
     {
-        if ( Kommune::validateClass($kommune) ) {
+        if ( !Kommune::validateClass($kommune) ) {
             throw new Exception('kommune ikke er objekt av typen kommune');
         }
-        if (!is_numeric($kommune->getId()) && $kommune->getId() > 0) {
+        if (!is_numeric($kommune->getId())) {
             throw new Exception('kommune ikke har numerisk id');
         }
     }

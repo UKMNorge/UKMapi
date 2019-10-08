@@ -253,7 +253,10 @@ class Kommune {
         return is_object( $object ) &&
             in_array( 
                 get_class($object),
-                ['UKMNorge\Geografi\Kommune','kommune']
+                [
+                    'UKMNorge\Geografi\Kommune',
+                    'kommune'
+                ]
             );
     }
 }

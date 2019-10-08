@@ -3,6 +3,7 @@
 namespace UKMNorge;
 
 use Iterator;
+use Exception;
 
 abstract class Collection implements Iterator
 {

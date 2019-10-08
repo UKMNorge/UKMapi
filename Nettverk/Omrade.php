@@ -4,11 +4,12 @@ namespace UKMNorge\Nettverk;
 
 require_once('UKM/Autoloader.php');
 
+use Exception;
 use UKMNorge\Arrangement\Arrangementer;
 use UKMNorge\Arrangement\Arrangement;
+use UKMNorge\Geografi\Fylker;
+use UKMNorge\Geografi\Kommune;
 use UKMNorge\Nettverk\Administratorer;
-use Fylker;
-use kommune;
 
 class Omrade
 {
@@ -53,12 +54,11 @@ class Omrade
                 $this->navn = 'Norge';
                 break;
             case 'fylke':
-                require_once('UKM/fylker.class.php');
                 $this->fylke = Fylker::getById($this->getForeignId());
                 $this->navn = $this->fylke->getNavn();
                 break;
             case 'kommune':
-                $this->kommune = new kommune($this->getForeignId());
+                $this->kommune = new Kommune($this->getForeignId());
                 $this->fylke = $this->kommune->getFylke();
                 $this->navn = $this->kommune->getNavn();
                 break;
