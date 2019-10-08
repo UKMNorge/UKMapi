@@ -32,6 +32,9 @@ ADD COLUMN `pl_location` JSON AFTER `pl_place`,
 ADD COLUMN `pl_visible` ENUM('true','false') NOT NULL DEFAULT 'true' AFTER `pl_type`;
 #ADD COLUMN `pl_type` ENUM('monstring_liten','monstring_stor','monstring','workshop') NOT NULL DEFAULT 'monstring' AFTER `pl_name`;
 
+ALTER TABLE `smartukm_rel_pl_bt`
+ADD COLUMN `pl_bt_id` INT(11) PRIMARY KEY AUTO_INCREMENT FIRST;
+
 # OVERFØR TIMESTAMPS
 UPDATE `smartukm_place`
     SET `pl_start` = FROM_UNIXTIME(`old_pl_start`),
