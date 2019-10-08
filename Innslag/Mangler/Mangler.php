@@ -14,6 +14,14 @@ class Mangler extends Collection
     public function __construct()
     { }
 
+
+    public function getStatus() {
+        if( $this->getAntall() == 0 ) {
+            return 8;
+        }
+        return 1;
+    }
+
     /**
      * Hent alle mangler som JSON-string
      *

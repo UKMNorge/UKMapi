@@ -14,7 +14,7 @@ use UKMNorge\Database\SQL\Update;
 use UKMNorge\Geografi\Kommune;
 use UKMNorge\Innslag\Personer\Person;
 use UKMNorge\Innslag\Personer\Write as WritePerson;
-use UKMNorge\Logger\Logger;
+use UKMNorge\Log\Logger;
 use UKMNorge\Samtykke\Person as PersonSamtykke;
 
 require_once('UKM/Autoloader.php');
@@ -157,9 +157,10 @@ class Write {
         $innslag_save->evaluerMangler();
         // Hvis innslaget ikke har noen mangler, er status=8 (påmeldt)
         if( $innslag_save->getMangler()->getAntall() == 0 ) {
-            $innslag_save->setStatus(8);
-            $smartukm_band->add('b_status', 8);
-            Logger::log( 304, $innslag_save->getId(), '');
+            $status = $innslag_save->getMangler()->getStatus();
+            $innslag_save->setStatus($status);
+            $smartukm_band->add('b_status', $status);
+            Logger::log( 304, $innslag_save->getId(), $status);
         }
         
 		// VERDIER SOM KAN OPPDATERES
