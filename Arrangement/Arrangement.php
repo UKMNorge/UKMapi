@@ -11,6 +11,7 @@ require_once('UKM/Autoloader.php');
 use DateTime, DatePeriod, DateInterval;
 use kontaktpersoner;
 use statistikk;
+use UKMNorge\Arrangement\Kontaktperson\Samling as KontaktpersonSamling;
 use UKMNorge\Arrangement\Program\Hendelser;
 use UKMNorge\Arrangement\Skjema\Skjema;
 use UKMNorge\Google\StaticMap;
@@ -872,8 +873,7 @@ class Arrangement
 
     private function _loadKontaktpersoner()
     {
-        require_once('UKM/kontaktpersoner.collection.php');
-        $this->kontaktpersoner = new kontaktpersoner($this->getId());
+        $this->kontaktpersoner = new KontaktpersonSamling($this->getId());
         return $this;
     }
 
