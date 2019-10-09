@@ -21,7 +21,7 @@ abstract class Modul {
     public static $flashbag = null;
     
     // ABSTRACT METHODS AND VARIABLES
-    public static $action = null;
+    static $action = null;
     abstract static function hook();
     abstract static function meny();
     
@@ -41,7 +41,7 @@ abstract class Modul {
         if( isset( $_GET['action'] ) ) {
             static::setAction( $_GET['action'] );
         }
-        self::setPluginPath( $plugin_path );
+        static::setPluginPath( $plugin_path );
     }
     
     /**
@@ -79,6 +79,11 @@ abstract class Modul {
      */
     public static function renderAdmin() {
         try {
+
+            static::addViewData(
+                'action',
+                static::getAction()
+            );
 
 			// Håndter lagring før visning
 			if( $_SERVER['REQUEST_METHOD'] == 'POST' && isset( $_GET['save'] ) ) {
@@ -195,7 +200,7 @@ abstract class Modul {
         header('Content-Type: application/json');
 
 		if( is_array( $_POST ) ) {
-			self::addResponseData('POST', $_POST );
+			static::addResponseData('POST', $_POST );
 		}
 		
 		try {
@@ -210,14 +215,14 @@ abstract class Modul {
                 $controller = basename( $_POST['module'] ) .'/'. $controller;
             }
 
-			self::require('ajax/'. $controller .'.ajax.php');
+			static::require('ajax/'. $controller .'.ajax.php');
 		} catch( Exception $e ) {
-			self::addResponseData('success', false);
-			self::addResponseData('message', $e->getMessage() );
-			self::addResponseData('code', $e->getCode() );
+			static::addResponseData('success', false);
+			static::addResponseData('message', $e->getMessage() );
+			static::addResponseData('code', $e->getCode() );
 		}
 		
-		$data = json_encode( self::getResponseData() );
+		$data = json_encode( static::getResponseData() );
 		echo $data;
 		die();
 	}	
