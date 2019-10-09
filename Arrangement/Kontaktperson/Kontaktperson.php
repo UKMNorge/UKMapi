@@ -252,6 +252,7 @@ class Kontaktperson
         return is_object($object) && in_array(
             get_class($object),
             [
+                'UKMNorge\Arrangement\Kontaktperson\Kontaktperson',
                 'Kontaktperson',
                 'kontakt_v2'
             ]

@@ -763,7 +763,7 @@ class Arrangement
     /**
      * Hent program for gitt mønstring
      *
-     * @return array forestilling.class
+     * @return Hendelser $program
      *
      **/
     public function getProgram()

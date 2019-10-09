@@ -66,7 +66,7 @@ class Hendelser {
 
     public function get($id)
     {
-        if (is_object($id) && get_class($id) == 'forestilling_v2') {
+        if ( Hendelse::validateClass($id)) {
             $id = $id->getId();
         }
         foreach ($this->getAll() as $item) {

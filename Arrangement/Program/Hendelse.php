@@ -8,10 +8,9 @@ use UKMNorge\Innslag\Samling;
 use Exception;
 use DateTime, DateInterval;
 
-require_once('UKM/v1_forestilling.class.php');
 require_once('UKM/Autoloader.php');
 
-class Hendelse extends \forestilling
+class Hendelse
 {
     // Midlertidig hack i påvente av omskriving
     var $id = null;
@@ -471,7 +470,7 @@ class Hendelse extends \forestilling
         return is_object( $object ) &&
             in_array( 
                 get_class($object),
-                ['UKMNorge\Arrangement\Program\Hendelse','forestilling_v2', 'forestilling']
+                ['UKMNorge\Arrangement\Program\Hendelse']
             );
     }
 }

@@ -9,6 +9,7 @@ use UKMNorge\Geografi\Kommune;
 
 use Exception;
 use DateTime;
+use UKMNorge\Arrangement\Kontaktperson\Kontaktperson;
 use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Query;
 
@@ -659,8 +660,8 @@ class Write
 
     public static function controlKontaktperson($kontakt)
     {
-        if (get_class($kontakt) !== 'kontakt_v2') {
-            throw new Exception('kontakt ikke er objekt av typen kontakt_v2');
+        if (!Kontaktperson::validateClass($kontakt)) {
+            throw new Exception('kontakt ikke er objekt av typen Kontaktperson');
         }
         if (!is_numeric($kontakt->getId()) && $kontakt->getId() > 0) {
             throw new Exception('kontakt ikke har numerisk id');

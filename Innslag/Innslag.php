@@ -9,9 +9,9 @@ use bilder;
 use tv_files;
 use artikler;
 use playback_collection;
-use program;
 use nominasjon_media, nominasjon_konferansier, nominasjon_arrangor, nominasjon_placeholder;
 use UKMNorge\Arrangement\Arrangement;
+use UKMNorge\Arrangement\Program\Hendelser;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Geografi\Kommune;
 use UKMNorge\Innslag\Advarsler\Advarsel;
@@ -23,6 +23,7 @@ use UKMNorge\Innslag\Personer\Personer;
 use UKMNorge\Innslag\Titler\Titler;
 use UKMNorge\Samtykke\Innslag as InnslagSamtykke;
 use UKMNorge\Log\Samling as LogSamling;
+use UKMNorge\Innslag\Playback\Samling as PlaybackSamling;
 
 
 class Innslag
@@ -680,9 +681,8 @@ class Innslag
      **/
     public function getPlayback()
     {
-        require_once('UKM/playback.collection.php');
         if (null == $this->playback) {
-            $this->playback = new playback_collection($this->getId());
+            $this->playback = new PlaybackSamling($this->getId());
         }
         return $this->playback;
     }
@@ -748,7 +748,6 @@ class Innslag
     public function getProgram()
     {
         if (null == $this->program) {
-            require_once('UKM/forestillinger.collection.php');
             $context = Context::createInnslag(
                 $this->getId(),                                        // Innslag ID
                 $this->getType(),                                    // Innslag type (objekt)
@@ -756,7 +755,7 @@ class Innslag
                 $this->getContext()->getMonstring()->getType(),        // Mønstring type
                 $this->getContext()->getMonstring()->getSesong()    // Mønstring sesong
             );
-            $this->program = new program($context);
+            $this->program = new Hendelser($context);
         }
         return $this->program;
     }

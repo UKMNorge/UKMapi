@@ -98,7 +98,7 @@ class Write {
 
     public static function delete( $kontakt ) {
         if( !Kontaktperson::validateClass($kontakt) ) {
-            throw new Exception('Kunne ikke slette kontakt, da gitt objekt ikke var av typen kontakt_v2', 511003);
+            throw new Exception('Kunne ikke slette kontakt, da gitt objekt ikke er kontaktperson-objekt', 511003);
         }
         if( !is_numeric( $kontakt->getId() ) ) {
             throw new Exception('Kunne ikke slette kontakt da gitt kontakt mangler numerisk ID', 511004);

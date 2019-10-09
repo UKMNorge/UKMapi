@@ -6,6 +6,7 @@ use Exception;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Insert;
+use UKMNorge\Database\SQL\Query;
 use UKMNorge\Database\SQL\Update;
 use UKMNorge\Innslag\Innslag;
 use UKMNorge\Log\Logger;
@@ -19,7 +20,7 @@ class Write
      *
      * @param monstring $monstring
      *
-     * @return forestilling_v2 $forestilling
+     * @return Hendelse $forestilling
      **/
     public static function create($monstring, $navn, $start)
     {
@@ -215,5 +216,38 @@ class Write
                 $res = $qry->run();
             }
         }
+    }
+
+    /**
+     * Tell opp og lagre innslagenes rekkefølge på nytt.
+     *
+     * @param Hendelse $hendelse
+     * @return void
+     */
+    public static function reCountOrder( Hendelse $hendelse ) {
+        $count = 0;
+        $relasjoner = new Query("SELECT `bc_id`,`b_id`
+            FROM `smartukm_rel_b_c`
+            WHERE `c_id` = '#hendelse'
+            ORDER BY `order` ASC",
+            [
+                'hendelse' => $hendelse->getId()
+            ]
+        );
+        $res = $relasjoner->run();
+        while( $row = Query::fetch( $res ) ) {
+            $count++;
+            $update = new Update(
+                'smartukm_rel_b_c',
+                [
+                    'bc_id' => $row['bc_id'],
+                    'b_id' => $row['b_id'],
+                    'c_id' => $hendelse->getId()
+                ]
+            );
+            $update->add('order', $count);
+            $update->run();
+        }
+        return true;
     }
 }
