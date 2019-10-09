@@ -1,0 +1,19 @@
+{
+    "name": "ukmnorge/api",
+    "description": "Felles-bibliotek for UKM",
+    "homepage": "http://github.com/UKMNorge/UKMapi",
+    "authors": [{
+            "name": "Marius Mandal",
+            "email": "mariusmandal@ukm.no",
+            "role": "Lead Developer"
+        },
+        {
+            "name": "Asgeir Stavik Hustad",
+            "email": "asgeirsh@ukmmedia.no",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "symfony/yaml": ">=2.0"
+    }
+}
