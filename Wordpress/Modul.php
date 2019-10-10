@@ -74,6 +74,10 @@ abstract class Modul {
         return static::$path_plugin;
     }
 
+    public static function getPluginUrl() {
+        return plugin_dir_url( static::getPluginPath().'dummyfile' );
+    }
+
     /**
      * Render admin-GUI
      */
@@ -193,6 +197,15 @@ abstract class Modul {
 	
 	/**
 	 * Default ajax handler
+     * 
+     * Husk å sette opp ajax-hook i modul-filen
+     * 
+     * POST: 
+     *  - action: {$classname}_ajax
+     *  - controller: {filename}
+     *  - module: (optional) subfolder of ajax
+     * 
+     * file_location: /ajax/{$controller}.ajax.php
 	 *
 	 * @return void
 	 */
