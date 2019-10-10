@@ -67,6 +67,36 @@ class Query extends Common {
     }
 
     /**
+     * Hent flere rader fra databasespørring
+     *
+     * @see run()
+     * @return 
+     */
+    public function getResults() {
+        return $this->run();
+    }
+
+    /**
+     * Hent en enkelt rad fra databasen
+     *
+     * @return Array|Mysqliresult
+     */
+    public function getArray() {
+        return $this->run('array');
+    }
+
+    /**
+     * Hent ett enkelt felt fra databasen
+     * OBS: select kun ett felt fra databasen i spørringen!
+     *
+     * @return String 
+     */
+    public function getField() {
+        return $this->run('field');
+    }
+
+
+    /**
      * Prepare and run query
     **/
     function run( $return_value='resource', $return_value_id='') {
