@@ -22,6 +22,9 @@ abstract class Collection implements Iterator
     }
     
     public function har( $object ) {
+        if( is_string( $object ) ) {
+            return $this->find( $object );
+        }
 	    return $this->find( $object->getId() );
     }
 
