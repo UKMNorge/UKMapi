@@ -14,6 +14,7 @@
         }
     ],
     "require": {
-        "symfony/yaml": ">=2.0"
+        "symfony/yaml": ">=2.0",
+        "phpoffice/phpspreadsheet": "^1.9"
     }
 }

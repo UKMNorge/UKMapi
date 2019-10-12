@@ -31,6 +31,7 @@ prefix | objekt | les | skriv
 20 | Hendelse/forestilling | 120yyy | 520yyy
 21 | HendelseCollection | 121yyy | 521yyy
 30 | Innslag/Type | 301yyy | - 
+40 | Fil/Excel | 401yyy | - 
 50 | Arrangement/Arrangementer | 150yyy | -
 51 | Arrangement/Skjema/Skjema | 151yyy | 551yyy
 52 | Arrangement/Skjema/Sporsmal | 152yyy | -
