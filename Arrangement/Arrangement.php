@@ -30,6 +30,13 @@ use UKMNorge\Log\Samling as LogSamling;
 require_once 'UKM/statistikk.class.php';
 require_once 'UKM/monstring_tidligere.class.php';
 
+/**
+ * Arrangement
+ * All informasjon knyttet til arrangementet.
+ * Sentral klasse, da denne henter inn en enorm mengde underobjekter ved behov
+ * 
+ * @namespace UKMNorge\Arrangement
+ */
 class Arrangement
 {
     var $id = null;

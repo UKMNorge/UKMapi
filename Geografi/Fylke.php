@@ -59,6 +59,7 @@ class Fylke {
 
     /**
      * Er fylket falskt
+     * 
      * Falske fylker eksisterer kun i UKM-systemet. Snakk om å være inkluderende.
      *
      * @return Bool $fake
@@ -70,6 +71,7 @@ class Fylke {
 
     /**
      * Er fylket aktivt?
+     * 
      * Eller har det gått ut på dato?
      *
      * @return Bool $active
@@ -91,6 +93,7 @@ class Fylke {
 
 	/**
      * Er dette fylket Oslo?
+     * 
      * I og for seg ikke såå nøye å vite, men kommunene liker å vite det,
      * da vi lister ut bydeler og ikke kommuner for Oslo i systemet.
      *
@@ -115,7 +118,8 @@ class Fylke {
     }
 	
 	/**
-	 * Sett attributt
+	 * Sett attributt (som følger objektet i scriptets runtime)
+     * 
 	 * Sett egenskaper som for enkelhets skyld kan følge mønstringen et lite stykke
 	 * Vil aldri kunne lagres
 	 *
@@ -130,7 +134,7 @@ class Fylke {
 	}
 	
 	/**
-	 * Hent attributt
+	 * Hent attributt (som kun følger objektet i scriptets runtime)
 	 *
 	 * @param string $key
 	 *
@@ -173,6 +177,7 @@ class Fylke {
 	
 	/**
 	 * getKommunerUtenGjester
+     * 
 	 * fjerner gjestekommunen fra kommune-lista og returnerer forøvrig getKommuner
 	 *
 	 * @return Array kommuner
@@ -198,6 +203,7 @@ class Fylke {
 	
 	/**
 	 * getURLsafe
+     * 
 	 * Alias av getLink for consistency kommune.class
 	 * @return string link
 	**/
@@ -205,6 +211,12 @@ class Fylke {
 		return $this->getLink();
     }
     
+    /**
+     * Er gitt objekt gyldig Fylke-objekt?
+     *
+     * @param Any $object
+     * @return Bool
+     */
     public static function validateClass( $object ) {
         return is_object( $object ) &&
             in_array( 
