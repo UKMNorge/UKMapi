@@ -322,6 +322,20 @@ class Write
                 }
             }
         }
+
+        // Arrangementet har endret navn. Oppdater relasjon mellom arrangement og innslag
+        // da arrangementsnavnet mellomlagres her
+        // Skulle det feile varsles ingen (dette er IKKE kritisk, da det håndterer en ufarlig edge-case)
+        if( $monstring_save->getNavn() != $monstring_db->getNavn() ) {
+            $rel = new Update(
+                'ukm_rel_arrangement_innslag',
+                [
+                    'fra_arrangement_id' => $monstring_save->getId()
+                ]
+            );
+            $rel->add('fra_arrangement_navn', $monstring_save->getNavn());
+            $rel->run();
+        }
         
         // Oppdater tilhørende blogg
         Blog::setArrangementData( Blog::getIdByPath( $monstring_save->getPath() ), $monstring_save );
