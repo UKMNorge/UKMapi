@@ -71,7 +71,10 @@ class Innslag
     {
         $this->attributes = array();
         if (null == $bid_or_row || empty($bid_or_row)) {
-            throw new Exception('INNSLAG_V2: Konstruktør krever b_id som numerisk verdi eller array med innslag-data. Gitt ' . var_export($bid_or_row, true));
+            throw new Exception(
+                'INNSLAG_V2: Konstruktør krever b_id som numerisk verdi eller array med innslag-data. Gitt ' . var_export($bid_or_row, true),
+                105002
+            );
         }
         if (is_numeric($bid_or_row)) {
             $this->_loadByBID($bid_or_row, $select_also_if_not_completed);
@@ -163,7 +166,10 @@ class Innslag
     {
         $this->setId($row['b_id']);
         if (null == $this->getId()) {
-            throw new Exception("INNSLAG_V2: Klarte ikke å laste inn innslagsdata");
+            throw new Exception(
+                "INNSLAG_V2: Klarte ikke å laste inn innslagsdata",
+                105003
+            );
         }
         $this->setNavn($row['b_name']);
         $this->setType($row['bt_id'], $row['b_kategori']);
@@ -255,7 +261,10 @@ class Innslag
         if (null == $this->nominasjon) {
 
             if (!is_object($monstring)) {
-                throw new Exception('INNSLAG: Mønstring må være gitt som objekt for å hente nominasjon');
+                throw new Exception(
+                    'INNSLAG: Mønstring må være gitt som objekt for å hente nominasjon',
+                    105004
+                );
             }
 
             switch ($this->getType()->getKey()) {
@@ -477,7 +486,10 @@ class Innslag
      **/
     public function setFylke($fylke_id)
     {
-        throw new Exception('INNSLAG V2: setFylke() er ikke mulig. Bruk setKommune( $kommune_id )');
+        throw new Exception(
+            'INNSLAG V2: setFylke() er ikke mulig. Bruk setKommune( $kommune_id )',
+            105005
+        );
     }
 
     /**

@@ -39,7 +39,7 @@ class Write {
 		if( !Logger::ready() ) {
 			throw new Exception(
                 Logger::getError(),
-                50501
+                505001
             );
 		}
 		// Valider alle input-parametre
@@ -70,10 +70,9 @@ class Write {
 
 		$band_id = $band->run();
 		if( !$band_id ) {
-
 			throw new Exception(
 				"Klarte ikke å opprette et nytt innslag.",
-				50508
+				505008
 			);
 		}
 
@@ -286,7 +285,7 @@ class Write {
 		if( !Logger::ready() ) {
 			throw new Exception(
 				'Logger is missing or incorrect set up.',
-				50501
+				505022
 			);
 		}
 		// Valider input-data
@@ -332,7 +331,7 @@ class Write {
 		if( !Logger::ready() ) {
 			throw new Exception(
 				'Logger is missing or incorrect set up.',
-				50501
+				50523
 			);
 		}
 		// Valider input-data
@@ -426,7 +425,7 @@ class Write {
 		if( $innslag->erVideresendt() ) {
 			throw new Exception(
 				'Du kan ikke melde av et innslag som er videresendt før du har fjernet videresendingen.',
-				5051
+				505024
 			);
 		}
 		
@@ -476,7 +475,7 @@ class Write {
         if( !Logger::ready() ) {
 			throw new Exception(
 				Logger::getError(),
-				50501
+				505028
 			);
 		}
     }
@@ -492,13 +491,13 @@ class Write {
 		if( !Innslag::validateClass($innslag) ) {
 			throw new Exception(
 				'Innslag må være objekt av klassen Innslag',
-				50514
+				505014
 			);
 		}
 		if( !is_numeric( $innslag->getId() ) || $innslag->getId() <= 0 ) {
 			throw new Exception(
 				'Innslag-objektet må ha en numerisk ID større enn null',
-				50515
+				505015
 			);
 		}
 	}
@@ -512,38 +511,38 @@ class Write {
 		if( !Arrangement::validateClass($arrangement) ) {
 			throw new Exception(
 				"Krever arrangement-objekt, ikke ".get_class($arrangement).".",
-				50502
+				505002
 			);
 		}
 		if( !Kommune::validateClass($kommune) ) {
 			throw new Exception(
 				"Krever kommune-objekt, ikke ".get_class($kommune).".",
-				50503
+				505003
 			);
 		}
 		if( !Type::validateClass($type) ) {
 			throw new Exception(
 				"Krever Type-objekt, ikke ". get_class($type) .".",
-				50504
+				505004
 			);
 		}
 		if( !Person::validateClass($kontaktperson) ) {
 			throw new Exception(
 				"Krever skrivbar person, ikke ".get_class($kontaktperson),
-				50505
+				505005
 			);	
 		}
 		if( empty($navn) ) {
 			throw new Exception(
 				"Må ha innslagsnavn.",
-				50506
+				505006
 			);
 		}
 
 		if( !in_array($type->getKey(), array('scene', 'musikk', 'dans', 'teater', 'litteratur', 'film', 'video', 'utstilling', 'konferansier', 'nettredaksjon', 'arrangor','ressurs') ) ) {
 			throw new Exception(
 				"Kan ikke opprette ".$type->getKey()."-innslag.",
-				50507
+				505007
 			);
 		}
 	}
