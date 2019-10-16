@@ -17,6 +17,7 @@ use UKMNorge\Innslag\Innslag;
 use UKMNorge\Innslag\Type;
 use UKMNorge\Innslag\Write as WriteInnslag;
 use UKMNorge\Innslag\Titler\Write as WriteTitler;
+use UKMNorge\Wordpress\Blog;
 
 require_once('UKM/Autoloader.php');
 
@@ -176,6 +177,11 @@ class Write
     /**
      * Lagre alle endringer på et arrangement
      *
+     * OBS: Skal kun brukes fra WP-admin
+     * Det er kun herfra det kan skje (skikkelig), da blogg-oppdateringen krever
+     * WP-funksjoner. Kjørt utenfor wp-admin vil den kræsje før den fullfører, men alle 
+     * endringer på arrangementet vil være lagret først. Funker nesten, altså.
+     * 
      * @param Arrangement $monstring_save
      * @return Bool $success
      * @throws Exception hvis noe feiler
@@ -316,6 +322,9 @@ class Write
                 }
             }
         }
+        
+        // Oppdater tilhørende blogg
+        Blog::setArrangementData( Blog::getIdByPath( $monstring_save->getPath() ), $monstring_save );
 
         return $res;
     }
