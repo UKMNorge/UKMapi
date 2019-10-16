@@ -84,7 +84,23 @@ class Write {
 				"Klarte ikke å opprette tekniske behov-rad i tabellen.",
 				50509
 			);
-		}		
+        }
+
+        // Opprett relasjon mellom innslaget og arrangementet
+        // Påkrevd f.o.m. 2020
+        $relasjon = new Insert('ukm_rel_arrangement_innslag');
+        $relasjon->add('innslag_id', (Int) $band_id);
+        $relasjon->add('arrangement_id', $arrangement->getId());
+        $relasjon->add('fra_arrangement_id', 0);
+        $relasjon->add('fra_arrangement_navn', $kommune->getNavn());
+        
+        $res = $relasjon->run();
+        if( !$res ) {
+            throw new Exception(
+                'Klarte ikke å melde på innslaget',
+                505010
+            );
+        }
 
 		// TODO: Burde benytte $monstring->getInnslag()->leggTil( $innslag );
 		$rel = new Insert('smartukm_rel_pl_b');
@@ -98,11 +114,14 @@ class Write {
 				"Klarte ikke å melde på det nye innslaget til mønstringen.",
 				50510
 			);
-		}
-		
-		// TODO: KREVER at relasjonen over gjøres riktig (leggTil, ikke db-insert)
-		return $monstring->getInnslag()->get( $band_id, true );
-		// TODO: Oppdater statistikk
+        }
+
+        $innslag = Innslag::getById( (Int) $band_id );
+        $arrangement->getInnslag()->leggTil($innslag);
+
+        return true;		
+        
+        // TODO: Oppdater statistikk
 		#$innslag = new innslag( $b_id, false );
 		#$innslag->statistikk_oppdater();
 		return new Innslag( (Int)$band_id ); // Tror ikke cast er nødvendig, men det er gjort sånn i WritePerson.
