@@ -14,6 +14,7 @@ use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Database\SQL\Update;
 use UKMNorge\Geografi\Kommune;
+use UKMNorge\Innslag\Context\Innslag as InnslagContext;
 use UKMNorge\Innslag\Personer\Person;
 use UKMNorge\Innslag\Personer\Write as WritePerson;
 use UKMNorge\Log\Logger;
