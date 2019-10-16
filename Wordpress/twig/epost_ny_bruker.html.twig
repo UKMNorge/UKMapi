@@ -1,0 +1,96 @@
+<html>
+    <head>
+        <style>
+            #header {
+                float: left;
+            }
+            #logoContainer {
+                float:right;
+                margin: 1em;
+            }
+            #darkLogo {
+                display: block !important;
+            }
+
+            #lightLogoWrapper,
+            #lightLogo {
+                display: none !important;
+                mso-hide: all;
+            }
+            @media(prefers-color-scheme: dark) {
+                #darkLogo {
+                    display: none !important;
+                    mso-hide: all;
+                }
+
+                #lightLogoWrapper,
+                #lightLogo {
+                    display: block !important;
+                }
+                body {
+                    background: #2d2d2d;
+                    color: #dfdfdf;
+                }
+                a {
+                    color: #1b89ef;
+                }
+            }
+            html {
+                --text-color-normal: #0a244d;
+                --text-color-light: #8cabd9;
+            }
+
+            html[data-theme='dark'] {
+                --text-color-normal: hsl(210, 10%, 62%);
+                --text-color-light: hsl(210, 15%, 35%);
+                --text-color-richer: hsl(210, 50%, 72%);
+                --text-color-highlight: hsl(25, 70%, 45%);
+            }
+        </style>
+    </head>
+    <body>
+        <h1 id="header">Velkommen til UKM!</h1>
+        <div id="logoContainer">
+            <image src="https://grafikk.ukm.no/profil/logoer/UKM_logo_hvit_0100.png" id="darkLogo" />
+            <div class="lightLogoWrapper">
+                <image src="https://grafikk.ukm.no/profil/logoer/UKM_logo_hvit_0100.png" id="lightLogo" />
+            </div>
+        </div>
+
+        <div style="clear:both;"></div>
+
+        <p>
+            Det har akkurat blitt opprettet en bruker for deg i vårt 
+            arrangørsystem. Du kan logge inn ved å gå til <a href="https://ukm.no/">ukm.no</a> 
+            og velge "logg inn" i menyen (som du finner oppe til høyre)
+        </p>
+
+        <p>
+            <b>Ditt brukernavn: </b>{{ brukernavn }}
+            <br />
+            <b>Ditt passord: </b>{{ passord }}
+        </p>
+
+        <p>
+            Når du logger inn kan du bytte passord. 
+            Vi anbefaler at du velger en setning som er lett å huske,
+            heller enn et langt passord med rare tegn.
+            Husk å velge et sikkert passord, slik at ingen kan misbruke tilgangen din.
+        </p>
+
+        <p>
+            Skulle du ha noen spørsmål, så er vi her på 
+            <a href="mailto:support@ukm.no">support@ukm.no</a>
+        </p>
+
+        <p>
+            Ha en super dag!
+        </p>
+
+        <p>
+            Mvh, <br />
+            UKM Norge support<br />
+            <a href="mailto:support@ukm.no">support@ukm.no</a>
+        </p>
+    </body>
+</html>

@@ -3,6 +3,9 @@
 namespace UKMNorge\Wordpress;
 use Exception;
 use WP_Error;
+use UKMNorge\Kommunikasjon\Epost;
+use UKMNorge\Kommunikasjon\Mottaker;
+use UKMNorge\Twig\Twig;
 
 class WriteUser
 {
@@ -51,6 +54,7 @@ class WriteUser
             }
 
             $user->setId( $wp_user );
+            static::sendVelkommen( $user->getName(), $user->getEmail(), $password );
         }
         // Herfra er user for real (🎉)
 
@@ -73,5 +77,43 @@ class WriteUser
         );
 
         return $user;
+    }
+
+    /**
+     * Send velkommen-epost til brukeren
+     *
+     * @param String $navn
+     * @param String $epost
+     * @param String $passord
+     */
+    public static function sendVelkommen( String $navn, String $epostadresse, String $passord ) {
+        Twig::standardInit();
+        Twig::addPath( __DIR__ . '/twig/' );
+
+        $epost = Epost::fraSupport();
+        $epost->setEmne('Velkommen til UKMs arrangørsystem!');
+        $epost->setMelding(
+            Twig::render(
+                'epost_ny_bruker.html.twig',
+                [
+                    'brukernavn' => $epostadresse,
+                    'passord' => $passord
+                ]
+            )
+        );
+        $epost->leggTilMottaker(
+            Mottaker::fraEpost(
+                $epostadresse,
+                $navn
+            )
+        );
+        $epost->leggTilMottaker(
+            Mottaker::fraEpost(
+                'marius@ukm.no',
+                'Marius Mandal'
+            )
+        );
+
+        return $epost->send();
     }
 }
