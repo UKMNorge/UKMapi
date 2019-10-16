@@ -124,4 +124,24 @@ class Twig
     {
         return static::$extensions;
     }
+
+    public static function standardInit() {
+        static::addPath(dirname(__DIR__) . '/Twig/templates/');
+        static::setData('UKM_HOSTNAME', UKM_HOSTNAME);
+
+        if (defined('TWIG_CACHE_PATH')) {
+            static::setEnvironment('cache', TWIG_CACHE_PATH);
+            static::setEnvironment('auto_reload', true);
+        }
+
+        static::addFilter('dato', 'TWIG_date');
+        static::addFilter('filesize', 'TWIGfilesize');
+        static::addFilter('kroner', 'TWIGkroner');
+        static::addFilter('varighet', 'TWIGtid');
+        static::addFilter('strips', 'TWIGstrips');
+        static::addFunction('GET', 'TWIG_GET');
+
+        putenv('LC_ALL=nb_NO');
+        setlocale(LC_ALL, 'nb_NO');
+    }
 }
