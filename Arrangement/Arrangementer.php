@@ -199,6 +199,10 @@ class Arrangementer
         return sizeof( $this->getAll() ) > 0;
     }
 
+    public function getAntall() {
+        return sizeof($this->getAll());
+    }
+
     /**
      * Get the value of omrade_type
      */
