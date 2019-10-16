@@ -228,7 +228,9 @@ class Write {
 
 		// Opprett mønstringen tittelen kommer fra
 		$monstring = new Arrangement( $tittel_save->getContext()->getMonstring()->getId() );
-		
+        // TODO: mangler implementering
+        throw new Exception('Kunne ikke fjerne titler. Kontakt support@ukm.no (feil i Titler\Write::fjern())');
+        
 		if( $monstring->getType() == 'kommune' ) {
 			$res = Write::_fjernLokalt( $tittel_save );
 		} else {

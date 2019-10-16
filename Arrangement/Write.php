@@ -10,10 +10,13 @@ use UKMNorge\Geografi\Kommune;
 use Exception;
 use DateTime;
 use UKMNorge\Arrangement\Kontaktperson\Kontaktperson;
+use UKMNorge\Arrangement\Program\Hendelse;
 use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Innslag\Innslag;
 use UKMNorge\Innslag\Type;
+use UKMNorge\Innslag\Write as WriteInnslag;
+use UKMNorge\Innslag\Titler\Write as WriteTitler;
 
 require_once('UKM/Autoloader.php');
 
@@ -937,6 +940,138 @@ class Write
             $innslag_type->getId()
         );
         return true;
+    }
+
+
+    /**
+	 * Legg til innslag i arrangement
+	 *
+	 * Bruk Innslag\Write::create for å legge til på lokalnivå !
+     * 
+	 * @param Innslag $innslag
+	**/
+	public static function leggTilInnslag( Hendelse $arrangement, Innslag $innslag, Hendelse $fra_arrangement ) {
+
+        Logger::log( 318, $innslag->getId(), $innslag->getContext()->getMonstring()->getId() );
+
+        if( $arrangement->getId() == $fra_arrangement->getId() ) {
+            $fra_id = 0;
+            $fra_navn = $innslag->getKommune()->getNavn();
+        } else {
+            $fra_id = $arrangement->getId();
+            $fra_navn = $arrangement->getNavn();
+        }
+
+        // Opprett relasjon mellom innslaget og arrangementet
+        // Påkrevd f.o.m. 2020
+        $relasjon = new Insert('ukm_rel_arrangement_innslag');
+        $relasjon->add('innslag_id', (Int) $innslag->getId());
+        $relasjon->add('arrangement_id', $arrangement->getId());
+        $relasjon->add('fra_arrangement_id', $fra_id);
+        $relasjon->add('fra_arrangement_navn', $fra_navn);
+        
+        $res = $relasjon->run();
+        if( !$res ) {
+            throw new Exception(
+                'Klarte ikke å melde på innslaget',
+                505010
+            );
+        }
+
+        // Sett inn gammel relasjon også
+		$rel = new Insert('smartukm_rel_pl_b');
+		$rel->add('pl_id', $arrangement->getId() );
+		$rel->add('b_id', $innslag->getId() );
+		$rel->add('season', $arrangement->getSesong() );
+		
+		$relres = $rel->run();
+		if( !$relres ) {
+			throw new Exception(
+				"Klarte ikke å melde på det nye innslaget til mønstringen.",
+				505021
+			);
+        }
+    }
+    
+    /**
+     * Fjern innslag fra arrangement
+     * 
+     * Bruk Innslag\Write::meldAv() for å fjerne fra lokalnivå
+     * @see WriteInnslag::meldAv()
+     *
+     * @param Innslag $innslag
+     * @return void
+     */
+    public static function fjernInnslag( Innslag $innslag ) {
+
+        Logger::log( 319, $innslag->getId(), $innslag->getContext()->getMonstring()->getId() );
+
+        // Fjern fra alle forestillinger på mønstringen
+        WriteHendelse::fjernInnslagFraAlleForestillingerIMonstring( $innslag );
+        
+        // Fjern personer pre 2020
+        if( $innslag->getSesong() < 2020 && $innslag->getType()->getId() != 1) {
+            // Meld av alle personer hvis dette er innslag hvor man kan velge personer som følger innslaget
+            foreach( $innslag->getPersoner()->getAllVideresendt( $innslag->getContext()->getMonstring()->getId() ) as $person ) {
+                $innslag->getPersoner()->fjern( $person );
+            }
+            WriteInnslag::savePersoner( $innslag );
+        }
+        // Fjern personer 2020
+        else {
+            foreach( $innslag->getPersoner()->getAllVideresendt( $innslag->getContext()->getMonstring()->getId() ) as $person ) {
+                $innslag->getPersoner()->fjern( $person );
+            }
+            WriteInnslag::savePersoner( $innslag );
+        }
+
+        // Meld av alle titler
+        if( $innslag->getType()->harTitler() ) {
+            foreach( $innslag->getTitler()->getAll( ) as $tittel ) {
+                $innslag->getTitler()->fjern( $tittel );
+            }
+            WriteTitler::saveTitler( $innslag );
+        }
+
+        // Fjern innslagets relasjon til arrangementet
+        # Relatert https://github.com/UKMNorge/UKMapi/issues/46
+        $relasjon = new Delete(
+            'ukm_rel_arrangement_innslag',
+            [
+                'innslag_id' => $innslag->getId(),
+                'arrangement_id' => $innslag->getContext()->getMonstring()->getId()
+            ]
+        );
+        $res = $relasjon->run();
+        
+        // Fjern gammel relasjon videresendingen av innslaget
+        $SQLdel = new Delete(
+            'smartukm_fylkestep',
+            [
+                'pl_id' => $innslag->getContext()->getMonstring()->getId(),
+                'b_id'	=> $innslag->getId(),
+            ]
+        );
+
+        $res = $SQLdel->run();
+
+        // Fjern gammel relasjon til personer videresendt til denne mønstringen
+        $slett_relasjon = new Delete(
+            'smartukm_rel_pl_b',
+            [
+                'pl_id'		=> $innslag->getContext()->getMonstring()->getId(),
+                'b_id'		=> $innslag->getId(),
+                'season'	=> $innslag->getContext()->getMonstring()->getSesong(),
+            ]
+        );
+        $slett_relasjon->run();
+
+
+        if($res) {
+            return true;
+        }
+
+        return $innslag;
     }
 
     /**

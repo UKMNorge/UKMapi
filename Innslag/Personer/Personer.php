@@ -268,26 +268,58 @@ class Personer {
 	**/
 	private function _load() {
 		$this->personer = array();
-		
-		$SQL = new Query("SELECT 
-							`participant`.*, 
-							`relation`.`instrument`,
-							`relation`.`instrument_object`,
-							GROUP_CONCAT(`smartukm_fylkestep_p`.`pl_id`) AS `pl_ids`,
-							`band`.`bt_id`
-						FROM `smartukm_participant` AS `participant` 
-						JOIN `smartukm_rel_b_p` AS `relation` 
-							ON (`relation`.`p_id` = `participant`.`p_id`) 
-						LEFT JOIN `smartukm_fylkestep_p`
-							ON(`smartukm_fylkestep_p`.`b_id` = '#bid' AND `smartukm_fylkestep_p`.`p_id` = `participant`.`p_id`)
-						JOIN `smartukm_band` AS `band`
-							ON(`band`.`b_id` = `relation`.`b_id`)
-						WHERE `relation`.`b_id` = '#bid'
-						GROUP BY `participant`.`p_id`
-						ORDER BY 
-							`participant`.`p_firstname` ASC, 
-							`participant`.`p_lastname` ASC",
-						array('bid' => $this->getInnslagId() ));
+        
+        // 2020 regionreform gir ny beregning av personer. Strengt tatt samme løsning
+        // som smartukm_fylkestep, men nå rendyrket i egen tabell for å sikre at ikke APIv1
+        // tuller til relasjoner i ny sesong. Nå brukes relasjonstabellen for ALLE arrangementer,
+        // uavhengig om innslaget er videresendt eller ikke.
+        if( $this->getContext()->getSesong() > 2019 ) {
+		    $SQL = new Query("SELECT 
+                    `participant`.*, 
+                    `relation`.`instrument`,
+                    `relation`.`instrument_object`,
+                    GROUP_CONCAT(`arrangement`.`arrangement_id`) AS `arrangementer`,
+                    `band`.`bt_id`
+                FROM `smartukm_participant` AS `participant` 
+                JOIN `smartukm_rel_b_p` AS `relation` 
+                    ON (`relation`.`p_id` = `participant`.`p_id`)
+                JOIN `smartukm_band` AS `band`
+                    ON(`band`.`b_id` = `relation`.`b_id`)
+                LEFT JOIN `ukm_rel_arrangement_person` AS `arrangement`
+                    ON(`arrangement`.`innslag_id` = '#innslag' AND `arrangement`.`person_id` = `participant`.`p_id`)
+                WHERE `relation`.`b_id` = '#innslag'
+                GROUP BY `participant`.`p_id`
+                ORDER BY 
+                    `participant`.`p_firstname` ASC, 
+                    `participant`.`p_lastname` ASC",
+                [
+                    'innslag' => $this->getInnslagId()
+                ]
+            );
+        } else {
+		    $SQL = new Query("SELECT 
+                    `participant`.*, 
+                    `relation`.`instrument`,
+                    `relation`.`instrument_object`,
+                    GROUP_CONCAT(`smartukm_fylkestep_p`.`pl_id`) AS `pl_ids`,
+                    `band`.`bt_id`
+                FROM `smartukm_participant` AS `participant` 
+                JOIN `smartukm_rel_b_p` AS `relation` 
+                    ON (`relation`.`p_id` = `participant`.`p_id`) 
+                LEFT JOIN `smartukm_fylkestep_p`
+                    ON(`smartukm_fylkestep_p`.`b_id` = '#bid' AND `smartukm_fylkestep_p`.`p_id` = `participant`.`p_id`)
+                JOIN `smartukm_band` AS `band`
+                    ON(`band`.`b_id` = `relation`.`b_id`)
+                WHERE `relation`.`b_id` = '#bid'
+                GROUP BY `participant`.`p_id`
+                ORDER BY 
+                    `participant`.`p_firstname` ASC, 
+                    `participant`.`p_lastname` ASC",
+            [
+                'bid' => $this->getInnslagId()
+            ]
+            );
+        }
 		$res = $SQL->run();
 		if( isset( $_GET['debug'] ) || $this->debug )  {
 			echo $SQL->debug();

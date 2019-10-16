@@ -134,7 +134,7 @@ class Write {
 		}
 		// Valider inputdata
 		try {
-			Write::validerPerson( $person_save );
+			Write::_validerPerson( $person_save );
 		} catch( Exception $e ) {
 			throw new Exception(
 				'Kan ikke lagre person. '. $e->getMessage(),
@@ -210,7 +210,7 @@ class Write {
 	public function saveRolle( Person $person_save ) {
 		// Valider input-data
 		try {
-			Write::validerPerson( $person_save );
+			Write::_validerPerson( $person_save );
 		} catch( Exception $e ) {
 			throw new Exception(
 				'Kan ikke oppdatere personens rolle. '. $e->getMessage(),
@@ -277,7 +277,8 @@ class Write {
 	 ********************************************************************************/
 
 	/**
-	 * Legg til person i innslaget
+	 * Legg til person i innslaget (og arrangementet)
+     * 
 	 * Videresender automatisk til context-mønstring
 	 * 
 	 * @param Person $person_save
@@ -292,14 +293,13 @@ class Write {
 		$innslag_db = $monstring->getInnslag()->get( $person_save->getContext()->getInnslag()->getId(), true );
 		
 		// Alltid legg til personen lokalt
-		$res = Write::_leggTilLokalt( $person_save );
+		$res = Write::_leggTilInnslaget( $person_save );
 
 		// Sett rolle på personen. 
 		// Worst case: vi setter blank rolle hvis dette ikke er satt på objektet fra før
 		if( $res ) {
 			Write::saveRolle( $person_save );
 		}
-
 
         /**
          * SAMTYKKE:
@@ -315,10 +315,9 @@ class Write {
             $samtykke->leggTilInnslag( $innslag_db->getId() );
         }
 
-
-		// Videresend personen hvis ikke lokalmønstring
-		if( $res && $monstring->getType() != 'kommune' ) {
-			$res = Write::_leggTilVideresend( $person_save );
+		// Legg til relasjon til arrangement / gammel videresend
+		if( $res ) {
+			$res = Write::_leggTilArrangement( $person_save );
 		}
 		
 		if( $res ) {
@@ -332,10 +331,12 @@ class Write {
 	}
 
 	/**
-	 * Fjern en videresendt person, og avmelder hvis gitt lokalmønstring
+	 * Fjern/meld av person
+     * 
+     * Finner selv ut om personen er videresendt til flere arrangementer, 
+     * og fjerner / melder av ut fra dette
 	 *
 	 * @param Person $person_save
-	 *
 	 * @return Bool true
      * @throws Exception hvis feilet
 	 */
@@ -348,22 +349,38 @@ class Write {
 		// Hent innslaget fra gitt mønstring
 		$innslag_db = $monstring->getInnslag()->get( $person_save->getContext()->getInnslag()->getId(), true );
 
-		if( $monstring->getType() == 'kommune' || $person_save->getContext()->getInnslag()->getType()->getId() == 1 ) {
-			$res = Write::_fjernLokalt( $person_save );
-		} else {
-			$res = Write::_fjernVideresend( $person_save );
-		}
-        
-        /**
-         * SAMTYKKE:
-         * Fjerner samtykke-forespørsel for dette innslaget.
-         * Hvis personen allerede har godkjent gjøres ingenting.
-         * Hvis personen deltar i flere innslag fjernes kun forespørsel for dette
-         * innslaget, mens for andre innslag vil den fortsatt stå.
-         */
-        $samtykke = new PersonSamtykke( $person_save, $innslag_db );
-        $samtykke->fjernInnslag( $innslag_db->getId() );
+        $slett = false;
 
+        // Pre-2020-relasjon
+        if( $innslag_db->getSesong() < 2020 ) {
+            if( $monstring->getType() == 'kommune' || $person_save->getContext()->getInnslag()->getType()->getId() == 1 ) {
+                $res = Write::_slett( $person_save );
+                $slett = true;
+            } else {
+                $res = Write::_fjernArrangement( $person_save );
+            }
+        }
+        // 2020-relasjon
+        else {
+            $antall_relasjoner = new Query("SELECT COUNT(`id`)
+                FROM `ukm_rel_arrangement_person`
+                WHERE `innslag_id` = '#innslag'
+                AND `person_id` = '#person'",
+                [
+                    'innslag' => $person_save->getContext()->getInnslag()->getId(),
+                    'person' => $person_save->getId()
+                ]
+            );
+            $antall_relasjoner = (int) $antall_relasjoner->getField();
+
+            if( $antall_relasjoner == 1 ) {
+                $res = Write::_slett( $person_save );
+                $slett = true;
+            } else {
+                $res = Write::_fjernArrangement( $person_save );
+            }
+        }
+		
 		if( $res ) {
 			return true;
 		}
@@ -384,12 +401,12 @@ class Write {
 	 ********************************************************************************/
 
 	/**
-	 * Legg til en person på lokalnivå (ikke videresend)
+	 * Legg personen til innslaget
 	 *
 	 * @param Person $person
 	 * @return Bool $success
 	**/
-	private static function _leggTilLokalt( Person $person_save ) {
+	private static function _leggTilInnslaget( Person $person_save ) {
 		// Er personen allerede lagt til i innslaget?
 		$sql = new Query("SELECT COUNT(*) 
 						FROM smartukm_rel_b_p 
@@ -418,53 +435,73 @@ class Write {
 	}
 	
 	/**
-	 * Legg til en person på videresendt nivå
+	 * Legg til relasjon til arrangementet (gammel videresending)
 	 *
 	 * @param Person $person_save
 	**/
-	private function _leggTilVideresend( Person $person_save ) {
-		// FOR INNSLAG I KATEGORI 1 (SCENE) FØLGER ALLE DELTAKERE ALLTID INNSLAGET VIDERE
-		if( $person_save->getContext()->getInnslag()->getType()->getId() == 1 ) {
-			return true;
-		}
-		
-		$test_relasjon = new Query(
-			"SELECT * FROM `smartukm_fylkestep_p`
-				WHERE `pl_id` = '#pl_id'
-				AND `b_id` = '#b_id'
-				AND `p_id` = '#p_id'",
-			[
-				'pl_id'		=> $person_save->getContext()->getMonstring()->getId(), 
-		  		'b_id'		=> $person_save->getContext()->getInnslag()->getId(), 
-				'p_id'		=> $person_save->getId(),
-			]
-		);
-		$test_relasjon = $test_relasjon->run();
-		
-		// Hvis allerede videresendt, alt ok
-		if( Query::numRows($test_relasjon) > 0 ) {
-			return true;
-		}
-		// Videresend personen
-		else {
-			$videresend_person = new Insert('smartukm_fylkestep_p');
-			$videresend_person->add('pl_id', $person_save->getContext()->getMonstring()->getId() );
-			$videresend_person->add('b_id', $person_save->getContext()->getInnslag()->getId() );
-			$videresend_person->add('p_id', $person_save->getId() );
+	private function _leggTilArrangement( Person $person_save ) {
+        // Pre-2020-relasjon
+        if( $person_save->getContext()->getSesong() < 2020 ) {
+            if( $person_save->getContext()->getMonstring()->getType() == 'kommune' ) {
+                return true;
+            }
+            // FOR INNSLAG I KATEGORI 1 (SCENE) FØLGER ALLE DELTAKERE ALLTID INNSLAGET VIDERE
+            if( $person_save->getContext()->getInnslag()->getType()->getId() == 1 ) {
+                return true;
+            }
+            
+            $test_relasjon = new Query(
+                "SELECT * FROM `smartukm_fylkestep_p`
+                    WHERE `pl_id` = '#pl_id'
+                    AND `b_id` = '#b_id'
+                    AND `p_id` = '#p_id'",
+                [
+                    'pl_id'		=> $person_save->getContext()->getMonstring()->getId(), 
+                    'b_id'		=> $person_save->getContext()->getInnslag()->getId(), 
+                    'p_id'		=> $person_save->getId(),
+                ]
+            );
+            $test_relasjon = $test_relasjon->run();
+            
+            // Hvis allerede videresendt, alt ok
+            if( Query::numRows($test_relasjon) > 0 ) {
+                return true;
+            }
+            // Videresend personen
+            else {
+                $videresend_person = new Insert('smartukm_fylkestep_p');
+                $videresend_person->add('pl_id', $person_save->getContext()->getMonstring()->getId() );
+                $videresend_person->add('b_id', $person_save->getContext()->getInnslag()->getId() );
+                $videresend_person->add('p_id', $person_save->getId() );
 
-			$log_msg = $person_save->getId().': '. $person_save->getNavn() .' => PL: '. $person_save->getContext()->getMonstring()->getId();
-			Logger::log( 320, $person_save->getContext()->getInnslag()->getId(), $log_msg );
-			$res = $videresend_person->run();
-		
-			if( $res ) {
-				return true;
-			}
-		}
+                $log_msg = $person_save->getId().': '. $person_save->getNavn() .' => PL: '. $person_save->getContext()->getMonstring()->getId();
+                Logger::log( 320, $person_save->getContext()->getInnslag()->getId(), $log_msg );
+                $res = $videresend_person->run();
+            
+                if( $res ) {
+                    return true;
+                }
+            }
+        }
 
-		throw new Exception(
-			'Kunne ikke videresende '. $person_save->getNavn() .'.',
-			50516
-		);
+        // 2020-relasjon
+        $insert = new Insert('ukm_relasjon_arrangement_person');
+        $insert->add('innslag_id', $person_save->getContext()->getInnslag()->getId() );
+        $insert->add('person_id', $person_save->getId());
+        $insert->add('arrangement_id', $person_save->getContext()->getMonstring()->getId());
+        $insert->add('sesong', $person_save->getContext()->getSesong());
+        
+        try {
+            $res = $insert->run();
+            return true;
+        } catch( Exception $e ) {
+            throw new Exception('Håndter exception '. $e->getMessage());
+        }
+
+        throw new Exception(
+            'Kunne ikke videresende '. $person_save->getNavn() .'.',
+            50516
+        );		
 	}
 
 
@@ -485,14 +522,36 @@ class Write {
 	 * @return Bool true|
      * @throws Exception hvis feilet)
 	 */	 
-	private function _fjernLokalt( Person $person_save ) {
+	private function _slett( Person $person_save ) {
+
+        Logger::log( 325, $person_save->getContext()->getInnslag()->getId(), $person_save->getId().': '. $person_save->getNavn() );
+
+        // 2020-relasjon
+        $relasjon = new Delete(
+            'ukm_rel_arrangement_person',
+            [
+                'innslag_id' => $person_save->getContext()->getInnslag()->getId(),
+                'person_id' => $person_save->getId(),
+            ]
+        );
+        $relasjon->run();
+
+        // Pre-2020-relasjon
 		$sql = new Delete("smartukm_rel_b_p", 
 			array( 	'b_id' => $person_save->getContext()->getInnslag()->getId(),
 					'p_id' => $person_save->getId(),
 					));
-		Logger::log( 325, $person_save->getContext()->getInnslag()->getId(), $person_save->getId().': '. $person_save->getNavn() );
 		$res = $sql->run();
 		if( $res ) {
+            /*
+             * SAMTYKKE: Fjerner samtykke-forespørsel for dette innslaget.
+             * Hvis personen allerede har godkjent gjøres ingenting.
+             * Hvis personen deltar i flere innslag fjernes kun forespørsel for dette
+             * innslaget, mens for andre innslag vil den fortsatt stå.
+             */
+            $samtykke = new PersonSamtykke( $person_save, $person_save->getContext()->getInnslag() );
+            $samtykke->fjernInnslag( $person_save->getContext()->getInnslag()->getId() );
+
 			return true;
 		}
 		
@@ -511,49 +570,67 @@ class Write {
 	 * @return Bool true
      * @throws Exception hvis feilet
 	 */
-	public function _fjernVideresend( Person $person_save ) {
-		// FOR INNSLAG I KATEGORI 1 (SCENE) FØLGER ALLE DELTAKERE ALLTID INNSLAGET VIDERE
-		if( $person_save->getContext()->getInnslag()->getType()->getId() == 1 ) {
-			return false;
-		}
+	private function _fjernArrangement( Person $person_save ) {
+        // Pre-2020-relasjon
+        if( $person_save->getContext()->getSesong() < 2020 ) {
+            // FOR INNSLAG I KATEGORI 1 (SCENE) FØLGER ALLE DELTAKERE ALLTID INNSLAGET VIDERE
+            if( $person_save->getContext()->getInnslag()->getType()->getId() == 1 ) {
+                return false;
+            }
 
-		$videresend_person = new Delete(
-			'smartukm_fylkestep_p', 
-			[
-				'pl_id' 	=> $person_save->getContext()->getMonstring()->getId(),
-				'b_id' 		=> $person_save->getContext()->getInnslag()->getId(),
-				'p_id' 		=> $person_save->getId()
-			]
-		);
-		
-		$log_msg = $person_save->getId() .': '. $person_save->getNavn() .' => PL: '. $person_save->getContext()->getMonstring()->getId();
-		Logger::log( 321, $person_save->getContext()->getInnslag()->getId(), $log_msg );
+            $videresend_person = new Delete(
+                'smartukm_fylkestep_p', 
+                [
+                    'pl_id' 	=> $person_save->getContext()->getMonstring()->getId(),
+                    'b_id' 		=> $person_save->getContext()->getInnslag()->getId(),
+                    'p_id' 		=> $person_save->getId()
+                ]
+            );
+            
+            $log_msg = $person_save->getId() .': '. $person_save->getNavn() .' => PL: '. $person_save->getContext()->getMonstring()->getId();
+            Logger::log( 321, $person_save->getContext()->getInnslag()->getId(), $log_msg );
 
-		$res = $videresend_person->run();
+            $res = $videresend_person->run();
 
-		if( $res ) {
-			return true;
-		}
-		
-		// Sjekk om det finnes en rad
-		$db_test = new Query("
-			SELECT `b_id`
-			FROM `smartukm_fylkestep_p`
-			WHERE `pl_id` = '#pl_id'
-			AND `b_id` = '#b_id' 
-			AND `p_id` = '#p_id'",
-			[
-				'pl_id' 	=> $person_save->getContext()->getMonstring()->getId(),
-				'b_id' 		=> $person_save->getContext()->getInnslag()->getId(),
-				'p_id' 		=> $person_save->getId()
-			]
-		);
-		$test_res = $db_test->run('field','b_id');
-		if( null == $test_res ) {
-			return true;
-		}
-		
-		
+            if( $res ) {
+                return true;
+            }
+            
+            // Sjekk om det finnes en rad
+            $db_test = new Query("
+                SELECT `b_id`
+                FROM `smartukm_fylkestep_p`
+                WHERE `pl_id` = '#pl_id'
+                AND `b_id` = '#b_id' 
+                AND `p_id` = '#p_id'",
+                [
+                    'pl_id' 	=> $person_save->getContext()->getMonstring()->getId(),
+                    'b_id' 		=> $person_save->getContext()->getInnslag()->getId(),
+                    'p_id' 		=> $person_save->getId()
+                ]
+            );
+            $test_res = $db_test->run('field','b_id');
+            if( null == $test_res ) {
+                return true;
+            }
+        }
+        // 2020-relasjon
+        else {
+            $delete = new Delete(
+                'ukm_relasjon_arrangement_person',
+                [
+                    'innslag_id' => $person_save->getContext()->getInnslag()->getId(),
+                    'person_id' => $person_save->getId(),
+                    'arrangement_id' => $person_save->getContext()->getMonstring()->getId()
+                ]
+            );
+            $res = $delete->run();
+            
+            if( $res ) {
+                return true;
+            }
+        }
+        		
 		throw new Exception(
 			'Kunne ikke avmelde '. $person_save->getNavn() .'.',
 			50717
@@ -579,8 +656,8 @@ class Write {
 	 * @param anything $person
 	 * @return void
 	**/
-	public static function validerPerson( $person ) {
-		if( !is_object( $person ) || !in_array(get_class( $person ), ['UKMNorge\Innslag\Personer\Person', 'person_v2']) ) {
+	private static function _validerPerson( $person ) {
+		if( !Person::validateClass($person)) {
 			throw new Exception(
 				'Person må være objekt av klassen person_v2',
 				50707
@@ -628,7 +705,7 @@ class Write {
 	private static function _validerLeggtil( $person_save ) {
 		// Valider input-data
 		try {
-			Write::validerPerson( $person_save );
+			Write::_validerPerson( $person_save );
 		} catch( Exception $e ) {
 			throw new Exception(
 				'Kan ikke legge til/fjerne person. '. $e->getMessage(),

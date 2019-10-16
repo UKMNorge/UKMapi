@@ -56,7 +56,7 @@ class Innslag
 
     var $delta_eier = null;
 
-    var $erVideresendt = null;
+    var $er_videresendt = null;
     var $nominasjon = null;
 
     var $kontaktperson_id = null;
@@ -111,11 +111,12 @@ class Innslag
     }
 
 
-    public static function getLoadQuery()
+    public static function getLoadQuery($selectFields='')
     {
         return "SELECT `smartukm_band`.*, 
-                        `td`.`td_demand`,
-                        `td`.`td_konferansier`
+                    `td`.`td_demand`,
+                    `td`.`td_konferansier` ".(strlen($selectFields)>0?',':'').
+                $selectFields ."
                 FROM `smartukm_band`
                 LEFT JOIN `smartukm_technical` AS `td` ON (`td`.`b_id` = `smartukm_band`.`b_id`)";
     }
@@ -779,75 +780,100 @@ class Innslag
      */
     public function erVideresendt()
     {
-        if (null != $this->erVideresendt) {
-            return $this->erVideresendt;
+        // Gammel beregning
+        if( $this->getSesong() < 2020 ) {
+            $qry = new Query(
+                "SELECT COUNT(*) FROM `smartukm_rel_pl_b` WHERE `b_id` = '#b_id'",
+                array('b_id' => $this->getId())
+            );
+            $res = $qry->run('field', 'COUNT(*)');
+            if ($res > 1) {
+                $this->er_videresendt = true;
+                return true;
+            }
+
+            $qry = new Query(
+                "SELECT COUNT(*) FROM `smartukm_fylkestep` WHERE `b_id` = '#b_id'",
+                array('b_id' => $this->getId())
+            );
+            $res = $qry->run('field', 'COUNT(*)');
+            if ($res > 0) {
+                $this->er_videresendt = true;
+                return true;
+            }
+
+            $this->er_videresendt = false;
         }
 
-        $qry = new Query(
-            "SELECT COUNT(*) FROM `smartukm_rel_pl_b` WHERE `b_id` = '#b_id'",
-            array('b_id' => $this->getId())
-        );
-        $res = $qry->run('field', 'COUNT(*)');
-        if ($res > 1) {
-            $this->erVideresendt = true;
-            return true;
+        // 2020-beregning
+        if (null == $this->er_videresendt) {
+            $query = new Query("SELECT COUNT(`id`)
+                FROM `ukm_rel_arrangement_innslag`
+                WHERE `innslag_id` = '#innslag'",
+                [
+                    'innslag' => $this->getId()
+                ]
+            );
+            $count = $query->getField();
+            $this->er_videresendt = (int) $count > 1;
         }
 
-        $qry = new Query(
-            "SELECT COUNT(*) FROM `smartukm_fylkestep` WHERE `b_id` = '#b_id'",
-            array('b_id' => $this->getId())
-        );
-        $res = $qry->run('field', 'COUNT(*)');
-        if ($res > 0) {
-            $this->erVideresendt = true;
-            return true;
-        }
-
-        $this->erVideresendt = false;
-        return false;
+        return $this->er_videresendt;
     }
 
     public function erVideresendtTil($monstring)
     {
-        if (is_object($monstring) && get_class($monstring) == 'monstring_v2') {
+        if ( Arrangement::validateClass($monstring) ) {
             $monstring_id = $monstring->getId();
         } elseif (is_numeric($monstring)) {
             $monstring_id = $monstring;
         } else {
-            throw new Exception('erVideresendtTil krever mønstring-objekt eller numerisk id som input-parameter');
+            throw new Exception(
+                'erVideresendtTil krever mønstring-objekt eller numerisk id som input-parameter',
+                105006
+            );
         }
 
         if ($monstring_id == $this->getContext()->getMonstring()->getId()) {
-            throw new Exception('Feil bruk av erVideresendtTil(): kan ikke sjekke om et innslag er videresendt til mønstringen det kommer fra');
+            throw new Exception(
+                'Feil bruk av erVideresendtTil(): kan ikke sjekke om et innslag er videresendt til mønstringen det kommer fra',
+                105007
+            );
         }
 
         if (is_array($this->videresendt_til) && isset($this->videresendt_til[$monstring_id])) {
             return $this->videresendt_til[$monstring_id];
         }
 
-        $qry = new SQL(
-            "
-            SELECT `rel`.`pl_id` 
-            FROM `smartukm_rel_pl_b` AS `rel`
-            LEFT JOIN `smartukm_place` AS `place` 
-                ON (`place`.`pl_id` = `rel`.`pl_id`)
-            WHERE `rel`.`b_id` = '#b_id'
-            AND `rel`.`pl_id` = '#pl_id'
-            ",
-            [
-                'b_id' => $this->getId(),
-                'pl_id' => $monstring_id
-            ]
-        );
+        if( $this->getSesong() < 2020 ) {
+            $qry = new SQL(
+                "
+                SELECT `rel`.`pl_id` 
+                FROM `smartukm_rel_pl_b` AS `rel`
+                LEFT JOIN `smartukm_place` AS `place` 
+                    ON (`place`.`pl_id` = `rel`.`pl_id`)
+                WHERE `rel`.`b_id` = '#b_id'
+                AND `rel`.`pl_id` = '#pl_id'
+                ",
+                [
+                    'b_id' => $this->getId(),
+                    'pl_id' => $monstring_id
+                ]
+            );
+        } else {
+            $qry = new SQL("SELECT `arrangement_id`
+                FROM `ukm_rel_arrangement_innslag`
+                WHERE `innslag_id` = '#innslag'",
+                [
+                    'innslag' => $this->getId()
+                ]
+            );
+
+        }
         $res = $qry->run('field', 'pl_id');
         $this->videresendt_til[$monstring_id] = $res !== null;
 
         return $this->videresendt_til[$monstring_id];
-    }
-
-    public function videresendesTil()
-    {
-        return $this->getFylke();
     }
 
     /**

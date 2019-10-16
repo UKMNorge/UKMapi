@@ -349,7 +349,14 @@ class Samling {
 	 *
 	 *
 	 ********************************************************************************/
-	public function leggTil( $innslag ) {
+    /**
+     * Legg til innslag
+     *
+     * @param Innslag $innslag
+     * @return Bool true
+     * @throws Exception
+     */
+    public function leggTil( Innslag $innslag ) {
 		try {
 			Write::validerInnslag( $innslag );
 		} catch( Exception $e ) {
@@ -385,9 +392,11 @@ class Samling {
 	/**
 	 * Fjern et innslag fra collection
 	 *
-	 * @param innslag_v2 $innslag
+	 * @param Innslag $innslag
+     * @return Bool true
+     * @throws Exception
 	**/
-	public function fjern( $innslag ) {
+	public function fjern( Innslag $innslag ) {
 		try {
 			Write::validerInnslag( $innslag );
 		} catch( Exception $e ) {
@@ -410,9 +419,8 @@ class Samling {
 					}
 				}
 			}
-		}
-
-
+        }
+        
 		return true;
 	}
 	
@@ -461,8 +469,31 @@ class Samling {
 			case 'monstring':
 				if( null == $this->getContext()->getMonstring()->getId() ) {
 					throw new Exception('innslag: Krever MønstringID for å hente mønstringens innslag');
-				}
-
+                }
+                
+                // 2020 regionreform gir ny beregning av relasjon til arrangement. Strengt tatt samme løsning
+                // som smartukm_fylkestep/smartukm_rel_pl_b, men nå rendyrket i egen tabell for å sikre at ikke APIv1
+                // tuller til relasjoner i ny sesong. Nå brukes relasjonstabellen for ALLE arrangementer,
+                // uavhengig om innslaget er videresendt eller ikke.
+                if( true || $this->getContext()->getMonstring()->getSesong() > 2019 ) {
+                    return new Query(
+                        Innslag::getLoadQuery("
+                            `arrangement`.`fra_arrangement_navn` AS `fra_navn`,
+                            `arrangement`.`fra_arrangement_id` AS `fra_id`"
+                        )."
+                        JOIN `ukm_rel_arrangement_innslag` AS `arrangement`
+                            ON(`arrangement`.`innslag_id` = `smartukm_band`.`b_id`)
+                        WHERE `arrangement`.`arrangement_id` = '#arrangement'
+                            AND `b_status` ". $operand ." '8'
+                        GROUP BY `smartukm_band`.`b_id`
+                        ORDER BY `bt_id` ASC,
+                            `smartukm_band`.`b_name` ASC
+                        ",
+                        [
+                            'arrangement' => $this->getContext()->getMonstring()->getId()
+                        ]
+                    );
+                }
 				// PRE 2011 DID NOT USE BAND SEASON FIELD
 				if( 2011 >= $this->getContext()->getMonstring()->getSesong() ) {
 					return new Query("SELECT `band`.*, 

@@ -176,14 +176,89 @@ class Write
 
 
     /**
-     * Legg til innslaget i hendelsen
-     * Videresender automatisk til context-mønstring
+     * Legg til innslag i hendelse
      * 
-     * @param innslag_v2 $innslag_save
+     * Husk å manuelt legge til innslaget i hendelsens
+     * innslag-collection, evt overskrive $hendelse med returnert
+     * hendelse
+     * 
+     * @param Hendelse $hendelse
+     * @param Innslag $innslag_save
+     * @return Hendelse
      **/
-    public static function leggTil($innslag_save)
+    public static function leggTil( Hendelse $hendelse, Innslag $innslag )
     {
-        throw new Exception('SORRY: Systemet har en feil i implementeringen av leggTil. Kontakt support@ukm.no');
+        Logger::log( 219, $hendelse->getId(), $innslag->getId() );
+
+		$lastorder = new Query("SELECT `order`
+            FROM `smartukm_rel_b_c`
+            WHERE `c_id` = '#hendelse'
+            ORDER BY `order` DESC
+            LIMIT 1",
+            [
+                'hendelse' => $hendelse->getId() 
+            ]
+        );
+		$lastorder = $lastorder->getField();
+		$order = (int)$lastorder+1;
+		
+		$qry = new Insert('smartukm_rel_b_c');
+		$qry->add('b_id', $innslag->getId() );
+		$qry->add('c_id', $hendelse->getId() );
+		$qry->add('order', $order);
+		$res = $qry->run();
+		
+		if( !$res ) {
+			throw new Exception(
+				'Klarte ikke å legge til innslaget i forestillingen.',
+				517009
+			);
+        }
+        
+        if( !$hendelse->getInnslag()->har( $innslag->getId() ) ) {
+            $hendelse->getInnslag()->leggTil( $innslag );
+        }
+
+		return $hendelse;
+    }
+
+    /**
+     * Fjern innslag fra hendelse
+     *
+     * Husk å manuelt fjerne innslaget fra hendelsens
+     * innslag-collection, evt overskrive $hendelse med returnert
+     * hendelse
+     * 
+     * @param Hendelse $hendelse
+     * @param Innslag $innslag
+     * @return Hendelse $hendelse
+     */
+    public static function fjern( Hendelse $hendelse, Innslag $innslag ) {
+        // Logg (eller dø) før sql utføres
+		Logger::log( 220, $innslag->getContext()->getForestilling()->getId(), $innslag->getId() );
+
+		// Fjern fra forestillingen
+		$qry = new Delete(
+            'smartukm_rel_b_c', 
+            [   
+                'c_id' => $hendelse->getId(),
+                'b_id' => $innslag->getId()
+            ]
+        );
+		$res = $qry->run();
+
+		if( 1 != $res ) {
+			throw new Exception(
+				'Klarte ikke å fjerne innslaget fra forestillingen.',
+				505020
+			);
+        }
+        
+        if( $hendelse->getInnslag()->har( $innslag ) ) {
+            $hendelse->getInnslag()->fjern($innslag);
+        }
+
+		return $hendelse;
     }
 
 
