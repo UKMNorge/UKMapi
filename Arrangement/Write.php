@@ -12,6 +12,8 @@ use DateTime;
 use UKMNorge\Arrangement\Kontaktperson\Kontaktperson;
 use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Innslag\Innslag;
+use UKMNorge\Innslag\Type;
 
 require_once('UKM/Autoloader.php');
 
@@ -39,28 +41,41 @@ class Write
          *
          **/
         if (!in_array($type, array('kommune', 'fylke', 'land'))) {
-            throw new Exception('Arrangement::create: Ukjent type mønstring "' . $type . '"');
+            throw new Exception(
+                'Arrangement::create: Ukjent type mønstring "' . $type . '"',
+                501003
+            );
         }
         if (!is_int($sesong)) {
-            throw new Exception('Arrangement::create: Sesong må være integer');
+            throw new Exception(
+                'Arrangement::create: Sesong må være integer',
+                501004
+            );
         }
 
         switch ($type) {
             case 'kommune':
                 if (!is_array($geografi)) {
                     throw new Exception(
-                        'Arrangement::create: Geografiobjekt må være array kommuner, ikke' . (is_object($geografi) ? get_class($geografi) : is_array($geografi) ? 'array' : is_integer($geografi) ? 'integer' : is_string($geografi) ? 'string' : 'ukjent datatype')
+                        'Arrangement::create: Geografiobjekt må være array kommuner, ikke' . (is_object($geografi) ? get_class($geografi) : is_array($geografi) ? 'array' : is_integer($geografi) ? 'integer' : is_string($geografi) ? 'string' : 'ukjent datatype'),
+                        501005
                     );
                 }
                 foreach ($geografi as $kommune) {
                     if (!Kommune::validateClass($kommune)) {
-                        throw new Exception('Arrangement::create: Alle Geografi->kommuneobjekt må være av typen UKMApi::kommune');
+                        throw new Exception(
+                            'Arrangement::create: Alle Geografi->kommuneobjekt må være av typen UKMApi::kommune',
+                            501006
+                        );
                     }
                 }
                 break;
             case 'fylke':
                 if (!Fylke::validateClass($geografi)) {
-                    throw new Exception('Arrangement::create: Geografiobjekt må være av typen UKMApi::fylke');
+                    throw new Exception(
+                        'Arrangement::create: Geografiobjekt må være av typen UKMApi::fylke',
+                        501007
+                    );
                 }
                 break;
             case 'land':
@@ -140,7 +155,28 @@ class Write
         return DateTime::createFromFormat('d.n.Y H:i:s', '01.01.' . $sesong . ' 23:59:59');
     }
 
+    /**
+     * Konverter input-data til DateTime for dato+tid-lagring
+     *
+     * @param String $date d.m.Y
+     * @param String $time H:i, default 00:00
+     * @return DateTime
+     */
+    public static function inputToDateTime(String $date, String $time = '00:00')
+    {
+        return DateTime::createFromFormat(
+            'd.m.Y-H:i',
+            $date . '-' . $time
+        );
+    }
 
+    /**
+     * Lagre alle endringer på et arrangement
+     *
+     * @param Arrangement $monstring_save
+     * @return Bool $success
+     * @throws Exception hvis noe feiler
+     */
     public static function save($monstring_save)
     {
         // DB-OBJEKT
@@ -213,7 +249,10 @@ class Write
         }
         if ($res === false) {
             # echo $smartukm_place->getError();
-            throw new Exception('Kunne ikke lagre mønstring skikkelig, da lagring av detaljer feilet.');
+            throw new Exception(
+                'Kunne ikke lagre mønstring skikkelig, da lagring av detaljer feilet.',
+                501008
+            );
         }
 
 
@@ -278,328 +317,15 @@ class Write
         return $res;
     }
 
-    public static function _leggTilVideresendingAvsender($monstring_save, $avsender)
-    {
-        try {
-            self::controlMonstring($monstring_save);
-            self::controlVideresending($avsender);
-        } catch (Exception $e) {
-            throw new Exception('Kan ikke legge til avsender da ' . $e->getMessage());
-        }
-
-        $test = new Query(
-            "SELECT `id`
-                FROM `ukm_rel_pl_videresending`
-                WHERE `pl_id_receiver` = '#arrangement'
-                AND `pl_id_sender` = '#avsender'",
-            [
-                'arrangement' => $monstring_save->getId(),
-                'avsender' => $avsender->getId()
-            ]
-        );
-        $testRes = $test->run();
-        if (is_numeric($testRes) && $testRes > 0) {
-            return true;
-        }
-
-        $insert = new Insert('ukm_rel_pl_videresending');
-        $insert->add('pl_id_receiver', $monstring_save->getId());
-        $insert->add('pl_id_sender', $avsender->getId());
-        $res = $insert->run();
-
-        if (!$res) {
-            return false;
-        }
-
-        Logger::log(
-            125,
-            $monstring_save->getId(),
-            $avsender->getId() . ': ' . $avsender->getNavn()
-        );
-
-        return true;
-    }
-
-    public static function _fjernVideresendingAvsender($monstring_save, $avsender)
-    {
-        try {
-            self::controlMonstring($monstring_save);
-            self::controlVideresending($avsender);
-        } catch (Exception $e) {
-            throw new Exception('Kan ikke legge til avsender da ' . $e->getMessage());
-        }
-
-        $delete = new Delete(
-            'ukm_rel_pl_videresending',
-            [
-                'pl_id_receiver' => $monstring_save->getId(),
-                'pl_id_sender' => $avsender->getId()
-            ]
-        );
-        $res = $delete->run();
-
-        if (!$res) {
-            return false;
-        }
-
-
-        Logger::log(
-            126,
-            $monstring_save->getId(),
-            $avsender->getId() . ': ' . $avsender->getNavn()
-        );
-
-        return true;
-    }
-
-    public static function controlVideresending($avsender)
-    {
-        if (!get_class($avsender) == 'Avsender') {
-            throw new Exception('Avsender må være av typen Arrangement');
-        }
-    }
-
-
     /**
-     * Faktisk legg til en kontaktperson til mønstringen (db-modifier)
-     * 
-     * Sjekker at databaseraden ikke allerede eksisterer, og
-     * setter inn ny rad ved behov
+     * Generer path for et arrangement
      *
-     * @param Arrangement $monstring
-     * @param kontakt_v2 $kontakt
-     * @return bool $sucess
-     **/
-    public static function _leggTilKontaktperson($monstring_save, $kontakt)
-    {
-        try {
-            self::controlMonstring($monstring_save);
-            self::controlKontaktperson($kontakt);
-        } catch (Exception $e) {
-            throw new Exception('Kan ikke legge til kontaktperson da ' . $e->getMessage());
-        }
-
-        $test = new Query(
-            "
-                SELECT `ab_id`
-                FROM `smartukm_rel_pl_ab`
-                WHERE `pl_id` = '#pl_id'
-                AND `ab_id` = '#ab_id'",
-            [
-                'pl_id' => $monstring_save->getId(),
-                'ab_id' => $kontakt->getId()
-            ]
-        );
-        $testRes = $test->run('field', 'ab_id');
-        if (is_numeric($testRes) && $testRes > 0) {
-            return true;
-        }
-
-        $rel_pl_ab = new Insert('smartukm_rel_pl_ab');
-        $rel_pl_ab->add('pl_id', $monstring_save->getId());
-        $rel_pl_ab->add('ab_id', $kontakt->getId());
-        $rel_pl_ab->add('order', time());
-        $res = $rel_pl_ab->run();
-
-        if (!$res) {
-            return false;
-        }
-
-        Logger::log(
-            111,
-            $monstring_save->getId(),
-            $kontakt->getId() . ': ' . $kontakt->getNavn()
-        );
-        return true;
-    }
-
-
-    /**
-     * Faktisk fjern en kontaktperson fra mønstringen (db-modifier)
-     * 
-     * Sletter databaseraden hvis den eksisterer
-     *
-     * @param Arrangement $monstring
-     * @param kontakt_v2 $kontakt
-     * @return void
-     **/
-    public static function _fjernKontaktperson($monstring_save, $kontakt)
-    {
-        try {
-            self::controlMonstring($monstring_save);
-            self::controlKontaktperson($kontakt);
-        } catch (Exception $e) {
-            throw new Exception('Kan ikke fjerne kontaktperson da ' . $e->getMessage());
-        }
-
-        $rel_pl_ab = new Delete(
-            'smartukm_rel_pl_ab',
-            [
-                'pl_id' => $monstring_save->getId(),
-                'ab_id' => $kontakt->getId()
-            ]
-        );
-        $res = $rel_pl_ab->run();
-
-        if (!$res) {
-            return false;
-        }
-
-        Logger::log(
-            116,
-            $monstring_save->getId(),
-            $kontakt->getId() . ': ' . $kontakt->getNavn()
-        );
-
-        return true;
-    }
-
-    /**
-     * Faktisk legg til en kommune i mønstringen (db-modifier)
-     * 
-     * Sjekker at databaseraden ikke allerede eksisterer, og
-     * setter inn ny rad ved behov
-     * 
-     * @param Arrangement $monstring
-     * @param kommune $kommune
-     * 
-     * @return bool $result
-     */
-    private static function _leggTilKommune($monstring_save, $kommune)
-    {
-        try {
-            self::controlMonstring($monstring_save);
-            if ( !Arrangement::validateClass($monstring_save)) {
-                throw new Exception('mønstring ikke er lokal-mønstring');
-            }
-            self::controlKommune($kommune);
-        } catch (Exception $e) {
-            echo '<pre>';
-            throw new Exception('Kan ikke legge til kommune da ' . $e->getMessage());
-        }
-
-        $test = new Query(
-            "
-                SELECT `k_id`
-                FROM `smartukm_rel_pl_k`
-                WHERE `pl_id` = '#pl_id'
-                AND `k_id` = '#k_id'",
-            [
-                'pl_id' => $monstring_save->getId(),
-                'k_id' => $kommune->getId()
-            ]
-        );
-        $resTest = $test->run('field', 'k_id');
-        if (is_numeric($resTest) && $resTest == $kommune->getId()) {
-            return true;
-        }
-
-        $rel_pl_k = new Insert('smartukm_rel_pl_k');
-        $rel_pl_k->add('pl_id', $monstring_save->getId());
-        $rel_pl_k->add('season', $monstring_save->getSesong());
-        $rel_pl_k->add('k_id', $kommune->getId());
-        $res = $rel_pl_k->run();
-
-        if (!$res) {
-            return false;
-        }
-
-        Logger::log(
-            112,
-            $monstring_save->getId(),
-            $kommune->getId() . ': ' . $kommune->getNavn()
-        );
-        return true;
-    }
-
-    /**
-     * Faktisk fjern en kommune fra mønstringen (db-modifier)
-     * 
-     * Sletter databaseraden hvis den finnes
-     * 
-     * @param Arrangement $monstring
-     * @param kommune $kommune
+     * @param [type] $type
+     * @param [type] $geografi
+     * @param [type] $sesong
+     * @param boolean $skipCheck
      * @return void
      */
-    private static function _fjernKommune($monstring_save, $kommune)
-    {
-        try {
-            self::controlMonstring($monstring_save);
-            if ($monstring_save->getType() != 'kommune') {
-                throw new Exception('mønstring ikke er lokal-mønstring');
-            }
-            self::controlKommune($kommune);
-        } catch (Exception $e) {
-            throw new Exception('Kan ikke fjerne kommune da ' . $e->getMessage());
-        }
-
-        // Hvis mønstringen på dette tidspunktet
-        // fortsattt har kommunen i kommune-collection
-        // er det på høy tid å fjerne den.
-        // (avlys kan finne på å gjøre dette tror Marius (26.10.2018))
-        if ($monstring_save->getKommuner()->har($kommune)) {
-            $monstring_save->getKommuner()->fjern($kommune);
-        }
-
-        $rel_pl_k = new Delete(
-            'smartukm_rel_pl_k',
-            [
-                'pl_id' => $monstring_save->getId(),
-                'k_id' => $kommune->getId(),
-                'season' => $monstring_save->getSesong(),
-            ]
-        );
-        $res = $rel_pl_k->run();
-
-        Logger::log(
-            114,
-            $monstring_save->getId(),
-            $kommune->getId() . ': ' . $kommune->getNavn()
-        );
-    }
-
-    /**
-     * avlys mønstring
-     * 
-     * !! OBS, OBS !!
-     * Denne skal kun benyttes fra UKM Norge-admin,
-     * da bloggen må endres for at alt skal fungere som ønsket.
-     * !! OBS, OBS !! 
-     *
-     * @param Arrangement $monstring
-     **/
-    public static function avlys($monstring)
-    {
-        if ($monstring->getType() != 'kommune') {
-            throw new Exception('Mønstring: kun lokalmønstringer kan avlyses');
-        }
-        if (!$monstring->erSingelmonstring()) {
-            throw new Exception('Mønstring: kun enkeltmønstringer kan avlyses');
-        }
-        if (!is_numeric($monstring->getId())) {
-            throw new Exception('Mønstring: kan ikke fjerne kommune da mønstring ikke har numerisk ID');
-        }
-        if (!is_numeric($monstring->getSesong())) {
-            throw new Exception('Mønstring: kan ikke fjerne kommune da sesong ikke har numerisk verdi');
-        }
-
-        self::_fjernKommune($monstring, $monstring->getKommune());
-
-        // Fjern databasefelter som identifiserer mønstringen ("soft delete")
-        $monstringsnavn = $monstring->getNavn();
-        $monstring->setNavn('SLETTET: ' . $monstring->getNavn());
-        $monstring->setPath(NULL);
-        self::save($monstring);
-
-        Logger::log(
-            115,
-            $monstring->getId(),
-            $monstringsnavn
-        );
-
-        return $monstring;
-    }
-
     public static function generatePath($type, $geografi, $sesong, $skipCheck = false)
     {
         switch ($type) {
@@ -639,110 +365,492 @@ class Write
                 $link = 'festivalen';
                 break;
             case 'default':
-                throw new Exception('WRITE_MONSTRING::createLink() kan ikke genere link for ukjent type mønstring!');
+                throw new Exception(
+                    'WRITE_MONSTRING::createLink() kan ikke genere link for ukjent type mønstring!',
+                    501009
+                );
         }
         return $link;
     }
 
-
-    public static function controlMonstring($monstring)
+    /**
+     * Avlys mønstring
+     * (kan kun brukes fra UKM Norge-admin!)
+     * 
+     * !! OBS, OBS !!
+     * Denne skal kun benyttes fra UKM Norge-admin,
+     * da bloggen må endres for at alt skal fungere som ønsket.
+     * !! OBS, OBS !! 
+     *
+     * @param Arrangement $monstring
+     * @todo: Sjekk at avlys fortsatt gjør det vi ønsker
+     **/
+    public static function avlys($monstring)
     {
-        if (!Arrangement::validateClass($monstring)){
-            throw new Exception('mønstring ikke er objekt av typen Arrangement / Arrangement. Fikk (' . get_class($monstring) . ')');
+        if ($monstring->getType() != 'kommune') {
+            throw new Exception(
+                'Mønstring: kun lokalmønstringer kan avlyses',
+                501010
+            );
+        }
+        if (!$monstring->erSingelmonstring()) {
+            throw new Exception(
+                'Mønstring: kun enkeltmønstringer kan avlyses',
+                501011
+            );
         }
         if (!is_numeric($monstring->getId())) {
-            throw new Exception('mønstring ikke har numerisk ID');
+            throw new Exception(
+                'Mønstring: kan ikke fjerne kommune da mønstring ikke har numerisk ID',
+                501012
+            );
         }
         if (!is_numeric($monstring->getSesong())) {
-            throw new Exception('mønstringen ikke har numerisk sesong-verdi');
+            throw new Exception(
+                'Mønstring: kan ikke fjerne kommune da sesong ikke har numerisk verdi',
+                501013
+            );
         }
-    }
 
-    public static function controlKontaktperson($kontakt)
-    {
-        if (!Kontaktperson::validateClass($kontakt)) {
-            throw new Exception('kontakt ikke er objekt av typen Kontaktperson');
-        }
-        if (!is_numeric($kontakt->getId()) && $kontakt->getId() > 0) {
-            throw new Exception('kontakt ikke har numerisk id');
-        }
-    }
+        self::_fjernKommune($monstring, $monstring->getKommune());
 
-    public static function controlKommune($kommune)
-    {
-        if ( !Kommune::validateClass($kommune) ) {
-            throw new Exception('kommune ikke er objekt av typen kommune');
-        }
-        if (!is_numeric($kommune->getId())) {
-            throw new Exception('kommune ikke har numerisk id');
-        }
-    }
+        // Fjern databasefelter som identifiserer mønstringen ("soft delete")
+        $monstringsnavn = $monstring->getNavn();
+        $monstring->setNavn('SLETTET: ' . $monstring->getNavn());
+        $monstring->setPath(NULL);
+        self::save($monstring);
 
-    /**
-     * DEPRECATED: addKommune
-     * Endre kommuner direkte på mønstringen, og kall write_monstring::save( $monstring )
-     * @param kommune $kommune
-     **/
-    public function leggTilKommune($kommune)
-    {
-        self::addKommune($kommune);
-    }
-    public function addKommune($kommune)
-    {
-        die('DEPRECATED: Endre kommuner direkte på mønstringen, og kall  write_monstring::save( $monstring )');
-    }
-    /**
-     * DEPRECATED: fjernKommune
-     * Endre kommuner direkte på mønstringen, og kall write_monstring::save( $monstring )
-     *
-     * @param kommune $kommune
-     **/
-    public function fjernKommune($kommune)
-    {
-        self::addKommune($kommune);
-    }
-    /**
-     * DEPRECATED: addKontaktperson
-     * Endre kontakter direkte på mønstringen, og kall write_monstring::save( $monstring )
-     * 
-     * @param kontaktperson $kontakt
-     **/
-    public function addKontaktperson($kontakt)
-    {
-        die('DEPRECATED: Endre kontaktpersoner direkte på mønstringen, og kall write_monstring::save( $monstring )');
-    }
-
-    /**
-     * Konverter input-data til DateTime for dato+tid-lagring
-     *
-     * @param String $date d.m.Y
-     * @param String $time H:i, default 00:00
-     * @return DateTime
-     */
-    public static function inputToDateTime(String $date, String $time = '00:00')
-    {
-        return DateTime::createFromFormat(
-            'd.m.Y-H:i',
-            $date . '-' . $time
+        Logger::log(
+            115,
+            $monstring->getId(),
+            $monstringsnavn
         );
+
+        return $monstring;
     }
 
     /**
-     * Faktisk legg til en ny type innslag til mønstringen (db-modifier)
+     * Gi et arrangement tillatelse til å videresende innslag
+     *
+     * @param Arrangement $monstring_save
+     * @param Avsender $avsender
+     * @return void
+     */
+    private static function _leggTilVideresendingAvsender($monstring_save, $avsender)
+    {
+        try {
+            self::_controlMonstring($monstring_save);
+            self::_controlVideresending($avsender);
+        } catch (Exception $e) {
+            throw new Exception(
+                'Kan ikke legge til avsender da ' . $e->getMessage(),
+                501014
+            );
+        }
+
+        $test = new Query(
+            "SELECT `id`
+                FROM `ukm_rel_pl_videresending`
+                WHERE `pl_id_receiver` = '#arrangement'
+                AND `pl_id_sender` = '#avsender'",
+            [
+                'arrangement' => $monstring_save->getId(),
+                'avsender' => $avsender->getId()
+            ]
+        );
+        $testRes = $test->run();
+        if (is_numeric($testRes) && $testRes > 0) {
+            return true;
+        }
+
+        $insert = new Insert('ukm_rel_pl_videresending');
+        $insert->add('pl_id_receiver', $monstring_save->getId());
+        $insert->add('pl_id_sender', $avsender->getId());
+        $res = $insert->run();
+
+        if (!$res) {
+            return false;
+        }
+
+        Logger::log(
+            125,
+            $monstring_save->getId(),
+            $avsender->getId() . ': ' . $avsender->getNavn()
+        );
+
+        return true;
+    }
+
+    /**
+     * Trekk tilbake et arrangements tillatelse til å videresende innslag
+     *
+     * @param Arrangement $monstring_save
+     * @param Avsender $avsender
+     * @return void
+     */
+    private static function _fjernVideresendingAvsender($monstring_save, $avsender)
+    {
+        try {
+            self::_controlMonstring($monstring_save);
+            self::_controlVideresending($avsender);
+        } catch (Exception $e) {
+            throw new Exception(
+                'Kan ikke fjerne avsender da ' . $e->getMessage(),
+                501015
+            );
+        }
+
+        $delete = new Delete(
+            'ukm_rel_pl_videresending',
+            [
+                'pl_id_receiver' => $monstring_save->getId(),
+                'pl_id_sender' => $avsender->getId()
+            ]
+        );
+        $res = $delete->run();
+
+        if (!$res) {
+            return false;
+        }
+
+
+        Logger::log(
+            126,
+            $monstring_save->getId(),
+            $avsender->getId() . ': ' . $avsender->getNavn()
+        );
+
+        return true;
+    }
+
+    /**
+     * Sjekk at mottatt avsender er av riktig objekt
+     *
+     * @param Any $avsender
+     * @return Bool $matches
+     */
+    private static function _controlVideresending($avsender)
+    {
+        if (!get_class($avsender) == 'Avsender') {
+            throw new Exception(
+                'Avsender må være av typen Arrangement',
+                501016
+            );
+        }
+    }
+
+    /**
+     * Legg kontaktperson til mønstringen
      * 
      * Sjekker at databaseraden ikke allerede eksisterer, og
      * setter inn ny rad ved behov
      *
      * @param Arrangement $monstring
-     * @param innslag_type $innslag_type
+     * @param kontakt_v2 $kontakt
      * @return bool $sucess
      **/
-    public static function _leggTilInnslagtype($monstring_save, $innslag_type)
+    private static function _leggTilKontaktperson($monstring_save, $kontakt)
     {
         try {
-            self::controlMonstring($monstring_save);
+            self::_controlMonstring($monstring_save);
+            self::_controlKontaktperson($kontakt);
         } catch (Exception $e) {
-            throw new Exception('Kan ikke legge til innslagstype da ' . $e->getMessage());
+            throw new Exception(
+                'Kan ikke legge til kontaktperson da ' . $e->getMessage(),
+                501017
+            );
+        }
+
+        $test = new Query(
+            "
+                SELECT `ab_id`
+                FROM `smartukm_rel_pl_ab`
+                WHERE `pl_id` = '#pl_id'
+                AND `ab_id` = '#ab_id'",
+            [
+                'pl_id' => $monstring_save->getId(),
+                'ab_id' => $kontakt->getId()
+            ]
+        );
+        $testRes = $test->run('field', 'ab_id');
+        if (is_numeric($testRes) && $testRes > 0) {
+            return true;
+        }
+
+        $rel_pl_ab = new Insert('smartukm_rel_pl_ab');
+        $rel_pl_ab->add('pl_id', $monstring_save->getId());
+        $rel_pl_ab->add('ab_id', $kontakt->getId());
+        $rel_pl_ab->add('order', time());
+        $res = $rel_pl_ab->run();
+
+        if (!$res) {
+            return false;
+        }
+
+        Logger::log(
+            111,
+            $monstring_save->getId(),
+            $kontakt->getId() . ': ' . $kontakt->getNavn()
+        );
+        return true;
+    }
+
+    /**
+     * Fjern en kontaktperson fra mønstringen
+     * 
+     * Sletter databaseraden hvis den eksisterer
+     *
+     * @param Arrangement $monstring
+     * @param kontakt_v2 $kontakt
+     * @return void
+     **/
+    private static function _fjernKontaktperson($monstring_save, $kontakt)
+    {
+        try {
+            self::_controlMonstring($monstring_save);
+            self::_controlKontaktperson($kontakt);
+        } catch (Exception $e) {
+            throw new Exception(
+                'Kan ikke fjerne kontaktperson da ' . $e->getMessage(),
+                501018
+            );
+        }
+
+        $rel_pl_ab = new Delete(
+            'smartukm_rel_pl_ab',
+            [
+                'pl_id' => $monstring_save->getId(),
+                'ab_id' => $kontakt->getId()
+            ]
+        );
+        $res = $rel_pl_ab->run();
+
+        if (!$res) {
+            return false;
+        }
+
+        Logger::log(
+            116,
+            $monstring_save->getId(),
+            $kontakt->getId() . ': ' . $kontakt->getNavn()
+        );
+
+        return true;
+    }
+
+    /**
+     * Legg til en kommune i mønstringen
+     * Sjekker at databaseraden ikke allerede eksisterer, og
+     * setter inn ny rad ved behov
+     * 
+     * @param Arrangement $monstring
+     * @param kommune $kommune
+     * 
+     * @return bool $result
+     */
+    private static function _leggTilKommune($monstring_save, $kommune)
+    {
+        try {
+            self::_controlMonstring($monstring_save);
+            if ( !Arrangement::validateClass($monstring_save)) {
+                throw new Exception(
+                    'mønstring ikke er lokal-mønstring',
+                    501019
+                );
+            }
+            self::_controlKommune($kommune);
+        } catch (Exception $e) {
+            echo '<pre>';
+            throw new Exception(
+                'Kan ikke legge til kommune da ' . $e->getMessage(),
+                501020
+            );
+        }
+
+        $test = new Query(
+            "
+                SELECT `k_id`
+                FROM `smartukm_rel_pl_k`
+                WHERE `pl_id` = '#pl_id'
+                AND `k_id` = '#k_id'",
+            [
+                'pl_id' => $monstring_save->getId(),
+                'k_id' => $kommune->getId()
+            ]
+        );
+        $resTest = $test->run('field', 'k_id');
+        if (is_numeric($resTest) && $resTest == $kommune->getId()) {
+            return true;
+        }
+
+        $rel_pl_k = new Insert('smartukm_rel_pl_k');
+        $rel_pl_k->add('pl_id', $monstring_save->getId());
+        $rel_pl_k->add('season', $monstring_save->getSesong());
+        $rel_pl_k->add('k_id', $kommune->getId());
+        $res = $rel_pl_k->run();
+
+        if (!$res) {
+            return false;
+        }
+
+        Logger::log(
+            112,
+            $monstring_save->getId(),
+            $kommune->getId() . ': ' . $kommune->getNavn()
+        );
+        return true;
+    }
+
+    /**
+     * Fjern kommune fra mønstringen
+     * 
+     * Sletter databaseraden hvis den finnes
+     * 
+     * @param Arrangement $monstring
+     * @param Kommune $kommune
+     * @return Bool 
+     * @throws Exception
+     */
+    private static function _fjernKommune($monstring_save, $kommune)
+    {
+        try {
+            self::_controlMonstring($monstring_save);
+            if ($monstring_save->getType() != 'kommune') {
+                throw new Exception(
+                    'mønstring ikke er lokal-mønstring',
+                    501022
+                );
+            }
+            self::_controlKommune($kommune);
+        } catch (Exception $e) {
+            throw new Exception(
+                'Kan ikke fjerne kommune da ' . $e->getMessage(),
+                501021
+            );
+        }
+
+        // Hvis mønstringen på dette tidspunktet
+        // fortsattt har kommunen i kommune-collection
+        // er det på høy tid å fjerne den.
+        // (avlys kan finne på å gjøre dette tror Marius (26.10.2018))
+        if ($monstring_save->getKommuner()->har($kommune)) {
+            $monstring_save->getKommuner()->fjern($kommune);
+        }
+
+        $rel_pl_k = new Delete(
+            'smartukm_rel_pl_k',
+            [
+                'pl_id' => $monstring_save->getId(),
+                'k_id' => $kommune->getId(),
+                'season' => $monstring_save->getSesong(),
+            ]
+        );
+        $res = $rel_pl_k->run();
+
+        Logger::log(
+            114,
+            $monstring_save->getId(),
+            $kommune->getId() . ': ' . $kommune->getNavn()
+        );
+        return true;
+    }
+
+    /**
+     * Kontroller at gitt objekt er mønstring
+     *
+     * @param Any $arrangement
+     * @throws Exception
+     * @return Bool true
+     */
+    private static function _controlMonstring($monstring)
+    {
+        if (!Arrangement::validateClass($monstring)){
+            throw new Exception(
+                'mønstring ikke er objekt av typen Arrangement / Arrangement. Fikk (' . get_class($monstring) . ')',
+                501023
+            );
+        }
+        if (!is_numeric($monstring->getId())) {
+            throw new Exception(
+                'mønstring ikke har numerisk ID',
+                501024
+            );
+        }
+        if (!is_numeric($monstring->getSesong())) {
+            throw new Exception(
+                'mønstringen ikke har numerisk sesong-verdi',
+                501025
+            );
+        }
+        return true;
+    }
+
+    /**
+     * Kontroller at gitt objekt er kontaktperson
+     *
+     * @param Any $kontakt
+     * @throws Exception
+     * @return Bool true
+     */
+    private static function _controlKontaktperson($kontakt)
+    {
+        if (!Kontaktperson::validateClass($kontakt)) {
+            throw new Exception(
+                'kontakt ikke er objekt av typen Kontaktperson',
+                501026
+            );
+        }
+        if (!is_numeric($kontakt->getId()) && $kontakt->getId() > 0) {
+            throw new Exception(
+                'kontakt ikke har numerisk id',
+                501027
+            );
+        }
+    }
+
+    /**
+     * Kontroller at gitt objekt er kommune
+     *
+     * @param Any $kontakt
+     * @throws Exception
+     * @return Bool true
+     */
+    private static function _controlKommune($kommune)
+    {
+        if ( !Kommune::validateClass($kommune) ) {
+            throw new Exception(
+                'kommune ikke er objekt av typen kommune',
+                501028
+            );
+        }
+        if (!is_numeric($kommune->getId())) {
+            throw new Exception(
+                'kommune ikke har numerisk id',
+                501029
+            );
+        }
+        return true;
+    }
+
+    /**
+     * Legg til en ny type innslag til arrangementet
+     * 
+     * Sjekker at databaseraden ikke allerede eksisterer, og
+     * setter inn ny rad ved behov
+     *
+     * @param Arrangement $monstring
+     * @param Type $innslag_type
+     * @return bool $sucess
+     **/
+    private static function _leggTilInnslagtype( Arrangement $monstring_save, Type $innslag_type)
+    {
+        try {
+            self::_controlMonstring($monstring_save);
+        } catch (Exception $e) {
+            throw new Exception(
+                'Kan ikke legge til innslagstype da ' . $e->getMessage(),
+                501030
+            );
         }
 
         $test = new Query(
@@ -785,17 +893,19 @@ class Write
      * setter inn ny rad ved behov
      *
      * @param Arrangement $monstring
-     * @param innslag_type $innslag_type
+     * @param Type $innslag_type
      * @return bool $sucess
      **/
-    public static function _fjernInnslagtype($monstring_save, $innslag_type)
+    private static function _fjernInnslagtype( Arrangement $monstring_save, Type $innslag_type)
     {
         try {
-            self::controlMonstring($monstring_save);
+            self::_controlMonstring($monstring_save);
         } catch (Exception $e) {
-            throw new Exception('Kan ikke fjerne innslagstype da ' . $e->getMessage());
+            throw new Exception(
+                'Kan ikke fjerne innslagstype da ' . $e->getMessage(),
+                501031
+            );
         }
-
 
         $delete = new Delete(
             'smartukm_rel_pl_bt',
@@ -829,6 +939,12 @@ class Write
         return true;
     }
 
+    /**
+     * Er gitt objekt gyldig Arrangement::Write-objekt?
+     *
+     * @param Any $object
+     * @return Bool
+     */
     public static function validateClass( $object ) {
         return is_object( $object ) &&
             in_array( 
