@@ -4,9 +4,10 @@ namespace UKMNorge\Wordpress;
 
 use Exception;
 use UKMNorge\Arrangement\Arrangement;
-use innslag_type;
-use fylke;
-use kommune;
+use UKMNorge\Geografi\Fylke;
+use UKMNorge\Geografi\Kommune;
+
+require_once('UKM/Autoloader.php');
 
 class Blog
 {
@@ -102,7 +103,7 @@ class Blog
      * @param fylke $fylke
      * @return Int $blog_id
      */
-    public static function opprettForFylke(fylke $fylke)
+    public static function opprettForFylke(Fylke $fylke)
     {
         $path = static::controlPath(
             static::sanitizePath( '/'. $fylke->getNavn() )
@@ -126,7 +127,7 @@ class Blog
      * @param kommune $kommune
      * @return Int $blog_id
      */
-    public static function opprettForKommune(kommune $kommune)
+    public static function opprettForKommune(Kommune $kommune)
     {
         $path = static::controlPath(
             static::sanitizePath( '/'. $kommune->getNavn() )
@@ -224,7 +225,7 @@ class Blog
      * @param Array $users [id, role]
      * @return Array $rapport
      */
-    public function leggTilBrukere(Int $blog_id, array $users)
+    public function leggTilBrukere(Int $blog_id, Array $users)
     {
         static::controlBlogId($blog_id);
         $rapport = [];
