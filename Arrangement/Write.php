@@ -13,6 +13,7 @@ use UKMNorge\Arrangement\Kontaktperson\Kontaktperson;
 use UKMNorge\Arrangement\Program\Hendelse;
 use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Database\SQL\Update;
 use UKMNorge\Innslag\Innslag;
 use UKMNorge\Innslag\Type;
 use UKMNorge\Innslag\Write as WriteInnslag;
@@ -338,7 +339,14 @@ class Write
         }
         
         // Oppdater tilhørende blogg
-        Blog::setArrangementData( Blog::getIdByPath( $monstring_save->getPath() ), $monstring_save );
+        try {
+            Blog::setArrangementData( Blog::getIdByPath( $monstring_save->getPath() ), $monstring_save );
+        } catch (Exception $e ) {
+            // 172007 = fant ingen blogg (som er naturlig når den opprettes, f.eks.)
+            if( $e->getCode() != 172007 ) {
+                throw $e;
+            }
+        }
 
         return $res;
     }
