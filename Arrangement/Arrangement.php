@@ -1118,7 +1118,7 @@ class Arrangement
      * @param Bool $registrert
      * @return self
      */
-    public function setRegistrert($registrert)
+    public function setRegistrert( Bool $registrert)
     {
         $this->registrert = $registrert;
 
