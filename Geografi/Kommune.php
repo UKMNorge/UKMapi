@@ -217,8 +217,14 @@ class Kommune {
         );
         $res = $sql->run();
 
-        while( $row = SQL::fetch( $res ) ) {
-            $this->tidligere[] = new Kommune( $row );
+        while( $row = Query::fetch( $res ) ) {
+            $tidligere = new Kommune( $row );
+            // Hvis kommunen hadde samme navn før og nå, så er det
+            // snakk om en teknisk flytting på grunn av nye fylke-
+            // og kommunenumre.
+            if( $tidligere->getNavn() != $this->getNavn() ) {
+                $this->tidligere[] = $tidligere;
+            }
         }
     }
 
