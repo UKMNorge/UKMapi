@@ -1060,6 +1060,8 @@ class Arrangement
 
     /**
      * Hvilken type påmelding har mønstringen
+     * 
+     * @return Bool
      */
     public function getPamelding()
     {
@@ -1109,12 +1111,12 @@ class Arrangement
     {
         return $this->registrert;
     }
-
+    
     /**
      * Sett om mønstringen er registrert eller ikke
      *
-     * @param bool $registrert
-     * @return  self
+     * @param Bool $registrert
+     * @return self
      */
     public function setRegistrert($registrert)
     {

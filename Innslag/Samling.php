@@ -630,7 +630,12 @@ class Samling {
 		}
 	}
 	
-	
+	/**
+     * Hent hvilken kontekst innslag-samlingen befinner seg i (kommer fra)
+     *
+     * @param Context $context
+     * @return self
+     */
 	public function setContext( $context ) {
 		$this->context = $context;
 		return $this;
