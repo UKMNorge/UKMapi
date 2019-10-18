@@ -141,6 +141,101 @@ class Mailchimp {
 	}
 
 	/**
+	 * Adds a subscriber 
+	 * @return bool
+	 */
+	public function addSubscriberToTag(MCList $list, $tag, $email) {
+		// Verify that the list has the tag
+		$taglist = $this->getAllTags($list);
+		$tagId = null;
+		foreach($taglist as $segment) {
+			if($segment->name == $tag) {
+				$tagId = $segment->id;
+			}
+		}
+
+		if($tagId == null) {
+			throw new Exception("Failed to find tag-id!");
+		}
+
+		$data['email_address'] = $email;
+		$addResult = $this->sendPostRequest('/lists/'.$list->getId().'/segments/'.$tagId.'/members', $data);
+
+		#var_dump($addResult);
+		if($addResult == null) {
+			throw new Exception("Curl-error occurred");
+		}
+
+		if(isset($addResult->status) && $addResult->status != 0) {
+			throw new Exception("Mailchimp-error occurred: ".$addResult->detail);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Adds an array of clear-text tags to a subscriber.
+	 * Throws an exception if any of the tags are non-existant.
+	 * Create them with createTag() first.
+	 *
+	 * @return bool
+	 */
+	public function addTagsToSubscriber(MCList $list, $tags, $email) {
+		foreach($tags as $tag) {
+			$this->addSubscriberToTag($list, $tag, $email);
+		}
+		return true;
+	}
+
+	/** 
+	 * Returns all tags that exist.
+	 * Note: Tags belong to a list - but we'll only ever be using one list.
+	 *
+	 * @return Array
+	 */
+	public function getAllTags(MCList $list) {
+		$tags_result = $this->sendGetRequest('/lists/'.$list->getId().'/segments');
+		if( $tags_result == null ) {
+			throw new Exception("A Curl-error occurred");
+		}
+
+		if( isset($tags_result->errors ) ) {
+			throw new Exception("An error with Mailchimp occurred!");
+		}
+		return $tags_result->segments;
+	}
+
+	/**
+	 * Creates a tag on a list 
+	 *
+	 * @return id of new list on success, throws Exception if failure
+	 */
+	public function createTag( MCList $list, $tag ) {
+		if($tag == null) {
+			throw new Exception("Tag must not be null.");
+		}
+		if( empty($tag) ) {
+			throw new Exception("Tag must not be empty.");
+		}
+
+		$data = array();
+		$data['name'] = $tag;
+		$data['static_segment'] = array();
+		
+		$newTag = $this->sendPostRequest( '/lists/'.$list->getId().'/segments', $data);
+
+		if($newTag == null | !is_object($newTag)) {
+			throw new Exception("Mailchimp-request failed");
+		}
+		if( isset($newTag->status) ) {
+			$un = uniqid();
+			error_log($un." Mailchimp-request faild to create tag, error ".$newTag->status.". Error message: ". $newTag->detail);
+			throw new Exception("Klarte ikke å opprette tag i Mailchimp - søk i loggen etter ".$un." for detaljer.");
+		}
+		return $newTag->id;
+	}
+
+	/**
 	 * Sends a POST request to create new objects on the server
 	 */
 	private function sendPostRequest($resource, $data) {

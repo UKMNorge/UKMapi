@@ -59,6 +59,7 @@ class MCListTest extends TestCase {
 	}
 
 	public function testRemovePersonWithEmailOnly() {
+		$this->markTestIncomplete("Can't unsubscribe this email, it's used for testing tags etc in MailchimpTest.php");
 		$mailchimp = new Mailchimp();
 		$list = $mailchimp->getList('ca20f97cda');
 		
@@ -72,6 +73,8 @@ class MCListTest extends TestCase {
 	}
 
 	public function testUnsubscribePerson() {
+
+		$this->markTestIncomplete("Can't unsubscribe this email, it's used for testing tags etc in MailchimpTest.php");
 		
 		$mailchimp = new Mailchimp();
 		$list = $mailchimp->getList('ca20f97cda');
