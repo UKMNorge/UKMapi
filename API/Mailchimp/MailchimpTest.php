@@ -94,7 +94,7 @@ class MailchimpTest extends TestCase {
 	 */
 	public function testAddTagsToSubscriber( $mailchimp ) {
 		$list = $mailchimp->getList('ca20f97cda');
-		$tags = array('test', 'test-2');
+		$tags = array('test', 'test-2', 'test-3');
 
 		$addResult = $mailchimp->addTagsToSubscriber($list, $tags, "asgeirsh@ukmmedia.no");
 		$this->assertTrue($addResult);

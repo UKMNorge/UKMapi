@@ -155,7 +155,8 @@ class Mailchimp {
 		}
 
 		if($tagId == null) {
-			throw new Exception("Failed to find tag-id!");
+			// Missing tag, creating it... Throws exception on failure.
+			$tagId = $this->createTag($list, $tag);
 		}
 
 		$data['email_address'] = $email;
