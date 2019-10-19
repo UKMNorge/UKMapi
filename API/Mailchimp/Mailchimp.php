@@ -141,7 +141,7 @@ class Mailchimp {
 	}
 
 	/**
-	 * Adds a subscriber 
+	 * Adds a tag to a subscriber.
 	 * @return bool
 	 */
 	public function addSubscriberToTag(MCList $list, $tag, $email) {
@@ -176,8 +176,7 @@ class Mailchimp {
 
 	/**
 	 * Adds an array of clear-text tags to a subscriber.
-	 * Throws an exception if any of the tags are non-existant.
-	 * Create them with createTag() first.
+	 * Tags don't need to exist, they are created on-the-fly if required.
 	 *
 	 * @return bool
 	 */
