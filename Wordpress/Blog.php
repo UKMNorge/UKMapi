@@ -421,15 +421,18 @@ class Blog
         static::controlBlogId($blog_id);
 
         $meta = [
-            'blogname'          => $arrangement->getNavn(),
-            'blogdescription'   => 'UKM i ' . $arrangement->getNavn(),
             'fylke'             => $arrangement->getFylke()->getId(),
             'site_type'         => $arrangement->getType(),
             'pl_id'             => $arrangement->getId(),
             'season'            => $arrangement->getSesong(),
         ];
         if ($arrangement->getType() == 'kommune') {
-            $meta['kommuner'] = implode(',', $arrangement->getKommuner()->getIdArray());
+            $meta['blogname']           = $arrangement->getNavn();
+            $meta['blogdescription']    = 'UKM i ' . $arrangement->getNavn();
+            $meta['kommuner']           = implode(',', $arrangement->getKommuner()->getIdArray());
+        } elseif( $arrangement->getType() == 'fylke' ) {
+            $meta['blogname']           = $arrangement->getFylke()->getNavn();
+            $meta['blogdescription']    = 'UKM i ' . $arrangement->getFylke()->getNavn();
         }
         static::applyMeta($blog_id, $meta);
     }
@@ -525,7 +528,8 @@ class Blog
         static::fjernSider(
             $blog_id,
             [
-                'hei-verden'
+                'hei-verden',
+                'testside'
             ]
         );
 
