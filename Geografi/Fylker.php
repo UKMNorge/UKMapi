@@ -1,6 +1,7 @@
 <?php
 
 namespace UKMNorge\Geografi;
+use Exception;
 
 require_once('UKM/Autoloader.php');
 
