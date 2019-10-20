@@ -142,7 +142,30 @@ class Kommune {
 		
 		$text = preg_replace("/[^A-Za-z0-9-]/","",$text);
 		return $text;
-	}
+    }
+    
+    /**
+     * Hent path for kommunen
+     *
+     * @return String $path
+     */
+    public function getPath() {
+        return '/' . static::sanitizePath(
+            explode(
+                '(', 
+                $this->getNavn()
+            )[0]
+        ) .'/';
+    }
+
+    /**
+     * Hent lenke til kommunens nettside
+     *
+     * @return String $url
+     */
+    public function getLink() {
+        return '//'. UKM_HOSTNAME .'/'. $this->getPath();
+    }
 
     /**
      * Er kommunen fortsatt aktiv, eller har den gått ut på dato?
@@ -264,5 +287,26 @@ class Kommune {
                     'kommune'
                 ]
             );
+    }
+
+    /**
+     * Sikre at path er innenfor vår standard
+     *
+     * @ developer: hvis denne endres, må også funksjonen i UKMNorge\Wordpress\Blog endres!
+     * 
+     * @param String $path
+     * @return String $path
+     */
+    public static function sanitizePath(String $path)
+    {
+        return preg_replace(
+            "/[^a-z0-9-]/",
+            '',
+            str_replace(
+                ['æ', 'ø', 'å', 'ü', 'é', 'è'],
+                ['a', 'o', 'a', 'u', 'e', 'e'],
+                mb_strtolower($path)
+            )
+        );
     }
 }
