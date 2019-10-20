@@ -8,24 +8,35 @@ require_once('UKM/Autoloader.php');
 
 class Administrator
 {
-
     private $wp_user_id = 0;
     private $user = null;
     private $omrader = null;
 
+    /**
+     * Nytt Administrator-objekt
+     *
+     * @param Int $wp_user_id
+     * @return self
+     */
     public function __construct( Int $wp_user_id)
     {
         $this->wp_user_id = $wp_user_id;
     }
 
-
+    /**
+     * Last inn brukerdata
+     *
+     * @return void
+     */
     private function _load()
     {        
         $this->user = new User( $this->getId() );
     }
 
     /**
-     * Get the value of user
+     * Hent bruker-objektet 
+     * 
+     * @return User $user
      */
     public function getUser()
     {
@@ -36,26 +47,51 @@ class Administrator
     }
 
     /**
-     * Get the value of wp_user_id
+     * Hent brukerens ID (WP_User::ID)
+     * 
+     * @return Int $id
      */ 
     public function getId()
     {
         return $this->wp_user_id;
     }
 
+    /**
+     * Hent administratorens navn
+     *
+     * @return String $navn
+     */
     public function getNavn() {
         return $this->getUser()->getNavn();
     }
 
-    public function getAntallOmrader( $type=false) {
+    /**
+     * Hent antall områder (av gitt type) administratoren har tilgang til
+     *
+     * @param String $type
+     * @return Int $antall_omrader
+     */
+    public function getAntallOmrader( String $type=null) {
         return sizeof( $this->getOmrader( $type ) );
     }
 
-    public function erAdmin( $type=false ) {
+    /**
+     * Har administratoren noen områder (for gitt type)
+     *
+     * @param String $type
+     * @return Bool
+     */
+    public function erAdmin( $type=null ) {
         return $this->getAntallOmrader( $type ) > 0;
     }
 
-    public function getOmrade($type=false) {
+    /**
+     * Hent det ene området administratoren har tilgang til
+     *
+     * @param String $type
+     * @return Omrade
+     */
+    public function getOmrade(String $type=null) {
         if( $this->getAntallOmrader($type) != 1 ) {
             throw new Exception(
                 'UKMNorge\Nettverk\Omrade::getOmrade() kan kun brukes når '.
@@ -70,13 +106,14 @@ class Administrator
     /**
      * Hent alle områder admin har tilgang til
      *
-     * @return Array [Omrade]
+     * @param String $type
+     * @return Array<Omrade>
      */
-    public function getOmrader( $type=false ) {
+    public function getOmrader(String $type=null ) {
         if( null == $this->omrader ) {
             $this->_loadOmrader();
         }
-        if( !$type ) {
+        if( null === $type ) {
             return $this->omrader;
         }
         $filtered_omrader = [];
@@ -88,6 +125,11 @@ class Administrator
         return $filtered_omrader;
     }
 
+    /**
+     * Last inn områder administratoren har tilgang til
+     *
+     * @return Array<Omrade>
+     */
     private function _loadOmrader() {
         $sql = new SQL("SELECT * 
             FROM `ukm_nettverk_admins`
