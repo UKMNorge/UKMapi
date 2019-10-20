@@ -6,7 +6,7 @@ use Exception;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Geografi\Kommune;
 
-class Kontaktperson
+class Kontaktperson implements KontaktInterface
 {
     public $id = null;
 

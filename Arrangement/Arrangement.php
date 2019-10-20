@@ -26,6 +26,7 @@ use UKMNorge\Geografi\Kommuner;
 use UKMNorge\Innslag\Samling;
 use UKMNorge\Innslag\Typer;
 use UKMNorge\Log\Samling as LogSamling;
+use UKMNorge\Nettverk\Proxy\Kontaktperson as AdminKontaktProxy;
 
 require_once 'UKM/statistikk.class.php';
 require_once 'UKM/monstring_tidligere.class.php';
@@ -870,7 +871,7 @@ class Arrangement
      * getKontaktpersoner
      * Henter alle kontaktpersoner som collection
      *
-     * @return collection $kontaktpersoner
+     * @return KontaktpersonSamling $kontaktpersoner
      **/
     public function getKontaktpersoner()
     {
@@ -884,6 +885,56 @@ class Arrangement
     {
         $this->kontaktpersoner = new KontaktpersonSamling($this->getId());
         return $this;
+    }
+
+    /**
+     * Hent kontaktpersoner, eller administratorer for området
+     * 
+     * Hvis arrangementet har kontaktpersoner returneres disse,
+     * Hvis ikke, og arrangementets hovedeier har kontaktpersoner, returneres disse
+     * Hvis ikke, og noen av arrangementets kommuner (forutsatt kommune-arrangement) har kontaktpersoner, returneres disse
+     * Hvis ikke, og hovedeiers fylke har kontaktpersoner, returneres disse
+     * Hvis ikke, da får du en tom samling da. Out-of-luck-exception.
+     *
+     * @return KontaktpersonSamling
+     */
+    public function getKontaktpersonerEllerAdministratorer() {        
+        // Hvis arrangementet har kontaktpersoner - returner de
+        if( $this->getKontaktpersoner()->getAntall() > 0 ) {
+            return $this->getKontaktpersoner();
+        }
+
+        // Lag kopi av kontaktperson-samlingen
+        $samling = $this->getKontaktpersoner();
+
+        // Hent områdets (arrangementets hovedeier) administratorer
+        if( $this->getEierOmrade()->getAdministratorer()->getAntall() > 0 ) {
+            foreach( $this->getEierOmrade()->getAdministratorer()->getAll() as $admin ) {
+                $samling->add( new AdminKontaktProxy( $admin ) );
+            }
+            return $samling;
+        }
+
+        // Hent alle kommuner i arrangementet, og finn eierområdenes administratorer
+        if( $this->getType() == 'kommune' ) {
+            foreach( $this->getKommuner()->getAll() as $kommune ) {
+                $omrade = Omrade::getByKommune( $kommune->getId() );
+                foreach( $omrade->getAdministratorer()->getAll() as $admin ) {
+                    $samling->add( new AdminKontaktProxy( $admin ) );
+                }
+            }
+        }
+
+        // Hvis det er en kommune uten admins, hent fylkets kontaktpersoner
+        if( $this->getEierOmrade()->getType() == 'kommune' ) {
+            $omrade = Omrade::getByFylke( $this->getEierOmrade()->getFylke()->getId() );
+            foreach( $omrade->getAdministratorer()->getAll() as $admin ) {
+                $samling->add( new AdminKontaktProxy( $admin ) );
+            }
+            return $samling;
+        }
+
+        return $samling;
     }
 
     /**

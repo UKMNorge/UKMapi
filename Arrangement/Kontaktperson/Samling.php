@@ -2,13 +2,19 @@
 
 namespace UKMNorge\Arrangement\Kontaktperson;
 
+use Exception;
 use UKMNorge\Collection;
 use UKMNorge\Database\SQL\Query;
 
 class Samling extends Collection {
     public $pl_id = null;
-	
-	public function __construct( $pl_id ) {
+    
+    /**
+     * Opprett ny samling
+     *
+     * @param Int $pl_id
+     */
+	public function __construct( Int $pl_id ) {
 		$this->pl_id = $pl_id;
 		
 		$this->_load();
@@ -28,5 +34,20 @@ class Samling extends Collection {
 		while( $rad = Query::fetch( $res ) ) {
 			$this->add( new Kontaktperson( $rad ) );
 		}
-	}
+    }
+    
+    /**
+     * Sjekk at objekter som legger til fungerer som kontaktpersoner
+     *
+     * @param KontaktInterface $kontaktperson
+     * @return self
+     */
+    public function add( $kontaktperson ) {
+        if( !isset( class_implements($kontaktperson)['UKMNorge\Arrangement\Kontaktperson\KontaktInterface'] )) {
+            throw new Exception(
+                'Kontaktpersoner må implementere KontaktInterface'
+            );
+        }
+        return parent::add($kontaktperson);
+    }
 }

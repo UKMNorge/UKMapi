@@ -170,4 +170,37 @@ class Omrade
 
         return $this;
     }
+
+    /**
+     * Hent kontaktpersoner for området, eller foreldre-området
+     *
+     * @return KontakpersonSamling
+     */
+    public function getKontaktpersoner() {
+        if( $this->kontaktpersoner == null ) {
+            $this->_loadKontaktpersoner();
+        }
+        return $this->kontaktpersoner;
+    
+    }
+
+    private function _loadKontaktpersoner() {
+        $this->kontaktpersoner = new KontaktpersonSamlingProxy();
+
+        // Hent områdets (arrangementets hovedeier) administratorer
+        if( $this->getAdministratorer()->getAntall() > 0 ) {
+            foreach( $this->getAdministratorer()->getAll() as $admin ) {
+                $this->kontaktpersoner->add( new KontaktpersonProxy( $admin ) );
+            }
+            return ;
+        }
+
+        // Hvis det er en kommune uten admins, hent fylkets kontaktpersoner
+        if( $this->getType() == 'kommune' ) {
+            $omrade = Omrade::getByFylke( $this->getFylke()->getId() );
+            foreach( $omrade->getAdministratorer()->getAll() as $admin ) {
+                $this->kontaktpersoner->add( new KontaktpersonProxy( $admin ) );
+            }
+        }
+    }
 }
