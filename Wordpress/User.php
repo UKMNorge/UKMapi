@@ -222,6 +222,15 @@ class User
     }
 
     /**
+     * Hent brukernavn (wordpress)
+     *
+     * @return String $brukernavn
+     */
+    public function getBrukernavn() {
+        return $this->getUsername;
+    }
+
+    /**
      * Set wordpress username
      *
      * @param  String  $username  Wordpress username
@@ -243,6 +252,15 @@ class User
     public function getEmail()
     {
         return $this->email;
+    }
+
+    /**
+     * Hent brukerens epost
+     *
+     * @return String $epost
+     */
+    public function getEpost() {
+        return $this->getEmail();
     }
 
     /**
@@ -268,6 +286,14 @@ class User
     {
         return $this->first_name;
     }
+    /**
+     * Hent brukerens fornavn
+     *
+     * @return String $fornavn
+     */
+    public function getFornavn() {
+        return $this->getFirstName();
+    }
 
     /**
      * Set user firstname (wp user meta)
@@ -291,6 +317,14 @@ class User
     public function getLastName()
     {
         return $this->last_name;
+    }
+    /**
+     * Hent brukerens etternavn
+     *
+     * @return String $etternavn
+     */
+    public function getEtternavn() {
+        return $this->getLastName();
     }
 
     /**
@@ -316,6 +350,23 @@ class User
     {
         return $this->phone;
     }
+    /**
+     * Hent brukerens telefonnummer
+     *
+     * @return Int $mobil
+     */
+    public function getTelefon() {
+        return $this->getPhone();
+    }
+    /**
+     * Hent brukerens telefonnummer
+     * @see getTelefon()
+     *
+     * @return Int $mobil
+     */
+    public function getMobil() {
+        return $this->getPhone();
+    }
 
     /**
      * Set user phone number (wp user meta)
@@ -336,12 +387,18 @@ class User
      *
      * @return String concat getFirstname() + ' ' + getLastname()
      */
-    public function getNavn()
-    {
-        return $this->getName();
-    }
     public function getName()
     {
         return $this->getFirstName() . ' ' . $this->getLastName();
+    }
+
+    /**
+     * Hent brukerens fulle navn
+     *
+     * @return String $navn
+     */
+    public function getNavn()
+    {
+        return $this->getName();
     }
 }

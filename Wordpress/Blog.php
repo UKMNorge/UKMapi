@@ -67,6 +67,8 @@ class Blog
     /**
      * Sikre at path er innenfor vår standard
      *
+     * @ developer: hvis denne endres, må også funksjonen i UKMNorge\Geografi\Kommune endres!
+     * 
      * @param String $path
      * @return String $path
      */

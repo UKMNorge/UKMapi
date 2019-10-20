@@ -10,27 +10,61 @@ use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Geografi\Fylker;
 use UKMNorge\Geografi\Kommune;
 use UKMNorge\Nettverk\Administratorer;
+use UKMNorge\Nettverk\Proxy\Kontaktperson as KontaktpersonProxy;
+use UKMNorge\Nettverk\Proxy\KontaktpersonSamling as KontaktpersonSamlingProxy;
 
 class Omrade
 {
+    private $kontaktpersoner = null;
 
+    /**
+     * Hent nasjonalt område
+     * (WHY?)
+     *
+     * @return Omrade
+     */
     public static function getByLand()
     {
         return static::getByType('land', 0);
     }
+    /**
+     * Hent fylke-område
+     *
+     * @param Int $id
+     * @return Omrade
+     */
     public static function getByFylke(Int $id)
     {
         return static::getByType('fylke', $id);
     }
+    /**
+     * Hent kommune-område
+     *
+     * @param Int $id
+     * @return Omrade
+     */
     public static function getByKommune(Int $id)
     {
         return static::getByType('kommune', $id);
     }
+    /**
+     * Hent arrangementets overordnede område
+     *
+     * @param Int $id
+     * @return Omrade
+     */
     public static function getByMonstring(Int $id)
     {
         return static::getByType('monstring', $id);
     }
 
+    /**
+     * Hent område fra type og id
+     *
+     * @param String $type
+     * @param Int $id
+     * @return Omrade
+     */
     public static function getByType(String $type, Int $id)
     {
         return new Omrade($type, $id);
@@ -69,13 +103,18 @@ class Omrade
         }
     }
 
+    /**
+     * Hent områdets navn
+     *
+     * @return void
+     */
     public function getNavn()
     {
         return $this->navn;
     }
 
     /**
-     * Områdets ID (concat string av type + id)
+     * Hent områdets ID (concat string av type + id)
      *
      * @return String concat( $type_$id )
      */
@@ -105,7 +144,7 @@ class Omrade
     /**
      * Hent administratorer for området
      *
-     * @return void
+     * @return Administratorer
      */
     public function getAdministratorer()
     {
@@ -116,7 +155,7 @@ class Omrade
     }
 
     /**
-     * Hent administratorer for området
+     * Hent arrangementer for området
      *
      * @param Int $season
      * @return Array<Arrangementer>
@@ -134,6 +173,12 @@ class Omrade
     }
 
 
+    /**
+     * Hent hvilket fylke området tilhører
+     *
+     * @throws Exception
+     * @return Fylke
+     */
     public function getFylke() {
         if( null == $this->fylke ) {
             throw new Exception(
@@ -143,6 +188,12 @@ class Omrade
         return $this->fylke;
     }
 
+    /**
+     * Hent hvilken kommune området tilhører
+     *
+     * @throws Exception
+     * @return Kommune
+     */
     public function getKommune() {
         if( null == $this->kommune ) {
             throw new Exception(
@@ -151,8 +202,12 @@ class Omrade
         }
         return $this->kommune;
     }
+
     /**
-     * Get the value of season
+     * Hent sesong
+     * (WHY?)
+     * 
+     * @return Int $sesong
      */ 
     public function getSeason()
     {
@@ -160,9 +215,10 @@ class Omrade
     }
 
     /**
-     * Set the value of season
-     *
-     * @return  self
+     * Sett sesong
+     * 
+     * @param Int $season
+     * @return self
      */ 
     public function setSeason($season)
     {
