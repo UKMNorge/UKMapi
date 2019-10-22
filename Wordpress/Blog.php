@@ -200,7 +200,10 @@ class Blog
         $blog_id = static::opprett( $path, $arrangement->getNavn());
         static::oppdaterFraArrangement($blog_id, $arrangement);
 
-        // Øvrig meta er satt via oppdaterFraArrangement (kommuner, fylke, pl_id)
+        // Disse skal ikke endres etter bloggen er opprettet, 
+        // og settes derfor her, da f.eks. oppdaterForArrangement
+        // kalles ved lagring av arrangement, og kan overskrive
+        // site_type:kommune (som ikke skal skje)
         static::applyMeta(
             $blog_id, 
             [
@@ -226,16 +229,7 @@ class Blog
         );
         $blog_id = static::opprett( $path, $fylke->getNavn());        
         
-        static::applyMeta(
-            $blog_id, 
-            [
-                'fylke'             => $fylke->getId(),
-                'site_type'         => 'fylke',
-                'pl_eier_type'      => 'fylke',
-                'pl_eier_id'        => $fylke->getId(),    
-            ]
-        );
-    
+        static::oppdaterFraFylke( $blog_id, $fylke );
         return $blog_id;
     }
 
@@ -252,18 +246,47 @@ class Blog
         );
         $blog_id = static::opprett( $path, $kommune->getNavn());
         
+        static::oppdaterFraKommune( $blog_id, $kommune );
+    
+        return $blog_id;
+    }
+
+
+    /**
+     * Oppdater en blogg med alle fylke-options
+     *
+     * @param Int $blog_id
+     * @param Fylke $fylke
+     * @return void
+     */
+    public static function oppdaterFraFylke( Int $blog_id, Fylke $fylke ) {
         static::applyMeta(
             $blog_id, 
             [
-                'kommuner'           => $kommune->getId(),
-                'site_type'         => 'kommune',
-                'pl_eier_type'      => 'kommune',
-                'pl_eier_id'        => $kommune->getId(),
-                'fylke'             => $kommune->getFylke()->getId()
+                'fylke'             => $fylke->getId(),
+                'site_type'         => 'fylke',
             ]
         );
-    
-        return $blog_id;
+    }
+
+
+    /**
+     * Oppdater en blogg med alle kommune-options
+     *
+     * @param Int $blog_id
+     * @param Kommune $kommune
+     * @return void
+     */
+    public static function oppdaterFraKommune( Int $blog_id, Kommune $kommune ) {
+        static::applyMeta(
+            $blog_id, 
+            [
+                'site_type'         => 'kommune',
+                'kommune'           => $kommune->getId(),
+                'fylke'             => $kommune->getFylke()->getId(),
+                'kommuner'           => $kommune->getId()
+            ]
+        );
     }
 
     /**
@@ -313,7 +336,7 @@ class Blog
     {
         static::controlBlogId($blog_id);
         static::setArrangementData($blog_id, $arrangement);
-        static::setStandardInnholdArrangement($blog_id, $arrangement->getType());        
+        static::setStandardInnholdArrangement($blog_id, $arrangement->getType());
     }
 
     /**

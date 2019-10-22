@@ -63,4 +63,5 @@ Navn | Returnerer | Beskrivelse
 **pl_eier_type** | String [kommune \| fylke \| land] | Brukes for å switche funksjonalitet i moduler osv<br /> (hvis arrangementet er eid av et fylke, skal administrator også kunne...)
 **pl_eier_id** | Int | Hvilken kommune eller fylke eier arrangementet (har opprettet det)
 **fylke** | Int | Viser hvilket fylke denne bloggen faller inn under. <br />Både kommuner og fylker har denne variabelen satt
+**kommune** | Int | Viser hvilken kommune/bydel denne bloggen omhandler. <br />Brukes kun sammen med `site_type:kommune`
 **~~kommuner~~** | String csv Int | Hvis dette er et lokal-arrangement (i database og mange sammenhenger kalt kommune-arrangement) angir denne variabelen hvilke kommuner, eller hvilken kommune, som er med i arrangementet. <br /> Oppdateres arrangementet, oppdateres denne. Bruk heller $arrangement->getKommuner()
