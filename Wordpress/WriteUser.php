@@ -11,6 +11,29 @@ class WriteUser
 {
 
     /**
+     * Aktiver en bruker
+     *
+     * @param User $user
+     * @return void
+     */
+    public static function aktiver( User $user ) {
+        update_user_meta( $user->getId(), 'disabled', false);
+    }
+    /**
+     * Deaktiver en bruker
+     *
+     * @param User $user
+     * @return void
+     */
+    public static function deaktiver( User $user ) {
+        update_user_meta( $user->getId(), 'disabled', true);
+    }
+
+    public static function setPassord( User $user, $passord ) {
+        wp_set_password( $passord, $user->getId() );
+    }
+
+    /**
      * Lagre / opprett et brukerobjekt
      *
      * @param User $user

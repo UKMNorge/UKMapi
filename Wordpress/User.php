@@ -48,6 +48,9 @@ class User
      */
     private $phone = null;
 
+    public static function erAktiv( Int $wp_user_id ) {
+        return !get_user_meta($wp_user_id, 'disabled'); 
+    }
 
 
     /**
@@ -99,7 +102,7 @@ class User
             );
         }
 
-        $wpUser = get_user_by('email', $_POST['email']);
+        $wpUser = get_user_by('email', $email);
         if (!$wpUser) {
             throw new Exception(
                 'En feil oppsto ved innlasting av bruker fra e-postadresse',
