@@ -18,6 +18,7 @@ class WriteUser
      */
     public static function aktiver( User $user ) {
         update_user_meta( $user->getId(), 'disabled', false);
+        delete_user_meta( $user->getId(), 'disabled');
     }
     /**
      * Deaktiver en bruker
