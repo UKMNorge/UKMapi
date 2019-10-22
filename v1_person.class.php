@@ -115,7 +115,7 @@ switch( $field ) {
 		}
 		else if ($field != 'instrument') {
 			$qry = new SQLins('smartukm_participant', array('p_id'=>$this->info['p_id']));
-			UKMlog('smartukm_participant',$field,$post_key,$this->info['p_id']);
+			#UKMlog('smartukm_participant',$field,$post_key,$this->info['p_id']);
 		}
 		else {
 			if( isset( $this->info['b_id'] ) && is_numeric( $this->info['b_id'] ) && $this->info['b_id'] > 0 ) {
@@ -140,7 +140,7 @@ switch( $field ) {
 			} else {
 				$qry = new SQLins('smartukm_rel_b_p', array('p_id'=>$this->info['p_id'], 'b_id'=>$use_b_id));
 			}
-			UKMlog('smartukm_rel_b_p',$field,$post_key,$this->info['p_id']);
+			#UKMlog('smartukm_rel_b_p',$field,$post_key,$this->info['p_id']);
 		}
 			
 		$qry->add($field, $_POST[$post_key]);
@@ -336,7 +336,7 @@ public function getByPhone( $phone, $b_id=false ) {
 			$end_ts = get_site_option( 'ukm_pl_start' );
 
 		if($monstring && get_class($monstring) == 'monstring') {
-			$end_ts = $monstring->get('pl_start');
+			$end_ts = $monstring->get('old_pl_start');
 		}
 		if(!$end_ts)
 			$end_ts = time();

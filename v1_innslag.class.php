@@ -1,42 +1,7 @@
 <?php
-function create_innslag($bt_id, $season, $pl_id, $kommune, $contact=false){
-	$tittellos = in_array($bt_id, array(4,5,8,9,10));
-	
 
-#	if($tittellos && !$contact)
-
-	$band = new SQLins('smartukm_band');
-	$band->add('b_season', $season);
-	$band->add('b_status', 8);
-	$band->add('b_name', 'Nytt innslag');
-	$band->add('b_kommune', $kommune);
-	$band->add('b_year', date('Y'));
-	$band->add('b_subscr_time', time());
-	$band->add('bt_id', $bt_id);
-	
-	if(is_object($contact))
-		$band->add('b_contact', $contact->g('p_id'));
-
-#	echo $band->debug();
-	$b_id = $band->run();
-	
-	$tech = new SQLins('smartukm_technical');
-	$tech->add('b_id', $b_id);
-	$tech->add('pl_id', $pl_id);
-	$techres = $tech->run();
-	
-
-	$rel = new SQLins('smartukm_rel_pl_b');
-	$rel->add('pl_id', $pl_id);
-	$rel->add('b_id', $b_id);
-	$rel->add('season', $season);
-	$relres = $rel->run();
-	
-	$innslag = new innslag( $b_id, false );
-	$innslag->statistikk_oppdater();
-		
-	return $b_id;
-}
+require_once('UKM/Autoloader.php');
+require_once('v1_person.class.php');
 
 function getBandtypeID($type) {
 	switch($type) {
@@ -223,15 +188,16 @@ class innslag {
 		// Tekniske krav skal i en annen tabell enn resten
 		if (in_array($field, array('td_demand', 'td_konferansier'))) {
 			$qry = new SQLins('smartukm_technical', array('b_id'=>$this->info['b_id']));
-			if (!$force)
-				UKMlog('smartukm_technical',$field,$post_key,$this->info['b_id']);
-				
+			if (!$force) {
+				#UKMlog('smartukm_technical',$field,$post_key,$this->info['b_id']);
+            }
 		}
 		// Alt annet
 		else {
 			$qry = new SQLins('smartukm_band', array('b_id'=>$this->info['b_id']));
-			if (!$force)
-				UKMlog('smartukm_band',$field,$post_key,$this->info['b_id']);
+			if (!$force) {
+                #UKMlog('smartukm_band',$field,$post_key,$this->info['b_id']);
+            }
 		}
 			
 		$qry->add($field, $_POST[$post_key]);

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpdocumentor>
+    <title>UKMapi</title>
+    <parser>
+        <target>docs/parser</target>
+        <encoding>utf8</encoding>
+        <markers>
+            <item>TODO</item>
+        </markers>
+        <extensions>
+            <extension>php</extension>
+        </extensions>
+        <visibility></visibility>
+    </parser>
+    <transformer>
+        <target>docs/</target>
+        <template name="responsive" />
+    </transformer>
+    <transformations>
+        <template name="responsive" />
+    </transformations>
+    <files>
+        <directory>.</directory>
+        <ignore>vendor/*</ignore>
+        <ignore>output/*</ignore>
+        <ignore>docs/*</ignore>
+    </files>
+</phpdocumentor>

@@ -1,0 +1,233 @@
+<?php
+
+namespace UKMNorge\Arrangement;
+
+use UKMNorge\Database\SQL\Query;
+use Exception;
+
+require_once('UKM/Autoloader.php');
+
+class Arrangementer
+{
+    private $omrade_type = null;
+    private $omrade_id = null;
+    private $season = null;
+    private $arrangementer = [];
+    private $filter = null;
+
+    public function __construct(Int $season, String $omrade_type, Int $omrade_id, $filter=false)
+    {
+        $this->season = $season;
+        $this->omrade_type = $omrade_type;
+        $this->omrade_id = $omrade_id;
+        if( $filter) {
+            if( get_class( $filter ) != 'UKMNorge\Arrangement\Filter') {
+                throw new Exception(
+                    'Arrangement-filter må være av klassen Filter! ('.get_class( $filter ).')',
+                    150003
+                );
+            }
+            $this->filter = $filter;
+        } else {
+            $this->filter = new Filter();
+        }
+    }
+
+    public static function filterSkipEier( $eier, $arrangementer ) {
+        $filtered = [];
+        foreach( $arrangementer as $arrangement ) {
+            #echo 'SAMMENLIGN: '. $arrangement->getEier()->getId() .' MED '. $eier->getId() ."\r\n";
+            if( $arrangement->getEier()->getId() != $eier->getId() ) {
+                $filtered[] = $arrangement;
+            }
+        }
+        return $filtered;
+    }
+
+    public function _load()
+    {
+        $this->arrangementer = [];
+
+        switch ($this->getOmradeType()) {
+
+            case 'kommune2':
+                throw new Exception(
+                    'load(' . $this->getOmradeType() . ') mangler implementering i Arrangementer',
+                    150002
+                );
+                break;
+            /*
+             * Lokalmønstringer som er eid av en kommune i fylket, 
+             * eller som deltar i en fellesmønstring i fylket
+             */
+            case 'fylke':
+                $sql = new Query(
+                    Arrangement::getLoadQry()
+                        . "WHERE
+                        `season` = '#season'
+                        AND (
+                            (#fylke) IN (
+                                SELECT `smartukm_kommune`.`idfylke`
+                                    FROM `smartukm_rel_pl_k` 
+                                    JOIN `smartukm_kommune`
+                                        ON (`smartukm_kommune`.`id` = `smartukm_rel_pl_k`.`k_id`)
+                                    WHERE `smartukm_rel_pl_k`.`pl_id` = `place`.`pl_id`
+                            )
+                            OR
+                            (`pl_type` != 'fylke' AND `pl_owner_fylke` = '#fylke')
+                        )",
+                    [
+                        'fylke' => $this->getOmradeId(),
+                        'season' => $this->getSesong()
+                    ]
+                );
+                #echo $sql->debug();
+                break;
+            /**
+             * HENT KOMMUNE & FYLKE FRA GITT OMRÅDE
+             */
+            case 'kommune':
+                $sql = new Query(
+                    Arrangement::getLoadQry()
+                        . "
+                        LEFT JOIN `smartukm_rel_pl_k` AS `pl_k`
+                            ON(`pl_k`.`pl_id` = `place`.`pl_id`)
+                        WHERE `pl_type` = 'kommune' 
+                        AND `place`.`season` = '#season'
+                        AND
+                            (
+                                `place`.`pl_owner_kommune` = '#omrade_id'
+                                OR
+                                `pl_k`.`k_id` = '#omrade_id'
+                            )
+                        ",
+                    [
+                        'omrade_id' => (Int) $this->getOmradeId(),
+                        'season' => $this->getSesong()
+                    ]
+                );
+                break;
+            case 'eier-kommune':
+                $sql = new Query(
+                    Arrangement::getLoadQry()
+                        . "WHERE `pl_type` = 'kommune' 
+                        AND `pl_owner_kommune` = '#omrade_id'
+                        AND `season` = '#season'
+                        ",
+                    [
+                        'omrade_id' => $this->getOmradeId(),
+                        'season' => $this->getSesong()
+                    ]
+                );
+                break;
+            case 'eier-fylke':
+                $sql = new Query(
+                    Arrangement::getLoadQry()
+                        . "WHERE `pl_type` = 'fylke'
+                        AND `pl_owner_fylke` = '#omrade_id'
+                        AND `season` = '#season'
+                        ",
+                    [
+                        'omrade_id' => $this->getOmradeId(),
+                        'season' => $this->getSesong()
+                    ]
+                );
+                break;
+                /**
+                 * HENT ALLE ARRANGEMENT I EN KOMMUNE, UT
+                 * FRA ET POSTNUMMER
+                 */
+            case 'postnummer':
+                $postnummer = new Query(
+                    "SELECT `k_id`
+                    FROM `smartukm_postalplace`
+                    WHERE `postalcode` = '#postnummer'",
+                    [
+                        'postnummer' => $this->getOmradeId()
+                    ]
+                );
+
+                $sql = new Query(
+                    Arrangement::getLoadQry()
+                        . "WHERE `pl_type` = 'kommune' 
+                        AND `pl_owner_kommune` = '#omrade_id'
+                        AND `season` = '#season'",
+                    [
+                        'omrade_id' => $postnummer->run('field'),
+                        'season' => $this->getSesong()
+                    ]
+                );
+                break;
+            case 'alle':
+                $sql = new Query(
+                    Arrangement::getLoadQry() ."
+                    WHERE `season` = '#season'",
+                    [
+                        'season' => $this->getSesong()
+                    ]
+                );
+                break;
+            case 'land':
+            default:
+                throw new Exception(
+                    'Ukjent type område ' . $this->getOmradeType(),
+                    150001
+                );
+        }
+        #echo $sql->debug();
+        $res = $sql->run();
+        while ($row = Query::fetch($res)) {
+            $arrangement = new Arrangement($row);
+            if( $this->filter->passesFilter( $arrangement ) ) {
+                $this->arrangementer[$row['pl_id']] = $arrangement;
+            }
+        }
+    }
+
+    /**
+     * Get the value of arrangementer
+     */
+    public function getAll()
+    {
+        if (sizeof($this->arrangementer) == 0) {
+            $this->_load();
+        }
+        return $this->arrangementer;
+    }
+
+    public function har() {
+        return sizeof( $this->getAll() ) > 0;
+    }
+
+    public function getAntall() {
+        return sizeof($this->getAll());
+    }
+
+    /**
+     * Get the value of omrade_type
+     */
+    public function getOmradeType()
+    {
+        return $this->omrade_type;
+    }
+
+    /**
+     * Get the value of omrade_id
+     */
+    public function getOmradeId()
+    {
+        return $this->omrade_id;
+    }
+
+    /**
+     * Get the value of season
+     */
+    public function getSeason()
+    {
+        return $this->getSesong();
+    }
+
+    public function getSesong() {
+        return $this->season;
+    }
+}

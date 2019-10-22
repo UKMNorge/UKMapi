@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}UKM{% endblock %}</title>
+    </head>
+
+    <body>
+
+        <style>
+            body {
+                background: #00004c;
+                margin: 0;
+                height: 100%;
+            }
+
+            #iAmCentered {
+                width: 30vw;
+                min-height: 30vh;
+                position: absolute;
+                top: 30vh;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+
+            img {
+                margin: 3rem;
+            }
+
+            #content {
+                color: #fff;
+            }
+        </style>
+        <div id="iAmCentered">
+            <div id="content">
+                {% block logo %}
+                    <img src="//grafikk.ukm.no/profil/bobla/UKM-bobla_hvit_0300.png"/>
+                {% endblock %}
+                {% block content %}
+                    <h1>Beklager, en feil har oppstått</h1>
+
+                    <p>
+                        <a href="javascript:window.close()">Lukk</a>
+                    </p>
+                {% endblock %}
+            </div>
+        </div>
+    </body>
+</html>

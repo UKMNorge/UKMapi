@@ -177,35 +177,6 @@ class bilde {
 	}
 	
 	/**
-	 * Hent album
-	 * Et album vil per i dag kun være en forestilling (begrensning i UKMbilder-modulen)
-	 *
-	 * @return object forestilling
-	**/
-	public function getAlbum() {
-		// Hvis album allerede er lastet inn
-		if( null !== $this->album ) {
-			return $this->album;
-		}
-		
-		// Album er ikke valgt under opplasting
-		if( null == $this->getAlbumId() ) {
-			return false;
-		}
-		
-		require_once('UKM/forestilling.class.php');
-		$forestilling = new forestilling( $this->getAlbumId() );
-
-		// Album refererer til en forestilling som ikke lenger finnes
-		if( false == $forestilling->getId() ) {
-			return false;
-		}
-		
-		$this->album = $forestilling;
-		return $this->album;
-	}
-	
-	/**
 	 * Sett kommune
 	 *
 	 * @param integer kommune_id

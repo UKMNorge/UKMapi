@@ -81,5 +81,5 @@ class UKMflash {
     private function _sessid() {
         return 'UKMflash_'. $this->id;
 	}
-
 }
+class Flashbag extends UKMflash {}

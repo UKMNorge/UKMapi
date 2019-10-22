@@ -55,7 +55,9 @@ class statistikk {
                     GROUP BY `pl`.`pl_id`) AS `temptable`";
                 
                 $sql = new SQL("SELECT SUM(`pl_missing`) as `missing` FROM `smartukm_place`
-                                        WHERE `season`=#season AND `pl_fylke` = #fylkeID",
+                                        WHERE `season`= #season 
+                                        AND `pl_owner_fylke` = #fylkeID
+                                        ",
                                 array('season' => (int)$season, 'fylkeID' => (int)$this->fylkeID));
                 $missing = $sql->run('field', 'missing');
             }
@@ -73,7 +75,7 @@ class statistikk {
             // Land
             else {
                 $query_pl_missing = "SELECT SUM(`pl_missing`) as `missing` FROM `smartukm_place`
-                                        WHERE `season`=#season AND `pl_fylke` < 21";
+                                        WHERE `season`=#season AND `pl_owner_fylke` < 21";
             }
             
             // PL_missing

@@ -8,11 +8,13 @@ Version: 4.0
 Comments: Now utilizes mysqli instead of mysql
 */
 
-require_once('UKMconfig.inc.php');
-require_once('UKM/sql/db.class.php');
-require_once('UKM/sql/common.class.php');
-require_once('UKM/sql/select.class.php');
-require_once('UKM/sql/insert.class.php');
-require_once('UKM/sql/delete.class.php');
-require_once('UKM/sql/write.class.php');
+require_once('UKM/Database/SQL/Query.php');
+require_once('UKM/Database/SQL/Insert.php');
+require_once('UKM/Database/SQL/Delete.php');
+require_once('UKM/Database/SQL/Write.php');
+
+class SQL extends UKMNorge\Database\SQL\Query {};
+class SQLins extends UKMNorge\Database\SQL\Insert {};
+class SQLdel extends UKMNorge\Database\SQL\Delete {};
+class SQLwrite extends UKMNorge\Database\SQL\Write{};
 ?>
