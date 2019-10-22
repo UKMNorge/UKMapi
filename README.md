@@ -48,3 +48,19 @@ prefix | objekt | les | skriv
 71 | Wordpress/User | 171yyy | 571yyy
 72 | Wordpress/Blog | 172yyy | 572yyy
 81 | Slack | 181yyy | 581yyy
+
+
+# Wordpress-options
+Disse variablene er satt på wordpress-bloggene, for å enklere
+kunne angi hvilken funksjonalitet de ulike bloggene skal ha.
+
+Bruk `get_option( $navn )` i wordpress.
+
+Navn | Returnerer | Beskrivelse
+--- | --- | ---
+**pl_id** | Bool false \| Int $arrangementID | false = ikke arrangement <br /> numerisk = arrangementID
+**site_type**| String [kommune \| fylke \| arrangement] | Brukes for å velge templates i UKMresponsive, identifisere kommunesider osv
+**pl_eier_type** | String [kommune \| fylke \| land] | Brukes for å switche funksjonalitet i moduler osv<br /> (hvis arrangementet er eid av et fylke, skal administrator også kunne...)
+**pl_eier_id** | Int | Hvilken kommune eller fylke eier arrangementet (har opprettet det)
+**fylke** | Int | Viser hvilket fylke denne bloggen faller inn under. <br />Både kommuner og fylker har denne variabelen satt
+**~~kommuner~~** | String csv Int | Hvis dette er et lokal-arrangement (i database og mange sammenhenger kalt kommune-arrangement) angir denne variabelen hvilke kommuner, eller hvilken kommune, som er med i arrangementet. <br /> Oppdateres arrangementet, oppdateres denne. Bruk heller $arrangement->getKommuner()

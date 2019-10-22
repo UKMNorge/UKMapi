@@ -65,6 +65,23 @@ class Blog
     }
 
     /**
+     * Hent bloggens path fra Id
+     *
+     * @param Int $id
+     * @return String $path
+     */
+    public static function getPathById( Int $id ) {
+        $path = static::getDetails($id, 'path');
+        if( !is_string( $path ) ) {
+            throw new Exception(
+                'Finner ikke blogg '. $id,
+                172009
+            );
+        }
+        return $path;
+    }
+
+    /**
      * Sikre at path er innenfor vår standard
      *
      * @ developer: hvis denne endres, må også funksjonen i UKMNorge\Geografi\Kommune endres!
@@ -86,6 +103,92 @@ class Blog
     }
 
     /**
+     * Fetch blog details
+     * 
+     * @see Wordpress get_blog_details https://codex.wordpress.org/WPMU_Functions/get_blog_details
+     *
+     * @param Int $blog_id
+     * @param String $variable
+     * @return void
+     */
+    public static function getDetails( Int $blog_id, String $variable=null ) {
+        if( $variable == null ) {
+            return get_blog_details( $blog_id );
+        }
+        return get_blog_details( $blog_id )->$variable;
+    }
+
+    /**
+     * Update blog details
+     *
+     * @param Int $blog_id
+     * @param Array $key_val_details
+     * @return update_blog_details( $blog_id, $key_val_details );
+     */
+    public static function setDetails( Int $blog_id, Array $key_val_details ) {
+        return update_blog_details( $blog_id, $key_val_details);
+    }
+
+    /**
+     * Get blog options
+     *
+     * @param Int $blog_id
+     * @param String $option_name
+     * @return get_blog_option( $blog_id, $option_name );
+     */
+    public static function getOption( Int $blog_id, String $option_name ) {
+        return get_blog_option( $blog_id, $option_name );
+    }
+
+    /**
+     * Set / update set blog option
+     *
+     * @param Int $blog_id
+     * @param String $option_name
+     * @param Any $option_value
+     * @return update_blog_option( $blog_id, $option_name, $option_value)
+     */
+    public static function setOption( Int $blog_id, String $option_name, $option_value ) {
+        return update_blog_option( $blog_id, $option_name, $option_value );
+    }
+
+    /**
+     * Flytt en blogg til ny path
+     *
+     * @param Int $blog_id
+     * @param String $path
+     * @return void
+     */
+    public static function flytt( Int $blog_id, String $path ) {
+        // Sjekk at vi har gyldig input-data
+        static::controlBlogId( $blog_id );
+        $path = static::controlPath( $path );
+        // Sjekk at blogg som skal flyttes eksisterer (getPathById kaster exception hvis ikke)
+        static::getPathById($blog_id);
+
+        // Sjekk at ny path ikke er tatt
+        try {
+            static::getIdByPath( $path );
+        } catch( Exception $e ) {
+            // 172007 = ingen blog @ path, som er riktig
+            if( $e->getCode() != 172007 ) {
+                var_dump( $path );
+                throw $e;
+            }
+        }
+
+        $domain = 'https://'. rtrim(static::getDetails( $blog_id, 'domain' ),'/').'/';
+        $url = rtrim($domain,'/').$path;
+        
+        static::setOption( $blog_id, 'siteurl', $url);
+        static::setOption( $blog_id, 'home', $url);
+        static::setDetails( 
+            $blog_id,
+            [ 'path' => $path]
+        );
+    }
+
+    /**
      * Opprett en blogg for et arrangement
      *
      * @param Arrangement $arrangement
@@ -96,6 +199,17 @@ class Blog
     {
         $blog_id = static::opprett( $path, $arrangement->getNavn());
         static::oppdaterFraArrangement($blog_id, $arrangement);
+
+        // Øvrig meta er satt via oppdaterFraArrangement (kommuner, fylke, pl_id)
+        static::applyMeta(
+            $blog_id, 
+            [
+                'site_type'         => 'arrangement',
+                'pl_eier_type'      => $arrangement->getEierType(),
+                'pl_eier_id'        => $arrangement->getEier()->getId(),
+            ]
+        );
+
         return $blog_id;
     }
 
@@ -116,7 +230,9 @@ class Blog
             $blog_id, 
             [
                 'fylke'             => $fylke->getId(),
-                'site_type'         => 'fylke'
+                'site_type'         => 'fylke',
+                'pl_eier_type'      => 'fylke',
+                'pl_eier_id'        => $fylke->getId(),    
             ]
         );
     
@@ -140,7 +256,10 @@ class Blog
             $blog_id, 
             [
                 'kommuner'           => $kommune->getId(),
-                'site_type'         => 'kommune'
+                'site_type'         => 'kommune',
+                'pl_eier_type'      => 'kommune',
+                'pl_eier_id'        => $kommune()->getId(),
+                'fylke'             => $kommune->getFylke()->getId()
             ]
         );
     
@@ -212,6 +331,7 @@ class Blog
         if (empty($path)) {
             throw new Exception('Gitt path er tom');
         }
+        // Sleng på leading slash
         // WP slenger selv på trailing slash
         if (strpos($path, '/') === false) {
             $path = '/' . $path;
@@ -422,7 +542,8 @@ class Blog
 
         $meta = [
             'fylke'             => $arrangement->getFylke()->getId(),
-            'site_type'         => $arrangement->getType(),
+            'pl_eier_type'      => $arrangement->getEierType(),
+            'pl_eier_id'        => $arrangement->getEier()->getId(),
             'pl_id'             => $arrangement->getId(),
             'season'            => $arrangement->getSesong(),
         ];
