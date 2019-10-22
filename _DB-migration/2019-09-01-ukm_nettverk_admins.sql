@@ -7,4 +7,4 @@ CREATE TABLE `ukm_nettverk_admins` (
   KEY `user_id` (`wp_user_id`),
   KEY `geo_type` (`geo_type`),
   KEY `geo_id` (`geo_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_danish_ci;

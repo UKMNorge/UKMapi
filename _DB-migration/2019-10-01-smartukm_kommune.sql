@@ -27,18 +27,18 @@ DROP TABLE IF EXISTS `smartukm_kommune`;
 
 CREATE TABLE `smartukm_kommune` (
   `id` int(6) NOT NULL AUTO_INCREMENT,
-  `superseed` varchar(80) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `name` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `alternate_name` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `active` enum('true','false') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'true',
-  `ssb_name` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `superseed` varchar(80) COLLATE utf8mb4_danish_ci DEFAULT NULL,
+  `name` varchar(150) COLLATE utf8mb4_danish_ci NOT NULL,
+  `alternate_name` varchar(150) COLLATE utf8mb4_danish_ci DEFAULT NULL,
+  `active` enum('true','false') COLLATE utf8mb4_danish_ci NOT NULL DEFAULT 'true',
+  `ssb_name` varchar(150) COLLATE utf8mb4_danish_ci DEFAULT NULL,
   `idfylke` int(6) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `idfylke` (`idfylke`),
   KEY `name` (`name`) USING BTREE,
   KEY `superseed` (`superseed`) USING BTREE,
   KEY `active` (`active`) USING BTREE
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_danish_ci;
 
 LOCK TABLES `smartukm_kommune` WRITE;
 /*!40000 ALTER TABLE `smartukm_kommune` DISABLE KEYS */;

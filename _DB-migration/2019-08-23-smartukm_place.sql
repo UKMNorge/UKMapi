@@ -146,4 +146,4 @@ CREATE TABLE `ukm_rel_pl_videresending` (
   UNIQUE KEY `en-rad-per-relasjon` (`pl_id_receiver`,`pl_id_sender`),
   KEY `pl_id` (`pl_id_receiver`),
   KEY `allow_pl_id` (`pl_id_sender`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_danish_ci;
