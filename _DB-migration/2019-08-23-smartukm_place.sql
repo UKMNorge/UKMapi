@@ -1,5 +1,5 @@
 # FJERN UBRUKTE KOLONNER
-ALTER TABLE `smartukm_place`,
+ALTER TABLE `smartukm_place`
 DROP COLUMN `pl_contact`,
 DROP COLUMN `contactp_konferansier`,
 DROP COLUMN `contactp_nettred`,
@@ -26,7 +26,7 @@ ADD COLUMN `pl_pamelding` ENUM('apen','betinget','ingen') NOT NULL DEFAULT 'apen
 ADD COLUMN `pl_videresending` ENUM('true','false') NOT NULL DEFAULT 'true' AFTER `pl_pamelding`,
 ADD COLUMN `pl_has_form` ENUM('false','true') DEFAULT 'false' AFTER `pl_videresending`,
 ADD COLUMN `pl_owner_fylke` INT(3) AFTER `pl_pamelding`,
-ADD COLUMN `pl_owner_kommune` INT(4) AFTER `pl_fylke`,
+ADD COLUMN `pl_owner_kommune` INT(4) AFTER `pl_owner_fylke`,
 ADD COLUMN `pl_type` ENUM('kommune','fylke','land','ukjent') NOT NULL DEFAULT 'ukjent' AFTER `pl_name`,
 ADD COLUMN `pl_location` JSON AFTER `pl_place`,
 ADD COLUMN `pl_visible` ENUM('true','false') NOT NULL DEFAULT 'true' AFTER `pl_type`;
@@ -45,42 +45,35 @@ UPDATE `smartukm_place`
 # SJEKK OM MØNSTRINGEN ER REGISTERT
 UPDATE `smartukm_place`
     SET `pl_registered` = 'true'
-    WHERE `old_pl_start` > 150000
-    AND `season` < 2019;
+    WHERE `old_pl_start` > 150000;
 
 # SETT EIER_TYPE: LAND
 UPDATE `smartukm_place`
 	SET `pl_type` = 'land'
 	WHERE `old_pl_kommune` > 1000
- 	AND `old_pl_fylke` > 1000
-    AND `season` < 2019;
+ 	AND `old_pl_fylke` > 1000;
 
 # SETT EIER_TYPE: FYLKE
 UPDATE `smartukm_place`
 	SET `pl_type` = 'fylke' 
 	WHERE `old_pl_fylke` > 0 
-	AND `old_pl_fylke` < 100
-    AND `season` < 2019;
+	AND `old_pl_fylke` < 100;
 
 # SETT EIER_TYPE: KOMMUNE
 UPDATE `smartukm_place`
 	SET `pl_type` = 'kommune' 
 	WHERE `old_pl_fylke` = 0
-    AND `old_pl_kommune` > 1000
-    AND `season` < 2019;
+    AND `old_pl_kommune` > 1000;
 
 # SETT FYLKE FOR FYLKESMØNSTRINGER
 UPDATE `smartukm_place`
-	SET `pl_fylke` = `pl_fylke` 
-	WHERE `old_pl_fylke` < 100
-    AND `season` < 2019;
+	SET `pl_owner_fylke` = `old_pl_fylke` 
+	WHERE `old_pl_fylke` < 100;
 
 # SETT KOMMUNE HVIS VI HAR NOEN (SKAL VEL IKKE SKJE, EGENTLIG?)
 UPDATE `smartukm_place`
-	SET `pl_owner_kommune` = `pl_kommune` 
-	WHERE `old_pl_kommune` > 1000
-    AND `season` < 2019
-;
+	SET `pl_owner_kommune` = `old_pl_kommune` 
+	WHERE `old_pl_kommune` > 1000;
 
 
 # LEGG TIL NYE INDEXER
@@ -93,8 +86,8 @@ CREATE INDEX `pl_stop` ON smartukm_place (pl_stop) USING BTREE;
 CREATE INDEX `pl_deadline` ON smartukm_place (pl_deadline) USING BTREE;
 CREATE INDEX `pl_deadline2` ON smartukm_place (pl_deadline2) USING BTREE;
 CREATE INDEX `pl_pamelding` ON smartukm_place (pl_pamelding) USING BTREE;
-CREATE INDEX `pl_fylke` ON smartukm_place (pl_fylke) USING BTREE;
-CREATE INDEX `pl_kommune` ON smartukm_place (pl_kommune) USING BTREE;
+CREATE INDEX `pl_owner_fylke` ON smartukm_place (pl_owner_fylke) USING BTREE;
+CREATE INDEX `pl_owner_kommune` ON smartukm_place (pl_owner_kommune) USING BTREE;
 CREATE INDEX `pl_type` ON smartukm_place (pl_type) USING BTREE;
 
 CREATE INDEX `old_pl_start` ON smartukm_place (old_pl_start) USING BTREE;
@@ -114,7 +107,6 @@ CREATE
         	SET NEW.pl_registered = 'false';
         END IF;
         
-        SET NEW.old_pl_fylke = NEW.pl_owner_fylke;
         SET NEW.old_pl_start = UNIX_TIMESTAMP( NEW.pl_start );
         SET NEW.old_pl_stop = UNIX_TIMESTAMP( NEW.pl_stop );
         SET NEW.old_pl_deadline = UNIX_TIMESTAMP( NEW.pl_deadline );
