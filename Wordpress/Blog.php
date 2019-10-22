@@ -258,7 +258,7 @@ class Blog
                 'kommuner'           => $kommune->getId(),
                 'site_type'         => 'kommune',
                 'pl_eier_type'      => 'kommune',
-                'pl_eier_id'        => $kommune()->getId(),
+                'pl_eier_id'        => $kommune->getId(),
                 'fylke'             => $kommune->getFylke()->getId()
             ]
         );
