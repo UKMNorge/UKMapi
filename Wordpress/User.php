@@ -112,6 +112,17 @@ class User
         return new User($wpUser->ID);
     }
 
+    public static function loadById( Int $id ) {
+        $wpUser = get_user_by('id', $id);
+        if (!$wpUser) {
+            throw new Exception(
+                'En feil oppsto ved innlasting av bruker fra ID',
+                171004
+            );
+        }
+        return new User($wpUser->ID);
+    }
+
     /**
      * Opprett en bruker
      * Lagrer ikke brukeren til databasen, men oppretter et tomt objekt som senere
