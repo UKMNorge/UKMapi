@@ -265,6 +265,8 @@ class Blog
             [
                 'fylke'             => $fylke->getId(),
                 'site_type'         => 'fylke',
+                'blogdescription'   => 'UKM i '. $fylke->getNavn(),
+                'blogname'          => $fylke->getNavn()
             ]
         );
     }
@@ -284,7 +286,9 @@ class Blog
                 'site_type'         => 'kommune',
                 'kommune'           => $kommune->getId(),
                 'fylke'             => $kommune->getFylke()->getId(),
-                'kommuner'           => $kommune->getId()
+                'kommuner'          => $kommune->getId(),
+                'blogdescription'   => 'UKM i '. $kommune->getNavn(),
+                'blogname'          => $kommune->getNavn()
             ]
         );
     }
@@ -569,15 +573,12 @@ class Blog
             'pl_eier_id'        => $arrangement->getEier()->getId(),
             'pl_id'             => $arrangement->getId(),
             'season'            => $arrangement->getSesong(),
+            'blogname'          => $arrangement->getNavn()
         ];
         if ($arrangement->getType() == 'kommune') {
-            $meta['blogname']           = $arrangement->getNavn();
-            $meta['blogdescription']    = 'UKM i ' . $arrangement->getNavn();
             $meta['kommuner']           = implode(',', $arrangement->getKommuner()->getIdArray());
-        } elseif( $arrangement->getType() == 'fylke' ) {
-            $meta['blogname']           = $arrangement->getFylke()->getNavn();
-            $meta['blogdescription']    = 'UKM i ' . $arrangement->getFylke()->getNavn();
         }
+
         static::applyMeta($blog_id, $meta);
     }
 
