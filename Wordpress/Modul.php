@@ -100,7 +100,7 @@ abstract class Modul {
             static::includeActionController();
             
             ## RENDER
-            echo TWIG( strtolower(static::getAction()) .'.html.twig', static::getViewData() , static::getPath(), true);
+            echo TWIG( static::getAction() .'.html.twig', static::getViewData() , static::getPath(), true);
 
             // Hvis modulen bruker TwigJS
             if( file_exists( static::getTwigJsPath() ) ) {
