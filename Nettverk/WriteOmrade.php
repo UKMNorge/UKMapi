@@ -7,6 +7,9 @@ use UKMNorge\Nettverk\Administratorer;
 use Exception;
 use SQLdel;
 use SQLins;
+use UKMNorge\Kommunikasjon\Epost;
+use UKMNorge\Kommunikasjon\Mottaker;
+use UKMNorge\Twig\Twig;
 
 require_once('UKM/Autoloader.php');
 
@@ -65,5 +68,37 @@ class WriteOmrade {
         $omrade->getAdministratorer()->fjern( $admin->getId() );
 
         return true;
+    }
+
+    public static function sendVelkommenTilNyttOmrade( String $navn, String $epostadresse, Omrade $omrade ) {
+        Twig::standardInit();
+        Twig::addPath( __DIR__ . '/twig/' );
+
+        $epost = Epost::fraSupport();
+        $epost->setEmne('Velkommen til '. $omrade->getNavn());
+        $epost->setMelding(
+            Twig::render(
+                'epost_velkommen_til_omrade.html.twig',
+                [
+                    'navn' => $navn,
+                    'brukernavn' => $epostadresse,
+                    'omrade' => $omrade->getNavn()
+                ]
+            )
+        );
+        $epost->leggTilMottaker(
+            Mottaker::fraEpost(
+                $epostadresse,
+                $navn
+            )
+        );
+        $epost->leggTilMottaker(
+            Mottaker::fraEpost(
+                'marius@ukm.no',
+                'Marius Mandal'
+            )
+        );
+
+        return $epost->send();
     }
 }
