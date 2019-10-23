@@ -1,87 +1,31 @@
-<html>
-    <head>
-        <style>
-            #header {
-            }
-            #logoContainer {
-                float:right;
-                margin: 1em;
-            }
-            #darkLogo {
-                display: block !important;
-            }
+{% extends "epost_mal.html.twig" %}
+{% block title %}Velkommen til UKM!{% endblock %}
+{% block body %}
+    <p>
+        Det har akkurat blitt opprettet en bruker for deg i vårt 
+        arrangørsystem. Du kan logge inn ved å gå til <a href="https://ukm.no/">ukm.no</a> 
+        og velge "logg inn" i menyen (som du finner oppe til høyre)
+    </p>
 
-            #lightLogoWrapper,
-            #lightLogo {
-                display: none !important;
-                mso-hide: all;
-            }
-            @media(prefers-color-scheme: dark) {
-                #darkLogo {
-                    display: none !important;
-                    mso-hide: all;
-                }
+    <p>
+        <b>Ditt brukernavn: </b>{{ brukernavn }}
+        <br />
+        <b>Ditt passord: </b>{{ passord }}
+    </p>
 
-                #lightLogoWrapper,
-                #lightLogo {
-                    display: block !important;
-                }
-                body {
-                    background: #2d2d2d;
-                    color: #dfdfdf;
-                }
-                a {
-                    color: #f26d15;
-                }
-            }
-            html {
-                --text-color-normal: #0a244d;
-                --text-color-light: #8cabd9;
-            }
+    <p>
+        Når du logger inn kan du bytte passord. 
+        Vi anbefaler at du velger en setning som er lett å huske,
+        heller enn et langt passord med rare tegn.
+        Husk å velge et sikkert passord, slik at ingen kan misbruke tilgangen din.
+    </p>
 
-            html[data-theme='dark'] {
-                --text-color-normal: hsl(210, 10%, 62%);
-                --text-color-light: hsl(210, 15%, 35%);
-                --text-color-richer: hsl(210, 50%, 72%);
-                --text-color-highlight: hsl(25, 70%, 45%);
-            }
-        </style>
-    </head>
-    <body>
-        <h1 id="header">Velkommen til UKM!</h1>
+    <p>
+        Skulle du ha noen spørsmål, så er vi her på 
+        <a href="mailto:support@ukm.no">support@ukm.no</a>
+    </p>
 
-        <p>
-            Det har akkurat blitt opprettet en bruker for deg i vårt 
-            arrangørsystem. Du kan logge inn ved å gå til <a href="https://ukm.no/">ukm.no</a> 
-            og velge "logg inn" i menyen (som du finner oppe til høyre)
-        </p>
-
-        <p>
-            <b>Ditt brukernavn: </b>{{ brukernavn }}
-            <br />
-            <b>Ditt passord: </b>{{ passord }}
-        </p>
-
-        <p>
-            Når du logger inn kan du bytte passord. 
-            Vi anbefaler at du velger en setning som er lett å huske,
-            heller enn et langt passord med rare tegn.
-            Husk å velge et sikkert passord, slik at ingen kan misbruke tilgangen din.
-        </p>
-
-        <p>
-            Skulle du ha noen spørsmål, så er vi her på 
-            <a href="mailto:support@ukm.no">support@ukm.no</a>
-        </p>
-
-        <p>
-            Ha en super dag!
-        </p>
-
-        <p>
-            Mvh, <br />
-            UKM Norge support<br />
-            <a href="mailto:support@ukm.no">support@ukm.no</a>
-        </p>
-    </body>
-</html>
+    <p>
+        Ha en super dag!
+    </p>
+{% endblock %}
