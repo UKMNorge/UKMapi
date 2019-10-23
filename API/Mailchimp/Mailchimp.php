@@ -191,9 +191,17 @@ class Mailchimp {
 	 * @return bool
 	 */
 	public function addTagsToSubscriber(MCList $list, Array $tags, String $email) {
+        $error = null;
 		foreach($tags as $tag) {
-			$this->addSubscriberToTag($list, $tag, $email);
-		}
+            try {
+                $this->addSubscriberToTag($list, $tag, $email);
+            } catch( Exception $e ) {
+                $error = $e;
+            }
+        }
+        if( $error !== null ) {
+            throw $error;
+        }
 		return true;
 	}
 
