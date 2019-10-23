@@ -157,7 +157,7 @@ class Mailchimp {
 		$taglist = $this->getAllTags($list);
 		$tagId = null;
 		foreach($taglist as $segment) {
-			if($segment->name == $tag) {
+			if(strtolower($segment->name) == strtolower($tag)) {
 				$tagId = $segment->id;
 			}
 		}
@@ -170,7 +170,6 @@ class Mailchimp {
 		$data['email_address'] = $email;
 		$addResult = $this->sendPostRequest('/lists/'.$list->getId().'/segments/'.$tagId.'/members', $data);
 
-		#var_dump($addResult);
 		if($addResult == null) {
 			throw new Exception("Curl-error occurred");
 		}
