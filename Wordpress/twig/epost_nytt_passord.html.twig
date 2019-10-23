@@ -1,0 +1,30 @@
+{% extends "epost_mal.html.twig" %}
+{% block title %}Vi har oppdatert passordet ditt{% endblock %}
+{% block body %}
+    <p>
+        Du kan logge inn ved å gå til <a href="https://ukm.no/">ukm.no</a> 
+        og velge "logg inn" i menyen (som du finner oppe til høyre)
+    </p>
+
+    <p>
+        <b>Ditt brukernavn: </b>{{ brukernavn }}
+        <br />
+        <b>Ditt passord: </b>{{ passord }}
+    </p>
+
+    <p>
+        Når du logger inn kan du bytte passord. 
+        Vi anbefaler at du velger en setning som er lett å huske,
+        heller enn et langt passord med rare tegn.
+        Husk å velge et sikkert passord, slik at ingen kan misbruke tilgangen din.
+    </p>
+
+    <p>
+        Skulle du ha noen spørsmål, så er vi her på 
+        <a href="mailto:support@ukm.no">support@ukm.no</a>
+    </p>
+
+    <p>
+        Ha en fortsatt fin dag!
+    </p>
+{% endblock %}

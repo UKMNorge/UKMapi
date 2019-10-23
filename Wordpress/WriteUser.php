@@ -30,8 +30,24 @@ class WriteUser
         update_user_meta( $user->getId(), 'disabled', true);
     }
 
-    public static function setPassord( User $user, $passord ) {
+    /**
+     * Oppdater en brukers passord
+     *
+     * @param User $user
+     * @param String $passord
+     * @return void
+     */
+    public static function setPassord( User $user, String $passord ) {
         wp_set_password( $passord, $user->getId() );
+    }
+    
+    /**
+     * Generer et nytt passord
+     *
+     * @return String $passord
+     */
+    public static function genererPassord() {
+        return wp_generate_password( 18, true );
     }
 
     /**
@@ -131,7 +147,45 @@ class WriteUser
                 $navn
             )
         );
+        $epost->leggTilBlindkopi(
+            Mottaker::fraEpost(
+                'marius@ukm.no',
+                'Marius Mandal'
+            )
+        );
+
+        return $epost->send();
+    }
+
+    /**
+     * Send velkommen-epost til brukeren
+     *
+     * @param String $navn
+     * @param String $epost
+     * @param String $passord
+     */
+    public static function sendNyttPassord( String $navn, String $epostadresse, String $passord ) {
+        Twig::standardInit();
+        Twig::addPath( __DIR__ . '/twig/' );
+
+        $epost = Epost::fraSupport();
+        $epost->setEmne('Nytt UKM-passord');
+        $epost->setMelding(
+            Twig::render(
+                'epost_nytt_passord.html.twig',
+                [
+                    'brukernavn' => $epostadresse,
+                    'passord' => $passord
+                ]
+            )
+        );
         $epost->leggTilMottaker(
+            Mottaker::fraEpost(
+                $epostadresse,
+                $navn
+            )
+        );
+        $epost->leggTilBlindkopi(
             Mottaker::fraEpost(
                 'marius@ukm.no',
                 'Marius Mandal'
