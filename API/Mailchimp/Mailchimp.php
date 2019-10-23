@@ -1,7 +1,8 @@
 <?php
 namespace UKMNorge\API;
 
-require_once("MCList.php");
+require_once("Autoloader.php");
+require_once("UKMconfig.inc.php");
 require_once("UKM/curl.class.php");
 
 use stdClass;
@@ -9,7 +10,6 @@ use Exception;
 use UKMCURL;
 use UKMNorge\API\Mailchimp\MCList;
 
-require_once("UKMconfig.inc.php");
 
 /**
  *

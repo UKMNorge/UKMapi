@@ -1,8 +1,6 @@
 <?php
 
-// No auto-loading.
-require_once("Mailchimp.php");
-require_once("MCList.php");
+require_once("Autoloader.php");
 
 use PHPUnit\Framework\TestCase;
 use UKMNorge\API\Mailchimp;
