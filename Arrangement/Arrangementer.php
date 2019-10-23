@@ -33,6 +33,16 @@ class Arrangementer
         }
     }
 
+    /**
+     * Hent første element
+     *
+     * @return void
+     */
+    public function getFirst() {
+        $alle = $this->getAll();
+        return array_pop( $alle );
+    }
+
     public static function filterSkipEier( $eier, $arrangementer ) {
         $filtered = [];
         foreach( $arrangementer as $arrangement ) {
