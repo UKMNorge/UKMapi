@@ -73,6 +73,7 @@ class WriteOmrade {
     public static function sendVelkommenTilNyttOmrade( String $navn, String $epostadresse, Omrade $omrade ) {
         Twig::standardInit();
         Twig::addPath( __DIR__ . '/twig/' );
+        Twig::addPath( dirname(__DIR__) . '/Wordpress/twig/' );
 
         $epost = Epost::fraSupport();
         $epost->setEmne('Velkommen til '. $omrade->getNavn());
