@@ -48,6 +48,7 @@ prefix | objekt | les | skriv
 71 | Wordpress/User | 171yyy | 571yyy
 72 | Wordpress/Blog | 172yyy | 572yyy
 81 | Slack | 181yyy | 581yyy
+82 | Mailchimp | - | 582yyy
 
 
 # Wordpress-options

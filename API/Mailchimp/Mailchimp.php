@@ -1,7 +1,7 @@
 <?php
-namespace UKMNorge\API;
+namespace UKMNorge\API\Mailchimp;
 
-require_once("Autoloader.php");
+require_once("UKM/Autoloader.php");
 require_once("UKMconfig.inc.php");
 require_once("UKM/curl.class.php");
 
@@ -23,11 +23,16 @@ class Mailchimp {
 	private $result = null;
 		
 	public function __construct() {
-		if( !defined("MAILCHIMP_API_BASE_URL") || !defined("MAILCHIMP_API_KEY")) {
-			throw new Exception("Missing mailchimp defines - see Readme.md");
+		if( !defined("MAILCHIMP_API_KEY")) {
+			throw new Exception("Missing MAILCHIMP_API_KEY");
 		}
 
-		$this->mailchimp_url = MAILCHIMP_API_BASE_URL;
+        $this->mailchimp_url = 'https://'. 
+            substr(
+                MAILCHIMP_API_KEY,
+                strrpos( MAILCHIMP_API_KEY, '-' )+1
+            ).
+            '.api.mailchimp.com/3.0';
 
 		if(substr($this->mailchimp_url, 0, 5) != "https") {
 			throw new Exception("Can't use Mailchimp-API without https to ensure API Key secrecy.");
@@ -36,24 +41,25 @@ class Mailchimp {
 
 	/**
 	 * Henter alle mail-lister fra Mailchimp, og returnerer de som et array.
-	 * @return Array [List]
+	 * @return Array<MCList>
 	 */
 	public function getLists() {
-		$this->lists = $this->sendGetRequest("lists", 0)->lists;
-		return($this->lists);
+        if($this->lists == null) {
+            $request = $this->sendGetRequest("lists", 0);
+            $this->lists = $request->lists;
+		}
+
+		return $this->lists;
 	}
 
 	/**
-	 *
+	 * Hent en gitt liste
+     * 
 	 * @return MCList $list
 	 * @throws Exception $list_not_found
 	 */
 	public function getList($id) {
-		if($this->lists == null) {
-			$this->getLists();
-		}
-
-		foreach($this->lists as $list) {
+		foreach($this->getLists() as $list) {
 			if($list->id == $id) {
 				return new MCList($list->id, $list->name, $list->permission_reminder, $list->stats);
 			}
@@ -142,9 +148,11 @@ class Mailchimp {
 
 	/**
 	 * Adds a tag to a subscriber.
+     * 
 	 * @return bool
 	 */
 	public function addSubscriberToTag(MCList $list, $tag, $email) {
+        $tag = static::sanitizeTag( $tag );
 		// Verify that the list has the tag
 		$taglist = $this->getAllTags($list);
 		$tagId = null;
@@ -178,9 +186,12 @@ class Mailchimp {
 	 * Adds an array of clear-text tags to a subscriber.
 	 * Tags don't need to exist, they are created on-the-fly if required.
 	 *
+     * @param MCList $list
+     * @param Array<String> $tags
+     * @param String $email
 	 * @return bool
 	 */
-	public function addTagsToSubscriber(MCList $list, $tags, $email) {
+	public function addTagsToSubscriber(MCList $list, Array $tags, String $email) {
 		foreach($tags as $tag) {
 			$this->addSubscriberToTag($list, $tag, $email);
 		}
@@ -191,6 +202,7 @@ class Mailchimp {
 	 * Returns all tags that exist.
 	 * Note: Tags belong to a list - but we'll only ever be using one list.
 	 *
+     * @param MCList $list
 	 * @return Array
 	 */
 	public function getAllTags(MCList $list) {
@@ -208,9 +220,12 @@ class Mailchimp {
 	/**
 	 * Creates a tag on a list 
 	 *
+     * @param MCList $list
+     * @param String $tag
 	 * @return id of new list on success, throws Exception if failure
+     * @throws Exception malformed tag, Mailchimp request failed, Mailchimp tag create failed
 	 */
-	public function createTag( MCList $list, $tag ) {
+	public function createTag( MCList $list, String $tag ) {
 		if($tag == null) {
 			throw new Exception("Tag must not be null.");
 		}
@@ -239,7 +254,7 @@ class Mailchimp {
 	 * Sends a POST request to create new objects on the server
 	 */
 	private function sendPostRequest($resource, $data) {
-		$url = $this->mailchimp_url."/".$resource;
+		$url = $this->_getUrl( $resource );
 
 		$curl = new UKMCURL();
 		$curl->json($data);
@@ -255,7 +270,7 @@ class Mailchimp {
 	 * @param String $resource - lists, total_subscribers, ping etc
 	 */
 	private function sendGetRequest($resource, $page = null) {
-		$url = $this->mailchimp_url."/".$resource;
+		$url = $this->_getUrl( $resource );
 		if($page != null) {
 			$url .= "?offset".$page;
 			$url .= "&count".$this->pageSize*($page+1);
@@ -265,8 +280,8 @@ class Mailchimp {
 		$curl->requestType("GET");
 		$curl->user('userpwd:'.MAILCHIMP_API_KEY);
 
-		$response = $curl->request($url);
 
+        $response = $curl->request($url);
 		if($response == false) {
 			// TODO: Do some error checking etc here.
 		}
@@ -281,5 +296,27 @@ class Mailchimp {
 			return true;
 		}
 		return false;
-	}
+    }
+    
+    /**
+     * Hent API-URL
+     *
+     * @param String $resource
+     * @return void
+     */
+    private function _getUrl( String $resource ) {
+        return rtrim($this->mailchimp_url,'/')."/".$resource;
+    }
+
+    public static function sanitizeTag( $tag ) {
+        return preg_replace(
+            "/[^a-z0-9-]/",
+            '',
+            str_replace(
+                ['æ', 'ø', 'å', 'ü', 'é', 'è'],
+                ['a', 'o', 'a', 'u', 'e', 'e'],
+                mb_strtolower($tag)
+            )
+        );
+    }
 }
