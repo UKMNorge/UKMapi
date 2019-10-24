@@ -8,6 +8,7 @@ use Exception;
 abstract class Collection implements Iterator
 {
     private $var = array();
+    public $id = null;
     
     public function add( $item ) {
 	    $this->var[] = $item;
@@ -109,4 +110,24 @@ abstract class Collection implements Iterator
 
     public function __construct()
     {}
+
+    /**
+     * Hent Collection ID
+     */ 
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Sett collection ID
+     *
+     * @return  self
+     */ 
+    public function setId($id)
+    {
+        $this->id = $id;
+
+        return $this;
+    }
 }
