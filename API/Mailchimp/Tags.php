@@ -75,6 +75,7 @@ class Tags extends Collection {
      * @throws Exception out-of-luck-exception if it all went wrong
      */
     public function getOrCreate( String $tag_name ) {
+        $tag_name = Tag::sanitize($tag_name);
         try {
             return $this->get($tag_name);
         } catch( Exception $e ) {
@@ -137,5 +138,6 @@ class Tags extends Collection {
         while( $tagdata = Query::fetch( $tags ) ) {
             $this->add( Tag::createFromDBdata( $tagdata ) );
         }
+        // kan ikke kjøre return $this->getAll(), da det vil trigge $this->loadAll(), som spør databasen
     }
 }

@@ -20,7 +20,7 @@ class Mailchimp
     private static $api_url;
     private static $api_key;
     private static $audiences = null;
-    private static $pageSize = 50;
+    private static $pageSize = 1000;
 
     public static function init()
     {
@@ -63,6 +63,8 @@ class Mailchimp
         $url = static::_getUrl($resource);
         if ($page != null) {
             $url .= "?offset" . $page . "&count" . static::$pageSize * ($page + 1);
+        } else {
+            $url .= '?count='. static::$pageSize;
         }
 
         $curl = new UKMCURL();

@@ -12,7 +12,14 @@ var $page;
 
     public function __construct( stdClass $data, Int $page=null )
     {
+
         // TODO: If serious mailchimp error: throw it here
+        if( $data->status == '404' ) {
+            throw new Exception(
+                'Invalid Mailchimp result: '. $data->detail
+            );
+        }
+        
         $this->data = $data;
         $this->page = $page;
     }
