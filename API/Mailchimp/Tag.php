@@ -47,14 +47,6 @@ class Tag
         );
         $insertId = $tag->persist();
 
-        if (empty($insertId)) {
-            // If insert failed, but did not throw exception,
-            // it is fairly safe to assume that it already is there.
-            // Try fetching.
-            $tag->setDbId(
-                static::_getDbIdFromTagId($data->list_id, $data->id)
-            );
-        }
         return $tag;
     }
 
@@ -100,11 +92,16 @@ class Tag
             $res = $sql->run();
         } catch (Exception $e) {
             // if insert-error "duplicate key [audience_id+name]", setDbId(), and re-run persist.
-            if ($e->getCode() != 901001) {
-                $this->db_id = static::_getDbIdFromTagId(
-                    $this->getAudienceId(),
-                    $this->getTagId()
-                );
+            if ($e->getCode() == 901001) {
+                try {
+                    $this->db_id = static::_getDbIdFromTagId(
+                        $this->getAudienceId(),
+                        $this->getTagId()
+                    );
+                } catch (Exception $couldnotfindexception ) {
+                    // Possible sync-issue between db and mailchimp. Do nothing atm.
+                }
+            } else {
                 throw $e;
             }
         }
