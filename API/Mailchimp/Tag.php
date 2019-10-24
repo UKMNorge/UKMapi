@@ -129,7 +129,7 @@ class Tag
     {
         $select = new Query(
             "SELECT `id`
-            FROM `smartukm_tag`
+            FROM `mailchimp_tag`
             WHERE `audience_id` = '#audience'
             AND `mailchimp_id` = '#tag_id'
             LIMIT 1",
@@ -138,15 +138,15 @@ class Tag
                 'tag_id' => $tag_id
             ]
         );
-        $tag_id = $select->getField();
+        $real_tag_id = $select->getField();
 
-        if (!is_numeric($tag_id)) {
+        if (!is_numeric($real_tag_id)) {
             throw new Exception(
                 'Could not find tag ' . $tag_id . ' for audience ' . $audience_id
             );
         }
 
-        return $tag_id;
+        return $real_tag_id;
     }
 
     /**

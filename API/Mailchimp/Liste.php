@@ -19,7 +19,7 @@ abstract class Liste {
         static::init();
         $tag_objects = [];
         foreach( $tags as $tag_name ) {
-            $tag_objects[] = static::_getAudience()->getTags()->get( $tag_name );
+            $tag_objects[] = static::_getAudience()->getTags()->getOrCreate( $tag_name );
         }
         return $subscriber->addTags( $tag_objects );
     }
@@ -33,7 +33,7 @@ abstract class Liste {
      */
     public static function tag( Subscriber $subscriber, String $tag ) {
         static::init();
-        $tag = static::_getAudience()->getTags()->get( $tag );
+        $tag = static::_getAudience()->getTags()->getOrCreate( $tag );
         $subscriber->addTag( $tag );
         return true;    
     }
