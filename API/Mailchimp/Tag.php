@@ -25,9 +25,9 @@ class Tag
      */
     public function __construct(String $audience_id, String $tag_id, String $tag_name)
     {
-        $this->id = $tag_name;
-        $this->audience_id = $audience_id;
+        $this->id = static::sanitize($tag_name);
         $this->name = static::sanitize($tag_name);
+        $this->audience_id = $audience_id;
         $this->mailchimp_tag_id = $tag_id;
     }
 
@@ -153,18 +153,19 @@ class Tag
      * Creates a tag on a audience 
      *
      * @param String $audience_id
-     * @param String $tag
+     * @param String $tag_name
      * @return Tag
      * @throws Exception malformed tag, Mailchimp request failed, Mailchimp tag create failed
      */
-    public static function createTag(String $audience_id, String $tag)
+    public static function createTag(String $audience_id, String $tag_name)
     {
-        Tag::validate($tag);
+        $tag_name = static::sanitize($tag_name);
+        Tag::validate($tag_name);
 
         $result = Mailchimp::sendPostRequest(
             '/lists/' . $audience_id . '/segments',
             [
-                'name' => $tag,
+                'name' => $tag_name,
                 'static_segment' => []
             ]
         );
@@ -175,10 +176,16 @@ class Tag
             );
         }
 
+        if( $result->getData()->title == 'Bad Request' && strpos($result->getData()->detail, 'already exist') !== false ) {
+            throw new Exception(
+                'Cannot create already existing tag '. $tag_name
+            );
+        }
+
         $tag = new Tag(
             $audience_id,
             $result->getData()->id,
-            $tag
+            $tag_name
         );
         $tag->persist();
 
@@ -246,7 +253,7 @@ class Tag
      */
     public function getName()
     {
-        return $this->name;
+        return static::sanitize($this->name);
     }
 
     /**
