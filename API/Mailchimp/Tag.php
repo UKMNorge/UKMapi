@@ -129,7 +129,7 @@ class Tag
     {
         $select = new Query(
             "SELECT `id`
-            FROM `smartukm_tag`
+            FROM `mailchimp_tag`
             WHERE `audience_id` = '#audience'
             AND `mailchimp_id` = '#tag_id'
             LIMIT 1",
