@@ -173,7 +173,11 @@ class Fylke {
 			
 			if( $res ) {
 				while( $r = Query::fetch( $res ) ) {
-					$this->kommuner->add( new Kommune( $r ) );
+                    $kommune = new Kommune( $r );
+                    // Ekskluderer gjeste-kommuner
+                    if( $kommune->getId() != ($this->getId().'90') ) {
+                        $this->kommuner->add( $kommune );
+                    }
 				}
 			}
 		}
