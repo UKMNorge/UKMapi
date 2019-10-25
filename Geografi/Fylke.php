@@ -2,6 +2,7 @@
 
 namespace UKMNorge\Geografi;
 
+use Exception;
 use UKMNorge\Nettverk\Administratorer;
 use UKMNorge\Nettverk\Omrade;
 use UKMNorge\Database\SQL\Query;
@@ -38,10 +39,14 @@ class Fylke {
     /**
      * Hent link til fylkessiden
      *
+     * @param Bool $pathOnly (bruk true f.o.m. 2019)
      * @return String $link
      */
-	public function getLink() {
-		return $this->link;
+	public function getLink(Bool $pathOnly=true) {
+        if( $pathOnly ) {
+            return $this->link;
+        }
+        return '//'. UKM_HOSTNAME . '/'. trim( $this->link, '/') .'/';
 	}
     
     /**
@@ -209,6 +214,63 @@ class Fylke {
 	**/
 	public function getURLsafe() {
 		return $this->getLink();
+    }
+
+
+    /**
+     * Har fylket blitt erstattet av et annet?
+     *
+     * @return Bool
+     */
+    public function erOvertatt() {
+        return in_array(
+            $this->getId(),
+            [1,2,4,5,6,7,8,9,10,12,14,16,17,19,20]
+        );
+    }
+    /**
+     * Hvilket fylke har overtatt for dette?
+     *
+     * @return Fylke
+     */
+    public function getOvertattAv() {
+        if( !$this->erOvertatt() ) {
+            throw new Exception(
+                $this->getNavn() .' er fortsatt aktivt, og ikke overtatt av et annet fylke',
+                163001
+            );
+        }
+        switch( $this->getId() ) {
+            // Agder
+            case 9:
+            case 10:
+                return Fylker::getById(42);
+            // Viken
+            case 1:
+            case 2:
+            case 6:
+                return Fylker::getById(30);
+            // Troms og Finnmark
+            case 19:
+            case 20:
+                return Fylker::getById(54);
+            // Innlandet
+            case 4:
+            case 5:
+                return Fylker::getById(34);
+            // Vestland
+            case 12:
+            case 14:
+                return Fylker::getById(46);
+            // Trøndelag
+            case 16:
+            case 17:
+                return Fylker::getById(50);
+            // Vestfold og Telemark
+            case 7:
+            case 8:
+                return Fylker::getById(38);
+        }
     }
     
     /**

@@ -14,6 +14,8 @@ class Kommune {
     private $tidligere = null;
     private $tidligere_list = null;
     private $attributes = [];
+    private $overtatt;
+    private $overtatt_av;
 
 	public function __construct( $kid_or_row ) {
 		if( is_numeric( $kid_or_row ) ) {
@@ -30,10 +32,19 @@ class Kommune {
      * @return $this
      */
 	private function _loadByID( Int $id ) {
-		$sql = new Query("SELECT *
-						FROM `smartukm_kommune`
-						WHERE `id` = '#id'",
-						array('id' => $id ) );
+		$sql = new Query(
+            "SELECT *,
+            (
+                SELECT `id` 
+                FROM `smartukm_kommune` AS `overtatt` 
+                WHERE `smartukm_kommune`.`id` IN (`overtatt`.`superseed`)
+            ) AS `overtatt_av`
+            FROM `smartukm_kommune`
+            WHERE `id` = '#id'",
+            [
+                'id' => $id
+            ]
+        );
 		$res = $sql->run('array');
 		if( !is_array( $res ) ) {
 			$this->id = false;
@@ -56,6 +67,8 @@ class Kommune {
         $this->name_nonutf8 = $res['name'];
         $this->aktiv = ($res['active'] == 'true');
         $this->tidligere_list = $res['superseed'];
+        $this->overtatt = !is_null( $res['overtatt_av'] );
+        $this->overtatt_av = (Int) $res['overtatt_av'];
 
         // Hvis kommunen ikke har overtatt for noen, 
         // mellomlagre det, så slipper vi å beregne flere ganger
@@ -164,7 +177,7 @@ class Kommune {
      * @return String $url
      */
     public function getLink() {
-        return '//'. UKM_HOSTNAME .'/'. $this->getPath();
+        return '//'. UKM_HOSTNAME .'/'. rtrim(trim($this->getPath(),'/'),'/').'/';
     }
 
     /**
@@ -215,12 +228,33 @@ class Kommune {
     }
 
     /**
-     * Hent ID-listen for tidligere arrangementer
+     * Hent ID-listen for tidligere kommuner
      *
      * @return String CSV ID-liste
      */
     public function getTidligereIdList() {
         return $this->tidligere_list;
+    }
+
+    /**
+     * Hent en navne-liste over tidligere kommunenavn
+     * 
+     * @return String tom eller navneliste, prefixed med "Tidligere: "
+     */
+    public function getTidligereNavnListe() {
+        if( !$this->harTidligere() ) {
+            return '';
+        }
+        $string = '';
+        foreach( $this->getTidligere() as $tidligere ) {
+            if( $tidligere->getNavn() != $this->getNavn() ) {
+                $string .= $tidligere->getNavn() .', ';
+            }
+        }
+        if( empty( $string ) ) {
+            return '';
+        }
+        return 'Tidligere: '. rtrim( $string, ', ');
     }
 
     /**
@@ -249,6 +283,24 @@ class Kommune {
                 $this->tidligere[] = $tidligere;
             }
         }
+    }
+
+    /**
+     * Er kommunen overtatt av en annen?
+     *
+     * @return Bool
+     */
+    public function erOvertatt() {
+        return $this->overtatt;
+    }
+
+    /**
+     * Hent kommunen som har overtatt for denne
+     *
+     * @return Kommune
+     */
+    public function getOvertattAv() {
+        return new Kommune( $this->overtatt_av );
     }
 
 	/**

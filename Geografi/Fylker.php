@@ -50,8 +50,14 @@ class Fylker {
 		self::$fylker[50]	= new Fylke(50, 'trondelag', 'Trøndelag', true);
 		self::$fylker[54]	= new Fylke(54, 'tromsogfinnmark', 'Troms og Finnmark', true);
     }
-	
-	public static function getById( $id ) {
+    
+    /**
+     * Hent fylke fra faktisk ID
+     *
+     * @param Int $id
+     * @return Fylke
+     */
+	public static function getById( Int $id ) {
 		if( null == self::$fylker ) {
 			self::initialize();
 		}
@@ -63,8 +69,14 @@ class Fylker {
 		if('throw' == self::$logMethod)
 			throw new Exception('Prøvde å aksessere et fylke som ikke finnes (ID: '. $id .')');
 	}
-	
-	public static function getByLink( $id ) {
+    
+    /**
+     * Hent fylke fra tekst-id
+     *
+     * @param String $id
+     * @return void
+     */
+	public static function getByLink( String $id ) {
 		if( null == self::$fylker ) {
 			self::initialize();
 		}
@@ -92,7 +104,15 @@ class Fylker {
 			
 			case 'testfylke':		return self::getById( 21 );
 			case 'gjester':			return self::getById( 32 );
-			case 'internasjonalt':	return self::getById( 31 );
+            case 'internasjonalt':	return self::getById( 31 );
+            
+            case 'viken':           return self::getById(30);
+            case 'innlandet':       return self::getById(34);
+            case 'vestfoldogtelemark': return self::getById(38);
+            case 'agder':           return self::getById(42);
+            case 'vestland':        return self::getById(46);
+            case 'trondelag':       return self::getById(50);
+            case 'tromsogfinnmark': return self::getById(54);
 		}
 
 		throw new Exception('Prøvde å aksessere et fylke som ikke finnes (ID: '. $id .')');
