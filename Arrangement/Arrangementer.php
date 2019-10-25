@@ -36,7 +36,7 @@ class Arrangementer
     /**
      * Hent første element
      *
-     * @return void
+     * @return Arrangement
      */
     public function getFirst() {
         $alle = $this->getAll();
