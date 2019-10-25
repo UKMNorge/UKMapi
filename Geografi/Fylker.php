@@ -44,11 +44,11 @@ class Fylker {
         // 2020-fylker 🎉
 		self::$fylker[30]	= new Fylke(30, 'viken', 'Viken', true);
 		self::$fylker[34]	= new Fylke(34, 'innlandet', 'Innlandet', true);
-        self::$fylker[38]	= new Fylke(38, 'vestfold-og-telemark', 'Vestfold og Telemark', true);
+        self::$fylker[38]	= new Fylke(38, 'vestfoldogtelemark', 'Vestfold og Telemark', true);
         self::$fylker[42]	= new Fylke(42, 'agder', 'Agder', true);
 		self::$fylker[46]	= new Fylke(46, 'vestland', 'Vestland', true);
 		self::$fylker[50]	= new Fylke(50, 'trondelag', 'Trøndelag', true);
-		self::$fylker[54]	= new Fylke(54, 'troms-og-finnmark', 'Troms og Finnmark', true);
+		self::$fylker[54]	= new Fylke(54, 'tromsogfinnmark', 'Troms og Finnmark', true);
     }
 	
 	public static function getById( $id ) {
