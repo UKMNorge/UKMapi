@@ -11,7 +11,14 @@ require_once('UKM/Autoloader.php');
 
 class Load {
 
-    public static function bySesong( $sesong, $filter=false ) {
+    /**
+     * Hent arrangementer per sesong
+     *
+     * @param Int $sesong
+     * @param boolean $filter
+     * @return Arrangementer
+     */
+    public static function bySesong( Int $sesong, $filter=false ) {
         return new Arrangementer( $sesong, 'alle', 0);
     }
 
