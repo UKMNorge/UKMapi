@@ -1,0 +1,38 @@
+{% extends "epost_mal.html.twig" %}
+
+{% block title %}Administrator ble ikke tagget{% endblock %}
+{% block body %}
+    <p>
+        Problemet må løses så fort som mulig, da brukeren ikke får velkomst-epost før dette er gjort.
+    </p>
+
+    <ol>
+        <li>
+            <a href="https://login.mailchimp.com/">Logg inn på Mailchimp</a>
+        </li>
+        <li>
+            <a href="https://us1.admin.mailchimp.com/lists/members?id=1157991">Velg "Audience" i menyen, "UKM-arrangører" fra lista, og trykk "View contacts"</a>
+        </li>
+        <li>   
+            Trykk på søke-ikonet
+        </li>
+        <li>
+            Søk opp denne e-postadressen: {{ epost }}, og sørg for at personen har følgende tags:
+            <ul>
+                {% for tag in tags %}
+                    <li>{{ tag }}</li>
+                {% endfor %}
+            </ul>
+        </li>
+    </ol>
+
+    <p>
+        <small>
+            Feilmelding fra systemet: <code>{{feilmelding}}</code>
+        </small>
+    </p>
+
+    <p>
+        Happy bugfix! 🐛
+    </p>
+{% endblock %}
