@@ -594,7 +594,8 @@ class Blog
             'pl_id',
             'season',
             'kommuner',
-            'ukm_pl_id'
+            'ukm_pl_id',
+            'status_monstring' // settes f.eks. hvis arrangementet er avlyst
         ];
 
         foreach( $metas as $meta ) {
