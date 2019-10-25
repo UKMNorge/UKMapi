@@ -20,9 +20,7 @@ class Mottaker {
      * @return Mottaker
      */
     public static function fraEpost( String $epost, String $navn=null) {   
-        $mottaker = new Mottaker( $navn, $epost );
-    
-        return $mottaker;
+        return new Mottaker( $navn, $epost );
     }
 
     /**
