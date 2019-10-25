@@ -97,25 +97,7 @@ class Arrangementer
              * HENT KOMMUNE & FYLKE FRA GITT OMRÅDE
              */
             case 'kommune':
-                $sql = new Query(
-                    Arrangement::getLoadQry()
-                        . "
-                        LEFT JOIN `smartukm_rel_pl_k` AS `pl_k`
-                            ON(`pl_k`.`pl_id` = `place`.`pl_id`)
-                        WHERE `pl_type` = 'kommune' 
-                        AND `place`.`season` = '#season'
-                        AND
-                            (
-                                `place`.`pl_owner_kommune` = '#omrade_id'
-                                OR
-                                `pl_k`.`k_id` = '#omrade_id'
-                            )
-                        ",
-                    [
-                        'omrade_id' => (Int) $this->getOmradeId(),
-                        'season' => $this->getSesong()
-                    ]
-                );
+                $sql = $this->_getKommuneQuery();
                 break;
             case 'eier-kommune':
                 $sql = new Query(
@@ -192,6 +174,41 @@ class Arrangementer
                 $this->arrangementer[$row['pl_id']] = $arrangement;
             }
         }
+
+        // Når vi snakker eier-kommune, bør også
+        // arrangementer man er deleier i være med (eller?)
+        if( $this->getOmradeType() == 'eier-kommune' ) {
+            $res2 = $this->_getKommuneQuery()->run();
+            while( $row = Query::fetch( $res2 ) ) {
+                $arrangement = new Arrangement($row);
+                if( $this->filter->passesFilter( $arrangement ) ) {
+                    $this->arrangementer[$row['pl_id']] = $arrangement;
+                }
+            }
+        }
+
+    }
+
+    private function _getKommuneQuery() {
+        return new Query(
+            Arrangement::getLoadQry()
+                . "
+                LEFT JOIN `smartukm_rel_pl_k` AS `pl_k`
+                    ON(`pl_k`.`pl_id` = `place`.`pl_id`)
+                WHERE `pl_type` = 'kommune' 
+                AND `place`.`season` = '#season'
+                AND
+                    (
+                        `place`.`pl_owner_kommune` = '#omrade_id'
+                        OR
+                        `pl_k`.`k_id` = '#omrade_id'
+                    )
+                ",
+            [
+                'omrade_id' => (Int) $this->getOmradeId(),
+                'season' => $this->getSesong()
+            ]
+        );
     }
 
     /**
