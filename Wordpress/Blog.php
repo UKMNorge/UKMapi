@@ -25,6 +25,15 @@ class Blog
      */
     public static function isAvailablePath(String $path)
     {
+        $path = str_replace(
+            [
+                'https://'.UKM_HOSTNAME,
+                'http://'. UKM_HOSTNAME,
+                '//'. UKM_HOSTNAME
+            ],
+            '',
+            $path
+        );
         try {
             static::getIdByPath($path);
             return false;
