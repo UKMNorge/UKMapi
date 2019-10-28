@@ -88,11 +88,13 @@ class Write {
 			);
         }
 
-        $innslag = Innslag::getById( (Int) $band_id );
+        $innslag = Innslag::getById( (Int) $band_id, true );
         $arrangement->getInnslag()->leggTil($innslag);
+
+        $innslag = $arrangement->getInnslag()->get( (Int) $band_id, true );
         WriteArrangement::leggTilInnslag( $arrangement, $innslag, $arrangement );
 
-        return true;		
+        return $innslag;		
         
         // TODO: Oppdater statistikk
 		#$innslag = new innslag( $b_id, false );
