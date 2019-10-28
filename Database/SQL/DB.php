@@ -31,13 +31,13 @@ class DB {
 	static function connect() {
         switch ( static::$database ) {
             case 'ukmdelta': 
-                self::_connectDelta();
+                static::_connectDelta();
 				break;
 			case 'wordpress':
-				self::_connectWordpress();
+				static::_connectWordpress();
 				break;
 			default:
-                self::_connectUKM();
+                static::_connectUKM();
 		}
 		
 		if ( static::$connection->connect_errno ) {
@@ -77,7 +77,7 @@ class DB {
 	public static function setCharset( $charset ) {
 		static::$charset = $charset;
 		
-		if( self::connected() ) {
+		if( static::connected() ) {
 			return static::$connection->set_charset( static::$charset );
 		}
 		return false;
@@ -100,7 +100,7 @@ class DB {
 	 * correct connection charset settings
 	**/
 	public static function real_escape_string( $value ) {
-		if( !self::connected() ) {
+		if( !static::connected() ) {
 			die('Kan ikke kjøre real_escape_string uten databasetilkobling');
 		}
 		return static::$connection->real_escape_string( $value );
@@ -146,7 +146,7 @@ class DB {
 	public static function getInsertId() {
 		if( static::$connection->insert_id == 0 ) {
 			throw new Exception(
-				'System-error: Insert ID == 0 (database-spørringen feilet) => ' . self::getError(), 
+				'System-error: Insert ID == 0 (database-spørringen feilet) => ' . static::getError(), 
 				901001
 			);
 		}
@@ -168,11 +168,11 @@ class DB {
      */
     private static function _connectDelta() {
         // Initiate with write access (SQLins, SQLdel, SQLwrite)
-        if( self::_hasWriteAccess() ) {
-            return self::_init( UKM_DELTA_DB_HOST, UKM_DELTA_DB_NAME, UKM_DELTA_DB_WRITE_USER, UKM_DELTA_DB_WRITE_PASSWORD );
+        if( static::_hasWriteAccess() ) {
+            return static::_init( UKM_DELTA_DB_HOST, UKM_DELTA_DB_NAME, UKM_DELTA_DB_WRITE_USER, UKM_DELTA_DB_WRITE_PASSWORD );
         }
         // Initiate with read access (SQL)
-		return self::_init(UKM_DELTA_DB_HOST, UKM_DELTA_DB_NAME, UKM_DELTA_DB_USER, UKM_DELTA_DB_PASSWORD );
+		return static::_init(UKM_DELTA_DB_HOST, UKM_DELTA_DB_NAME, UKM_DELTA_DB_USER, UKM_DELTA_DB_PASSWORD );
     }
 
     /**
@@ -181,20 +181,20 @@ class DB {
      */
     private static function _connectUKM() {
         // Initiate with write access (SQLins, SQLdel, SQLwrite)
-        if( self::_hasWriteAccess() ) {
-            return self::_init(UKM_DB_HOST, UKM_DB_NAME, UKM_DB_WRITE_USER, UKM_DB_WRITE_PASSWORD );
+        if( static::_hasWriteAccess() ) {
+            return static::_init(UKM_DB_HOST, UKM_DB_NAME, UKM_DB_WRITE_USER, UKM_DB_WRITE_PASSWORD );
         }
         // Initiate with read access (SQL)
-		return self::_init( UKM_DB_HOST, UKM_DB_NAME, UKM_DB_USER, UKM_DB_PASSWORD );
+		return static::_init( UKM_DB_HOST, UKM_DB_NAME, UKM_DB_USER, UKM_DB_PASSWORD );
 	}
 	
 	private static function _connectWordpress() {
 		// Initiate with write access (SQLins, SQLdel, SQLwrite)
-		if( self::_hasWriteAccess() ) {
-			return self::_init( UKM_WP_DB_HOST, UKM_WP_DB_NAME, UKM_WP_DB_WRITE_USER, UKM_WP_DB_WRITE_PASSWORD );
+		if( static::_hasWriteAccess() ) {
+			return static::_init( UKM_WP_DB_HOST, UKM_WP_DB_NAME, UKM_WP_DB_WRITE_USER, UKM_WP_DB_WRITE_PASSWORD );
 		}
         // Initiate with read access (SQL)
-		return self::_init( UKM_WP_DB_HOST, UKM_WP_DB_NAME, UKM_WP_DB_USER, UKM_WP_DB_PASSWORD );
+		return static::_init( UKM_WP_DB_HOST, UKM_WP_DB_NAME, UKM_WP_DB_USER, UKM_WP_DB_PASSWORD );
 	}
 
 
