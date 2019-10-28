@@ -161,9 +161,9 @@ class Arrangement
         $this->setType($row['pl_type']);
 
 
-        $this->setFylke($row['pl_owner_fylke']);
-        $this->setEierFylke($row['pl_owner_fylke']);
-        $this->setEierKommune($row['pl_owner_kommune']);
+        $this->setFylke((Int)$row['pl_owner_fylke']);
+        $this->setEierFylke((Int)$row['pl_owner_fylke']);
+        $this->setEierKommune((Int)$row['pl_owner_kommune']);
 
         // Legg til kommuner
         if ($this->getType() == 'kommune') {
@@ -187,8 +187,6 @@ class Arrangement
         $this->setPublikum($row['pl_public']);
         $this->setUregistrerte($row['pl_missing']);
         $this->setPamelding($row['pl_pamelding']);
-        $this->setEierFylke($row['pl_owner_fylke']);
-        $this->setEierKommune($row['pl_owner_kommune']);
         $this->setErMonstring(in_array($this->getType(), ['kommune', 'fylke', 'land']));
         $this->setHarVideresending($row['pl_videresending'] == 'true');
         $this->har_skjema = $row['pl_has_form'] == 'true';
@@ -648,11 +646,11 @@ class Arrangement
     /**
      * Sett fylkeID
      *
-     * @param int $fylke_id
+     * @param Int $fylke_id
      * @return $this
      * 
      **/
-    public function setFylke($fylke_id)
+    public function setFylke(Int $fylke_id)
     {
         $this->fylke_id = $fylke_id;
         return $this;
@@ -761,9 +759,9 @@ class Arrangement
                 if (null == $first_kommune || !is_object($first_kommune)) {
                     throw new Exception('Beklager, klarte ikke å finne en kommune som tilhører denne mønstringen');
                 }
-                $this->setFylke($first_kommune->getFylke()->getId());
+                $this->setFylke((Int)$first_kommune->getFylke()->getId());
             }
-            $this->fylke = fylker::getById($this->fylke_id);
+            $this->fylke = Fylker::getById((Int)$this->fylke_id);
         }
         return $this->fylke;
     }
@@ -1182,7 +1180,7 @@ class Arrangement
     public function getEierFylke()
     {
         if (null == $this->eier_fylke) {
-            $this->eier_fylke = Fylker::getById($this->eier_fylke_id);
+            $this->eier_fylke = Fylker::getById((Int)$this->eier_fylke_id);
         }
         return $this->eier_fylke;
     }
@@ -1200,7 +1198,7 @@ class Arrangement
             $this->eier_fylke_id = $fylke->getId();
         } else {
             $this->eier_fylke = null;
-            $this->eier_fylke_id = $fylke;
+            $this->eier_fylke_id = (Int) $fylke;
         }
 
         return $this;
