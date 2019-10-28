@@ -343,7 +343,8 @@ class Write
             Blog::setArrangementData( Blog::getIdByPath( $monstring_save->getPath() ), $monstring_save );
         } catch (Exception $e ) {
             // 172007 = fant ingen blogg (som er naturlig når den opprettes, f.eks.)
-            if( $e->getCode() != 172007 ) {
+            // 172010 = vi er ikke i wordpress-environment
+            if( $e->getCode() != 172007 && $e->getCode() != 172010 ) {
                 throw $e;
             }
         }

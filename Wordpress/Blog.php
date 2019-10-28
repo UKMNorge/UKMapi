@@ -61,6 +61,7 @@ class Blog
      */
     public static function getIdByPath(String $path)
     {
+        static::_requiresWordpressFunctions();
         $path = static::controlPath($path);
         $result = domain_exists(UKM_HOSTNAME, $path, 1);
 
@@ -80,6 +81,7 @@ class Blog
      * @return String $path
      */
     public static function getPathById( Int $id ) {
+        static::_requiresWordpressFunctions();
         $path = static::getDetails($id, 'path');
         if( !is_string( $path ) ) {
             throw new Exception(
@@ -121,6 +123,7 @@ class Blog
      * @return void
      */
     public static function getDetails( Int $blog_id, String $variable=null ) {
+        static::_requiresWordpressFunctions();
         if( $variable == null ) {
             return get_blog_details( $blog_id );
         }
@@ -135,6 +138,7 @@ class Blog
      * @return update_blog_details( $blog_id, $key_val_details );
      */
     public static function setDetails( Int $blog_id, Array $key_val_details ) {
+        static::_requiresWordpressFunctions();
         return update_blog_details( $blog_id, $key_val_details);
     }
 
@@ -146,6 +150,7 @@ class Blog
      * @return get_blog_option( $blog_id, $option_name );
      */
     public static function getOption( Int $blog_id, String $option_name ) {
+        static::_requiresWordpressFunctions();
         return get_blog_option( $blog_id, $option_name );
     }
 
@@ -158,6 +163,7 @@ class Blog
      * @return update_blog_option( $blog_id, $option_name, $option_value)
      */
     public static function setOption( Int $blog_id, String $option_name, $option_value ) {
+        static::_requiresWordpressFunctions();
         return update_blog_option( $blog_id, $option_name, $option_value );
     }
 
@@ -310,6 +316,7 @@ class Blog
      * @return Int $blog_id
      */
     public static function opprett( String $path, String $navn ) {
+        static::_requiresWordpressFunctions();
         if (static::eksisterer($path)) {
             throw new Exception(
                 'Kunne ikke opprette blogg da siden allerede eksisterer',
@@ -385,6 +392,7 @@ class Blog
      */
     public function leggTilBrukere(Int $blog_id, Array $users)
     {
+        static::_requiresWordpressFunctions();
         static::controlBlogId($blog_id);
         $rapport = [];
         foreach ($users as $user) {
@@ -418,6 +426,7 @@ class Blog
      */
     public static function leggTilBruker(Int $blog_id, Int $user_id, String $role)
     {
+        static::_requiresWordpressFunctions();
         static::controlBlogId($blog_id, true);
         $result = add_user_to_blog($blog_id, $user_id, $role);
         if ($result) {
@@ -439,6 +448,7 @@ class Blog
      */
     public function fjernBrukere(Int $blog_id, array $users)
     {
+        static::_requiresWordpressFunctions();
         static::controlBlogId($blog_id);
         $rapport = [];
         foreach ($users as $user) {
@@ -471,6 +481,7 @@ class Blog
      */
     public static function fjernBruker(Int $blog_id, Int $user_id)
     {
+        static::_requiresWordpressFunctions();
         static::controlBlogId($blog_id);
         $result = remove_user_from_blog($user_id, $blog_id);
         if ($result) {
@@ -491,6 +502,7 @@ class Blog
      */
     public static function fjernAlleBrukere(Int $blog_id)
     {
+        static::_requiresWordpressFunctions();
         if ($blog_id == 1) {
             throw new Exception(
                 'Kan ikke fjerne alle brukere fra hoved-siden',
@@ -816,6 +828,7 @@ class Blog
      */
     public static function applyMeta(Int $blog_id, array $meta)
     {
+        static::_requiresWordpressFunctions();
         static::switchTo($blog_id);
 
         foreach ($meta as $key => $value) {
@@ -827,12 +840,29 @@ class Blog
     }
 
     public static function switchTo( Int $blog_id ) {
+        static::_requiresWordpressFunctions();
         static::controlBlogId($blog_id);
         switch_to_blog($blog_id);
     }
 
     public static function restore() {
+        static::_requiresWordpressFunctions();
         restore_current_blog();
+    }
+
+    /**
+     * Sjekk om vi er i wordpressEnvironment
+     *
+     * @return void
+     * @throws Exception
+     */
+    private static function _requiresWordpressFunctions() {
+        if( !function_exists('get_blog_option') ) {
+            throw new Exception(
+                'Blogg-operasjoner kan kun gjøres fra wordpress-environment',
+                172010
+            );
+        }
     }
 
 }
