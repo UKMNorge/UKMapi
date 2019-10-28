@@ -58,9 +58,7 @@ class Person
             );
         }
 
-        if( $type !== null && $type->getKey() == 'konferansier' ) {
-            $evaluerRolle = false;
-        } elseif ( $kontaktperson ) {
+        if ($type !== null && $type->getKey() == 'konferansier') {
             $evaluerRolle = false;
         } else {
             $evaluerRolle = true;
@@ -78,7 +76,7 @@ class Person
             }
         }
         // HVIS KONTAKTPERSON
-        else {
+        if($kontaktperson) {
             if (!static::testMobil($person->getMobil())) {
                 $mangler[] = new Mangel(
                     'kontakt.mobil',
