@@ -11,23 +11,26 @@ use UKMNorge\Innslag\Typer;
 
 class Person
 {
-    public static function evaluerKontaktperson( InnslagPerson $person ) {
-        return static::_evaluerPerson( $person );
+    public static function evaluerKontaktperson(InnslagPerson $person)
+    {
+        return static::_evaluerPerson($person, true);
     }
 
-    public static function evaluer( InnslagPerson $person ) {
+    public static function evaluer(InnslagPerson $person)
+    {
         return static::_evaluerPerson($person);
     }
 
-    public static function evaluerKonferansier(InnslagPerson $person) {
+    public static function evaluerKonferansier(InnslagPerson $person)
+    {
         return static::_evaluerPerson($person, false, Typer::getByKey('konferansier'));
     }
 
 
-    private static function _evaluerPerson(InnslagPerson $person, Bool $kontaktperson = false, Type $type=null)
+    private static function _evaluerPerson(InnslagPerson $person, Bool $kontaktperson = false, Type $type = null)
     {
         $mangler = [];
-
+        
         if (empty($person->getFornavn())) {
             $mangler[] = new Mangel(
                 'person.fornavn',
@@ -75,6 +78,7 @@ class Person
                 );
             }
         }
+
         // HVIS KONTAKTPERSON
         if($kontaktperson) {
             if (!static::testMobil($person->getMobil())) {
@@ -86,7 +90,7 @@ class Person
                     $person->getId()
                 );
             }
-            if( empty( $person->getEpost() ) ) {
+            if (empty($person->getEpost())) {
                 $mangler[] = new Mangel(
                     'kontakt.epost.mangler',
                     'Mangler e-postadresse',
@@ -107,7 +111,7 @@ class Person
             }
         }
 
-        return Mangler::manglerOrTrue( $mangler );
+        return Mangler::manglerOrTrue($mangler);
     }
 
     public static function testMobil($mobilnummer)
