@@ -107,7 +107,7 @@ class Samling {
 	 *
 	 * @param (int|innslag_v2) $id
 	 * @param bool $mulig_ufullstendig=false
-	 * @return bool 
+	 * @return Innslag 
 	**/
 	public function get( $id, $mulig_ufullstendig=false ) {
 		if( is_object( $id ) && Innslag::validateClass( $id ) ) {
@@ -133,7 +133,6 @@ class Samling {
 			'Fant ikke innslag '. $id .'.',
 			2
 		); // OBS: code brukes av harPerson
-		return false;
 	}
 
 	/**
