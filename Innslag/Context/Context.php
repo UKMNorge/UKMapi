@@ -97,6 +97,10 @@ class Context {
             case 'forestilling':
             case 'monstring':
                 return $this->getMonstring()->getSesong();
+            case 'innslag':
+                if( $this->getMonstring() !== null ) {
+                    return $this->getMonstring()->getSesong();
+                }
             default:
                 throw new Exception(
                     'CONTEXT: Denne typen context ('. $this->getType() .') støtter ikke getSesong()',
