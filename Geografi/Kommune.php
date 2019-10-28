@@ -24,6 +24,16 @@ class Kommune {
 			$this->_loadByRow( $kid_or_row );
 		}
     }
+
+    public static function getLoadQuery() {
+        return "SELECT *,
+            (
+                SELECT `id` 
+                FROM `smartukm_kommune` AS `overtatt` 
+                WHERE `smartukm_kommune`.`id` IN (`overtatt`.`superseed`)
+            ) AS `overtatt_av`
+            FROM `smartukm_kommune`";
+    }
     
     /**
      * Hent kommune-data fra database basert på gitt ID
@@ -33,13 +43,7 @@ class Kommune {
      */
 	private function _loadByID( Int $id ) {
 		$sql = new Query(
-            "SELECT *,
-            (
-                SELECT `id` 
-                FROM `smartukm_kommune` AS `overtatt` 
-                WHERE `smartukm_kommune`.`id` IN (`overtatt`.`superseed`)
-            ) AS `overtatt_av`
-            FROM `smartukm_kommune`
+            static::getLoadQuery()."
             WHERE `id` = '#id'",
             [
                 'id' => $id
@@ -265,8 +269,7 @@ class Kommune {
     private function _loadTidligere() {
         $this->tidligere = [];
         $sql = new Query(
-            "SELECT *
-            FROM `smartukm_kommune`
+            static::getLoadQuery(). "
             WHERE `id` IN(#liste)",
             [
                 'liste' => rtrim($this->tidligere_list,',')

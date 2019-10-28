@@ -162,13 +162,16 @@ class Fylke {
 
 			$this->kommuner = new Kommuner();
 
-			$sql = new Query("SELECT * 
-							FROM `smartukm_kommune` 
-                            WHERE `idfylke` = '#fylke'
-                            AND `active` = 'true'
-                            ORDER BY `name` ASC",
-						  array('fylke'=>$this->getId() )
-						);
+			$sql = new Query(
+                Kommune::getLoadQuery().
+                " 
+                WHERE `idfylke` = '#fylke'
+                AND `active` = 'true'
+                ORDER BY `name` ASC",
+                [
+                    'fylke'=>$this->getId()
+                ]
+            );
 			$res = $sql->run();
 			
 			if( $res ) {
