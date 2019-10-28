@@ -27,14 +27,14 @@ class Write {
 	 * Opprett et nytt innslag, og relater til kommune
 	 *
 	 * @param Kommune $kommune
-	 * @param Hendelse $arrangement
+	 * @param Arrangement $arrangement
 	 * @param Type $type 
 	 * @param String $navn
 	 * @param Person $kontaktperson
 	 *
 	 * @return Innslag $innslag
 	**/
-	public static function create( Kommune $kommune, Hendelse $arrangement, Type $type, String $navn, Person $kontaktperson ) {
+	public static function create( Kommune $kommune, Arrangement $arrangement, Type $type, String $navn, Person $kontaktperson ) {
 		// Valider at logger er på plass
 		if( !Logger::ready() ) {
 			throw new Exception(

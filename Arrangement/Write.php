@@ -979,9 +979,13 @@ class Write
 	 *
 	 * Bruk Innslag\Write::create for å legge til på lokalnivå !
      * 
+     * @param Arrangement $arrangement
 	 * @param Innslag $innslag
+     * @param Arrangement $fra_arrangement
+     * @return void
+     * @throws Exception
 	**/
-	public static function leggTilInnslag( Hendelse $arrangement, Innslag $innslag, Hendelse $fra_arrangement ) {
+	public static function leggTilInnslag( Arrangement $arrangement, Innslag $innslag, Arrangement $fra_arrangement ) {
 
         Logger::log( 318, $innslag->getId(), $innslag->getContext()->getMonstring()->getId() );
 
