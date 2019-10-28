@@ -22,7 +22,7 @@ class Personer {
 	
 	public function __construct( Int $innslag_id, Type $innslag_type, Context $context ) {
 		$this->_setInnslagId( $innslag_id );
-		$this->_setInnslagType( $innslag_type );
+        $this->_setInnslagType( $innslag_type );
 		$this->_setContext( $context );
 
 		$this->_load();
@@ -206,7 +206,7 @@ class Personer {
 	 ********************************************************************************/
 	public function leggTil( $person ) {
 		try {
-			Write::validerPerson( $person );
+			Person::validateClass( $person );
 		} catch( Exception $e ) {
 			throw new Exception(
 				'Kunne ikke legge til person. '. $e->getMessage(),
