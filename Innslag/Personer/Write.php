@@ -181,7 +181,8 @@ class Write {
 				# Logg (eller dø) før vi kjører run
 				Logger::log( $action, $person_save->getId(), $value );
 			}
-		}
+        
+        }
 
 		// SETT KOMMUNE-DATA
 		if( $person_db->getKommune()->getId() != $person_save->getKommune()->getId() ) {
