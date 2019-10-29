@@ -125,7 +125,6 @@ class Twig
      */
     public static function init()
     {
-        require_once('Twig/Autoloader.php');
         Twig_Autoloader::register();
     }
 
