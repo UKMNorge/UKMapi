@@ -96,7 +96,7 @@ class Tittel
         $mangler[] = static::_evaluerTittel($tittel, 'Låt uten navn', 'Låten har ikke fått et navn');
         $mangler[] = static::_evaluerTid($tittel, 'Låt uten varighet', 'Det er ikke oppgitt hvor lenge låten varer');
         
-        if (!$tittel->erSelvlaget() && empty($tittel->getTekstAv())) {
+        if (!$tittel->erSelvlaget() && empty($tittel->getTekstAv()) && !$tittel->erInstrumental()) {
             $mangler[] = new Mangel(
                 'tittel.tekstav',
                 'Låt uten tekstforfatter',

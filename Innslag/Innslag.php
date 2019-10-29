@@ -83,11 +83,23 @@ class Innslag
         }
     }
 
-    public function setContext($context)
+    /**
+     * Sett innslagets Context
+     *
+     * @param Context $context
+     * @return self
+     */
+    public function setContext(Context $context)
     {
         $this->context = $context;
         return $this;
     }
+
+    /**
+     * Hent innslagets context
+     *
+     * @return Context
+     */
     public function getContext()
     {
         return $this->context;
@@ -105,7 +117,13 @@ class Innslag
         );
         $homePlace = new Arrangement($contextQry->run('field'));
 
-        $context = Context::createMonstring($homePlace->getId(), $homePlace->getType(), $homePlace->getSesong(), false, false);
+        $context = Context::createMonstring(
+            $homePlace->getId(), 
+            $homePlace->getType(), 
+            $homePlace->getSesong(), 
+            $homePlace->getFylke()->getId(),
+            $homePlace->getKommuner()->getIdArray()
+        );
 
         $innslag = new Innslag($id, $also_if_incomplete);
         $innslag->setContext($context);
@@ -739,9 +757,9 @@ class Innslag
     {
         if (null == $this->personer_collection) {
             $this->personer_collection = new Personer(
-                $this->getId(),     // Innslag ID
-                $this->getType(),     // Innslag type
-                $this->getContext()    // Innslagets nåværende kontekst
+                $this->getId(),         // Innslag ID
+                $this->getType(),       // Innslag type
+                $this->getContext()     // Innslagets nåværende kontekst
             );
         }
         return $this->personer_collection;
@@ -761,25 +779,29 @@ class Innslag
     public function getProgram()
     {
         if (null == $this->program) {
-            $context = Context::createInnslag(
-                $this->getId(),                                        // Innslag ID
-                $this->getType(),                                    // Innslag type (objekt)
-                $this->getContext()->getMonstring()->getId(),        // Mønstring ID
-                $this->getContext()->getMonstring()->getType(),        // Mønstring type
-                $this->getContext()->getMonstring()->getSesong()    // Mønstring sesong
+            $context = Context::createInnslagWithMonstringContext(
+                $this->getId(),                                     // Innslag ID
+                $this->getType()->getKey(),                           // Innslag type (objekt)
+                $this->getContext()->getMonstring()                 // Mønstring-context
             );
             $this->program = new Hendelser($context);
         }
         return $this->program;
     }
 
+    /**
+     * Hent innslagets titler
+     *
+     * @return Titler
+     */
     public function getTitler()
     {
         if (null == $this->titler) {
             $this->titler = new Titler(
-                $this->getId(),     // Innslag ID
-                $this->getType(),     // Innslag type
-                $this->getContext()    // Innslagets nåværende kontekst
+                $this->getContext()->setInnslag( 
+                    $this->getId(), 
+                    $this->getType()->getKey()
+                )
             );
         }
         return $this->titler;

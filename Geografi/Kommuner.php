@@ -3,11 +3,17 @@
 namespace UKMNorge\Geografi;
 
 use Collection;
+
 require_once('UKM/_collection.class.php');
 
 class Kommuner extends Collection
 {
 
+    /**
+     * Hent ID-array for alle kommuner i collection
+     *
+     * @return Array<Int>
+     */
     public function getIdArray()
     {
         $array = array();
@@ -17,6 +23,14 @@ class Kommuner extends Collection
         return $array;
     }
 
+    /**
+     * Hent alle kommuneID + navn
+     *
+     * Key = kommune_id
+     * Val = kommune_navn
+     * 
+     * @return Array<String>
+     */
     public function getKeyValArray()
     {
         $array = array();
@@ -26,6 +40,11 @@ class Kommuner extends Collection
         return $array;
     }
 
+    /**
+     * toString == getNavn(), getNavn(), ...
+     *
+     * @return string
+     */
     public function __toString()
     {
         $string = '';
@@ -36,10 +55,10 @@ class Kommuner extends Collection
     }
 
     /*
-         * Hent alle fylker (til kommunene) i samlingen
-         * 
-         * @return Array[ Fylke ] $fylker
-        **/
+     * Hent alle fylker (til kommunene) i samlingen
+     * 
+     * @return Array<Fylke> $fylker
+    **/
     public function getFylker()
     {
         $added = [];

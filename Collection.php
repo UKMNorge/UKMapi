@@ -9,9 +9,12 @@ abstract class Collection implements Iterator
 {
     private $var = array();
     public $id = null;
+    private $loaded = false;
     
     public function add( $item ) {
-	    $this->var[] = $item;
+        if( !$this->har($item) ) {
+            $this->var[] = $item;
+        }
 	    return $this;
     }
 
@@ -32,6 +35,13 @@ abstract class Collection implements Iterator
     public function get( $id ) {
         return $this->find( $id );
     }
+
+    /**
+     * Finn objekt 
+     *
+     * @param Any $id
+     * @return Item
+     */
     public function find( $id ) {
 	    foreach( $this as $item ) {
 		    if( $id == $item->getId() ) {
@@ -41,12 +51,26 @@ abstract class Collection implements Iterator
 	    return false;
     }
     
+    /**
+     * Hent alle
+     *
+     * @return Array
+     */
     public function getAll() {
+        if( method_exists( get_called_class(), '_load' ) && $this->loaded == false) {
+            $this->_load();
+            $this->loaded = true;
+        }
 	    return $this->var;
     }
     
+    /**
+     * Antall elementer i collection
+     *
+     * @return Int $antall
+     */
     public function getAntall() {
-	    return sizeof( $this->var );
+	    return sizeof( $this->getAll() );
     }
     
     public function remove( $id ) {

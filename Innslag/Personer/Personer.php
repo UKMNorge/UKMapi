@@ -21,9 +21,9 @@ class Personer {
 	var $debug = false;
 	
 	public function __construct( Int $innslag_id, Type $innslag_type, Context $context ) {
-		$this->_setInnslagId( $innslag_id );
-        $this->_setInnslagType( $innslag_type );
-		$this->_setContext( $context );
+		$this->innslag_id = $innslag_id;
+        $this->innslag_type = $innslag_type;
+		$this->context = $context;
 
 		$this->_load();
 	}
@@ -32,7 +32,7 @@ class Personer {
 	 * getAll
 	 * Returner alle personer i innslaget
 	 *
-	 * @return array $personer
+	 * @return Array<Person> $personer
 	**/
 	public function getAll() {
 		return $this->personer;
@@ -51,9 +51,9 @@ class Personer {
 	 * getSingle
 	 * Hent én enkelt person fra innslaget. 
 	 * Er beregnet for tittelløse innslag, som aldri har mer enn én person
-	 * Kaster Exception hvis innslaget har mer enn én person
 	 *
-	 * @return person_v2 $person
+	 * @return Person $person
+     * @throws Exception hvis innslaget har mer enn én person
 	**/
 	public function getSingle() {
 		if( 1 < $this->getAntall() ) {
@@ -68,7 +68,7 @@ class Personer {
 	 * getAllVideresendt
 	 * Hent alle personer i innslaget videresendt til GITT mønstring
 	 *
-	 * @param int $pl_id
+	 * @param Int $pl_id
 	 * @return bool
 	**/
 	public function getAllVideresendt( $pl_id=false ) {
@@ -210,7 +210,7 @@ class Personer {
 		} catch( Exception $e ) {
 			throw new Exception(
 				'Kunne ikke legge til person. '. $e->getMessage(),
-				10601
+				106001
 			);
 		}
 		
@@ -241,7 +241,7 @@ class Personer {
 		} catch( Exception $e ) {
 			throw new Exception(
 				'Kunne ikke fjerne person. '. $e->getMessage(),
-				10601
+				106002
 			);
 		}
 		
@@ -335,33 +335,38 @@ class Personer {
 	}
 	
 
+    /**
+     * Hent innslagets ID
+     *
+     * @return Int $id
+     */
 	public function getInnslagId() {
 		return $this->innslag_id;
 	}
-	private function _setInnslagId( $bid ) {
-		$this->innslag_id = $bid;
-		return $this;
-	}	
 
-	public function getInnslagType() {
+    /**
+     * Hent innslagets type
+     *
+     * @return Type
+     */
+    public function getInnslagType() {
 		return $this->innslag_type;
 	}
-	private function _setInnslagType( $type ) {
-		if( is_object( $type ) && in_array( get_class( $type ), ['UKMNorge\Innslag\Type', 'innslag_type'] ) ) {
-			$this->innslag_type = $type;
-			return $this;
-		}
-		throw new Exception('PERSONER_COLLECTION: Innslag-type må være angitt som objekt');
-	}
 
-	private function _setContext( $context ) {
-		$this->context = $context;
-		return $this;
-	}
+    /**
+     * Hent innslagets / personers context
+     *
+     * @return Context
+     */
 	public function getContext() {
 		return $this->context;
 	}
-	
+    
+    /**
+     * Opprett et innslagContext-objekt (why?)
+     *
+     * @return Context
+     */
 	public function getContextInnslag() {
         /**
          * Hvis kontekst er sesong, snakker vi om lokal-nivået.
@@ -372,21 +377,25 @@ class Personer {
          * Implementert desember 2018.
          */
         if( $this->getContext()->getType() == 'sesong' && null == $this->getContext()->getMonstring()) {
+            throw new Exception(
+                'Sesong har ikke tilstrekkelig data for å hente ut ContextInnslag. Kontakt UKM Norge support',
+                106003
+            );
+            /* Sånn var det forsøkt implementert (kodet ut oktober 2019. For et år.)
             return Context::createInnslag(
-                $this->getInnslagId(),								// Innslag ID
-                $this->getInnslagType(),							// Innslag type (objekt)
-                null,                                               // Mønstring ID
-                'kommune',                                          // Mønstring type
-                $this->getContext()->getSesong()                    // Mønstring sesong
-            );    
+                $this->getInnslagId(),			    // Innslag ID
+                $this->getInnslagType(),			// Innslag type (objekt)
+                null,                               // Mønstring ID
+                'kommune',                          // Mønstring type
+                $this->getContext()->getSesong()    // Mønstring sesong
+            );
+            */
         }
         
-		return Context::createInnslag(
-			$this->getInnslagId(),								// Innslag ID
-			$this->getInnslagType(),							// Innslag type (objekt)
-			$this->getContext()->getMonstring()->getId(),		// Mønstring ID
-			$this->getContext()->getMonstring()->getType(),		// Mønstring type
-			$this->getContext()->getMonstring()->getSesong()	// Mønstring sesong
+		return Context::createInnslagWithMonstringContext(
+			$this->getInnslagId(),					// Innslag ID
+			$this->getInnslagType()->getId(),	    // Innslag type (objekt)
+            $this->getContext()->getMonstring()     // Mønstring-context
 		);
 	}
 

@@ -47,6 +47,12 @@ class Type
         $this->key = $key;
         return $this;
     }
+
+    /**
+     * Hent type-ID som string (key)
+     *
+     * @return String
+     */
     public function getKey()
     {
         return $this->key;
@@ -151,6 +157,11 @@ class Type
         return $this->getNavn();
     }
 
+    /**
+     * Hvilken type tittel-objekt er dette
+     *
+     * @return String
+     */
     public function getTittelClass()
     {
         switch ($this->getKey()) {

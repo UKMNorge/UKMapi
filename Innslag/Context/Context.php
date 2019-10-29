@@ -8,88 +8,243 @@ use UKMNorge\Innslag\Personer\Person;
 require_once('UKM/Autoloader.php');
 
 
-class Context {
+class Context
+{
     var $type = null;
-    
+
     var $sesong = null;
-	var $monstring = null;
-	var $innslag = null;
-	var $forestilling = null;
-	var $videresend_til = false;
+    var $monstring = null;
+    var $innslag = null;
+    var $forestilling = null;
+    var $videresend_til = false;
     var $kontaktperson = null;
     var $delta_user_id = null;
-    
-	public static function createMonstring( $id, $type, $sesong, $fylke, $kommuner ) {
-		$context = new Context( 'monstring' );
-		$context->monstring = new Monstring( $id, $type, $sesong, $fylke, $kommuner );
-		return $context;
-	}
-	
-	public static function createInnslag( $id, $type, $monstring_id, $monstring_type, $monstring_sesong) {
-		$context = new Context( 'innslag' );
-		$context->monstring = new Monstring( $monstring_id, $monstring_type, $monstring_sesong, false, false );
-		$context->innslag = new Innslag( $id, $type );
-		return $context;
-	}
-	
-	public static function createForestilling( $id, $context_monstring=false ) {
-		$context = new Context( 'forestilling' );
-		$context->forestilling = new Forestilling( $id );
-		if( $context_monstring !== false && get_class( $context_monstring ) == 'context_monstring' ) {
-			$context->monstring = $context_monstring;
-		}
-		return $context;
+
+
+    /**
+     * Opprett mønstring-context
+     *
+     * @param Int $id
+     * @param String $type
+     * @param Int $sesong
+     * @param Int $fylke_id (null hvis landsnivå)
+     * @param String $kommuner (null hvis fylkes- eller landsnivå)
+     * @return Context
+     */
+    public static function createMonstring(Int $id, String $type, Int $sesong, Int $fylke_id=null, array $kommuner=null)
+    {
+        $context = new Context('monstring');
+        $context->monstring = new Monstring(
+            $id,
+            $type,
+            $sesong,
+            $fylke_id,
+            $kommuner
+        );
+        return $context;
     }
 
-    public static function createKontaktperson( Person $kontaktperson, Int $sesong ) {
+    /**
+     * Opprett innslag-context med Mønstring-context-objekt
+     *
+     * @param Int $id
+     * @param String $type
+     * @param Monstring $monstring
+     * @return Context
+     */
+    public static function createInnslagWithMonstringContext( Int $id, String $type, Monstring $monstring ) {
+        $context = new Context('innslag');
+        $context->monstring = $monstring;
+        $context->setInnslag(
+            $id,
+            $type
+        );
+        return $context;
+    }
+
+    /**
+     * Opprett innslag-context
+     *
+     * @param Int $id
+     * @param String $type
+     * @param Int $monstring_id
+     * @param String $monstring_type
+     * @param Int $monstring_sesong
+     * @param Int $fylke_id
+     * @param Array $kommuner
+     * @return Context
+     */
+    public static function createInnslag(Int $id, String $type, Int $monstring_id, String $monstring_type, Int $monstring_sesong, Int $fylke_id, array $kommuner)
+    {
+        $monstring_context = new Monstring(
+            $monstring_id,
+            $monstring_type,
+            $monstring_sesong,
+            $fylke_id,
+            $kommuner
+        );
+        return static::createInnslagWithMonstringContext($id, $type, $monstring_context);
+    }
+
+    /**
+     * Opprett hendelse (forestilling)-context
+     *
+     * @param Int $id
+     * @param Monstring $context
+     * @return Context
+     */
+    public static function createForestilling(Int $id, Monstring $context = null)
+    {
+        $context = new Context('forestilling');
+        $context->forestilling = new Forestilling($id);
+        if ($context !== null) {
+            $context->monstring = $context;
+        }
+        return $context;
+    }
+    /**
+     * Opprett hendelse-context
+     *
+     * @param Int $id
+     * @param Monstring $monstring
+     * @return Context
+     */
+    public static function createHendelse(Int $id, Monstring $context = null)
+    {
+        return static::createForestilling($id, $context);
+    }
+
+    /**
+     * Opprett kontaktperson-context
+     *
+     * @param Int $id
+     * @param Int $sesong
+     * @return Context
+     */
+    public static function createKontaktperson(Int $id, Int $sesong)
+    {
         $context = new Context('kontaktperson');
-        $context->kontaktperson = new Kontaktperson( $kontaktperson->getId() );
+        $context->kontaktperson = new Kontaktperson($id);
         $context->sesong = $sesong;
         return $context;
     }
 
-    public static function createDeltaUser( Int $user_id , Int $sesong ) {
+    /**
+     * Opprett delta-bruker-context
+     *
+     * @param Int $user_id
+     * @param Int $sesong
+     * @return Context
+     */
+    public static function createDeltaUser(Int $user_id, Int $sesong)
+    {
         $context = new Context('deltauser');
         $context->sesong = $sesong;
         $context->delta_user_id = $user_id;
         return $context;
     }
-    
-    public static function createSesong( $sesong ) {
-        $context = new Context( 'sesong' );
+
+    /**
+     * Opprett sesong-context
+     *
+     * @param Int $sesong
+     * @return Context
+     */
+    public static function createSesong(Int $sesong)
+    {
+        $context = new Context('sesong');
         $context->sesong = $sesong;
         return $context;
     }
-	
-	public function __construct( $type ) {
-		$this->type = $type;
-	}
-	
-	public function getType() {
-		return $this->type;
-	}
-	
-	public function getMonstring() {
-		return $this->monstring;
-	}
-	public function getInnslag() {
-		return $this->innslag;
-	}
-	public function getForestilling() {
-		return $this->forestilling;
+
+    /**
+     * Opprett ny context-instance
+     *
+     * @param String $type
+     */
+    public function __construct($type)
+    {
+        $this->type = $type;
     }
-    public function getKontaktperson() {
+
+    /**
+     * Hent type context
+     *
+     * @return String
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * Hent møntring-context
+     *
+     * @return Monstring
+     */
+    public function getMonstring()
+    {
+        return $this->monstring;
+    }
+
+    /**
+     * Sett innslag-context
+     *
+     * @param Int $id
+     * @param String $type
+     * @return Context self
+     */
+    public function setInnslag( Int $id, String $type ) {
+        $this->innslag = new Innslag( $id, $type );
+        return $this;
+    }
+
+    /**
+     * Hent innslag-info
+     *
+     * @return Innslag
+     */
+    public function getInnslag()
+    {
+        return $this->innslag;
+    }
+    /**
+     * Hent hendelse
+     *
+     * @return Hendelse
+     */
+    public function getForestilling()
+    {
+        return $this->forestilling;
+    }
+    /**
+     * Hent kontaktperson
+     *
+     * @return Kontaktperson
+     */
+    public function getKontaktperson()
+    {
         return $this->kontaktperson;
     }
-    public function getDeltaUserId() {
+    /**
+     * Hent Delt brukerID
+     *
+     * @return Int $delta_user_id
+     */
+    public function getDeltaUserId()
+    {
         return $this->delta_user_id;
     }
-    
+
     /**
-     * Hvilken sesong er etterspurt?
+     * Hvilken sesong jobber vi med?
+     *
+     * @return Int $sesong
+     * @throws Exception har ikke info
      */
-    public function getSesong() {
-        switch( $this->getType() ) {
+    public function getSesong()
+    {
+        switch ($this->getType()) {
             case 'deltauser':
             case 'kontaktperson':
             case 'sesong':
@@ -98,29 +253,42 @@ class Context {
             case 'monstring':
                 return $this->getMonstring()->getSesong();
             case 'innslag':
-                if( $this->getMonstring() !== null ) {
+                if ($this->getMonstring() !== null) {
                     return $this->getMonstring()->getSesong();
                 }
             default:
                 throw new Exception(
-                    'CONTEXT: Denne typen context ('. $this->getType() .') støtter ikke getSesong()',
+                    'CONTEXT: Denne typen context (' . $this->getType() . ') støtter ikke getSesong()',
                     112001
                 );
         }
     }
-	
-	/**
-	 * Hvis innslaget er hentet ut som en del av en innslag-collection,
-	 * og funksjonen getVideresendte() er kjørt, settes dette på innslagets
-	 * kontekst, slik at det kan brukes på hentPersoner
-	**/
-	public function getVideresendTil() {
-		return $this->videresend_til;
-	}
-	public function setVideresendTil( $monstring ) {
-		if( is_object( $monstring ) && in_array(get_class( $monstring ),['UKMNorge\Arrangement\Arrangement', 'monstring_v2']) ) {
-			$monstring = $monstring->getId();
-		}
-		$this->videresend_til = $monstring;
-	}
+
+    /**
+     * Hvis innslaget er hentet ut som en del av en innslag-collection,
+     * og funksjonen getVideresendte() er kjørt, settes dette på innslagets
+     * kontekst, slik at det kan brukes på hentPersoner
+     **/
+    public function getVideresendTil()
+    {
+        return $this->videresend_til;
+    }
+    public function setVideresendTil($monstring)
+    {
+        if (is_object($monstring) && in_array(get_class($monstring), ['UKMNorge\Arrangement\Arrangement', 'monstring_v2'])) {
+            $monstring = $monstring->getId();
+        }
+        $this->videresend_til = $monstring;
+    }
+
+    /**
+     * Sjekk at gitt objekt er gyldig Context\Context-objekt
+     *
+     * @param Any $object
+     * @return Bool
+     */
+    public static function validateClass($object)
+    {
+        return is_object($object) && get_class($object) == 'UKMNorge\Innslag\Context\Context';
+    }
 }

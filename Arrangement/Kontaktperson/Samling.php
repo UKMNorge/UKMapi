@@ -22,7 +22,7 @@ class Samling extends Collection {
 		parent::__construct();
 	}
 	
-	private function _load() {
+	public function _load() {
 		$sql = new Query( Kontaktperson::getLoadQry() 
 						. " JOIN `smartukm_rel_pl_ab` AS `rel` ON (`rel`.`ab_id` = `kontakt`.`id`) "
                         . " WHERE `rel`.`pl_id` = '#id'"

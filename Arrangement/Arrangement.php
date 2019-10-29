@@ -625,6 +625,7 @@ class Arrangement
     /**
      * Hent alle kommuner for en mønstring
      *
+     * @return Kommuner
      **/
     public function getKommuner()
     {
@@ -1066,19 +1067,21 @@ class Arrangement
     {
         if ('land' == $this->getType()) {
             $context = Context::createMonstring(
-                $this->getId(),            // Mønstring id
-                $this->getType(),        // Møntring type
-                $this->getSesong(),        // Mønstring sesong
-                false,                    // Mønstring fylke ID
-                false                    // Mønstring kommune ID array
+                $this->getId(),                         // Mønstring id
+                $this->getType(),                       // Møntring type
+                $this->getSesong(),                     // Mønstring sesong
+                null,                                   // Mønstring fylke ID
+                null                                    // Mønstring kommune ID array
             );
         } else {
             $context = Context::createMonstring(
-                $this->getId(),                        // Mønstring id
-                $this->getType(),                    // Møntring type
-                $this->getSesong(),                    // Mønstring sesong
-                $this->getFylke()->getId(),            // Mønstring fylke ID
-                $this->getKommuner()->getIdArray()    // Mønstring kommune ID array
+                $this->getId(),                         // Mønstring id
+                $this->getType(),                       // Møntring type
+                $this->getSesong(),                     // Mønstring sesong
+                $this->getFylke()->getId(),             // Mønstring fylke ID
+                ($this->getType() == 'kommune' ?        // Mønstring kommune ID array
+                    $this->getKommuner()->getIdArray() :
+                    null)
             );
         }
         return $context;

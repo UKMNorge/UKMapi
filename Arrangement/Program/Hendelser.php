@@ -238,8 +238,8 @@ class Hendelser {
             $forestilling = new Hendelse($row);
 
             $context = Context::createForestilling(
-                $row['c_id'],         // Forestilling Id
-                $this->getContext()->getMonstring()
+                (Int) $row['c_id'],                     // Forestilling Id
+                $this->getContext()->getMonstring()     // Mønstring-context
             );
             $forestilling->setContext($context);
             if ($forestilling->erSynligRammeprogram()) {

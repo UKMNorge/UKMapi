@@ -34,16 +34,6 @@ class Samling {
 	**/
 	public function __construct( $context ) {
 		$this->setContext( $context );
-		
-		/*
-		switch( $this->getContext()->getType() ) {
-			case 'monstring': 
-			break;
-			case 'forestilling':
-				#throw new Exception('INNSLAG_COLLECTION: ikke implementert støtte for forestilling');
-			break;
-		}
-		*/
 	}
 
 	/**
