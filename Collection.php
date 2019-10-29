@@ -47,6 +47,9 @@ abstract class Collection implements Iterator
      * @return Item
      */
     public function find( $id ) {
+        if( !is_string( $id ) ) {
+            $id = $id->getId();
+        }
 	    foreach( $this as $item ) {
 		    if( $id == $item->getId() ) {
 			    return $item;
