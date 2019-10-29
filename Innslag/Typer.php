@@ -24,7 +24,7 @@ class Typer extends \Collection
 
     static function getById($id, $kategori = false)
     {
-        return self::_load($id, $kategori);
+        return self::load($id, $kategori);
     }
 
     static function getByKey($key) {
@@ -35,9 +35,9 @@ class Typer extends \Collection
     {
         // Last med kategori om vi er på scene-innslag.
         if (in_array($key, array('musikk', 'dans', 'teater', 'litteratur'))) {
-            return self::_load(self::_translate_key_to_id($key), $key);
+            return self::load(self::_translate_key_to_id($key), $key);
         }
-        return self::_load(self::_translate_key_to_id($key));
+        return self::load(self::_translate_key_to_id($key));
     }
 
     static function getAllTyper()
@@ -60,7 +60,7 @@ class Typer extends \Collection
         return self::$allScene;
     }
 
-    static function _load($id, $kategori = false)
+    static function load($id, $kategori = false)
     {
         switch ($id) {
             case 1:
