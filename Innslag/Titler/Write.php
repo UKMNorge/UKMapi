@@ -28,7 +28,7 @@ class Write
         if (!Logger::ready()) {
             throw new Exception(
                 'Logger is missing or incorrect set up.',
-                50901
+                508001
             );
         }
         // Valider input-data
@@ -58,7 +58,7 @@ class Write
                 // TODO
                 throw new Exception(
                     'Kan kun opprette en ny tittel for scene, video eller utstilling. ' . $innslag->getType()->getTabell() . ' er ikke støttet enda.',
-                    50902
+                    508002
                 );
         }
 
@@ -80,7 +80,7 @@ class Write
 
         throw new Exception(
             'Klarte ikke å opprette ny tittel.',
-            50903
+            508003
         );
     }
 
@@ -90,7 +90,7 @@ class Write
         if (!Logger::ready()) {
             throw new Exception(
                 'Logger is missing or incorrect set up.',
-                50901
+                508004
             );
         }
         // Valider inputdata
@@ -179,7 +179,7 @@ class Write
             default:
                 throw new Exception(
                     'Kunne ikke lagre tittel. Ukjent database-tabell ' . str_replace('UKMNorge\Innslag\Titler\\', '', get_class($tittel_save)),
-                    50904
+                    508005
                 );
         }
 
@@ -252,7 +252,7 @@ class Write
 
         throw new Exception(
             'Kunne ikke legge til ' . $tittel_save->getTittel() . ' i innslaget. ',
-            50913
+            508006
         );
     }
 
@@ -285,7 +285,7 @@ class Write
 
         throw new Exception(
             'Kunne ikke fjerne ' . $tittel_save->getTittel() . ' fra innslaget. ',
-            50514
+            508007
         );
     }
 
@@ -307,7 +307,8 @@ class Write
     private function _leggTilVideresend($tittel_save)
     {
         throw new Exception(
-            'Kan ikke videresende. Relasjon ukm_rel_arrangement_tittel ikke implementert. Kontakt UKM Norge'
+            'Kan ikke videresende. Relasjon ukm_rel_arrangement_tittel ikke implementert. Kontakt UKM Norge',
+            508008
         );
         $test_relasjon = new Query(
             "SELECT * FROM `smartukm_fylkestep`
@@ -344,7 +345,7 @@ class Write
 
         throw new Exception(
             'Kunne ikke videresende ' . $tittel_save->getTittel(),
-            50516
+            508009
         );
     }
 
@@ -389,7 +390,7 @@ class Write
 
         throw new Exception(
             'Klarte ikke fjerne tittel ' . $tittel_save->getTittel(),
-            50515
+            508010
         );
     }
 
@@ -404,7 +405,8 @@ class Write
     public function _fjernVideresend($tittel_save)
     {
         throw new Exception(
-            'Kan ikke fjerne videresending. Relasjon ukm_rel_arrangement_tittel ikke implementert. Kontakt UKM Norge'
+            'Kan ikke fjerne videresending. Relasjon ukm_rel_arrangement_tittel ikke implementert. Kontakt UKM Norge',
+            508016
         );
         $videresend_tittel = new Delete(
             'smartukm_fylkestep',
@@ -467,7 +469,7 @@ class Write
 
         throw new Exception(
             'Kunne ikke avmelde ' . $tittel_save->getTittel() . ' fra mønstringen',
-            50907
+            508011
         );
     }
 
@@ -492,13 +494,13 @@ class Write
         if (!Tittel::validateClass($tittel)) {
             throw new Exception(
                 'Tittel må være objekt av klassen tittel_v2',
-                50905
+                508012
             );
         }
         if (!is_numeric($tittel->getId()) || $tittel->getId() <= 0) {
             throw new Exception(
                 'Tittel-objektet må ha en numerisk ID større enn null',
-                50906
+                508013
             );
         }
     }
@@ -526,7 +528,7 @@ class Write
             throw new Exception(
                 'Kan ikke legge til/fjerne tittel. ' .
                     'Tittel-objektet er ikke opprettet i riktig kontekst',
-                50911
+                508014
             );
         }
         // Valider kontekst (tilknytning til innslag)
@@ -534,7 +536,7 @@ class Write
             throw new Exception(
                 'Kan ikke legge til/fjerne tittel. ' .
                     'Tittel-objektet er ikke opprettet i riktig kontekst',
-                50912
+                508015
             );
         }
     }

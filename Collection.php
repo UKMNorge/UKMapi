@@ -12,7 +12,10 @@ abstract class Collection implements Iterator
     private $loaded = false;
     
     public function add( $item ) {
-        if( !$this->har($item) ) {
+        // Denne må bruke find, og ikke har,
+        // da har kjører doLoad, og doLoad kjører
+        // add, som kjører har() (infinite loop, altså)
+        if( !$this->find($item) ) {
             $this->var[] = $item;
         }
 	    return $this;
@@ -26,6 +29,7 @@ abstract class Collection implements Iterator
     }
     
     public function har( $object ) {
+        $this->_doLoad();
         if( is_string( $object ) ) {
             return $this->find( $object );
         }
@@ -57,11 +61,19 @@ abstract class Collection implements Iterator
      * @return Array
      */
     public function getAll() {
-        if( method_exists( get_called_class(), '_load' ) && $this->loaded == false) {
-            $this->_load();
-            $this->loaded = true;
-        }
+        $this->_doLoad();
 	    return $this->var;
+    }
+
+    private function _doLoad() {
+        if( $this->loaded ) {
+            return true;
+        }
+        if( method_exists( get_called_class(), '_load' ) ) {
+            $this->_load();
+        }
+        $this->loaded = true;
+        return true;
     }
     
     /**

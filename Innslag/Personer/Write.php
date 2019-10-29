@@ -69,7 +69,7 @@ class Write {
 		if( !Logger::ready() ) {
 			throw new Exception(
 				'Logger is missing or incorrect set up.',
-				50701
+				506018
 			);
 		}
 		// Valider input-data
@@ -98,7 +98,7 @@ class Write {
 			if( !$insert_id ) {
 				throw new Exception(
 					"Klarte ikke å opprette et personobjekt for ".$fornavn." ". $etternavn.".",
-					50706
+					506017
 				);
 			}
 			$p_id = $insert_id;
@@ -129,12 +129,12 @@ class Write {
 		if( !Logger::ready() ) {
 			throw new Exception(
 				'Logger is missing or incorrect set up.',
-				50701
+				506016
 			);
 		}
 		// Valider inputdata
 		try {
-			Write::_validerPerson( $person_save );
+			Write::validerPerson( $person_save );
 		} catch( Exception $e ) {
 			throw new Exception(
 				'Kan ikke lagre person. '. $e->getMessage(),
@@ -211,7 +211,7 @@ class Write {
 	public function saveRolle( Person $person_save ) {
 		// Valider input-data
 		try {
-			Write::_validerPerson( $person_save );
+			Write::validerPerson( $person_save );
 		} catch( Exception $e ) {
 			throw new Exception(
 				'Kan ikke oppdatere personens rolle. '. $e->getMessage(),
@@ -224,7 +224,7 @@ class Write {
 			throw new Exception(
 				'Kan ikke oppdatere personens rolle. '.
 				'Person-objektet er ikke opprettet i riktig kontekst',
-				50511
+				506001
 			);
 		}
 		// Valider kontekst (tilknytning til innslag)
@@ -232,7 +232,7 @@ class Write {
 			throw new Exception(
 				'Kan ikke oppdatere personens rolle. '.
 				'Person-objektet er ikke opprettet i riktig kontekst',
-				50512
+				506002
 			);
 		}
 		
@@ -288,9 +288,9 @@ class Write {
 		// Valider inputs
 		static::_validerLeggtil( $person_save );
 
-		// Opprett mønstringen personen kommer fra
+		// Hent mønstringen personen kommer fra
 		$monstring = new Arrangement( $person_save->getContext()->getMonstring()->getId() );
-		// Hent innslaget fra gitt mønstring
+		// Hent innslaget fra gitt mønstring (for riktig context)
 		$innslag_db = $monstring->getInnslag()->get( $person_save->getContext()->getInnslag()->getId(), true );
 		
 		// Alltid legg til personen lokalt
@@ -327,7 +327,7 @@ class Write {
 		
 		throw new Exception(
 			'Kunne ikke legge til '. $person_save->getNavn() .' i innslaget. ',
-			50513
+			506015
 		);
 	}
 
@@ -350,13 +350,10 @@ class Write {
 		// Hent innslaget fra gitt mønstring
 		$innslag_db = $monstring->getInnslag()->get( $person_save->getContext()->getInnslag()->getId(), true );
 
-        $slett = false;
-
         // Pre-2020-relasjon
         if( $innslag_db->getSesong() < 2020 ) {
             if( $monstring->getType() == 'kommune' || $person_save->getContext()->getInnslag()->getType()->getId() == 1 ) {
                 $res = Write::_slett( $person_save );
-                $slett = true;
             } else {
                 $res = Write::_fjernArrangement( $person_save );
             }
@@ -376,7 +373,6 @@ class Write {
 
             if( $antall_relasjoner == 1 ) {
                 $res = Write::_slett( $person_save );
-                $slett = true;
             } else {
                 $res = Write::_fjernArrangement( $person_save );
             }
@@ -388,7 +384,7 @@ class Write {
 		
 		throw new Exception(
 			'Kunne ikke fjerne '. $person_save->getNavn() .' fra innslaget. ',
-			50514
+			506014
 		);
 	}
 
@@ -416,19 +412,36 @@ class Write {
 						array(	'b_id' => $person_save->getContext()->getInnslag()->getId(), 
 								'p_id' => $person_save->getId()) 
 						);
-		$exists = $sql->run('field', 'COUNT(*)');
+        $exists = $sql->run('field', 'COUNT(*)');
+        
 		if($exists) {
 			return true;
 		}
 
 		// Legg til i innslaget
+		Logger::log( 324, $person_save->getContext()->getInnslag()->getId(), $person_save->getId().': '. $person_save->getNavn() );
 		$sql = new Insert("smartukm_rel_b_p");
 		$sql->add('b_id', $person_save->getContext()->getInnslag()->getId() );
 		$sql->add('p_id', $person_save->getId());
-
-		Logger::log( 324, $person_save->getContext()->getInnslag()->getId(), $person_save->getId().': '. $person_save->getNavn() );
 		$res = $sql->run();
-		
+        
+        // Insert OK, lagre 2020-relasjon 
+        if( $res ) {
+            $insert = new Insert('ukm_rel_arrangement_person');
+            $insert->add('innslag_id', $person_save->getContext()->getInnslag()->getId() );
+            $insert->add('person_id', $person_save->getId());
+            $insert->add('arrangement_id', $person_save->getContext()->getMonstring()->getId());
+            try {
+                $res = $insert->run();
+                return true;
+            } catch( Exception $e ) {
+                throw new Exception(
+                    'Kunne ikke lagre relasjon mellom arrangement og person. Kontakt support@ukm.no. Systemet sa:'. $e->getMessage(),
+                    506013
+                );
+            }        
+        }
+
 		if( !$res ) {
 			return false;
 		}
@@ -486,22 +499,27 @@ class Write {
         }
 
         // 2020-relasjon
-        $insert = new Insert('ukm_relasjon_arrangement_person');
+        $insert = new Insert('ukm_rel_arrangement_person');
         $insert->add('innslag_id', $person_save->getContext()->getInnslag()->getId() );
         $insert->add('person_id', $person_save->getId());
         $insert->add('arrangement_id', $person_save->getContext()->getMonstring()->getId());
-        $insert->add('sesong', $person_save->getContext()->getSesong());
         
         try {
             $res = $insert->run();
             return true;
         } catch( Exception $e ) {
-            throw new Exception('Håndter exception '. $e->getMessage());
+            if( $e->getCode() == 901001 ) {
+                return true;
+            }
+            throw new Exception(
+                'En ukjent feil oppsto. Systemet sa: '. $e->getMessage() .' ('. $insert->debug().')',
+                506019
+            );
         }
 
         throw new Exception(
             'Kunne ikke videresende '. $person_save->getNavn() .'.',
-            50516
+            506012
         );		
 	}
 
@@ -550,7 +568,7 @@ class Write {
              * Hvis personen deltar i flere innslag fjernes kun forespørsel for dette
              * innslaget, mens for andre innslag vil den fortsatt stå.
              */
-            $samtykke = new PersonSamtykke( $person_save, $person_save->getContext()->getInnslag() );
+            $samtykke = new PersonSamtykke( $person_save, $person_save->getContext()->getInnslag(), $person_save->getContext()->getSesong() );
             $samtykke->fjernInnslag( $person_save->getContext()->getInnslag()->getId() );
 
 			return true;
@@ -558,7 +576,7 @@ class Write {
 		
 		throw new Exception(
 			'Kunne ikke fjerne '. $person_save->getNavn() .' fra innslaget. ',
-			50515
+			506011
 		);
 	}
 	
@@ -618,7 +636,7 @@ class Write {
         // 2020-relasjon
         else {
             $delete = new Delete(
-                'ukm_relasjon_arrangement_person',
+                'ukm_rel_arrangement_person',
                 [
                     'innslag_id' => $person_save->getContext()->getInnslag()->getId(),
                     'person_id' => $person_save->getId(),
@@ -634,7 +652,7 @@ class Write {
         		
 		throw new Exception(
 			'Kunne ikke avmelde '. $person_save->getNavn() .'.',
-			50717
+			506010
 		);
 	}
 
@@ -657,17 +675,17 @@ class Write {
 	 * @param anything $person
 	 * @return void
 	**/
-	private static function _validerPerson( $person ) {
+	public static function validerPerson( $person ) {
 		if( !Person::validateClass($person)) {
 			throw new Exception(
 				'Person må være objekt av klassen person_v2',
-				50707
+				506009
 			);
 		}
 		if( !is_numeric( $person->getId() ) || $person->getId() <= 0 ) {
 			throw new Exception(
 				'Person-objektet må ha en numerisk ID større enn null',
-				50708
+				506008
 			);
 		}
 	}
@@ -681,19 +699,19 @@ class Write {
 		if(!is_string($fornavn) || empty($fornavn) || !is_string($etternavn) || empty($etternavn) ) {
 			throw new Exception(
 				"Fornavn og etternavn må være en streng.",
-				50702
+				506007
 			);
 		}
 		if( !is_numeric($mobil) || 8 != strlen($mobil) ) {
 			throw new Exception(
 				"Mobilnummeret må bestå kun av tall og være 8 siffer langt!",
-				50703
+				506006
 			);
 		}
 		if( !Kommune::validateClass($kommune) ) {
 			throw new Exception(
 				"Kommune må være kommune-objekt.",
-				50705
+				506005
 			);
 		}
 	}
@@ -706,7 +724,7 @@ class Write {
 	private static function _validerLeggtil( $person_save ) {
 		// Valider input-data
 		try {
-			Write::_validerPerson( $person_save );
+			Write::validerPerson( $person_save );
 		} catch( Exception $e ) {
 			throw new Exception(
 				'Kan ikke legge til/fjerne person. '. $e->getMessage(),
@@ -719,7 +737,7 @@ class Write {
 			throw new Exception(
 				'Kan ikke legge til/fjerne person. '.
 				'Person-objektet er ikke opprettet i riktig kontekst',
-				50511
+				506003
 			);
 		}
 		// Valider kontekst (tilknytning til innslag)
@@ -727,7 +745,7 @@ class Write {
 			throw new Exception(
 				'Kan ikke legge til/fjerne person. '.
 				'Person-objektet er ikke opprettet i riktig kontekst',
-				50512
+				506004
 			);
 		}
 	}

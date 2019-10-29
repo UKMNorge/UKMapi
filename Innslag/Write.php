@@ -282,7 +282,7 @@ class Write {
 	 * @param Innslag $innslag_save
 	 * @return void
 	**/
-	public static function savePersoner( $innslag_save ) {
+	public static function savePersoner( Innslag $innslag_save ) {
 		// Valider logger
 		if( !Logger::ready() ) {
 			throw new Exception(

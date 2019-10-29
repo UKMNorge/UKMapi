@@ -751,15 +751,16 @@ class Innslag
     /**
      * Hent personer i innslaget
      *
-     * @return array $personer
+     * @return Personer
      **/
     public function getPersoner()
     {
         if (null == $this->personer_collection) {
             $this->personer_collection = new Personer(
-                $this->getId(),         // Innslag ID
-                $this->getType(),       // Innslag type
-                $this->getContext()     // Innslagets nåværende kontekst
+                $this->getContext()->setInnslag(
+                    $this->getId(),
+                    $this->getType()->getKey()
+                )
             );
         }
         return $this->personer_collection;

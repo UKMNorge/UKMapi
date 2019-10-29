@@ -8,6 +8,7 @@ use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Database\SQL\Update;
+use UKMNorge\Innslag\Context\Innslag as InnslagContext;
 use UKMNorge\Innslag\Innslag;
 use UKMNorge\RFID\Person as InnslagPerson;
 
@@ -34,13 +35,21 @@ class Person {
 	
 	public function __construct( $person, $innslag, $year=null ) {
         if( $innslag != false ) {
-            if( !Innslag::validateClass( $innslag ) ) {
+            if( !Innslag::validateClass( $innslag ) && !InnslagContext::validateClass($innslag) ) {
                 throw new Exception(
-                    'Samtykke\Person krever innslag_v2 som parameter 2',
+                    'Samtykke\Person krever Innslag eller Context\Innslag som parameter 2',
                     113001
                 );
             }
-            $year = $innslag->getSesong();
+            if( Innslag::validateClass( $innslag ) ) {
+                $year = $innslag->getSesong();
+            }
+            if( empty($year) ) {
+                throw new Exception(
+                    'Samtykke\Person krever sesong som 3. parameter når innslag er Context\Innslag',
+                    113002
+                );
+            }
         }
 		$this->attr = [];
 		$this->person = $person;
@@ -138,6 +147,7 @@ class Person {
             $SQLins->add('p_id', $this->getPerson()->getId());
             $SQLins->add('b_id', $innslag_id);
             $SQLins->run();
+            echo $SQLins->debug();
         } catch( Exception $e ) {
             // Ganske vanlig å få feil på denne, pga
             // unique-constraint. Do nothing then
@@ -159,7 +169,7 @@ class Person {
                  ' og deretter '. $e_second->getMessage(); 
             }
         }
-       }
+    }
 	
 	public function harForesatt() {
 		return $this->getForesatt()->har();

@@ -34,10 +34,22 @@ class Titler extends Collection
      * Bruker context for å finne tilhørende innslag
      *
      * @param Int $id
-     * @return person
+     * @return Tittel
+     * @throws Exception ikke funnet
      **/
     public function get($id)
     {
+        if( !is_numeric( $id ) && !Tittel::validateClass( $id ) ) {
+            throw new Exception(
+                'Titler::get() krever Tittel-objekt eller numerisk ID som objekt',
+                172003
+            );
+        }
+        // Hvis tittel-objekt, let etter id-feltet
+        if( Tittel::validateClass($id ) ) {
+            $id = $id->getId();
+        }
+        
         foreach ($this->getAllInkludertIkkePameldte() as $tittel) {
             if ($tittel->getId() == $id) {
                 return $tittel;
@@ -51,7 +63,7 @@ class Titler extends Collection
     }
 
     /**
-     * Hent alle titler (videresendt til aktivt arrangement)
+     * Hent alle titler (påmeldt aktivt arrangement)
      * 
      * Aktivt arrangement settes via context.
      * Når innslaget lastes inn via Arrangement->getInnslag().... 
@@ -78,7 +90,7 @@ class Titler extends Collection
      */
     public function getAllIkkePameldte()
     {
-        return static::filterIkkeVideresendte(
+        return static::filterIkkePameldte(
             $this->getContext()->getMonstring()->getId(),
             parent::getAll()
         );
@@ -87,7 +99,7 @@ class Titler extends Collection
     /**
      * Hent absolutt alle titler
      * 
-     * Uavhengig om de er videresendt til aktivt arrangement eller ikke
+     * Uavhengig om de er påmeldt aktivt arrangement eller ikke
      * Aktivt arrangement settes via context.
      * Når innslaget lastes inn via Arrangement->getInnslag().... 
      * er dette automatisk riktig satt på titler-collection
@@ -96,11 +108,11 @@ class Titler extends Collection
      */
     public function getAllInkludertIkkePameldte()
     {
-        return $this->getAll();
+        return parent::getAll();
     }
 
     /**
-     * Hent titler som er påmeldt gitt arrangement
+     * Filtrer og returner personer påmeldt gitt arrangement
      *
      * @param Int $arrangement_id
      * @param Array<Tittel> $titler
@@ -118,7 +130,7 @@ class Titler extends Collection
     }
 
     /**
-     * Hent titler som ikke er påmeldt gitt arrangement
+     * Filtrer og returner titler som ikke er påmeldt gitt arrangement
      *
      * @param Int $arrangement_id
      * @param Array<Tittel> $titler
@@ -128,7 +140,7 @@ class Titler extends Collection
     {
         $filtered = [];
         foreach ($titler as $tittel) {
-            if (!$tittel->erVideresendtTil($arrangement_id)) {
+            if (!$tittel->erPameldt($arrangement_id)) {
                 $filtered[] = $tittel;
             }
         }
@@ -158,8 +170,12 @@ class Titler extends Collection
             return true;
         }
         // Gi tittelen riktig context (hent fra collection, samme som new tittel herfra)
-        #$tittel->setContext($this->getContext());
+        die('SJEKK AT SETCONTEXT FUNKER');
+        $tittel->setContext($this->getContext());
 
+        // Legg til at tittelen skal være påmeldt arrangementet
+        $tittel->addPameldt( $tittel->getContext()->getMonstring()->getId() );
+        
         parent::leggTil($tittel);
         return $this;
     }
@@ -327,24 +343,5 @@ class Titler extends Collection
     public function getContext()
     {
         return $this->context;
-    }
-
-    /**
-     * Opprett context for innslag (why?)
-     *
-     * @return Context
-     */
-    public function getContextInnslag()
-    {
-        throw new Exception('getContextInnslag ikke implementert. Kontakt UKM Norge support');
-        /*
-        return Context::createInnslag(
-			$this->getInnslagId(),								// Innslag ID
-			$this->getInnslagType(),							// Innslag type (objekt)
-			$this->getContext()->getMonstring()->getId(),		// Mønstring ID
-			$this->getContext()->getMonstring()->getType(),		// Mønstring type
-			$this->getContext()->getMonstring()->getSesong()	// Mønstring sesong
-        );
-        */
     }
 }

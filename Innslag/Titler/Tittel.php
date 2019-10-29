@@ -214,7 +214,7 @@ abstract class Tittel
     }
 
     /**
-     * Sett hvilke arrangemtn-IDer tittelen er videresendt til
+     * Sett hvilke arrangemtn-IDer tittelen er påmeldt
      *
      * @param Array<Int> ID
      * @return $this
@@ -226,7 +226,20 @@ abstract class Tittel
     }
 
     /**
-     * Hent hvilke arrangement-IDer tittelen er videresendt til
+     * Legg til enda et arrangement hvor tittelen er påmeldt
+     *
+     * @param Int $pameldt_til
+     * @return Bool true
+     */
+    public function addPameldt(Int $pameldt_til ) {
+        if( !in_array( $pameldt_til, $this->pameldt_til ) ) {
+            $this->pameldt_til[] = $pameldt_til;
+        }
+        return true;
+    }
+    
+    /**
+     * Hent hvilke arrangement-IDer tittelen er påmeldt
      * 
      * Gjelder også på lokalmønstring fra og med 2020
      * 

@@ -4,277 +4,262 @@ namespace UKMNorge\Innslag\Personer;
 
 use Exception;
 use UKMNorge\Arrangement\Arrangement;
+use UKMNorge\Collection;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Innslag\Context\Context;
 use UKMNorge\Innslag\Type;
 
 require_once('UKM/Autoloader.php');
 
-class Personer {
+class Personer extends Collection
+{
     var $context = null;
-	var $innslag_id = null;
-	var $innslag_type = null;
-	
-	var $personer = null;
-	var $personer_videresendt = null;
-	var $personer_ikke_videresendt = null;
-	var $debug = false;
-	
-	public function __construct( Int $innslag_id, Type $innslag_type, Context $context ) {
-		$this->innslag_id = $innslag_id;
-        $this->innslag_type = $innslag_type;
-		$this->context = $context;
 
-		$this->_load();
-	}
+    var $personer = null;
+    var $personer_videresendt = null;
+    var $personer_ikke_videresendt = null;
+    var $debug = false;
 
-	/**
-	 * getAll
-	 * Returner alle personer i innslaget
-	 *
-	 * @return Array<Person> $personer
-	**/
-	public function getAll() {
-		return $this->personer;
+    /**
+     * Opprett en ny collection
+     *
+     * @param Context $context
+     */
+    public function __construct(Context $context)
+    {
+        $this->context = $context;
     }
-    
+
+    /**
+     * Hent person med gitt ID
+     *
+     * @param Int $id
+     * @return Person
+     * @throws Exception not found
+     **/
+    public function get($id)
+    {
+        if (!is_numeric($id) && !Person::validateClass($id)) {
+            throw new Exception(
+                'Personer::get() krever Person-objekt eller numerisk ID som objekt',
+                172003
+            );
+        }
+        // Hvis person-objekt, let etter id-feltet
+        if (Person::validateClass($id)) {
+            $id = $id->getId();
+        }
+
+        foreach ($this->getAllInkludertIkkePameldte() as $person) {
+            if ($person->getId() == $id) {
+                return $person;
+            }
+        }
+
+        throw new Exception(
+            'PERSONER: Kunne ikke finne person ' . $id . ' i innslag ' . $this->getContext()->getInnslag()->getId(),
+            106003
+        );
+    }
+
+    /**
+     * Hent alle personer (påmeldt aktivt arrangement)
+     * 
+     * Aktivt arrangement settes via context.
+     * Når innslaget lastes inn via Arrangement->getInnslag().... 
+     * er dette automatisk riktig satt på personer-collection
+     *
+     * @return Array<Person>
+     */
+    public function getAll()
+    {
+        return static::filterPameldte(
+            $this->getContext()->getMonstring()->getId(),
+            parent::getAll()
+        );
+    }
+
+    /**
+     * Hent alle personer som ikke er påmeldt aktivt arrangement
+     * 
+     * Aktivt arrangement settes via context.
+     * Når innslaget lastes inn via Arrangement->getInnslag().... 
+     * er dette automatisk riktig satt på titler-collection
+     *
+     * @return Array<Person>
+     */
+    public function getAllIkkePameldte()
+    {
+        return static::filterIkkePameldte(
+            $this->getContext()->getMonstring()->getId(),
+            parent::getAll()
+        );
+    }
+
+    /**
+     * Hent absolutt alle personer
+     * 
+     * Uavhengig om de er påmeldt aktivt arrangement eller ikke
+     * Aktivt arrangement settes via context.
+     * Når innslaget lastes inn via Arrangement->getInnslag().... 
+     * er dette automatisk riktig satt på personer-collection
+     *
+     * @return Array<Person>
+     */
+    public function getAllInkludertIkkePameldte()
+    {
+        return parent::getAll();
+    }
+
+    /**
+     * Filtrer og returner personer påmeldt gitt arrangement
+     *
+     * @param Int $arrangement_id
+     * @param Array<Person> $personer
+     * @return Array<Person>
+     */
+    public static function filterPameldte(Int $arrangement_id, array $personer)
+    {
+        $filtered = [];
+        foreach ($personer as $person) {
+            if ($person->erPameldt($arrangement_id)) {
+                $filtered[] = $person;
+            }
+        }
+        return $filtered;
+    }
+
+    /**
+     * Filtrer og returner personer som ikke er påmeldt gitt arrangement
+     *
+     * @param Int $arrangement_id
+     * @param Array<Person> $personer
+     * @return Array<Person>
+     */
+    public static function filterIkkePameldte(Int $arrangement_id, array $personer)
+    {
+        $filtered = [];
+        foreach ($personer as $person) {
+            if (!$person->erPameldt($arrangement_id)) {
+                $filtered[] = $person;
+            }
+        }
+        return $filtered;
+    }
+
     /**
      * Hent ID-liste for alle personer i getAll()
      *
      * @return Array<Int> 
      */
-    public function getAllIds() {
-        return array_keys( $this->getAll() );
+    public function getAllIds()
+    {
+        return static::getIdList($this->getAll());
     }
-	
-	/**
-	 * getSingle
-	 * Hent én enkelt person fra innslaget. 
-	 * Er beregnet for tittelløse innslag, som aldri har mer enn én person
-	 *
-	 * @return Person $person
+
+    /**
+     * Hent ID-liste for gitte personer
+     *
+     * @param Array<Person> $personer
+     * @return Arra
+     */
+    public static function getIdList(array $personer)
+    {
+        return array_keys($personer);
+    }
+
+    /**
+     * getSingle
+     * Hent én enkelt person fra innslaget. 
+     * Er beregnet for tittelløse innslag, som aldri har mer enn én person
+     *
+     * @return Person $person
      * @throws Exception hvis innslaget har mer enn én person
-	**/
-	public function getSingle() {
-		if( 1 < $this->getAntall() ) {
-			throw new Exception( 'PERSON_V2: getSingle() er kun ment for bruk med tittelløse innslag som har ett personobjekt. '
-								.'Dette innslaget har '. $this->getAntall() .' personer');	
-		}
-		$all = $this->getAll();
-		return end( $all ); // and only...
-	}
-	
-	/**
-	 * getAllVideresendt
-	 * Hent alle personer i innslaget videresendt til GITT mønstring
-	 *
-	 * @param Int $pl_id
-	 * @return bool
-	**/
-	public function getAllVideresendt( $pl_id=false ) {
-		$pl_id = $this->_autoloadPlidParameter( $pl_id );
-		if( null == $this->personer_videresendt ) {
-			$this->personer_videresendt = array();
-			foreach( $this->getAll() as $person ) {
-				if( $person->erVideresendt( $pl_id ) ) {
-					$this->personer_videresendt[] = $person;
-				}
-			}
-		}
-		return $this->personer_videresendt;
-	}
+     **/
+    public function getSingle()
+    {
+        if (1 < $this->getAntall()) {
+            throw new Exception('PERSON_V2: getSingle() er kun ment for bruk med tittelløse innslag som har ett personobjekt. '
+                . 'Dette innslaget har ' . $this->getAntall() . ' personer');
+        }
+        $all = $this->getAll();
+        return end($all); // and only...
+    }
 
-	/**
-	 * getAllIkkeVideresendt
-	 * Hent alle personer i innslaget videresendt til GITT mønstring
-	 *
-	 * @param int $pl_id
-	 * @return bool
-	**/
-	public function getAllIkkeVideresendt( $pl_id=false ) {
-		if( $pl_id == false ) {
-			$pl_id = $this->getContext()->getMonstring()->getId();
-		} elseif( Arrangement::validateClass( $pl_id ) ) {
-			$pl_id = $pl_id->getId();
-		}
-		if( null == $this->personer_ikke_videresendt ) {
-			$this->personer_ikke_videresendt = array();
-			foreach( $this->getAll() as $person ) {
-				if( !$person->erVideresendt( $pl_id ) ) {
-					$this->personer_ikke_videresendt[] = $person;
-				}
-			}
-		}
-		return $this->personer_ikke_videresendt;
-	}
+    /**
+     * Legg til person i collection
+     *
+     * @param Person $person
+     * @return self
+     */
+    public function leggTil($person)
+    {
+        try {
+            Person::validateClass($person);
+        } catch (Exception $e) {
+            throw new Exception(
+                'Kunne ikke legge til person. ' . $e->getMessage(),
+                106001
+            );
+        }
 
-	/**
-	 * getAntall
-	 * Hvor mange personer er det i innslaget?
-	 * Tar ikke høyde for filtrering på videresendte
-	 *
-	 * @return int sizeof( $this->getAll() )
-	**/
-	public function getAntall() {
-		return sizeof( $this->getAll() );
-	}
-	
-	public function getAntallVideresendt( $pl_id=false ) {
-		return sizeof( $this->getAllVideresendt( $pl_id ) );
-	}
+        // Hvis personen allerede er lagt til kan vi skippe resten
+        if ($this->har($person)) {
+            return true;
+        }
 
-	public function getAntallIkkeVideresendt( $pl_id=false ) {
-		return sizeof( $this->getAllIkkeVideresendt( $pl_id ) );
-	}
-	
-	/**
-	 * get
-	 *
-	 * Finn en person med gitt ID
-	 *
-	 * @alias getById
-	 *
-	 * @param integer id
-	 * @return person
-	**/
-	public function get( $id ) {
-		if( Person::validateClass( $id ) ) {
-			$id = $id->getId();
-		}
-		
-		if( !is_numeric( $id ) ) {
-			throw new Exception('Kan ikke finne person uten ID', 1);
-		}
-		foreach( $this->getAll() as $person ) {
-			if( $person->getId() == $id ) {
-				return $person;
-			}
-		}
-		throw new Exception('PERSONER_COLLECTION: Kunne ikke finne person '. $id .' i innslag '. $this->getInnslagId(), 2); // OBS: code brukes av harPerson
-	}
-	public function getById( $id ) {
-		return $this->get( $id );
-	}
+        // Gi personen riktig context (hent fra collection, samme som new person herfra)
+        $person->setContext($this->getContext());
 
-	/**
-	 * harPerson
-	 * Er personen med i innslaget. OBS: Tar ikke høyde for videresending!
-	 *
-	 * @param object person
-	 * @return boolean
-	**/
-	public function harPerson( $har_person ) {
-		try {
-			$this->getById( $har_person );
-			return true;
-		} catch( Exception $e ) {
-			if( $e->getCode() == 2 ) {
-				return false;
-			}
-			throw $e;
-		}
-	}
-	public function har( $person ) {
-		return $this->harPerson( $person );
-	}
-	
-	/**
-	 * harVideresendtPerson
-	 * Er personen med i innslaget og videresendt til gitt mønstring?
-	 *
-	 * @param objekt person
-	 * @param int pl_id
-	 *
-	**/
-	public function harVideresendtPerson( $har_person, $pl_id=false ) {
-		$pl_id = $this->_autoloadPlidParameter( $pl_id );
-		foreach( $this->getAll() as $person ) {
-			if( $person->getId() == $har_person->getId() && $person->erVideresendt( $pl_id ) ) {
-				return true;
-			}
-		}
-	}
+        // Legg til at personen skal være påmeldt arrangementet
+        $person->addPameldt($person->getContext()->getMonstring()->getId());
 
+        // Legg til personen i collection
+        parent::add($person);
 
+        return true;
+    }
 
-	/********************************************************************************
-	 *
-	 *
-	 * MODIFISER COLLECTIONS
-	 *
-	 *
-	 ********************************************************************************/
-	public function leggTil( $person ) {
-		try {
-			Person::validateClass( $person );
-		} catch( Exception $e ) {
-			throw new Exception(
-				'Kunne ikke legge til person. '. $e->getMessage(),
-				106001
-			);
-		}
-		
-		// Hvis personen allerede er lagt til kan vi skippe resten
-		if( $this->harPerson( $person ) ) {
-			return true;
-		}
-		
-		// Gi personen riktig context (hent fra collection, samme som new person herfra)
-		$person->setContext( $this->getContextInnslag() );
-		
-		// Legg til at personen skal være videresendt
-		if( $person->getContext()->getMonstring()->getType() != 'kommune' ) {
-			$status_videresendt = $person->getVideresendtTil(); // henter et array av mønstringer personen er videresendt til
-			$status_videresendt[] = $person->getContext()->getMonstring()->getid(); // legger til denne mønstringer
-			$person->setVideresendtTil( $status_videresendt ); // "lagrer"
-		}
-		
-		// Legg til personen i collection
-		$this->personer[ $person->getId() ] = $person;
+    /**
+     * Fjern person fra collection
+     *
+     * @param Person $person
+     * @return self
+     */
+    public function fjern($person)
+    {
+        try {
+            Write::validerPerson($person);
+        } catch (Exception $e) {
+            throw new Exception(
+                'Kunne ikke fjerne person. ' . $e->getMessage(),
+                106002
+            );
+        }
 
-		return true;
-	}
+        if (!$this->har($person)) {
+            return true;
+        }
 
-	public function fjern( $person ) {
-		try {
-			Write::validerPerson( $person );
-		} catch( Exception $e ) {
-			throw new Exception(
-				'Kunne ikke fjerne person. '. $e->getMessage(),
-				106002
-			);
-		}
-		
-		if( !$this->harPerson( $person ) ) {
-			return true;
-		}
-		
-		unset( $this->personer[ $person->getId() ] );
+        parent::fjern($person);
 
-		return true;
-	}
+        return true;
+    }
 
-
-
-	/********************************************************************************
-	 *
-	 *
-	 * INTERNE HJELPE-FUNKSJONER
-	 *
-	 *
-	 ********************************************************************************/
-	/**
-	 * Last inn alle personer i samlingen
-	**/
-	private function _load() {
-		$this->personer = array();
-        
+    /**
+     * Last inn alle personer tilhørende innslaget
+     * 
+     * @return void
+     **/
+    public function _load()
+    {
         // 2020 regionreform gir ny beregning av personer. Strengt tatt samme løsning
         // som smartukm_fylkestep, men nå rendyrket i egen tabell for å sikre at ikke APIv1
         // tuller til relasjoner i ny sesong. Nå brukes relasjonstabellen for ALLE arrangementer,
         // uavhengig om innslaget er videresendt eller ikke.
-        if( $this->getContext()->getSesong() > 2019 ) {
-		    $SQL = new Query("SELECT 
+        if ($this->getContext()->getSesong() > 2019) {
+            $SQL = new Query(
+                "SELECT 
                     `participant`.*, 
                     `relation`.`instrument`,
                     `relation`.`instrument_object`,
@@ -293,11 +278,12 @@ class Personer {
                     `participant`.`p_firstname` ASC, 
                     `participant`.`p_lastname` ASC",
                 [
-                    'innslag' => $this->getInnslagId()
+                    'innslag' => $this->getContext()->getInnslag()->getId()
                 ]
             );
         } else {
-		    $SQL = new Query("SELECT 
+            $SQL = new Query(
+                "SELECT 
                     `participant`.*, 
                     `relation`.`instrument`,
                     `relation`.`instrument_object`,
@@ -307,104 +293,40 @@ class Personer {
                 JOIN `smartukm_rel_b_p` AS `relation` 
                     ON (`relation`.`p_id` = `participant`.`p_id`) 
                 LEFT JOIN `smartukm_fylkestep_p`
-                    ON(`smartukm_fylkestep_p`.`b_id` = '#bid' AND `smartukm_fylkestep_p`.`p_id` = `participant`.`p_id`)
+                    ON(`smartukm_fylkestep_p`.`b_id` = '#innslag' AND `smartukm_fylkestep_p`.`p_id` = `participant`.`p_id`)
                 JOIN `smartukm_band` AS `band`
                     ON(`band`.`b_id` = `relation`.`b_id`)
-                WHERE `relation`.`b_id` = '#bid'
+                WHERE `relation`.`b_id` = '#innslag'
                 GROUP BY `participant`.`p_id`
                 ORDER BY 
                     `participant`.`p_firstname` ASC, 
                     `participant`.`p_lastname` ASC",
-            [
-                'bid' => $this->getInnslagId()
-            ]
+                [
+                    'innslag' => $this->getContext()->getInnslag()->getId()
+                ]
             );
         }
-		$res = $SQL->run();
-		if( isset( $_GET['debug'] ) || $this->debug )  {
-			echo $SQL->debug();
-		}
-		if($res === false) {
-			throw new Exception("PERSONER_COLLECTION: Klarte ikke hente personer og roller - kan databaseskjema være utdatert?" . $SQL->debug());
-		}
-		while( $r = Query::fetch( $res ) ) {
-			$person = new Person( $r );
-			$person->setContext( $this->getContextInnslag() );
-			$this->personer[ $person->getId() ] = $person;
-		}
-	}
-	
-
-    /**
-     * Hent innslagets ID
-     *
-     * @return Int $id
-     */
-	public function getInnslagId() {
-		return $this->innslag_id;
-	}
-
-    /**
-     * Hent innslagets type
-     *
-     * @return Type
-     */
-    public function getInnslagType() {
-		return $this->innslag_type;
-	}
+        $res = $SQL->run();
+        if (isset($_GET['debug']) || $this->debug) {
+            echo $SQL->debug();
+        }
+        if ($res === false) {
+            throw new Exception("PERSONER_COLLECTION: Klarte ikke hente personer og roller - kan databaseskjema være utdatert?" . $SQL->debug());
+        }
+        while ($r = Query::fetch($res)) {
+            $person = new Person($r);
+            $person->setContext($this->getContext());
+            $this->add($person);
+        }
+    }
 
     /**
      * Hent innslagets / personers context
      *
      * @return Context
      */
-	public function getContext() {
-		return $this->context;
-	}
-    
-    /**
-     * Opprett et innslagContext-objekt (why?)
-     *
-     * @return Context
-     */
-	public function getContextInnslag() {
-        /**
-         * Hvis kontekst er sesong, snakker vi om lokal-nivået.
-         * Det vil da ikke være behov for å filtrere videresendte personer, og
-         * det vil teknisk være mulig å hente ut all informasjon uten mønstrings-objektet.
-         * 
-         * Hvorvidt dette funker 100% som tenkt er vanskelig å si enda, da dette må testes ut over tid.
-         * Implementert desember 2018.
-         */
-        if( $this->getContext()->getType() == 'sesong' && null == $this->getContext()->getMonstring()) {
-            throw new Exception(
-                'Sesong har ikke tilstrekkelig data for å hente ut ContextInnslag. Kontakt UKM Norge support',
-                106003
-            );
-            /* Sånn var det forsøkt implementert (kodet ut oktober 2019. For et år.)
-            return Context::createInnslag(
-                $this->getInnslagId(),			    // Innslag ID
-                $this->getInnslagType(),			// Innslag type (objekt)
-                null,                               // Mønstring ID
-                'kommune',                          // Mønstring type
-                $this->getContext()->getSesong()    // Mønstring sesong
-            );
-            */
-        }
-        
-		return Context::createInnslagWithMonstringContext(
-			$this->getInnslagId(),					// Innslag ID
-			$this->getInnslagType()->getId(),	    // Innslag type (objekt)
-            $this->getContext()->getMonstring()     // Mønstring-context
-		);
-	}
-
-	private function _autoloadPlidParameter( $pl_id ) {
-		if( $pl_id == false ) {
-			return $this->getContext()->getMonstring()->getId();
-		} elseif( Arrangement::validateClass( $pl_id ) ) {
-			return $pl_id->getId();
-		}
-		return $pl_id;
+    public function getContext()
+    {
+        return $this->context;
     }
 }
