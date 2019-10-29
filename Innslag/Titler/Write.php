@@ -72,7 +72,6 @@ class Write
             $relasjon->add('tittel_id', $insert_id);
             $relasjon->add('arrangement_id', $innslag->getContext()->getMonstring()->getId());
             $relasjon->run();
-            echo $relasjon->debug();
             
             $class = 'UKMNorge\Innslag\Titler\\' . $innslag->getType()->getTittelClass();
             return $class::getById($insert_id);
