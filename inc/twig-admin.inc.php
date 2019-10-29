@@ -2,7 +2,7 @@
 
 use UKMNorge\Twig\Twig as TwigAdmin;
 
-require_once('UKM/Twig/Twig.php');
+require_once('lib/autoload.php');
 require_once('UKMconfig.inc.php');
 
 function TWIG($template, $dataarray, $templatefolder, $debug = false)
