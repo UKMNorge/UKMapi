@@ -311,7 +311,7 @@ class Write {
          * blir også forespørselen satt på vent
          */
         // Hvis innslaget er påmeldt ønsker vi å innhente samtykke for denne personen
-        if( $innslag_db->getStatus() == 8 ) {
+        if( $innslag_db->erPameldt() ) {
             $samtykke = new PersonSamtykke( $person_save, $innslag_db );
             $samtykke->leggTilInnslag( $innslag_db->getId() );
         }
