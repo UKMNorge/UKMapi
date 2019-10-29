@@ -5,6 +5,7 @@ namespace UKMNorge\Twig;
 use Twig_Autoloader, Twig_Environment, Twig_Loader_Filesystem, Twig_Extension_Debug, Twig_SimpleFilter, Twig_SimpleFunction;
 
 require_once('UKM/Autoloader.php');
+require_once('lib/autoload.php');
 
 class Twig
 {
