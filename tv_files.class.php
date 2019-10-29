@@ -1,4 +1,8 @@
 <?php
+
+use UKMNorge\Database\SQL\Query;
+
+require_once('UKM/Autoloader.php');
 require_once('UKM/tv.class.php');
 
 class tv_files {
@@ -128,7 +132,7 @@ class tv_files {
 				} else {
 					$where = "MATCH (`tv_title`) AGAINST('+#title' IN BOOLEAN MODE)";
 				}
-				$qry = new SQL("SELECT `tv_id`,
+				$qry = new Query("SELECT `tv_id`,
 								MATCH (`tv_title`) AGAINST('#title') AS `score`
 								FROM `ukm_tv_files`
 								WHERE $where
@@ -138,7 +142,7 @@ class tv_files {
 				$res = $qry->run();
 				$i = 0;
 				if($res) {
-					while( $r = SQL::fetch( $res ) ) {
+					while( $r = Query::fetch( $res ) ) {
 						$videos[$r['tv_id']] = $r['score'];
 						$titles[] = $r['tv_id'];
 					}
@@ -151,7 +155,7 @@ class tv_files {
 				} else {
 					$where = "MATCH (`p`.`p_name`) AGAINST('#title' IN BOOLEAN MODE)";
 				}
-				$qry = new SQL("SELECT `p`.`tv_id`, `p_name`,
+				$qry = new Query("SELECT `p`.`tv_id`, `p_name`,
 								MATCH (`p`.`p_name`) AGAINST('#title') AS `score`
 								FROM `ukm_tv_persons` AS `p`
 								LEFT JOIN `ukm_tv_files` AS `tv` ON (`tv`.`tv_id` = `p`.`tv_id`)
@@ -162,7 +166,7 @@ class tv_files {
 				$res = $qry->run();
 				$i = 0;
 				if($res) {
-					while( $r = SQL::fetch( $res ) ) {
+					while( $r = Query::fetch( $res ) ) {
 						if(is_array($titles) && in_array($r['tv_id'], $titles)) {
 							$videos[$r['tv_id']] = $videos[$r['tv_id']] + $r['score'];
 						} else
@@ -194,9 +198,9 @@ class tv_files {
 
 		// If is int - success
 		// Else pop off results down to max no full rows
-		if(!is_int($this->num_videos / $perrow)) {
-			$rows = $this->num_videos % $perrow;
-			$target_num_videos = $rows * $perrow;
+		if(!is_int($this->num_videos / $per_row)) {
+			$rows = $this->num_videos % $per_row;
+			$target_num_videos = $rows * $per_row;
 
 			for($i = $target_num_videos; $i < $this->num_videos; $i++) {
 				array_pop($this->video_ids);
@@ -248,13 +252,13 @@ class tv_files {
 		$this->executed = true;
 		$this->vars['limit'] = $this->limit;
 		// FETCH VIDEOS AND STORE IN ARRAY
-		$this->sql = new SQL($this->qry, $this->vars);
+		$this->sql = new Query($this->qry, $this->vars);
 		$result = $this->sql->run();
 		if( $this->debug ) {
 			echo $this->sql->debug();
 		}
 		if($result) {
-			while($r = SQL::fetch($result)) {
+			while($r = Query::fetch($result)) {
 				if($this->type=='featured')
 					$this->new_titles[$r['tv_id']] = $r['feature_name'];
 				
@@ -280,6 +284,5 @@ class tv_files {
 
 			$this->videos[] = $video;
 		}
-
 	}
 }

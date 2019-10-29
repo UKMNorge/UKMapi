@@ -1,7 +1,12 @@
 <?php
+
+use UKMNorge\Database\SQL\Insert;
+use UKMNorge\Database\SQL\Query;
+use UKMNorge\Database\SQL\Update;
+
 require_once('UKMconfig.inc.php');
 require_once('UKM/curl.class.php');
-require_once('UKM/sql.class.php');
+require_once('UKM/Autoloader.php');
 
 class tv {
 	var $tvurl	 	= '';
@@ -18,23 +23,23 @@ class tv {
 		// If created by a cron_id ($tv_id = false)
 		if($cron_id) {
 			// Videoreportasje
-			$qry = new SQL("SELECT `video_file` 
+			$qry = new Query("SELECT `video_file` 
 							FROM `ukm_standalone_video` 
 							WHERE `cron_id` = '#id'",
 							array('id' => $cron_id));
 			$tv_id = $qry->run('field','video_file');
 			// Related video
 			if(empty($tv_id)){
-				$qry = new SQL("SELECT `file` 
+				$qry = new Query("SELECT `file` 
 								FROM `ukm_related_video` 
 								WHERE `cron_id` = '#id'",
 								array('id' => $cron_id));
-				$tv_id = $qry->run('field','file');				
+				$tv_id = $qry->getField();
 			}
 		}
 
 		// Fetch video data (included set and category infos)
-		$qry = new SQL("SELECT `file`.*,
+		$qry = new Query("SELECT `file`.*,
 							   `cat`.`c_id` AS `set_id`,
 							   `cat`.`c_name` AS `set`,
 							   `fold`.`f_id` AS `category_id`,
@@ -49,7 +54,7 @@ class tv {
 								) ."
 						AND `tv_deleted` = 'false'",
 					array('tvid' => $tv_id ));
-		$res = $qry->run('array');
+		$res = $qry->getArray();
 
 		$this->cron_id = $cron_id;		
 		
@@ -79,10 +84,10 @@ class tv {
 	}
 	
 	private function _UKMTVbandwidthmode() {
-		$SQL = new SQL("SELECT `conf_value`
+		$SQL = new Query("SELECT `conf_value`
 						FROM `ukm_tv_config`
 						WHERE `conf_name` = 'bandwidth_mode'");
-		$mode = $SQL->run('field','conf_value');
+		$mode = $SQL->getField();
 		$this->bandwidthmode = $mode == 'low' ? 'low' : 'normal';
 	}
 	
@@ -108,18 +113,23 @@ class tv {
 		}
 	}
 	public function getCacheIP() {
-		$sql = new SQL("SELECT `ip`
+		$sql = new Query("SELECT `ip`
 						FROM `ukm_tv_caches_caches`
 						WHERE `last_heartbeat` >= NOW() - INTERVAL 3 MINUTE
 							AND `status` = 'ok' AND `deactivated` = 0
 						ORDER BY RAND()
 						LIMIT 1");
-		return $sql->run('field', 'ip');
+		return $sql->getField();
 	}
 	
 	public function delete() {
 		$this->delete = true;
-		$sql = new SQLins('ukm_tv_files', array('tv_id' => $this->id));
+		$sql = new Update(
+            'ukm_tv_files',
+            [
+                'tv_id' => $this->id
+            ]
+        );
 		$sql->add('tv_deleted','true');
 		return $sql->run();
 	}
@@ -137,7 +147,7 @@ class tv {
 	}
 	
 	public function play() {
-		$ins = new SQLins('ukm_tv_plays');
+		$ins = new Insert('ukm_tv_plays');
 		$ins->add('tv_id', $this->id);
 		$ins->add('interval', 0);
 		$ins->add('ip', $_SERVER['REMOTE_ADDR']);
@@ -196,7 +206,12 @@ class tv {
 			$this->file = $UKMCURL->data->filepath;
 			
 			if( strpos( $this->file, '720p' ) !== false ) {
-				$SQL = new SQLins('ukm_tv_files', array('tv_id' => $this->id ) );
+				$SQL = new Update(
+                    'ukm_tv_files', 
+                    [
+                        'tv_id' => $this->id
+                    ]
+                );
 				$SQL->add('file_exists_720p', 1);
 				$SQL->run();
 			}
@@ -301,10 +316,14 @@ class tv {
 		return $this->playCount;
 	}
 	private function _loadPlayCount() {
-		$sql = new SQL("SELECT `plays`
-						FROM `ukm_tv_plays_cache`
-						WHERE `tv_id` = '#tvid'",
-						array('tvid' => $this->tv_id ) );
-		$this->playCount = $sql->run('field', 'plays');
+		$sql = new Query(
+            "SELECT `plays`
+            FROM `ukm_tv_plays_cache`
+            WHERE `tv_id` = '#tvid'",
+            [
+                'tvid' => $this->tv_id
+            ]
+        );
+       $this->playCount = $sql->run('field', 'plays');
 	}
 }

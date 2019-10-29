@@ -1,7 +1,10 @@
 <?php
 
+use UKMNorge\Database\SQL\Insert;
+use UKMNorge\Database\SQL\Query;
+
 require_once('UKM/curl.class.php');
-require_once('UKM/sql.class.php');
+require_once('UKM/Autoloader.php');
 
 class tv_images 
 {
@@ -14,10 +17,10 @@ class tv_images
     public function getData() 
     {
         $data = array();
-        $query = new SQL('SELECT * FROM ukm_tv_files WHERE tv_img NOT IN (SELECT path FROM ukm_tv_img)');
+        $query = new Query('SELECT * FROM ukm_tv_files WHERE tv_img NOT IN (SELECT path FROM ukm_tv_img)');
         $result = $query->run();
         
-        while($row = SQL::fetch($result)) {
+        while($row = Query::fetch($result)) {
             $data[] = $row;
         }
         $this->data = $data;
@@ -42,7 +45,7 @@ class tv_images
             $width = $size['width'];
             $height = $size['height'];
             
-            $sql = new SQLins('ukm_tv_img');
+            $sql = new Insert('ukm_tv_img');
             $sql->add('server', $server);
             $sql->add('path', $path);
             $sql->add('width', $width);
