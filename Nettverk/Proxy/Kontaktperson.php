@@ -18,6 +18,10 @@ class Kontaktperson implements KontaktInterface {
         $this->admin = $admin;
     }
 
+    public function getId() {
+        return $this->_getUser()->getId();
+    }
+
     /**
      * Hent administratorens bruker-element
      *
