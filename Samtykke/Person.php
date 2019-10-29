@@ -147,7 +147,6 @@ class Person {
             $SQLins->add('p_id', $this->getPerson()->getId());
             $SQLins->add('b_id', $innslag_id);
             $SQLins->run();
-            echo $SQLins->debug();
         } catch( Exception $e ) {
             // Ganske vanlig å få feil på denne, pga
             // unique-constraint. Do nothing then
