@@ -106,7 +106,7 @@ class Omrade
     /**
      * Hent områdets navn
      *
-     * @return void
+     * @return String
      */
     public function getNavn()
     {
