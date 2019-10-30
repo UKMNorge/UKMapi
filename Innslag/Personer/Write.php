@@ -208,7 +208,7 @@ class Write {
 	 *
 	 * @return this
 	 */
-	public function saveRolle( Person $person_save ) {
+	public static function saveRolle( Person $person_save ) {
 		// Valider input-data
 		try {
 			Write::validerPerson( $person_save );
