@@ -16,13 +16,6 @@ class Samling extends Collection
         $this->id = $id;
     }
 
-    public function getAll()
-    {
-        $this->_load();
-        return parent::getAll();
-    }
-
-
     private function _load()
     {
         switch( $this->type ) {

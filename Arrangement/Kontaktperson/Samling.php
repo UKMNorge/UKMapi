@@ -16,9 +16,7 @@ class Samling extends Collection {
      */
 	public function __construct( Int $pl_id ) {
 		$this->pl_id = $pl_id;
-		
-		$this->_load();
-		
+				
 		parent::__construct();
 	}
 	
