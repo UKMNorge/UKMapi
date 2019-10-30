@@ -17,12 +17,7 @@
             Trykk på søke-ikonet
         </li>
         <li>
-            Søk opp denne e-postadressen: {{ epost }}, og sørg for at personen har følgende tags:
-            <ul>
-                {% for tag in tags %}
-                    <li>{{ tag }}</li>
-                {% endfor %}
-            </ul>
+            Søk opp denne e-postadressen: {{ epost }}, og sørg for at personen har følgende tags: {{tags}}
         </li>
     </ol>
 
