@@ -264,7 +264,7 @@ class Write
      * @return Bool
      * @throws Exception 
      */
-    public function fjern(Tittel $tittel_save)
+    public static function fjern(Tittel $tittel_save)
     {
         // Valider inputs
         Write::_validerLeggtil($tittel_save);
@@ -303,7 +303,7 @@ class Write
      *
      * @param tittel_v2 $tittel_save
      **/
-    private function _leggTilVideresend($tittel_save)
+    private static function _leggTilVideresend($tittel_save)
     {
         throw new Exception(
             'Kan ikke videresende. Relasjon ukm_rel_arrangement_tittel ikke implementert. Kontakt UKM Norge',
@@ -401,7 +401,7 @@ class Write
      *
      * @return (bool true|throw exception)
      */
-    public function _fjernVideresend($tittel_save)
+    public static function _fjernVideresend($tittel_save)
     {
         throw new Exception(
             'Kan ikke fjerne videresending. Relasjon ukm_rel_arrangement_tittel ikke implementert. Kontakt UKM Norge',

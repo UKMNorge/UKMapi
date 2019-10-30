@@ -341,7 +341,7 @@ class Write {
 	 * @return Bool true
      * @throws Exception hvis feilet
 	 */
-	public function fjern( Person $person_save ) {
+	public static function fjern( Person $person_save ) {
 		// Valider inputs
 		static::_validerLeggtil( $person_save );
 
@@ -453,7 +453,7 @@ class Write {
 	 *
 	 * @param Person $person_save
 	**/
-	private function _leggTilArrangement( Person $person_save ) {
+	private static function _leggTilArrangement( Person $person_save ) {
         // Pre-2020-relasjon
         if( $person_save->getContext()->getSesong() < 2020 ) {
             if( $person_save->getContext()->getMonstring()->getType() == 'kommune' ) {
@@ -541,7 +541,7 @@ class Write {
 	 * @return Bool true|
      * @throws Exception hvis feilet)
 	 */	 
-	private function _slett( Person $person_save ) {
+	private static function _slett( Person $person_save ) {
 
         Logger::log( 325, $person_save->getContext()->getInnslag()->getId(), $person_save->getId().': '. $person_save->getNavn() );
 
@@ -589,7 +589,7 @@ class Write {
 	 * @return Bool true
      * @throws Exception hvis feilet
 	 */
-	private function _fjernArrangement( Person $person_save ) {
+	private static function _fjernArrangement( Person $person_save ) {
         // Pre-2020-relasjon
         if( $person_save->getContext()->getSesong() < 2020 ) {
             // FOR INNSLAG I KATEGORI 1 (SCENE) FØLGER ALLE DELTAKERE ALLTID INNSLAGET VIDERE
