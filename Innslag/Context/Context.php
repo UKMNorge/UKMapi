@@ -200,6 +200,17 @@ class Context
     }
 
     /**
+     * Sett mønstring-context
+     *
+     * @param Monstring $context
+     * @return void
+     */
+    public function setMonstring( Monstring $context ) {
+        $this->monstring = $context;
+        return $this;
+    }
+
+    /**
      * Hent innslag-info
      *
      * @return Innslag

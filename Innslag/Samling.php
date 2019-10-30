@@ -6,7 +6,9 @@ use Exception;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Geografi\Fylke;
 use UKMNorge\Geografi\Kommune;
+use UKMNorge\Innslag\Context\Context;
 use UKMNorge\Innslag\Context\Innslag as InnslagContext;
+use UKMNorge\Innslag\Context\Monstring;
 
 require_once('UKM/Autoloader.php');
 
@@ -29,10 +31,9 @@ class Samling {
 	 * Class constructor
 	 * OBS: monstring-collection krever kall til $this->setContainerDataMonstring()
 	 *
-	 * @param string $container_type
-	 * @param integer $container_id
+	 * @param Context $context
 	**/
-	public function __construct( $context ) {
+	public function __construct( Context $context ) {
 		$this->setContext( $context );
 	}
 
@@ -442,7 +443,22 @@ class Samling {
 		}
 		while( $row = Query::fetch( $res ) ) {
 			$innslag = new Innslag( $row, true );
-			$innslag->setContext( $this->getContext() );
+            $innslag->setContext( $this->getContext() );
+            // Hvis samlingen er opprettet fra kontaktperson (som i UKMdelta),
+            // har vi ikke tilgang på arrangementet, og dette må håndteres internt.
+            // For å ikke kjøre alt for heavy objekter, prøver vi først uten listen
+            // med kommuneID'er (november 2019) til første feil oppstår.
+            if( $this->getContext()->getType() == 'kontaktperson' ) {
+                $innslag->getContext()->setMonstring(
+                    new Monstring(
+                        $innslag->getHomeId(),
+                        'kommune',
+                        $innslag->getSesong(),
+                        $innslag->getFylke()->getId(),
+                        null
+                    )
+                );
+            }
 			array_push( $this->$internal_var, $innslag);
 		}
 		return true;
@@ -620,7 +636,7 @@ class Samling {
 	}
 	
 	/**
-     * Hent hvilken kontekst innslag-samlingen befinner seg i (kommer fra)
+     * Sett hvilken kontekst innslag-samlingen befinner seg i (kommer fra)
      *
      * @param Context $context
      * @return self
@@ -628,7 +644,12 @@ class Samling {
 	public function setContext( $context ) {
 		$this->context = $context;
 		return $this;
-	}
+    }
+    /**
+     * Hent hvilken kontekst innslag-samlingen befinner seg i (kommer fra)
+     *
+     * @return Context
+     */
 	public function getContext() {
 		return $this->context;
 	}
