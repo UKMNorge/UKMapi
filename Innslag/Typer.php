@@ -2,14 +2,45 @@
 
 namespace UKMNorge\Innslag;
 
-require_once('UKM/_collection.class.php');
 require_once('UKM/Autoloader.php');
 
-class Typer extends \Collection
+// KAN IKKE EXTENDE COLLECTION
+// fordi numerisk ID er lik for alle underkategorier av scene 🤦🏼‍♂️
+class Typer implements \Iterator
 {
-
+    private $var = array();
     static $all = null;
     static $allScene = null;
+
+    public function add( $item ) {
+        $this->var[] = $item;
+	    return $this;
+    }
+    public function har( $object ) {
+        if( is_string( $object ) ) {
+            return $this->find( $object );
+        }
+	    return $this->find( $object->getId() );
+    }
+
+    public function get( $id ) {
+        return $this->find( $id );
+    }
+
+    /**
+     * Finn objekt 
+     *
+     * @param Any $id
+     * @return Item
+     */
+    public function find( $id ) {
+	    foreach( $this as $item ) {
+		    if( $id == $item->getId() ) {
+			    return $item;
+		    }
+	    }
+	    return false;
+    }
 
     public function addById($id)
     {
@@ -313,5 +344,40 @@ class Typer extends \Collection
                 $bt_id = false;
         }
         return $bt_id;
+    }
+
+
+
+    public function count() {
+	    return sizeof( $this->var );
+    }
+
+    public function rewind()
+    {
+        reset($this->var);
+    }
+  
+    public function current()
+    {
+        $var = current($this->var);
+        return $var;
+    }
+  
+    public function key() 
+    {
+        $var = key($this->var);
+        return $var;
+    }
+  
+    public function next() 
+    {
+        $var = next($this->var);
+        return $var;
+    }
+    public function valid()
+    {
+        $key = key($this->var);
+        $var = ($key !== NULL && $key !== FALSE);
+        return $var;
     }
 }
