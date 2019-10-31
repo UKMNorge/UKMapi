@@ -1,6 +1,7 @@
 <?php
 
 namespace UKMNorge\Innslag;
+use Exception;
 
 require_once('UKM/Autoloader.php');
 
@@ -25,6 +26,25 @@ class Typer implements \Iterator
 
     public function get( $id ) {
         return $this->find( $id );
+    }
+    public function leggTil( $item ) {
+        $this->add( $item );
+    }
+    public function fjern( $item ) {
+        $this->remove( $item );
+    }
+    public function remove( $id ) {
+        if( is_object( $id ) ) {
+            $id = $id->getId();
+        }
+    
+        foreach( $this->getAll() as $key => $val ) {
+            if( $id == $val->getId() ) {
+                unset( $this->var[ $key ] );
+                return true;
+            }
+        }
+        throw new Exception('Could not find and remove '. $id, 110001 );
     }
 
     /**
@@ -70,6 +90,25 @@ class Typer implements \Iterator
         }
         return self::load(self::_translate_key_to_id($key));
     }
+
+   /**
+     * Hent alle
+     *
+     * @return Array
+     */
+    public function getAll() {
+	    return $this->var;
+    }
+
+    /**
+     * Antall elementer i collection
+     *
+     * @return Int $antall
+     */
+    public function getAntall() {
+	    return sizeof( $this->getAll() );
+    }
+
 
     static function getAllTyper()
     {

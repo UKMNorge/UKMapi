@@ -816,7 +816,7 @@ class Arrangement
     /**
      * Hent hvilke innslagstyper som kan være påmeldt denne mønstringen
      *
-     * @return Collection innslagstyper 
+     * @return Typer innslagstyper 
      **/
     public function getInnslagTyper($inkluder_ressurs = false)
     {
