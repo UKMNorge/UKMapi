@@ -3,6 +3,7 @@
 namespace UKMNorge\Nettverk;
 use UKMNorge\Wordpress\User;
 use SQL;
+use UKMNorge\Wordpress\Blog;
 
 require_once('UKM/Autoloader.php');
 
@@ -83,6 +84,34 @@ class Administrator
      */
     public function erAdmin( $type=null ) {
         return $this->getAntallOmrader( $type ) > 0;
+    }
+
+    /**
+     * Har tilgang til blogg på gitt path?
+     *
+     * @see harTilgangTilBlogId()
+     * @param String $path
+     * @return Bool
+     */
+    public function harTilgangTilBlog( String $path ) {
+        return $this->harTilgangTilBlogId( Blog::getIdByPath($path));
+    }
+
+    /**
+     * Har tilgang til blogg med gitt ID?
+     *
+     * @param Int $id
+     * @return Bool
+     */
+    public function harTilgangTilBlogId( Int $id ) {
+        $blogs = get_blogs_of_user( $this->getUser()->getId() );
+        foreach( $blogs as $blog ) {
+            #echo "\r\n". (Int) $blog->userblog_id .' == '. $id .' => '. ((Int) $blog->userblog_id == $id ? 'true' : 'false') .'<br />';
+            if( (Int) $blog->userblog_id == $id ) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
