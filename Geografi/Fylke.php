@@ -46,8 +46,17 @@ class Fylke {
         if( $pathOnly ) {
             return $this->link;
         }
-        return '//'. UKM_HOSTNAME . '/'. trim( $this->link, '/') .'/';
-	}
+        return '//'. UKM_HOSTNAME . $this->getPath();
+    }
+    
+    /**
+     * Hent fylkessidens path (ikke link)
+     *
+     * @return String
+     */
+    public function getPath() {
+        return '/'. trim( $this->link, '/') .'/';
+    }
     
     /**
      * Hent fylkets navn
