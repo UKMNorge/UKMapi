@@ -133,9 +133,10 @@ class Write
 
         $monstring = new Arrangement($pl_id);
 
-
-        foreach ($geografi as $kommune) {
-            $monstring->getKommuner()->leggTil($kommune);
+        if( $type == 'kommune' ) {
+            foreach ($geografi as $kommune) {
+                $monstring->getKommuner()->leggTil($kommune);
+            }
         }
 
         $monstring->setPath($path);
