@@ -3,6 +3,8 @@
 namespace UKMNorge\Geografi;
 
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Nettverk\Omrade;
+
 require_once('UKM/Autoloader.php');
 
 class Kommune {
@@ -16,6 +18,7 @@ class Kommune {
     private $attributes = [];
     private $overtatt;
     private $overtatt_av;
+    private $omrade = null;
 
 	public function __construct( $kid_or_row ) {
 		if( is_numeric( $kid_or_row ) ) {
@@ -320,7 +323,18 @@ class Kommune {
 		$this->attributes[ $key ] = $value;
 		return $this;
 	}
-	
+    
+    /**
+     * Hent kommunens område-objekt
+     *
+     * @return Omrade
+     */
+    public function getOmrade() {
+        if( null == $this->omrade ) {
+            $this->omrade = Omrade::getByKommune( $this->getId() );
+        }
+        return $this->omrade;
+    }
 	/**
 	 * Hent attributt
 	 *
