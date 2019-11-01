@@ -13,6 +13,42 @@ class UKMflash {
     }
 
     /**
+     * Legg til en ny error-melding
+     * 
+     * @see add()
+     *
+     * @param String $message
+     * @return self
+     */
+    public function error(String $message ) {
+        return $this->add('danger', $message);
+    }
+
+    /**
+     * Legg til en ny suksess-melding
+     *
+     * @see add()
+     * 
+     * @param String $message
+     * @return self
+     */
+    public function success(String $message) {
+        return $this->add('success', $message);
+    }
+
+    /**
+     * Legg til en ny info-melding
+     *
+     * @see add()
+     * 
+     * @param String $message
+     * @return self
+     */
+    public function info(String $message ) {
+        return $this->add('info', $message);
+    }
+
+    /**
      * Legg til en melding i flashbag
      * 
      * @param string $level (danger,warning,info,success osv ref bootstrap)
