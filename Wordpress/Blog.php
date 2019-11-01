@@ -106,8 +106,8 @@ class Blog
             "/[^a-z0-9-]/",
             '',
             str_replace(
-                ['æ', 'ø', 'å', 'ü', 'é', 'è'],
-                ['a', 'o', 'a', 'u', 'e', 'e'],
+                ['/','æ', 'ø', 'å', 'ü', 'é', 'è'],
+                ['-', 'a', 'o', 'a', 'u', 'e', 'e'],
                 mb_strtolower($path)
             )
         );
@@ -633,6 +633,16 @@ class Blog
             'info' // TODO: sjekk om dette er slug for standard infoside
         ];
         static::fjernSider( $blog_id, $pages );
+
+        // Set kommuner = kommune, da vi noen steder fortsatt bruker kommuner som om det er kommune
+        if( Blog::getOption($blog_id,'site_type') == 'kommune' && Blog::getOption($blog_id,'kommune') ) {
+            Blog::applyMeta(
+                $blog_id,
+                [
+                    'kommuner' => Blog::getOption($blog_id,'kommune')
+                ]
+            );
+        }
     }
 
     /**
