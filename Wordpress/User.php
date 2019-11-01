@@ -48,6 +48,12 @@ class User
      */
     private $phone = null;
 
+    /**
+     * Er brukeren aktiv (eller deaktivert)
+     *
+     * @param Int $wp_user_id
+     * @return Bool
+     */
     public static function erAktiv( Int $wp_user_id ) {
         return !get_user_meta($wp_user_id, 'disabled'); 
     }
@@ -112,6 +118,13 @@ class User
         return new User($wpUser->ID);
     }
 
+    /**
+     * Hent bruker fra wordpress-ID
+     *
+     * @param Int $id
+     * @return User
+     * @throws Exception
+     */
     public static function loadById( Int $id ) {
         $wpUser = get_user_by('id', $id);
         if (!$wpUser) {
@@ -156,6 +169,18 @@ class User
     public static function createEmpty()
     {
         $user = new User(0, false);
+        return $user;
+    }
+
+    /**
+     * Hent inn bruker-data fra standalone-miljø
+     * (MEGET begrenset funksjonaltet da vi er uten WP-funksjoner)
+     *
+     * @param Int $id
+     * @return User
+     */
+    public static function loadByIdInStandaloneEnvironment( Int $id ) {
+        $user = new User($id,false);
         return $user;
     }
 
