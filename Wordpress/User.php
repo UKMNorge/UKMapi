@@ -3,6 +3,8 @@
 namespace UKMNorge\Wordpress;
 
 use Exception;
+use UKMNorge\Meta\Collection;
+use UKMNorge\Meta\Write;
 
 class User
 {
@@ -47,6 +49,8 @@ class User
      * @var Int
      */
     private $phone = null;
+    
+    private $meta = null;
 
     /**
      * Er brukeren aktiv (eller deaktivert)
@@ -134,6 +138,48 @@ class User
             );
         }
         return new User($wpUser->ID);
+    }
+
+    /**
+     * Hent Instrato-nøkkel
+     * Krever WP-context
+     *
+     * @return String
+     */
+    public function getInstratoKey() {
+        return $this->getMeta()->getValue('instrato');
+    }
+
+    /**
+     * Har brukeren en instrato-nøkkel?
+     *
+     * @return Bool
+     */
+    public function hasInstratoKey() {
+        return !is_null($this->getInstratoKey());
+    }
+
+    /**
+     * Generer en ny instratoKey
+     *
+     * @return void
+     */
+    public function generateInstratoKey() {
+        $value = $this->getMeta()->get('instrato');
+        $value->setValue(User::randomString(25));
+        Write::set( $value );
+    }
+
+    /**
+     * Hent metadata-container
+     *
+     * @return Collection
+     */
+    public function getMeta() {
+        if( null == $this->meta ) {
+            $this->meta = Collection::createByParentInfo('User', $this->getId());
+        }
+        return $this->meta;
     }
 
     /**
@@ -439,5 +485,29 @@ class User
     public function getNavn()
     {
         return $this->getName();
+    }
+
+    /**
+     * Generate a random string, using a cryptographically secure 
+     * pseudorandom number generator (random_int)
+     * @see https://stackoverflow.com/questions/4356289/php-random-string-generator/31107425#31107425
+     * 
+     * @param int $length      How many characters do we want?
+     * @return string
+     */
+    public static function randomString( Int $length = 64) {
+        $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+        if ($length < 1) {
+            throw new \RangeException("Length must be a positive integer");
+        }
+
+        $pieces = [];
+        $max = mb_strlen($keyspace, '8bit') - 1;
+        for ($i = 0; $i < $length; ++$i) {
+            $pieces []= $keyspace[random_int(0, $max)];
+        }
+
+        return implode('', $pieces);
     }
 }
