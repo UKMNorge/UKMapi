@@ -168,6 +168,17 @@ class Blog
     }
 
     /**
+     * Delete blog option
+     *
+     * @param Int $blog_id
+     * @param String $option_name
+     * @return delete_blog_option( $blog_id, $option_name)
+     */
+    public static function deleteOption( Int $blog_id, String $option_name ) {
+        static::_requiresWordpressFunctions();
+        return delete_blog_option( $blog_id, $option_name );
+    }
+    /**
      * Flytt en blogg til ny path
      *
      * @param Int $blog_id
@@ -306,6 +317,9 @@ class Blog
                 'blogname'          => $kommune->getNavn()
             ]
         );
+
+        // settes f.eks. hvis arrangementet er avlyst 
+        static::deleteOption( $blog_id, 'status_monstring' );
     }
 
     /**
