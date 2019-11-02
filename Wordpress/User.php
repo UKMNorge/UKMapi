@@ -3,6 +3,7 @@
 namespace UKMNorge\Wordpress;
 
 use Exception;
+use UKMNorge\Database\SQL\Query;
 use UKMNorge\Meta\Collection;
 use UKMNorge\Meta\Write;
 
@@ -227,6 +228,30 @@ class User
      */
     public static function loadByIdInStandaloneEnvironment( Int $id ) {
         $user = new User($id,false);
+
+        $query = new Query(
+            "SELECT `user_email`,
+            (SELECT `meta_value`
+                FROM `wpms2012_usermeta`
+                WHERE `user_id` = `user`.`ID`
+                AND `meta_key` = 'first_name') AS `first_name`,
+            (SELECT `meta_value`
+                FROM `wpms2012_usermeta`
+                WHERE `user_id` = `user`.`ID`
+                AND `meta_key` = 'last_name') AS `last_name`
+            FROM `wpms2012_users` AS `user`
+            WHERE `user`.`ID` = '#userid'",
+            [
+                'userid' => $id
+            ],
+            'wordpress'
+        );
+        $data = $query->getArray();
+
+        $user->setEmail($data['user_email']);
+        $user->setFirstName($data['first_name']);
+        $user->setLastName($data['last_name']);
+
         return $user;
     }
 
