@@ -10,6 +10,7 @@ use SQLins;
 use UKMNorge\Kommunikasjon\Epost;
 use UKMNorge\Kommunikasjon\Mottaker;
 use UKMNorge\Twig\Twig;
+use UKMNorge\Wordpress\Blog;
 
 require_once('UKM/Autoloader.php');
 
@@ -34,6 +35,38 @@ class WriteOmrade {
             throw new Exception(
                 'Klarte ikke å relatere '. $admin->getName() .' til '. $omrade->getNavn(),
                 562001
+            );
+        }
+        return true;
+    }
+
+    /**
+     * Legg til en administrator i alle områdets arrangementer (blogger)
+     *
+     * @param Omrade $omrade
+     * @param Administrator $admin
+     * @param Int $sesong
+     * @return Bool
+     * @throws Exception oppsamlet
+     */
+    public static function leggTilAdminIAlleArrangementer( Omrade $omrade, Administrator $admin, Int $sesong ) {
+        $error_names = [];
+        foreach( $omrade->getArrangementer($sesong)->getAll() as $arrangement ) {
+            try {
+                Blog::leggTilBruker(
+                    Blog::getIdByPath( $arrangement->getPath() ),
+                    $admin->getUser()->getId(),
+                    'editor'
+                );
+            } catch( Exception $e ) {
+                $error_names[] = $arrangement->getNavn();
+            }
+        }
+
+        if( sizeof($error_names) > 0 ) {
+            throw new Exception(
+                'Kunne ikke legge til '. $admin->getNavn() .' som administrator for '. join(', ', $error_names),
+                562003
             );
         }
         return true;
