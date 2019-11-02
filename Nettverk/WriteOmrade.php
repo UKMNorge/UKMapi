@@ -47,7 +47,7 @@ class WriteOmrade {
      * @param Administrator $admin
      * @param Int $sesong
      * @return Bool
-     * @throws Exception oppsamlet
+     * @throws Exception inkludert liste med hvilke arrangementer som feilet
      */
     public static function leggTilAdminIAlleArrangementer( Omrade $omrade, Administrator $admin, Int $sesong ) {
         $error_names = [];
@@ -66,6 +66,37 @@ class WriteOmrade {
         if( sizeof($error_names) > 0 ) {
             throw new Exception(
                 'Kunne ikke legge til '. $admin->getNavn() .' som administrator for '. join(', ', $error_names),
+                562003
+            );
+        }
+        return true;
+    }
+
+    /**
+     * Fjern administrator fra alle områdets arrangementer (blogger)
+     *
+     * @param Omrade $omrade
+     * @param Administrator $admin
+     * @param Int $sesong
+     * @return Bool
+     * @throws Exception inkludert liste med hvilke arrangementer som feilet
+     */
+    public static function fjernAdminFraAlleArrangementer( Omrade $omrade, Administrator $admin, Int $sesong ) {
+        $error_names = [];
+        foreach( $omrade->getArrangementer($sesong)->getAll() as $arrangement ) {
+            try {
+                Blog::fjernBruker(
+                    Blog::getIdByPath( $arrangement->getPath() ),
+                    $admin->getUser()->getId()
+                );
+            } catch( Exception $e ) {
+                $error_names[] = $arrangement->getNavn();
+            }
+        }
+
+        if( sizeof($error_names) > 0 ) {
+            throw new Exception(
+                'Kunne ikke fjerne '. $admin->getNavn() .' som administrator for '. join(', ', $error_names),
                 562003
             );
         }
