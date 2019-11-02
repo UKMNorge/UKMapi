@@ -132,6 +132,6 @@ class Administratorer {
      * @return String
      */
     public function getNavn() {
-        return $this->getGeoType() .' '. $this->getGeoId();
+        return $this->getType() .' '. $this->getId();
     }
 }
