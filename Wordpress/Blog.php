@@ -787,6 +787,43 @@ class Blog
         static::restore();
     }
 
+
+    /**
+     * Hent en side far path
+     *
+     * @param String $path
+     * @return WP_Post
+     * @throws Exception hvis ikke finnes
+     */
+    public static function hentSideByPath( Int $blog_id, String $path ) {
+        static::switchTo($blog_id);
+        $page = get_page_by_path( $path );
+        static::restore();
+        
+        if( is_null( $page ) ) {
+            throw new Exception(
+                'Fant ikke side '. $path,
+                172011
+            );
+        }
+        
+        return $page;
+    }
+
+    /**
+     * Har bloggen denne siden?
+     *
+     * @param String $path
+     * @return Bool
+     */
+    public static function harSide( Int $blog_id, String $path ) {
+        try {
+            static::hentSideByPath( $blog_id, $path );
+            return true;
+        } catch( Exception $e ) {}
+        return false;
+    }
+
     /**
      * Fjern er array av page-slugs fra gitt blogg
      *
