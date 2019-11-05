@@ -23,7 +23,11 @@ class Advarsel {
 		$this->setKategori( $row['kategori'] );
 		$this->setMelding( $row['melding'] );
 		$this->setLevel( $row['level'] );
-	}
+    }
+    
+    public function getId() {
+        return md5($this->getKategori().$this->getMelding());
+    }
 	
 	public function setKategori( $kategori ) {
 		$this->kategori = $kategori;
