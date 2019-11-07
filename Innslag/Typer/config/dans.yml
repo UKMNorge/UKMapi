@@ -30,11 +30,11 @@ tekst:
     placeholder: Eks samba, ballett, moderne...
   artistnavn:
     alene:
-      label: Artistnavn / dansegruppe
+      navn: Artistnavn / dansegruppe
       placeholder: Eks. Danse-%fornavn, %fornavn %etternavn, %etternavn dance crew
     sammen:
-      label: Dansegruppe / artistnavn / crew
+      navn: Dansegruppe / artistnavn / crew
       placeholder: Eks. Superdanserne, We Dance, Folkedanserne...
-  kontakt:
-      label: Dansegruppe / artistnavn / crew
+    kontakt:
+      navn: Dansegruppe / artistnavn / crew
       placeholder: Eks. Superdanserne, We Dance, Folkedanserne...
