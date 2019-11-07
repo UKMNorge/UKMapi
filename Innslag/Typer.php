@@ -137,7 +137,7 @@ class Typer implements \Iterator
 
     static function load($id, $kategori = false)
     {
-        if($kategori=='musikk') {
+        if( in_array($kategori, ['musikk','dans'] )) {
             return static::loadFromYaml($kategori);
         }
         switch ($id) {

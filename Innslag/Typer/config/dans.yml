@@ -1,0 +1,40 @@
+id: dans
+numeric_id: 1
+navn: Dans
+type: gruppe
+har:
+  sjanger: true
+  tekniske_behov: true
+  titler: true
+  funksjon: true
+  media:
+    filmer: true
+    bilder: true
+  titler:
+    tabell: smartukm_titles_scene
+
+tekst:
+  rolle:
+    navn: Rolle
+    placeholder: F.eks danser, koreograf osv...
+    eksempel: Skriv inn hva %person gjør i dansenummeret
+    ukjent: Ukjent rolle.
+  titler:
+    pronomen: en
+    entall: koreografi / dans
+    flertall: koreografier / danser
+    bestemt: koreografien / dansen
+    placeholder: Eks. Svanesjøen, Love me like you do, Spretten mix osv...
+  sjanger:
+    navn: sjanger
+    placeholder: Eks samba, ballett, moderne...
+  artistnavn:
+    alene:
+      label: Artistnavn / dansegruppe
+      placeholder: Eks. Danse-%fornavn, %fornavn %etternavn, %etternavn dance crew
+    sammen:
+      label: Dansegruppe / artistnavn / crew
+      placeholder: Eks. Superdanserne, We Dance, Folkedanserne...
+  kontakt:
+      label: Dansegruppe / artistnavn / crew
+      placeholder: Eks. Superdanserne, We Dance, Folkedanserne...
