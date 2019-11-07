@@ -1,0 +1,40 @@
+id: teater
+numeric_id: 1
+navn: Teater
+type: gruppe
+har:
+  sjanger: true
+  tekniske_behov: true
+  titler: true
+  funksjon: false
+  media:
+    filmer: true
+    bilder: true
+  titler:
+    tabell: smartukm_titles_scene
+
+tekst:
+  rolle:
+    navn: Hva spiller eller gjør %person?
+    placeholder: F.eks hovedperson, Operafantomet, skuespiller osv...
+    hjelp: " "
+    ukjent: Ukjent rolle. Trykk her
+  titler:
+    pronomen: en / et
+    entall: sketsj / stykke
+    flertall: sketsjer / stykker
+    bestemt: sketsjen / stykket
+    placeholder: Eks. Karlson på taket, Putti plutti pott osv...
+  sjanger:
+    navn: Sjanger
+    placeholder: Eks. monolog, revy osv...
+  artistnavn:
+    alene:
+      navn: Artistnavn
+      placeholder: Eks. Teater-%fornavn, %fornavn %etternavn osv...
+    sammen:
+      navn: Gruppenavn
+      placeholder: Eks. Teaterteamet, ImprovGjengen, %etternavn-truppen osv...
+    kontakt:
+      navn: Gruppenavn / artistnavn
+      placeholder: Eks. Teaterteamet, ImprovGjengen, %etternavn-truppen osv...

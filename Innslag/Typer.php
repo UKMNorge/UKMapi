@@ -86,7 +86,7 @@ class Typer implements \Iterator
     
     static function getByName($key)
     {
-        if($key=='musikk') {
+        if(in_array($key, ['musikk', 'film', 'teater', 'dans', 'utstilling', 'litteratur']) ) {
             return static::loadFromYaml($key);
         }
         // Last med kategori om vi er på scene-innslag.
@@ -137,7 +137,7 @@ class Typer implements \Iterator
 
     static function load($id, $kategori = false)
     {
-        if( in_array($kategori, ['musikk','dans'] )) {
+        if( in_array($kategori, ['musikk','dans','film'] )) {
             return static::loadFromYaml($kategori);
         }
         switch ($id) {

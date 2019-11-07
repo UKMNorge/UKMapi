@@ -17,7 +17,7 @@ tekst:
   rolle:
     navn: Rolle
     placeholder: F.eks danser, koreograf osv...
-    eksempel: Skriv inn hva %person gjør i dansenummeret
+    hjelp: Skriv inn hva %person gjør i dansenummeret
     ukjent: Ukjent rolle.
   titler:
     pronomen: en

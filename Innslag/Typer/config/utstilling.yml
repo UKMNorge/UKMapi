@@ -1,0 +1,42 @@
+id: utstilling
+numeric_id: 3
+navn: Utstilling
+type: gruppe
+har:
+  sjanger: true
+  tekniske_behov: true
+  titler: true
+  funksjon: false
+  media:
+    filmer: false
+    bilder: true
+  titler:
+    tabell: smartukm_titles_exhibition
+
+tekst:
+  rolle:
+    navn: Skriv inn hvilken rolle %person har, eller hva %person gjør
+    placeholder: F.eks maler, tegner, illustratør, skulptør osv...
+    hjelp: Skriv inn hva %person gjør i dansenummeret
+    ukjent: Ukjent rolle. Trykk her
+  titler:
+    pronomen: et
+    entall: verk / utstillingsobjekt
+    flertall: verk
+    bestemt: verket / utstillingsobjektet
+    placeholder: Eks. Elg i Solnedgang, Vakker bru osv...
+  sjanger:
+    navn: Type og teknikk
+    placeholder: Eks. portrettfoto, akvarellmaling, acryl osv.
+  artistnavn:
+    alene:
+      navn: Artistnavn / dansegruppe
+      placeholder: Eks. Danse-%fornavn, %fornavn %etternavn, %etternavn dance crew
+    sammen:
+      navn: Dansegruppe / artistnavn / crew
+      placeholder: Eks. Superdanserne, We Dance, Folkedanserne...
+    kontakt:
+      navn: Dansegruppe / artistnavn / crew
+      placeholder: Eks. Superdanserne, We Dance, Folkedanserne...
+
+## Mangler noen, f.eks beskrivelse

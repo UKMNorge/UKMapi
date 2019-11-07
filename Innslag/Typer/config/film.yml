@@ -1,0 +1,40 @@
+id: video
+numeric_id: 2
+navn: Film
+type: gruppe
+har:
+  sjanger: true
+  tekniske_behov: false
+  titler: true
+  funksjon: false
+  media:
+    filmer: true
+    bilder: false
+  titler:
+    tabell: smartukm_titles_video
+
+tekst:
+  rolle:
+    navn: Skriv inn hvilken rolle %person har i filmene
+    placeholder: F.eks kameraoperatør, regi, skuespiller osv
+    hjelp: " "
+    ukjent: Ukjent rolle. Trykk her
+  titler:
+    pronomen: en
+    entall: film
+    flertall: filmer
+    bestemt: filmen
+    placeholder: Eks. Olsenbanden 3, James Bond
+  sjanger:
+    navn: sjanger
+    placeholder: Eks. Skrekkfilm, komedie osv
+  artistnavn:
+    alene:
+      navn: Navn
+      placeholder: Eks. %etternavn Productions, %fornavn %etternavn
+    gruppe:
+      navn: Filmgruppens navn
+      placeholder: Eks. Film-gjengen, %fornavn %etternavn, %etternavn Productions...
+    kontakt:
+      navn: Filmgruppens navn
+      placeholder: Eks. Film-gjengen, Per, Pål og Espen...
