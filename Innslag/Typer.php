@@ -1,6 +1,8 @@
 <?php
 
 namespace UKMNorge\Innslag;
+
+use Symfony\Component\Yaml\Yaml;
 use Exception;
 
 require_once('UKM/Autoloader.php');
@@ -84,6 +86,9 @@ class Typer implements \Iterator
     
     static function getByName($key)
     {
+        if($key=='musikk') {
+            return static::loadFromYaml($key);
+        }
         // Last med kategori om vi er på scene-innslag.
         if (in_array($key, array('musikk', 'dans', 'teater', 'litteratur'))) {
             return self::load(self::_translate_key_to_id($key), $key);
@@ -132,6 +137,9 @@ class Typer implements \Iterator
 
     static function load($id, $kategori = false)
     {
+        if($kategori=='musikk') {
+            return static::loadFromYaml($kategori);
+        }
         switch ($id) {
             case 1:
                 switch ($kategori) {
@@ -336,7 +344,8 @@ class Typer implements \Iterator
             $data['funksjoner'],
             $data['database_table'],
             $data['har_tekniske_behov'],
-            $data['har_sjanger']
+            $data['har_sjanger'],
+            []
         );
     }
 
@@ -418,5 +427,26 @@ class Typer implements \Iterator
         $key = key($this->var);
         $var = ($key !== NULL && $key !== FALSE);
         return $var;
+    }
+
+
+    public static function loadFromYaml( String $id ) {
+        $config = Yaml::parse( 
+            file_get_contents( 
+                stream_resolve_include_path('UKM/Innslag/Typer/config/'. basename( $id ) .'.yml')
+            )
+        );
+        return new Type(
+            $config['numeric_id'],
+            $config['id'],
+            $config['navn'],
+            $config['har']['media']['filmer'],
+            $config['har']['titler'],
+            $config['har']['funksjon'],
+            (isset($config['titler']['tabell']) ? $config['titler']['tabell'] : null),
+            $config['har']['tekniske_behov'],
+            $config['har']['sjanger'],
+            $config['tekst']
+        );
     }
 }

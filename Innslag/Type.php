@@ -17,19 +17,49 @@ class Type
     var $tabell = false;
     var $har_tekniske_behov = false;
     var $har_sjanger = false;
+    var $funksjoner = null;
 
-    public function __construct($id, $key, $name, $icon, $har_filmer, $har_titler, $funksjoner, $tabell, $har_tekniske_behov, $har_sjanger)
+    public function __construct($id, $key, $name, $har_filmer, $har_titler, $funksjoner, $tabell, $har_tekniske_behov, $har_sjanger, $tekst)
     {
-        $this->setId($id);
-        $this->setKey($key);
-        $this->setNavn($name);
-        $this->setIcon($icon);
-        $this->setHarFilmer($har_filmer);
-        $this->setHarTitler($har_titler);
-        $this->setFunksjoner($funksjoner);
-        $this->setHarTekniskeBehov($har_tekniske_behov);
-        $this->setTabell($tabell);
+        $this->id = $id;
+        $this->key = strtolower($key);
+        $this->name = $name;
         $this->har_sjanger = $har_sjanger;
+        $this->har_titler = $har_titler;
+        $this->har_tekniske_behov = $har_tekniske_behov;
+        $this->har_filmer = $har_filmer;
+        $this->tabell = $tabell;
+        $this->funksjoner = $funksjoner;
+        if( is_array($tekst) && sizeof($tekst) > 0 ) {
+            $this->tekst = static::arrayToDotKey('', $tekst, []);
+        }
+    }
+
+    public static function arrayToDotKey( $base, $array, $output ) {
+        foreach( $array as $key => $value ) {
+            if( is_array( $value ) ) {
+                $output = array_merge( $output, static::arrayToDotKey( $base .'.'. $key, $value, $output ) );
+            } else {
+                $output[trim( $base .'.'. $key, '.')] = $value;
+            }
+        }
+        return $output;
+    }
+
+    public function _($key, $sub=null) {
+        return $this->getTekst($key, $sub);
+    }
+    public function getText($key, $sub=null) {
+        return $this->getTekst($key, $sub);
+    }
+    public function getTekst($key, $sub=null) {
+        if(!isset($this->tekst[$key])) {
+            return $key;
+        }
+        if( is_array($sub)) {
+            return str_replace( array_keys($sub), array_values($sub), $this->tekst[$key]);
+        }
+        return $this->tekst[$key];
     }
 
     public function setId($id)
@@ -41,13 +71,6 @@ class Type
     {
         return $this->id;
     }
-
-    public function setKey($key)
-    {
-        $this->key = $key;
-        return $this;
-    }
-
     /**
      * Hent type-ID som string (key)
      *
@@ -58,31 +81,11 @@ class Type
         return $this->key;
     }
 
-    public function setNavn($name)
-    {
-        $this->name = $name;
-        return $this;
-    }
     public function getNavn()
     {
         return $this->name;
     }
 
-    public function setIcon($icon)
-    {
-        $this->icon = $icon;
-        return $this;
-    }
-    public function getIcon()
-    {
-        return $this->icon;
-    }
-
-    public function setFunksjoner($funksjoner)
-    {
-        $this->funksjoner = $funksjoner;
-        return $this;
-    }
     public function getFunksjoner()
     {
         return $this->funksjoner;
@@ -92,11 +95,6 @@ class Type
         return is_array($this->funksjoner);
     }
 
-    public function setTabell($tabell)
-    {
-        $this->tabell = $tabell;
-        return $this;
-    }
     public function getTabell()
     {
         return $this->tabell;
@@ -107,22 +105,11 @@ class Type
         return $this->getTabell() != false;
     }
 
-    public function setHarFilmer($har_filmer)
-    {
-        $this->har_filmer = $har_filmer;
-        return $this;
-    }
     public function harFilmer()
     {
         return $this->har_filmer;
     }
 
-
-    public function setHarTitler($har_titler)
-    {
-        $this->har_titler = $har_titler;
-        return $this;
-    }
     public function harTitler()
     {
         return $this->har_titler;
@@ -133,11 +120,6 @@ class Type
         return !$this->hartitler();
     }
 
-    public function setHarTekniskeBehov($har_tekniske_behov)
-    {
-        $this->har_tekniske_behov = $har_tekniske_behov;
-        return $this;
-    }
     public function harTekniskeBehov()
     {
         return $this->har_tekniske_behov;
