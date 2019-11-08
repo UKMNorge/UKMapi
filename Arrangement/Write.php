@@ -15,7 +15,7 @@ use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Database\SQL\Update;
 use UKMNorge\Innslag\Innslag;
-use UKMNorge\Innslag\Type;
+use UKMNorge\Innslag\Typer\Type;
 use UKMNorge\Innslag\Write as WriteInnslag;
 use UKMNorge\Innslag\Titler\Write as WriteTitler;
 use UKMNorge\Wordpress\Blog;

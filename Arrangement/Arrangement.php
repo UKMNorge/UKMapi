@@ -24,7 +24,7 @@ use UKMNorge\Geografi\Fylke;
 use UKMNorge\Geografi\Fylker;
 use UKMNorge\Geografi\Kommuner;
 use UKMNorge\Innslag\Samling;
-use UKMNorge\Innslag\Typer;
+use UKMNorge\Innslag\Typer\Typer;
 use UKMNorge\Log\Samling as LogSamling;
 use UKMNorge\Nettverk\Proxy\Kontaktperson as AdminKontaktProxy;
 

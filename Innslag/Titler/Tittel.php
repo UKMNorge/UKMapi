@@ -7,7 +7,7 @@ use UKMNorge\Tid;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Arrangement\Write as WriteArrangement;
 use UKMNorge\Database\SQL\Query;
-use UKMNorge\Innslag\Type;
+use UKMNorge\Innslag\Typer\Type;
 
 require_once('UKM/Autoloader.php');
 

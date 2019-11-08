@@ -1,6 +1,6 @@
 <?php
 
-namespace UKMNorge\Innslag;
+namespace UKMNorge\Innslag\Typer\Typer;
 
 use Symfony\Component\Yaml\Yaml;
 use Exception;

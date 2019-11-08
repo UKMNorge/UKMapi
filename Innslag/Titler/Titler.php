@@ -6,7 +6,7 @@ use Exception;
 use UKMNorge\Collection;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Innslag\Context\Context;
-use UKMNorge\Innslag\Type;
+use UKMNorge\Innslag\Typer\Type;
 use UKMNorge\Tid;
 
 require_once('UKM/Autoloader.php');

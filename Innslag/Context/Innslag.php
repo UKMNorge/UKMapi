@@ -2,7 +2,7 @@
 
 namespace UKMNorge\Innslag\Context;
 
-use UKMNorge\Innslag\Type;
+use UKMNorge\Innslag\Typer\Type;
 
 require_once('UKM/Autoloader.php');
 
