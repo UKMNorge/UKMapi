@@ -1,0 +1,41 @@
+id: matkultur
+numeric_id: 6
+navn: Matkultur
+type: gruppe
+frist: 1
+har:
+  sjanger: false
+  tekniske_behov: false
+  titler: true
+  funksjon: true
+  media:
+    filmer: true
+    bilder: true
+titler:
+  tabell: smartukm_titles_other
+
+tekst:
+  rolle:
+    navn: Rolle / funksjon
+    placeholder: F.eks kokk, konditor
+    hjelp: Skriv inn hva %person gjør
+    ukjent: Ukjent rolle / funksjon
+  titler:
+    pronomen: en
+    entall: tittel/navn på det som skal fremføres
+    flertall: titler/navn på det som skal fremføres
+    bestemt: tittelen/navnet på det som skal fremføres
+    placeholder: Eks. Stacking 1-2-3, BMX-cycle, Banankake-kasting osv..
+  sjanger:
+    navn: sjanger
+    placeholder: Eks. Baking
+  artistnavn:
+    alene:
+      label: Navn
+      placeholder: Eks. Kokke-Kari
+    sammen:
+      label: Gruppenavn
+      placeholder: Eks. Kokkegjengen
+    kontakt:
+      label: Artistnavn / Gruppenavn
+      placeholder: Eks. Kokke-Kari, Kokkegjengen

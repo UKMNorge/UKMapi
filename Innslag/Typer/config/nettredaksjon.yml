@@ -1,0 +1,31 @@
+id: nettredaksjon
+numeric_id: 5
+navn: Media
+type: person
+frist: 2
+har:
+  sjanger: false
+  tekniske_behov: false
+  titler: false
+  funksjon: true
+  media:
+    filmer: true
+    bilder: true
+funksjoner:
+  - tekst
+  - foto
+  - videoreportasjer
+  - pr
+  - flerkamera_regi
+  - flerkamera_kamera
+
+tekst:
+  rolle:
+    navn: Hva vil du aller helst jobbe med?
+  funksjon: 
+    tekst: Journalist
+    foto: Fotograf
+    videoreportasjer: Videoreportasjer
+    pr: PR og pressekontakt
+    flerkamera_regi: Flerkamera, regi
+    flerkamera_kamera: Flerkamera, kamera

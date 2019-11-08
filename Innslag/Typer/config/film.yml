@@ -2,11 +2,12 @@ id: video
 numeric_id: 2
 navn: Film
 type: gruppe
+frist: 1
 har:
   sjanger: true
   tekniske_behov: false
   titler: true
-  funksjon: false
+  funksjon: true
   media:
     filmer: true
     bilder: false
@@ -18,7 +19,7 @@ tekst:
     navn: Skriv inn hvilken rolle %person har i filmene
     placeholder: F.eks kameraoperatør, regi, skuespiller osv
     hjelp: " "
-    ukjent: Ukjent rolle. Trykk her
+    ukjent: Ukjent rolle
   titler:
     pronomen: en
     entall: film

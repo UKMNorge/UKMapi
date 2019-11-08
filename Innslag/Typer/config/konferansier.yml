@@ -1,0 +1,17 @@
+id: konferansier
+numeric_id: 4
+navn: Konferansier
+type: person
+frist: 2
+har:
+  sjanger: false
+  tekniske_behov: false
+  titler: false
+  funksjon: false
+  media:
+    filmer: true
+    bilder: true
+
+tekst:
+  rolle:
+    navn: Beskrivelse av deg og din konferansier-erfaring

@@ -2,6 +2,7 @@ id: musikk
 numeric_id: 1
 navn: Musikk
 type: gruppe
+frist: 1
 har:
   sjanger: true
   tekniske_behov: true

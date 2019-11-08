@@ -2,11 +2,12 @@ id: teater
 numeric_id: 1
 navn: Teater
 type: gruppe
+frist: 1
 har:
   sjanger: true
   tekniske_behov: true
   titler: true
-  funksjon: false
+  funksjon: true
   media:
     filmer: true
     bilder: true
@@ -18,12 +19,12 @@ tekst:
     navn: Hva spiller eller gjør %person?
     placeholder: F.eks hovedperson, Operafantomet, skuespiller osv...
     hjelp: " "
-    ukjent: Ukjent rolle. Trykk her
+    ukjent: Ukjent rolle
   titler:
-    pronomen: en / et
-    entall: sketsj / stykke
-    flertall: sketsjer / stykker
-    bestemt: sketsjen / stykket
+    pronomen: en
+    entall: sketsj/stykke
+    flertall: sketsjer/stykker
+    bestemt: sketsjen/stykket
     placeholder: Eks. Karlson på taket, Putti plutti pott osv...
   sjanger:
     navn: Sjanger

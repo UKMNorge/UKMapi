@@ -2,6 +2,7 @@ id: dans
 numeric_id: 1
 navn: Dans
 type: gruppe
+frist: 1
 har:
   sjanger: true
   tekniske_behov: true

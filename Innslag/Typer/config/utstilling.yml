@@ -2,11 +2,12 @@ id: utstilling
 numeric_id: 3
 navn: Utstilling
 type: gruppe
+frist: 1
 har:
-  sjanger: true
-  tekniske_behov: true
+  sjanger: false
+  tekniske_behov: false
   titler: true
-  funksjon: false
+  funksjon: true
   media:
     filmer: false
     bilder: true
@@ -17,26 +18,24 @@ tekst:
   rolle:
     navn: Skriv inn hvilken rolle %person har, eller hva %person gjør
     placeholder: F.eks maler, tegner, illustratør, skulptør osv...
-    hjelp: Skriv inn hva %person gjør i dansenummeret
-    ukjent: Ukjent rolle. Trykk her
+    hjelp: ''
+    ukjent: Ukjent rolle
   titler:
     pronomen: et
-    entall: verk / utstillingsobjekt
+    entall: verk/utstillingsobjekt
     flertall: verk
-    bestemt: verket / utstillingsobjektet
+    bestemt: verket/utstillingsobjektet
     placeholder: Eks. Elg i Solnedgang, Vakker bru osv...
   sjanger:
     navn: Type og teknikk
     placeholder: Eks. portrettfoto, akvarellmaling, acryl osv.
   artistnavn:
-    alene:
-      navn: Artistnavn / dansegruppe
-      placeholder: Eks. Danse-%fornavn, %fornavn %etternavn, %etternavn dance crew
-    sammen:
-      navn: Dansegruppe / artistnavn / crew
-      placeholder: Eks. Superdanserne, We Dance, Folkedanserne...
-    kontakt:
-      navn: Dansegruppe / artistnavn / crew
-      placeholder: Eks. Superdanserne, We Dance, Folkedanserne...
-
-## Mangler noen, f.eks beskrivelse
+      alene:
+          navn: Navn / kunstner-navn
+          placeholder: Eks. Kunst-%fornavn, %fornavn %etternavn...
+      sammen:
+          navn: Kunstnernavn / navn på gruppe
+          placeholder: Eks. Kunstlinja, painting cowboys, %etternavn-gjengen...
+      kontakt:
+          navn: Kunstnernavn / navn på gruppe
+          placeholder: Eks. Kunstlinja, painting cowboys, tegneklassen...

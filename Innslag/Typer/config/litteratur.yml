@@ -2,11 +2,12 @@ id: litteratur
 numeric_id: 1
 navn: Litteratur
 type: gruppe
+frist: 1
 har:
   sjanger: true
   tekniske_behov: true
   titler: true
-  funksjon: false
+  funksjon: true
   media:
     filmer: true
     bilder: true
@@ -18,7 +19,7 @@ tekst:
     navn: Hva har %person bidratt med til verket / gjør i fremførelsen?
     placeholder: F.eks oppleser, forfatter kapittel 1, korrekturleser...
     hjelp: " "
-    ukjent: Ukjent rolle. Trykk her
+    ukjent: Ukjent rolle
   titler:
     pronomen: en / et
     entall: tekst / verk

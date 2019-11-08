@@ -1,0 +1,41 @@
+id: scene
+numeric_id: 1
+navn: Annet på scene
+type: gruppe
+frist: 1
+har:
+  sjanger: true
+  tekniske_behov: true
+  titler: true
+  funksjon: true
+  media:
+    filmer: true
+    bilder: true
+titler:
+  tabell: smartukm_titles_scene
+
+tekst:
+  rolle:
+    navn: Instrument/rolle
+    placeholder: F.eks sjonglør, danser, skuespiller osv
+    hjelp: Skriv inn hva %person spiller/gjør
+    ukjent: Ukjent instrument
+  titler:
+    pronomen: en
+    entall: tittel/navn på det som skal fremføres
+    flertall: titler/navn på det som skal fremføres
+    bestemt: tittelen/navnet på det som skal fremføres
+    placeholder: Eks. Stacking 1-2-3, BMX-cycle, Banankake-kasting osv..
+  sjanger:
+    navn: sjanger
+    placeholder: Eks sjonglering, flammeblåsing...
+  artistnavn:
+    alene:
+      navn: Artistnavn / Gruppenavn
+      placeholder: Eks. Sjonglør-%fornavn, %fornavn %etternavn, %etternavn Stacking osv...
+    sammen:
+      navn: Gruppenavn / Artistnavn
+      placeholder: Eks. Sjonglørgruppa, %etternavn og de andre stackerne..
+    kontakt:
+      navn: Gruppenavn / Artistnavn
+      placeholder: Eks. Sjonglørgruppa, %etternavn og de andre stackerne..
