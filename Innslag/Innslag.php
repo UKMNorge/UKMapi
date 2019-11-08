@@ -20,10 +20,11 @@ use UKMNorge\Innslag\Context\Context;
 use UKMNorge\Innslag\Mangler\Mangler;
 use UKMNorge\Innslag\Personer\Person;
 use UKMNorge\Innslag\Personer\Personer;
-use UKMNorge\Innslag\Titler\Titler;
-use UKMNorge\Samtykke\Innslag as InnslagSamtykke;
-use UKMNorge\Log\Samling as LogSamling;
 use UKMNorge\Innslag\Playback\Samling as PlaybackSamling;
+use UKMNorge\Innslag\Titler\Titler;
+use UKMNorge\Innslag\Typer\Typer;
+use UKMNorge\Log\Samling as LogSamling;
+use UKMNorge\Samtykke\Innslag as InnslagSamtykke;
 
 
 class Innslag

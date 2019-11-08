@@ -35,7 +35,7 @@ class Write
      * @param String $path
      * @return Arrangement $created_monstring
      */
-    public static function create($type, $eier_id, $sesong, $navn, $geografi, $path)
+    public static function create(String $type, Int $eier_id, Int $sesong, String $navn, Array $geografi, String $path)
     {
         // Oppdater loggeren til å bruke riktig PL_ID
         Logger::setPlId(0);
@@ -292,8 +292,7 @@ class Write
                 self::_fjernKontaktperson($monstring_save, $kontakt);
             }
         }
-
-
+        
         // Sjekk tillatte typer innslag og lagre endringer
         foreach ($monstring_save->getInnslagtyper()->getAll() as $innslag_type) {
             if (!$monstring_db->getInnslagtyper()->har($innslag_type)) {
@@ -891,23 +890,23 @@ class Write
 
         $test = new Query(
             "
-                SELECT `pl_bt_id`
-                FROM `smartukm_rel_pl_bt`
+                SELECT `id`
+                FROM `ukm_rel_arrangement_innslag_type`
                 WHERE `pl_id` = '#pl_id'
-                AND `bt_id` = '#bt_id'",
+                AND `type_id` = '#type_id'",
             [
                 'pl_id' => $monstring_save->getId(),
-                'bt_id' => $innslag_type->getId()
+                'type_id' => $innslag_type->getKey()
             ]
         );
-        $testRes = $test->run('field', 'pl_bt_id');
+        $testRes = $test->getField();
         if (is_numeric($testRes) && $testRes > 0) {
             return true;
         }
 
-        $insert = new Insert('smartukm_rel_pl_bt');
+        $insert = new Insert('ukm_rel_arrangement_innslag_type');
         $insert->add('pl_id', $monstring_save->getId());
-        $insert->add('bt_id', $innslag_type->getId());
+        $insert->add('type_id', $innslag_type->getKey());
         $res = $insert->run();
 
         if (!$res) {
@@ -917,7 +916,7 @@ class Write
         Logger::log(
             117,
             $monstring_save->getId(),
-            $innslag_type->getId()
+            $innslag_type->getKey()
         );
         return true;
     }
@@ -944,24 +943,13 @@ class Write
         }
 
         $delete = new Delete(
-            'smartukm_rel_pl_bt',
+            'ukm_rel_arrangement_innslag_type',
             [
                 'pl_id' => $monstring_save->getId(),
-                'bt_id' => $innslag_type->getId()
+                'type_id' => $innslag_type->getKey()
             ]
         );
         $res = $delete->run();
-
-        if (in_array($innslag_type->getId(), [8, 9])) {
-            $delete2 = new Delete(
-                'smartukm_rel_pl_bt',
-                [
-                    'pl_id' => $monstring_save->getId(),
-                    'bt_id' => $innslag_type->getId() == 8 ? 9 : 8
-                ]
-            );
-            $res = $delete2->run();
-        }
 
         if (!$res) {
             return false;
@@ -970,7 +958,7 @@ class Write
         Logger::log(
             118,
             $monstring_save->getId(),
-            $innslag_type->getId()
+            $innslag_type->getKey()
         );
         return true;
     }

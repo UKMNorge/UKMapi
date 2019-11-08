@@ -1,9 +1,9 @@
 <?php
 
-namespace UKMNorge\Innslag\Typer\Typer;
+namespace UKMNorge\Innslag\Typer;
 
-use Symfony\Component\Yaml\Yaml;
 use Exception;
+#use UKMNorge\Innslag\Typer\Type;
 
 require_once('UKM/Autoloader.php');
 
@@ -14,39 +14,71 @@ class Typer implements \Iterator
     private $var = array();
     static $all = null;
     static $allScene = null;
-
-    public function add( $item ) {
-        $this->var[] = $item;
-	    return $this;
-    }
-    public function har( $object ) {
-        if( is_string( $object ) ) {
-            return $this->find( $object );
+    static $skjulte = null;
+    static $alle_inkludert_skjulte = null;
+    /**
+     * Har vi denne innslag typen?
+     *
+     * @param Any $object
+     * @return Bool
+     */
+    public function har($object)
+    {
+        if (is_string($object)) {
+            return $this->find($object);
         }
-	    return $this->find( $object->getId() );
+        return $this->find($object->getKey());
     }
 
-    public function get( $id ) {
-        return $this->find( $id );
+    /**
+     * Hent gitt innslag type
+     *
+     * @param Int $id
+     * @return Type
+     */
+    public function get(Int $id)
+    {
+        return $this->find($id);
     }
-    public function leggTil( $item ) {
-        $this->add( $item );
+
+    /**
+     * Legg til en innslag type
+     */
+    public function leggTil($item)
+    {
+        $this->add($item);
     }
-    public function fjern( $item ) {
-        $this->remove( $item );
+
+    /**
+     * Fjern en innslag type
+     *
+     * @param String|Type $item
+     * @return void
+     */
+    public function fjern($item)
+    {
+        $this->remove($item);
     }
-    public function remove( $id ) {
-        if( is_object( $id ) ) {
-            $id = $id->getId();
+
+    /**
+     * Fjern en type fra collection
+     *
+     * @param String|Type $id
+     * @return void
+     */
+    public function remove($id)
+    {
+        if (is_object($id)) {
+            $id = $id->getKey();
         }
-    
-        foreach( $this->getAll() as $key => $val ) {
-            if( $id == $val->getId() ) {
-                unset( $this->var[ $key ] );
+
+        foreach ($this->getAll() as $key => $val) {
+            if ($id == $val->getKey()) {
+                unset($this->var[$key]);
                 return true;
             }
         }
-        throw new Exception('Could not find and remove '. $id, 110001 );
+        throw new Exception('Could not find and remove ' . $id, 110001);
     }
 
     /**
@@ -55,76 +87,184 @@ class Typer implements \Iterator
      * @param Any $id
      * @return Item
      */
-    public function find( $id ) {
-	    foreach( $this as $item ) {
-		    if( $id == $item->getId() ) {
-			    return $item;
-		    }
-	    }
-	    return false;
-    }
-
-    public function addById($id)
+    public function find($id)
     {
-        return $this->add(self::getById($id));
+        if( is_object($id) ) {
+            $id = $id->getKey();
+        }
+        foreach ($this as $item) {
+            if ($id == $item->getKey()) {
+                return $item;
+            }
+        }
+        return false;
     }
 
-    public function harJobbeMed() {
-        return $this->har( Typer::getByName('nettredaksjon') ) ||
-            $this->har( Typer::getByName('konferansier') ) ||
-            $this->har( Typer::getByName('arrangor') );
+    /**
+     * Har vi noen innslag i kategorien "jobbe med"?
+     * 
+     * @todo: refaktor og implementer harGruppe elns
+     *
+     * @return Bool
+     */
+    public function harJobbeMed()
+    {
+        return $this->har(Typer::getByName('nettredaksjon')) ||
+            $this->har(Typer::getByName('konferansier')) ||
+            $this->har(Typer::getByName('arrangor'));
     }
 
-    static function getById($id, $kategori = false)
+    /**
+     * Har vi noen innslag i kategorien "vise frem"?
+     *
+     * @return Bool
+     */
+    public function harViseFrem() {
+        foreach( $this->getAll() as $type ) {
+            if( $type->harTitler() ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Hent innslag type fra numerisk Id / key
+     * 
+     * @deprecated APIv2
+     * @see getByKey( String $key )
+     *
+     * @param Int $id
+     * @param String $kategori
+     * @return Type
+     */
+    static function getById(Int $id, String $kategori=null)
     {
         return self::load($id, $kategori);
     }
 
-    static function getByKey($key) {
-        return static::getByName($key);
-    }  
-    
-    static function getByName($key)
-    {
-        if(in_array($key, ['musikk', 'film', 'teater', 'dans', 'utstilling', 'litteratur']) ) {
-            return static::loadFromYaml($key);
-        }
-        // Last med kategori om vi er på scene-innslag.
-        if (in_array($key, array('musikk', 'dans', 'teater', 'litteratur'))) {
-            return self::load(self::_translate_key_to_id($key), $key);
-        }
-        return self::load(self::_translate_key_to_id($key));
-    }
-
-   /**
-     * Hent alle
+    /**
+     * Hent innslag type fra key
      *
-     * @return Array
+     * @param String $key
+     * @return Type
      */
-    public function getAll() {
-	    return $this->var;
+    static function getByKey(String $key)
+    {
+        return new Type( $key );
     }
 
     /**
-     * Antall elementer i collection
+     * Hent innslag type fra key 
+     * 
+     * @deprecated APIv2
+     * @see getByKey( String $key )
+     *
+     * @param String $key
+     * @return Type
+     */
+    static function getByName(String $key)
+    {
+        return static::getByKey($key);
+    }
+
+    /**
+     * Hent alle typer
+     *
+     * @return Array<Type>
+     */
+    public function getAll()
+    {
+        return $this->var;
+    }
+
+    /**
+     * Antall innslag typer vi har
      *
      * @return Int $antall
      */
-    public function getAntall() {
-	    return sizeof( $this->getAll() );
+    public function getAntall()
+    {
+        return sizeof($this->getAll());
     }
 
 
-    static function getAllTyper()
-    {
+    /**
+     * Hent alle typer som finnes (unntatt skjulte)
+     * 
+     * @see getAllInkludertSkjulteTyper()
+     *
+     * @return void
+     */
+    public static function getAllTyper()
+    {   
         if (null == self::$all) {
-            foreach (array(1, 2, 3, 4, 5, 6, 8, 10) as $id) {
-                self::$all[] = self::getById($id);
+            $alle = [
+                'arrangor',
+                'dans',
+                'film',
+                'konferansier',
+                'litteratur',
+                'matkultur',
+                'musikk',
+                'nettredaksjon',
+                'scene',
+                'teater',
+                'utstilling'
+            ];
+            
+            foreach( $alle as $id) {
+                self::$all[] = self::getByKey($id);
             }
+
+            self::$all = static::sort( self::$all );
         }
+
         return self::$all;
     }
 
+    /**
+     * Hent kun de skjulte typene
+     *
+     * @return Array<Type>
+     */
+    public static function getSkjulteTyper() {
+        if( null == self::$skjulte ) {
+            $skjulte = [
+                'ressurs'
+            ];
+            foreach( $skjulte as $id ) {
+                self::$skjulte[] = self::getByKey($id);
+            }
+
+            self::$skjulte = static::sort(self::$skjulte);
+        }
+        return self::$skjulte;
+    }
+
+    /**
+     * Hent absolutt alle typer innslag, også de skjulte
+     *
+     * @return Array<Type>
+     */
+    public static function getAlleInkludertSkjulteTyper() {
+        if( null == self::$alle_inkludert_skjulte ) {
+            $alle = array_merge(
+                static::getAllTyper(),
+                static::getSkjulteTyper()
+            );
+            self::$alle_inkludert_skjulte = static::sort( $alle );
+        }
+        return self::$alle_inkludert_skjulte;
+    }
+
+    /**
+     * Hent alle typer som er på scenen
+     * 
+     * Denne bør vi nok snart bort fra
+     *
+     * @return Array<Type>
+     */
     static function getAllScene()
     {
         if (null == self::$allScene) {
@@ -135,222 +275,36 @@ class Typer implements \Iterator
         return self::$allScene;
     }
 
-    static function load($id, $kategori = false)
-    {
-        if( in_array($kategori, ['musikk','dans','film'] )) {
-            return static::loadFromYaml($kategori);
-        }
-        switch ($id) {
-            case 1:
-                switch ($kategori) {
-                    case 'musikk':
-                        $data = [
-                            'id' => 1,
-                            'key' => 'musikk',
-                            'name' => 'Musikk',
-                            'icon' => 'https://ico.ukm.no/delta/delta-musikk-64.png',
-                            'har_filmer' => true,
-                            'har_titler' => true,
-                            'har_tekniske_behov' => true,
-                            'har_sjanger' => true,
-                            'database_table' => 'smartukm_titles_scene',
-                            'funksjoner' => false,
-                        ];
-                        break;
-                    case 'dans':
-                        $data = [
-                            'id' => 1,
-                            'key' => 'dans',
-                            'name' => 'Dans',
-                            'icon' => 'https://ico.ukm.no/delta/delta-dans-64.png',
-                            'har_filmer' => true,
-                            'har_titler' => true,
-                            'har_tekniske_behov' => true,
-                            'har_sjanger' => true,
-                            'database_table' => 'smartukm_titles_scene',
-                            'funksjoner' => false,
-                        ];
-                        break;
-                    case 'teater':
-                        $data = [
-                            'id' => 1,
-                            'key' => 'teater',
-                            'name' => 'Teater',
-                            'icon' => 'https://ico.ukm.no/delta/delta-teater-64.png',
-                            'har_filmer' => true,
-                            'har_titler' => true,
-                            'har_tekniske_behov' => true,
-                            'har_sjanger' => true,
-                            'database_table' => 'smartukm_titles_scene',
-                            'funksjoner' => false,
-                        ];
-                        break;
-                    case 'litteratur':
-                        $data = [
-                            'id' => 1,
-                            'key' => 'litteratur',
-                            'name' => 'Litteratur',
-                            'icon' => 'https://ico.ukm.no/delta/delta-litteratur-64.png',
-                            'har_filmer' => true,
-                            'har_titler' => true,
-                            'har_tekniske_behov' => false,
-                            'har_sjanger' => true,
-                            'database_table' => 'smartukm_titles_scene',
-                            'funksjoner' => false,
-                        ];
-                        break;
-                    default:
-                        $data = [
-                            'id' => 1,
-                            'key' => 'scene',
-                            'name' => ($kategori == false ? 'Scene' : 'Annet på scene'),
-                            'icon' => 'https://ico.ukm.no/delta/delta-annet-64.png',
-                            'har_filmer' => true,
-                            'har_titler' => true,
-                            'har_tekniske_behov' => true,
-                            'har_sjanger' => true,
-                            'database_table' => 'smartukm_titles_scene',
-                            'funksjoner' => false,
-                        ];
-                }
-                break;
-            case 2:
-                $data = [
-                    'id' => 2,
-                    'key' => 'video',
-                    'name' => 'Film',
-                    'icon' => 'https://ico.ukm.no/delta/delta-film-64.png',
-                    'har_filmer' => true,
-                    'har_titler' => true,
-                    'har_tekniske_behov' => false,
-                    'har_sjanger' => true,
-                    'database_table' => 'smartukm_titles_video',
-                    'funksjoner' => false,
-                ];
-                break;
-            case 3:
-                $data = [
-                    'id' => 3,
-                    'key' => 'utstilling',
-                    'name' => 'Utstilling',
-                    'icon' => 'https://ico.ukm.no/delta/delta-utstilling-64.png',
-                    'har_filmer' => false,
-                    'har_titler' => true,
-                    'har_tekniske_behov' => false,
-                    'har_sjanger' => false,
-                    'database_table' => 'smartukm_titles_exhibition',
-                    'funksjoner' => false,
-                ];
-                break;
-            case 4:
-                $data = [
-                    'id' => 4,
-                    'key' => 'konferansier',
-                    'name' => 'Konferansier',
-                    'icon' => 'https://ico.ukm.no/delta/delta-konferansier-64.png',
-                    'har_filmer' => false,
-                    'har_titler' => false,
-                    'har_tekniske_behov' => false,
-                    'har_sjanger' => false,
-                    'database_table' => false,
-                    'funksjoner' => false,
-                ];
-                break;
-            case 5:
-                $data = [
-                    'id' => 5,
-                    'key' => 'nettredaksjon',
-                    'name' => 'UKM Media',
-                    'icon' => 'https://ico.ukm.no/delta/delta-nettredaksjon-64.png',
-                    'har_filmer' => false,
-                    'har_titler' => false,
-                    'har_tekniske_behov' => false,
-                    'har_sjanger' => false,
-                    'database_table' => false,
-                    'funksjoner' => [
-                        'tekst' => 'Journalist',
-                        'foto' => 'Fotograf',
-                        'videoreportasjer' => 'Videoreportasjer',
-                        'flerkamera_regi' => 'Flerkamera, regi',
-                        'flerkamera_kamera' => 'Flerkamera, kamera',
-                        'pr' => 'PR og pressekontakt'
-                    ],
-                ];
-                break;
-            case 6:
-                $data = [
-                    'id' => 6,
-                    'key' => 'matkultur',
-                    'name' => 'Matkultur',
-                    'icon' => 'https://ico.ukm.no/delta/delta-matkultur-64.png',
-                    'har_filmer' => true,
-                    'har_titler' => true,
-                    'har_tekniske_behov' => false,
-                    'har_sjanger' => false,
-                    'database_table' => 'smartukm_titles_other',
-                    'funksjoner' => false,
-                ];
-                break;
-            case 8:
-            case 9:
-                $data = [
-                    'id' => 8,
-                    'key' => 'arrangor',
-                    'name' => 'Arrangør',
-                    'icon' => 'https://ico.ukm.no/delta/delta-arrangor-64.png',
-                    'har_filmer' => false,
-                    'har_titler' => false,
-                    'har_tekniske_behov' => false,
-                    'har_sjanger' => false,
-                    'database_table' => false,
-                    'funksjoner' => [
-                        'lyd' => 'Lyd',
-                        'lys' => 'Lys',
-                        'scenearbeider' => 'Scenearbeider',
-                        'artistvert' => 'Artistvert',
-                        'info' => 'Info / sekretariat',
-                        'koordinator' => 'Koordinator / produsent'
-                    ],
-                ];
-                break;
-            case 10:
-                $data = [
-                    'id' => 10,
-                    'key' => 'ressurs',
-                    'name' => 'UKM-ressurs',
-                    'icon' => 'https://ico.ukm.no/delta/delta-arrangor-64.png',
-                    'har_filmer' => false,
-                    'har_titler' => false,
-                    'har_tekniske_behov' => false,
-                    'har_sjanger' => false,
-                    'database_table' => false,
-                    'funksjoner' => [
-                        'ambassador' => 'Ambassadør',
-                        'ressurs' => 'Ressurs',
-                    ],
-                ];
-                break;
-
-            default:
-                $data = array('id' => 'missing ' . $id, 'key' => 'missing');
-        }
-        return new Type(
-            $data['id'],
-            $data['key'],
-            $data['name'],
-            $data['icon'],
-            $data['har_filmer'],
-            $data['har_titler'],
-            $data['funksjoner'],
-            $data['database_table'],
-            $data['har_tekniske_behov'],
-            $data['har_sjanger'],
-            []
-        );
+    public static function getStandardTyper() {
+        $typer = static::getAllScene();
+        $typer[] = Typer::getByKey('utstilling');
+        $typer[] = Typer::getByKey('film');
+        $typer = static::sort($typer);
+        return $typer;
     }
 
+    /**
+     * Last inn en type Innslag
+     *
+     * @param Int $id
+     * @param String $kategori
+     * @return Type
+     */
+    static function load(Int $id, String $kategori = null)
+    {
+        if (!$kategori) {
+            return new Type(static::_translate_id_to_key($id));
+        }
+        return new Type($kategori);
+    }
 
-    static function _translate_key_to_id($key)
+    /**
+     * Finn numerisk id fra gitt key
+     *
+     * @param String $key
+     * @return Int $numeric_id
+     */
+    private static function _translate_key_to_id(String $key)
     {
         switch ($key) {
             case 'musikk':
@@ -394,59 +348,149 @@ class Typer implements \Iterator
         return $bt_id;
     }
 
-
-
-    public function count() {
-	    return sizeof( $this->var );
+    /**
+     * Oversett numerisk ID til reell ID
+     * 
+     * Støtter ikke ID:1, da den kan ha flere
+     *
+     * @param Int $id
+     * @return String $key
+     */
+    private static function _translate_id_to_key(Int $id)
+    {
+        switch ($id) {
+            case 2:
+                return 'video';
+            case 3:
+                return 'utstilling';
+            case 4:
+                return 'konferansier';
+            case 5:
+                return 'nettredaksjon';
+            case 6:
+                return 'matkultur';
+            case 8:
+                return 'arrangor';
+            case 9:
+                return 'arrangor';
+            case 10:
+                return 'ressurs';
+        }
+        throw new Exception(
+            'Ukjent innslag-type ' . $id,
+            110002
+        );
     }
 
+    /**
+     * Sorter et array Type-objekter
+     *
+     * @param Array<Type> $array
+     * @return Array<Type> sortert
+     */
+    public static function sort( Array $array ) {
+        usort( 
+            $array, 
+            function($left,$right) { 
+                return $left->getNavn() > $right->getNavn();
+            }
+        );
+        return $array;
+    }
+
+    /**
+     * Legg til en type innslag fra ID
+     *
+     * @deprecated APIv2
+     * @param Int $id
+     * @return self
+     */
+    public function addById(Int $id)
+    {
+        return $this->add(self::getById($id));
+    }
+
+    /**
+     * Legg til en innslag type
+     *
+     * @param Type $item
+     * @return self
+     */
+    public function add($item)
+    {
+        if( !$this->find( $item ) ) {
+            $this->var[] = $item;
+        }
+        return $this;
+    }
+
+    /**
+     * Tell opp antall elementer
+     *
+     * @return Int Antall innslag typer
+     */
+    public function count()
+    {
+        return sizeof($this->var);
+    }
+
+    /**
+     * Reset internal pointer
+     * Ikke i bruk - kun krav fra \Iterator
+     *
+     * @return void
+     */
     public function rewind()
     {
         reset($this->var);
     }
-  
+
+    /**
+     * Hent current 
+     * Ikke i bruk - kun krav fra \Iterator
+     *
+     * @return Type
+     */
     public function current()
     {
         $var = current($this->var);
         return $var;
     }
-  
-    public function key() 
+
+    /**
+     * Hent key ?
+     * Ikke i bruk - kun krav fra \Iterator
+     *
+     * @return Any something
+     */
+    public function key()
     {
         $var = key($this->var);
         return $var;
     }
-  
-    public function next() 
+
+    /**
+     * Hent neste verdi
+     * Ikke i bruk - kun krav fra \Iterator
+     *
+     * @return Any something
+     */
+    public function next()
     {
         $var = next($this->var);
         return $var;
     }
+
+    /**
+     * Er noe valid?
+     * Ikke i bruk - kun krav fra \Iterator
+     *
+     * @return Any something
+     */
     public function valid()
     {
         $key = key($this->var);
         $var = ($key !== NULL && $key !== FALSE);
         return $var;
-    }
-
-
-    public static function loadFromYaml( String $id ) {
-        $config = Yaml::parse( 
-            file_get_contents( 
-                stream_resolve_include_path('UKM/Innslag/Typer/config/'. basename( $id ) .'.yml')
-            )
-        );
-        return new Type(
-            $config['numeric_id'],
-            $config['id'],
-            $config['navn'],
-            $config['har']['media']['filmer'],
-            $config['har']['titler'],
-            $config['har']['funksjon'],
-            (isset($config['titler']['tabell']) ? $config['titler']['tabell'] : null),
-            $config['har']['tekniske_behov'],
-            $config['har']['sjanger'],
-            $config['tekst']
-        );
     }
 }

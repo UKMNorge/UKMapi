@@ -823,47 +823,95 @@ class Arrangement
         if (null == $this->innslagTyper) {
             $this->innslagTyper = new Typer();
             $sql = new Query(
-                "SELECT `bt_id`
-							FROM `smartukm_rel_pl_bt`
-							WHERE `pl_id` = '#pl_id'
-							ORDER BY `bt_id` ASC",
-                array('pl_id' => $this->getId())
+                "SELECT `type_id`
+                FROM `ukm_rel_arrangement_innslag_type`
+                WHERE `pl_id` = '#pl_id'",
+                [
+                    'pl_id' => $this->getId()
+                ]
             );
             $res = $sql->run();
-            while ($r = Query::fetch($res)) {
-                if (1 == $r['bt_id']) {
-                    foreach (Typer::getAllScene() as $type) {
-                        $this->innslagTyper->add($type);
-                    }
-                } else {
-                    if (9 == $r['bt_id']) {
-                        $r['bt_id'] = 8;
-                    }
-                    if (!$this->innslagTyper->find($r['bt_id'])) {
-                        $this->innslagTyper->addById($r['bt_id']);
-                    }
+            // Arrangementet bruker den nye beregningen for tillatte typer (2020)
+            if( Query::numRows( $res ) > 0 ) {
+                while ($r = Query::fetch($res)) {
+                    $this->innslagTyper->add( Typer::getByKey( $r['type_id']));
                 }
             }
-            // Alltid legg til scene
-            if (!$this->innslagTyper->har(Typer::getById(1))) {
-                foreach (Typer::getAllScene() as $type) {
+            // Arrangementet bruker den gamle beregningen for tillatte typer (pre2020)
+            else {
+                $this->_loadInnslagTyperPre2020();
+            }
+
+            if( 0 == $this->innslagTyper->getAntall() ) {
+                foreach( Typer::getStandardTyper() as $type ) {
                     $this->innslagTyper->add($type);
                 }
             }
-            // Alltid legg til utstilling
-            if (!$this->innslagTyper->har(Typer::getById(3))) {
-                $this->innslagTyper->add(Typer::getByName('utstilling'));
-            }
-            // Alltid legg til film
-            if (!$this->innslagTyper->har(Typer::getById(2))) {
-                $this->innslagTyper->add(Typer::getByName('video'));
-            }
         }
 
-        if ($inkluder_ressurs && !$this->innslagTyper->har(Typer::getByName('ressurs'))) {
+        if ($inkluder_ressurs && !$this->innslagTyper->har(Typer::getByKey('ressurs'))) {
             $this->innslagTyper->add(Typer::getByName('ressurs'));
         }
         return $this->innslagTyper;
+    }
+
+    /**
+     * Last inn tillatte innslagTyper etter den gamle
+     * metoden (pre2020). Dette sikrer bakoverkompatibilitet, 
+     * samtidig som vi trygt kan implementere den nye metoden midt i sesong
+     *
+     * @return void
+     */
+    private function _loadInnslagTyperPre2020() {
+        $sql = new Query(
+            "SELECT `bt_id`
+                        FROM `smartukm_rel_pl_bt`
+                        WHERE `pl_id` = '#pl_id'
+                        ORDER BY `bt_id` ASC",
+            array('pl_id' => $this->getId())
+        );
+        $res = $sql->run();
+        $foundTypeOne = false;
+        while ($r = Query::fetch($res)) {
+            if (1 == $r['bt_id']) {
+                $foundTypeOne = true;
+                foreach (Typer::getAllScene() as $type) {
+                    $this->innslagTyper->add($type);
+                }
+            } else {
+                if (9 == $r['bt_id']) {
+                    $r['bt_id'] = 8;
+                }
+                if (!$this->innslagTyper->find($r['bt_id'])) {
+                    $this->innslagTyper->addById($r['bt_id']);
+                }
+            }
+        }
+        // Alltid legg til scene
+        if (!$foundTypeOne) {
+            foreach (Typer::getAllScene() as $type) {
+                $this->innslagTyper->add($type);
+            }
+        }
+        // Alltid legg til utstilling
+        if (!$this->innslagTyper->har(Typer::getById(3))) {
+            $this->innslagTyper->add(Typer::getByName('utstilling'));
+        }
+        // Alltid legg til film
+        if (!$this->innslagTyper->har(Typer::getById(2))) {
+            $this->innslagTyper->add(Typer::getByName('video'));
+        }
+    }
+
+    /**
+     * Etter lagring er det hensiktsmessig å nullstille
+     * innslagTyperCollection, i tilfelle brukeren har fjernet
+     * alle typer påmelding (og vi da skal defaulte til standard-utvalg)
+     *
+     * @return void
+     */
+    public function resetInnslagTyper() {
+        $this->innslagTyper = null;
     }
 
     /**
