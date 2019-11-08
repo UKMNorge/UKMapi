@@ -10,8 +10,8 @@ har:
   media:
     filmer: false
     bilder: true
-  titler:
-    tabell: smartukm_titles_exhibition
+titler:
+  tabell: smartukm_titles_exhibition
 
 tekst:
   rolle:
