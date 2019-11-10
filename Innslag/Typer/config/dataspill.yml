@@ -1,0 +1,23 @@
+## For påmeldinger til LAN eller tilsvarende!
+id: dataspill
+numeric_id: 1
+navn: Dataspill
+type: person
+frist: 2
+har:
+  sjanger: false
+  tekniske_behov: false
+  titler: false
+  funksjon: false
+  media:
+    filmer: false
+    bilder: true
+
+tekst:
+  artistnavn:
+    alene:
+      navn: Navn / GamerTag
+      placeholder: Eks. %fornavn %etternavn, Sneezy, NotTfue
+    kontakt:
+      navn: Filmgruppens navn
+      placeholder: Eks. Film-gjengen, Per, Pål og Espen...

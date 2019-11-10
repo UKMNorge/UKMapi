@@ -210,7 +210,8 @@ class Typer implements \Iterator
                 'nettredaksjon',
                 'scene',
                 'teater',
-                'utstilling'
+                'utstilling',
+                'dataspill'
             ];
             
             foreach( $alle as $id) {

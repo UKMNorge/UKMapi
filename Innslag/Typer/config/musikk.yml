@@ -33,7 +33,7 @@ tekst:
     alene:
       navn: Artistnavn / Gruppenavn
       placeholder: Eks. Superbandet, %fornavn %etternavn, %etternavn-band...
-    gruppe:
+    sammen:
       navn: Gruppenavn / Artistnavn
       placeholder: Eks. Superbandet, %fornavn and the others...
     kontakt:

@@ -33,7 +33,7 @@ tekst:
     alene:
       navn: Navn
       placeholder: Eks. %etternavn Productions, %fornavn %etternavn
-    gruppe:
+    sammen:
       navn: Filmgruppens navn
       placeholder: Eks. Film-gjengen, %fornavn %etternavn, %etternavn Productions...
     kontakt:
