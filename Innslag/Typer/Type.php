@@ -68,7 +68,11 @@ class Type
         $this->har_bilder           = $config['har']['media']['bilder'];
 
         if (isset($config['funksjoner'])) {
-            $this->funksjoner = $config['funksjoner'];
+            $keyval = [];
+            foreach( $config['funksjoner'] as $key ) {
+                $keyval[ $key ] = $this->getTekst( 'funksjon.'.$key );
+            }
+            $this->funksjoner = $keyval;
         }
 
         if (isset($config['titler']['tabell'])) {
