@@ -306,7 +306,22 @@ class Kommune {
      * @return Kommune
      */
     public function getOvertattAv() {
-        return new Kommune( $this->overtatt_av );
+        return $this->_findRealOvertatt( $this->overtatt_av );
+    }
+
+    /**
+     * Rekursivt søk etter den kommunen som faktisk har overtatt
+     * Håndterer altså kommuner som er overtatt gang etter gang etter gang 😭
+     *
+     * @param Int $kommune_id
+     * @return Kommune
+     */
+    private function _findRealOvertatt( Int $kommune_id ) {
+        $kommune = new Kommune( $kommune_id );
+        if( $kommune->erOvertatt() ) {
+            return $this->_findRealOvertatt( $kommune->getOvertattAv()->getId() );
+        }
+        return $kommune;
     }
 
 	/**
