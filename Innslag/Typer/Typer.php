@@ -199,6 +199,7 @@ class Typer implements \Iterator
     public static function getAllTyper()
     {   
         if (null == self::$all) {
+            self::$all = [];
             $alle = [
                 'arrangor',
                 'dans',
