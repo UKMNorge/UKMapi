@@ -272,6 +272,16 @@ class Blog
         );
     }
 
+    /**
+     * Er bloggen deaktivert?
+     *
+     * @param Int $blog_id
+     * @return Bool
+     */
+    public static function erDeaktivert( Int $blog_id ) {
+        return Blog::getDetails( $blog_id, 'deleted' );
+    }
+
 
     /**
      * Opprett en blogg for et fylke
