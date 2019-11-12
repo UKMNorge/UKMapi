@@ -16,6 +16,7 @@ class Typer implements \Iterator
     static $allScene = null;
     static $skjulte = null;
     static $alle_inkludert_skjulte = null;
+    static $pakrevd = null;
     /**
      * Har vi denne innslag typen?
      *
@@ -223,6 +224,30 @@ class Typer implements \Iterator
         }
 
         return self::$all;
+    }
+
+    /**
+     * Hent alle typer som kreves for å kalles UKM
+     *
+     * @return Array<Type>
+     */
+    public static function getPakrevd() {
+        if( null == self::$pakrevd ) {
+            self::$pakrevd = [];
+            $alle = [
+                'dans',
+                'film',
+                'litteratur',
+                'musikk',
+                'scene',
+                'teater',
+                'utstilling'
+            ];
+            foreach( $alle as $id ) {
+                self::$pakrevd[] = self::getByKey( $id );
+            }
+        }
+        return self::$pakrevd;
     }
 
     /**
