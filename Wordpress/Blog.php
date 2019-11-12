@@ -243,6 +243,37 @@ class Blog
     }
 
     /**
+     * Aktiver en blogg
+     *
+     * @param Int $blog_id
+     * @return void
+     */
+    public static function aktiver( Int $blog_id ) {
+        return Blog::setDetails(
+            $blog_id,
+            [
+                'deleted' => false
+            ]
+        );
+    }
+
+    /**
+     * Deaktiver en blogg
+     *
+     * @param Int $blog_id
+     * @return void
+     */
+    public static function deaktiver( Int $blog_id ) {
+        return Blog::setDetails(
+            $blog_id,
+            [
+                'deleted' => true
+            ]
+        );
+    }
+
+
+    /**
      * Opprett en blogg for et fylke
      *
      * @param fylke $fylke
