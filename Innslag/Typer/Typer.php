@@ -267,7 +267,7 @@ class Typer implements \Iterator
      *
      * @return Array<Type>
      */
-    static function getAllScene()
+    public static function getAllScene()
     {
         if (null == self::$allScene) {
             foreach (array('musikk', 'dans', 'teater', 'litteratur', 'annet') as $kategori) {
