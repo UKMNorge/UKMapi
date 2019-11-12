@@ -295,9 +295,15 @@ class Write
         
         // Sjekk tillatte typer innslag og lagre endringer
         foreach ($monstring_save->getInnslagtyper()->getAll() as $innslag_type) {
-            if (!$monstring_db->getInnslagtyper()->har($innslag_type)) {
+            // Fordi mønstringen aldri skal ha 0 innslag-typer returneres et
+            // standardsett (se Typer::getPakrevd())
+            // Hvis man da lagrer et subset av dette, uten å legge til en ikke påkrevd type,
+            // vil db-objektet alltid ha alle, og en insert vil aldri skje.
+            // Hvis insert aldri skjer, vil mønstringen ha 0 innslag-typer, som igjen
+            // loader den med standard-settet.
+            try {
                 self::_leggTilInnslagtype($monstring_save, $innslag_type);
-            }
+            } catch( Exception $e ) {}
         }
         foreach ($monstring_db->getInnslagtyper()->getAll() as $innslag_type) {
             if (!$monstring_save->getInnslagtyper()->har($innslag_type)) {
