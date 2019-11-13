@@ -64,7 +64,7 @@ class Tid
             return $s . ' ' . $sek;
 
         if ($s == 0)
-            return $q . ' ' . $min;
+            return $m . ' ' . $min;
 
         return $m . $min . ' ' . $s . $sek;
     }
