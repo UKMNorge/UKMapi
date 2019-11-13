@@ -18,10 +18,10 @@ titler:
 
 tekst:
   rolle:
-    navn: Instrument/rolle
+    navn: Rolle
     placeholder: F.eks sjonglør, danser, skuespiller osv
     hjelp: Skriv inn hva %person spiller/gjør
-    ukjent: Ukjent instrument
+    ukjent: Ukjent rolle
   titler:
     pronomen: en
     entall: tittel/navn på det som skal fremføres
