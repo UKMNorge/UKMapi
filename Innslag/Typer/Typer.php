@@ -176,6 +176,7 @@ class Typer implements \Iterator
      */
     public function getAll()
     {
+        $this->var = static::sort($this->var);
         return $this->var;
     }
 
