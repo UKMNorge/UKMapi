@@ -175,6 +175,20 @@ class Person
     }
 
     /**
+     * Hent hvilke andre arrangement-IDer personen er påmeldt
+     *
+     * @param Int $arrangement_id
+     * @return Array<Int>
+     */
+    public function getPameldtAndre( Int $arrangement_id ) {
+        $pameldt_til = $this->getPameldt();
+        if(($key = array_search($arrangement_id, $pameldt_til)) !== false ) {
+            unset( $pameldt_til[$key] );
+        }
+        return $pameldt_til;
+    }
+
+    /**
      * Er påmeldt gitt mønstring?
      *
      * @param Int $arrangement_id
@@ -183,6 +197,16 @@ class Person
     public function erPameldt(Int $arrangement_id)
     {
         return in_array($arrangement_id, $this->getPameldt());
+    }
+
+    /**
+     * Er påmeldt andre enn gitt arrangement?
+     *
+     * @param Int $arrangement_id
+     * @return Bool
+     */
+    public function erPameldtAndre( Int $arrangement_id ) {
+        return sizeof($this->getPameldtAndre( $arrangement_id )) > 0;
     }
 
 
