@@ -1,0 +1,34 @@
+## For påmeldinger av et lag til turnering
+id: cosplay
+numeric_id: 22
+navn: Cosplay
+type: gruppe
+frist: 2
+har:
+  # Dersom minst èn av disse (unntatt media) er true, må vi ha en oversettelsesfil i Delta!
+  beskrivelse: true
+  varighet: false
+  sjanger: false
+  tekniske_behov: false
+  titler: false
+  funksjon: false
+  media:
+    filmer: true
+    bilder: true
+
+tekst:
+  artistnavn:
+    alene:
+      navn: Hva heter karakteren eller serien den kommer fra?
+      placeholder: Eks. "Belle"
+    sammen:
+      navn: Hva heter karakteren(e) eller serien den kommer fra?
+      placeholder: Eks. "Belle", "Skjønnheten og Udyret", "Totoro", "Baloo & Mowgli" 
+    kontakt:
+      navn: Hva heter karakteren(e) eller serien den kommer fra?
+      placeholder: Eks. "Belle", "Skjønnheten og Udyret", "Totoro", "Baloo & Mowgli"
+  rolle:
+    navn: Hvilken karakter spiller denne personen?
+    placeholder: F.eks "Belle", "Mowgli"
+    hjelp: " " 
+    ukjent: Ukjent rolle

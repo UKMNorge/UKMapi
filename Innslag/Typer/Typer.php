@@ -214,7 +214,9 @@ class Typer implements \Iterator
                 'scene',
                 'teater',
                 'utstilling',
-                'dataspill'
+                'dataspill',
+                'dataspillgruppe',
+                'cosplay'
             ];
             
             foreach( $alle as $id) {
@@ -403,6 +405,13 @@ class Typer implements \Iterator
                 return 'arrangor';
             case 10:
                 return 'ressurs';
+            ## GENERISKE TYPER
+            case 20:
+                return 'dataspill';
+            case 21:
+                return 'dataspillgruppe';
+            case 22:
+                return 'cosplay';
         }
         throw new Exception(
             'Ukjent innslag-type ' . $id,
