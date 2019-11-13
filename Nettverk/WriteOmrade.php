@@ -157,12 +157,6 @@ class WriteOmrade {
                 $navn
             )
         );
-        $epost->leggTilMottaker(
-            Mottaker::fraEpost(
-                'marius@ukm.no',
-                'Marius Mandal'
-            )
-        );
 
         return $epost->send();
     }
