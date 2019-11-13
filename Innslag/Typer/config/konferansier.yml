@@ -4,6 +4,7 @@ navn: Konferansier
 type: person
 frist: 2
 har:
+  varighet: false
   sjanger: false
   tekniske_behov: false
   titler: false

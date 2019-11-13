@@ -4,6 +4,7 @@ navn: Utstilling
 type: gruppe
 frist: 1
 har:
+  varighet: false
   sjanger: false
   tekniske_behov: false
   titler: true

@@ -59,6 +59,7 @@ class Type
         $this->type         = $config['type'];
         $this->frist        = $config['frist'];
 
+        $this->har_tid              = $config['har']['varighet'];
         $this->har_titler           = $config['har']['titler'];
         $this->har_sjanger          = $config['har']['sjanger'];
         $this->har_funksjoner       = $config['har']['funksjon'];
@@ -201,7 +202,7 @@ class Type
      */
     public function harTid()
     {
-        return $this->getTabell() != false;
+        return $this->har_tid;
     }
 
     /**
