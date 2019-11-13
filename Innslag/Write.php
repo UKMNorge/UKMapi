@@ -543,12 +543,6 @@ class Write {
 			);
 		}
 
-		if( !in_array($type->getKey(), array('scene', 'musikk', 'dans', 'teater', 'litteratur', 'film', 'video', 'utstilling', 'konferansier', 'nettredaksjon', 'arrangor','ressurs') ) ) {
-			throw new Exception(
-				"Kan ikke opprette ".$type->getKey()."-innslag.",
-				505007
-			);
-		}
 	}
     
     /**
