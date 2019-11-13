@@ -4,6 +4,7 @@ navn: Annet på scene
 type: gruppe
 frist: 1
 har:
+  beskrivelse: true
   varighet: true
   sjanger: true
   tekniske_behov: true

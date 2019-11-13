@@ -61,6 +61,7 @@ class Type
 
         $this->har_tid              = $config['har']['varighet'];
         $this->har_titler           = $config['har']['titler'];
+        $this->har_beskrivelse      = $config['har']['beskrivelse'];
         $this->har_sjanger          = $config['har']['sjanger'];
         $this->har_funksjoner       = $config['har']['funksjon'];
         $this->har_tekniske_behov   = $config['har']['tekniske_behov'];
@@ -270,6 +271,15 @@ class Type
     public function harTekniskeBehov()
     {
         return $this->har_tekniske_behov;
+    }
+
+    /**
+     * Har typen en beskrivelse?
+     *
+     * @return void
+     */
+    public function harBeskrivelse() {
+        return $this->har_beskrivelse;
     }
 
     /**

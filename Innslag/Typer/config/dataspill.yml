@@ -5,6 +5,7 @@ navn: Dataspill
 type: person
 frist: 2
 har:
+  beskrivelse: false
   varighet: false
   sjanger: false
   tekniske_behov: false
@@ -18,7 +19,7 @@ tekst:
   artistnavn:
     alene:
       navn: Navn / GamerTag
-      placeholder: Eks. %fornavn %etternavn, Sneezy, NotTfue
+      placeholder: Eks. %fornavn, Sneezy %etternavn, NotTfue
     kontakt:
       navn: Filmgruppens navn
       placeholder: Eks. Film-gjengen, Per, Pål og Espen...
