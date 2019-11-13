@@ -61,7 +61,7 @@ class Person
             );
         }
 
-        if ($type !== null && $type->getKey() == 'konferansier') {
+        if ($type !== null && !$type->harFunksjoner()) {
             $evaluerRolle = false;
         } else {
             $evaluerRolle = true;
