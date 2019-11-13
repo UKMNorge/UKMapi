@@ -288,6 +288,7 @@ class Titler extends Collection
         }
         
         $res = $SQL->run();
+        #echo $SQL->debug();
 
         if ($res && $this->getContext()->getMonstring()->getSesong() > 2019) {
             while ($row = Query::fetch($res)) {
