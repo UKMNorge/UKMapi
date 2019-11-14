@@ -101,6 +101,15 @@ class Type
     }
 
     /**
+     * Hent all tekst i key => val-format
+     *
+     * @return Array<String>
+     */
+    public function getAllTekst() {
+        return $this->tekst;
+    }
+
+    /**
      * Hent tekst fra config
      *
      * @param String $key
