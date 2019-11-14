@@ -2,6 +2,7 @@ id: nettredaksjon
 numeric_id: 5
 navn: Media
 type: person
+kategori: jobbe
 frist: 2
 har:
   beskrivelse: true

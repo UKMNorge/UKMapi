@@ -3,6 +3,7 @@ id: cosplay
 numeric_id: 22
 navn: Cosplay
 type: gruppe
+kategori: vise
 frist: 2
 har:
   # Dersom minst èn av disse (unntatt media) er true, må vi ha en oversettelsesfil i Delta!

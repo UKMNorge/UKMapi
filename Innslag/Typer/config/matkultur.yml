@@ -2,6 +2,7 @@ id: matkultur
 numeric_id: 6
 navn: Matkultur
 type: gruppe
+kategori: vise
 frist: 1
 har:
   beskrivelse: true

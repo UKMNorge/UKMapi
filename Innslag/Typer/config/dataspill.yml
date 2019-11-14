@@ -1,8 +1,9 @@
 ## For påmeldinger til LAN eller tilsvarende!
 id: dataspill
 numeric_id: 20
-navn: Dataspill
+navn: Dataspill (person)
 type: person
+kategori: vise
 frist: 2
 har:
   beskrivelse: false

@@ -2,6 +2,7 @@ id: arrangor
 numeric_id: 8
 navn: Arrangør
 type: person
+kategori: jobbe
 frist: 2
 har:
   beskrivelse: true

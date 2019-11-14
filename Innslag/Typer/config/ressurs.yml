@@ -2,6 +2,7 @@ id: ressurs
 numeric_id: 10
 navn: Ressurs
 type: person
+kategori: jobbe
 frist: 2
 har:
   beskrivelse: true

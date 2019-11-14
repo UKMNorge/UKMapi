@@ -2,6 +2,7 @@ id: utstilling
 numeric_id: 3
 navn: Utstilling
 type: gruppe
+kategori: vise
 frist: 1
 har:
   beskrivelse: true

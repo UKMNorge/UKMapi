@@ -2,6 +2,7 @@ id: konferansier
 numeric_id: 4
 navn: Konferansier
 type: person
+kategori: jobbe
 frist: 2
 har:
   beskrivelse: true

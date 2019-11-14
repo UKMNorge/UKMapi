@@ -57,6 +57,7 @@ class Type
         $this->name         = $config['navn'];
         $this->tekst        = static::arrayToDotKey('', $config['tekst'], []);
         $this->type         = $config['type'];
+        $this->kategori     = $config['kategori'];
         $this->frist        = $config['frist'];
 
         $this->har_tid              = $config['har']['varighet'];
@@ -236,7 +237,7 @@ class Type
     }
 
     /**
-     * Er typen enkeltperson-type?
+     * Er dette en type som er med og lager UKM?
      * 
      * @deprecated APIv3
      * @see erEnkeltPerson()
@@ -245,7 +246,16 @@ class Type
      */
     public function erJobbeMed()
     {
-        return !$this->hartitler();
+        return $this->kategori == 'jobbe';
+    }
+
+    /**
+     * Er dette en type som viser frem noe?
+     *
+     * @return Bool
+     */
+    public function erViseFrem() {
+        return $this->kategori == 'vise';
     }
 
     /**
