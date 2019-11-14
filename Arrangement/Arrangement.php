@@ -1282,11 +1282,33 @@ class Arrangement
     }
 
     /**
+     * Har arrangementet et kart?
+     *
+     * @return Bool
+     */
+    public function harKart() {
+        return $this->getKart()->hasMap();
+    }
+    /**
+     * Hent inn kart-objektet
+     *
+     * @see getGoogleMap()
+     *
+     * @return StaticMap
+     */
+    public function getKart() {
+        return $this->getGoogleMap();
+    }
+
+    /**
      * Get the value of googleMap
      */
     public function getGoogleMap()
     {
         if (null == $this->googleMap) {
+            if( defined('GOOGLE_API_KEY') ) {
+                StaticMap::setApiKey(GOOGLE_API_KEY);
+            }
             $this->googleMap = StaticMap::fromJSON(json_decode($this->getGoogleMapData()));
         }
         return $this->googleMap;

@@ -10,6 +10,7 @@ class StaticMap {
     var $name = null;
     var $map = null;
     var $link = null;
+    static $api_key = null;
 
     public static function fromJSON( $json ) {
         $map = new StaticMap();
@@ -40,6 +41,16 @@ class StaticMap {
             'map',
             'link'
         ];
+    }
+
+    /**
+     * Sett API-key
+     *
+     * @param String $api_key
+     * @return void
+     */
+    public static function setApiKey( String $api_key ) {
+        static::$api_key = $api_key;
     }
 
     public function toJSON() {
@@ -151,12 +162,12 @@ class StaticMap {
     /**
      * Get the value of map
      */ 
-    public function getMap( $api_key=false)
+    public function getMap()
     {
         if( null == $this->map ) {
             return 'https://placehold.it/400x300?text=Ukjent%20sted';
         }
-        return $this->map . ($api_key ? '&key='. $api_key : '');
+        return $this->map . (static::$api_key !== null ? '&key='. static::$api_key : '');
     }
 
     /**
