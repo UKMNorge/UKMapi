@@ -140,6 +140,15 @@ class StaticMap {
     }
 
     /**
+     * Do we actually have a map?
+     *
+     * @return Bool
+     */
+    public function hasMap() {
+        return !empty( $this->map );
+    }
+
+    /**
      * Get the value of map
      */ 
     public function getMap( $api_key=false)
