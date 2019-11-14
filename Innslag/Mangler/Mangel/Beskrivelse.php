@@ -7,6 +7,10 @@ use UKMNorge\Innslag\Mangler\Mangel;
 
 class Beskrivelse {
     public static function evaluer( Innslag $innslag ) {
+        // Innslag uten beskrivelse må godkjennes :)
+        if( !$innslag->getType()->harBeskrivelse() ) {
+            return true;
+        }
         if( empty( $innslag->getBeskrivelse() ) ) {
             return new Mangel(
                     'innslag.beskrivelse',
