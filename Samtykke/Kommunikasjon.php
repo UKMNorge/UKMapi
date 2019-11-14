@@ -1,7 +1,6 @@
 <?php
     
 namespace UKMNorge\Samtykke;
-use SQL;
 use Exception;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Samtykke\Meldinger\Melding;
@@ -111,7 +110,6 @@ class Kommunikasjon {
      * @return string Meldingen som ble sendt
      */
     private function _send( $melding_type ) {
-        require_once('Melding/sms.class.php');
         $samtykke_object = Person::getById( $this->getId() );
         return SMS::send( $melding_type, $samtykke_object );
     }
