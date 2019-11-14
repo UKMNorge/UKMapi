@@ -258,8 +258,7 @@ class Person {
 		$sql = new Query("
 			SELECT *
 			FROM `samtykke_deltaker`
-			WHERE `p_id` = '#p_id'
-			AND `year` = '#season'",
+			WHERE `p_id` = '#p_id'",
 			[
 				'p_id' => $person->getId(),
 				'season' => $year,
