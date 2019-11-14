@@ -33,11 +33,11 @@ tekst:
     placeholder: Eks. Baking
   artistnavn:
     alene:
-      label: Navn
+      navn: Navn
       placeholder: Eks. Kokke-Kari
     sammen:
-      label: Gruppenavn
+      navn: Gruppenavn
       placeholder: Eks. Kokkegjengen
     kontakt:
-      label: Artistnavn / Gruppenavn
+      navn: Artistnavn / Gruppenavn
       placeholder: Eks. Kokke-Kari, Kokkegjengen

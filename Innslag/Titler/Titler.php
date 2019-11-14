@@ -7,6 +7,7 @@ use UKMNorge\Collection;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Innslag\Context\Context;
 use UKMNorge\Innslag\Typer\Type;
+use UKMNorge\Innslag\Typer\Typer;
 use UKMNorge\Tid;
 
 require_once('UKM/Autoloader.php');
@@ -290,11 +291,12 @@ class Titler extends Collection
         #echo $SQL->debug();
 
         if ($res && $this->getContext()->getMonstring()->getSesong() > 2019) {
+            $innslag_type = Typer::getByKey( $this->getContext()->getInnslag()->getType() );
             while ($row = Query::fetch($res)) {
                 $tittel = new $tittel_type($row);
                 $tittel->setContext($this->getContext());
                 $this->add($tittel);
-                if ($tittel->erPameldt($this->getContext()->getMonstring()->getId())) {
+                if ($tittel->erPameldt($this->getContext()->getMonstring()->getId()) && $innslag_type->harTid()) {
                     $this->varighet += $tittel->getVarighet()->getSekunder();
                 }
             }

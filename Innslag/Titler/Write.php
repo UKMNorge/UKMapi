@@ -54,6 +54,9 @@ class Write
             case 'smartukm_titles_exhibition':
                 $action = 514;
                 break;
+            case 'smartukm_titles_other':
+                $action = 518;
+                break;
             default:
                 // TODO
                 throw new Exception(
@@ -175,6 +178,11 @@ class Write
                     'Format'                => ['t_v_format', 513],
                 ];
                 break;
+            case 'Matkultur':
+                $properties = [
+                    'Tittel'                => ['t_o_function', 519]
+                ];
+            break;
             default:
                 throw new Exception(
                     'Kunne ikke lagre tittel. Ukjent database-tabell ' . str_replace('UKMNorge\Innslag\Titler\\', '', get_class($tittel_save)),
