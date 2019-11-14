@@ -18,6 +18,8 @@ use UKMNorge\Innslag\Advarsler\Advarsel;
 use UKMNorge\Innslag\Advarsler\Advarsler;
 use UKMNorge\Innslag\Context\Context;
 use UKMNorge\Innslag\Mangler\Mangler;
+use UKMNorge\Innslag\Media\Artikler\Samling as ArtiklerSamling;
+use UKMNorge\Innslag\Media\Bilder\Samling as BilderSamling;
 use UKMNorge\Innslag\Personer\Person;
 use UKMNorge\Innslag\Personer\Personer;
 use UKMNorge\Innslag\Playback\Samling as PlaybackSamling;
@@ -46,6 +48,7 @@ class Innslag
     var $playback = null;
     var $personer_collection = null;
     var $artikler_collection = null;
+    var $bilder_collection = null;
     var $attributes = null;
     var $sesong = null;
     var $avmeldbar = false;
@@ -68,6 +71,7 @@ class Innslag
 
     var $videresendt_til = null;
     var $log = null;
+
 
     public function __construct($bid_or_row, $select_also_if_not_completed = false)
     {
@@ -224,10 +228,11 @@ class Innslag
      **/
     public function getBilder()
     {
-        require_once('UKM/bilder.class.php');
-        $this->bilder = new bilder($this->getId());
+        if( null == $this->bilder_collection ) {
+            $this->bilder_collection = new BilderSamling($this->getId());
+        }
 
-        return $this->bilder;
+        return $this->bilder_collection;
     }
 
     /**
@@ -257,8 +262,7 @@ class Innslag
     public function getArtikler()
     {
         if (null == $this->artikler_collection) {
-            require_once('UKM/artikler.class.php');
-            $this->artikler_collection = new artikler($this->getId());
+            $this->artikler_collection = new ArtiklerSamling($this->getId());
         }
         return $this->artikler_collection;
     }
