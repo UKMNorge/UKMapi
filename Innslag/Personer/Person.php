@@ -209,7 +209,6 @@ class Person
         return sizeof($this->getPameldtAndre( $arrangement_id )) > 0;
     }
 
-
     /**
      * Sett id
      *
