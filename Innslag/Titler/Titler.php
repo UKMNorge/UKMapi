@@ -241,7 +241,6 @@ class Titler extends Collection
                 LEFT JOIN `ukm_rel_arrangement_tittel` AS `relasjon`
                     ON(`relasjon`.`innslag_id` = `tittel`.`b_id` AND `relasjon`.`tittel_id` = `tittel`.`t_id`)
                 WHERE `tittel`.`b_id` = '#innslag'
-                AND `tittel`.`t_id` > 0
                 GROUP BY `tittel`.`t_id`
                 ORDER BY `tittel`.`#tittelfelt`",
                 [
