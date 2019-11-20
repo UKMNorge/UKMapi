@@ -33,7 +33,7 @@ class WriteOmrade {
 
         if( !$res ) {
             throw new Exception(
-                'Klarte ikke å relatere '. $admin->getName() .' til '. $omrade->getNavn(),
+                'Klarte ikke å relatere '. $admin->getNavn() .' til '. $omrade->getNavn(),
                 562001
             );
         }
