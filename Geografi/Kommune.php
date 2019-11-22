@@ -19,6 +19,7 @@ class Kommune {
     private $overtatt;
     private $overtatt_av;
     private $omrade = null;
+    private $path = null;
 
 	public function __construct( $kid_or_row ) {
 		if( is_numeric( $kid_or_row ) ) {
@@ -76,6 +77,10 @@ class Kommune {
         $this->tidligere_list = $res['superseed'];
         $this->overtatt = !is_null( $res['overtatt_av'] );
         $this->overtatt_av = (Int) $res['overtatt_av'];
+
+        if( isset( $res['path'] ) && !empty( $res['path'] ) ) {
+            $this->path = $res['path'];
+        }
 
         // Hvis kommunen ikke har overtatt for noen, 
         // mellomlagre det, så slipper vi å beregne flere ganger
@@ -170,12 +175,15 @@ class Kommune {
      * @return String $path
      */
     public function getPath() {
-        return '/' . static::sanitizePath(
-            explode(
-                '(', 
-                $this->getNavn()
-            )[0]
-        ) .'/';
+        if( null == $this->path ) {
+            $this->path = '/' . static::sanitizePath(
+                explode(
+                    '(', 
+                    $this->getNavn()
+                )[0]
+            ) .'/';
+        }
+        return $this->path;
     }
 
     /**
