@@ -34,11 +34,8 @@ tekst:
     placeholder: Eks. Skrekkfilm, komedie osv
   artistnavn:
     alene:
-      navn: Navn
+      navn: Navn / filmgruppens navn
       placeholder: Eks. %etternavn Productions, %fornavn %etternavn
     sammen:
       navn: Filmgruppens navn
       placeholder: Eks. Film-gjengen, %fornavn %etternavn, %etternavn Productions...
-    kontakt:
-      navn: Filmgruppens navn
-      placeholder: Eks. Film-gjengen, Per, Pål og Espen...

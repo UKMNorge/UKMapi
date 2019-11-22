@@ -34,11 +34,8 @@ tekst:
     placeholder: Eks. portrettfoto, akvarellmaling, acryl osv.
   artistnavn:
       alene:
-          navn: Navn / kunstner-navn
-          placeholder: Eks. Kunst-%fornavn, %fornavn %etternavn...
+          navn: Navn / kunstnernavn / navn på gruppe
+          placeholder: Eks. Kunst-%fornavn, Kunstgjengen fra %etternavn, %fornavn %etternavn...
       sammen:
           navn: Kunstnernavn / navn på gruppe
           placeholder: Eks. Kunstlinja, painting cowboys, %etternavn-gjengen...
-      kontakt:
-          navn: Kunstnernavn / navn på gruppe
-          placeholder: Eks. Kunstlinja, painting cowboys, tegneklassen...

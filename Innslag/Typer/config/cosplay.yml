@@ -20,14 +20,11 @@ har:
 tekst:
   artistnavn:
     alene:
-      navn: Hva heter karakteren eller serien den kommer fra?
+      navn: Hva heter karakteren(e) eller serien den kommer fra?
       placeholder: Eks. "Belle"
     sammen:
       navn: Hva heter karakteren(e) eller serien den kommer fra?
       placeholder: Eks. "Belle", "Skjønnheten og Udyret", "Totoro", "Baloo & Mowgli" 
-    kontakt:
-      navn: Hva heter karakteren(e) eller serien den kommer fra?
-      placeholder: Eks. "Belle", "Skjønnheten og Udyret", "Totoro", "Baloo & Mowgli"
   rolle:
     navn: Hvilken karakter spiller denne personen?
     placeholder: F.eks "Belle", "Mowgli"

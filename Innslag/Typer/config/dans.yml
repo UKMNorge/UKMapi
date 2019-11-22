@@ -34,11 +34,8 @@ tekst:
     placeholder: Eks samba, ballett, moderne...
   artistnavn:
     alene:
-      navn: Artistnavn / dansegruppe
+      navn: Artistnavn / dansegruppe / crew
       placeholder: Eks. Danse-%fornavn, %fornavn %etternavn, %etternavn dance crew
     sammen:
-      navn: Dansegruppe / artistnavn / crew
-      placeholder: Eks. Superdanserne, We Dance, Folkedanserne...
-    kontakt:
       navn: Dansegruppe / artistnavn / crew
       placeholder: Eks. Superdanserne, We Dance, Folkedanserne...

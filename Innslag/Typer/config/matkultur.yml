@@ -28,17 +28,14 @@ tekst:
     entall: tittel/navn på det som skal fremføres
     flertall: titler/navn på det som skal fremføres
     bestemt: tittelen/navnet på det som skal fremføres
-    placeholder: Eks. Stacking 1-2-3, BMX-cycle, Banankake-kasting osv..
+    placeholder: Eks. Banankake-muffins, pannekake-mix osv..
   sjanger:
     navn: sjanger
     placeholder: Eks. Baking
   artistnavn:
     alene:
-      navn: Navn
-      placeholder: Eks. Kokke-Kari
+      navn: Navn / gruppenavn
+      placeholder: Eks. Kokke-%fornavn, Kokkegjengen
     sammen:
       navn: Gruppenavn
       placeholder: Eks. Kokkegjengen
-    kontakt:
-      navn: Artistnavn / Gruppenavn
-      placeholder: Eks. Kokke-Kari, Kokkegjengen

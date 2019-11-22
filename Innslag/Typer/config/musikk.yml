@@ -34,11 +34,8 @@ tekst:
     placeholder: Eks hardrock, visesang...
   artistnavn:
     alene:
-      navn: Artistnavn / Gruppenavn
+      navn: Artistnavn / gruppenavn
       placeholder: Eks. Superbandet, %fornavn %etternavn, %etternavn-band...
     sammen:
-      navn: Gruppenavn / Artistnavn
-      placeholder: Eks. Superbandet, %fornavn and the others...
-    kontakt:
-      navn: Gruppenavn / Artistnavn
+      navn: Gruppenavn / artistnavn
       placeholder: Eks. Superbandet, %fornavn and the others...

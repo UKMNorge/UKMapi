@@ -19,9 +19,5 @@ har:
 ## Denne må være her, selv om den ikke brukes...
 tekst:
   artistnavn:
-    alene:
-      navn: Navn / GamerTag
-      placeholder: Eks. %fornavn, Sneezy %etternavn, NotTfue
-    kontakt:
-      navn: Navn / GamerTag
-      placeholder: Eks. %fornavn, Sneezy %etternavn, NotTfue
+    navn: Navn / GamerTag
+    placeholder: Eks. %fornavn, Sneezy %etternavn, NotTfue
