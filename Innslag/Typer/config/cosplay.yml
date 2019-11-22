@@ -21,12 +21,12 @@ tekst:
   artistnavn:
     alene:
       navn: Hva heter karakteren(e) eller serien den kommer fra?
-      placeholder: Eks. "Belle"
+      placeholder: Eks. "Sailor Moon", "Spiderman"
     sammen:
       navn: Hva heter karakteren(e) eller serien den kommer fra?
-      placeholder: Eks. "Belle", "Skjønnheten og Udyret", "Totoro", "Baloo & Mowgli" 
+      placeholder: Eks. "Prinsesse Bubblegum", "Spiderman", "Sailor Moon" 
   rolle:
     navn: Hvilken karakter spiller denne personen?
-    placeholder: F.eks "Belle", "Mowgli"
+    placeholder: F.eks "Sailor Moon", "Prinsesse Bubblegum"
     hjelp: " " 
     ukjent: Ukjent rolle
