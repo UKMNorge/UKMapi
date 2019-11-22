@@ -1,7 +1,7 @@
 ## For påmeldinger av et lag til turnering
 id: dataspillgruppe
 numeric_id: 21
-navn: Dataspill (Lag)
+navn: Dataspill
 type: gruppe
 kategori: vise
 frist: 1

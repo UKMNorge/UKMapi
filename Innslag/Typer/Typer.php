@@ -214,7 +214,7 @@ class Typer implements \Iterator
                 'scene',
                 'teater',
                 'utstilling',
-                'dataspill',
+                #'dataspill',
                 'dataspillgruppe',
                 'cosplay'
             ];
