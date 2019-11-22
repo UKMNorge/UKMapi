@@ -254,7 +254,9 @@ class Kommune {
         }
         $string = '';
         foreach( $this->getTidligere() as $tidligere ) {
-            if( $tidligere->getNavn() != $this->getNavn() ) {
+            if( sizeof( $this->getTidligere() ) == 1 && $tidligere->getNavn() != $this->getNavn() ) {
+                $string .= $tidligere->getNavn() .', ';
+            } else {
                 $string .= $tidligere->getNavn() .', ';
             }
         }
@@ -282,10 +284,20 @@ class Kommune {
 
         while( $row = Query::fetch( $res ) ) {
             $tidligere = new Kommune( $row );
+
+            $navn_for = strtolower( $tidligere->getNavn() );
+            $navn_na = strtolower( $this->getNavn() );
+
+            if( Query::numRows( $res ) > 1 ) {
+                $this->tidligere[] = $tidligere;
+            }
             // Hvis kommunen hadde samme navn før og nå, så er det
             // snakk om en teknisk flytting på grunn av nye fylke-
             // og kommunenumre.
-            if( $tidligere->getNavn() != $this->getNavn() ) {
+            //
+            // En mer brukervennlig sjekk er om dagens navn også inneholder det forrige navnet,
+            // og i tilfelle anse det som samme sak.
+            elseif( strpos( $navn_na, $navn_for ) === false ) {
                 $this->tidligere[] = $tidligere;
             }
         }
