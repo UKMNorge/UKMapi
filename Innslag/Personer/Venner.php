@@ -44,11 +44,11 @@ class Venner {
 
         $res = $sql->run();
 		while( $rad = Query::fetch( $res ) ) {
-			$friends[] = new Person($rad);
+			$friends[ $rad['p_id'] ] = new Person($rad);
         }
         // Også legg til seg selv, da delta filtrerer ut 
         // alle som er med i innslaget. 
-        $friends[] = new Person($p_id); 
+        $friends[ $p_id ] = new Person($p_id); 
 
 		return $friends;
     }
