@@ -4,7 +4,7 @@ numeric_id: 20
 navn: Dataspill
 type: person
 kategori: vise
-frist: 2
+frist: 1
 har:
   beskrivelse: false
   varighet: false

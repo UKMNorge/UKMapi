@@ -4,7 +4,7 @@ numeric_id: 21
 navn: Dataspill (Lag)
 type: gruppe
 kategori: vise
-frist: 2
+frist: 1
 har:
   # Dersom minst èn av disse (unntatt media) er true, må vi ha en oversettelsesfil i Delta!
   beskrivelse: true
