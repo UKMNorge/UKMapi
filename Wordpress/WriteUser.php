@@ -147,12 +147,6 @@ class WriteUser
                 $navn
             )
         );
-        $epost->leggTilBlindkopi(
-            Mottaker::fraEpost(
-                'marius@ukm.no',
-                'Marius Mandal'
-            )
-        );
 
         return $epost->send();
     }
@@ -185,13 +179,7 @@ class WriteUser
                 $navn
             )
         );
-        $epost->leggTilBlindkopi(
-            Mottaker::fraEpost(
-                'marius@ukm.no',
-                'Marius Mandal'
-            )
-        );
-
+        
         return $epost->send();
     }
 }

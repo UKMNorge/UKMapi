@@ -1,0 +1,23 @@
+## For påmeldinger til LAN eller tilsvarende!
+id: dataspill
+numeric_id: 20
+navn: Dataspill
+type: person
+kategori: vise
+frist: 1
+har:
+  beskrivelse: false
+  varighet: false
+  sjanger: false
+  tekniske_behov: false
+  titler: false
+  funksjon: false
+  media:
+    filmer: false
+    bilder: true
+
+## Denne må være her, selv om den ikke brukes...
+tekst:
+  artistnavn:
+    navn: Navn / GamerTag
+    placeholder: Eks. %fornavn, Sneezy %etternavn, NotTfue

@@ -1,0 +1,41 @@
+id: litteratur
+numeric_id: 1
+navn: Litteratur
+type: gruppe
+kategori: vise
+frist: 1
+har:
+  beskrivelse: true
+  varighet: true
+  sjanger: true
+  tekniske_behov: true
+  titler: true
+  funksjon: true
+  media:
+    filmer: true
+    bilder: true
+titler:
+  tabell: smartukm_titles_scene
+
+tekst:
+  rolle:
+    navn: Hva har %person bidratt med til verket / gjør i fremførelsen?
+    placeholder: F.eks oppleser, forfatter kapittel 1, korrekturleser...
+    hjelp: " "
+    ukjent: Ukjent rolle
+  titler:
+    pronomen: en / et
+    entall: tekst / verk
+    flertall: tekster / verk
+    bestemt: tekstene / verket
+    placeholder: Eks. Hobbiten, Enders Game, Paper Towns osv...
+  sjanger:
+    navn: Sjanger
+    placeholder: Eks. dikt, novellesamling, manus osv...
+  artistnavn:
+    alene:
+        navn: Forfatter / navn på forfatterguppe
+        placeholder: Eks. Forfatter-%fornavn, %fornavn %etternavn...
+    sammen:
+      navn: Navn på forfattergruppe / forfatter
+      placeholder: Eks. Litteraturklubben, Kreative Skribenter fra Hamar...

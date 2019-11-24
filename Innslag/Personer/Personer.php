@@ -7,7 +7,7 @@ use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Collection;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Innslag\Context\Context;
-use UKMNorge\Innslag\Type;
+use UKMNorge\Innslag\Typer\Type;
 
 require_once('UKM/Autoloader.php');
 

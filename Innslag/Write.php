@@ -17,6 +17,8 @@ use UKMNorge\Geografi\Kommune;
 use UKMNorge\Innslag\Context\Innslag as InnslagContext;
 use UKMNorge\Innslag\Personer\Person;
 use UKMNorge\Innslag\Personer\Write as WritePerson;
+use UKMNorge\Innslag\Typer\Typer;
+use UKMNorge\Innslag\Typer\Type;
 use UKMNorge\Log\Logger;
 use UKMNorge\Samtykke\Person as PersonSamtykke;
 
@@ -541,12 +543,6 @@ class Write {
 			);
 		}
 
-		if( !in_array($type->getKey(), array('scene', 'musikk', 'dans', 'teater', 'litteratur', 'film', 'video', 'utstilling', 'konferansier', 'nettredaksjon', 'arrangor','ressurs') ) ) {
-			throw new Exception(
-				"Kan ikke opprette ".$type->getKey()."-innslag.",
-				505007
-			);
-		}
 	}
     
     /**

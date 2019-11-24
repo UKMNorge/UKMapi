@@ -4,7 +4,7 @@ namespace UKMNorge\Innslag\Mangler\Mangel;
 
 use UKMNorge\Innslag\Innslag;
 use UKMNorge\Innslag\Mangler\Mangel;
-use UKMNorge\Innslag\Type as InnslagType;
+use UKMNorge\Innslag\Typer\Type as InnslagType;
 use UKMNorge\Innslag\Titler\Tittel as InnslagTittel;
 use UKMNorge\Innslag\Mangler\Mangler;
 

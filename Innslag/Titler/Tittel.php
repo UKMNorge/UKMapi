@@ -7,7 +7,7 @@ use UKMNorge\Tid;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Arrangement\Write as WriteArrangement;
 use UKMNorge\Database\SQL\Query;
-use UKMNorge\Innslag\Type;
+use UKMNorge\Innslag\Typer\Type;
 
 require_once('UKM/Autoloader.php');
 
@@ -49,7 +49,7 @@ abstract class Tittel
         }
         // Ny standard (2020) for påmelding og videresending
         if( array_key_exists('arrangementer', $row)) {
-            $pameldt_til = array_merge( explode(',', $row['arrangementer'] ) );
+            $pameldt_til = array_merge( $pameldt_til, explode(',', $row['arrangementer'] ) );
         }
         $this->pameldt_til = array_unique( $pameldt_til );
         $this->populate($row);
@@ -251,6 +251,20 @@ abstract class Tittel
     }
 
     /**
+     * Hent hvilke andre arrangement-IDer personen er påmeldt
+     *
+     * @param Int $arrangement_id
+     * @return Array<Int>
+     */
+    public function getPameldtAndre( Int $arrangement_id ) {
+        $pameldt_til = $this->getPameldt();
+        if(($key = array_search($arrangement_id, $pameldt_til)) !== false ) {
+            unset( $pameldt_til[$key] );
+        }
+        return $pameldt_til;
+    }
+
+    /**
      * Er påmeldt gitt mønstring?
      *
      * @param Int $arrangement_id
@@ -259,6 +273,16 @@ abstract class Tittel
     public function erPameldt(Int $arrangement_id)
     {
         return in_array($arrangement_id, $this->getPameldt());
+    }
+
+    /**
+     * Er påmeldt andre enn gitt arrangement?
+     *
+     * @param Int $arrangement_id
+     * @return Bool
+     */
+    public function erPameldtAndre( Int $arrangement_id ) {
+        return sizeof($this->getPameldtAndre( $arrangement_id )) > 0;
     }
 
     /**

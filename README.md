@@ -31,6 +31,8 @@ prefix | objekt | les | skriv
 20 | Hendelse/forestilling | 120yyy | 520yyy
 21 | HendelseCollection | 121yyy | 521yyy
 30 | Innslag/Type | 301yyy | - 
+31 | Media/Artikkel | 311yyy | -
+32 | Media/Bilde | 321yyy | -
 40 | Fil/Excel | 401yyy | - 
 40 | Kommunikasjon/Epost | 402yyy | - 
 50 | Arrangement/Arrangementer | 150yyy | -
@@ -67,3 +69,17 @@ Navn | Returnerer | Beskrivelse
 **fylke** | Int | Viser hvilket fylke denne bloggen faller inn under. <br />Både kommuner og fylker har denne variabelen satt
 **kommune** | Int | Viser hvilken kommune/bydel denne bloggen omhandler. <br />Brukes kun sammen med `site_type:kommune`
 **~~kommuner~~** | String csv Int | Hvis dette er et lokal-arrangement (i database og mange sammenhenger kalt kommune-arrangement) angir denne variabelen hvilke kommuner, eller hvilken kommune, som er med i arrangementet. <br /> Oppdateres arrangementet, oppdateres denne. Bruk heller $arrangement->getKommuner()
+
+# Ny innslagstype
+For å opprette en ny innslagstype som fungerer både i admin og i Delta, må du:
+- Opprette .yml-filen som definerer innslagstypen i `Innslag\Typer\config\`
+- Legge til en case i `Innslag\Typer\Typer.php` L#388, `_translate_id_to_key()`
+- Legge til typen i `Typer::getAllTyper()` L#201.
+- Og legge til en relasjon mellom mønstringen og der det skal åpnes for denne typen (Update UKMmonstring, kanskje?)
+- Dersom innslagstypen har èn eller flere av disse, må en egen translate-fil finnes i Delta.
+	- beskrivelse
+	- varighet
+	- sjanger
+	- tekniske_behov
+	- titler
+	- funksjon

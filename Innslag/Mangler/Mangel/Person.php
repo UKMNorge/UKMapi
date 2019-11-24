@@ -6,8 +6,8 @@ use UKMNorge\Innslag\Innslag;
 use UKMNorge\Innslag\Mangler\Mangel;
 use UKMNorge\Innslag\Mangler\Mangler;
 use UKMNorge\Innslag\Personer\Person as InnslagPerson;
-use UKMNorge\Innslag\Type;
-use UKMNorge\Innslag\Typer;
+use UKMNorge\Innslag\Typer\Type;
+use UKMNorge\Innslag\Typer\Typer;
 
 class Person
 {
@@ -61,7 +61,7 @@ class Person
             );
         }
 
-        if ($type !== null && $type->getKey() == 'konferansier') {
+        if ($type !== null && !$type->harFunksjoner()) {
             $evaluerRolle = false;
         } else {
             $evaluerRolle = true;

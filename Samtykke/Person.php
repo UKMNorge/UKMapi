@@ -10,7 +10,7 @@ use UKMNorge\Database\SQL\Query;
 use UKMNorge\Database\SQL\Update;
 use UKMNorge\Innslag\Context\Innslag as InnslagContext;
 use UKMNorge\Innslag\Innslag;
-use UKMNorge\RFID\Person as InnslagPerson;
+use UKMNorge\Innslag\Personer\Person as InnslagPerson;
 
 require_once('UKM/Autoloader.php');
 
@@ -62,7 +62,7 @@ class Person {
 	}
 	
 	public static function getById( $samtykke_id ) {
-		$sql = new SQL("
+		$sql = new Query("
 			SELECT `p_id`,`year`
 			FROM `samtykke_deltaker`
 			WHERE `id` = '#samtykke'",
@@ -258,8 +258,7 @@ class Person {
 		$sql = new Query("
 			SELECT *
 			FROM `samtykke_deltaker`
-			WHERE `p_id` = '#p_id'
-			AND `year` = '#season'",
+			WHERE `p_id` = '#p_id'",
 			[
 				'p_id' => $person->getId(),
 				'season' => $year,

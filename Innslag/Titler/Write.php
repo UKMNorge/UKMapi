@@ -54,6 +54,9 @@ class Write
             case 'smartukm_titles_exhibition':
                 $action = 514;
                 break;
+            case 'smartukm_titles_other':
+                $action = 518;
+                break;
             default:
                 // TODO
                 throw new Exception(
@@ -175,6 +178,11 @@ class Write
                     'Format'                => ['t_v_format', 513],
                 ];
                 break;
+            case 'Matkultur':
+                $properties = [
+                    'Tittel'                => ['t_o_function', 519]
+                ];
+            break;
             default:
                 throw new Exception(
                     'Kunne ikke lagre tittel. Ukjent database-tabell ' . str_replace('UKMNorge\Innslag\Titler\\', '', get_class($tittel_save)),
@@ -238,12 +246,7 @@ class Write
         // Hent innslaget fra gitt mønstring
         $innslag_db = $monstring->getInnslag()->get($tittel_save->getContext()->getInnslag()->getId(), true);
 
-        // En tittel vil alltid være lagt til lokalt
-
-        // Videresend tittelen hvis ikke lokalmønstring
-        if ($monstring->getType() != 'kommune') {
-            $res = Write::_leggTilVideresend($tittel_save);
-        }
+        $res = Write::_leggTilVideresend($tittel_save);
 
         if ($res) {
             return $tittel_save;
@@ -272,10 +275,10 @@ class Write
         // Opprett mønstringen tittelen kommer fra
         $monstring = new Arrangement($tittel_save->getContext()->getMonstring()->getId());
 
-        if ($monstring->getType() == 'kommune') {
-            $res = Write::_fjernLokalt($tittel_save);
-        } else {
+        if( $tittel_save->erPameldtAndre( $monstring->getId() ) ) {
             $res = Write::_fjernVideresend($tittel_save);
+        } else {
+            $res = Write::_fjernLokalt($tittel_save);
         }
 
         if ($res) {
@@ -305,10 +308,14 @@ class Write
      **/
     private static function _leggTilVideresend($tittel_save)
     {
-        throw new Exception(
-            'Kan ikke videresende. Relasjon ukm_rel_arrangement_tittel ikke implementert. Kontakt UKM Norge',
-            508008
-        );
+        // Lagre nymotens relasjon (post2019)
+        $insert = new Insert('ukm_rel_arrangement_tittel');
+        $insert->add('innslag_id', $tittel_save->getContext()->getInnslag()->getId());
+        $insert->add('tittel_id', $tittel_save->getId());
+        $insert->add('arrangement_id', $tittel_save->getContext()->getMonstring()->getID());
+        $insert_res = $insert->run();
+
+        // Sjekk opp de gamle relasjonene også da - for moro skyld
         $test_relasjon = new Query(
             "SELECT * FROM `smartukm_fylkestep`
 				WHERE `pl_id` = '#pl_id'
@@ -340,6 +347,10 @@ class Write
             if ($res) {
                 return true;
             }
+        }
+
+        if( $insert_res ) {
+            return true;
         }
 
         throw new Exception(
@@ -403,10 +414,21 @@ class Write
      */
     public static function _fjernVideresend($tittel_save)
     {
-        throw new Exception(
-            'Kan ikke fjerne videresending. Relasjon ukm_rel_arrangement_tittel ikke implementert. Kontakt UKM Norge',
-            508016
+        $log_msg = $tittel_save->getId() . ': ' . $tittel_save->getTittel() . ' => PL: ' . $tittel_save->getContext()->getMonstring()->getId();
+        Logger::log(323, $tittel_save->getContext()->getInnslag()->getId(), $log_msg);
+
+        // Fjerner relasjonen mellom arrangementet og tittelen
+        $delete_rel = new Delete(
+            'ukm_rel_arrangement_tittel',
+            [
+                'innslag_id' => $tittel_save->getContext()->getInnslag()->getId(),
+                'tittel_id' => $tittel_save->getId(),
+                'arrangement_id' => $tittel_save->getContext()->getMonstring()->getID()
+            ]
         );
+        $delete_rel->run();
+
+        // Prøver å slette gamle relasjoner (i tilfelle de finnes)
         $videresend_tittel = new Delete(
             'smartukm_fylkestep',
             [
@@ -415,15 +437,12 @@ class Write
                 't_id'         => $tittel_save->getId()
             ]
         );
-        $log_msg = $tittel_save->getId() . ': ' . $tittel_save->getTittel() . ' => PL: ' . $tittel_save->getContext()->getMonstring()->getId();
-        Logger::log(323, $tittel_save->getContext()->getInnslag()->getId(), $log_msg);
 
         // Slett tittelen
         $res = $videresend_tittel->run();
 
         // Hvis slettingen gikk bra
         if ($res) {
-
             /**
              * Fjerning av siste tittel vil avmelde innslaget
              * Skulle dette ikke være ønsket effekt, må det her settes inn en ny fylkesstep-rad
@@ -442,27 +461,9 @@ class Write
                 ]
             );
             $remaining_fylkestep = $test_remaining_fylkestep->run('field', 'num');
-
-            /**
-             * HVIS ingen relasjoner gjenstår etter tittelen er fjernet, avmeld innslaget (manuelt)
-             * Kan ikke kalle write_innslag::fjern() da det blir circular loop
-             **/
-            if ($remaining_fylkestep == 0) {
-                // Slett relasjonen manuelt
-                $SQLdel = new Delete(
-                    'smartukm_rel_pl_b',
-                    [
-                        'b_id'         => $tittel_save->getContext()->getInnslag()->getId(),
-                        'pl_id'     => $tittel_save->getContext()->getMonstring()->getId(),
-                        'season'     => $tittel_save->getContext()->getMonstring()->getSesong()
-                    ]
-                );
-                Logger::log(311, $tittel_save->getContext()->getInnslag()->getId(), $tittel_save->getContext()->getInnslag()->getId());
-                $res2 = $SQLdel->run();
-            }
         }
 
-        if ($res) {
+        if ($delete_rel) {
             return true;
         }
 

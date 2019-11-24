@@ -6,7 +6,8 @@ use Exception;
 use UKMNorge\Collection;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Innslag\Context\Context;
-use UKMNorge\Innslag\Type;
+use UKMNorge\Innslag\Typer\Type;
+use UKMNorge\Innslag\Typer\Typer;
 use UKMNorge\Tid;
 
 require_once('UKM/Autoloader.php');
@@ -241,7 +242,6 @@ class Titler extends Collection
                 LEFT JOIN `ukm_rel_arrangement_tittel` AS `relasjon`
                     ON(`relasjon`.`innslag_id` = `tittel`.`b_id` AND `relasjon`.`tittel_id` = `tittel`.`t_id`)
                 WHERE `tittel`.`b_id` = '#innslag'
-                AND `tittel`.`t_id` > 0
                 GROUP BY `tittel`.`t_id`
                 ORDER BY `tittel`.`#tittelfelt`",
                 [
@@ -288,13 +288,15 @@ class Titler extends Collection
         }
         
         $res = $SQL->run();
+        #echo $SQL->debug();
 
         if ($res && $this->getContext()->getMonstring()->getSesong() > 2019) {
+            $innslag_type = Typer::getByKey( $this->getContext()->getInnslag()->getType() );
             while ($row = Query::fetch($res)) {
                 $tittel = new $tittel_type($row);
                 $tittel->setContext($this->getContext());
                 $this->add($tittel);
-                if ($tittel->erPameldt($this->getContext()->getMonstring()->getId())) {
+                if ($tittel->erPameldt($this->getContext()->getMonstring()->getId()) && $innslag_type->harTid()) {
                     $this->varighet += $tittel->getVarighet()->getSekunder();
                 }
             }

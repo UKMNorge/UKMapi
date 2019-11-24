@@ -1,0 +1,33 @@
+id: arrangor
+numeric_id: 8
+navn: Arrangør
+type: person
+kategori: jobbe
+frist: 2
+har:
+  beskrivelse: true
+  varighet: false
+  sjanger: false
+  tekniske_behov: false
+  titler: false
+  funksjon: true
+  media:
+    filmer: true
+    bilder: true
+funksjoner:
+  - lyd
+  - lys
+  - artistvert
+  - scenearbeider
+  - info
+  - koordinator
+tekst:
+  rolle:
+    navn: Hva vil du aller helst jobbe med?
+  funksjon: 
+    lyd: Lyd
+    lys: Lys
+    artistvert: Artistvert
+    scenearbeider: Scenearbeider
+    info: Info / sekretariat
+    koordinator: Koordinator / produsent

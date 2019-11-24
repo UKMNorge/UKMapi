@@ -6,6 +6,7 @@ use Exception;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Geografi\Fylke;
 use UKMNorge\Geografi\Kommune;
+use UKMNorge\Innslag\Typer\Type;
 use UKMNorge\Innslag\Context\Context;
 use UKMNorge\Innslag\Context\Innslag as InnslagContext;
 use UKMNorge\Innslag\Context\Monstring;
@@ -280,11 +281,11 @@ class Samling {
 	/**
 	 * Filtrer gitte innslag for gitt type
 	 *
-	 * @param array [type]
-	 * @param array [innslag_v2]
-	 * @return array [innslag_v2]
+	 * @param Type [type]
+	 * @param Array [innslag_v2]
+	 * @return Array [innslag_v2]
 	**/
-	public static function filterByType( $innslag_type, $innslag_array ) {
+	public static function filterByType( Type $innslag_type, Array $innslag_array ) {
 		if( !Type::validateClass($innslag_type ) ) {
 			throw new Exception('innslag_collection::getAllByType() krever objekt av klassen innslag_type. Gitt '. get_class( $innslag_type ) );
 		}
@@ -480,7 +481,7 @@ class Samling {
                 // som smartukm_fylkestep/smartukm_rel_pl_b, men nå rendyrket i egen tabell for å sikre at ikke APIv1
                 // tuller til relasjoner i ny sesong. Nå brukes relasjonstabellen for ALLE arrangementer,
                 // uavhengig om innslaget er videresendt eller ikke.
-                if( true || $this->getContext()->getMonstring()->getSesong() > 2019 ) {
+                if( $this->getContext()->getMonstring()->getSesong() > 2019 ) {
                     return new Query(
                         Innslag::getLoadQuery("
                             `arrangement`.`fra_arrangement_navn` AS `fra_navn`,
