@@ -7,6 +7,7 @@ use DateTime;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Geografi\Kommune;
 use UKMNorge\Innslag\Context\Context;
+use UKMNorge\Innslag\Typer\Typer;
 use UKMNorge\Sensitivt\Person as PersonSensitivt;
 
 require_once('UKM/Autoloader.php');
@@ -695,7 +696,20 @@ class Person
             $this->setRolle($row['instrument']);
         }
         if (array_key_exists('instrument_object', $row)) {
-            $this->setRolleObject(json_decode($row['instrument_object']));
+            $roller = json_decode($row['instrument_object']);
+            // Prøv å hente ut roller som id => tekst
+            // da dette gir bedre verdi for getRolle() / getInstrument()
+            if( is_array( $roller ) ) {
+                try {
+                    $innslag_type = Typer::getById( $row['bt_id'] );
+                    $roller = $innslag_type->getValgteFunksjonerSomKeyVal( $roller );
+                } catch( Exception $e ) {
+                    // Ignorer feil - da turer vi bare på med opprinnelig verdi
+                }
+                $this->setRolle($roller);
+            } else {
+                $this->setRolleObject($roller);
+            }
         }
 
         $pameldt_til = [];
