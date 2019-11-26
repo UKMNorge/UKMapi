@@ -365,6 +365,20 @@ class Type
     }
 
     /**
+     * Hent et key-val objekt med valgte funksjoner og riktig tekst
+     *
+     * @param Array $valgte_funksjoner
+     * @return Array $valgte_funksjoner
+     */
+    public function getValgteFunksjonerSomKeyVal( Array $valgte_funksjoner ) {
+        $return = [];
+        foreach( $valgte_funksjoner as $key ) {
+            $return[$key] = $this->getTekst('funksjon.'.$key);
+        }
+        return $return;
+    }
+
+    /**
      * Konverter tekst-array to key => val
      *
      * @param String $key_base
