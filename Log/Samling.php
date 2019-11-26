@@ -16,7 +16,7 @@ class Samling extends Collection
         $this->id = $id;
     }
 
-    private function _load()
+    public function _load()
     {
         switch( $this->type ) {
             case 'arrangement':
@@ -48,9 +48,5 @@ class Samling extends Collection
         while( $row = Query::fetch( $res ) ) {
             $this->add( new Event( $row ) );
         }
-    }
-
-    public function getId() {
-        return $this->id;
     }
 }
