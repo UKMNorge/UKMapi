@@ -20,7 +20,7 @@ class Personer {
 
         $mangler = [];
         foreach( $innslag->getPersoner()->getAll() as $person ) {
-            $testResults = Person::evaluer( $person );
+            $testResults = Person::evaluer( $person, $innslag->getType() );
             if( is_array($testResults) && sizeof($testResults) > 0 ) {
                 foreach( $testResults as $testResult ) {
                     if( is_object($testResult) ) {

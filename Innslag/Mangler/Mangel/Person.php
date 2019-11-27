@@ -16,9 +16,9 @@ class Person
         return static::_evaluerPerson($person, true);
     }
 
-    public static function evaluer(InnslagPerson $person)
+    public static function evaluer(InnslagPerson $person, Type $innslag_type)
     {
-        return static::_evaluerPerson($person);
+        return static::_evaluerPerson($person, false, $innslag_type);
     }
 
     public static function evaluerKonferansier(InnslagPerson $person)
@@ -61,13 +61,9 @@ class Person
             );
         }
 
-        if ($type !== null && !$type->harFunksjoner()) {
-            $evaluerRolle = false;
-        } else {
-            $evaluerRolle = true;
-        }
-        // HVIS VANLIG DELTAKER (IKKE KONTAKTPERSON)
-        if (!$evaluerRolle) {
+        // HVIS VANLIG DELTAKER (OG IKKE KONTAKTPERSON)
+        // Fordi kontaktpersonen evalueres to ganger
+        if (!$kontaktperson && $type->harFunksjoner()) {
             if (empty($person->getRolle())) {
                 $mangler[] = new Mangel(
                     'person.rolle',
