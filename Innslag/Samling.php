@@ -229,10 +229,10 @@ class Samling {
 	/**
 	 * Hent alle innslag av gitt type
 	 *
-	 * @param innslag_type $innslag_type
+	 * @param Type $innslag_type
 	 * @return array [innslag_v2]
 	**/
-	public function getAllByType( $innslag_type ) {
+	public function getAllByType( Type $innslag_type ) {
 		return self::filterByType( $innslag_type, $this->getAll() );
 	}
 	
@@ -492,8 +492,7 @@ class Samling {
                         WHERE `arrangement`.`arrangement_id` = '#arrangement'
                             AND `b_status` ". $operand ." '8'
                         GROUP BY `smartukm_band`.`b_id`
-                        ORDER BY `bt_id` ASC,
-                            `smartukm_band`.`b_name` ASC
+                        ORDER BY `smartukm_band`.`b_name` ASC
                         ",
                         [
                             'arrangement' => $this->getContext()->getMonstring()->getId()
