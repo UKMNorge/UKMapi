@@ -90,9 +90,11 @@ abstract class Modul {
             );
 
 			// Håndter lagring før visning
-			if( $_SERVER['REQUEST_METHOD'] == 'POST' && isset( $_GET['save'] ) ) {
-				static::setupLogger();
-				static::save( $_GET['save'] );
+			if( $_SERVER['REQUEST_METHOD'] == 'POST') {
+                static::setupLogger();
+                if( isset( $_GET['save'] ) ) {
+                    static::save( $_GET['save'] );
+                }
 			}
 			
 			
