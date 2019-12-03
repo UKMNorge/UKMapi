@@ -69,21 +69,7 @@ class Hendelser {
         if ( Hendelse::validateClass($id)) {
             $id = $id->getId();
         }
-        foreach ($this->getAll() as $item) {
-            if ($item->getId() == $id) {
-                return $item;
-            }
-        }
-
-        // Ingen grunn til å ikke la folk finne forestillingen de leter etter
-        // når de har ID (så fremt den tilhører mønstringen da)
-        foreach ($this->getAllInkludertSkjulte() as $item) {
-            if ($item->getId() == $id) {
-                return $item;
-            }
-        }
-
-        foreach ($this->getAllInterne() as $item) {
+        foreach ($this->getAbsoluteAll() as $item) {
             if ($item->getId() == $id) {
                 return $item;
             }

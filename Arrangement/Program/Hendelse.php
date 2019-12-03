@@ -4,6 +4,7 @@ namespace UKMNorge\Arrangement\Program;
 
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Innslag\Samling;
+use UKMNorge\Database\SQL\Query;
 
 use Exception;
 use DateTime, DateInterval;
@@ -34,30 +35,29 @@ class Hendelse
 
     var $collection_innslag = null;
 
-    public function __construct($c_id, $tekniskprove = false)
-    {
-        if (is_array($c_id)) {
-            $c_id = $c_id['c_id'];
+    public function __construct($data){
+
+        if( is_numeric( $data ) ) {
+            $data = $this->_loadFromId( $data );
         }
 
-        parent::__construct($c_id, $tekniskprove);
-        $this->setId($this->info['c_id']);
-        $this->setNavn($this->info['c_name']);
-        $this->setStart($this->info['c_start']);
-        $this->setSted($this->info['c_place']);
-        $this->setMonstringId($this->info['pl_id']);
-        $this->setSynligRammeprogram('true' == $this->info['c_visible_program']);
-        $this->setSynligDetaljprogram('true' == $this->info['c_visible_detail']);
-        $this->setSynligOppmotetid('true' == $this->info['c_visible_oppmote']);
-        $this->setOppmoteFor($this->info['c_before']);
-        $this->setOppmoteDelay($this->info['c_delay']);
-        $this->setType($this->info['c_type']);
-        $this->setTypePostId($this->info['c_type_post_id']);
-        $this->setTypeCategoryId($this->info['c_type_category_id']);
-        $this->setIntern('true' == $this->info['c_intern']);
-        $this->setBeskrivelse($this->info['c_beskrivelse']);
-        $this->setFarge($this->info['c_color']);
-        $this->setFremhevet('true' == $this->info['c_fremhevet']);
+        $this->setId($data['c_id']);
+        $this->setNavn($data['c_name']);
+        $this->setStart($data['c_start']);
+        $this->setSted($data['c_place']);
+        $this->setMonstringId($data['pl_id']);
+        $this->setSynligRammeprogram('true' == $data['c_visible_program']);
+        $this->setSynligDetaljprogram('true' == $data['c_visible_detail']);
+        $this->setSynligOppmotetid('true' == $data['c_visible_oppmote']);
+        $this->setOppmoteFor($data['c_before']);
+        $this->setOppmoteDelay($data['c_delay']);
+        $this->setType($data['c_type']);
+        $this->setTypePostId($data['c_type_post_id']);
+        $this->setTypeCategoryId($data['c_type_category_id']);
+        $this->setIntern('true' == $data['c_intern']);
+        $this->setBeskrivelse($data['c_beskrivelse']);
+        $this->setFarge($data['c_color']);
+        $this->setFremhevet('true' == $data['c_fremhevet']);
     }
 
     public function erFremhevet()
@@ -146,12 +146,6 @@ class Hendelse
     public function getContext()
     {
         return $this->context;
-    }
-
-    public function getAll()
-    {
-        // TODO: FIX THIS
-        return $this->innslag();
     }
 
     /**
@@ -289,7 +283,7 @@ class Hendelse
     public function setStart($unixtime)
     {
         // Hvis gitt "unixtime" egentlig er DateTime
-        if (!is_numeric($unixtime) && get_class($unixtime) == 'DateTime') {
+        if (!is_numeric($unixtime) && !is_null($unixtime) && get_class($unixtime) == 'DateTime') {
             $this->start = $unixtime->getTimestamp();
             $this->start_datetime = $unixtime;
         }
@@ -318,9 +312,8 @@ class Hendelse
      **/
     public function getNummer($searchfor)
     {
-        // TODO: BRUK FUNKSJON SOM RETURNERER INNSLAGSOBJEKTER, IKKE GAMMEL FUNKSJON
-        foreach ($this->getAll() as $order => $innslag) {
-            if ($searchfor->getId() == $innslag['b_id']) {
+        foreach ($this->getInnslag()->getAll() as $order => $innslag) {
+            if ($searchfor->getId() == $innslag->getId()) {
                 return $order + 1;
             }
         }
@@ -472,5 +465,16 @@ class Hendelse
                 get_class($object),
                 ['UKMNorge\Arrangement\Program\Hendelse']
             );
+    }
+
+    private function _loadFromId(Int $id ) {
+        $query = new Query(
+            "SELECT * FROM `smartukm_concert`
+            WHERE `c_id` = '#id'",
+            [
+                'id' => $id
+            ]
+        );
+        return $query->getArray();
     }
 }
