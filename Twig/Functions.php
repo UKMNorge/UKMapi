@@ -6,14 +6,15 @@ require_once('UKM/Autoloader.php');
 require_once('lib/autoload.php');
 
 use Twig\Extension\AbstractExtension;
-use Twig_SimpleFunction;
+use Twig\TwigFunction;
+
 
 class Functions extends AbstractExtension
 {
     public function getFunctions()
     {
         return [
-            new Twig_SimpleFunction('GET', [$this, 'GET']),
+            new TwigFunction('GET', [$this, 'GET']),
         ];
     }
 

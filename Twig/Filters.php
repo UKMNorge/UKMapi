@@ -6,19 +6,19 @@ require_once('UKM/Autoloader.php');
 require_once('lib/autoload.php');
 
 use Twig\Extension\AbstractExtension;
-use Twig_SimpleFilter;
+use Twig\TwigFilter;
 
 class Filters extends AbstractExtension
 {
     public function getFilters()
     {
         return [
-            new Twig_SimpleFilter('dato', [$this, 'date']),
-            new Twig_SimpleFilter('filesize', [$this, 'filesize']),
-            new Twig_SimpleFilter('kroner', [$this, 'kroner']),
-            new Twig_SimpleFilter('varighet', [$this, 'tid']),
-            new Twig_SimpleFilter('strips', [$this, 'strips']),
-            new Twig_SimpleFilter('oneline', [$this, 'oneline']),
+            new TwigFilter('dato', [$this, 'date']),
+            new TwigFilter('filesize', [$this, 'filesize']),
+            new TwigFilter('kroner', [$this, 'kroner']),
+            new TwigFilter('varighet', [$this, 'tid']),
+            new TwigFilter('strips', [$this, 'strips']),
+            new TwigFilter('oneline', [$this, 'oneline']),
         ];
     }
 

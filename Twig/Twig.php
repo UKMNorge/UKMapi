@@ -2,7 +2,11 @@
 
 namespace UKMNorge\Twig;
 
-use Twig_Autoloader, Twig_Environment, Twig_Loader_Filesystem, Twig_Extension_Debug, Twig_SimpleFilter, Twig_SimpleFunction;
+use Twig\TwigFilter;
+use Twig\TwigFunction;
+use Twig\Loader\FilesystemLoader;
+use Twig\Environment;
+use Twig\Extension\DebugExtension;
 
 require_once('UKM/Autoloader.php');
 require_once('lib/autoload.php');
@@ -127,7 +131,6 @@ class Twig
      */
     public static function init()
     {
-        Twig_Autoloader::register();
     }
 
     /**
@@ -144,7 +147,7 @@ class Twig
 
         if (static::$debug) {
             static::setEnvironment('debug', true);
-            static::addExtension(new Twig_Extension_Debug());
+            static::addExtension(new DebugExtension());
         }
 
         if( !static::$didRender ) {
@@ -216,7 +219,7 @@ class Twig
      */
     public static function getLoader()
     {
-        return new Twig_Loader_Filesystem(self::getPaths());
+        return new FilesystemLoader(self::getPaths());
     }
 
     /**
