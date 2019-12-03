@@ -17,7 +17,7 @@ use UKMNorge\Arrangement\Skjema\Skjema;
 use UKMNorge\Google\StaticMap;
 use UKMNorge\Arrangement\Videresending\Videresending;
 use UKMNorge\Innslag\Context\Context;
-use UKMNorge\Meta\Collection;
+use UKMNorge\Meta\Collection as MetaCollection;
 use UKMNorge\Nettverk\Omrade;
 use UKMNorge\Geografi\Kommune;
 use UKMNorge\Geografi\Fylke;
@@ -768,6 +768,16 @@ class Arrangement
     }
 
     /**
+     * Etter oppretting av hendelser, kan det være hensiktsmessig 
+     * å nullstille Hendelser-collection
+     *
+     * @return void
+     */
+    public function resetProgram() {
+        $this->program = null;
+    }
+
+    /**
      * Hent program for gitt mønstring
      *
      * @return Hendelser $program
@@ -1430,7 +1440,7 @@ class Arrangement
     public function getMeta($key)
     {
         if (null == $this->meta) {
-            $this->meta = Collection::createByParentInfo(
+            $this->meta = MetaCollection::createByParentInfo(
                 'arrangement',
                 $this->getId()
             );
