@@ -17,6 +17,8 @@ class Twig
     static $environment = [];
     static $extensions = [];
     static $debug = false;
+    static $didRender = false;
+    static $twig = null;
 
     /**
      * Legg til en ny template-path
@@ -145,24 +147,36 @@ class Twig
             static::addExtension(new Twig_Extension_Debug());
         }
 
-        $twig = new Twig_Environment(
+        if( !static::$didRender ) {
+            static::_prepare();
+        }
+        static::$didRender = true;
+
+        return static::$twig->render($template, static::getData());
+    }
+
+    /**
+     * Forbered twig-variabel for render
+     *
+     * @return void
+     */
+    private function _prepare() {
+        static::$twig = new Environment(
             static::getLoader(),
             static::getEnvironmentData()
         );
 
         foreach (static::getFilters() as $name => $function) {
-            $filter = new Twig_SimpleFilter($name, $function);
-            $twig->addFilter($filter);
+            $filter = new TwigFilter($name, $function);
+            static::$twig->addFilter($filter);
         }
         foreach (static::getFunctions() as $name => $function) {
-            $function = new Twig_SimpleFunction($name, $function);
-            $twig->addFunction($function);
+            $function = new TwigFunction($name, $function);
+            static::$twig->addFunction($function);
         }
         foreach (static::getExtensions() as $extension) {
-            $twig->addExtension($extension);
+            static::$twig->addExtension($extension);
         }
-
-        return $twig->render($template, static::getData());
     }
 
     /**
