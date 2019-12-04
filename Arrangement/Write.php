@@ -10,7 +10,8 @@ use UKMNorge\Geografi\Kommune;
 use Exception;
 use DateTime;
 use UKMNorge\Arrangement\Kontaktperson\Kontaktperson;
-use UKMNorge\Arrangement\Program\Hendelse;
+use UKMNorge\Arrangement\Program\Write as WriteHendelse;
+use UKMNorge\Arrangement\Skjema\Write as UKMNorgeWrite;
 use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Database\SQL\Update;
@@ -58,33 +59,21 @@ class Write
             );
         }
 
-        switch ($type) {
-            case 'kommune':
-                if (!is_array($geografi)) {
+        if($type == 'kommune') {
+            if (!is_array($geografi)) {
+                throw new Exception(
+                    'Arrangement::create: Geografiobjekt må være array kommuner, ikke' . (is_object($geografi) ? get_class($geografi) : is_array($geografi) ? 'array' : is_integer($geografi) ? 'integer' : is_string($geografi) ? 'string' : 'ukjent datatype'),
+                    501005
+                );
+            }
+            foreach ($geografi as $kommune) {
+                if (!Kommune::validateClass($kommune)) {
                     throw new Exception(
-                        'Arrangement::create: Geografiobjekt må være array kommuner, ikke' . (is_object($geografi) ? get_class($geografi) : is_array($geografi) ? 'array' : is_integer($geografi) ? 'integer' : is_string($geografi) ? 'string' : 'ukjent datatype'),
-                        501005
+                        'Arrangement::create: Alle Geografi->kommuneobjekt må være av typen UKMApi::kommune',
+                        501006
                     );
                 }
-                foreach ($geografi as $kommune) {
-                    if (!Kommune::validateClass($kommune)) {
-                        throw new Exception(
-                            'Arrangement::create: Alle Geografi->kommuneobjekt må være av typen UKMApi::kommune',
-                            501006
-                        );
-                    }
-                }
-                break;
-            case 'fylke':
-                if (!Fylke::validateClass($geografi)) {
-                    throw new Exception(
-                        'Arrangement::create: Geografiobjekt må være av typen UKMApi::fylke',
-                        501007
-                    );
-                }
-                break;
-            case 'land':
-                break;
+            }
         }
 
         /**
