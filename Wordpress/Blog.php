@@ -14,7 +14,7 @@ class Blog
 
     /**
      * @TODO
-     * PORT: write_wp_blog::avlys, splitt, flytt, flippBlogger, moveBlog
+     * PORT: write_wp_blog:: splitt, flippBlogger, moveBlog
      */
 
     /**
@@ -675,6 +675,7 @@ class Blog
         ];
 
         foreach( $metas as $meta ) {
+            #echo 'delete '. $meta .' from '. $blog_id .'<br />';
             delete_blog_option( $blog_id, $meta );
         }
 
