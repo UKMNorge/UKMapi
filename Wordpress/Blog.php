@@ -988,6 +988,7 @@ class Blog
         // Hvis det er en kommune, som nå har bare ett arrangement, så skal dette på fronten
         if( $arrangement->getEierType() == 'kommune' ) {
             $count = 0;
+            $arrangement_som_skal_overta = false;
             foreach( $omrade->getArrangementer($sesong)->getAll() as $annet_arrangement ) {
                 if( $annet_arrangement->getId() != $arrangement->getId() ) {
                     $count++;
@@ -996,7 +997,7 @@ class Blog
                     }
                 }
             }
-            if( $count == 1 ) {
+            if( $count == 1 && $arrangement_som_skal_overta) {
                 // Deaktiver den gamle bloggen for arrangementet som overtar
                 static::deaktiver( 
                     static::getIdByPath(
