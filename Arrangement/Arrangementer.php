@@ -75,6 +75,7 @@ class Arrangementer
                     Arrangement::getLoadQry()
                         . "WHERE
                         `season` = '#season'
+                        AND `pl_deleted` = 'false'
                         AND (
                             (#fylke) IN (
                                 SELECT `smartukm_kommune`.`idfylke`
@@ -105,6 +106,7 @@ class Arrangementer
                         . "WHERE `pl_type` = 'kommune' 
                         AND `pl_owner_kommune` = '#omrade_id'
                         AND `season` = '#season'
+                        AND `pl_deleted` = 'false'
                         ",
                     [
                         'omrade_id' => $this->getOmradeId(),
@@ -118,6 +120,7 @@ class Arrangementer
                         . "WHERE `pl_type` = 'fylke'
                         AND `pl_owner_fylke` = '#omrade_id'
                         AND `season` = '#season'
+                        AND `pl_deleted` = 'false'
                         ",
                     [
                         'omrade_id' => $this->getOmradeId(),
@@ -143,7 +146,8 @@ class Arrangementer
                     Arrangement::getLoadQry()
                         . "WHERE `pl_type` = 'kommune' 
                         AND `pl_owner_kommune` = '#omrade_id'
-                        AND `season` = '#season'",
+                        AND `season` = '#season'
+                        AND `pl_deleted` = 'false'",
                     [
                         'omrade_id' => $postnummer->run('field'),
                         'season' => $this->getSesong()
@@ -153,7 +157,8 @@ class Arrangementer
             case 'alle':
                 $sql = new Query(
                     Arrangement::getLoadQry() ."
-                    WHERE `season` = '#season'",
+                    WHERE `season` = '#season'
+                    AND `pl_deleted` = 'false'",
                     [
                         'season' => $this->getSesong()
                     ]
@@ -197,6 +202,7 @@ class Arrangementer
                     ON(`pl_k`.`pl_id` = `place`.`pl_id`)
                 WHERE `pl_type` = 'kommune' 
                 AND `place`.`season` = '#season'
+                AND `pl_deleted` = 'false'
                 AND
                     (
                         `place`.`pl_owner_kommune` = '#omrade_id'
