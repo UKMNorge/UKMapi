@@ -937,6 +937,54 @@ class Blog
         static::restore();
     }
 
+    /**
+     * Oppdater blogger når et arrangement avlyses
+     * 
+     * Avlyser ikke selve arrangementet, men rydder opp i blogg-
+     * delen av det.
+     *
+     * @param Int $blog_id
+     * @return void
+     */
+    public static function avlys( Int $blog_id ) {
+        $arrangement = new Arrangement( static::getOption( $blog_id, 'pl_id' ) );
+        $sesong = $arrangement->getSesong();
+        
+        // Fjern arrangement-data
+        static::fjernArrangementData( $blog_id );
+
+        
+        // Det er en kommune-side
+        if( trim($arrangement->getEier()->getPath(),'/') == trim($arrangement->getPath(),'/') && $arrangement->getEierType() == 'kommune' ) {
+            // Sikre at kommune-info er oppdatert
+            static::oppdaterFraKommune( $blog_id, $arrangement->getEierKommune() );
+            
+            // Hvis kommunen nå har ett arrangement, skal dette overta kommunesiden
+            $omrade = $arrangement->getEierOmrade();
+            if( $omrade->getArrangementer( $sesong )->getAntall() == 1 && $omrade->getArrangementer($sesong)->getFirst()->getId() != $arrangement->getId()) {
+                static::oppdaterFraArrangement(
+                    $blog_id,
+                    $omrade->getArrangementer($sesong)->getFirst()
+                );
+            }   
+        }
+        // Dette er en ren arrangementsside
+        // (fylkessider er aldri tilknyttet ett arrangement)
+        else {
+            static::deaktiver( $blog_id );
+            if( $arrangement->getEierType() == 'kommune' ) {
+                static::setOption( 
+                    $blog_id, 
+                    'kommuner', 
+                    join(',',$arrangement->getKommuner()->getIdArray())
+                );
+            }
+            static::setOption($blog_id, 'status_monstring', 'avlyst');
+            static::setOption($blog_id, 'fylke', $arrangement->getFylke()->getId());
+            static::fjernAlleBrukere($blog_id);
+        }
+    }
+
 
     /**
      * Sett meta-data på bloggen
