@@ -1082,14 +1082,14 @@ class Write
         // Fjern personer pre 2020
         if( $innslag->getSesong() < 2020 && $innslag->getType()->getId() != 1) {
             // Meld av alle personer hvis dette er innslag hvor man kan velge personer som følger innslaget
-            foreach( $innslag->getPersoner()->getAllVideresendt( $innslag->getContext()->getMonstring()->getId() ) as $person ) {
+            foreach( $innslag->getPersoner()->getAllInkludertIkkePameldte() as $person ) {
                 $innslag->getPersoner()->fjern( $person );
             }
             WriteInnslag::savePersoner( $innslag );
         }
         // Fjern personer 2020
         else {
-            foreach( $innslag->getPersoner()->getAllVideresendt( $innslag->getContext()->getMonstring()->getId() ) as $person ) {
+            foreach( $innslag->getPersoner()->getAllInkludertIkkePameldte() as $person ) {
                 $innslag->getPersoner()->fjern( $person );
             }
             WriteInnslag::savePersoner( $innslag );
@@ -1097,10 +1097,10 @@ class Write
 
         // Meld av alle titler
         if( $innslag->getType()->harTitler() ) {
-            foreach( $innslag->getTitler()->getAll( ) as $tittel ) {
+            foreach( $innslag->getTitler()->getAllInkludertIkkePameldte() as $tittel ) {
                 $innslag->getTitler()->fjern( $tittel );
             }
-            WriteTitler::saveTitler( $innslag );
+            WriteInnslag::saveTitler( $innslag );
         }
 
         // Fjern innslagets relasjon til arrangementet
