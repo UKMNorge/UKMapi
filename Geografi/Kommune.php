@@ -71,7 +71,7 @@ class Kommune {
 	private function _loadByRow( $res ) {
 		$this->id = (int) $res['id'];
 		$this->name = $res['name'];
-		$this->fylke = Fylker::getById( $res['idfylke'] );
+		$this->fylke = Fylker::getById( (Int)$res['idfylke'] );
         $this->name_nonutf8 = $res['name'];
         $this->aktiv = ($res['active'] == 'true');
         $this->tidligere_list = $res['superseed'];
