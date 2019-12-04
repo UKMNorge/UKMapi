@@ -263,10 +263,12 @@ class Write {
             WritePerson::leggTil( $person );
         }
 
-        // Iterer over alle titler og meld de på arrangementet
-        // (litt magisk at det skjer sånn, men skal visstnok funke)
-        foreach( $innslag->getTitler()->getAllInkludertIkkePameldte() as $tittel ) {
-            WriteTittel::leggTil( $tittel );
+        if( $innslag->getType()->harTitler() ) {
+            // Iterer over alle titler og meld de på arrangementet
+            // (litt magisk at det skjer sånn, men skal visstnok funke)
+            foreach( $innslag->getTitler()->getAllInkludertIkkePameldte() as $tittel ) {
+                WriteTittel::leggTil( $tittel );
+            }
         }
         
         // For å kunne melde av, må vi ha meldAvContext igjen
