@@ -251,6 +251,7 @@ class Write {
             );
         }
 
+        $arrangement_til->resetInnslagCollection();
         // For å melde på må vi ha meldPåContext
         $innslag = $arrangement_til->getInnslag()->get( $innslag->getId() );
 

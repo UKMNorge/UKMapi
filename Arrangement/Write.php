@@ -505,7 +505,30 @@ class Write
         Blog::avlys(
             Blog::getIdByPath( $arrangement->getPath() )
         );
+        // Slett arrangementet
         self::slett($arrangement);
+
+        // Hvis kommunen nå har bare ett arrangement, må vi oppdatere
+        // arrangementet til å ha kommune-path
+        if( $arrangement->getEierType() == 'kommune' ) {
+            $omrade = $arrangement->getEierOmrade();
+            $eier = $arrangement->getEier();
+            
+            $count = 0;
+            $arrangement_som_skal_overta = false;
+            foreach( $omrade->getArrangementer($arrangement->getSesong())->getAll() as $annet_arrangement ) {
+                if( $annet_arrangement->getId() != $arrangement->getId() ) {
+                    $count++;
+                    if( !$annet_arrangement->erFellesmonstring() ) {
+                        $arrangement_som_skal_overta = $annet_arrangement;
+                    }
+                }
+            }
+            if( $count == 1 && $arrangement_som_skal_overta) {
+                $arrangement_som_skal_overta->setPath( trim($eier->getPath(),'/') );
+                self::save($arrangement_som_skal_overta);
+            }
+        }
         return $arrangement;
     }
 

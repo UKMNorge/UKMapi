@@ -206,12 +206,18 @@ class Blog
         $domain = 'https://'. rtrim(static::getDetails( $blog_id, 'domain' ),'/').'/';
         $url = rtrim($domain,'/').$path;
         
-        static::setOption( $blog_id, 'siteurl', $url);
-        static::setOption( $blog_id, 'home', $url);
-        static::setDetails( 
+        $res = static::setDetails( 
             $blog_id,
             [ 'path' => $path]
         );
+        if( !$res ) {
+            throw new Exception(
+                'Kunne ikke flytte blogg '. $blog_id .' til `'. $path .'`',
+                172012
+            );
+        }
+        static::setOption( $blog_id, 'siteurl', $url);
+        static::setOption( $blog_id, 'home', $url);
     }
 
     /**
@@ -949,24 +955,19 @@ class Blog
     public static function avlys( Int $blog_id ) {
         $arrangement = new Arrangement( static::getOption( $blog_id, 'pl_id' ) );
         $sesong = $arrangement->getSesong();
+        $omrade = $arrangement->getEierOmrade();
+        
+        $eier = $arrangement->getEier();
+        $eier_path = trim($eier->getPath(),'/');
+        $slett_path = trim($arrangement->getPath(),'/');
         
         // Fjern arrangement-data
         static::fjernArrangementData( $blog_id );
 
-        
-        // Det er en kommune-side
-        if( trim($arrangement->getEier()->getPath(),'/') == trim($arrangement->getPath(),'/') && $arrangement->getEierType() == 'kommune' ) {
+        // Er gitt blogg kommunesiden?
+        if( $eier_path == $slett_path && $arrangement->getEierType() == 'kommune') {
             // Sikre at kommune-info er oppdatert
             static::oppdaterFraKommune( $blog_id, $arrangement->getEierKommune() );
-            
-            // Hvis kommunen nå har ett arrangement, skal dette overta kommunesiden
-            $omrade = $arrangement->getEierOmrade();
-            if( $omrade->getArrangementer( $sesong )->getAntall() == 1 && $omrade->getArrangementer($sesong)->getFirst()->getId() != $arrangement->getId()) {
-                static::oppdaterFraArrangement(
-                    $blog_id,
-                    $omrade->getArrangementer($sesong)->getFirst()
-                );
-            }   
         }
         // Dette er en ren arrangementsside
         // (fylkessider er aldri tilknyttet ett arrangement)
@@ -982,6 +983,32 @@ class Blog
             static::setOption($blog_id, 'status_monstring', 'avlyst');
             static::setOption($blog_id, 'fylke', $arrangement->getFylke()->getId());
             static::fjernAlleBrukere($blog_id);
+        }
+
+        // Hvis det er en kommune, som nå har bare ett arrangement, så skal dette på fronten
+        if( $arrangement->getEierType() == 'kommune' ) {
+            $count = 0;
+            foreach( $omrade->getArrangementer($sesong)->getAll() as $annet_arrangement ) {
+                if( $annet_arrangement->getId() != $arrangement->getId() ) {
+                    $count++;
+                    if( !$annet_arrangement->erFellesmonstring() ) {
+                        $arrangement_som_skal_overta = $annet_arrangement;
+                    }
+                }
+            }
+            if( $count == 1 ) {
+                // Deaktiver den gamle bloggen for arrangementet som overtar
+                static::deaktiver( 
+                    static::getIdByPath(
+                        $arrangement_som_skal_overta->getPath()
+                    )
+                );
+
+                static::oppdaterFraArrangement(
+                    $blog_id, // blog_id == kommune-siden
+                    $arrangement_som_skal_overta
+                );
+            }
         }
     }
 
