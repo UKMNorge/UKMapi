@@ -6,18 +6,16 @@ use statistikk;
 
 use Exception;
 use UKMNorge\Arrangement\Arrangement;
-use UKMNorge\Arrangement\Program\Hendelse;
 use UKMNorge\Arrangement\Write as WriteArrangement;
 use UKMNorge\Arrangement\Program\Write as WriteHendelse;
 use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Insert;
-use UKMNorge\Database\SQL\Query;
 use UKMNorge\Database\SQL\Update;
 use UKMNorge\Geografi\Kommune;
-use UKMNorge\Innslag\Context\Innslag as InnslagContext;
+use UKMNorge\Innslag\Context\Monstring;
 use UKMNorge\Innslag\Personer\Person;
 use UKMNorge\Innslag\Personer\Write as WritePerson;
-use UKMNorge\Innslag\Typer\Typer;
+use UKMNorge\Innslag\Titler\Write as WriteTittel;
 use UKMNorge\Innslag\Typer\Type;
 use UKMNorge\Log\Logger;
 use UKMNorge\Samtykke\Person as PersonSamtykke;
@@ -213,7 +211,65 @@ class Write {
         static::requestSamtykke( $innslag_save );
 
         #return $innslag_save;
-	}
+    }
+    
+    /**
+     * Flytt innslag fra én mønstring til en annen
+     * 
+     * OBS: ikke samme som videresending, og brukes kun
+     * ved avlysning av et arrangement.
+     *
+     * @param Innslag $innslag
+     * @param Arrangement $arrangement_fra
+     * @param Arrangement $arrangement_til
+     * @return void
+     */
+    public static function flytt( Innslag $innslag, Arrangement $arrangement_fra, Arrangement $arrangement_til ) {
+        // Setter inn nye relasjoner. De gamle slettes i slutten av funksjonen
+        $relasjon = new Insert('ukm_rel_arrangement_innslag');
+        $relasjon->add('innslag_id', $innslag->getId());
+        $relasjon->add('arrangement_id', $arrangement_til->getId());
+        $res = $relasjon->run();
+
+        if(!$res) {
+            throw new Exception(
+                'Kunne ikke flytte innslag '. $innslag->getNavn() .'! '.
+                'Databasen sa: '. $relasjon->getError()
+            );
+        }
+
+        $gammel_relasjon = new Insert('smartukm_rel_pl_b');
+        $gammel_relasjon->add('b_id', $innslag->getId());
+        $gammel_relasjon->add('season', $innslag->getSesong());
+        $gammel_relasjon->add('pl_id', $arrangement_til->getId());
+        $res = $gammel_relasjon->run();
+
+        if( !$res ) {
+            throw new Exception(
+                'KONTAKT UKM NORGE! Innslag '. $innslag->getId() .' feilet midtveis i en flytting, '.
+                'og kan forårsake større problemer med påmeldingen til innslaget.' 
+            );
+        }
+
+        // For å melde på må vi ha meldPåContext
+        $innslag = $arrangement_til->getInnslag()->get( $innslag->getId() );
+
+        // Iterer over alle personer og meld de på arrangementet
+        // (litt magisk at det skjer sånn, men skal visstnok funke)
+        foreach( $innslag->getPersoner()->getAllInkludertIkkePameldte() as $person ) {
+            WritePerson::leggTil( $person );
+        }
+
+        // Iterer over alle titler og meld de på arrangementet
+        // (litt magisk at det skjer sånn, men skal visstnok funke)
+        foreach( $innslag->getTitler()->getAllInkludertIkkePameldte() as $tittel ) {
+            WriteTittel::leggTil( $tittel );
+        }
+        
+        // For å kunne melde av, må vi ha meldAvContext igjen
+        $innslag = $arrangement_fra->getInnslag()->get( $innslag->getId() );
+        WriteArrangement::fjernInnslag( $innslag );
+    }
 
 
 	/**
