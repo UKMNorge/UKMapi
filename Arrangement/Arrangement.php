@@ -89,6 +89,7 @@ class Arrangement
 
     var $videresending = null;
     var $log = null;
+    var $deleted = false;
 
     /**
      * getLoadQry
@@ -191,6 +192,7 @@ class Arrangement
         $this->setHarVideresending($row['pl_videresending'] == 'true');
         $this->har_skjema = $row['pl_has_form'] == 'true';
         $this->synlig = $row['pl_visible'] == 'true';
+        $this->deleted = $row['pl_deleted'] == 'true';
 
         // SET PATH TO BLOG
         if (isset($row['pl_link']) || (isset($row['pl_link']) && empty($row['pl_link']))) {
@@ -893,7 +895,7 @@ class Arrangement
                     $r['bt_id'] = 8;
                 }
                 if (!$this->innslagTyper->find($r['bt_id'])) {
-                    $this->innslagTyper->addById($r['bt_id']);
+                    $this->innslagTyper->addById((Int)$r['bt_id']);
                 }
             }
         }
@@ -1521,5 +1523,24 @@ class Arrangement
             $this->log = new LogSamling('arrangement', $this->getId());
         }
         return $this->log;
+    }
+
+    /**
+     * Er arrangementet slettet?
+     */ 
+    public function erSlettet() {
+        return $this->deleted;
+    }
+
+    /**
+     * Set the value of deleted
+     *
+     * @param Bool $deleted
+     * @return self
+     */ 
+    public function setSlettet(Bool $deleted)
+    {
+        $this->deleted = $deleted;
+        return $this;
     }
 }

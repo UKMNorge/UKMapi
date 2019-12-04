@@ -359,6 +359,89 @@ class Write
     }
 
     /**
+     * Slett et arrangement
+     *
+     * @param Arrangement $arrangement
+     * @return void
+     */
+    public static function slett( Arrangement $arrangement ) {
+        Logger::log(
+            129,
+            $arrangement->getId(),
+            $arrangement->getId() . ': ' . $arrangement->getNavn()
+        );
+
+        $arrangement_navn = $arrangement->getNavn();
+
+        // MERK SOM SLETTET PÅ GAMLE-MÅTEN
+        $arrangement->setNavn('SLETTET: ' . $arrangement->getNavn());
+        $arrangement->setPath(NULL);
+        $arrangement->setSlettet(true);
+        static::save( $arrangement );
+        
+        // Logg navne-endring
+        Logger::log(
+            115,
+            $arrangement->getId(),
+            $arrangement_navn
+        );
+
+        // FAKTISK MERK SOM SLETTET
+        $sql = new Update(
+            'smartukm_place',
+            [
+                'pl_id' => $arrangement->getId()
+            ]
+        );
+        $sql->add('pl_deleted', 'true');
+        $res = $sql->run();
+
+        // Fjern kommuner fra arrangementet
+        if( $arrangement->getEierType() == 'kommune' ) {
+            foreach( $arrangement->getKommuner()->getAll() as $kommune ) {
+                self::_fjernKommune($arrangement, $kommune);
+            }
+        }
+        
+        return $arrangement;
+    }
+
+    /**
+     * Gjenopprett et slettet arrangement
+     *
+     * OBS: Gjenoppretter ikke kommune-relasjoner!
+     * 
+     * @param Int $arrangement_id
+     * @return Arrangement
+     */
+    public static function gjenopprett( Int $arrangement_id ) {
+        $arrangement = new Arrangement( $arrangement_id );
+
+        Logger::log(
+            130,
+            $arrangement->getId(),
+            $arrangement->getId() . ': ' . $arrangement->getNavn()
+        );
+
+        $sql = new Update(
+            'smartukm_place',
+            [
+                'pl_id' => $arrangement->getId()
+            ]
+        );
+        $sql->add('pl_deleted', 'false');
+        $res = $sql->run();
+
+        // ENDRE TILBAKE NAVNET
+        $arrangement->setNavn(str_replace('SLETTET: ','', $arrangement->getNavn()));
+        $arrangement->setPath( Blog::sanitizePath( $arrangement->getNavn() ));
+        $arrangement->setSlettet(false);
+        static::save( $arrangement );
+
+        return $arrangement;
+    }
+
+    /**
      * Generer path for et arrangement
      *
      * @param [type] $type
