@@ -334,13 +334,17 @@ class Write
         }
         
         // Oppdater tilhørende blogg
-        try {
-            Blog::setArrangementData( Blog::getIdByPath( $monstring_save->getPath() ), $monstring_save );
-        } catch (Exception $e ) {
-            // 172007 = fant ingen blogg (som er naturlig når den opprettes, f.eks.)
-            // 172010 = vi er ikke i wordpress-environment
-            if( $e->getCode() != 172007 && $e->getCode() != 172010 ) {
-                throw $e;
+        // Ved sletting av blogg settes path==null. Ettersom dette lagres før vi kommer hit,
+        // vil getIdByPath feile (da path==null). Hopp over denne i slike tilfeller.
+        if( !empty( $monstring_save->getPath() ) ) {
+            try {
+                Blog::setArrangementData( Blog::getIdByPath( $monstring_save->getPath() ), $monstring_save );
+            } catch (Exception $e ) {
+                // 172007 = fant ingen blogg (som er naturlig når den opprettes, f.eks.)
+                // 172010 = vi er ikke i wordpress-environment
+                if( $e->getCode() != 172007 && $e->getCode() != 172010 ) {
+                    throw $e;
+                }
             }
         }
 
