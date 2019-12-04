@@ -509,7 +509,7 @@ class Blog
         foreach ($users as $user) {
             try {
                 static::controlUserData($user);
-                static::fjernBruker($blog_id, $user->id);
+                static::fjernBruker($blog_id, $user['id']);
                 $rapport[] = [
                     'success' => true,
                     'user' => $user
