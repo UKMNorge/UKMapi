@@ -229,6 +229,8 @@ class Write {
         $relasjon = new Insert('ukm_rel_arrangement_innslag');
         $relasjon->add('innslag_id', $innslag->getId());
         $relasjon->add('arrangement_id', $arrangement_til->getId());
+        $relasjon->add('fra_arrangement_id', 0);
+        $relasjon->add('fra_arrangement_navn', $innslag->getKommune()->getNavn());
         $res = $relasjon->run();
 
         if(!$res) {
@@ -240,8 +242,8 @@ class Write {
 
         $gammel_relasjon = new Insert('smartukm_rel_pl_b');
         $gammel_relasjon->add('b_id', $innslag->getId());
-        $gammel_relasjon->add('season', $innslag->getSesong());
         $gammel_relasjon->add('pl_id', $arrangement_til->getId());
+        $gammel_relasjon->add('season', $innslag->getSesong());
         $res = $gammel_relasjon->run();
 
         if( !$res ) {
