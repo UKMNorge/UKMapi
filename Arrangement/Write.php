@@ -492,58 +492,21 @@ class Write
 
     /**
      * Avlys mønstring
-     * (kan kun brukes fra UKM Norge-admin!)
+     * (brukes kun i Wordpress-context!)
      * 
-     * !! OBS, OBS !!
-     * Denne skal kun benyttes fra UKM Norge-admin,
+     * Denne skal kun brukes i Wordpress-context
      * da bloggen må endres for at alt skal fungere som ønsket.
-     * !! OBS, OBS !! 
      *
      * @param Arrangement $monstring
-     * @todo: Sjekk at avlys fortsatt gjør det vi ønsker
      **/
-    public static function avlys($monstring)
+    public static function avlys(Arrangement $arrangement)
     {
-        if ($monstring->getType() != 'kommune') {
-            throw new Exception(
-                'Mønstring: kun lokalmønstringer kan avlyses',
-                501010
-            );
-        }
-        if (!$monstring->erSingelmonstring()) {
-            throw new Exception(
-                'Mønstring: kun enkeltmønstringer kan avlyses',
-                501011
-            );
-        }
-        if (!is_numeric($monstring->getId())) {
-            throw new Exception(
-                'Mønstring: kan ikke fjerne kommune da mønstring ikke har numerisk ID',
-                501012
-            );
-        }
-        if (!is_numeric($monstring->getSesong())) {
-            throw new Exception(
-                'Mønstring: kan ikke fjerne kommune da sesong ikke har numerisk verdi',
-                501013
-            );
-        }
-
-        self::_fjernKommune($monstring, $monstring->getKommune());
-
-        // Fjern databasefelter som identifiserer mønstringen ("soft delete")
-        $monstringsnavn = $monstring->getNavn();
-        $monstring->setNavn('SLETTET: ' . $monstring->getNavn());
-        $monstring->setPath(NULL);
-        self::save($monstring);
-
-        Logger::log(
-            115,
-            $monstring->getId(),
-            $monstringsnavn
+        // Bloggen håndterer selv sletting, flytting, om det er en kommune-side osv.
+        Blog::avlys(
+            Blog::getIdByPath( $arrangement->getPath() )
         );
-
-        return $monstring;
+        self::slett($arrangement);
+        return $arrangement;
     }
 
     /**
