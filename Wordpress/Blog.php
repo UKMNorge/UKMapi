@@ -887,6 +887,32 @@ class Blog
     }
 
     /**
+     * Har denne bloggen publiserte innlegg?
+     *
+     * @param Int $blog_id
+     * @return Bool
+     */
+    public static function harPosts( Int $blog_id ) {
+        return static::getAntallPosts( $blog_id ) > 0;
+    }
+
+    /**
+     * Antall publiserte innlegg bloggen har
+     *
+     * @param Int $blog_id
+     * @return Int antall publiserte innlegg
+     */
+    public static function getAntallPosts( Int $blog_id ) {
+        static::switchTo($blog_id);
+        $count = wp_count_posts();
+        static::restore();
+        if( !isset( $count->publish ) ) {
+            return 0;
+        }
+        return (Int) $count->publish;
+    }
+
+    /**
      * Legg til et array med kategorier til gitt blogg
      * Eksempel-data kategori:  [
      *          'cat_name' => 'Nyheter',
