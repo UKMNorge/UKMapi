@@ -1239,6 +1239,8 @@ class Arrangement
 
     /**
      * Hvilket fylke tilhører eieren av arrangementet
+     *
+     * @return Fylke
      */
     public function getEierFylke()
     {
@@ -1270,6 +1272,8 @@ class Arrangement
 
     /**
      * Hvilken kommune tilhører eieren av arrangementet
+     * 
+     * @return Kommune
      */
     public function getEierKommune()
     {
@@ -1328,11 +1332,21 @@ class Arrangement
         return $this->getEierFylke();
     }
 
+    /**
+     * Hent eier for arrangementet
+     *
+     * @return Eier
+     */
     public function getEierObjekt()
     {
         return new Eier($this->getEierType(), $this->getEier()->getId());
     }
 
+    /**
+     * Hent eier-området for arrangementet
+     *
+     * @return Omrade
+     */
     public function getEierOmrade()
     {
         if ($this->getEierType() == 'kommune') {

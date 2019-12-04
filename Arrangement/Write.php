@@ -828,18 +828,18 @@ class Write
     /**
      * Fjern kommune fra mønstringen
      * 
-     * Sletter databaseraden hvis den finnes
+     * Sletter relasjon fra databasen hvis den finnes
      * 
-     * @param Arrangement $monstring
+     * @param Arrangement $arrangement
      * @param Kommune $kommune
      * @return Bool 
      * @throws Exception
      */
-    private static function _fjernKommune($monstring_save, $kommune)
+    private static function _fjernKommune( Arrangement $arrangement, Kommune $kommune)
     {
         try {
-            self::_controlMonstring($monstring_save);
-            if ($monstring_save->getType() != 'kommune') {
+            self::_controlMonstring($arrangement);
+            if ($arrangement->getType() != 'kommune') {
                 throw new Exception(
                     'mønstring ikke er lokal-mønstring',
                     501022
@@ -857,23 +857,23 @@ class Write
         // fortsattt har kommunen i kommune-collection
         // er det på høy tid å fjerne den.
         // (avlys kan finne på å gjøre dette tror Marius (26.10.2018))
-        if ($monstring_save->getKommuner()->har($kommune)) {
-            $monstring_save->getKommuner()->fjern($kommune);
+        if ($arrangement->getKommuner()->har($kommune)) {
+            $arrangement->getKommuner()->fjern($kommune);
         }
 
         $rel_pl_k = new Delete(
             'smartukm_rel_pl_k',
             [
-                'pl_id' => $monstring_save->getId(),
+                'pl_id' => $arrangement->getId(),
                 'k_id' => $kommune->getId(),
-                'season' => $monstring_save->getSesong(),
+                'season' => $arrangement->getSesong(),
             ]
         );
         $res = $rel_pl_k->run();
 
         Logger::log(
             114,
-            $monstring_save->getId(),
+            $arrangement->getId(),
             $kommune->getId() . ': ' . $kommune->getNavn()
         );
         return true;
