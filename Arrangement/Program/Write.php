@@ -325,4 +325,32 @@ class Write
         }
         return true;
     }
+
+    /**
+     * Oppdater hendelsens rekkefølge ifølge gitt array
+     *
+     * @param Hendelse $hendelse
+     * @param Array $innslag_id
+     * @return Bool
+     */
+    public static function redefineOrder( Hendelse $hendelse, Array $innslag_id ) {
+        $delete = new Delete(
+            'smartukm_rel_b_c',
+            [
+                'c_id' => $hendelse->getId()
+            ]
+        );
+        $delete = $delete->run();
+            
+        $count = 0;
+        foreach( $innslag_id as $innslag ) {
+            $count++;
+            $insert = new Insert('smartukm_rel_b_c');
+            $insert->add('c_id', $hendelse->getId());
+            $insert->add('b_id', $innslag);
+            $insert->add('order', $count);
+            $insert->run();
+        }
+        return true;
+    }
 }
