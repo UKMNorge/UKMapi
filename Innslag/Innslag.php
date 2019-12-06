@@ -786,12 +786,13 @@ class Innslag
     public function getProgram()
     {
         if (null == $this->program) {
-            $context = Context::createInnslagWithMonstringContext(
-                $this->getId(),                                     // Innslag ID
-                $this->getType()->getKey(),                           // Innslag type (objekt)
-                $this->getContext()->getMonstring()                 // Mønstring-context
+            $this->program = new Hendelser(
+                Context::createInnslagWithMonstringContext(
+                    $this->getId(),                        // Innslag ID
+                    $this->getType()->getKey(),            // Innslag type (objekt)
+                    $this->getContext()->getMonstring()    // Mønstring-context
+                )    
             );
-            $this->program = new Hendelser($context);
         }
         return $this->program;
     }
