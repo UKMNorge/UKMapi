@@ -95,12 +95,12 @@ class Context
      */
     public static function createForestilling(Int $id, Monstring $context = null)
     {
-        $context = new Context('forestilling');
-        $context->forestilling = new Forestilling($id);
+        $forestilling_context = new Context('forestilling');
+        $forestilling_context->forestilling = new Forestilling($id);
         if ($context !== null) {
-            $context->monstring = $context;
+            $forestilling_context->monstring = $context;
         }
-        return $context;
+        return $forestilling_context;
     }
     /**
      * Opprett hendelse-context
