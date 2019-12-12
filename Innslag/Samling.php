@@ -10,6 +10,7 @@ use UKMNorge\Innslag\Typer\Type;
 use UKMNorge\Innslag\Context\Context;
 use UKMNorge\Innslag\Context\Innslag as InnslagContext;
 use UKMNorge\Innslag\Context\Monstring;
+use UKMNorge\Tid;
 
 require_once('UKM/Autoloader.php');
 
@@ -183,7 +184,21 @@ class Samling {
 	**/
 	public function getAntall() {
 		return sizeof( $this->getAll() );
-	}
+    }
+    
+
+    public function getTid() {
+        if( null == $this->varighet ) {
+            $sekunder = 0;
+            foreach( $this->getAll() as $innslag ) {
+                if( $innslag->getType()->harTid() ) {
+                    $sekunder += $innslag->getTid()->getSekunder();
+                }
+            }
+            $this->varighet = new Tid( $sekunder );
+        }
+        return $this->varighet;
+    }
 
 
 	/********************************************************************************

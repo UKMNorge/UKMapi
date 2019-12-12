@@ -952,9 +952,22 @@ class Innslag
         return $advarsler;
     }
 
+    /**
+     * Hvor lang tid bruker innslaget?
+     *
+     * @return void
+     */
+    public function getTid() {
+        return $this->getTitler()->getVarighet();
+    }
+    /**
+     * Hvor lang tid bruker innslaget?
+     *
+     * @return void
+     */
     public function getVarighet()
     {
-        return $this->getTitler()->getVarighet();
+        return $this->getTid();
     }
 
     /**

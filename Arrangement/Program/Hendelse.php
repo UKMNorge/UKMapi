@@ -458,6 +458,14 @@ class Hendelse
         return $this;
     }
 
+    /**
+     * Hvor lenge varer innslagene i hendelsen?
+     *
+     * @return void
+     */
+    public function getTid() {
+        return $this->getInnslag()->getTid();
+    }
 
     public static function validateClass( $object ) {
         return is_object( $object ) &&

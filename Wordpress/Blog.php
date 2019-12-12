@@ -817,24 +817,77 @@ class Blog
             // Finnes siden fra før?
             $eksisterer = get_page_by_path($side['id']);
             if ($eksisterer == null) {
-                $page_id = wp_insert_post($page);
+                // Tving ønsket slug
+                $page['post_title'] = $page['post_slug'];
+                $page_id = (Int) wp_insert_post($page);
+                // Oppdater sidens navn (fordi vi tvinger frem slug tidligere)
+                wp_update_post(
+                    [
+                        'ID' => $page_id,
+                        'post_title' => $side['name']
+                    ]
+                );
             } else {
-                $page_id = $eksisterer->ID;
+                $page_id = (Int) $eksisterer->ID;
             }
             if (isset($side['viseng']) && !empty($side['viseng'])) {
-                // Først delete, så add, fordi update_post_meta ikke gjør nok
-                // (hvis current_value er et array, vil update_post_meta 
-                // ikke gjøre noe/oppdatere alle verdiene (uvisst)
-                //
-                // VISENG håndterer arrays i visningen, men det er likevel greit å 
-                // ha riktig data.
-                delete_post_meta($page_id, 'UKMviseng');
-                add_post_meta($page_id, 'UKMviseng', $side['viseng']);
+                static::setSideMeta( $blog_id, $page_id, ['UKMviseng' => $side['viseng']], true);
             }
         }
         static::restore();
     }
 
+    /**
+     * Opprett en side
+     *
+     * @param Int $blog_id
+     * @param String $slug
+     * @param String $navn
+     * @param String $viseng
+     * @return Int $page_id
+     */
+    public static function opprettSide( Int $blog_id, String $slug, String $navn, String $viseng = null ) {
+        $side = [
+            'id' => $slug,
+            'name' => $navn
+        ];
+        if( !empty( $viseng ) ) {
+            $side['viseng'] = $viseng;
+        }
+        static::leggTilSider( $blog_id, [$side] );
+        return (Int) get_page_by_path($slug)->ID;
+    }
+
+    /**
+     * Set meta-data for en page (/post?)
+     * 
+     * Bytter default frem og tilbake til gitt $blog_id, 
+     * hvis ikke $switched == true
+     *
+     * @param Int $blog_id
+     * @param Int $page_id
+     * @param Array $meta
+     * @param Bool $switched
+     * @return void
+     */
+    public static function setSideMeta( Int $blog_id, Int $page_id, Array $meta, Bool $switched = false ) {
+        if( !$switched ) {
+            static::switchTo($blog_id);
+        }
+        foreach( $meta as $key => $value ) {
+            // Først delete, så add, fordi update_post_meta ikke gjør nok
+            // (hvis current_value er et array, vil update_post_meta 
+            // ikke gjøre noe/oppdatere alle verdiene (uvisst)
+            //
+            // VISENG håndterer arrays i visningen, men det er likevel greit å 
+            // ha riktig data.
+            delete_post_meta($page_id, $key);
+            add_post_meta($page_id, $key, $value);
+        }
+        if( !$switched ) {
+            static::restore();
+        }
+    }
 
     /**
      * Hent en side far path

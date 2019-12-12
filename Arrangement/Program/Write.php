@@ -76,6 +76,10 @@ class Write
         return new Hendelse($id);
     }
 
+    public static function slett( Hendelse $hendelse ) {
+        throw new Exception('Beklager, klarte ikke å slette '. $hendelse->getNavn());
+    }
+
     /**
      * Lagre et hendelse-objekt
      *
