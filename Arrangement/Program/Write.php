@@ -65,7 +65,8 @@ class Write
         $id = $sql->run();
 
         if ($id) {
-            Logger::log(219, $id, $navn);
+            Logger::log(219, $id, $navn); // 219 er feil, men fortsett ut 2020-sesongen for konsekvent logg
+            Logger::log(229, $id, $navn); // 229 er riktig
         } else {
             throw new Exception(
                 'Klarte ikke å opprette hendelse',
@@ -77,7 +78,34 @@ class Write
     }
 
     public static function slett( Hendelse $hendelse ) {
-        throw new Exception('Beklager, klarte ikke å slette '. $hendelse->getNavn());
+        // Valider at logger er på plass
+        if (!Logger::ready()) {
+            throw new Exception(
+                'Logger is missing or incorrect set up.',
+                517004
+            );
+        }
+        Logger::log(229, $hendelse->getId(), $hendelse->getNavn());
+
+        // Slett rekkefølgen i hendelsen
+        $rel = new Delete(
+            'smartukm_rel_b_c',
+            [
+                'c_id' => $hendelse->getId()
+            ]
+        );
+        $res = $rel->run();
+
+        // Slett hendelsen
+        $del = new Delete(
+            'smartukm_concert',
+            [
+                'c_id' => $hendelse->getId()
+            ]
+        );
+        $res = $del->run();
+
+        return true;
     }
 
     /**
