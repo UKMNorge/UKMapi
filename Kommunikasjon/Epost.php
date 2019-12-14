@@ -2,6 +2,7 @@
 
 namespace UKMNorge\Kommunikasjon;
 
+require_once("lib/autoload.php");
 use Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception as PHPMailerException;
