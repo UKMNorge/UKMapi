@@ -701,7 +701,7 @@ class Person
             // da dette gir bedre verdi for getRolle() / getInstrument()
             if( is_array( $roller ) ) {
                 try {
-                    if( !is_int($row['bt_id']) ) {
+                    if( is_int($row['bt_id']) ) {
                         $innslag_type = Typer::getById( $row['bt_id'] );
                         $roller = $innslag_type->getValgteFunksjonerSomKeyVal( $roller );    
                     }
