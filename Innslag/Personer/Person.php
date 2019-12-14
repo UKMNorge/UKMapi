@@ -701,8 +701,10 @@ class Person
             // da dette gir bedre verdi for getRolle() / getInstrument()
             if( is_array( $roller ) ) {
                 try {
-                    $innslag_type = Typer::getById( $row['bt_id'] );
-                    $roller = $innslag_type->getValgteFunksjonerSomKeyVal( $roller );
+                    if( !is_int($row['bt_id']) ) {
+                        $innslag_type = Typer::getById( $row['bt_id'] );
+                        $roller = $innslag_type->getValgteFunksjonerSomKeyVal( $roller );    
+                    }
                 } catch( Exception $e ) {
                     // Ignorer feil - da turer vi bare på med opprinnelig verdi
                 }
