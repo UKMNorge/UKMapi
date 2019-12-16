@@ -228,6 +228,22 @@ class Arrangementer
         return $this->arrangementer;
     }
 
+    /**
+     *
+     */
+    public function getAllSynlige() {
+        if(sizeof($this->arrangementer) == 0 ) {
+            $this->_load();
+        }
+
+        return array_filter($this->arrangementer, function($arr) {
+            if( $arr->erSynlig() ) {
+                return true;
+            }
+            return false;
+        });
+    }
+
     public function har() {
         return sizeof( $this->getAll() ) > 0;
     }
