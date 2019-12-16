@@ -209,7 +209,8 @@ class Write
             'harVideresending'  => ['smartukm_place', 'pl_videresending', 123],
             'Pamelding'         => ['smartukm_place', 'pl_pamelding', 124],
             'harSkjema'         => ['smartukm_place', 'pl_has_form', 127],
-            'Synlig'            => ['smartukm_place', 'pl_visible', 128]
+            'Synlig'            => ['smartukm_place', 'pl_visible', 128],
+            'Subtype'            => ['smartukm_place', 'pl_subtype', 131]
         ];
 
         // LOOP ALLE VERDIER, OG EVT LEGG TIL I SQL
