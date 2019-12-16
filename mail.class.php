@@ -87,7 +87,12 @@ class UKMmail {
 
 		if(empty($this->recipients))
 			return 'Missing recipients';
-			
+            
+        if( UKM_HOSTNAME == 'ukm.dev' ) {
+            echo 'DEV-modus: Kan ikke sende e-post med emne '. $this->subject;
+            return false;
+        }
+
 		$mail = new PHPMailer(true);
 		$mail->IsSMTP();
 		$mail->CharSet = 'UTF-8';
