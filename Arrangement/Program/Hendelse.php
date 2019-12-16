@@ -32,6 +32,7 @@ class Hendelse
     var $beskrivelse = null;
     var $farge = null;
     var $fremhevet = null;
+    var $innslag = null;
 
     var $collection_innslag = null;
 
