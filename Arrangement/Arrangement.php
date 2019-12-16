@@ -76,8 +76,6 @@ class Arrangement
     var $har_videresending = null;
     var $synlig = true;
 
-    var $er_monstring = null;
-
     var $uregistrerte = null;
     var $publikum = null;
 
@@ -90,6 +88,7 @@ class Arrangement
     var $videresending = null;
     var $log = null;
     var $deleted = false;
+    var $subtype = null;
 
     /**
      * getLoadQry
@@ -188,11 +187,11 @@ class Arrangement
         $this->setPublikum($row['pl_public']);
         $this->setUregistrerte($row['pl_missing']);
         $this->setPamelding($row['pl_pamelding']);
-        $this->setErMonstring(in_array($this->getType(), ['kommune', 'fylke', 'land']));
         $this->setHarVideresending($row['pl_videresending'] == 'true');
         $this->har_skjema = $row['pl_has_form'] == 'true';
         $this->synlig = $row['pl_visible'] == 'true';
         $this->deleted = $row['pl_deleted'] == 'true';
+        $this->subtype = $row['pl_subtype'];
 
         // SET PATH TO BLOG
         if (isset($row['pl_link']) || (isset($row['pl_link']) && empty($row['pl_link']))) {
@@ -834,6 +833,7 @@ class Arrangement
     {
         if (null == $this->innslagTyper) {
             $this->innslagTyper = new Typer();
+
             $sql = new Query(
                 "SELECT `type_id`
                 FROM `ukm_rel_arrangement_innslag_type`
@@ -1411,26 +1411,25 @@ class Arrangement
     }
 
     /**
-     * Get the value of erMonstring
+     * Er dette en typisk mønstring?
      * 
-     * @return Bool $erMonstring
+     * Mønstringer kan ta i mot ulike typer påmeldinger
+     *
+     * @return Bool
      */
-    public function getErMonstring()
-    {
-        return $this->er_monstring;
+    public function erMonstring() {
+        return $this->subtype == 'monstring';
     }
 
     /**
-     * Set the value of erMonstring
+     * Er dette et enkelt arrangement (workshop)
+     * 
+     * Enkle arrangement kan kun ta i mot påmeldinger for enkeltpersoner
      *
-     * @param Bool $erMonstring
-     * @return  self
+     * @return void
      */
-    public function setErMonstring(Bool $erMonstring)
-    {
-        $this->er_monstring = $erMonstring;
-
-        return $this;
+    public function erArrangement() {
+        return $this->subtype == 'arrangement';
     }
 
     /**
@@ -1555,6 +1554,29 @@ class Arrangement
     public function setSlettet(Bool $deleted)
     {
         $this->deleted = $deleted;
+        return $this;
+    }
+
+    /**
+     * Henter type arrangement (bruk heller erMonstring() eller erArrangement())
+     * 
+     * @return String
+     */ 
+    public function getSubtype()
+    {
+        return $this->subtype;
+    }
+
+    /**
+     * Set the value of subtype
+     *
+     * @param String $subtype
+     * @return self
+     */ 
+    public function setSubtype(String $subtype)
+    {
+        $this->subtype = $subtype;
+
         return $this;
     }
 }

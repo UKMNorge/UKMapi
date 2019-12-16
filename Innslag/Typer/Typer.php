@@ -412,6 +412,8 @@ class Typer implements \Iterator
                 return 'dataspillgruppe';
             case 22:
                 return 'cosplay';
+            case 40:
+                return 'enkeltperson';
         }
         throw new Exception(
             'Ukjent innslag-type ' . $id,

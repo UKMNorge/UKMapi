@@ -1,0 +1,23 @@
+## For påmeldinger til LAN eller tilsvarende!
+id: enkeltperson
+numeric_id: 40
+navn: Person
+type: person
+kategori: vise
+frist: 1
+har:
+  beskrivelse: false
+  varighet: false
+  sjanger: false
+  tekniske_behov: false
+  titler: false
+  funksjon: false
+  media:
+    filmer: false
+    bilder: true
+
+## Denne må være her, selv om den ikke brukes...
+tekst:
+  artistnavn:
+    navn: Navn
+    placeholder: Ditt fornavn og etternavn
