@@ -196,7 +196,7 @@ class Typer implements \Iterator
      * 
      * @see getAllInkludertSkjulteTyper()
      *
-     * @return void
+     * @return Array<Type>
      */
     public static function getAllTyper()
     {   
