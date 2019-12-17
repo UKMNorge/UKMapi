@@ -172,6 +172,18 @@ class Epost
             );
         }
 
+        if( null == $this->fra ) {
+            throw new Exception(
+                'Kan ikke sende e-post: Mangler avsender',
+                402007
+            );
+        }
+
+        // Standarden må jo være at svaret skal gå til avsender.
+        if( $this->svar_til == null ) {
+            $this->svar_til = $this->fra;
+        }
+
         $mail = new PHPMailer(true);
         $mail->isSMTP();
         $mail->CharSet = 'UTF-8';
