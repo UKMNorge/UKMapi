@@ -33,6 +33,9 @@ class Twig
     public static function addPath(String $path)
     {
         self::$paths[] = str_replace('//', '/', $path);
+        if( static::$didRender ) {
+            static::$twig->getLoader()->addPath(str_replace('//', '/', $path));
+        }
     }
 
     /**
