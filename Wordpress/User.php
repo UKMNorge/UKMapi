@@ -172,53 +172,6 @@ class User
     }
 
     /**
-     * Hent WordpressId fra bruker-objektet
-     *
-     * @return User
-     */
-    public function getWordpressId() {
-        try {
-           return User::getByParticipant( $this->getId() );
-        } catch( Exception $e ) {
-           if( !empty( $this->getEpost() ) ) {
-               return User::getByEmail( $this->getEpost());
-           }
-           
-           return User::getByPhone( $this->getMobil() );
-           throw $e;
-        }
-    }
-
-    /**
-     * Henter bruker ut fra gitt participant_id
-     *
-     * @param Int $p_id
-     * @return User
-     */
-    public static function getByParticipant( Int $p_id ) {
-
-    }
-
-    /**
-     * Henter bruker ut fra gitt e-post
-     *
-     * @param Int $p_id
-     * @return User
-     */
-    public static function getByEmail( String $email ) {
-
-    }
-
-    /**
-     * Henter bruker ut fra gitt mobil
-     *
-     * @param Int $p_id
-     * @return User
-     */
-    public static function getByPhone( Int $phone ) {
-
-    }
-    /**
      * Hent metadata-container
      *
      * @return Collection
@@ -301,7 +254,39 @@ class User
 
         return $user;
     }
-
+    
+    /**
+     * Henter bruker ut fra gitt participant_id
+     *
+     * @throws Exception not found
+     * @param Int $p_id
+     * @return User
+     */
+    public static function loadByParticipant( Int $p_id ) {
+        $query = new Query(
+            "SELECT `wp_id`
+            FROM `ukm_delta_wp_user` 
+            WHERE `participant_id` = '#id'",
+            [
+                'id' => $p_id
+            ]
+        );
+        $wp_id = (Int) $query->getField();
+        try {
+            if( function_exists('get_user_by') ) {
+                $user = static::loadById( $wp_id );
+            } else {
+                $user = User::loadByIdInStandaloneEnvironment($wp_id);
+            }
+        } catch( Exception $e ) {
+            throw Exception(
+                'Kunne ikke finne Wordpress-bruker for deltaker '. $p_id .'. '.
+                'Systemet sa: '. $e->getMessage(),
+                171005
+            );
+        }
+        return $user;
+    }
 
     /**
      * Opprett et brukerobjekt
