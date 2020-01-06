@@ -708,14 +708,19 @@ class Blog
     {
         static::controlBlogId($blog_id);
 
+        $currentSiteUrl = get_blog_option($blog_id, 'siteurl', '');
+        $newSiteUrl = str_replace('http://', 'https://', $currentSiteUrl);
+
         # ADDS META OPTIONS TO NEW SITE
         $meta = array(
-            'show_on_front'        => 'posts',
-            'page_on_front'        => '2',
+            'show_on_front'       => 'posts',
+            'page_on_front'       => '2',
             'template'            => 'UKMresponsive',
-            'stylesheet'            => 'UKMresponsive',
-            'current_theme'        => 'UKM Responsive',
-            'status_monstring'    => false
+            'stylesheet'          => 'UKMresponsive',
+            'current_theme'       => 'UKM Responsive',
+            'status_monstring'    => false,
+            'siteurl'             => $newSiteUrl,
+            'home'                => $newSiteUrl
         );
         static::applyMeta($blog_id, $meta);
     }
