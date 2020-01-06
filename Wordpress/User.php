@@ -172,6 +172,53 @@ class User
     }
 
     /**
+     * Hent WordpressId fra bruker-objektet
+     *
+     * @return User
+     */
+    public function getWordpressId() {
+        try {
+           return User::getByParticipant( $this->getId() );
+        } catch( Exception $e ) {
+           if( !empty( $this->getEpost() ) ) {
+               return User::getByEmail( $this->getEpost());
+           }
+           
+           return User::getByPhone( $this->getMobil() );
+           throw $e;
+        }
+    }
+
+    /**
+     * Henter bruker ut fra gitt participant_id
+     *
+     * @param Int $p_id
+     * @return User
+     */
+    public static function getByParticipant( Int $p_id ) {
+
+    }
+
+    /**
+     * Henter bruker ut fra gitt e-post
+     *
+     * @param Int $p_id
+     * @return User
+     */
+    public static function getByEmail( String $email ) {
+
+    }
+
+    /**
+     * Henter bruker ut fra gitt mobil
+     *
+     * @param Int $p_id
+     * @return User
+     */
+    public static function getByPhone( Int $phone ) {
+
+    }
+    /**
      * Hent metadata-container
      *
      * @return Collection
