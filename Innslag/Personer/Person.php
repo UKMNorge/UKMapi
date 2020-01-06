@@ -321,11 +321,11 @@ class Person
     /**
      * Hent mobil
      *
-     * @return String $mobil
+     * @return Int $mobil
      **/
     public function getMobil()
     {
-        return $this->mobil;
+        return (Int) $this->mobil;
     }
 
     /**
