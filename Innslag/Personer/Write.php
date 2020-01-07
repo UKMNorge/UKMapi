@@ -193,8 +193,21 @@ class Write {
 		// KJØR SPØRRING HVIS ENDRINGER FINNES
 		if( $smartukm_participant->hasChanges() ) {
 			#echo $smartukm_participant->debug();
-			$smartukm_participant->run();
-		}
+            $smartukm_participant->run();
+        }
+        
+        // Hvis vi har endret mobiltelefon, oppdater den også i Samtykke-raden.
+        if( $person_db->getMobil() != $person_save->getMobil() ) {
+            $samtykke_endring = new Update(
+                'samtykke_deltaker', 
+                [
+                    'p_id' => $person_save->getId(),
+                ]
+            );
+            $samtykke_endring->add('mobil', $person_save->getMobil());
+            $samtykke_endring->run();
+        }
+    
 		return true;
 	}
 	
