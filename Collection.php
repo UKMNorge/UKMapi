@@ -37,6 +37,7 @@ abstract class Collection implements Iterator
     }
 
     public function get( $id ) {
+        $this->_doLoad();
         return $this->find( $id );
     }
 

@@ -28,7 +28,7 @@ class Playback
 
     public function __construct($data)
     {
-        $this->id = (int) $data['id'];
+        $this->id = (int) $data['pb_id'];
         $this->arrangement_id = (int) $data['pl_id'];
         $this->innslag_id = (int) $data['b_id'];
         $this->navn = $data['pb_name'];

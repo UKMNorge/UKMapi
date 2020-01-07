@@ -11,8 +11,7 @@ class Samling extends Collection
 {
     var $id = null;
     var $filer = null;
-    var $loaded = false;
-    var $innslagID = null;
+    var $innslag_id = null;
 
 
     /**
@@ -26,24 +25,11 @@ class Samling extends Collection
     }
 
     /**
-     * Last inn og returner alle playbackfiler for innslaget
-     *
-     * @return void
-     */
-    public function getAll()
-    {
-        if (!$this->loaded) {
-            $this->_load();
-        }
-        return parent::getAll();
-    }
-
-    /**
      * Last inn alle playbackfiler for gitt innslag
      *
      * @return void
      */
-    private function _load()
+    public function _load()
     {
         $sql = new Query(
             Playback::getLoadQuery() . "
@@ -53,13 +39,11 @@ class Samling extends Collection
             ]
         );
         $res = $sql->run();
-
         if ($res) {
-            while ($row = SQL::fetch($res)) {
+            while ($row = Query::fetch($res)) {
                 $this->add(new Playback($row));
             }
         }
-        $this->loaded = true;
     }
 
 
@@ -68,6 +52,6 @@ class Samling extends Collection
      */
     public function getInnslagID()
     {
-        return $this->innslagID;
+        return $this->innslag_id;
     }
 }

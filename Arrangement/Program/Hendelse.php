@@ -152,7 +152,7 @@ class Hendelse
     /**
      * Hent innslag i denne forestillingen.
      *
-     * @return innslag collection
+     * @return Samling
      **/
     public function getInnslag()
     {

@@ -45,6 +45,7 @@ class Innslag
     var $program = null;
     var $kategori = null;
     var $sjanger = null;
+    /* @var PlaybackSamling $playback */
     var $playback = null;
     var $personer_collection = null;
     var $artikler_collection = null;
@@ -713,8 +714,7 @@ class Innslag
     /**
      * Hent playback
      *
-     * @return playback_collection
-     *
+     * @return PlaybackSamling
      **/
     public function getPlayback()
     {

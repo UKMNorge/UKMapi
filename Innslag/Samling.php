@@ -131,7 +131,7 @@ class Samling {
 	/**
 	 * Hent alle fullstendig påmeldte innslag
 	 *
-	 * @return array $innslag
+	 * @return Innslag[] $innslag
 	**/
 	public function getAll() {
 		if( null == $this->innslag ) {

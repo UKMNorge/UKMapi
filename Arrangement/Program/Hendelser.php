@@ -164,7 +164,9 @@ class Hendelser {
         return $alle;
     }
 
-
+    /**
+     * @return Hendelse[]
+     */
     public function getAbsoluteAll()
     {
         $alle = [];
