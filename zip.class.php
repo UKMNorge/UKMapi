@@ -1,4 +1,10 @@
 <?php
+/* TOD: marius skulle se på
+if( !file_exists( DOWNLOAD_PATH_ZIP ) ) {
+	mkdir( DOWNLOAD_PATH_ZIP, 0777, true );
+}
+*/
+
 class zip {
 	var $debug = false;
 	var $tryCatch = false;

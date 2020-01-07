@@ -48,7 +48,7 @@ abstract class Modul {
      * Get Flashbag 
      * Instance of UKMflashbag.class
      * 
-     * @return UKMflash
+     * @return Flashbag
      */
     public static function getFlash() {
         return static::$flashbag;
@@ -58,7 +58,7 @@ abstract class Modul {
      * Get Flashbag
      * ALIAS: static::getFlash()
      * 
-     * @return UKMflash
+     * @return Flashbag
      */
     public static function getFlashbag() {
         return static::getFlash();
