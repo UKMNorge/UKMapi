@@ -281,8 +281,6 @@ class statistikk {
 				$stats_info = array(
 					"b_id" => $innslag->getId(), // innslag-id
 					"p_id" => $person->getId(), // person-id
-					"k_id" => $innslag->getKommune()->getId(), // kommune-id
-					"f_id" => $innslag->getFylke()->getId(), // fylke-id
 					"bt_id" => $innslag->getType()->getId(), // innslagstype-id
 					"subcat" => $innslag->getKategori(), // underkategori
 					"age" => $person->getAlder('') == '25+' ? 0 : $person->getAlder(''), // alder
@@ -291,7 +289,20 @@ class statistikk {
 					"fylke" => false, // dratt pa fylkesmonstring?
 					"land" => false, // dratt pa festivalen?
 					"season" => $innslag->getSesong() // sesong
-				);
+                );
+                
+                // Hvis vi har kommune også
+                try {
+                    $stats_info["k_id"] = $innslag->getKommune()->getId(); // kommune-id
+                    $stats_info["k_id"] = $innslag->getFylke()->getId(); // fylke-id
+                } catch ( Exception $e) {
+                    if($e->getCode() == 102001) {
+                        $stats_info["k_id"] = 0;
+                        $stats_info["k_id"] = 0;
+                    } else {
+                        throw $e;
+                    }
+                }
 				
 				// faktisk lagre det 
 				$qry = "SELECT * FROM `ukm_statistics`" .

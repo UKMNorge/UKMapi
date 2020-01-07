@@ -61,10 +61,18 @@ class Write {
 	 * @param String $fornavn
 	 * @param String $etternavn
 	 * @param Int $mobil
-	 * @param Kommune $kommune_id
+	 * @param Kommune $kommune
 	 * @return Person
 	 */
-	public static function create( String $fornavn, String $etternavn, Int $mobil, Kommune $kommune) {
+    public static function create( String $fornavn, String $etternavn, Int $mobil, Kommune $kommune) {
+        static::do_create($fornavn, $etternavn, $mobil, $kommune);
+    }
+
+    public static function create_fylke( String $fornavn, String $etternavn, Int $mobil, Fylke $fylke ) {
+        static::do_create($fornavn, $etternavn, $mobil, null, $fylke);
+    }
+    
+    private static function do_create( String $fornavn, String $etternavn, Int $mobil, Kommune $kommune = null, Fylke $fylke = null) {
 		// Valider logger
 		if( !Logger::ready() ) {
 			throw new Exception(
@@ -74,13 +82,21 @@ class Write {
 		}
 		// Valider input-data
 		try {
-			Write::_validerCreate( $fornavn, $etternavn, $mobil, $kommune );
+			Write::_validerCreate( $fornavn, $etternavn, $mobil );
 		} catch( Exception $e ) {
 			throw new Exception(
 				'Kunne ikke opprette person. '. $e->getMessage(),
 				$e->getCode()
 			);
-		}
+        }
+        
+        // Sjekk at enten kommune eller fylke er definert
+        if( !Kommune::validateClass($kommune) && !Fylke::validateClass($fylke) ) {
+            throw new Exception(
+				"Kan ikke opprette påmelding uten enten kommune eller fylke",
+				506005
+			);
+        }
 
 		// Har vi denne personen?
 		$p_id = self::finnEksisterendePerson($fornavn, $etternavn, $mobil);
@@ -90,8 +106,12 @@ class Write {
 			$sql = new Insert("smartukm_participant");
 			$sql->add('p_firstname', $fornavn);
 			$sql->add('p_lastname', $etternavn);
-			$sql->add('p_phone', $mobil);
-			$sql->add('p_kommune', $kommune->getId());
+            $sql->add('p_phone', $mobil);
+            if(NULL != $kommune) {
+                $sql->add('p_kommune', $kommune->getId());    
+            } else {
+                $sql->add('p_kommune', 0);
+            }
 			$insert_id = $sql->run(); 
 			
 			// Database-oppdatering feilet
@@ -103,8 +123,8 @@ class Write {
 			}
 			$p_id = $insert_id;
 		}
-		// Personen finnes i databasen, oppdater kommune
-		else {
+		// Personen finnes i databasen og vi har kommune, oppdater kommune
+		elseif ( NULL != $kommune ) {
 			$sql = new Insert(
                 "smartukm_participant",
                 ['p_id' => $p_id]
@@ -708,7 +728,7 @@ class Write {
 	 *
 	 * @see create()
 	**/
-	private static function _validerCreate( $fornavn, $etternavn, $mobil, $kommune ) {
+	private static function _validerCreate( $fornavn, $etternavn, $mobil ) {
 		if(!is_string($fornavn) || empty($fornavn) || !is_string($etternavn) || empty($etternavn) ) {
 			throw new Exception(
 				"Fornavn og etternavn må være en streng.",
@@ -719,12 +739,6 @@ class Write {
 			throw new Exception(
 				"Mobilnummeret må bestå kun av tall og være 8 siffer langt!",
 				506006
-			);
-		}
-		if( !Kommune::validateClass($kommune) ) {
-			throw new Exception(
-				"Kommune må være kommune-objekt.",
-				506005
 			);
 		}
 	}

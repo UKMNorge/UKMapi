@@ -501,7 +501,16 @@ class Person
     public function getKommune()
     {
         if (null == $this->kommune) {
-            $this->kommune = new Kommune($this->kommune_id);
+            try {
+                $this->kommune = new Kommune($this->kommune_id);
+            } catch( Exception $e ) {
+                # Fix for gammel oppførsel av Kommune::__construct()
+                if($e->getCode() == 102001) {
+                    $this->kommune = false;
+                } else {
+                    throw $e;
+                }
+            }
         }
         return $this->kommune;
     }

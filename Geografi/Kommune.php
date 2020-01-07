@@ -2,6 +2,7 @@
 
 namespace UKMNorge\Geografi;
 
+use Exception;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Nettverk\Omrade;
 
@@ -26,7 +27,11 @@ class Kommune {
 			$this->_loadByID( $kid_or_row );
 		} else {
 			$this->_loadByRow( $kid_or_row );
-		}
+        }
+        
+        if($this->getId() == NULL ) {
+            throw new Exception("Fant ikke kommune", 102001);
+        }
     }
 
     public static function getLoadQuery() {

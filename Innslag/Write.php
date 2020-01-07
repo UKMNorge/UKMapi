@@ -12,6 +12,7 @@ use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Database\SQL\Update;
 use UKMNorge\Geografi\Kommune;
+use UKMNorge\Geografi\Fylke;
 use UKMNorge\Innslag\Context\Monstring;
 use UKMNorge\Innslag\Personer\Person;
 use UKMNorge\Innslag\Personer\Write as WritePerson;
@@ -34,7 +35,38 @@ class Write {
 	 *
 	 * @return Innslag $innslag
 	**/
-	public static function create( Kommune $kommune, Arrangement $arrangement, Type $type, String $navn, Person $kontaktperson ) {
+    public static function create( Kommune $kommune, Arrangement $arrangement, Type $type, String $navn, Person $kontaktperson ) {
+        return static::do_create($arrangement, $type, $navn, $kontaktperson, $kommune);
+    }
+    
+    /**
+     * Opprett et nytt innslag på fylkes-arrangement (uten kommune-tilknytning! :( )
+     * 
+     * @param Arrangement $arrangement
+     * @param Type $type 
+	 * @param String $navn
+	 * @param Person $kontaktperson
+     * @param Fylke $fylke
+     * 
+     * @return Innslag $innslag
+     */
+    public static function create_fylke( Arrangement $arrangement, Type $type, String $navn, Person $kontaktperson, Fylke $fylke ) {
+        return static::do_create($arrangement, $type, $navn, $kontaktperson, null, $fylke);
+    }
+
+    /**
+     * Faktisk opprett det nye innslaget
+     * 
+     * @param Arrangement $arrangement
+     * @param Type $type 
+	 * @param String $navn
+	 * @param Person $kontaktperson
+     * @param Kommune $kommune (optional, null)
+     * @param Fylke $fylke (optional, null)
+     * 
+     * @return Innslag $innslag
+     */
+    public static function do_create( Arrangement $arrangement, Type $type, String $navn, Person $kontaktperson, Kommune $kommune = NULL, Fylke $fylke = NULL) {
 		// Valider at logger er på plass
 		if( !Logger::ready() ) {
 			throw new Exception(
@@ -44,20 +76,33 @@ class Write {
 		}
 		// Valider alle input-parametre
 		try {
-			Write::_validerCreate( $kommune, $arrangement, $type, $navn, $kontaktperson );
+			Write::_validerCreate( $arrangement, $type, $navn, $kontaktperson );
 		} catch( Exception $e ) {
 			throw new Exception(
 				'Kunne ikke opprette innslag. '. $e->getMessage(),
 				$e->getCode()
 			);
-		}
+        }
+        
+        if( NULL == $kommune && NULL == $fylke) {
+            throw new Exception(
+				"Mangler både kommune- og fylke-objekt.",
+				505003
+			);
+        }
+        # TODO: Validate the actual class we're using
+        
 		
 		## CREATE INNSLAG-SQL
 		$band = new Insert('smartukm_band');
 		$band->add('b_season', $arrangement->getSesong() );
 		$band->add('b_status', 0); ## Hvorfor får innslaget b_status 8 her???
 		$band->add('b_name', $navn);
-		$band->add('b_kommune', $kommune->getId());
+        if( NULL != $kommune) {
+            $band->add('b_kommune', $kommune->getId());
+        } else {
+            $band->add('b_kommune', 0);
+        }
 		$band->add('b_year', date('Y'));
 		$band->add('b_subscr_time', time());
 		$band->add('bt_id', $type->getId() );
@@ -182,11 +227,18 @@ class Write {
 		}
 		
 		// SPESIAL-VERDIER
-		# KOMMUNE
-		if( $innslag_db->getKommune()->getId() != $innslag_save->getKommune()->getId() ) {
-			$smartukm_band->add('b_kommune', $innslag_save->getKommune()->getId() );
-			Logger::log( 307, $innslag_save->getId(), $innslag_save->getKommune()->getId() );
-		}
+        # KOMMUNE
+        try {
+            if( $innslag_db->getKommune()->getId() != $innslag_save->getKommune()->getId() ) {
+                $smartukm_band->add('b_kommune', $innslag_save->getKommune()->getId() );
+                Logger::log( 307, $innslag_save->getId(), $innslag_save->getKommune()->getId() );
+            }
+        } catch(Exception $e) {
+            if($e->getCode() != 102001) {
+                throw $e;
+            }
+        }
+		
 		# KONTAKTPERSON
 		if( $innslag_db->getKontaktperson()->getId() != $innslag_save->getKontaktperson()->getId() ) {
 			$smartukm_band->add('b_contact', $innslag_save->getKontaktperson()->getId() );
@@ -570,17 +622,11 @@ class Write {
 	 *
 	 * @see create()
 	**/
-	private static function _validerCreate( $kommune, $arrangement, $type, $navn, $kontaktperson ) {
+	private static function _validerCreate( $arrangement, $type, $navn, $kontaktperson ) {
 		if( !Arrangement::validateClass($arrangement) ) {
 			throw new Exception(
 				"Krever arrangement-objekt, ikke ".get_class($arrangement).".",
 				505002
-			);
-		}
-		if( !Kommune::validateClass($kommune) ) {
-			throw new Exception(
-				"Krever kommune-objekt, ikke ".get_class($kommune).".",
-				505003
 			);
 		}
 		if( !Type::validateClass($type) ) {

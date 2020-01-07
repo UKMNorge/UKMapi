@@ -1048,13 +1048,22 @@ class Write
 
         Logger::log( 318, $innslag->getId(), $innslag->getContext()->getMonstring()->getId() );
 
-        if( $arrangement->getId() == $fra_arrangement->getId() ) {
-            $fra_id = 0;
-            $fra_navn = $innslag->getKommune()->getNavn();
-        } else {
-            $fra_id = $arrangement->getId();
-            $fra_navn = $arrangement->getNavn();
-        }
+        try {
+            if( $arrangement->getId() == $fra_arrangement->getId() ) {
+                $fra_id = 0;
+                $fra_navn = $innslag->getKommune()->getNavn();
+            } else {
+                $fra_id = $arrangement->getId();
+                $fra_navn = $arrangement->getNavn();
+            }
+        } catch( Exception $e ) {
+            if($e->getCode() == 102001) {
+                $fra_id = 0;
+                $fra_navn = "Påmeldt til fylke";
+            } else {
+                throw $e;
+            }
+        }        
 
         // Opprett relasjon mellom innslaget og arrangementet
         // Påkrevd f.o.m. 2020
