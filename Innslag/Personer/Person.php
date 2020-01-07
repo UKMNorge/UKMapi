@@ -9,6 +9,7 @@ use UKMNorge\Geografi\Kommune;
 use UKMNorge\Innslag\Context\Context;
 use UKMNorge\Innslag\Typer\Typer;
 use UKMNorge\Sensitivt\Person as PersonSensitivt;
+use UKMNorge\Wordpress\User;
 
 require_once('UKM/Autoloader.php');
 
@@ -135,6 +136,27 @@ class Person
         }
 
         return new Person($person_data);
+    }
+
+
+    /**
+     * Hent wordpressId for deltakeren (hvis de har en)
+     *
+     * @throws Exception if not found
+     * @return Int $wordpressId
+     */
+    public function getWordpressId() {
+        try {
+            $user = User::loadByParticipant($this->getId());
+        } catch( Excpetion $e ) {
+            if( $e->getCode() == 171005 && !empty($this->getEpost())) {
+                $user = User::loadByEmail( $this->getEpost());
+            } else {
+                throw $e;
+            }
+        }
+
+        return $user->getId();
     }
 
     /**
@@ -299,11 +321,11 @@ class Person
     /**
      * Hent mobil
      *
-     * @return String $mobil
+     * @return Int $mobil
      **/
     public function getMobil()
     {
-        return $this->mobil;
+        return (Int) $this->mobil;
     }
 
     /**

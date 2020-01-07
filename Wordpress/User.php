@@ -254,7 +254,39 @@ class User
 
         return $user;
     }
-
+    
+    /**
+     * Henter bruker ut fra gitt participant_id
+     *
+     * @throws Exception not found
+     * @param Int $p_id
+     * @return User
+     */
+    public static function loadByParticipant( Int $p_id ) {
+        $query = new Query(
+            "SELECT `wp_id`
+            FROM `ukm_delta_wp_user` 
+            WHERE `participant_id` = '#id'",
+            [
+                'id' => $p_id
+            ]
+        );
+        $wp_id = (Int) $query->getField();
+        try {
+            if( function_exists('get_user_by') ) {
+                $user = static::loadById( $wp_id );
+            } else {
+                $user = User::loadByIdInStandaloneEnvironment($wp_id);
+            }
+        } catch( Exception $e ) {
+            throw Exception(
+                'Kunne ikke finne Wordpress-bruker for deltaker '. $p_id .'. '.
+                'Systemet sa: '. $e->getMessage(),
+                171005
+            );
+        }
+        return $user;
+    }
 
     /**
      * Opprett et brukerobjekt
