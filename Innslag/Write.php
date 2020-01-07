@@ -148,13 +148,11 @@ class Write {
 
         // EVALUER INNSLAGETS MANGLER
         $innslag_save->evaluerMangler();
-        // Hvis innslaget ikke har noen mangler, er status=8 (påmeldt)
-        if( $innslag_save->getMangler()->getAntall() == 0 ) {
-            $status = $innslag_save->getMangler()->getStatus();
-            $innslag_save->setStatus($status);
-            $smartukm_band->add('b_status', $status);
-            Logger::log( 304, $innslag_save->getId(), $status);
-        }
+        // Lagre status hentet fra evaluering av mangler.
+        $status = $innslag_save->getMangler()->getStatus();
+        $innslag_save->setStatus($status);
+        $smartukm_band->add('b_status', $status);
+        Logger::log( 304, $innslag_save->getId(), $status);
         
 		// VERDIER SOM KAN OPPDATERES
 		$properties = [

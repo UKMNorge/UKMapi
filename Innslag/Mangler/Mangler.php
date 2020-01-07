@@ -14,12 +14,19 @@ class Mangler extends Collection
     public function __construct()
     { }
 
-
     public function getStatus() {
         if( $this->getAntall() == 0 ) {
             return 8;
         }
-        return 1;
+
+        // Dersom du ikke har personer i innslaget er du bare såvidt begynt påmelding.
+        if( $this->harKategori("personer") ) {
+            return 2;
+        }
+        else {
+            // Så lenge du har lagt til personer i innslaget ditt er du nesten ferdig påmeldt.
+            return 6;
+        }
     }
 
     /**
