@@ -148,7 +148,7 @@ class Person
     public function getWordpressId() {
         try {
             $user = User::loadByParticipant($this->getId());
-        } catch( Excpetion $e ) {
+        } catch( Exception $e ) {
             if( $e->getCode() == 171005 && !empty($this->getEpost())) {
                 $user = User::loadByEmail( $this->getEpost());
             } else {

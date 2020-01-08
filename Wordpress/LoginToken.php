@@ -2,7 +2,8 @@
 
 namespace UKMNorge\Wordpress;
 
-use DateTime;
+use \Exception;
+use \DateTime;
 use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Database\SQL\Update;
@@ -10,6 +11,7 @@ use UKMNorge\Database\SQL\Update;
 Class LoginToken {
     var $id = null;
     var $delta_id = null;
+    var $secret = null;
     var $wp_id = null;
     var $timestamp = null;
 
@@ -19,10 +21,12 @@ Class LoginToken {
      * @param Array $data
      */
     public function __construct( Array $data ) {
-        $this->id = $data['token_id'];
+        $this->token_id = $data['token_id'];
         $this->delta_id = $data['delta_id'];
+        $this->secret = $data['secret'];
         $this->wp_id = $data['wp_id'];
         $this->timestamp = new DateTime($data['timestamp']);
+        $this->used = $data['used'];
     }
 
     /**
@@ -36,7 +40,7 @@ Class LoginToken {
         $insert = new Insert('ukm_delta_wp_login_token');
         $insert->add('delta_id', $delta_id);
         $insert->add('wp_id', $wp_id);
-        $insert->add('secret', sha1( $delta_id . UKM_SALT));
+        $insert->add('secret', sha1( $delta_id . UKM_SALT . microtime() ));
         
         $res = $insert->run();
         
@@ -51,6 +55,18 @@ Class LoginToken {
     }
 
     /**
+     * 
+     */
+    public static function loadById( Int $id ) {
+        $sql = new Query("SELECT * FROM `ukm_delta_wp_login_token` WHERE `token_id` = '#id'", ['id' => $id]);
+        $res = $sql->getArray();
+        if( false == $res ) {
+            throw new Exception ("Did not find any token with id ".$id);
+        }
+        return new LoginToken( $res );
+    }
+
+    /**
      * Last inn en loginToken fra ID og hemmelighet
      *
      * @param Int $id
@@ -60,12 +76,13 @@ Class LoginToken {
         $query = new Query(
             "SELECT * 
             FROM `ukm_delta_wp_login_token`
-            WHERE `delta_id` = '#id'
+            WHERE `token_id` = #id
             AND `secret` = '#secret'
-            AND `timestamp` < (NOW() - INTERVAL 1 MINUTE)
+            AND `timestamp` > (NOW() - INTERVAL 1 MINUTE)
+            AND `used` = 'false'
             ",
             [
-                'delta_id' => $id,
+                'id' => $id,
                 'secret' => $secret
             ]
         );
@@ -89,11 +106,11 @@ Class LoginToken {
      */
     public static function use( Int $id, String $secret ) {
         $token = static::get($id, $secret);
-        
+
         $update = new Update(
             'ukm_delta_wp_login_token',
             [
-                'id' => $token->token_id
+                'token_id' => $id
             ]
         );
         $update->add('used','true');
