@@ -1,5 +1,8 @@
 <?php
 
+namespace UKMNorge\Avis;
+
+use Exception;
 use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Database\SQL\Query;
@@ -86,7 +89,7 @@ class Aviser {
         );
 		$res = $sql->run();
 
-		while( $r = SQL::fetch( $res ) ) {
+		while( $r = Query::fetch( $res ) ) {
 			$this->aviser[] = new Avis( $r );
 		}
 	}
