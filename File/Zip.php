@@ -4,8 +4,12 @@ if( !file_exists( DOWNLOAD_PATH_ZIP ) ) {
 	mkdir( DOWNLOAD_PATH_ZIP, 0777, true );
 }
 */
+namespace UKMNorge\File;
 
-class zip {
+use ZipArchive;
+use Exception;
+
+class Zip {
 	var $debug = false;
 	var $tryCatch = false;
 	
@@ -88,9 +92,9 @@ class zip {
 			}
 			$zip = new ZipArchive();
 			if( !file_exists( $this->destination ) ) {
-				$open = $zip->open($this->destination, ZIPARCHIVE::CREATE);
+				$open = $zip->open($this->destination, ZipArchive::CREATE);
 			} elseif( $this->overwrite ) {
-				$open = $zip->open($this->destination, ZIPARCHIVE::OVERWRITE);
+				$open = $zip->open($this->destination, ZipArchive::OVERWRITE);
 			} else {
 				return $this->_error('Fil finnes, overskriver ikke', 10);
 			}
