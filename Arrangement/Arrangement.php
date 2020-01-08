@@ -17,6 +17,7 @@ use UKMNorge\Arrangement\Skjema\Skjema;
 use UKMNorge\Google\StaticMap;
 use UKMNorge\Arrangement\Videresending\Videresending;
 use UKMNorge\Innslag\Context\Context;
+use UKMNorge\Meta\Value as MetaValue;
 use UKMNorge\Meta\Collection as MetaCollection;
 use UKMNorge\Nettverk\Omrade;
 use UKMNorge\Geografi\Kommune;
@@ -1450,7 +1451,7 @@ class Arrangement
      * Hent metadata
      * 
      * @param String $key
-     * @return Value $metadata
+     * @return MetaValue $metadata
      */
     public function getMeta($key)
     {
@@ -1483,6 +1484,19 @@ class Arrangement
     public function getInformasjonstekst()
     {
         return $this->getMetaValue('infotekst_videresending');
+    }
+
+    /**
+     * Hent pressemelding for arrangementet (hvis dette finnes)
+     *
+     * @return String pressemelding HTML
+     */
+    public function getPressemelding() {
+        $pressemelding = $this->getMetaValue('pressemelding');
+        if( is_string($pressemelding) && strlen($pressemelding) > 0 ) {
+            return $pressemelding;
+        }
+        return '';
     }
 
     /**

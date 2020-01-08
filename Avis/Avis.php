@@ -1,8 +1,11 @@
 <?php
-require_once('UKM/sql.class.php');
-require_once('UKM/kommune.class.php');
 
-class avis {
+namespace UKMNorge\Avis;
+
+use UKMNorge\Database\SQL\Query;
+use UKMNorge\Geografi\Kommune;
+
+class Avis {
 	private $id;
 	private $name;
 	private $url;
@@ -20,12 +23,17 @@ class avis {
 	}
 	
 	public function isRelated( $kommune ) {
-		$sql = new SQL("SELECT * FROM `ukm_avis_nedslagsfelt`
-						WHERE `avis_id` = '#avis'
-						AND `kommune_id` = '#kommune'",
-						array( 'avis' => $this->id, 'kommune' => $kommune )
-					);
-		$res = $sql->run('field', 'id');
+		$sql = new Query(
+            "SELECT `id` 
+            FROM `ukm_avis_nedslagsfelt`
+            WHERE `avis_id` = '#avis'
+            AND `kommune_id` = '#kommune'",
+            [
+                'avis' => $this->id,
+                'kommune' => $kommune
+            ]
+        );
+		$res = $sql->getField();
 		if( null === $res ) {
 			return false;
 		}
@@ -78,22 +86,32 @@ class avis {
 		$this->kommuner = array();
 		$this->kommuneid_array = array();
 		
-		$sql = new SQL("SELECT `kommune_id` FROM `ukm_avis_nedslagsfelt`
-				WHERE `avis_id` = '#avis'",
-				array( 'avis' => $this->id )
-			);
+		$sql = new Query(
+            "SELECT `kommune_id`
+            FROM `ukm_avis_nedslagsfelt`
+			WHERE `avis_id` = '#avis'",
+			[
+                'avis' => $this->id
+            ]
+		);
 		$res = $sql->run();
 		
-		while( $r = SQL::fetch( $res ) ) {
-			$this->kommuner[] = new kommune( $r['kommune_id'] );
+		while( $r = Query::fetch( $res ) ) {
+			$this->kommuner[] = new Kommune( $r['kommune_id'] );
 			$this->kommuneid_array[] = $r['kommune_id'];
 		}
 	}
 	
 	private function _load_from_id( $id ) {
-		$SQL = new SQL("SELECT * FROM `ukm_avis` WHERE `id` = '#id'",
-						array('id' => $id ) );
-		$res = $SQL->run('array');
+		$SQL = new Query(
+            "SELECT * 
+            FROM `ukm_avis` 
+            WHERE `id` = '#id'",
+            [
+                'id' => $id
+            ]
+        );
+		$res = $SQL->getArray();
 		$this->_load_from_row( $res );
 	}
 	
