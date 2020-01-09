@@ -37,6 +37,11 @@ Class LoginToken {
      * @return LoginToken $logintoken
      */
     public static function create( Int $delta_id, Int $wp_id ) {
+        # Nekt å opprett token for wp_id = 1, da dette er superbrukeren!
+        if( $wp_id == 1 || $wp_id == NULL ) {
+            throw new Exception("Du kan ikke logge inn som denne brukeren.");
+        }
+        
         $insert = new Insert('ukm_delta_wp_login_token');
         $insert->add('delta_id', $delta_id);
         $insert->add('wp_id', $wp_id);

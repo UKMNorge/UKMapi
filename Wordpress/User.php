@@ -279,7 +279,7 @@ class User
                 $user = User::loadByIdInStandaloneEnvironment($wp_id);
             }
         } catch( Exception $e ) {
-            throw Exception(
+            throw new Exception(
                 'Kunne ikke finne Wordpress-bruker for deltaker '. $p_id .'. '.
                 'Systemet sa: '. $e->getMessage(),
                 171005

@@ -6,6 +6,7 @@ use WP_Error;
 use UKMNorge\Kommunikasjon\Epost;
 use UKMNorge\Kommunikasjon\Mottaker;
 use UKMNorge\Twig\Twig;
+use UKMNorge\Database\SQL\Insert;
 
 class WriteUser
 {
@@ -54,9 +55,10 @@ class WriteUser
      * Lagre / opprett et brukerobjekt
      *
      * @param User $user
+     * @param bool $sendVelkommen (optional) - Om vi skal sende velkommen-hilsen eller ikke. Defaulter til true, men settes false blant annet for deltakerbrukere som logger inn via UKMdelta.
      * @return User $user
      */
-    public static function save(User $user)
+    public static function save(User $user, bool $sendVelkommen = true)
     {
         // Opprett bruker hvis det var en placeholder
         if( !$user->isReal() ) {
@@ -94,7 +96,10 @@ class WriteUser
             }
 
             $user->setId( $wp_user );
-            static::sendVelkommen( $user->getName(), $user->getEmail(), $password );
+            if( $sendVelkommen ) {
+                static::sendVelkommen( $user->getName(), $user->getEmail(), $password );
+            }
+            
         }
         // Herfra er user for real (🎉)
 
@@ -118,7 +123,36 @@ class WriteUser
 
         return $user;
     }
+    /**
+     * Opprett en moderne deltaker-bruker med innlogging fra Delta.
+     * Oppretter et brukerobjekt, lagrer det til wordpress-databasen og legger til en rad for brukeren i ukm_delta_wp_user.
+     *
+     * @param String $username
+     * @param String $email
+     * @param String $first_name
+     * @param String $last_name
+     * @param Int $phone
+     * @return User $user
+     */
+    public static function createParticipantUser(String $username, String $email, String $first_name, String $last_name, Int $phone, Int $participant_id) {
+        $user = User::createEmpty();
+        $user->setUsername($username);
+        $user->setEmail($email);
+        $user->setFirstName($first_name);
+        $user->setLastName($last_name);
+        $user->setPhone($phone);
 
+        static::save($user, false);
+
+        # TODO: Fjern WP-brukeren hardt og brutalt om Insert under feiler.
+        $sql = new Insert('ukm_delta_wp_user');
+        $sql->add('wp_id', $user->getId());
+        $sql->add('participant_id', $participant_id);
+        $sql->run();
+
+        return $user;
+    }
+    
     /**
      * Send velkommen-epost til brukeren
      *
