@@ -612,7 +612,7 @@ class Samling {
                         ]
                 );
             case 'deltauser':
-                return new Query(
+                $qry = new Query(
                     Innslag::getLoadQuery()."
                     WHERE `b_password` = 'delta_#user_id' 
                     AND `b_season` = '#sesong'
@@ -622,6 +622,8 @@ class Samling {
                         'sesong' => $this->getContext()->getSesong()
                     ]
                 );
+                throw new Exception("Loading deltausers via b_password is deprecated! Dette skal ikke skje og er en systemfeil. Kontakt UKM Support for hjelp.");
+                return $qry;
             case 'sesong':
                 return new Query(
                     "SELECT `band`.*, 
