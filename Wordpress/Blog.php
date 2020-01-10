@@ -454,7 +454,11 @@ class Blog
      */
     public static function harBloggBruker(Int $blog_id, User $user) {
         # Prøv å opprett WP_User med oppgitt data. Om den finnes og har en rolle er alt OK
-        $wp_user = get_users(['blog_id' => $blog_id, 'search' => $user->getId()]);
+        $wp_users = get_users(['blog_id' => $blog_id, 'search' => $user->getId()]);
+        if( isset( $wp_users[0] ) ) {
+            $wp_user = $wp_users[0];
+        }
+
         if( empty($wp_user->roles) ) {
             return false;
         }

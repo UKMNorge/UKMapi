@@ -52,6 +52,31 @@ class WriteUser
     }
 
     /**
+     * Oppgraderer en bruker fra en vanlig deltakerbruker.
+     * Finner roller selv. 
+     * 
+     * @param User
+     * @param Int $blog_id
+     * @return bool true hvis brukeren er oppgradert.
+     * @throws Exception dersom brukeren ikke finnes eller ikke har en rolle som kan oppgraderes.
+     */
+    public static function oppgraderBruker( User $user, Int $blog_id ) {
+
+    }
+
+    /**
+     * Nedgrader en bruker til vanlig deltakerbruker.
+     * 
+     * @param User
+     * @param Int $blog_id
+     * @return bool true hvis brukeren er nedgradert.
+     * @throws Exception dersom brukeren ikke finnes eller ikke har en rolle på bloggen.
+     */
+    public static function nedgraderBruker( User $user, Int $blog_id ) {
+
+    }
+
+    /**
      * Lagre / opprett et brukerobjekt
      *
      * @param User $user
