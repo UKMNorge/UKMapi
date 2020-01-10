@@ -10,6 +10,7 @@ use UKMNorge\Innslag\Context\Context;
 use UKMNorge\Innslag\Typer\Typer;
 use UKMNorge\Sensitivt\Person as PersonSensitivt;
 use UKMNorge\Wordpress\User;
+use UKMNorge\Innslag\Personer\Foresatt;
 
 require_once('UKM/Autoloader.php');
 
@@ -25,6 +26,7 @@ class Person
     var $rolleObject = null;
     var $epost = null;
     var $fodselsdato = null;
+    var $sistSendt = null;
 
     var $adresse = null;
     var $postnummer = null;
@@ -32,6 +34,8 @@ class Person
 
     private $sensitivt = null;
     var $attributes = null;
+
+    var $foresatt = null;
 
     var $pameldt_til = [];
 
@@ -86,7 +90,7 @@ class Person
 
     /**
      * Hent attributt
-     * 
+     *
      * @param String $key
      * @return Any value
      **/
@@ -117,8 +121,8 @@ class Person
     {
         $qry = new Query(
             self::getLoadQuery() . "
-			WHERE `p_firstname` = '#fornavn' 
-			AND `p_lastname` = '#etternavn' 
+			WHERE `p_firstname` = '#fornavn'
+			AND `p_lastname` = '#etternavn'
 			AND `p_phone` = '#mobil'",
             [
                 'fornavn' => $fornavn,
@@ -184,12 +188,12 @@ class Person
         }
         return true;
     }
-    
+
     /**
      * Hent hvilke arrangement-IDer personen er påmeldt
-     * 
+     *
      * Gjelder også på lokalmønstring fra og med 2020
-     * 
+     *
      * @return Array<Int> $pameldt_til
      **/
     public function getPameldt()
@@ -352,7 +356,7 @@ class Person
 
     /**
      * Sett rolle / instrument
-     * 
+     *
      * (i.e. instrument for scene, film/flerkamera/tekst/foto for UKM Media osv)
      *
      * @param String|Array $rolle
@@ -542,8 +546,8 @@ class Person
     }
 
     /**
-     * Hent kjønnspronomen 
-     * 
+     * Hent kjønnspronomen
+     *
      * Baserer seg på gjetning fra getKjonn
      * @see getKjonn()
      *
@@ -579,7 +583,7 @@ class Person
     /**
      * Hent adresse
      * Sjeldent vi har dette
-     * 
+     *
      * @return String $adresse
      */
     public function getAdresse()
@@ -589,7 +593,7 @@ class Person
 
     /**
      * Sett adresse
-     * 
+     *
      * @param String $adresse
      * @return self
      */
@@ -664,7 +668,7 @@ class Person
     /**
      * Opprett ny person-instance
      *
-     * @param 
+     * @param
      */
     public function __construct($person)
     {
@@ -714,6 +718,7 @@ class Person
         $this->setEpost($row['p_email']);
         $this->setFodselsdato($row['p_dob']);
         $this->setKommune($row['p_kommune']);
+        $this->setSistSendt($row['p_sistsendt']);
         if (array_key_exists('instrument', $row)) {
             $this->setRolle($row['instrument']);
         }
@@ -725,7 +730,7 @@ class Person
                 try {
                     if( is_int($row['bt_id']) ) {
                         $innslag_type = Typer::getById( $row['bt_id'] );
-                        $roller = $innslag_type->getValgteFunksjonerSomKeyVal( $roller );    
+                        $roller = $innslag_type->getValgteFunksjonerSomKeyVal( $roller );
                     }
                 } catch( Exception $e ) {
                     // Ignorer feil - da turer vi bare på med opprinnelig verdi
@@ -762,4 +767,43 @@ class Person
                 ['UKMNorge\Innslag\Personer\Person', 'person_v2']
             );
     }
+
+    public function getForesatt()
+    {
+      if (null == $this->foresatt) {
+        $this->foresatt = new Foresatt ($this->getId());
+      }
+      return $this->foresatt;
+    }
+
+    public function harForesatt()
+    {
+      try {
+        if (null == $this->foresatt) {
+          $this->foresatt = new Foresatt ($this->getId());
+          return true;
+        }
+        return true;
+      } catch (\Exception $e) {
+        return false;
+      }
+    }
+
+    public function setSistSendt($sistSendt)
+    {
+        $this->sistSendt = $sistSendt;
+        return $this;
+    }
+
+    public function getSistSendt()
+    {
+      if($this->sistSendt == NULL)
+      {
+        return 'Aldri sendt melding';
+      }
+      $sistSendt = date("d-m-Y H:i:s", strtotime($this->sistSendt));
+
+      return $sistSendt;
+    }
+
 }
