@@ -222,7 +222,7 @@ abstract class Modul {
 		try {
 			static::setupLogger();
 
-			$controller = basename( $_POST['controller'] );
+			$controller = basename( $_REQUEST['controller'] );
 			if( $controller == 'save' ) {
 				$controller = 'save/'. basename( $_POST['save'] );
             }
