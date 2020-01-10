@@ -12,81 +12,81 @@ require_once('UKM/curl.class.php');
 class SMS {
 	var $price = 0.40;
 	var $bogus = array(44444444, 99999999);
-	
+
 	var $error = false;
 	var $error_messages = array();
 
 	var $transaction_id;
 	var $sender_id = false;
-	
+
 	var $message = '';
 	var $recipients = array();
 	var $from = '';
 	var $from_dirty = '';
-	
+
 	var $blocked = null;
 
 	public function __construct($system_id, $user_id, $pl_id=0) {
 		$this->id_system= $system_id;
-		$this->id_user	= $user_id;		
+		$this->id_user	= $user_id;
 		$this->id_place = $pl_id;
 	}
-	
-	public function text($message) {	
+
+	public function text($message) {
 		$this->message = $message;
 		$this->_length();
 		return $this;
 	}
-	
+
 	public function to($recipients) {
 		if(!empty($recipients)) {
 			$this->recipients = array_merge( $this->recipients, explode(',', str_replace(array(' ',' ',' '),'',strip_tags($recipients))) );
 		}
-		
+
 		return $this;
 	}
-	
+
 	public function from($sender) {
 		$this->from_dirty = $sender;
 		$this->from = $this->_clean($sender);
 		return $this;
 	}
-	
+
 	public function report() {
 		$this->_validate();
 		if($this->error) {
 			return implode(',', $this->error_messages);
 		}
-		
+
 		$this->_credits();
-		
+
 		return $this->credits;
 	}
-	
+
 	public function ok() {
 		$this->report();
-		$this->_create_transaction();		
+		$this->_create_transaction();
 		$this->_add_recipients();
 		$this->sendSMS();
 	}
-	
-	public function sendSMS() {	
+
+	public function sendSMS() {
 		// !! !! !!
 		// SHOULD BULK-SEND 10 AT A TIME
 		// !! !! !!
 		foreach($this->recipients as $recipient) {
-			$this->_send($recipient);	
+			$this->_send($recipient);
 		}
 	}
-	
+
 	private function _send($recipient) {
-		if( $this->_block( $recipient ) ) {
+		if( $this->_block( $recipient ) ||  UKM_HOSTNAME == 'ukm.dev' ) {
 			$sms_result = false;
 		} else {
 			$sms_raw_result = $this->_sveve($recipient);
 			$sms_result = $this->_sveve_parse($sms_raw_result);
 		}
-		
+
 		if($sms_result)
 			$this->_sent($recipient);
 		else
@@ -94,30 +94,34 @@ class SMS {
 
 		return $sms_result;
 	}
-	
+
 	private function _block( $recipient ) {
 		if( null == $this->blocked ) {
 			$this->_loadBlockList();
 		}
 		return in_array( $recipient, $this->blocked );
 	}
-	
+
 	private function _loadBlockList() {
 		$this->blocked = [];
 		$sql = new SQL("SELECT `number`	FROM `sms_block`");
 		$res = $sql->run();
-		
+
 		while( $row = SQL::fetch( $res ) ) {
 			$this->blocked[] = $row['number'];
 		}
 	}
-	
+
 	private function _sent($recipient) {
 		$this->_send_status($recipient, 'sent');
 	}
-	
+
 	private function _not_sent($recipient) {
 		$this->_send_status($recipient, 'error');
+		if( UKM_HOSTNAME == 'ukm.dev') {
+			$this->_error('Kan ikke sende SMS fra testmiljøet. Prøvde å sende: '. $this->message);
+			return;
+		}
 /*
 		if($_SERVER['REMOTE_ADDR'] == '81.0.146.162')
 			var_dump( $this->sveve_parsed_response);
@@ -130,9 +134,9 @@ class SMS {
 			$this->_error('SVEVE ERROR: '. $this->sveve_parsed_response->errors->error->message );
 		} else {
 			$this->_error('SVEVE ERROR: Ukjent feil oppsto');
-		}		
+		}
 	}
-	
+
 	private function _send_status($recipient, $status) {
 		$transaction_recipient_update = new SQLins('log_sms_transaction_recipients',
 													array('t_id' => $this->transaction_id,
@@ -140,7 +144,7 @@ class SMS {
 		$transaction_recipient_update->add('tr_status', $status);
 		$transaction_recipient_update->run();
 	}
-	
+
 	private function _sveve($recipient) {
 		$url = 'https://www.sveve.no/SMS/SendSMS'
 			.  '?user='.UKM_SVEVE_ACCOUNT
@@ -157,20 +161,20 @@ class SMS {
 		$curl->request($url);
 		return $curl->result;
 	}
-	
+
 	private function _sveve_parse($response) {
 		$response = simplexml_load_string($response);
 		$response = $response->response;
-		
+
 		$this->sveve_parsed_response = $response;
 
 		if(isset($response->errors))
 			return false;
-		
+
 		return true;
 	}
 
-	
+
 	private function _add_recipients() {
 		// ADD RECIPIENTS
 		foreach($this->recipients as $recipient) {
@@ -181,7 +185,7 @@ class SMS {
 			$recipient_add->run();
 		}
 	}
-	
+
 	private function _create_transaction() {
 		// CREATE TRANSACTION
 		$transaction = new SQLins('log_sms_transactions');
@@ -191,44 +195,44 @@ class SMS {
 		$transaction->add('t_credits',  $this->credits);
 		$transaction->add('t_comment',	$this->message);
 		$transaction->add('t_action',	'sendte_sms_for');
-		
+
 		$this->transaction_id = $transaction->run();
-		
+
 		return $this->transaction_id;
 	}
-	
+
 	private function _credits() {
 		$this->credits = $this->num_textmessages * sizeof($this->recipients);
 	}
-	
+
 	private function _length() {
 		if(strlen($this->message) <= 160)
 			$this->num_textmessages = -1;
 		else
 			$this->num_textmessages = -1 * round(strlen($this->message) / 154);
 	}
-	
+
 	private function _clean($string, $allowed='A-Za-z0-9-') {
 		return preg_replace('/[^'.$allowed.'.]/', '', $string);
 	}
-	
-	// VALIDATE SENDER
-	// 
 
-	// VALIDATION	
+	// VALIDATE SENDER
+	//
+
+	// VALIDATION
 	private function _validate() {
 		$this->_validate_sender();
 		$this->_validate_message();
 		$this->_validate_recipients();
 		$this->_validate_from();
-		
+
 	}
-	
+
 	private function _validate_from() {
 		if($this->from != $this->from_dirty)
 			$this->_error('Ugyldige tegn i avsender-navn. (Skrevet inn: "'.$this->from_dirty.'" skulle vært "'.$this->from.'")');
 	}
-		
+
 	private function _validate_recipients() {
 		if(sizeof($this->recipients)==0) {
 			$this->_error('Ingen mottakere lagt til');
@@ -242,14 +246,14 @@ class SMS {
 
 			// Phone is always int
 			$recipient = (int) $recipient;
-		
+
 			// Remove empty or not norwegian phone
 			if($recipient == 0 || strlen($recipient) != 8) {
 //				echo "REMOVED: $recipient: not 8 long<br />";
 				unset($this->recipients[$key]);
 				continue;
 			}
-			
+
 			// Remove not mobile
 			if(!$this->_is_mobile($recipient)) {
 //				echo "REMOVED: $recipient: not mobile<br />";
@@ -261,7 +265,7 @@ class SMS {
 
 	private function _is_mobile($int) {
 		//if( !4-serien && !9-serien) {
-		if ( !(90000000 < $int && $int < 99999999) && !(40000000 < $int && $int < 50000000) )		
+		if ( !(90000000 < $int && $int < 99999999) && !(40000000 < $int && $int < 50000000) )
 			return false;
 
 		if( in_array($int, $this->bogus) )
@@ -269,33 +273,38 @@ class SMS {
 
 		return true;
 	}
-	
+
 	private function _validate_message() {
 		if(empty($this->message))
 			$this->_error('Meldingen er tom');
 	}
-	
+
 	private function _validate_sender() {
 		if(empty($this->id_system) || !$this->id_system) {
 			$this->_error('Ukjent system-ID');
 			return false;
 		}
-		
+
 		if($this->id_system == 'wordpress' && empty($this->id_user)) {
 			$this->_error('Ukjent bruker-ID');
 			return false;
 		}
-		
+
 		if($this->id_system == 'wordpress' && (int)$this->id_place == 0) {
 			$this->_error('Mangler mønstrings-ID (pl_id)');
 			return false;
 		}
 	}
-	
+
 	// ERRORS
 	private function _error($message) {
 		$this->error = true;
 		$this->error_messages[] = $message;
+	}
+
+	public function getError() {
+
+		return join($this->error_messages, ' ');
 	}
 }
 ?>

@@ -64,9 +64,9 @@ class Personer extends Collection
 
     /**
      * Hent alle personer (påmeldt aktivt arrangement)
-     * 
+     *
      * Aktivt arrangement settes via context.
-     * Når innslaget lastes inn via Arrangement->getInnslag().... 
+     * Når innslaget lastes inn via Arrangement->getInnslag()....
      * er dette automatisk riktig satt på personer-collection
      *
      * @return Array<Person>
@@ -81,9 +81,9 @@ class Personer extends Collection
 
     /**
      * Hent alle personer som ikke er påmeldt aktivt arrangement
-     * 
+     *
      * Aktivt arrangement settes via context.
-     * Når innslaget lastes inn via Arrangement->getInnslag().... 
+     * Når innslaget lastes inn via Arrangement->getInnslag()....
      * er dette automatisk riktig satt på titler-collection
      *
      * @return Array<Person>
@@ -98,10 +98,10 @@ class Personer extends Collection
 
     /**
      * Hent absolutt alle personer
-     * 
+     *
      * Uavhengig om de er påmeldt aktivt arrangement eller ikke
      * Aktivt arrangement settes via context.
-     * Når innslaget lastes inn via Arrangement->getInnslag().... 
+     * Når innslaget lastes inn via Arrangement->getInnslag()....
      * er dette automatisk riktig satt på personer-collection
      *
      * @return Array<Person>
@@ -150,7 +150,7 @@ class Personer extends Collection
     /**
      * Hent ID-liste for alle personer i getAll()
      *
-     * @return Array<Int> 
+     * @return Array<Int>
      */
     public function getAllIds()
     {
@@ -170,7 +170,7 @@ class Personer extends Collection
 
     /**
      * getSingle
-     * Hent én enkelt person fra innslaget. 
+     * Hent én enkelt person fra innslaget.
      * Er beregnet for tittelløse innslag, som aldri har mer enn én person
      *
      * @return Person $person
@@ -248,7 +248,7 @@ class Personer extends Collection
 
     /**
      * Last inn alle personer tilhørende innslaget
-     * 
+     *
      * @return void
      **/
     public function _load()
@@ -259,14 +259,14 @@ class Personer extends Collection
         // uavhengig om innslaget er videresendt eller ikke.
         if ($this->getContext()->getSesong() > 2019) {
             $SQL = new Query(
-                "SELECT 
-                    `participant`.*, 
+                "SELECT
+                    `participant`.*,
                     `relation`.`instrument`,
                     `relation`.`instrument_object`,
                     GROUP_CONCAT(`arrangement`.`arrangement_id`) AS `arrangementer`,
                     `band`.`bt_id`
-                FROM `smartukm_participant` AS `participant` 
-                JOIN `smartukm_rel_b_p` AS `relation` 
+                FROM `smartukm_participant` AS `participant`
+                JOIN `smartukm_rel_b_p` AS `relation`
                     ON (`relation`.`p_id` = `participant`.`p_id`)
                 JOIN `smartukm_band` AS `band`
                     ON(`band`.`b_id` = `relation`.`b_id`)
@@ -274,8 +274,8 @@ class Personer extends Collection
                     ON(`arrangement`.`innslag_id` = '#innslag' AND `arrangement`.`person_id` = `participant`.`p_id`)
                 WHERE `relation`.`b_id` = '#innslag'
                 GROUP BY `participant`.`p_id`
-                ORDER BY 
-                    `participant`.`p_firstname` ASC, 
+                ORDER BY
+                    `participant`.`p_firstname` ASC,
                     `participant`.`p_lastname` ASC",
                 [
                     'innslag' => $this->getContext()->getInnslag()->getId()
@@ -283,23 +283,23 @@ class Personer extends Collection
             );
         } else {
             $SQL = new Query(
-                "SELECT 
-                    `participant`.*, 
+                "SELECT
+                    `participant`.*,
                     `relation`.`instrument`,
                     `relation`.`instrument_object`,
                     GROUP_CONCAT(`smartukm_fylkestep_p`.`pl_id`) AS `pl_ids`,
                     `band`.`bt_id`
-                FROM `smartukm_participant` AS `participant` 
-                JOIN `smartukm_rel_b_p` AS `relation` 
-                    ON (`relation`.`p_id` = `participant`.`p_id`) 
+                FROM `smartukm_participant` AS `participant`
+                JOIN `smartukm_rel_b_p` AS `relation`
+                    ON (`relation`.`p_id` = `participant`.`p_id`)
                 LEFT JOIN `smartukm_fylkestep_p`
                     ON(`smartukm_fylkestep_p`.`b_id` = '#innslag' AND `smartukm_fylkestep_p`.`p_id` = `participant`.`p_id`)
                 JOIN `smartukm_band` AS `band`
                     ON(`band`.`b_id` = `relation`.`b_id`)
                 WHERE `relation`.`b_id` = '#innslag'
                 GROUP BY `participant`.`p_id`
-                ORDER BY 
-                    `participant`.`p_firstname` ASC, 
+                ORDER BY
+                    `participant`.`p_firstname` ASC,
                     `participant`.`p_lastname` ASC",
                 [
                     'innslag' => $this->getContext()->getInnslag()->getId()
