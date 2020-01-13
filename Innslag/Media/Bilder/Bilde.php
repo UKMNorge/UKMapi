@@ -90,7 +90,6 @@ class Bilde
         $this->setKommuneId($bilde['b_kommune']);
         $this->setSesong($bilde['b_season']);
         $this->setPlId($bilde['pl_id']);
-        $this->setMonstringType($bilde['pl_type']);
         $this->setInnslagId($bilde['b_id']);
 
         $this->post_meta    = unserialize($bilde['post_meta']);
@@ -104,7 +103,12 @@ class Bilde
                 $this->addSize($size, $this->post_meta['sizes'][$size]);
             }
         }
-        $this->addSize('original', $this->post_meta['file']);
+        $this->addSize('original', [
+            'file' => $this->post_meta['file'],
+            'width' => 0,
+            'height' => 0,
+            'mime-type' => false,
+        ]);
     }
 
     /**
@@ -362,6 +366,10 @@ class Bilde
         return $this->monstring;
     }
 
+    public function getMonstringType() {
+        return $this->getMonstring()->getEierType();
+    }
+
     /**
      * Sett fotograf (WP Author)
      *
@@ -457,21 +465,21 @@ class Bilde
      * Legg til bildestørrelse (URL til bildet i forskjellige størrelser)
      *
      * @param String $id (brukt for å hente ut bildet)
-     * @param Array $data (bildedata: filnavn, bredde, høyde, mime-type)
+     * @param Array $data (bildedata: file, witdh, height, mime-type)
      *
      * @return self
      **/
     public function addSize(String $id, array $data)
     {
         // Originalstørrelsen inneholder ikke størrelsesdata
-        if ('original' == $id) {
-            $file = $data;
-            $data = array();
-            $data['file'] = $file;
-            $data['width'] = 0;
-            $data['height'] = 0;
-            $data['mime-type'] = false;
-        }
+        // if ('original' == $id) {
+        //     $file = $data;
+        //     $data = array();
+        //     $data['file'] = $file;
+        //     $data['width'] = 0;
+        //     $data['height'] = 0;
+        //     $data['mime-type'] = false;
+        // }
 
         // Beregn paths	
         if (UKM_HOSTNAME == 'ukm.no') {

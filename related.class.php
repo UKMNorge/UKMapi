@@ -43,7 +43,7 @@ class related {
 		$set->add('pl_type', $this->pl_type);
 		
 		#error_log('RELATED SET ' .$set->debug());
-			$set->run();
+		return $set->run();
 	}
 
 	###
