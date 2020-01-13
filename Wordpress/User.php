@@ -63,6 +63,71 @@ class User
         return !get_user_meta($wp_user_id, 'disabled'); 
     }
 
+    /**
+     * Er brukeren en oppgradert deltaker-bruker?
+     * 
+     * Mediedeltakere er contributor til vanlig => blir author
+     * Arrangører er ukm_produsent til vanlig => blir editor
+     * 
+     * @param Int $wp_user_id 
+     * @param Int $blog_id
+     * @return bool
+     * @throws Exception
+     */
+    public static function erBrukerenOppgradert( Int $wp_user_id, Int $blog_id ) {
+        $wp_users = get_users(['blog_id' => $blog_id, 'search' => $wp_user_id]);
+        if( !isset( $wp_users[0] ) ) {
+            throw new Exception("Denne brukeren er ikke lagt til blogg ".$blog_id."!", 171006);
+        }
+        $roles = $wp_users[0]->roles;
+        if(!in_array( 'author', $roles ) && !in_array( 'editor', $roles ) ) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Dynamisk wrapper rundt erBrukerenOppgradert(xx).
+     * Sånn at vi kan være lat i Twig.
+     * 
+     */
+    public function erOppgradert() {
+        return static::erBrukerenOppgradert($this->getId(), get_current_blog_id());
+    }
+
+    /**
+     * Finner rollen en innslagstype skal ha i Wordpress
+     * 
+     * @param Type
+     * @return String rolle - kan insertes i Wordpress-kall.
+     * @throws Exception 
+     */
+    private static function getRolleForInnslagType( Type $type ) {
+        if( $type->getKey() == 'arrangor' ) {
+            return 'ukm_produsent';
+        } elseif( $type->getKey() == 'nettredaksjon' ) {
+            return 'contributor';
+        } else {
+            throw new Exception("Denne innslagstypen skal ikke ha rettigheter til arrangørsystemet.", 171008);
+        }
+    }
+
+    /**
+     * Finner rollen en innslagstype skal ha i Wordpress når den oppgraderes.
+     * 
+     * @param Type
+     * @return String rolle - kan insertes i Wordpress-kall.
+     * @throws Exception dersom innslagstypen ikke skal ha rettigheter.
+     */
+    private static function getOppgradertRolleForInnslagType( Type $type ) {
+        if( $type->getKey() == 'arrangor' ) {
+            return 'editor';
+        } elseif( $type->getKey() == 'nettredaksjon' ) {
+            return 'author';
+        } else {
+            throw new Exception("Denne innslagstypen skal ikke ha rettigheter til arrangørsystemet.", 171007);
+        }
+    }
 
     /**
      * Sjekk om brukernavnet er ledig i wordpress
@@ -279,7 +344,7 @@ class User
                 $user = User::loadByIdInStandaloneEnvironment($wp_id);
             }
         } catch( Exception $e ) {
-            throw Exception(
+            throw new Exception(
                 'Kunne ikke finne Wordpress-bruker for deltaker '. $p_id .'. '.
                 'Systemet sa: '. $e->getMessage(),
                 171005
