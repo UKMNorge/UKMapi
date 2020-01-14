@@ -181,11 +181,21 @@ class Person
     /**
      * Hent Wordpress-brukeren til personen
      * 
-     * @return UKMNorge\Wordpress\User
+     * @return User
+     * @throws Exception
+     */
+    public function getWordpressBruker() {
+        return User::loadByParticipant($this->getId());
+    }
+    /**
+     * Hent Wordpress-brukeren til personen
+     * 
+     * @return User
+     * @see getWordpressBruker()
      * @throws Exception
      */
     public function hentWordpressBruker() {
-        return User::loadByParticipant($this->getId());
+        return $this->getWordpressBruker();
     }
 
     /**
