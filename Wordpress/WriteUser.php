@@ -7,6 +7,7 @@ use UKMNorge\Kommunikasjon\Epost;
 use UKMNorge\Kommunikasjon\Mottaker;
 use UKMNorge\Twig\Twig;
 use UKMNorge\Database\SQL\Insert;
+use UKMNorge\Innslag\Personer\Person;
 
 class WriteUser
 {
@@ -189,14 +190,25 @@ class WriteUser
         $user->setPhone($phone);
 
         static::save($user, false);
+        static::linkWpParticipant( $user->getId(), $participant_id);
+        return $user;
+    }
 
+    /**
+     * Lagre relasjon mellom wordpress bruker og deltaker id
+     *
+     * @param Int $user_id
+     * @param Int $participant_id
+     * @return Bool true
+     */
+    public static function linkWpParticipant( Int $user_id, Int $participant_id ) {
         # TODO: Fjern WP-brukeren hardt og brutalt om Insert under feiler.
         $sql = new Insert('ukm_delta_wp_user');
-        $sql->add('wp_id', $user->getId());
+        $sql->add('wp_id', $user_id);
         $sql->add('participant_id', $participant_id);
         $sql->run();
 
-        return $user;
+        return true;
     }
     
     /**
