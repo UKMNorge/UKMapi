@@ -185,7 +185,7 @@ class Person
      * @throws Exception
      */
     public function getWordpressBruker() {
-        return User::loadByParticipant($this->getId());
+        return new User( static::getWordpressId() );
     }
     /**
      * Hent Wordpress-brukeren til personen
