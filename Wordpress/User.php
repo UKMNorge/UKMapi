@@ -4,6 +4,7 @@ namespace UKMNorge\Wordpress;
 
 use Exception;
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Innslag\Typer\Type;
 use UKMNorge\Meta\Collection;
 use UKMNorge\Meta\Write;
 
@@ -59,8 +60,20 @@ class User
      * @param Int $wp_user_id
      * @return Bool
      */
-    public static function erAktiv( Int $wp_user_id ) {
-        return !get_user_meta($wp_user_id, 'disabled'); 
+    public static function erAktiv(Int $wp_user_id)
+    {
+        return !get_user_meta($wp_user_id, 'disabled');
+    }
+
+    /**
+     * Har brukeren tilgang til gitt blogg?
+     *
+     * @param Int $blog_id
+     * @return Bool
+     */
+    public function harTilgangTilBlogg(Int $blog_id)
+    {
+        return Blog::harBloggBruker($blog_id, $this);
     }
 
     /**

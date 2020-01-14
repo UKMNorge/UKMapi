@@ -60,8 +60,8 @@ class WriteUser
      * @return bool true hvis brukeren er oppgradert.
      * @throws Exception dersom brukeren ikke finnes eller ikke har en rolle som kan oppgraderes.
      */
-    public static function oppgraderBruker( User $user, Int $blog_id ) {
-
+    public static function oppgraderBruker( User $user, Int $blog_id, String $role ) {
+        return static::endreRolle($user, $blog_id, $role);
     }
 
     /**
@@ -72,8 +72,29 @@ class WriteUser
      * @return bool true hvis brukeren er nedgradert.
      * @throws Exception dersom brukeren ikke finnes eller ikke har en rolle på bloggen.
      */
-    public static function nedgraderBruker( User $user, Int $blog_id ) {
+    public static function nedgraderBruker( User $user, Int $blog_id, String $role ) {
+        return static::endreRolle($user, $blog_id, $role);
+    }
 
+    /**
+     * Endre rolle på en bruker
+     *
+     * @param User $user
+     * @param Int $blog_id
+     * @param String $rolle
+     * @return bool
+     */
+    public static function endreRolle( User $user, Int $blog_id, String $role ) {
+        if( !$user->harTilgangTilBlogg( $blog_id ) ) {
+            throw new Exception(
+                $user->getName() .' har ikke tilgang til blogg '. $blog_id,
+                571007
+            );
+        }
+
+        Blog::leggTilBruker($blog_id, $user->getId(), $role);
+
+        return true;
     }
 
     /**
