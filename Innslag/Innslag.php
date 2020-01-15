@@ -13,6 +13,7 @@ use nominasjon_media, nominasjon_konferansier, nominasjon_arrangor, nominasjon_p
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Arrangement\Program\Hendelser;
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Filmer\Filmer;
 use UKMNorge\Geografi\Kommune;
 use UKMNorge\Innslag\Advarsler\Advarsel;
 use UKMNorge\Innslag\Advarsler\Advarsler;
@@ -243,14 +244,8 @@ class Innslag
      **/
     public function getFilmer()
     {
-        if (!is_array($this->filmer)) {
-            require_once('UKM/tv.class.php');
-            require_once('UKM/tv_files.class.php');
-
-            $tv_files = new tv_files('band', $this->getId());
-            while ($tv = $tv_files->fetch()) {
-                $this->filmer[$tv->id] = $tv;
-            }
+        if( null == $this->filmer ) {
+            $this->filmer = Filmer::getByInnslag($this->getId());
         }
         return $this->filmer;
     }
