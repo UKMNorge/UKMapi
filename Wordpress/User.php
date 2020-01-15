@@ -7,6 +7,7 @@ use UKMNorge\Database\SQL\Query;
 use UKMNorge\Innslag\Typer\Type;
 use UKMNorge\Meta\Collection;
 use UKMNorge\Meta\Write;
+use WP_User;
 
 class User
 {
@@ -637,6 +638,15 @@ class User
     public function getNavn()
     {
         return $this->getName();
+    }
+
+    /**
+     * Hent deft faktiske wordpress-objektet (WPUser)
+     *
+     * @return WP_User
+     */
+    public function getWordpressObject() {
+        return get_user_by('id', $this->getId());
     }
 
     /**
