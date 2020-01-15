@@ -148,6 +148,11 @@ abstract class Collection implements Iterator
         return $var;
     }
 
+    public function reset() {
+        $this->var = [];
+        $this->loaded = false;
+    }
+
     public function __construct()
     {}
 
