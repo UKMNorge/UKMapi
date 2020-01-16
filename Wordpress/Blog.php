@@ -443,6 +443,27 @@ class Blog
         return $path;
     }
 
+    /**
+     * Sjekk om en gitt bruker tilhører en gitt blogg - uavhengig av rolle.
+     * Fungerer kun i Wordpress-kontekst.
+     * 
+     * @param Int $blog_id
+     * @param UKMNorge\Wordpress\User - Bruker-objekt.
+     * 
+     * @return bool true hvis ja, false hvis nei.
+     */
+    public static function harBloggBruker(Int $blog_id, User $user) {
+        # Prøv å opprett WP_User med oppgitt data. Om den finnes og har en rolle er alt OK
+        $wp_users = get_users(['blog_id' => $blog_id, 'search' => $user->getId()]);
+        if( isset( $wp_users[0] ) ) {
+            $wp_user = $wp_users[0];
+        }
+
+        if( empty($wp_user->roles) ) {
+            return false;
+        }
+        return true;
+    }
 
     /**
      * Legg til flere brukere til blogg
@@ -451,7 +472,7 @@ class Blog
      * @param Array $users [id, role]
      * @return Array $rapport
      */
-    public function leggTilBrukere(Int $blog_id, Array $users)
+    public static function leggTilBrukere(Int $blog_id, Array $users)
     {
         static::_requiresWordpressFunctions();
         static::controlBlogId($blog_id);

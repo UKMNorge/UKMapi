@@ -65,7 +65,7 @@ class Bilde
     {
         return "SELECT * 
             FROM `ukm_bilder`
-            JOIN `ukmno_wp_related` 
+            LEFT JOIN `ukmno_wp_related` 
                 ON (`ukmno_wp_related`.`post_id` = `ukm_bilder`.`wp_post` 
                     AND `ukmno_wp_related`.`b_id` = `ukm_bilder`.`b_id`
                 )
@@ -81,34 +81,37 @@ class Bilde
     public function __construct(array $bilde)
     {
         $this->setId($bilde['id']);
-        $this->setRelId($bilde['rel_id']);
-        $this->setBlogId($bilde['blog_id']);
-        $this->setBlogUrl($bilde['blog_url']);
-        $this->setPostId($bilde['post_id']);
+        $this->setBlogId($bilde['wp_blog']);
+        $this->setPostId($bilde['wp_post']);
+        
+        $this->rel_id = $bilde['rel_id'];
+        $this->blog_url = $bilde['blog_url'];
+        $this->album_id = $bilde['c_id'];
+        $this->kommune_id = $bilde['b_kommune'];
+        $this->season = $bilde['b_season'];
+        $this->pl_id = $bilde['pl_id'];
+        $this->innslag_id = $bilde['b_id'];
 
-        $this->setAlbumId($bilde['c_id']);
-        $this->setKommuneId($bilde['b_kommune']);
-        $this->setSesong($bilde['b_season']);
-        $this->setPlId($bilde['pl_id']);
-        $this->setInnslagId($bilde['b_id']);
-
-        $this->post_meta    = unserialize($bilde['post_meta']);
+        if( isset( $bilde['post_meta'] ) ) {
+            $this->post_meta    = unserialize($bilde['post_meta']);
+            foreach (array('thumbnail', 'medium', 'large', 'lite') as $size) {
+                if (isset($this->post_meta['sizes'][$size])) {
+                    $this->addSize($size, $this->post_meta['sizes'][$size]);
+                }
+            }
+            $this->addSize('original', [
+                'file' => $this->post_meta['file'],
+                'width' => 0,
+                'height' => 0,
+                'mime-type' => false,
+            ]);
+        } else {
+            $this->post_meta = [];
+        }
 
         if (isset($this->post_meta['author'])) {
-            $this->setAuthorId($this->post_meta['author']);
+            $this->author_id = $this->post_meta['author'];
         }
-
-        foreach (array('thumbnail', 'medium', 'large', 'lite') as $size) {
-            if (isset($this->post_meta['sizes'][$size])) {
-                $this->addSize($size, $this->post_meta['sizes'][$size]);
-            }
-        }
-        $this->addSize('original', [
-            'file' => $this->post_meta['file'],
-            'width' => 0,
-            'height' => 0,
-            'mime-type' => false,
-        ]);
     }
 
     /**

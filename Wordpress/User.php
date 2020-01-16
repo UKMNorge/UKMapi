@@ -4,8 +4,10 @@ namespace UKMNorge\Wordpress;
 
 use Exception;
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Innslag\Typer\Type;
 use UKMNorge\Meta\Collection;
 use UKMNorge\Meta\Write;
+use WP_User;
 
 class User
 {
@@ -50,7 +52,7 @@ class User
      * @var Int
      */
     private $phone = null;
-    
+
     private $meta = null;
 
     /**
@@ -59,10 +61,91 @@ class User
      * @param Int $wp_user_id
      * @return Bool
      */
-    public static function erAktiv( Int $wp_user_id ) {
-        return !get_user_meta($wp_user_id, 'disabled'); 
+    public static function erAktiv(Int $wp_user_id)
+    {
+        return !get_user_meta($wp_user_id, 'disabled');
     }
 
+    /**
+     * Har brukeren tilgang til gitt blogg?
+     *
+     * @param Int $blog_id
+     * @return Bool
+     */
+    public function harTilgangTilBlogg(Int $blog_id)
+    {
+        return Blog::harBloggBruker($blog_id, $this);
+    }
+
+    /**
+     * Er brukeren en oppgradert deltaker-bruker?
+     * 
+     * Mediedeltakere er contributor til vanlig => blir author
+     * Arrangører er ukm_produsent til vanlig => blir editor
+     * 
+     * @param Int $wp_user_id 
+     * @param Int $blog_id
+     * @return bool
+     * @throws Exception
+     */
+    public static function erBrukerenOppgradert(Int $wp_user_id, Int $blog_id)
+    {
+        $wp_users = get_users(['blog_id' => $blog_id, 'search' => $wp_user_id]);
+        if (!isset($wp_users[0])) {
+            throw new Exception("Denne brukeren er ikke lagt til blogg " . $blog_id . "!", 171006);
+        }
+        $roles = $wp_users[0]->roles;
+        if (!in_array('author', $roles) && !in_array('editor', $roles)) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Dynamisk wrapper rundt erBrukerenOppgradert(xx).
+     * Sånn at vi kan være lat i Twig.
+     * 
+     */
+    public function erOppgradert()
+    {
+        return static::erBrukerenOppgradert($this->getId(), get_current_blog_id());
+    }
+
+    /**
+     * Finner rollen en innslagstype skal ha i Wordpress
+     * 
+     * @param Type
+     * @return String rolle - kan insertes i Wordpress-kall.
+     * @throws Exception 
+     */
+    public static function getRolleForInnslagType(Type $type)
+    {
+        if ($type->getKey() == 'arrangor') {
+            return 'ukm_produsent';
+        } elseif ($type->getKey() == 'nettredaksjon') {
+            return 'contributor';
+        } else {
+            throw new Exception("Denne innslagstypen skal ikke ha rettigheter til arrangørsystemet.", 171008);
+        }
+    }
+
+    /**
+     * Finner rollen en innslagstype skal ha i Wordpress når den oppgraderes.
+     * 
+     * @param Type
+     * @return String rolle - kan insertes i Wordpress-kall.
+     * @throws Exception dersom innslagstypen ikke skal ha rettigheter.
+     */
+    public static function getOppgradertRolleForInnslagType(Type $type)
+    {
+        if ($type->getKey() == 'arrangor') {
+            return 'editor';
+        } elseif ($type->getKey() == 'nettredaksjon') {
+            return 'author';
+        } else {
+            throw new Exception("Denne innslagstypen skal ikke ha rettigheter til arrangørsystemet.", 171007);
+        }
+    }
 
     /**
      * Sjekk om brukernavnet er ledig i wordpress
@@ -130,7 +213,8 @@ class User
      * @return User
      * @throws Exception
      */
-    public static function loadById( Int $id ) {
+    public static function loadById(Int $id)
+    {
         $wpUser = get_user_by('id', $id);
         if (!$wpUser) {
             throw new Exception(
@@ -147,7 +231,8 @@ class User
      *
      * @return String
      */
-    public function getInstratoKey() {
+    public function getInstratoKey()
+    {
         return $this->getMeta()->getValue('instrato');
     }
 
@@ -156,7 +241,8 @@ class User
      *
      * @return Bool
      */
-    public function hasInstratoKey() {
+    public function hasInstratoKey()
+    {
         return !is_null($this->getInstratoKey());
     }
 
@@ -165,10 +251,11 @@ class User
      *
      * @return void
      */
-    public function generateInstratoKey() {
+    public function generateInstratoKey()
+    {
         $value = $this->getMeta()->get('instrato');
         $value->setValue(User::randomString(25));
-        Write::set( $value );
+        Write::set($value);
     }
 
     /**
@@ -176,8 +263,9 @@ class User
      *
      * @return Collection
      */
-    public function getMeta() {
-        if( null == $this->meta ) {
+    public function getMeta()
+    {
+        if (null == $this->meta) {
             $this->meta = Collection::createByParentInfo('User', $this->getId());
         }
         return $this->meta;
@@ -226,8 +314,9 @@ class User
      * @param Int $id
      * @return User
      */
-    public static function loadByIdInStandaloneEnvironment( Int $id ) {
-        $user = new User($id,false);
+    public static function loadByIdInStandaloneEnvironment(Int $id)
+    {
+        $user = new User($id, false);
 
         $query = new Query(
             "SELECT `user_email`,
@@ -254,7 +343,7 @@ class User
 
         return $user;
     }
-    
+
     /**
      * Henter bruker ut fra gitt participant_id
      *
@@ -262,7 +351,8 @@ class User
      * @param Int $p_id
      * @return User
      */
-    public static function loadByParticipant( Int $p_id ) {
+    public static function loadByParticipant(Int $p_id)
+    {
         $query = new Query(
             "SELECT `wp_id`
             FROM `ukm_delta_wp_user` 
@@ -271,17 +361,17 @@ class User
                 'id' => $p_id
             ]
         );
-        $wp_id = (Int) $query->getField();
+        $wp_id = (int) $query->getField();
         try {
-            if( function_exists('get_user_by') ) {
-                $user = static::loadById( $wp_id );
+            if (function_exists('get_user_by')) {
+                $user = static::loadById($wp_id);
             } else {
                 $user = User::loadByIdInStandaloneEnvironment($wp_id);
             }
-        } catch( Exception $e ) {
-            throw Exception(
-                'Kunne ikke finne Wordpress-bruker for deltaker '. $p_id .'. '.
-                'Systemet sa: '. $e->getMessage(),
+        } catch (Exception $e) {
+            throw new Exception(
+                'Kunne ikke finne Wordpress-bruker for deltaker ' . $p_id . '. ' .
+                    'Systemet sa: ' . $e->getMessage(),
                 171005
             );
         }
@@ -368,7 +458,8 @@ class User
      *
      * @return String $brukernavn
      */
-    public function getBrukernavn() {
+    public function getBrukernavn()
+    {
         return $this->getUsername;
     }
 
@@ -401,7 +492,8 @@ class User
      *
      * @return String $epost
      */
-    public function getEpost() {
+    public function getEpost()
+    {
         return $this->getEmail();
     }
 
@@ -433,7 +525,8 @@ class User
      *
      * @return String $fornavn
      */
-    public function getFornavn() {
+    public function getFornavn()
+    {
         return $this->getFirstName();
     }
 
@@ -465,7 +558,8 @@ class User
      *
      * @return String $etternavn
      */
-    public function getEtternavn() {
+    public function getEtternavn()
+    {
         return $this->getLastName();
     }
 
@@ -497,7 +591,8 @@ class User
      *
      * @return Int $mobil
      */
-    public function getTelefon() {
+    public function getTelefon()
+    {
         return $this->getPhone();
     }
     /**
@@ -506,7 +601,8 @@ class User
      *
      * @return Int $mobil
      */
-    public function getMobil() {
+    public function getMobil()
+    {
         return $this->getPhone();
     }
 
@@ -545,6 +641,15 @@ class User
     }
 
     /**
+     * Hent deft faktiske wordpress-objektet (WPUser)
+     *
+     * @return WP_User
+     */
+    public function getWordpressObject() {
+        return get_user_by('id', $this->getId());
+    }
+
+    /**
      * Generate a random string, using a cryptographically secure 
      * pseudorandom number generator (random_int)
      * @see https://stackoverflow.com/questions/4356289/php-random-string-generator/31107425#31107425
@@ -552,7 +657,8 @@ class User
      * @param int $length      How many characters do we want?
      * @return string
      */
-    public static function randomString( Int $length = 64) {
+    public static function randomString(Int $length = 64)
+    {
         $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
         if ($length < 1) {
@@ -562,7 +668,7 @@ class User
         $pieces = [];
         $max = mb_strlen($keyspace, '8bit') - 1;
         for ($i = 0; $i < $length; ++$i) {
-            $pieces []= $keyspace[random_int(0, $max)];
+            $pieces[] = $keyspace[random_int(0, $max)];
         }
 
         return implode('', $pieces);

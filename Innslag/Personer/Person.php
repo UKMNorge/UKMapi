@@ -92,7 +92,12 @@ class Person
      **/
     public function getAttr(String $key)
     {
-        return isset($this->attributes[$key]) ? $this->attributes[$key] : false;
+        return $this->hasAttr($key) ? $this->attributes[$key] : false;
+    }
+
+    public function hasAttr(String $key) 
+    {
+        return isset($this->attributes[$key]);
     }
 
     /**
@@ -148,7 +153,7 @@ class Person
     public function getWordpressId() {
         try {
             $user = User::loadByParticipant($this->getId());
-        } catch( Excpetion $e ) {
+        } catch( Exception $e ) {
             if( $e->getCode() == 171005 && !empty($this->getEpost())) {
                 $user = User::loadByEmail( $this->getEpost());
             } else {
@@ -160,16 +165,52 @@ class Person
     }
 
     /**
-      * Sett hvilke arrangement-IDer tittelen er videresendt til
-      *
-      * @param Array<Int> ID
-      * @return $this
-      **/
-     public function setPameldt(Array $pameldt_til)
-     {
-         $this->pameldt_til = $pameldt_til;
-         return $this;
-     }
+     * Sjekk om personen har en wordpress-bruker
+     * 
+     * @return bool 
+     */
+    public function harWordpressBruker() {
+        try {
+            $this->getWordpressId();
+            return true;
+        } catch ( Exception $e ) {
+            return false;
+        }
+    }
+    
+    /**
+     * Hent Wordpress-brukeren til personen
+     * 
+     * @return User
+     * @throws Exception
+     */
+    public function getWordpressBruker() {
+        return new User( static::getWordpressId() );
+    }
+    /**
+     * Hent Wordpress-brukeren til personen
+     * 
+     * @return User
+     * @see getWordpressBruker()
+     * @throws Exception
+     */
+    public function hentWordpressBruker() {
+        return $this->getWordpressBruker();
+    }
+
+    /**
+     * Sett hvilke arrangement-IDer tittelen er videresendt til
+     *
+     * @param Array<Int> ID
+     * @return $this
+     */
+    public function setPameldt(Array $pameldt_til)
+    {
+        $this->pameldt_til = $pameldt_til;
+        return $this;
+    }
+
+    
 
     /**
      * Legg til enda et arrangement hvor personen er påmeldt
