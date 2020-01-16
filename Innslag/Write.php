@@ -253,7 +253,7 @@ class Write {
 
         $arrangement_til->resetInnslagCollection();
         // For å melde på må vi ha meldPåContext
-        $innslag = $arrangement_til->getInnslag()->get( $innslag->getId() );
+        $innslag = $arrangement_til->getInnslag()->get( $innslag->getId(), true );
 
         // Iterer over alle personer og meld de på arrangementet
         // (litt magisk at det skjer sånn, men skal visstnok funke)
@@ -270,7 +270,7 @@ class Write {
         }
         
         // For å kunne melde av, må vi ha meldAvContext igjen
-        $innslag = $arrangement_fra->getInnslag()->get( $innslag->getId() );
+        $innslag = $arrangement_fra->getInnslag()->get( $innslag->getId(), true );
         WriteArrangement::fjernInnslag( $innslag );
     }
 
