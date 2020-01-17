@@ -182,7 +182,7 @@ class Arrangement
         $this->setStop(new DateTime($row['pl_stop']));
         $this->setFrist1(new DateTime($row['pl_deadline']));
         $this->setFrist2(new DateTime($row['pl_deadline2']));
-        $this->setSesong($row['season']);
+        $this->setSesong(intval($row['season']));
         $this->setSted($row['pl_place']);
         $this->setGoogleMapData($row['pl_location']);
         $this->setPublikum($row['pl_public']);
@@ -734,7 +734,7 @@ class Arrangement
      * @param int $seson
      * @return $this
      **/
-    public function setSesong($sesong)
+    public function setSesong( Int $sesong)
     {
         $this->sesong = $sesong;
         return $this;

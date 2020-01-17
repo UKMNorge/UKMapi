@@ -7,6 +7,8 @@ use UKMCURL;
 use UKMNorge\Database\SQL\Update;
 use UKMNorge\Filmer\Kategori\Kategori;
 use UKMNorge\Filmer\Server\Server;
+use UKMNorge\Filmer\Tags\Tags;
+use UKMNorge\Filmer\Tags\Personer;
 
 class Film
 {
@@ -23,7 +25,7 @@ class Film
     var $ext = null;
     var $file_exists_720p = null;
     var $did_check_for_720p = false;
-    
+
     var $v1_kategori_id = null;
     var $v1_kategori_navn = null;
     var $v1_kategori_parent = null;
@@ -46,9 +48,9 @@ class Film
         $this->v1_set_id = intval($data['set_id']);
         $this->v1_set_navn = $data['set'];
 
-        $this->tag_string = $data['tv_tags'];
+        $this->tag_string = $data['tags'];
 
-        // Vet vi at denne finnes med en 720p-utgave? (pre 2011(?)-problem)
+        // Vet vi at denne finnes med en 720p-utgave? (pre 2013(?)-problem)
         $this->file_exists_720p = $data['file_exists_720p'];
 
         // De forskjellige fil-utgavene
@@ -60,13 +62,14 @@ class Film
      *
      * @return Kategori
      */
-    public function getKategori() {
-        if( null == $this->kategori ) {
-            $this->kategori = Kategori::getByV1( 
-                $this->v1_kategori_id, 
-                $this->v1_kategori_navn, 
-                $this->v1_set_id, 
-                $this->v1_set_navn, 
+    public function getKategori()
+    {
+        if (null == $this->kategori) {
+            $this->kategori = Kategori::getByV1(
+                $this->v1_kategori_id,
+                $this->v1_kategori_navn,
+                $this->v1_set_id,
+                $this->v1_set_navn,
                 $this->v1_kategori_parent
             );
         }
@@ -215,8 +218,8 @@ class Film
      */
     public function getTag(String $tag)
     {
-        if (isset($this->getTags()[$tag])) {
-            return $this->getTags()[$tag];
+        if ($this->getTags()->har($tag)) {
+            return $this->getTags()->get($tag);
         }
         return false;
     }
@@ -229,35 +232,20 @@ class Film
     public function getTags()
     {
         if (null == $this->tags) {
-            $this->tags = $this->_loadTags();
+            $this->tags = Tags::createFromString($this->tag_string);
         }
 
         return $this->tags;
     }
 
     /**
-     * Last inn alle tags
+     * Hent alle personer i filmen
      *
-     * @return Array<Any>
+     * @return Personer
      */
-    private function _loadTags()
+    public function getPersoner()
     {
-        $all_tags = [];
-
-        $tags = explode(
-            '|',
-            str_replace('||','|', $this->tag_string
-            )
-        );
-		foreach( $tags as $string ) {
-			if( strpos($string,'_') === false ) {
-				continue;
-			}
-			$tag = explode('_', $string);
-			$all_tags[ $tag[0] ] = $tag[1];
-		}
-
-        return $all_tags;
+        return $this->getTags()->getPersoner();
     }
 
     /**
@@ -445,14 +433,12 @@ class Film
     public static function getLoadQuery()
     {
         return
-            "SELECT `file`.*,
-                    `cat`.`c_id` AS `set_id`,
-                    `cat`.`c_name` AS `set`,
-                    `fold`.`f_id` AS `category_id`,
-                    `fold`.`f_name` AS `category`,
-                    `fold`.`f_parent` AS `category_parent_id`
-            FROM `ukm_tv_files` AS `file`
-            JOIN `ukm_tv_categories` AS `cat` ON (`file`.`tv_category` = `cat`.`c_name`)
-            JOIN `ukm_tv_category_folders` AS `fold` ON (`cat`.`f_id` = `fold`.`f_id`)";
+            "SELECT *,
+            (
+                SELECT GROUP_CONCAT( CONCAT(`ukm_tv_tags`.`type`,':',`ukm_tv_tags`.`foreign_id` ) SEPARATOR '|')
+                FROM `ukm_tv_tags`
+                WHERE `ukm_tv_tags`.`tv_id` = `ukm_tv_files`.`tv_id`
+            ) AS `tags`
+            FROM `ukm_tv_files`";
     }
 }

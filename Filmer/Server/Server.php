@@ -4,6 +4,7 @@ namespace UKMNorge\Filmer\Server;
 
 class Server extends BandwidthMode
 {
+    const STORAGE_BASEPATH = 'ukmno/videos/';
 
     /**
      * URL til UKM-TV

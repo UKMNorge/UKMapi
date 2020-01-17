@@ -7,7 +7,6 @@ use UKMNorge\Database\SQL\Query;
 
 class Avspilling
 {
-
     static $count = [];
 
     /**

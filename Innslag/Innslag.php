@@ -13,7 +13,6 @@ use nominasjon_media, nominasjon_konferansier, nominasjon_arrangor, nominasjon_p
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Arrangement\Program\Hendelser;
 use UKMNorge\Database\SQL\Query;
-use UKMNorge\Filmer\Filmer;
 use UKMNorge\Geografi\Kommune;
 use UKMNorge\Innslag\Advarsler\Advarsel;
 use UKMNorge\Innslag\Advarsler\Advarsler;
@@ -21,6 +20,7 @@ use UKMNorge\Innslag\Context\Context;
 use UKMNorge\Innslag\Mangler\Mangler;
 use UKMNorge\Innslag\Media\Artikler\Samling as ArtiklerSamling;
 use UKMNorge\Innslag\Media\Bilder\Samling as BilderSamling;
+use UKMNorge\Innslag\Media\Filmer;
 use UKMNorge\Innslag\Personer\Person;
 use UKMNorge\Innslag\Personer\Personer;
 use UKMNorge\Innslag\Playback\Samling as PlaybackSamling;
