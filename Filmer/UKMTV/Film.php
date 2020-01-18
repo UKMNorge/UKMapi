@@ -8,7 +8,7 @@ use UKMNorge\Filmer\Server\Server;
 use UKMNorge\Filmer\Tags\Tags;
 use UKMNorge\Filmer\Tags\Personer;
 
-class Film
+class Film implements FilmInterface
 {
     var $id = 0;
     var $title = null;

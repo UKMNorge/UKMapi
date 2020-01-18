@@ -20,7 +20,7 @@ class Uploaded
      * @return bool true
      * @throws Exception hvis error
      */
-    public static function innslag(Int $cronId, Innslag $innslag, Arrangement $arrangement)
+    public static function registrerInnslag(Int $cronId, Innslag $innslag, Arrangement $arrangement)
     {
         $film_tittel = $innslag->getNavn();
         if ($innslag->getType()->harTitler() && $innslag->getTitler()->getAntall() > 0) {
@@ -59,7 +59,7 @@ class Uploaded
      * @return Bool
      * @throws Exception hvis error
      */
-    public static function reportasje(Int $cronId, String $tittel, String $beskrivelse, Arrangement $arrangement)
+    public static function registrerReportasje(Int $cronId, String $tittel, String $beskrivelse, Arrangement $arrangement)
     {
         $sql = new SQLins('ukm_uploaded_video');
         $sql->add('cron_id', $cronId);

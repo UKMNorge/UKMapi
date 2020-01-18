@@ -32,13 +32,11 @@ class Tags extends Collection
                 continue;
             }
             $tag = explode(':', $string);
-            if (in_array($tag[0], static::ALLOW_MANY)) {
+            if ( static::erMultiTag($tag[0])) {
                 /* 
                 * Med denne støtter vi flere tags hvor samme film kan ha
-                * flere verdier (foreign_keys) for samme tag
-                $class = ucfirst($tag[0]);
-                $funct = 'get'.$class;
-                $this->$funct()->add( new $class( $tag[1] ) );
+                * flere verdier (foreign_keys) for samme tag 👇🏼
+                  $this->getManyCollectionFor($tag[0])->add( new $class( $tag[1] ) );
                 *
                 * inntil videre bruker vi dog bare linja under for å 
                 * støtte personer-tags 👇🏼
@@ -49,6 +47,58 @@ class Tags extends Collection
             }
         }
         return $collection;
+    }
+
+    /**
+     * Hent absolutt alle tags
+     *
+     * @return Array<Tag>
+     */
+    public function getAllInkludertManyCollections() {
+        $alle = $this->getAll();
+        foreach( static::ALLOW_MANY as $many_id ) {
+            $alle = array_merge(
+                $this->getManyCollectionFor($many_id)->getAll()
+            );
+        }
+        return $alle;
+    }
+
+    /**
+     * Hent alle collections hvor tags kan ha flere foreign_keys per type
+     *
+     * @return Array<Many>
+     */
+    public function getManyCollections() {
+        $alle = [];
+        foreach( static::ALLOW_MANY as $many_id ) {
+            $alle[] = $this->getManyCollectionFor($many_id);
+        }
+        return $alle;
+    }
+
+    /**
+     * Hent Collection for en tag som kan ha flere foreign_keys
+     * per film
+     *
+     * @param String $tag_type
+     * @return Many
+     */
+    public function getManyCollectionFor( String $tag_type ) {
+        $class = ucfirst($tag_type);
+        $funct = 'get'.$class;
+        return $this->$funct();
+    }
+
+    /**
+     * Kan denne tag-typen har flere forskjellige foreign_keys
+     * per film?
+     *
+     * @param String $key
+     * @return bool
+     */
+    public static function erMultiTag( String $key ) {
+        return in_array($key, static::ALLOW_MANY);
     }
 
     /**

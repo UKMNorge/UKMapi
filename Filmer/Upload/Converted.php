@@ -5,23 +5,48 @@ namespace UKMNorge\Filmer\Upload;
 use Exception;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Database\SQL\Update;
+use UKMNorge\Filmer\UKMTV\FilmInterface;
 use UKMNorge\Filmer\UKMTV\Server\Server;
+use UKMNorge\Filmer\UKMTV\Write;
 use UKMNorge\Innslag\Innslag;
+use UKMNorge\Upload\Film;
 
-class Converted {
-
+class Converted
+{
+    /**
+     * Registrer en reportasje-film
+     *
+     * @param Int $cronId
+     * @param Arrangement $arrangement
+     * @param String $storage_path
+     * @param String $storage_filename
+     * @return Film 
+     */
     public static function registerReportasje(
         Int $cronId,
         Arrangement $arrangement,
         String $storage_path,
         String $storage_filename
-    ){
-        static::setFile( 
-            $cronId, 
+    ) {
+        static::setAndSaveFilePath(
+            $cronId,
             static::getFileWithPath($storage_path, $storage_filename)
         );
+        $film = new Film($cronId);
+        $film->setTags( Tags::getForReportasje( $arrangement ));
+        return $film;
     }
 
+    /**
+     * Registrer film av et innslag
+     *
+     * @param Int $cronId
+     * @param Arrangement $arrangement
+     * @param String $storage_path
+     * @param String $storage_filename
+     * @param Innslag $innslag
+     * @return Film
+     */
     public static function registerInnslag(
         Int $cronId,
         Arrangement $arrangement,
@@ -29,15 +54,62 @@ class Converted {
         String $storage_filename,
         Innslag $innslag
     ) {
-        static::setFile( 
-            $cronId, 
+        static::setAndSaveFilePath(
+            $cronId,
             static::getFileWithPath($storage_path, $storage_filename)
         );
-        
-        return 
 
+        $film = new Film($cronId);
+        $film->setTags( Tags::getForInnslag( $arrangement, $innslag ));
+        return $film;
+    }
 
-        #$update->add('video_image', str_replace('.mp4', '.jpg', $file_with_path));
+    /**
+     * Registrer eller oppdater en film i UKM-TV basert på gitt film-objekt
+     *
+     * @param FilmInterface $film
+     * @return Int $tv_id
+     */
+    public static function sendToUKMTV(FilmInterface $film)
+    {
+        Write::import($film); // Setter TV-ID på objektet
+        static::_saveTvId($film); // Lagrer TV-ID i ukm_uploaded_video
+        return $film->getTvId();
+    }
+
+    /**
+     * Lagre TV-ID i ukm_uploaded_video
+     *
+     * @param FilmInterface $film
+     * @throws Exception
+     * @return bool
+     */
+    private static function _saveTvId(FilmInterface $film)
+    {
+        if (empty($film->getTvId())) {
+            throw new Exception(
+                'Beklager, kan ikke lagre TV-id uten at det er satt på gitt film-objekt',
+                515005
+            );
+        }
+
+        $update = new Update(
+            'ukm_uploaded_video',
+            [
+                'cron_id' => $film->getCronId(),
+            ]
+        );
+        $update->add('tv_id', $film->getTvId());
+
+        $res = $update->run();
+        if (!$res) {
+            throw new Exception(
+                'Beklager, en feil oppsto når vi prøvde å knytte ' .
+                    'cronId::' . $film->getCronId() . ' til UKM-TV::' . $film->getTvId(),
+                515006
+            );
+        }
+        return true;
     }
 
     /**
@@ -47,8 +119,9 @@ class Converted {
      * @param String $storage_filename
      * @return String full path
      */
-    public static function getFileWithPath( String $storage_path, String $storage_filename ) {
-        return Server::STORAGE_BASEPATH . rtrim( $storage_path, '/') . '/' . $storage_filename;
+    public static function getFileWithPath(String $storage_path, String $storage_filename)
+    {
+        return Server::STORAGE_BASEPATH . rtrim($storage_path, '/') . '/' . $storage_filename;
     }
 
     /**
@@ -59,58 +132,20 @@ class Converted {
      * @return bool true
      * @throws Exception
      */
-    public static function setFile( Int $cronId, String $fullPath ) {
+    public static function setAndSaveFilePath(Int $cronId, String $fullPath)
+    {
         $query = new Update(
             'ukm_uploaded_video',
             ['cron_id' => $cronId]
         );
         $query->add('file', $fullPath);
         $res = $query->run();
-        if( !$res ) {
+        if (!$res) {
             throw new Exception(
-                'Kunne ikke oppdatere fil-parameter for cron '. $cronId,
+                'Kunne ikke oppdatere fil-parameter for cron ' . $cronId,
                 515003
             );
         }
         return true;
-    }
-
-    /**
-     * Prøv å gjette oss frem til bilde-banen hvis lagret info er blank
-     *
-     * @return String url
-     */
-    private function _finnBildeFraFil() {
-        $video = $this->getFil();
-		$ext = strrpos($video, '.');
-		$img = substr($video, 0, $ext).'.jpg';
-		if( $this->_img_exists($img) ) {
-            return $img;
-        }
-        return $video.'.jpg';
-    }
-
-    /**
-     * Vurl videoserver for å høre om bildet finnes
-     *
-     * @param String $url
-     * @return Bool
-     */
-    private function _img_exists( String $url) {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, Server::getStorageUrl() . $url);
-        
-        curl_setopt($ch, CURLOPT_REFERER, $_SERVER['PHP_SELF']);
-        curl_setopt($ch, CURLOPT_USERAGENT, "UKMNorge API");
-        
-        curl_setopt($ch, CURLOPT_HEADER, 1);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-        
-        $output = curl_exec($ch);
-        $hd_curl_info = curl_getinfo($ch);
-    
-        curl_close($ch);
-        return $hd_curl_info['content_type'] == 'image/jpeg';
     }
 }
