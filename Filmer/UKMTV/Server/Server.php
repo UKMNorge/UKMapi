@@ -1,6 +1,6 @@
 <?php
 
-namespace UKMNorge\Filmer\Server;
+namespace UKMNorge\Filmer\UKMTV\Server;
 
 class Server extends BandwidthMode
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace UKMNorge\Filmer\Tags;
+namespace UKMNorge\Filmer\UKMTV\Tags;
 
 use Collection;
 

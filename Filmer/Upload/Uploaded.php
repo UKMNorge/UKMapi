@@ -5,7 +5,7 @@ namespace UKMNorge\Filmer\Upload;
 use Exception;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Database\SQL\Insert;
-use UKMNorge\Filmer\Tags\Tags;
+use UKMNorge\Filmer\UKMTV\Tags\Tags;
 use UKMNorge\Innslag\Innslag;
 
 class Uploaded

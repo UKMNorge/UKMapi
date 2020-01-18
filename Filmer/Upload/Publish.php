@@ -23,7 +23,7 @@ class Publish {
     public static function reportasje() {
 
         // INSERT INTO UKM-TV
-        
+
 
         // TODO: når arrangementet har flere kommuner, burde dette kanskje komme med her?
         // eller bryr vi oss om kommuner og fylker kun for innslagsfilmer, sånn egentlig?

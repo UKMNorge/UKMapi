@@ -1,11 +1,9 @@
 <?php
 
-namespace UKMNorge\Filmer;
+namespace UKMNorge\Filmer\UKMTV;
 
-use stdClass;
 use UKMCURL;
 use UKMNorge\Database\SQL\Update;
-use UKMNorge\Filmer\Kategori\Kategori;
 use UKMNorge\Filmer\Server\Server;
 use UKMNorge\Filmer\Tags\Tags;
 use UKMNorge\Filmer\Tags\Personer;
@@ -20,18 +18,9 @@ class Film
     var $tags = null;
     var $tag_string = null;
 
-    var $kategori = null;
-
     var $ext = null;
     var $file_exists_720p = null;
     var $did_check_for_720p = false;
-
-    var $v1_kategori_id = null;
-    var $v1_kategori_navn = null;
-    var $v1_kategori_parent = null;
-    var $v1_set_id = null;
-    var $v1_set_navn = null;
-
 
     var $slettet = false;
 
@@ -42,12 +31,6 @@ class Film
         $this->slettet = $data['tv_deleted'] != 'false';
         $this->image_url = $data['tv_img'];
 
-        $this->v1_kategori_id = intval($data['category_id']);
-        $this->v1_kategori_navn = $data['category'];
-        $this->v1_kategori_parent = intval($data['category_parent_id']);
-        $this->v1_set_id = intval($data['set_id']);
-        $this->v1_set_navn = $data['set'];
-
         $this->tag_string = $data['tags'];
 
         // Vet vi at denne finnes med en 720p-utgave? (pre 2013(?)-problem)
@@ -55,25 +38,6 @@ class Film
 
         // De forskjellige fil-utgavene
         $this->setFile($data['tv_file']);
-    }
-
-    /**
-     * Hent filmens kategori
-     *
-     * @return Kategori
-     */
-    public function getKategori()
-    {
-        if (null == $this->kategori) {
-            $this->kategori = Kategori::getByV1(
-                $this->v1_kategori_id,
-                $this->v1_kategori_navn,
-                $this->v1_set_id,
-                $this->v1_set_navn,
-                $this->v1_kategori_parent
-            );
-        }
-        return $this->kategori;
     }
 
     /**

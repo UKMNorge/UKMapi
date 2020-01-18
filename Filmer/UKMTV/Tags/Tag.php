@@ -1,10 +1,6 @@
 <?php
 
-namespace UKMNorge\Filmer\Tags;
-
-use UKMNorge\Geografi\Fylker;
-use UKMNorge\Geografi\Kommune;
-use UKMNorge\Innslag\Innslag;
+namespace UKMNorge\Filmer\UKMTV\Tags;
 
 class Tag {
     /**

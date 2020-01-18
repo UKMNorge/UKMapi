@@ -1,8 +1,8 @@
 <?php
 
-namespace UKMNorge\Filmer;
+namespace UKMNorge\Filmer\UKMTV;
 
-use UKMNorge\Filmer\Server\Server;
+use UKMNorge\Filmer\UKMTV\Server\Server;
 
 class Html {
 

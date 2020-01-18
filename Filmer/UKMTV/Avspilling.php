@@ -1,6 +1,6 @@
 <?php
 
-namespace UKMNorge\Filmer;
+namespace UKMNorge\Filmer\UKMTV;
 
 use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Database\SQL\Query;

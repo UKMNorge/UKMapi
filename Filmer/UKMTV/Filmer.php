@@ -1,6 +1,6 @@
 <?php
 
-namespace UKMNorge\Filmer;
+namespace UKMNorge\Filmer\UKMTV;
 
 use Collection;
 use Exception;
