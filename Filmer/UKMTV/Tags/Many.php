@@ -2,7 +2,7 @@
 
 namespace UKMNorge\Filmer\UKMTV\Tags;
 
-use Collection;
+use UKMNorge\Collection;
 
 class Many extends Collection {
     

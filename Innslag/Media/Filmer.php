@@ -3,10 +3,10 @@
 namespace UKMNorge\Innslag\Media;
 
 use UKMNorge\Database\SQL\Query;
-use UKMNorge\Filmer\Film;
-use UKMNorge\Filmer\Filmer as UKMNorgeFilmer;
+use UKMNorge\Filmer\UKMTV\Film;
+use UKMNorge\Filmer\UKMTV\Filmer as UKMTVFilmer;
 
-class Filmer extends UKMNorgeFilmer {
+class Filmer extends UKMTVFilmer {
     
     /**
      * Opprett en filmerCollection for gitt innslagId
@@ -18,7 +18,7 @@ class Filmer extends UKMNorgeFilmer {
     {
         $query = new Query(
             Film::getLoadQuery() ."
-            WHERE `file`.`b_id` = '#innslagId'
+            WHERE `b_id` = '#innslagId'
             AND `tv_deleted` = 'false'", // deleted ikke nødvendig, men gjør lasting marginalt raskere
             [
                 'innslagId' => $innslagId

@@ -9,7 +9,7 @@ use UKMNorge\Filmer\UKMTV\FilmInterface;
 use UKMNorge\Filmer\UKMTV\Server\Server;
 use UKMNorge\Filmer\UKMTV\Write;
 use UKMNorge\Innslag\Innslag;
-use UKMNorge\Upload\Film;
+use UKMNorge\Filmer\Upload\Film;
 
 class Converted
 {
@@ -102,10 +102,10 @@ class Converted
         $update->add('tv_id', $film->getTvId());
 
         $res = $update->run();
-        if (!$res) {
+        if (!$res && $res !== 0) {
             throw new Exception(
                 'Beklager, en feil oppsto når vi prøvde å knytte ' .
-                    'cronId::' . $film->getCronId() . ' til UKM-TV::' . $film->getTvId(),
+                'cronId::' . $film->getCronId() . ' til UKM-TV::' . $film->getTvId(),
                 515006
             );
         }
@@ -139,8 +139,9 @@ class Converted
             ['cron_id' => $cronId]
         );
         $query->add('file', $fullPath);
+        $query->add('converted','true');
         $res = $query->run();
-        if (!$res) {
+        if ( !$res && $res !== 0) {
             throw new Exception(
                 'Kunne ikke oppdatere fil-parameter for cron ' . $cronId,
                 515003

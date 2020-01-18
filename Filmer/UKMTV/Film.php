@@ -11,8 +11,12 @@ use UKMNorge\Filmer\Tags\Personer;
 class Film implements FilmInterface
 {
     var $id = 0;
+    var $cron_id = null;
+    
     var $title = null;
     var $sanitized_title = null;
+    var $description = null;
+    
     var $image_url = null;
 
     var $tags = null;
@@ -24,10 +28,21 @@ class Film implements FilmInterface
 
     var $slettet = false;
 
+    var $arrangement_id;
+    var $season;
+    var $innslag_id;
+
     public function __construct(array $data)
     {
         $this->id = intval($data['tv_id']);
+        $this->cron_id = intval($data['cron_id']);
+        $this->arrangement_id = intval($data['pl_id']);
+        $this->innslag_id = intval($data['innslag_id']);
+        $this->season = intval($data['season']);
+        
         $this->title = $data['tv_title'];
+        $this->description = $data['tv_description'];
+
         $this->slettet = $data['tv_deleted'] != 'false';
         $this->image_url = $data['tv_img'];
 
@@ -96,6 +111,15 @@ class Film implements FilmInterface
     public function getNavn()
     {
         return $this->title;
+    }
+
+    /**
+     * Hent filmens beskrivelse
+     *
+     * @return String beskrivelse
+     */
+    public function getBeskrivelse() {
+        return $this->description;
     }
 
     /**
@@ -227,7 +251,7 @@ class Film implements FilmInterface
      *
      * @return String $path
      */
-    public function getFilepath()
+    public function getServerFilepath()
     {
         return $this->file_path;
     }
@@ -279,7 +303,7 @@ class Film implements FilmInterface
             Server::getStorageUrl()
                 . 'find.php'
                 . '?file=' . $this->getFilename()
-                . '&path=' . urlencode($this->getFilepath())
+                . '&path=' . urlencode($this->getServerFilepath())
         );
 
         $this->setFile($UKMCURL->data->filepath);
@@ -404,5 +428,95 @@ class Film implements FilmInterface
                 WHERE `ukm_tv_tags`.`tv_id` = `ukm_tv_files`.`tv_id`
             ) AS `tags`
             FROM `ukm_tv_files`";
+    }
+
+    /**
+     * Sett filmens TV-ID
+     *
+     * @param Int $tv_id
+     * @return self
+     */
+    public function setTvId( Int $tv_id ) {
+        $this->id = $tv_id;
+        return $this;
+    }
+
+    /**
+     * Hent filmens TV-ID
+     *
+     * @return Int tv_id
+     */
+    public function getTvId() {
+        return $this->getId();
+    }
+
+    /**
+     * Hent hvilken cronId converteren ga filmen
+     *
+     * @return Int|null
+     */
+    public function getCronId() {
+        return $this->cron_id;
+    }
+
+    /**
+     * Hent hvilket arrangement som lastet opp filmen
+     *
+     * @return Int
+     */
+    public function getArrangementId()
+    {
+        return $this->arrangement_id;
+    }
+
+    public function getInnslagId()
+    {
+        return $this->innslag_id;
+    }
+
+    /**
+     * Hent filmens tittel
+     *
+     * @return String
+     */
+    public function getTitle() {
+        return $this->getNavn();
+    }
+    
+    /**
+     * Hent filmens beskrivelse
+     *
+     * @return String
+     */
+    public function getDescription()
+    {
+        return $this->getBeskrivelse();
+    }
+
+    /**
+     * Hent filmens path på videostorage (inkl filnavn)
+     *
+     * @return String
+     */
+    public function getFilePath() {
+        return $this->file;
+    }
+
+    /**
+     * Hent preview-bildets path på videostorage
+     *
+     * @return String
+     */
+    public function getImagePath() {
+        return $this->image_url;
+    }
+
+    /**
+     * Hent filmens sesong
+     *
+     * @return void
+     */
+    public function getSeason() {
+        return $this->season;
     }
 }

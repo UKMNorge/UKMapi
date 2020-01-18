@@ -33,7 +33,7 @@ class Uploaded
 
         $sql = new Insert('ukm_uploaded_video');
         $sql->add('cron_id', $cronId);
-        $sql->add('title', $tittel);
+        $sql->add('title', $film_tittel);
         $sql->add('description', $beskrivelse);
         $sql->add('arrangement_id', $arrangement->getId());
         $sql->add('innslag_id', $innslag->getId());
@@ -61,7 +61,7 @@ class Uploaded
      */
     public static function registrerReportasje(Int $cronId, String $tittel, String $beskrivelse, Arrangement $arrangement)
     {
-        $sql = new SQLins('ukm_uploaded_video');
+        $sql = new Insert('ukm_uploaded_video');
         $sql->add('cron_id', $cronId);
         $sql->add('title', $tittel);
         $sql->add('description', $beskrivelse);

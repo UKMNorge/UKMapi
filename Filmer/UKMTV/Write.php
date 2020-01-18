@@ -147,7 +147,7 @@ class Write
                 WHERE `tv_file` = '#file'",
                 
                 [
-                    'file' => $film->getFile()
+                    'file' => $film->getFilePath()
                 ]
             );
             $tv_id = $try->getField();
@@ -181,7 +181,10 @@ class Write
         $query->add('season', $film->getSeason());
         
         $res = $query->run();
-        if(!$res) {
+        // $res vil @ update gi mysql_affected_rows tilbake,
+        // som ved dobbelt-lagring vil være 0 (fordi ingen endringer),
+        // men det er jo fortsatt suksess
+        if(!$res && !($action == 'oppdater' && $res === 0)) {
             throw new Exception(
                 'Kunne ikke '. $action.'e filmen i UKM-TV',
                 515004

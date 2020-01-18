@@ -2,17 +2,16 @@
 
 namespace UKMNorge\Filmer\UKMTV\Tags;
 
-use Collection;
+use UKMNorge\Collection;
 use Exception;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Geografi\Fylker;
 use UKMNorge\Geografi\Kommune;
 use UKMNorge\Innslag\Innslag;
 
-class Tags extends Collection
-{
+class Tags extends Collection {
     private $personer = null;
-    const ALLOW_MANY = ['person'];
+    const ALLOW_MANY = ['person' => 'Personer'];
     const ARRANGEMENT_TYPER = [1 => 'kommune', 2 => 'fylke', 3 => 'land'];
 
     /**
@@ -56,7 +55,7 @@ class Tags extends Collection
      */
     public function getAllInkludertManyCollections() {
         $alle = $this->getAll();
-        foreach( static::ALLOW_MANY as $many_id ) {
+        foreach( static::ALLOW_MANY as $many_id => $many_class ) {
             $alle = array_merge(
                 $this->getManyCollectionFor($many_id)->getAll()
             );
@@ -85,7 +84,7 @@ class Tags extends Collection
      * @return Many
      */
     public function getManyCollectionFor( String $tag_type ) {
-        $class = ucfirst($tag_type);
+        $class = static::ALLOW_MANY[ $tag_type ];
         $funct = 'get'.$class;
         return $this->$funct();
     }

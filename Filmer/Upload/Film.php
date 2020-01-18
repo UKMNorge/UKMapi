@@ -1,6 +1,6 @@
 <?php
 
-namespace UKMNorge\Upload;
+namespace UKMNorge\Filmer\Upload;
 
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Filmer\UKMTV\FilmInterface;
@@ -214,6 +214,10 @@ class Film implements FilmInterface
      */
     public function getImagePath()
     {
+        if( null == $this->image_path ) {
+            $this->image_path = $this->_finnBildeFraFil();
+        }
+        
         return $this->image_path;
     }
 
