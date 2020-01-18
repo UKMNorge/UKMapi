@@ -6,6 +6,11 @@ Opplasting av filmer er litt komplisert, da `ukm_uploaded_video` holder styr på
 Gjennom prosessen er `CRON_ID` den unike identifikatoren. Alle tabeller og prosesser jobber mot denne.
 Dette er auto_increment primary key fra `ukmtv`-tabellen på videoconverter.ukm.no og blir generert så fort videoconverteren har mottatt en film.
 
+## Mulig videreutvikling
+Det kan være en idé å droppe noen kolonner fra UKM-TVs `ukm_tv_files`. Administrasjon av UKM-TV skal aldri skje direkte fra [UKMNorge/UKMvideo](https://github.com/UKMNorge/UKMvideo), men indirekte via `ukm_uploaded_video`::`tv-id` eller andre relasjonstabeller. Tanken er at UKM-TV skal kunne operere fullstendig uavhengig av de andre. Inntil videre får de leve, da overgangen er tricky nok fra V1 til V3.
+- `CRON_ID`: Trengs ikke, da `ukm_uploaded_video` har `tv_id`
+- `PL_ID`: Verdien finnes via tags, og 
+- `B_ID`: Verdien finnes via tags
 
 ## Når brukeren laster opp film ([UKMNorge/UKMvideo](https://github.com/UKMNorge/UKMvideo))
 1. Filmen lastes opp direkte til videoconverter.ukm.no fra UKM.no (jQupload_receive.php).
@@ -62,6 +67,41 @@ Så fort filmen er lagret, curler videoconverter.ukm.no film-informasjonen til U
     - CONVERTED:true
 2. Filmen registreres i UKM-TV
     Etter registreringen, oppdateres `ukm_uploaded_video` med verdi for `TV_ID`
+
+## Klassenes oppbygging og fordeling
+
+### UKM-TV
+**UKMTV\DataProxy** Brukes for å overføre film fra system X (les: upload) til UKM-TV
+
+**UKMTV\Film** All info om en film i UKM-TV
+
+**UKMTV\Filmer** Samling med filmer i UKM-TV
+
+**UKMTV\Html** Hjelpeklasse. Returneres ved $film->getHtmlxxx()
+
+**UKMTV\Write** Håndterer all oppretting, sletting og lagring i UKM-TV (men påvirker ikke `ukm_uploaded_video`)
+
+**UKMTV\Tags\Tags** Samling av tags
+
+**UKMTV\Tags\Tag** En enkelt tag (`type_id`:`(int)verdi/foreign key`)
+
+**UKMTV\Tags\Many** Undersamling av tags hvor én film kan ha flere foreign_keys av samme type (les: person)
+
+**UKMTV\Tags\Person** Informasjon om personer som er tagget i en film
+
+**UKMTV\Server\Server** Hjelpeklasse for å finne URL til de ulike serverne (ikke videoconverter.ukm.no)
+
+**UKMTV\Server\BandwithMode** Hjelpeklasse som holder styr på båndbredde-kapasiteten til UKM-TV
+
+### UKM uploaded video
+**Upload\Uploaded**
+Registrerer at en fil er lastet opp, og lagrer i `ukm_uploaded_video`
+
+**Upload\Converted**
+Oppdaterer filer i `ukm_uploaded_video` etter videoconverter.ukm.no er ferdig med konvertering, og har sendt data til api.ukm.no
+
+@TODO: hvor skal man kjøre slett av filmer til / fra?
+
 
 ## Tabeller
 ### ukm_uploaded_video
