@@ -4,9 +4,9 @@ namespace UKMNorge\Filmer\UKMTV;
 
 use UKMCURL;
 use UKMNorge\Database\SQL\Update;
-use UKMNorge\Filmer\Server\Server;
-use UKMNorge\Filmer\Tags\Tags;
-use UKMNorge\Filmer\Tags\Personer;
+use UKMNorge\Filmer\UKMTV\Server\Server;
+use UKMNorge\Filmer\UKMTV\Tags\Tags;
+use UKMNorge\Filmer\UKMTV\Tags\Personer;
 
 class Film implements FilmInterface
 {
@@ -46,7 +46,7 @@ class Film implements FilmInterface
         $this->slettet = $data['tv_deleted'] != 'false';
         $this->image_url = $data['tv_img'];
 
-        $this->tag_string = $data['tags'];
+        $this->tag_string = !empty($data['tags']) ? $data['tags'] : '';
 
         // Vet vi at denne finnes med en 720p-utgave? (pre 2013(?)-problem)
         $this->file_exists_720p = $data['file_exists_720p'];

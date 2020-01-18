@@ -2,7 +2,7 @@
 
 namespace UKMNorge\Filmer\UKMTV;
 
-use Collection;
+use UKMNorge\Collection;
 use Exception;
 use UKMNorge\Database\SQL\Query;
 
@@ -43,5 +43,24 @@ class Filmer extends Collection
     public function __construct(Query $query)
     {
         $this->query = $query;
+    }
+
+    public static function getById( Int $tv_id ) {
+        $query = new Query(
+            Film::getLoadQuery() ."
+            WHERE `tv_id` = '#tvid'
+            AND `tv_deleted` = 'false'",
+            [
+                'tvid' => $tv_id
+            ]
+            );
+        $data = $query->getArray();
+        if( !$data ) {
+            throw new Exception(
+                'Beklager! Klarte ikke å finne film '. intval($tv_id),
+                115007
+            );
+        }
+        return new Film( $data );
     }
 }

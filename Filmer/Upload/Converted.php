@@ -121,7 +121,13 @@ class Converted
      */
     public static function getFileWithPath(String $storage_path, String $storage_filename)
     {
-        return Server::STORAGE_BASEPATH . rtrim($storage_path, '/') . '/' . $storage_filename;
+        return Server::STORAGE_BASEPATH . 
+            str_replace(
+                Server::STORAGE_BASEPATH,
+                '',
+                rtrim($storage_path, '/')
+            ) . 
+            '/' . $storage_filename;
     }
 
     /**

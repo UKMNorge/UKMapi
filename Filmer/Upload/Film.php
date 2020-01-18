@@ -20,6 +20,7 @@ class Film implements FilmInterface
     private $tags;
     private $season;
     private $converted = false;
+    private $type;
 
     public function __construct(Int $cronId)
     {
@@ -44,6 +45,7 @@ class Film implements FilmInterface
         $this->innslag_id = intval($data['innslag_id']);
         $this->title_id = intval($data['title_id']);
         $this->season = intval($data['season']);
+        $this->type = $this->getInnslagId() > 0 ? 'innslag' : 'reportasje';
     }
 
     /**
@@ -67,7 +69,15 @@ class Film implements FilmInterface
     {
         return $this->tv_id;
     }
-
+    
+    /**
+     * Hent filmens ID (som er cronId)
+     *
+     * @return Int
+     */
+    public function getId() {
+        return $this->getCronId();
+    }
 
     /**
      * Get the value of cron_id
@@ -336,5 +346,15 @@ class Film implements FilmInterface
     public function getConverted()
     {
         return $this->converted;
+    }
+
+    /**
+     * Hvilken type film er dette?
+     * 
+     * @return String innslag|reportasje
+     */ 
+    public function getType()
+    {
+        return $this->type;
     }
 }
