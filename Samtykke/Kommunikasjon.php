@@ -81,6 +81,7 @@ class Kommunikasjon {
         switch( $melding_type ) {
             case 'samtykke':
             case 'samtykke_foresatt':
+            case 'ombestemt':
                 if( $this->har( $melding_type ) ) {
                     $melding = $this->get( $melding_type);
                     return 'Kunne ikke sende melding da den allerede er sendt tidligere ('. $melding->getTimestamp() .')';
