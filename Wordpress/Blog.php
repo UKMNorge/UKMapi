@@ -12,6 +12,8 @@ require_once('UKM/Autoloader.php');
 class Blog
 {
 
+    private static $hovedBloggId = 1;
+
     /**
      * @TODO
      * PORT: write_wp_blog:: splitt, flippBlogger, moveBlog
@@ -463,6 +465,58 @@ class Blog
             return false;
         }
         return true;
+    }
+
+    /**
+     * Sjekk om en gitt bruker har rettigheter på hovedbloggen.
+     * Fungerer kun i Wordpress-kontekst.
+     * UKMusers-brukere skal kun ha rettigheten "subscriber".
+     * 
+     * @param UKMNorge\Wordpress\User - Bruker-objekt.
+     * @param String $role - optional. Filtrer på denne rollen.
+     * 
+     * @return bool true hvis ja, false hvis nei.
+     */
+    public static function harHovedbloggBruker( User $user, String $role = null ) {
+        # Prøv å opprett WP_User med oppgitt data. Om den finnes og har en rolle er alt OK
+        $wp_users = get_users(['blog_id' => static::$hovedBloggId, 'search' => $user->getId()]);
+        if( isset( $wp_users[0] ) ) {
+            $wp_user = $wp_users[0];
+        }
+
+        if( empty($wp_user->roles) ) {
+            return false;
+        }
+
+        if( null == $role ) {
+            // Don't bother checking roles
+            return true;
+        }
+
+        if( !in_array($role, $wp_user->roles) ) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Legg til en ny bruker på hovedbloggen.
+     * Default rettighet for alle UKMusers-brukere er 'subscriber', men vi støtter å legge til andre.
+     * 
+     * @param UKMNorge\Wordpress\User $user - Bruker-objekt.
+     * @param String $role - optional. Default 'subscriber'.
+     * 
+     * @return bool $result. True hvis OK, false hvis feil.
+     * @throws Exception ved feil.
+     */
+    public static function leggTilHovedbloggBruker( User $user, String $role = 'subscriber' ) {
+        static::_requiresWordpressFunctions();
+        static::controlBlogId(static::$hovedBloggId, true);
+        $result = add_user_to_blog(static::$hovedBloggId, $user->getId(), $role);
+        if ($result) {
+            return true;
+        } 
+        return false;
     }
 
     /**
