@@ -794,6 +794,20 @@ class Arrangement
         return $this->program;
     }
 
+    public function harBilder() {
+        $query = new Query(
+            "SELECT `id`
+            FROM `ukm_bilder` 
+            WHERE `pl_id` = '#arrangementid'
+            LIMIT 1",
+            [
+                'arrangementid' => $this->getId()
+            ]
+        );
+        $test = $query->run();
+        return Query::numRows( $test ) > 0;
+    }
+
     /**
      * Hent innslag påmeldt mønstringen
      *
