@@ -2,6 +2,8 @@
 
 namespace UKMNorge\Filmer\UKMTV\Server;
 
+use UKMNorge\Database\SQL\Query;
+
 class BandwidthMode {
     static $mode = null;
 

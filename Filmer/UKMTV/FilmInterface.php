@@ -52,7 +52,7 @@ interface FilmInterface
     public function getDescription();
 
     /**
-     * Hent filmens path på videostorage (path, ikke URL)
+     * Hent filmens path (inkl filnavn) på videostorage (path, ikke URL)
      *
      * @return String
      */

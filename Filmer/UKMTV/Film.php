@@ -7,6 +7,7 @@ use UKMNorge\Database\SQL\Update;
 use UKMNorge\Filmer\UKMTV\Server\Server;
 use UKMNorge\Filmer\UKMTV\Tags\Tags;
 use UKMNorge\Filmer\UKMTV\Tags\Personer;
+use UKMNorge\Http\Curl;
 
 class Film implements FilmInterface
 {
@@ -26,6 +27,9 @@ class Film implements FilmInterface
     var $file_exists_720p = null;
     var $did_check_for_720p = false;
 
+    var $file_exists_smil = false;
+    var $smil_file = null;
+
     var $slettet = false;
 
     var $arrangement_id;
@@ -37,7 +41,7 @@ class Film implements FilmInterface
         $this->id = intval($data['tv_id']);
         $this->cron_id = intval($data['cron_id']);
         $this->arrangement_id = intval($data['pl_id']);
-        $this->innslag_id = intval($data['innslag_id']);
+        $this->innslag_id = intval($data['b_id']);
         $this->season = intval($data['season']);
         
         $this->title = $data['tv_title'];
@@ -46,10 +50,12 @@ class Film implements FilmInterface
         $this->slettet = $data['tv_deleted'] != 'false';
         $this->image_url = $data['tv_img'];
 
+        $this->file_exists_smil = $data['file_exists_smil'] == 'true';
+
         $this->tag_string = !empty($data['tags']) ? $data['tags'] : '';
 
         // Vet vi at denne finnes med en 720p-utgave? (pre 2013(?)-problem)
-        $this->file_exists_720p = $data['file_exists_720p'];
+        $this->file_exists_720p = $data['file_exists_720p'] == 1;
 
         // De forskjellige fil-utgavene
         $this->setFile($data['tv_file']);
@@ -134,6 +140,27 @@ class Film implements FilmInterface
         }
         return $this->sanitized_title;
     }
+    
+        /**
+         * Har filmen en .smil-fil?
+         *
+         * @return bool
+         */
+        public function harSmil() {
+            return $this->file_exists_smil;
+        }
+    
+        /**
+         * Hent URL til smil-filen
+         *
+         * @return String $url
+         */
+        public function getSmilFile() {
+            if( null == $this->smil_file ) {
+                $this->smil_file = str_replace('_720p.mp4','.smil', $this->getFile());
+            }
+            return $this->smil_file;
+        }
 
     /**
      * Hent full filbane (inkl navn) til filen
@@ -170,7 +197,7 @@ class Film implements FilmInterface
      */
     public function setFile(String $full_filepath)
     {
-        $this->file         = $full_filepath;
+        $this->file         = str_replace('///', '/', $full_filepath);
         $lastslash          = strrpos($this->file, '/');
         $this->file_path    = substr($this->file, 0, $lastslash);
         $this->file_name    = substr($this->file, $lastslash + 1);
@@ -298,19 +325,19 @@ class Film implements FilmInterface
      */
     private function _checkFor720p()
     {
-        $UKMCURL = new UKMCURL();
-        $UKMCURL->request(
+        $curl = new Curl();
+        $data = $curl->request(
             Server::getStorageUrl()
                 . 'find.php'
                 . '?file=' . $this->getFilename()
                 . '&path=' . urlencode($this->getServerFilepath())
         );
 
-        $this->setFile($UKMCURL->data->filepath);
+        $this->setFile($curl->data->filepath);
 
         // Returnert fil inneholdt 720p, som betyr at den finnes. 
         // Lagre så vi vet det til senere (score!)
-        if (strpos($UKMCURL->data->filepath, '720p') !== false) {
+        if (strpos($curl->data->filepath, '720p') !== false) {
             $SQL = new Update(
                 'ukm_tv_files',
                 [
@@ -318,6 +345,7 @@ class Film implements FilmInterface
                 ]
             );
             $SQL->add('file_exists_720p', 1);
+            $SQL->add('tv_file', $curl->data->filepath);
             $SQL->run();
         }
         $this->did_check_for_720p = true;
