@@ -134,8 +134,10 @@ class Samling {
 	 * @return Innslag[] $innslag
 	**/
 	public function getAll() {
-		if( null == $this->innslag ) {
-			$this->_load();
+        // is_null fordi [] == null, og det er ikke alltid sant
+        // (f.eks hvis vi fjernet siste element i lista)
+		if ( is_null( $this->innslag ) ) {
+            $this->_load();
 		}
 		return $this->innslag;
 	}
