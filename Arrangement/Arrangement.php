@@ -77,6 +77,8 @@ class Arrangement
     var $har_videresending = null;
     var $synlig = true;
 
+    var $har_bilder = null;
+
     var $uregistrerte = null;
     var $publikum = null;
 
@@ -795,17 +797,20 @@ class Arrangement
     }
 
     public function harBilder() {
-        $query = new Query(
-            "SELECT `id`
-            FROM `ukm_bilder` 
-            WHERE `pl_id` = '#arrangementid'
-            LIMIT 1",
-            [
-                'arrangementid' => $this->getId()
-            ]
-        );
-        $test = $query->run();
-        return Query::numRows( $test ) > 0;
+        if( null === $this->har_bilder ) {
+            $query = new Query(
+                "SELECT `id`
+                FROM `ukm_bilder` 
+                WHERE `pl_id` = '#arrangementid'
+                LIMIT 1",
+                [
+                    'arrangementid' => $this->getId()
+                ]
+            );
+            $test = $query->run();
+            $this->har_bilder = Query::numRows( $test ) > 0;
+        }
+        return $this->har_bilder;
     }
 
     /**
