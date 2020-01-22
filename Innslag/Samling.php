@@ -421,7 +421,10 @@ class Samling {
 			if( is_array( $this->$container ) ) {
 				foreach( $this->$container as $pos => $search_innslag ) {
 					if( $search_innslag->getId() == $innslag->getId() ) {
-						unset( $this->{$container}[ $pos ] );
+                        unset( $this->{$container}[ $pos ] );
+                        if( is_null( $this->{$container} ) ) {
+                            $this->{$container} = [];
+                        }
 					}
 				}
 			}
