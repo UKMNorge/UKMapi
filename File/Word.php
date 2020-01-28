@@ -162,6 +162,14 @@ class Word extends OfficeDok
         return $this->getUrl() . $filename;
     }
 
+    /**
+     * Sett inn sideskift
+     *
+     * @return void
+     */
+    public function addPageBreak() {
+        $this->getSection()->addPageBreak();
+    }
 
     public function h1( String $tekst ) {
         return $this->overskrift( $tekst, 1);
