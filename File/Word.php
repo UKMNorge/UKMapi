@@ -265,7 +265,7 @@ class Word extends OfficeDok
      */
     public function overskrift(String $tekst, Int $storrelse, $target = null)
     {
-        return $this->getTarget($target)->addTitle($tekst, $storrelse);
+        return $this->getTarget($target)->addTitle(htmlspecialchars($tekst), $storrelse);
     }
 
     /**
@@ -299,7 +299,7 @@ class Word extends OfficeDok
     public function tekst(String $tekst, $target = null)
     {
         return $this->getTarget($target)->addText(
-            $tekst,
+            htmlspecialchars($tekst),
             [
                 'spaceAfter' => static::pcToTwips(
                     static::getParagraphHeight()
@@ -318,7 +318,7 @@ class Word extends OfficeDok
     public function tekstFare(String $tekst, $target = null)
     {
         return $this->getTarget($target)->addText(
-            $tekst,
+            htmlspecialchars($tekst),
             [
                 'color' => 'dc3545'
             ]
@@ -328,7 +328,7 @@ class Word extends OfficeDok
     public function tekstLiten(String $tekst, $target = null)
     {
         return $this->getTarget($target)->addText(
-            $tekst,
+            htmlspecialchars($tekst),
             [
                 'size' => static::DEFAULT_FONT_SIZE - static::DEFAULT_FONT_SIZE_INCREMENT
             ]
@@ -345,7 +345,7 @@ class Word extends OfficeDok
     public function tekstMuted(String $tekst, $target = null)
     {
         return $this->getTarget($target)->addText(
-            $tekst,
+            htmlspecialchars($tekst),
             [
                 'color' => '999999',
                 'bold' => true
@@ -363,7 +363,7 @@ class Word extends OfficeDok
     public function tekstFet(String $tekst, $target = null)
     {
         return $this->getTarget($target)->addText(
-            $tekst,
+            htmlspecialchars($tekst),
             [
                 'bold' => true
             ]
