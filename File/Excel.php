@@ -7,35 +7,15 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 require_once('UKM/Autoloader.php');
 
-if( defined('DOWNLOAD_PATH_EXCEL') ) {
-    Excel::setPath( DOWNLOAD_PATH_EXCEL );
-}
-if( defined('DOWNLOAD_URL_EXCEL') ) {
-    Excel::setUrl( DOWNLOAD_URL_EXCEL );
-}
-
-class Excel {
-
-    static $path;
-    static $url;
-    var $name;
-    var $orientation = 'portrait';
+class Excel extends OfficeDok {
     var $row = [];
     var $sheet_ids = [];
     var $sheet_names = [];
     var $phpSpreadsheet;
 
-    public function __construct( $file_name )
+    public function __construct( String $file_name )
     {
-
-        if( !is_dir( static::$path ) ) {
-            throw new Exception(
-                'Kan ikke opprette excel-dokument, da systemet mangler mappen det skal lagres i. '.
-                'Kontakt <a href="mailto:support@ukm.no?subject=UKMAPI%2FFile%2FExcel feil satt opp">support@ukm.no</a>',
-                401002
-            );
-        }
-        $this->name = $file_name;
+        parent::__construct($file_name);
 
         $this->phpSpreadsheet = new Spreadsheet( $file_name, $this->orientation);
         $this->phpSpreadsheet->getProperties()
@@ -55,26 +35,6 @@ class Excel {
         $this->phpSpreadsheet->setActiveSheetIndex(0);
 
         $this->row[0] = 0;
-    }
-
-    /**
-     * Sett dokumentets retning
-     * landskap eller portrett (default)
-     * 
-     * @param String $orientation
-     * @return  self
-     */ 
-    public function setRetning($retning)
-    {
-        if( !in_array($retning, ['portrett','landskap'] ) ) {
-            throw new Exception(
-                'Excel-dokumenter støtter kun portrett eller landskap',
-                401001
-            );
-        }
-        $this->orientation = $retning == 'portrett' ? 'portrait' : 'landscape';
-
-        return $this;
     }
 
     /**
@@ -156,25 +116,8 @@ class Excel {
         $filename = $this->name .'.xlsx';
 	    $this->phpSpreadsheet->setActiveSheetIndex(0);
 	    $writer = new Xlsx( $this->phpSpreadsheet );
-	    $writer->save( $this->_getPath() . $filename );
-	    return $this->_getUrl() . $filename;
-    }
-
-    /**
-     * Hent mappen det skal skrives til
-     *
-     * @return void
-     */
-    private function _getPath() {
-        return rtrim( static::$path, '/') .'/'. date('Y') .'/';
-    }
-    /**
-     * Hent URL-base
-     *
-     * @return void
-     */
-    private function _getUrl() {
-        return rtrim( static::$url, '/') .'/'. date('Y') .'/';
+	    $writer->save( $this->getPath() . $filename );
+	    return $this->getUrl() . $filename;
     }
 
     /**
@@ -187,24 +130,10 @@ class Excel {
     public static function i2a(Int $nummer) {
 		return ($nummer-->26?chr(($nummer/26+25)%26+ord('A')):'').chr($nummer%26+ord('A'));
     }
-    
-    /**
-     * Angi hvor på serveren filene skal lagres
-     *
-     * @param String $path
-     * @return void
-     */
-    public static function setPath( String $path ) {
-        static::$path = $path;
-    }
-
-    /**
-     * Angi URL for nedlasting av filer
-     *
-     * @param String $url
-     * @return void
-     */
-    public static function setUrl(String $url ) {
-        static::$url = $url;
-    }
+}
+if( defined('DOWNLOAD_PATH_EXCEL') ) {
+    Excel::setPath( DOWNLOAD_PATH_EXCEL );
+}
+if( defined('DOWNLOAD_URL_EXCEL') ) {
+    Excel::setUrl( DOWNLOAD_URL_EXCEL );
 }
