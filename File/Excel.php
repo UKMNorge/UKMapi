@@ -6,6 +6,7 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 require_once('UKM/Autoloader.php');
+require_once('UKM/vendor/autoload.php');
 
 class Excel extends OfficeDok {
     var $row = [];

@@ -6,6 +6,7 @@ use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\IOFactory;
 
 require_once('UKM/Autoloader.php');
+require_once('UKM/vendor/autoload.php');
 
 class Word extends OfficeDok
 {
