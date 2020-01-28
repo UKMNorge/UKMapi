@@ -2,6 +2,8 @@
 
 namespace UKMNorge\File;
 
+use PhpOffice\PhpWord\Element\AbstractElement;
+use PhpOffice\PhpWord\Element\Row;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\IOFactory;
 
@@ -186,17 +188,26 @@ class Word extends OfficeDok
      */
     public function sideskift()
     {
-        $this->getSection()->addPageBreak();
+        return $this->getSection()->addPageBreak();
     }
 
     /**
      * Sett inn en tabell
      *
-     * @return PhpOffice\PhpWord\Element\Table
+     * @return \PhpOffice\PhpWord\Element\Table
      */
     public function tabell()
     {
         return $this->getSection()->addTable();
+    }
+
+    public function celle(Float $width, Row $row, array $style = [])
+    {
+        $style['valign'] = \PhpOffice\PhpWord\SimpleType\VerticalJc::BOTTOM;
+        return $row->addCell(
+            $width,
+            $style
+        );
     }
 
     /**
@@ -254,7 +265,28 @@ class Word extends OfficeDok
      */
     public function overskrift(String $tekst, Int $storrelse, $target = null)
     {
-        $this->getTarget($target)->addTitle($tekst, $storrelse);
+        return $this->getTarget($target)->addTitle($tekst, $storrelse);
+    }
+
+    /**
+     * Legg til et ekstra linjeskift
+     *
+     * @param \PhpOffice\PhpWord\Element\AbstractElement|null $target
+     * @return \PhpOffice\PhpWord\Element\AbstractElement $target
+     */
+    public function avsnittSkift($target = null)
+    {
+        return $this->getTarget($target)->addTextBreak();
+    }
+    /**
+     * Legg til ekstra linjeskift
+     *
+     * @param \PhpOffice\PhpWord\Element\AbstractElement|null $target
+     * @return \PhpOffice\PhpWord\Element\AbstractElement $target
+     */
+    public function linjeSkift($target = null)
+    {
+        return $this->avsnittSkift($target);
     }
 
     /**
@@ -266,7 +298,7 @@ class Word extends OfficeDok
      */
     public function tekst(String $tekst, $target = null)
     {
-        $this->getTarget($target)->addText(
+        return $this->getTarget($target)->addText(
             $tekst,
             [
                 'spaceAfter' => static::pcToTwips(
@@ -285,7 +317,7 @@ class Word extends OfficeDok
      */
     public function tekstFare(String $tekst, $target = null)
     {
-        $this->getTarget($target)->addText(
+        return $this->getTarget($target)->addText(
             $tekst,
             [
                 'color' => 'dc3545'
@@ -293,7 +325,17 @@ class Word extends OfficeDok
         );
     }
 
-        /**
+    public function tekstLiten(String $tekst, $target = null)
+    {
+        return $this->getTarget($target)->addText(
+            $tekst,
+            [
+                'size' => static::DEFAULT_FONT_SIZE - static::DEFAULT_FONT_SIZE_INCREMENT
+            ]
+        );
+    }
+
+    /**
      * Sett inn en muted tekst
      *
      * @param String $tekst
@@ -302,10 +344,27 @@ class Word extends OfficeDok
      */
     public function tekstMuted(String $tekst, $target = null)
     {
-        $this->getTarget($target)->addText(
+        return $this->getTarget($target)->addText(
             $tekst,
             [
                 'color' => '999999',
+                'bold' => true
+            ]
+        );
+    }
+
+    /**
+     * Sett inn en fettekst
+     *
+     * @param String $tekst
+     * @param \PhpOffice\PhpWord\Element\AbstractElement|null $target
+     * @return \PhpOffice\PhpWord\Element\AbstractElement $target
+     */
+    public function tekstFet(String $tekst, $target = null)
+    {
+        return $this->getTarget($target)->addText(
+            $tekst,
+            [
                 'bold' => true
             ]
         );
