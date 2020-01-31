@@ -78,4 +78,22 @@ abstract class OfficeDok {
     public static function setUrl(String $url ) {
         static::$url = $url;
     }
+
+    /**
+     * Sørg for at filnavnene ikke inneholder ting som freaker ut webserveren eller div OS
+     *
+     * @param String $filename
+     * @return String sikkert-ish filnavn
+     */
+    public static function sanitizeFilename( String $filename ) {
+        return preg_replace(
+            "/[^a-zA-Z0-9-_ .]/",
+            '',
+            str_replace(
+                ['æ', 'ø', 'å', 'ü', 'é', 'è'],
+                ['a', 'o', 'a', 'u', 'e', 'e'],
+                mb_strtolower($filename)
+            )
+        ); 
+    }
 }

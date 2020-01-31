@@ -114,7 +114,7 @@ class Excel extends OfficeDok {
      * @return void
      */
     public function writeToFile() {
-        $filename = $this->name .'.xlsx';
+        $filename = OfficeDok::sanitizeFilename($this->name .'.xlsx');
 	    $this->phpSpreadsheet->setActiveSheetIndex(0);
 	    $writer = new Xlsx( $this->phpSpreadsheet );
 	    $writer->save( $this->getPath() . $filename );

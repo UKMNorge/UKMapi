@@ -175,7 +175,7 @@ class Word extends OfficeDok
      */
     public function writeToFile()
     {
-        $filename = $this->name . '.docx';
+        $filename = OfficeDok::sanitizeFilename($this->name . '.docx');
         $writer = IOFactory::createWriter($this->phpWord, 'Word2007');
         $writer->save($this->getPath() . $filename);
         return $this->getUrl() . $filename;
