@@ -168,6 +168,38 @@ class Personer extends Collection
         return array_keys($personer);
     }
 
+
+    /**
+     * Finn ut hvor mange som er innenfor gitt aldersspenn
+     *
+     * @param Int $start
+     * @param Int $stop
+     * @return Int antall innenfor
+     */
+    public function getAntallInnenforAlder( Int $start=10, Int $stop=20) {
+        $innenfor = 0;
+        foreach( $this->getAll() as $person ) {
+            if( $person->getAlderTall() >= $start && $person->getAlderTall() <= $stop ) {
+                $innenfor++;
+            }
+        }
+        return $innenfor;
+    }
+
+    /**
+     * Finn ut hvor mange som er innenfor gitt aldersspenn (i prosent av antall detltakere)
+     *
+     * @param Int $start
+     * @param Int $stop
+     * @return Float $prosetn
+     */
+    public function getProsentInnenforAlder( Int $start=10, Int $stop=20) {
+        return round(
+            (100 / $this->getAntall()) * $this->getAntallInnenforAlder($start,$stop),
+            2
+        );
+    }
+
     /**
      * getSingle
      * Hent én enkelt person fra innslaget. 

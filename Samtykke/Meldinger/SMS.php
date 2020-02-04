@@ -61,6 +61,9 @@ class SMS {
             case 'purring_foresatt':
                 $melding_id = 'purring_foresatt';
                 break;
+            case 'ombestemt':
+                $melding_id = 'ombestemt';
+                break;
             default:
                 throw new Exception('Systemet støtter ikke meldingen `'. $id .'`');
         }

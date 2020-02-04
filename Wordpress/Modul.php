@@ -298,6 +298,11 @@ abstract class Modul {
         }
     }
     
+    /**
+     * Include the current action controller
+     *
+     * @return void
+     */
     public static function includeActionController() {
         static::include('controller/'. static::getAction() .'.controller.php');
     }

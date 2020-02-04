@@ -150,9 +150,13 @@ class Write {
         $innslag_save->evaluerMangler();
         // Lagre status hentet fra evaluering av mangler.
         $status = $innslag_save->getMangler()->getStatus();
-        $innslag_save->setStatus($status);
-        $smartukm_band->add('b_status', $status);
-        Logger::log( 304, $innslag_save->getId(), $status);
+        
+        // Vi skal aldri nedgradere et påmeldt innslag.
+        if( $innslag_db->getStatus() < 8 ) {
+            $innslag_save->setStatus($status);
+            $smartukm_band->add('b_status', $status);
+            Logger::log( 304, $innslag_save->getId(), $status);
+        }
         
 		// VERDIER SOM KAN OPPDATERES
 		$properties = [

@@ -134,8 +134,10 @@ class Samling {
 	 * @return Innslag[] $innslag
 	**/
 	public function getAll() {
-		if( null == $this->innslag ) {
-			$this->_load();
+        // is_null fordi [] == null, og det er ikke alltid sant
+        // (f.eks hvis vi fjernet siste element i lista)
+		if ( is_null( $this->innslag ) ) {
+            $this->_load();
 		}
 		return $this->innslag;
 	}
@@ -421,7 +423,10 @@ class Samling {
 			if( is_array( $this->$container ) ) {
 				foreach( $this->$container as $pos => $search_innslag ) {
 					if( $search_innslag->getId() == $innslag->getId() ) {
-						unset( $this->{$container}[ $pos ] );
+                        unset( $this->{$container}[ $pos ] );
+                        if( is_null( $this->{$container} ) ) {
+                            $this->{$container} = [];
+                        }
 					}
 				}
 			}
@@ -464,16 +469,23 @@ class Samling {
             // har vi ikke tilgang på arrangementet, og dette må håndteres internt.
             // For å ikke kjøre alt for heavy objekter, prøver vi først uten listen
             // med kommuneID'er (november 2019) til første feil oppstår.
+            // 
+            // Fix 16.01: Forsøk å skippe innslag med kontakt-person context dersom arrangementet ikke finnes. Issue #315.
             if( $this->getContext()->getType() == 'kontaktperson' ) {
-                $innslag->getContext()->setMonstring(
-                    new Monstring(
-                        $innslag->getHomeId(),
-                        'kommune',
-                        $innslag->getSesong(),
-                        $innslag->getFylke()->getId(),
-                        null
-                    )
-                );
+                try {
+                    $innslag->getContext()->setMonstring(
+                        new Monstring(
+                            $innslag->getHomeId(),
+                            'kommune',
+                            $innslag->getSesong(),
+                            $innslag->getFylke()->getId(),
+                            null
+                        )
+                    );
+                } catch( Exception $e ) {
+                    // TODO: Error log - dette skjer kun dersom arrangementet ikke finnes lenger uten at innslaget er flyttet til en annen kommune. Dette BURDE vi få vite om.
+                    continue;
+                }
             }
 			array_push( $this->$internal_var, $innslag);
 		}

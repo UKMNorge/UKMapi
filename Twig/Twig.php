@@ -33,7 +33,7 @@ class Twig
     public static function addPath(String $path)
     {
         self::$paths[] = str_replace('//', '/', $path);
-        if( static::$didRender ) {
+        if (static::$didRender) {
             static::$twig->getLoader()->addPath(str_replace('//', '/', $path));
         }
     }
@@ -49,6 +49,33 @@ class Twig
     {
         self::$filters[$filter] = $function;
     }
+
+    /**
+     * Legg til flere filter fra én klasse
+     *
+     * @param $class
+     * @return void
+     */
+    public static function addFiltersFromClass($class)
+    {
+        foreach (get_class_methods($class) as $function) {
+            static::addFilter($function, [$class, $function]);
+        }
+    }
+
+    /**
+     * Legg til flere funksjoner fra én klasse
+     *
+     * @param $class
+     * @return void
+     */
+    public static function addFunctionsFromClass($class)
+    {
+        foreach (get_class_methods($class) as $function) {
+            static::addFunction($function, [$class, $function]);
+        }
+    }
+    
     /**
      * Legg til ny funksjon
      *
@@ -133,8 +160,7 @@ class Twig
      * @return void
      */
     public static function init()
-    {
-    }
+    { }
 
     /**
      * Render et template
@@ -143,7 +169,7 @@ class Twig
      * @param Array $data
      * @return String html
      */
-    public static function render(String $template, Array $data)
+    public static function render(String $template, array $data)
     {
         static::init();
         static::addData($data);
@@ -153,7 +179,7 @@ class Twig
             static::addExtension(new DebugExtension());
         }
 
-        if( !static::$didRender ) {
+        if (!static::$didRender) {
             static::_prepare();
         }
         static::$didRender = true;
@@ -166,7 +192,8 @@ class Twig
      *
      * @return void
      */
-    private function _prepare() {
+    private function _prepare()
+    {
         static::$twig = new Environment(
             static::getLoader(),
             static::getEnvironmentData()
@@ -218,7 +245,7 @@ class Twig
     /**
      * Opprett Twig Filesystem-loader
      *
-     * @return void
+     * @return FilesystemLoader
      */
     public static function getLoader()
     {
@@ -273,10 +300,10 @@ class Twig
             static::setEnvironment('auto_reload', true);
         }
 
-        static::addExtension( new \UKMNorge\Twig\Filters() );
-        static::addExtension( new \UKMNorge\Twig\Functions() );
+        static::addExtension(new \UKMNorge\Twig\Filters());
+        static::addExtension(new \UKMNorge\Twig\Functions());
 
         putenv('LC_ALL=nb_NO');
         setlocale(LC_ALL, 'nb_NO');
-    }   
+    }
 }

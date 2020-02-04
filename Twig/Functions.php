@@ -7,29 +7,17 @@ require_once('lib/autoload.php');
 
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
-
+use UKMNorge\Twig\Definitions\Functions as FunctionDefinitions;
 
 class Functions extends AbstractExtension
 {
     public function getFunctions()
     {
-        return [
-            new TwigFunction('GET', [$this, 'GET']),
-        ];
-    }
-
-    /**
-     * TWIG-funksjon: GET()
-     * Hent $_GET-variabel
-     *
-     * @param String $GET_key
-     * @return void
-     */
-    public function GET($GET_key)
-    {
-        if (isset($_GET[$GET_key])) {
-            return $_GET[$GET_key];
+        $functions = [];
+        $definitionClass = new FunctionDefinitions();
+        foreach( get_class_methods( $definitionClass ) as $function ) {
+            $functions[] = new TwigFunction($function, [$definitionClass,$function]);
         }
-        return false;
+        return $functions;
     }
 }
