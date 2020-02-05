@@ -12,7 +12,6 @@ class Functions {
      */
     public function GET($GET_key)
     {
-        echo 'GET()';
         if (isset($_GET[$GET_key])) {
             return $_GET[$GET_key];
         }
