@@ -53,7 +53,7 @@ class Hendelse
         $this->setOppmoteFor($data['c_before']);
         $this->setOppmoteDelay($data['c_delay']);
         $this->setType($data['c_type']);
-        $this->setTypePostId($data['c_type_post_id']);
+        $this->setTypePostId( intval($data['c_type_post_id']));
         $this->setTypeCategoryId($data['c_type_category_id']);
         $this->setIntern('true' == $data['c_intern']);
         $this->setBeskrivelse($data['c_beskrivelse']);
@@ -119,6 +119,11 @@ class Hendelse
         return $this->erIntern();
     }
 
+    /**
+     * Hent post ID
+     *
+     * @return Int
+     */
     public function getTypePostId()
     {
         return $this->type_post_id;
