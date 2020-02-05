@@ -5,10 +5,11 @@ use Exception;
 use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Database\SQL\Update;
 
+require_once('UKM/Autoloader.php');
+
 class Write {
 	
 	public static function createProsjekt( $tittel ) {
-		require_once('UKM/samtykke/prosjekt.class.php');
 		$sql = new Insert('samtykke_prosjekt');
 		$sql->add('tittel', $tittel);
 		$insert_id = $sql->run();
@@ -28,7 +29,6 @@ class Write {
 	}
 	
 	public static function saveProsjekt( $prosjekt ) {
-		require_once('UKM/samtykke/prosjekt.class.php');
 		$prosjekt_db = new Prosjekt( $prosjekt->getId() );
 		
 		$sql = new Insert(
@@ -54,12 +54,11 @@ class Write {
 				$sql->add( $db[0], $prosjekt->$function() );
 			}
 		}
-		$sql->add('hash-excerpt', substr( $prosjekt->getHash(), 6, 10 ) );
-		
 		if( !$sql->hasChanges() ) {
 			return true;
 		}
-		
+		$sql->add('hash-excerpt', substr( $prosjekt->getHash(), 6, 10 ) );
+        		
 		$res = $sql->run();
 		if( $res ) {
 			return true;
@@ -74,7 +73,7 @@ class Write {
 			return true;
 		}
 		
-		$sql = new SQLins(
+		$sql = new Insert(
 			'samtykke_prosjekt',
 			[
 				'id' => $prosjekt->getId()
@@ -90,8 +89,6 @@ class Write {
 	
 	
 	public static function createRequest( $prosjekt, $melding, $lenker, $fornavn, $etternavn, $mobil ) {
-		require_once('UKM/samtykke/request.class.php');
-
 		$hash = sha1( $fornavn .'-'. $etternavn .'-'. $mobil .'-'. var_export($lenker,true) );
 		$hashexcerpt = substr( $hash, 6, 10 );
 		$melding_fixed = Request::createMelding( $prosjekt, $melding, $lenker, $fornavn, $mobil, $hashexcerpt );
@@ -112,10 +109,6 @@ class Write {
 	}
 	
 	public static function godta( $request, $alder ) {
-		require_once('UKM/samtykke/prosjekt.class.php');
-		require_once('UKM/samtykke/request.class.php');
-		require_once('UKM/samtykke/approval.class.php');
-		
 		$ip = $_SERVER['HTTP_CF_CONNECTING_IP'];
 		$hash = sha1( $request->getProsjektId() .'-'. $request->getId() .'-'. $alder .'-'. $ip );
 		$hashexcerpt = substr( $hash, 6, 10 );
@@ -138,10 +131,6 @@ class Write {
 	
 		
 	public static function godtaForesatt( $request ) {
-		require_once('UKM/samtykke/prosjekt.class.php');
-		require_once('UKM/samtykke/request.class.php');
-		require_once('UKM/samtykke/approval.class.php');
-		
 		$ip = $_SERVER['HTTP_CF_CONNECTING_IP'];
 		$hash = sha1( $request->getId() .'-'. $request->getProsjektId() .'-'. $ip );
 		$hashexcerpt = substr( $hash, 6, 10 );
@@ -159,10 +148,6 @@ class Write {
 	
 	
 	public static function lagreForesatt( $request, $navn, $mobil ) {
-		require_once('UKM/samtykke/prosjekt.class.php');
-		require_once('UKM/samtykke/request.class.php');
-		require_once('UKM/samtykke/approval.class.php');
-
 		$sql = new Update(
 			'samtykke_approval', 
 			[

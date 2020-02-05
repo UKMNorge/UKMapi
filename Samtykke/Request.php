@@ -223,9 +223,7 @@ class Request {
 	}
 
 	
-	public static function loadFromHash( $prosjekt, $samtykke ) {
-		require_once('UKM/samtykke/prosjekt.class.php');
-		
+	public static function loadFromHash( $prosjekt, $samtykke ) {		
 		$sql = new Query("SELECT *,
 			`request`.`id` AS `request_id`,
 			`prosjekt`.`id` AS `prosjekt_id` 
