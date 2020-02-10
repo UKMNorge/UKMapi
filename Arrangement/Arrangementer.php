@@ -49,7 +49,7 @@ class Arrangementer
      *
      * @param Eier $eier
      * @param Array<Arrangement> $arrangementer
-     * @return void
+     * @return Array<Arrangement>
      */
     public static function filterSkipEier(Eier $eier, array $arrangementer)
     {
@@ -238,6 +238,8 @@ class Arrangementer
 
     /**
      * Hent alle arrangement
+     * 
+     * @return Array<Arrangement>
      */
     public function getAll()
     {
@@ -249,6 +251,8 @@ class Arrangementer
 
     /**
      * Hent alle synlige arrangement
+     * 
+     * @return Array<Arrangement>
      */
     public function getAllSynlige()
     {
@@ -286,6 +290,8 @@ class Arrangementer
 
     /**
      * Hent områdets type
+     * 
+     * @return String
      */
     public function getOmradeType()
     {
