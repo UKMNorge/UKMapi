@@ -43,7 +43,14 @@ class Arrangementer
         return array_pop( $alle );
     }
 
-    public static function filterSkipEier( $eier, $arrangementer ) {
+    /**
+     * Finn kun de som er eid av gitt eier
+     *
+     * @param Eier $eier
+     * @param Array<Arrangement> $arrangementer
+     * @return void
+     */
+    public static function filterSkipEier( Eier $eier, Array $arrangementer ) {
         $filtered = [];
         foreach( $arrangementer as $arrangement ) {
             #echo 'SAMMENLIGN: '. $arrangement->getEier()->getId() .' MED '. $eier->getId() ."\r\n";
@@ -54,6 +61,11 @@ class Arrangementer
         return $filtered;
     }
 
+    /**
+     * Last inn alle arrangement
+     *
+     * @return void
+     */
     public function _load()
     {
         $this->arrangementer = [];
@@ -194,6 +206,11 @@ class Arrangementer
 
     }
 
+    /**
+     * Lag sql-spørring for kommune-arrangement
+     *
+     * @return String SQL
+     */
     private function _getKommuneQuery() {
         return new Query(
             Arrangement::getLoadQry()
@@ -218,7 +235,7 @@ class Arrangementer
     }
 
     /**
-     * Get the value of arrangementer
+     * Hent alle arrangement
      */
     public function getAll()
     {
@@ -229,7 +246,7 @@ class Arrangementer
     }
 
     /**
-     *
+     * Hent alle synlige arrangement
      */
     public function getAllSynlige() {
         if(sizeof($this->arrangementer) == 0 ) {
@@ -244,16 +261,26 @@ class Arrangementer
         });
     }
 
+    /**
+     * Finnes det noen arrangement i denne samlingen?
+     *
+     * @return Bool
+     */
     public function har() {
         return sizeof( $this->getAll() ) > 0;
     }
 
+    /**
+     * Hent antall arrangement i denne samlingen
+     *
+     * @return Int
+     */
     public function getAntall() {
         return sizeof($this->getAll());
     }
 
     /**
-     * Get the value of omrade_type
+     * Hent områdets type
      */
     public function getOmradeType()
     {
@@ -261,7 +288,7 @@ class Arrangementer
     }
 
     /**
-     * Get the value of omrade_id
+     * Hent områdets ID
      */
     public function getOmradeId()
     {
@@ -269,13 +296,20 @@ class Arrangementer
     }
 
     /**
-     * Get the value of season
+     * Hent aktiv sesong for denne samlingen
+     *
+     * @return Int
      */
     public function getSeason()
     {
         return $this->getSesong();
     }
 
+    /**
+     * Hent aktiv sesong for denne samlingen
+     *
+     * @return Int
+     */
     public function getSesong() {
         return $this->season;
     }
