@@ -4,7 +4,9 @@ namespace UKMNorge\Arrangement\Skjema;
 
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Arrangement\Eier;
+use UKMNorge\Database\SQL\Query;
 use UKMNorge\Database\SQL\Insert;
+use UKMNorge\Database\SQL\Delete;
 use Exception;
 
 require_once('UKM/Autoloader.php');
@@ -114,5 +116,41 @@ class Write {
         }
 
         return $sporsmal;
+    }
+
+    /**
+     * Fjern et eksisterende spørsmål. 
+     * OBS: Man bør fortsatt lagre resterende spørsmål i controlleren, for å oppdatere rekkefølge-verdier!
+     *
+     * @param Sporsmal $sporsmal
+     * @return bool success
+     */
+    public static function fjernSporsmalFraSkjema( Int $sporsmal_id, Int $skjema_id ) {
+        if( $sporsmal_id == 0) {
+            throw new Exception(
+                'Kan ikke slette et spørsmål som ikke er lagret',
+                551005
+            );
+        }
+
+        // Sjekk om det finnes noen som har svart på dette spørsmålet allerede
+        $query = new Query("SELECT COUNT(*) FROM ukm_videresending_skjema_svar WHERE `skjema` = '#skjema' AND `sporsmal` = '#sporsmal'", [ 'skjema' => $skjema_id, 'sporsmal' => $sporsmal_id]);
+        $answers = $query->run('field');
+        if( $answers > 0 ) {
+            throw new Exception(
+                'Du kan dessverre ikke slette et spørsmål som har fått svar allerede. Kontakt support@ukm.no for hjelp med dette',
+                551007
+            );
+        }
+
+        $query = new Delete('ukm_videresending_skjema_sporsmal', [ 'id' => $sporsmal_id, 'skjema' => $skjema_id ]);
+        $res = $query->run();
+        if( $res != 1 ) {
+            throw new Exception(
+                'Klarte ikke å slette spørsmål',
+                551006
+            );
+        }
+
     }
 }
