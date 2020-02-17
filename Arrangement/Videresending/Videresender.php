@@ -35,8 +35,11 @@ abstract class Videresender {
         return $this->arrangement;
     }
 
+    public function getAntallVideresendte() {
+        return '??';
+    }
     public function getVideresendte() {
-        throw new Exception('Må implementeres!');
+        return '??';//throw new Exception('Må implementeres!');
     }
 
     public function setProxyData( String $navn, Bool $registrert, DateTime $start, $eier) {
@@ -81,6 +84,17 @@ abstract class Videresender {
             );
         }
         return $this->navn;
+    }
+
+    /**
+     * Hent informasjonstekst som skal vises ved videresending til dette arrangementet
+     * 
+     * Proxy for Arrangement::getInformasjonstekst()
+     *
+     * @return String
+     */
+    public function getInformasjonstekst() {
+        return $this->getArrangement()->getInformasjonstekst();
     }
 
     /**
