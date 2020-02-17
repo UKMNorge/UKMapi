@@ -1048,12 +1048,16 @@ class Write
 
         Logger::log( 318, $innslag->getId(), $innslag->getContext()->getMonstring()->getId() );
 
+        // Når innslaget opprettes, inputter vi samme arrangement både som 
+        // mottaker og avsender.
         if( $arrangement->getId() == $fra_arrangement->getId() ) {
             $fra_id = 0;
             $fra_navn = $innslag->getKommune()->getNavn();
-        } else {
-            $fra_id = $arrangement->getId();
-            $fra_navn = $arrangement->getNavn();
+        }
+        // Vi er i ferd med å videresende innslaget
+        else {
+            $fra_id = $fra_arrangement->getId();
+            $fra_navn = $fra_arrangement->getNavn();
         }
 
         // Opprett relasjon mellom innslaget og arrangementet
