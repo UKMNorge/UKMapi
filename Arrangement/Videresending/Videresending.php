@@ -188,7 +188,7 @@ class Videresending
         while( $row = Query::fetch( $res ) ) {
 
             if( $row['pl_owner_fylke'] > 0 ) {
-                $eier = Fylker::getById( $row['pl_owner_fylke'] );
+                $eier = Fylker::getById( intval($row['pl_owner_fylke']) );
             }
             elseif( $row['pl_owner_kommune'] > 0 ) {
                 $eier = new Kommune( $row['pl_owner_kommune'] );
