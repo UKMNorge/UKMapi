@@ -351,12 +351,16 @@ class Innslag
 
     /**
      * Er innslaget fullstendig påmeldt?
-     * Eller er det fortsatt i prosess?
+     * Hvis angitt arrangement-ID, sjekkes det hvorvidt innslaget er påmeldt
+     * gitt arrangement også
      *
      * @return Bool
      */
-    public function erPameldt()
+    public function erPameldt( Int $arrangement_id = null)
     {
+        if( !is_null($arrangement_id) ) {
+            return $this->getStatus() == 8 && $this->erVideresendtTil($arrangement_id);
+        }
         return $this->getStatus() == 8;
     }
 
@@ -883,7 +887,7 @@ class Innslag
         }
 
         if( $this->getSesong() < 2020 ) {
-            $qry = new SQL(
+            $qry = new Query(
                 "
                 SELECT `rel`.`pl_id` 
                 FROM `smartukm_rel_pl_b` AS `rel`
@@ -898,17 +902,18 @@ class Innslag
                 ]
             );
         } else {
-            $qry = new SQL("SELECT `arrangement_id`
+            $qry = new Query("SELECT `arrangement_id`
                 FROM `ukm_rel_arrangement_innslag`
-                WHERE `innslag_id` = '#innslag'",
+                WHERE `innslag_id` = '#innslag'
+                AND `arrangement_id` = '#arrangement'",
                 [
-                    'innslag' => $this->getId()
+                    'innslag' => $this->getId(),
+                    'arrangement' => $monstring_id
                 ]
             );
-
         }
-        $res = $qry->run('field', 'pl_id');
-        $this->videresendt_til[$monstring_id] = $res !== null;
+        $res = $qry->getField();
+        $this->videresendt_til[$monstring_id] = !is_null($res);
 
         return $this->videresendt_til[$monstring_id];
     }
