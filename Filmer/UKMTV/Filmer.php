@@ -96,7 +96,8 @@ class Filmer extends Collection
      * @param Int $arrangementId
      * @return Filmer
      */
-    public static function getByArrangement( Int $arrangementId ) {
+    public static function getByArrangement(Int $arrangementId)
+    {
         return static::getByTag('arrangement', $arrangementId);
     }
 
@@ -107,9 +108,10 @@ class Filmer extends Collection
      * @param Int $id
      * @return Filmer
      */
-    public static function getByTag(String $tag, Int $id ) {
+    public static function getByTag(String $tag, Int $id)
+    {
         $query = new Query(
-            Film::getLoadQuery(). "
+            Film::getLoadQuery() . "
             JOIN `ukm_tv_tags` 
             ON (
                 `ukm_tv_tags`.`tv_id` = `ukm_tv_files`.`tv_id` 
@@ -132,17 +134,85 @@ class Filmer extends Collection
      * @param Int $arrangementId
      * @return bool
      */
-    public static function harArrangementFilmer( Int $arrangementId ) {
+    public static function harArrangementFilmer(Int $arrangementId)
+    {
+        return static::harTagFilmer('arrangement', $arrangementId);
+    }
+
+    /**
+     * Finnes det filmer for denne tag'en?
+     *
+     * @param String $tag
+     * @param Int $tagId
+     * @return void
+     */
+    public static function harTagFilmer(String $tag, Int $tagId)
+    {
         $query = new Query(
             "SELECT `id`
             FROM `ukm_tv_tags` 
-            WHERE `type` = 'arrangement'
-            AND `foreign_id` = '#arrangementId'
+            WHERE `type` = '#tagnavn'
+            AND `foreign_id` = '#tagid'
             LIMIT 1",
             [
-                'arrangementId' => $arrangementId
+                'tagnavn' => $tag,
+                'tagid' => $tagId
             ]
         );
         return !!$query->getField(); # (dobbel nekting er riktig)
+    }
+
+    /**
+     * Finnes det filmer med disse to tag'ene?
+     *
+     * @param String $tag1
+     * @param Int $tagId1
+     * @param String $tag2
+     * @param Int $tagId2
+     * @return void
+     */
+    public static function harTagsFilmer(String $tag1, Int $tagId1, String $tag2, Int $tagId2)
+    {
+        $query = new Query(
+            static::_getTagQuery() . " LIMIT 1",
+            [
+                'tagNameOne' => $tag1,
+                'tagValueOne' => $tagId1,
+                'tagNameTwo' => $tag2,
+                'tagValueTwo' => $tagId2
+            ]
+        );
+        return !!$query->getField(); # (dobbel nekting er riktig)        
+    }
+
+    public static function getByTags(String $tag1, Int $tagId1, String $tag2, Int $tagId2)
+    {
+        return new Filmer(
+            new Query(
+                static::_getTagQuery(),
+                [
+                    'tagNameOne' => $tag1,
+                    'tagValueOne' => $tagId1,
+                    'tagNameTwo' => $tag2,
+                    'tagValueTwo' => $tagId2
+                ]
+            )
+        );
+    }
+
+
+    /**
+     * Undocumented function
+     *
+     * @return void
+     */
+    private static function _getTagQuery()
+    {
+        return "SELECT *
+            FROM `ukm_tv_files` 
+            JOIN `ukm_tv_tags` AS `tag1`
+                ON (`ukm_tv_files`.`tv_id` = `tag1`.`tv_id` AND `tag1`.`type`='#tagNameOne' AND `tag1`.`foreign_id` = #tagValueOne)
+            JOIN `ukm_tv_tags` AS `tag2`
+                ON (`ukm_tv_files`.`tv_id` = `tag2`.`tv_id` AND `tag2`.`type`='#tagNameTwo' AND `tag2`.`foreign_id` = #tagValueTwo)";
     }
 }
