@@ -19,6 +19,7 @@ use UKMNorge\Innslag\Innslag;
 use UKMNorge\Innslag\Typer\Type;
 use UKMNorge\Innslag\Write as WriteInnslag;
 use UKMNorge\Innslag\Titler\Write as WriteTitler;
+use UKMNorge\Innslag\Personer\Write as WritePerson;
 use UKMNorge\Wordpress\Blog;
 
 require_once('UKM/Autoloader.php');
@@ -1088,6 +1089,18 @@ class Write
 				"Klarte ikke å melde på det nye innslaget til mønstringen.",
 				505021
 			);
+        }
+        
+        // Når det er enkeltperson-innslag, skal personen automatisk videresendes
+        if( $innslag->getType()->erEnkeltPerson() ) {
+            
+            // Hent fra riktig context for å legge til på nytt (aka videresende)
+            $person = $innslag->getPersoner()->getSingle();
+            $innslag = $arrangement->getInnslag()->get($innslag->getId());
+            $innslag->getPersoner()->leggTil($person);
+            $person = $innslag->getPersoner()->get($person->getId());
+            
+            WritePerson::leggTil($person);
         }
     }
     
