@@ -714,27 +714,6 @@ class Arrangement
     }
 
     /**
-     * Hent ut fylkesmønstringene lokalmønstringen kan sende videre til
-     **/
-    public function getFylkesmonstringer()
-    {
-        throw new Exception('DEVELOPER ALERT: getFylkesmonstringer() er ikke implementert. Kontakt support@ukm.no');
-        if ($this->getType() !== 'kommune') {
-            throw new Exception('MONSTRING_V2: Fylkesmønstringer kan ikke videresende til fylkesmønstringer');
-        }
-        require_once('UKM/monstringer.collection.php');
-        if (null === $this->fylkesmonstringer) {
-            $this->fylkesmonstringer = [];
-            foreach ($this->getKommuner() as $kommune) {
-                if (!isset($this->fylkesmonstringer[$kommune->getFylke()->getId()])) {
-                    $this->fylkesmonstringer[$kommune->getFylke()->getId()] = monstringer_v2::fylke($kommune->getFylke(), $this->getSesong());
-                }
-            }
-        }
-        return $this->fylkesmonstringer;
-    }
-
-    /**
      * Sett sesong
      *
      * @param int $seson
