@@ -110,12 +110,11 @@ abstract class Videresender {
     }
 
     /**
-     * Get the value of innslag
+     * Hent innslag-collection for arrangementet
      */ 
     public function getInnslag()
     {
-        throw new Exception('getInnslag må implementeres');
-        return $this->innslag;
+        return $this->getArrangement()->getInnslag();
     }
 
     /**
