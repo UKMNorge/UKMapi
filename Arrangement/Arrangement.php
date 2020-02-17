@@ -1543,7 +1543,7 @@ class Arrangement
      */
     public function getVideresending()
     {
-        if (null == $this->videresending) {
+        if (is_null($this->videresending)) {
             $this->videresending = new Videresending((int) $this->getId());
         }
         return $this->videresending;

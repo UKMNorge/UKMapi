@@ -103,11 +103,11 @@ class Videresending
     /**
      * Hvem kan denne mønstringen sende innslag til?
      *
-     * @return Array Arrangement
+     * @return Array<Mottaker>
      */
     public function getMottakere()
     {
-        if (null == $this->mottakere) {
+        if ( is_null($this->mottakere)) {
             $this->_loadMottakere();
         }
         return $this->mottakere;
@@ -120,7 +120,7 @@ class Videresending
      */
     public function getAvsendere()
     {
-        if (null == $this->avsendere) {
+        if ( is_null($this->avsendere)) {
             $this->_loadAvsendere();
         }
         return $this->avsendere;
