@@ -1117,11 +1117,15 @@ class Write
             
             // Hent fra riktig context for å legge til på nytt (aka videresende)
             $person = $innslag->getPersoner()->getSingle();
-            $innslag = $arrangement->getInnslag()->get($innslag->getId());
-            $innslag->getPersoner()->leggTil($person);
-            $person = $innslag->getPersoner()->get($person->getId());
-            
-            WritePerson::leggTil($person); # aka persist
+            // I det innslaget opprettes vil vi ikke finne personen enda, 
+            // da den snart legges til 
+            // (2020-02-19: det er i alle fall teorien om hvorfor det feiler)
+            if($person) {
+                $innslag = $arrangement->getInnslag()->get($innslag->getId(),true);
+                $innslag->getPersoner()->leggTil($person);
+                $person = $innslag->getPersoner()->get($person->getId());
+                WritePerson::leggTil($person); # aka persist
+            }            
         }
         // For noen innslag skal alle personer automatisk følge innslaget
         elseif( $innslag->getType()->harAutomatiskVideresendingAvPersoner() ) {
@@ -1131,7 +1135,7 @@ class Write
             }
 
             // Reload innslag, og legg til
-            $innslag = $arrangement->getInnslag()->get($innslag->getId());
+            $innslag = $arrangement->getInnslag()->get($innslag->getId(), true);
             foreach( $personer as $person ) {
                 $innslag->getPersoner()->leggTil($person);
                 $person = $innslag->getPersoner()->get($person->getId());
