@@ -19,7 +19,7 @@ class Person extends Sensitivt {
     /**
      * Hent informasjon om en persons allergier
      *
-     * @return UKMNorge\Sensitivt\Allergi
+     * @return Allergi
      */
     public function getIntoleranse() {
         if( null == $this->intoleranse ) {

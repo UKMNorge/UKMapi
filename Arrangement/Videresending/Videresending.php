@@ -2,8 +2,9 @@
 
 namespace UKMNorge\Arrangement\Videresending;
 
-use UKMNorge\Database\SQL\Query;
 use Exception, DateTime;
+use UKMNorge\Database\SQL\Query;
+use UKMNorge\Innslag\Samling;
 use UKMNorge\Geografi\Fylker;
 use UKMNorge\Geografi\Kommune;
 require_once('UKM/Autoloader.php');

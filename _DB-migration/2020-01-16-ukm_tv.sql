@@ -1,5 +1,5 @@
 ALTER TABLE `ukm_related_video`
-ADD COLUMN `pl_id` INT(11) NOT NULL DEFAULT 0
+ADD COLUMN `pl_id` INT(11) NOT NULL DEFAULT 0,
 ADD INDEX `pl_id` (`pl_id`);
 
 

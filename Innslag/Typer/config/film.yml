@@ -16,6 +16,7 @@ har:
     bilder: false
 titler:
   tabell: smartukm_titles_video
+personer_autofollow: false
 
 tekst:
   rolle:

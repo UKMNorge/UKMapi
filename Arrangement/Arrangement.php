@@ -14,6 +14,7 @@ use statistikk;
 use UKMNorge\Arrangement\Kontaktperson\Samling as KontaktpersonSamling;
 use UKMNorge\Arrangement\Program\Hendelser;
 use UKMNorge\Arrangement\Skjema\Skjema;
+use UKMNorge\Arrangement\Videresending\Avsender;
 use UKMNorge\Google\StaticMap;
 use UKMNorge\Arrangement\Videresending\Videresending;
 use UKMNorge\Filmer\UKMTV\Filmer;
@@ -93,6 +94,7 @@ class Arrangement
     var $netter = null;
 
     var $videresending = null;
+    var $avsender = [];
     var $log = null;
     var $deleted = false;
     var $subtype = null;
@@ -1526,6 +1528,19 @@ class Arrangement
             $this->videresending = new Videresending((int) $this->getId());
         }
         return $this->videresending;
+    }
+
+    /**
+     * Hent arrangement videresendt til gitt innslag
+     *
+     * @param Int $arrangement_id
+     * @return Samling
+     */
+    public function getVideresendte( Int $arrangement_id) {
+        if( !isset($this->avsender[$arrangement_id])) {
+            $this->avsender[$arrangement_id] = new Avsender( $this->getId(), $arrangement_id );
+        }
+        return $this->avsender[$arrangement_id]->getVideresendte();
     }
 
     /**

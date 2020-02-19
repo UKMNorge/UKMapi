@@ -1069,12 +1069,33 @@ class Write
         $relasjon->add('fra_arrangement_id', $fra_id);
         $relasjon->add('fra_arrangement_navn', $fra_navn);
         
-        $res = $relasjon->run();
-        if( !$res ) {
-            throw new Exception(
-                'Klarte ikke å melde på innslaget',
-                505010
-            );
+        try {
+            $res = $relasjon->run();
+            if( !$res ) {
+                throw new Exception(
+                    'Klarte ikke å melde på innslaget',
+                    505010
+                );
+            }
+        } catch( Exception $e ) {
+            if( $e->getCode() == 901001 ) {
+                $test = new Query(
+                    "SELECT `id` 
+                    FROM `ukm_rel_arrangement_innslag`
+                    WHERE `innslag_id` = '#innslag'
+                    AND `arrangement_id` = '#arrangement'",
+                    [
+                        'innslag' => $innslag->getId(),
+                        'arrangement' => $arrangement->getId()
+                    ]
+                );
+                $test = $test->getField();
+                if( is_null($test) ) {
+                    throw $e;
+                }
+            } else {
+                throw $e;
+            }
         }
 
         // Sett inn gammel relasjon også
@@ -1100,7 +1121,22 @@ class Write
             $innslag->getPersoner()->leggTil($person);
             $person = $innslag->getPersoner()->get($person->getId());
             
-            WritePerson::leggTil($person);
+            WritePerson::leggTil($person); # aka persist
+        }
+        // For noen innslag skal alle personer automatisk følge innslaget
+        elseif( $innslag->getType()->harAutomatiskVideresendingAvPersoner() ) {
+            $personer = [];
+            foreach( $innslag->getPersoner()->getAll() as $person ) {
+                $personer[] = $person;
+            }
+
+            // Reload innslag, og legg til
+            $innslag = $arrangement->getInnslag()->get($innslag->getId());
+            foreach( $personer as $person ) {
+                $innslag->getPersoner()->leggTil($person);
+                $person = $innslag->getPersoner()->get($person->getId());
+                WritePerson::leggTil($person); # aka persist
+            }
         }
     }
     

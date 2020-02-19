@@ -140,35 +140,6 @@ class Monstring
         return $this->fylke;
     }
 
-    public function getVideresendTil()
-    {
-        throw new Exception('DEVELOPER ALERT: getVideresendTil() må implementeres for 2019. Varsle support@ukm.no');
-
-        if (null == $this->videresend_til) {
-            switch ($this->getType()) {
-                case 'kommune':
-                    $videresendTil = [];
-                    foreach ($this->getKommuner() as $kommune_id) {
-                        $kommune = new Kommune($kommune_id);
-                        if (!isset($videresendTil[$kommune->getFylke()->getId()])) {
-                            $fylke = monstringer_v2::fylke($kommune->getFylke(), $this->getSesong());
-                            $videresendTil[$kommune->getFylke()->getId()] = $fylke->getId();
-                        }
-                    }
-                    $this->videresend_til = $videresendTil;
-                    break;
-                case 'fylke':
-                    $this->videresend_til = monstringer_v2::land($this->getSesong());
-                    break;
-                default:
-                    throw new Exception(
-                        'CONTEXT_MONSTRING: Kan ikke videresende fra landsnivå'
-                    );
-            }
-        }
-        return $this->videresend_til;
-    }
-
     /**
      * Sjekk at gitt objekt er gyldig Context\Mønstring-objekt
      *

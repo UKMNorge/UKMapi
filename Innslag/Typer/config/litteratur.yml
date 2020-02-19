@@ -16,6 +16,7 @@ har:
     bilder: true
 titler:
   tabell: smartukm_titles_scene
+personer_autofollow: true
 
 tekst:
   rolle:
