@@ -20,6 +20,6 @@ class Mottaker extends Videresender {
      * @param Int $fra
      */
     public function __construct(Int $til, Int $fra ) {
-        parent::_construct( $fra, $til );
+        parent::__construct( $fra, $til );
     }
 }

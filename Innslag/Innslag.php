@@ -13,7 +13,6 @@ use nominasjon_media, nominasjon_konferansier, nominasjon_arrangor, nominasjon_p
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Arrangement\Program\Hendelser;
 use UKMNorge\Database\SQL\Query;
-use UKMNorge\Filmer\Filmer;
 use UKMNorge\Geografi\Kommune;
 use UKMNorge\Innslag\Advarsler\Advarsel;
 use UKMNorge\Innslag\Advarsler\Advarsler;
@@ -21,6 +20,7 @@ use UKMNorge\Innslag\Context\Context;
 use UKMNorge\Innslag\Mangler\Mangler;
 use UKMNorge\Innslag\Media\Artikler\Samling as ArtiklerSamling;
 use UKMNorge\Innslag\Media\Bilder\Samling as BilderSamling;
+use UKMNorge\Innslag\Media\Filmer;
 use UKMNorge\Innslag\Personer\Person;
 use UKMNorge\Innslag\Personer\Personer;
 use UKMNorge\Innslag\Playback\Samling as PlaybackSamling;
@@ -351,12 +351,16 @@ class Innslag
 
     /**
      * Er innslaget fullstendig påmeldt?
-     * Eller er det fortsatt i prosess?
+     * Hvis angitt arrangement-ID, sjekkes det hvorvidt innslaget er påmeldt
+     * gitt arrangement også
      *
      * @return Bool
      */
-    public function erPameldt()
+    public function erPameldt( Int $arrangement_id = null)
     {
+        if( !is_null($arrangement_id) ) {
+            return $this->getStatus() == 8 && $this->erVideresendtTil($arrangement_id);
+        }
         return $this->getStatus() == 8;
     }
 
@@ -883,7 +887,7 @@ class Innslag
         }
 
         if( $this->getSesong() < 2020 ) {
-            $qry = new SQL(
+            $qry = new Query(
                 "
                 SELECT `rel`.`pl_id` 
                 FROM `smartukm_rel_pl_b` AS `rel`
@@ -898,17 +902,18 @@ class Innslag
                 ]
             );
         } else {
-            $qry = new SQL("SELECT `arrangement_id`
+            $qry = new Query("SELECT `arrangement_id`
                 FROM `ukm_rel_arrangement_innslag`
-                WHERE `innslag_id` = '#innslag'",
+                WHERE `innslag_id` = '#innslag'
+                AND `arrangement_id` = '#arrangement'",
                 [
-                    'innslag' => $this->getId()
+                    'innslag' => $this->getId(),
+                    'arrangement' => $monstring_id
                 ]
             );
-
         }
-        $res = $qry->run('field', 'pl_id');
-        $this->videresendt_til[$monstring_id] = $res !== null;
+        $res = $qry->getField();
+        $this->videresendt_til[$monstring_id] = !is_null($res);
 
         return $this->videresendt_til[$monstring_id];
     }

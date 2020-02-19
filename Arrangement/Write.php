@@ -19,6 +19,7 @@ use UKMNorge\Innslag\Innslag;
 use UKMNorge\Innslag\Typer\Type;
 use UKMNorge\Innslag\Write as WriteInnslag;
 use UKMNorge\Innslag\Titler\Write as WriteTitler;
+use UKMNorge\Innslag\Personer\Write as WritePerson;
 use UKMNorge\Wordpress\Blog;
 
 require_once('UKM/Autoloader.php');
@@ -1048,12 +1049,16 @@ class Write
 
         Logger::log( 318, $innslag->getId(), $innslag->getContext()->getMonstring()->getId() );
 
+        // Når innslaget opprettes, inputter vi samme arrangement både som 
+        // mottaker og avsender.
         if( $arrangement->getId() == $fra_arrangement->getId() ) {
             $fra_id = 0;
             $fra_navn = $innslag->getKommune()->getNavn();
-        } else {
-            $fra_id = $arrangement->getId();
-            $fra_navn = $arrangement->getNavn();
+        }
+        // Vi er i ferd med å videresende innslaget
+        else {
+            $fra_id = $fra_arrangement->getId();
+            $fra_navn = $fra_arrangement->getNavn();
         }
 
         // Opprett relasjon mellom innslaget og arrangementet
@@ -1064,12 +1069,33 @@ class Write
         $relasjon->add('fra_arrangement_id', $fra_id);
         $relasjon->add('fra_arrangement_navn', $fra_navn);
         
-        $res = $relasjon->run();
-        if( !$res ) {
-            throw new Exception(
-                'Klarte ikke å melde på innslaget',
-                505010
-            );
+        try {
+            $res = $relasjon->run();
+            if( !$res ) {
+                throw new Exception(
+                    'Klarte ikke å melde på innslaget',
+                    505010
+                );
+            }
+        } catch( Exception $e ) {
+            if( $e->getCode() == 901001 ) {
+                $test = new Query(
+                    "SELECT `id` 
+                    FROM `ukm_rel_arrangement_innslag`
+                    WHERE `innslag_id` = '#innslag'
+                    AND `arrangement_id` = '#arrangement'",
+                    [
+                        'innslag' => $innslag->getId(),
+                        'arrangement' => $arrangement->getId()
+                    ]
+                );
+                $test = $test->getField();
+                if( is_null($test) ) {
+                    throw $e;
+                }
+            } else {
+                throw $e;
+            }
         }
 
         // Sett inn gammel relasjon også
@@ -1084,6 +1110,37 @@ class Write
 				"Klarte ikke å melde på det nye innslaget til mønstringen.",
 				505021
 			);
+        }
+        
+        // Når det er enkeltperson-innslag, skal personen automatisk videresendes
+        if( $innslag->getType()->erEnkeltPerson() ) {
+            
+            // Hent fra riktig context for å legge til på nytt (aka videresende)
+            $person = $innslag->getPersoner()->getSingle();
+            // I det innslaget opprettes vil vi ikke finne personen enda, 
+            // da den snart legges til 
+            // (2020-02-19: det er i alle fall teorien om hvorfor det feiler)
+            if($person) {
+                $innslag = $arrangement->getInnslag()->get($innslag->getId(),true);
+                $innslag->getPersoner()->leggTil($person);
+                $person = $innslag->getPersoner()->get($person->getId());
+                WritePerson::leggTil($person); # aka persist
+            }            
+        }
+        // For noen innslag skal alle personer automatisk følge innslaget
+        elseif( $innslag->getType()->harAutomatiskVideresendingAvPersoner() ) {
+            $personer = [];
+            foreach( $innslag->getPersoner()->getAll() as $person ) {
+                $personer[] = $person;
+            }
+
+            // Reload innslag, og legg til
+            $innslag = $arrangement->getInnslag()->get($innslag->getId(), true);
+            foreach( $personer as $person ) {
+                $innslag->getPersoner()->leggTil($person);
+                $person = $innslag->getPersoner()->get($person->getId());
+                WritePerson::leggTil($person); # aka persist
+            }
         }
     }
     

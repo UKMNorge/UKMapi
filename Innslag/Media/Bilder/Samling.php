@@ -58,16 +58,16 @@ class Samling extends MediaSamling
     public function getValgt($tittel = 0)
     {
         $sql = new Query(
-            "
-			SELECT `rel_id` 
+			"SELECT `bilde_id` 
 			FROM `smartukm_videresending_media`
 			WHERE `b_id` = '#innslag'
 			" . ($tittel === false ? '' : "AND `t_id` = '#tittel'"),
             [
-                'innslag'    => $this->b_id,
+                'innslag'    => $this->getInnslagId(),
                 'tittel'    => $tittel,
             ]
         );
+       # echo $sql->debug();
         return $this->find($sql->getField());
     }
 
@@ -90,7 +90,6 @@ class Samling extends MediaSamling
                 'innslag_id' => $this->getInnslagId()
             ]
         );
-
         $get = $SQL->run();
         if (!$get) {
             throw new Exception(

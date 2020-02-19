@@ -3,6 +3,7 @@
 namespace UKMNorge\Wordpress;
 
 use Exception;
+use stdClass;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Geografi\Fylke;
 use UKMNorge\Geografi\Kommune;
@@ -787,17 +788,45 @@ class Blog
         $newSiteUrl = str_replace('http://', 'https://', $currentSiteUrl);
 
         # ADDS META OPTIONS TO NEW SITE
+        $theme = static::getCurrentTheme();
         $meta = array(
             'show_on_front'       => 'posts',
             'page_on_front'       => '2',
-            'template'            => 'UKMresponsive',
-            'stylesheet'          => 'UKMresponsive',
-            'current_theme'       => 'UKM Responsive',
+            'template'            => $theme->template,
+            'stylesheet'          => $theme->stylesheet,
+            'current_theme'       => $theme->name,
             'status_monstring'    => false,
             'siteurl'             => $newSiteUrl,
             'home'                => $newSiteUrl
         );
         static::applyMeta($blog_id, $meta);
+    }
+
+    /**
+     * Hent aktivt tema
+     *
+     * @return stdClass
+     */
+    public static function getCurrentTheme() {
+        $data = new stdClass();
+        $data->name = 'UKM-design: Wordpress';
+        $data->template = 'UKMDesignWordpress';
+        $data->stylesheet = 'UKMDesignWordpress';
+        return $data;
+    }
+
+    /**
+     * Aktiver standard-tema
+     *
+     * @param Int $blog_id
+     * @return void
+     */
+    public static function enableCurrentTheme(Int $blog_id) {
+        static::_requiresWordpressFunctions();
+        static::controlBlogId($blog_id);
+        static::switchTo($blog_id);
+        switch_theme( static::getCurrentTheme()->stylesheet );
+        static::restore();
     }
 
     /**

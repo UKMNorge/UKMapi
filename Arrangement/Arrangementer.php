@@ -15,15 +15,15 @@ class Arrangementer
     private $arrangementer = [];
     private $filter = null;
 
-    public function __construct(Int $season, String $omrade_type, Int $omrade_id, $filter=false)
+    public function __construct(Int $season, String $omrade_type, Int $omrade_id, $filter = false)
     {
         $this->season = $season;
         $this->omrade_type = $omrade_type;
         $this->omrade_id = $omrade_id;
-        if( $filter) {
-            if( get_class( $filter ) != 'UKMNorge\Arrangement\Filter') {
+        if ($filter) {
+            if (get_class($filter) != 'UKMNorge\Arrangement\Filter') {
                 throw new Exception(
-                    'Arrangement-filter må være av klassen Filter! ('.get_class( $filter ).')',
+                    'Arrangement-filter må være av klassen Filter! (' . get_class($filter) . ')',
                     150003
                 );
             }
@@ -38,22 +38,36 @@ class Arrangementer
      *
      * @return Arrangement
      */
-    public function getFirst() {
+    public function getFirst()
+    {
         $alle = $this->getAll();
-        return array_pop( $alle );
+        return array_pop($alle);
     }
 
-    public static function filterSkipEier( $eier, $arrangementer ) {
+    /**
+     * Finn kun de som er eid av gitt eier
+     *
+     * @param Eier $eier
+     * @param Array<Arrangement> $arrangementer
+     * @return Array<Arrangement>
+     */
+    public static function filterSkipEier(Eier $eier, array $arrangementer)
+    {
         $filtered = [];
-        foreach( $arrangementer as $arrangement ) {
+        foreach ($arrangementer as $arrangement) {
             #echo 'SAMMENLIGN: '. $arrangement->getEier()->getId() .' MED '. $eier->getId() ."\r\n";
-            if( $arrangement->getEier()->getId() != $eier->getId() ) {
+            if ($arrangement->getEier()->getId() != $eier->getId()) {
                 $filtered[] = $arrangement;
             }
         }
         return $filtered;
     }
 
+    /**
+     * Last inn alle arrangement
+     *
+     * @return void
+     */
     public function _load()
     {
         $this->arrangementer = [];
@@ -66,7 +80,7 @@ class Arrangementer
                     150002
                 );
                 break;
-            /*
+                /*
              * Lokalmønstringer som er eid av en kommune i fylket, 
              * eller som deltar i en fellesmønstring i fylket
              */
@@ -94,9 +108,9 @@ class Arrangementer
                 );
                 #echo $sql->debug();
                 break;
-            /**
-             * HENT KOMMUNE & FYLKE FRA GITT OMRÅDE
-             */
+                /**
+                 * HENT KOMMUNE & FYLKE FRA GITT OMRÅDE
+                 */
             case 'kommune':
                 $sql = $this->_getKommuneQuery();
                 break;
@@ -156,7 +170,7 @@ class Arrangementer
                 break;
             case 'alle':
                 $sql = new Query(
-                    Arrangement::getLoadQry() ."
+                    Arrangement::getLoadQry() . "
                     WHERE `season` = '#season'
                     AND `pl_deleted` = 'false'",
                     [
@@ -175,26 +189,31 @@ class Arrangementer
         $res = $sql->run();
         while ($row = Query::fetch($res)) {
             $arrangement = new Arrangement($row);
-            if( $this->filter->passesFilter( $arrangement ) ) {
+            if ($this->filter->passesFilter($arrangement)) {
                 $this->arrangementer[$row['pl_id']] = $arrangement;
             }
         }
 
         // Når vi snakker eier-kommune, bør også
         // arrangementer man er deleier i være med (eller?)
-        if( $this->getOmradeType() == 'eier-kommune' ) {
+        if ($this->getOmradeType() == 'eier-kommune') {
             $res2 = $this->_getKommuneQuery()->run();
-            while( $row = Query::fetch( $res2 ) ) {
+            while ($row = Query::fetch($res2)) {
                 $arrangement = new Arrangement($row);
-                if( $this->filter->passesFilter( $arrangement ) ) {
+                if ($this->filter->passesFilter($arrangement)) {
                     $this->arrangementer[$row['pl_id']] = $arrangement;
                 }
             }
         }
-
     }
 
-    private function _getKommuneQuery() {
+    /**
+     * Lag sql-spørring for kommune-arrangement
+     *
+     * @return String SQL
+     */
+    private function _getKommuneQuery()
+    {
         return new Query(
             Arrangement::getLoadQry()
                 . "
@@ -211,14 +230,16 @@ class Arrangementer
                     )
                 ",
             [
-                'omrade_id' => (Int) $this->getOmradeId(),
+                'omrade_id' => (int) $this->getOmradeId(),
                 'season' => $this->getSesong()
             ]
         );
     }
 
     /**
-     * Get the value of arrangementer
+     * Hent alle arrangement
+     * 
+     * @return Array<Arrangement>
      */
     public function getAll()
     {
@@ -229,31 +250,48 @@ class Arrangementer
     }
 
     /**
-     *
+     * Hent alle synlige arrangement
+     * 
+     * @return Array<Arrangement>
      */
-    public function getAllSynlige() {
-        if(sizeof($this->arrangementer) == 0 ) {
+    public function getAllSynlige()
+    {
+        if (sizeof($this->arrangementer) == 0) {
             $this->_load();
         }
 
-        return array_filter($this->arrangementer, function($arr) {
-            if( $arr->erSynlig() ) {
+        return array_filter($this->arrangementer, function ($arr) {
+            if ($arr->erSynlig()) {
                 return true;
             }
             return false;
         });
     }
 
-    public function har() {
-        return sizeof( $this->getAll() ) > 0;
+    /**
+     * Finnes det noen arrangement i denne samlingen?
+     *
+     * @return Bool
+     */
+    public function har()
+    {
+        return sizeof($this->getAll()) > 0;
     }
 
-    public function getAntall() {
+    /**
+     * Hent antall arrangement i denne samlingen
+     *
+     * @return Int
+     */
+    public function getAntall()
+    {
         return sizeof($this->getAll());
     }
 
     /**
-     * Get the value of omrade_type
+     * Hent områdets type
+     * 
+     * @return String
      */
     public function getOmradeType()
     {
@@ -261,7 +299,7 @@ class Arrangementer
     }
 
     /**
-     * Get the value of omrade_id
+     * Hent områdets ID
      */
     public function getOmradeId()
     {
@@ -269,14 +307,22 @@ class Arrangementer
     }
 
     /**
-     * Get the value of season
+     * Hent aktiv sesong for denne samlingen
+     *
+     * @return Int
      */
     public function getSeason()
     {
         return $this->getSesong();
     }
 
-    public function getSesong() {
+    /**
+     * Hent aktiv sesong for denne samlingen
+     *
+     * @return Int
+     */
+    public function getSesong()
+    {
         return $this->season;
     }
 }

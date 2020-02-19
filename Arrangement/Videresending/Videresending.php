@@ -2,8 +2,9 @@
 
 namespace UKMNorge\Arrangement\Videresending;
 
-use UKMNorge\Database\SQL\Query;
 use Exception, DateTime;
+use UKMNorge\Database\SQL\Query;
+use UKMNorge\Innslag\Samling;
 use UKMNorge\Geografi\Fylker;
 use UKMNorge\Geografi\Kommune;
 require_once('UKM/Autoloader.php');
@@ -103,11 +104,11 @@ class Videresending
     /**
      * Hvem kan denne mønstringen sende innslag til?
      *
-     * @return Array Arrangement
+     * @return Array<Mottaker>
      */
     public function getMottakere()
     {
-        if (null == $this->mottakere) {
+        if ( is_null($this->mottakere)) {
             $this->_loadMottakere();
         }
         return $this->mottakere;
@@ -120,7 +121,7 @@ class Videresending
      */
     public function getAvsendere()
     {
-        if (null == $this->avsendere) {
+        if ( is_null($this->avsendere)) {
             $this->_loadAvsendere();
         }
         return $this->avsendere;
@@ -188,7 +189,7 @@ class Videresending
         while( $row = Query::fetch( $res ) ) {
 
             if( $row['pl_owner_fylke'] > 0 ) {
-                $eier = Fylker::getById( $row['pl_owner_fylke'] );
+                $eier = Fylker::getById( intval($row['pl_owner_fylke']) );
             }
             elseif( $row['pl_owner_kommune'] > 0 ) {
                 $eier = new Kommune( $row['pl_owner_kommune'] );

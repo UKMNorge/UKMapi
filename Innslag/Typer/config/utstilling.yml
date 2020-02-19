@@ -16,6 +16,7 @@ har:
     bilder: true
 titler:
   tabell: smartukm_titles_exhibition
+personer_autofollow: false
 
 tekst:
   rolle:

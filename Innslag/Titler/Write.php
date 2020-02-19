@@ -86,7 +86,13 @@ class Write
         );
     }
 
-    public static function save($tittel_save)
+    /**
+     * Lagre endringer på en tittel
+     *
+     * @param Tittel $tittel_save
+     * @return void
+     */
+    public static function save( Tittel $tittel_save)
     {
         // Valider logger
         if (!Logger::ready()) {
@@ -225,7 +231,7 @@ class Write
     /********************************************************************************
      *
      *
-     * LEGG TIL OG FJERN PERSON FRA COLLECTION
+     * LEGG TIL OG FJERN TITTEL FRA COLLECTION
      *
      *
      ********************************************************************************/
@@ -234,7 +240,7 @@ class Write
      * Legg til tittelen i innslaget
      * Videresender automatisk til context-mønstring
      * 
-     * @param tittel_v2 $tittel_save
+     * @param Tittel $tittel_save
      **/
     public static function leggtil($tittel_save)
     {

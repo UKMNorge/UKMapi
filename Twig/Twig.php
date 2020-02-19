@@ -23,6 +23,7 @@ class Twig
     static $debug = false;
     static $didRender = false;
     static $twig = null;
+    static $filter_options;
 
     /**
      * Legg til en ny template-path
@@ -45,9 +46,10 @@ class Twig
      * @param Callable $function
      * @return void
      */
-    public static function addFilter(String $filter, $function)
+    public static function addFilter(String $filter, $function, $options=null)
     {
         self::$filters[$filter] = $function;
+        self::$filter_options[$filter] = $options;
     }
 
     /**
@@ -200,7 +202,13 @@ class Twig
         );
 
         foreach (static::getFilters() as $name => $function) {
-            $filter = new TwigFilter($name, $function);
+            if( isset( static::$filter_options[$name] ) && !is_null(static::$filter_options[$name]) ) {
+                $filter = new TwigFilter($name, $function, static::$filter_options[$name]);
+            } else {
+                $filter = new TwigFilter($name, $function);
+
+            }
+                
             static::$twig->addFilter($filter);
         }
         foreach (static::getFunctions() as $name => $function) {

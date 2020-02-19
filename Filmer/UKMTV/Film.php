@@ -1,76 +1,64 @@
 <?php
 
-namespace UKMNorge\Filmer;
+namespace UKMNorge\Filmer\UKMTV;
 
-use stdClass;
 use UKMCURL;
 use UKMNorge\Database\SQL\Update;
-use UKMNorge\Filmer\Kategori\Kategori;
-use UKMNorge\Filmer\Server\Server;
+use UKMNorge\Filmer\UKMTV\Server\Server;
+use UKMNorge\Filmer\UKMTV\Tags\Tags;
+use UKMNorge\Filmer\UKMTV\Tags\Personer;
+use UKMNorge\Http\Curl;
 
-class Film
+class Film implements FilmInterface
 {
     var $id = 0;
+    var $cron_id = null;
+    
     var $title = null;
     var $sanitized_title = null;
+    var $description = null;
+    
     var $image_url = null;
 
     var $tags = null;
     var $tag_string = null;
 
-    var $kategori = null;
-
     var $ext = null;
     var $file_exists_720p = null;
     var $did_check_for_720p = false;
-    
-    var $v1_kategori_id = null;
-    var $v1_kategori_navn = null;
-    var $v1_kategori_parent = null;
-    var $v1_set_id = null;
-    var $v1_set_navn = null;
 
+    var $file_exists_smil = false;
+    var $smil_file = null;
 
     var $slettet = false;
+
+    var $arrangement_id;
+    var $season;
+    var $innslag_id;
 
     public function __construct(array $data)
     {
         $this->id = intval($data['tv_id']);
+        $this->cron_id = intval($data['cron_id']);
+        $this->arrangement_id = intval($data['pl_id']);
+        $this->innslag_id = intval($data['b_id']);
+        $this->season = intval($data['season']);
+        
         $this->title = $data['tv_title'];
+        $this->description = $data['tv_description'];
+
         $this->slettet = $data['tv_deleted'] != 'false';
         $this->image_url = $data['tv_img'];
 
-        $this->v1_kategori_id = intval($data['category_id']);
-        $this->v1_kategori_navn = $data['category'];
-        $this->v1_kategori_parent = intval($data['category_parent_id']);
-        $this->v1_set_id = intval($data['set_id']);
-        $this->v1_set_navn = $data['set'];
+        $this->file_exists_smil = $data['file_exists_smil'] == 'true';
 
-        $this->tag_string = $data['tv_tags'];
+        $this->tag_string = !empty($data['tags']) ? $data['tags'] : '';
 
-        // Vet vi at denne finnes med en 720p-utgave? (pre 2011(?)-problem)
-        $this->file_exists_720p = $data['file_exists_720p'];
+        // Vet vi at denne finnes med en 720p-utgave? (pre 2013(?)-problem)
+        $this->file_exists_720p = $data['file_exists_720p'] == 1;
 
         // De forskjellige fil-utgavene
         $this->setFile($data['tv_file']);
-    }
-
-    /**
-     * Hent filmens kategori
-     *
-     * @return Kategori
-     */
-    public function getKategori() {
-        if( null == $this->kategori ) {
-            $this->kategori = Kategori::getByV1( 
-                $this->v1_kategori_id, 
-                $this->v1_kategori_navn, 
-                $this->v1_set_id, 
-                $this->v1_set_navn, 
-                $this->v1_kategori_parent
-            );
-        }
-        return $this->kategori;
     }
 
     /**
@@ -132,6 +120,15 @@ class Film
     }
 
     /**
+     * Hent filmens beskrivelse
+     *
+     * @return String beskrivelse
+     */
+    public function getBeskrivelse() {
+        return $this->description;
+    }
+
+    /**
      * Hent sanitized tittel
      *
      * @return String sanitized title
@@ -143,6 +140,27 @@ class Film
         }
         return $this->sanitized_title;
     }
+    
+        /**
+         * Har filmen en .smil-fil?
+         *
+         * @return bool
+         */
+        public function harSmil() {
+            return $this->file_exists_smil;
+        }
+    
+        /**
+         * Hent URL til smil-filen
+         *
+         * @return String $url
+         */
+        public function getSmilFile() {
+            if( null == $this->smil_file ) {
+                $this->smil_file = str_replace('_720p.mp4','.smil', $this->getFile());
+            }
+            return $this->smil_file;
+        }
 
     /**
      * Hent full filbane (inkl navn) til filen
@@ -179,7 +197,7 @@ class Film
      */
     public function setFile(String $full_filepath)
     {
-        $this->file         = $full_filepath;
+        $this->file         = str_replace('///', '/', $full_filepath);
         $lastslash          = strrpos($this->file, '/');
         $this->file_path    = substr($this->file, 0, $lastslash);
         $this->file_name    = substr($this->file, $lastslash + 1);
@@ -215,8 +233,8 @@ class Film
      */
     public function getTag(String $tag)
     {
-        if (isset($this->getTags()[$tag])) {
-            return $this->getTags()[$tag];
+        if ($this->getTags()->har($tag)) {
+            return $this->getTags()->get($tag);
         }
         return false;
     }
@@ -229,35 +247,20 @@ class Film
     public function getTags()
     {
         if (null == $this->tags) {
-            $this->tags = $this->_loadTags();
+            $this->tags = Tags::createFromString($this->tag_string);
         }
 
         return $this->tags;
     }
 
     /**
-     * Last inn alle tags
+     * Hent alle personer i filmen
      *
-     * @return Array<Any>
+     * @return Personer
      */
-    private function _loadTags()
+    public function getPersoner()
     {
-        $all_tags = [];
-
-        $tags = explode(
-            '|',
-            str_replace('||','|', $this->tag_string
-            )
-        );
-		foreach( $tags as $string ) {
-			if( strpos($string,'_') === false ) {
-				continue;
-			}
-			$tag = explode('_', $string);
-			$all_tags[ $tag[0] ] = $tag[1];
-		}
-
-        return $all_tags;
+        return $this->getTags()->getPersoner();
     }
 
     /**
@@ -275,7 +278,7 @@ class Film
      *
      * @return String $path
      */
-    public function getFilepath()
+    public function getServerFilepath()
     {
         return $this->file_path;
     }
@@ -322,19 +325,19 @@ class Film
      */
     private function _checkFor720p()
     {
-        $UKMCURL = new UKMCURL();
-        $UKMCURL->request(
+        $curl = new Curl();
+        $data = $curl->request(
             Server::getStorageUrl()
                 . 'find.php'
                 . '?file=' . $this->getFilename()
-                . '&path=' . urlencode($this->getFilepath())
+                . '&path=' . urlencode($this->getServerFilepath())
         );
 
-        $this->setFile($UKMCURL->data->filepath);
+        $this->setFile($curl->data->filepath);
 
         // Returnert fil inneholdt 720p, som betyr at den finnes. 
         // Lagre så vi vet det til senere (score!)
-        if (strpos($UKMCURL->data->filepath, '720p') !== false) {
+        if (strpos($curl->data->filepath, '720p') !== false) {
             $SQL = new Update(
                 'ukm_tv_files',
                 [
@@ -342,6 +345,7 @@ class Film
                 ]
             );
             $SQL->add('file_exists_720p', 1);
+            $SQL->add('tv_file', $curl->data->filepath);
             $SQL->run();
         }
         $this->did_check_for_720p = true;
@@ -445,14 +449,102 @@ class Film
     public static function getLoadQuery()
     {
         return
-            "SELECT `file`.*,
-                    `cat`.`c_id` AS `set_id`,
-                    `cat`.`c_name` AS `set`,
-                    `fold`.`f_id` AS `category_id`,
-                    `fold`.`f_name` AS `category`,
-                    `fold`.`f_parent` AS `category_parent_id`
-            FROM `ukm_tv_files` AS `file`
-            JOIN `ukm_tv_categories` AS `cat` ON (`file`.`tv_category` = `cat`.`c_name`)
-            JOIN `ukm_tv_category_folders` AS `fold` ON (`cat`.`f_id` = `fold`.`f_id`)";
+            "SELECT *,
+            (
+                SELECT GROUP_CONCAT( CONCAT(`ukm_tv_tags`.`type`,':',`ukm_tv_tags`.`foreign_id` ) SEPARATOR '|')
+                FROM `ukm_tv_tags`
+                WHERE `ukm_tv_tags`.`tv_id` = `ukm_tv_files`.`tv_id`
+            ) AS `tags`
+            FROM `ukm_tv_files`";
+    }
+
+    /**
+     * Sett filmens TV-ID
+     *
+     * @param Int $tv_id
+     * @return self
+     */
+    public function setTvId( Int $tv_id ) {
+        $this->id = $tv_id;
+        return $this;
+    }
+
+    /**
+     * Hent filmens TV-ID
+     *
+     * @return Int tv_id
+     */
+    public function getTvId() {
+        return $this->getId();
+    }
+
+    /**
+     * Hent hvilken cronId converteren ga filmen
+     *
+     * @return Int|null
+     */
+    public function getCronId() {
+        return $this->cron_id;
+    }
+
+    /**
+     * Hent hvilket arrangement som lastet opp filmen
+     *
+     * @return Int
+     */
+    public function getArrangementId()
+    {
+        return $this->arrangement_id;
+    }
+
+    public function getInnslagId()
+    {
+        return $this->innslag_id;
+    }
+
+    /**
+     * Hent filmens tittel
+     *
+     * @return String
+     */
+    public function getTitle() {
+        return $this->getNavn();
+    }
+    
+    /**
+     * Hent filmens beskrivelse
+     *
+     * @return String
+     */
+    public function getDescription()
+    {
+        return $this->getBeskrivelse();
+    }
+
+    /**
+     * Hent filmens path på videostorage (inkl filnavn)
+     *
+     * @return String
+     */
+    public function getFilePath() {
+        return $this->file;
+    }
+
+    /**
+     * Hent preview-bildets path på videostorage
+     *
+     * @return String
+     */
+    public function getImagePath() {
+        return $this->image_url;
+    }
+
+    /**
+     * Hent filmens sesong
+     *
+     * @return void
+     */
+    public function getSeason() {
+        return $this->season;
     }
 }

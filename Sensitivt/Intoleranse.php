@@ -2,10 +2,7 @@
 
 namespace UKMNorge\Sensitivt;
 use Exception;
-use Allergener;
-use Allergen;
-
-require_once('UKM/allergener.class.php');
+use UKMNorge\Allergener\Allergener;
 
 /**
  * 
@@ -24,6 +21,11 @@ class Intoleranse extends Sensitivt {
 	private $_liste = null;
 	private $intoleranser = null;
 
+    /**
+     * Hent inn en intoleranse
+     *
+     * @param Int $id
+     */
     public function __construct( $id ) {
         parent::__construct( $id );
         $this->_load( $id );
@@ -32,7 +34,7 @@ class Intoleranse extends Sensitivt {
 	/**
 	 * Load from database
 	 *
-	 * @param Integer $id
+	 * @param Int $id
 	 * @return void
 	 */
     private function _load( $id ) {
@@ -87,6 +89,12 @@ class Intoleranse extends Sensitivt {
         return $this->har;
 	}
 
+    /**
+     * Har personen dette allergenet?
+     *
+     * @param String $id
+     * @return void
+     */
 	public function harDenne( $id ) {
 		return in_array( $id, $this->getListe() );
 	}
@@ -95,10 +103,10 @@ class Intoleranse extends Sensitivt {
 	/**
 	 * Sett tekst
 	 *
-	 * @param [type] $tekst
+	 * @param String $tekst
 	 * @return void
 	 */
-	public function setTekst( $tekst ) {
+	public function setTekst( String $tekst ) {
 		$this->tekst = $tekst;
 		return $this;
 	}
@@ -146,11 +154,12 @@ class Intoleranse extends Sensitivt {
 	/**
 	 * Hent string-representasjon av listen (human)
 	 *
+     * @param Bool Skjul varsel-trekant på slutten av listen
 	 * @return String csv-liste
 	 */
-	public function getListeHuman() {
+	public function getListeHuman(Bool $skipWarning=false) {
 		if( null == $this->liste_human ) {
-			$this->getIntoleranser();
+			$this->getIntoleranser($skipWarning);
 		}
 		return $this->liste_human;
 	}
@@ -158,9 +167,10 @@ class Intoleranse extends Sensitivt {
 	/**
 	 * Hent alle intoleranse-objekt
 	 *
+     * @param Bool Skjul varsel-trekant på slutten av listen
 	 * @return Array<Intoleranse>
 	 */
-	public function getIntoleranser() {
+	public function getIntoleranser(Bool $skipWarning=false) {
 		if( null == $this->intoleranser ) {
 			$intoleranser = [];
 			$human = '';
@@ -176,7 +186,7 @@ class Intoleranse extends Sensitivt {
 			}			
 			$human = rtrim($human, ', ');
 
-			if( !empty( $this->getTekst() ) ) {
+			if( !empty( $this->getTekst() ) && !$skipWarning ) {
 				$human .= ' ⚠ ';
 			}
 			
