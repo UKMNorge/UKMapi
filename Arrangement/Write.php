@@ -1170,7 +1170,9 @@ class Write
         }
         // Fjern personer 2020
         else {
-            foreach( $innslag->getPersoner()->getAllInkludertIkkePameldte() as $person ) {
+            // Bruker ikke getAll() i stedet for getAllInkludertIkkePameldte()
+            // da vi kun skal melde av personer påmeldt dette arrangementet
+            foreach( $innslag->getPersoner()->getAll() as $person ) {
                 $innslag->getPersoner()->fjern( $person );
             }
             WriteInnslag::savePersoner( $innslag );
@@ -1178,7 +1180,9 @@ class Write
 
         // Meld av alle titler
         if( $innslag->getType()->harTitler() ) {
-            foreach( $innslag->getTitler()->getAllInkludertIkkePameldte() as $tittel ) {
+            // Bruker ikke getAll() i stedet for getAllInkludertIkkePameldte()
+            // da vi kun skal melde av titler påmeldt dette arrangementet
+            foreach( $innslag->getTitler()->getAll() as $tittel ) {
                 $innslag->getTitler()->fjern( $tittel );
             }
             WriteInnslag::saveTitler( $innslag );
