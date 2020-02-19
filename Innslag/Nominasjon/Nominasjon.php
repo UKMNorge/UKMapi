@@ -25,7 +25,7 @@ class Nominasjon extends Placeholder {
 	private $voksen;
 	
 	public function __construct( Query $query ) {
-		$this->_loadByRow( $query->getArray() );
+        $this->_loadByRow( $query->getArray() );
 	}
     
     /**
@@ -48,11 +48,11 @@ class Nominasjon extends Placeholder {
 	public static function getDetailTable( $innslag_type ) {
 		switch( $innslag_type ) {
 			case 'nettredaksjon':
-				return 'Media';
+				return 'ukm_nominasjon_,edia';
 			case 'media':
 			case 'arrangor';
 			case 'konferansier';
-				return ucfirst($innslag_type);
+				return 'ukm_nominasjon_'.strtolower($innslag_type);
 			default:
 				throw new Exception('NOMINASJON: Kan ikke laste inn nominasjon pga ukjent type '. $innslag_type, 2 );
 		}
@@ -116,26 +116,31 @@ class Nominasjon extends Placeholder {
      * @return void
      */
 	protected function _loadByRow( $row ) {
-		if( !is_array( $row ) ) {
-			throw new Exception('NOMINASJON: Kan ikke laste inn nominasjon fra annet enn array', 3);
-		}
-		
-		$this->setId( $row['id'] );
-		$this->setInnslagId( $row['b_id'] );
-		$this->setNiva( $row['niva'] );
-		$this->setFylkeId( $row['fylke_id'] );
-		$this->setKommuneId( $row['kommune_id'] );
-		$this->setSesong( $row['season'] );
-		$this->setType( $row['type'] );
-		$this->setErNominert( $row['nominert'] == 'true' );
-		$this->exists = true;
+        if( is_null($row) || !$row) {
+            $this->setVoksen( new PlaceholderVoksen( null ));
+            $this->exists = false;
+        } else {
+            if( !is_array( $row ) ) {
+                throw new Exception('NOMINASJON: Kan ikke laste inn nominasjon fra annet enn array', 3);
+            }
+            
+            $this->setId( $row['id'] );
+            $this->setInnslagId( $row['b_id'] );
+            $this->setNiva( $row['niva'] );
+            $this->setFylkeId( $row['fylke_id'] );
+            $this->setKommuneId( $row['kommune_id'] );
+            $this->setSesong( $row['season'] );
+            $this->setType( $row['type'] );
+            $this->setErNominert( $row['nominert'] == 'true' );
+            $this->exists = true;
 
-		$this->setHarNominasjon( true );
-		try {
-			$this->setVoksen( new Voksen( intval($row['id']) ) );
-		} catch( Exception $e ) {
-			$this->setVoksen( new PlaceholderVoksen( null ));
-		}
+            $this->setHarNominasjon( true );
+            try {
+                $this->setVoksen( new Voksen( intval($row['id']) ) );
+            } catch( Exception $e ) {
+                $this->setVoksen( new PlaceholderVoksen( null ));
+            }
+        }
 	}
     
     /**

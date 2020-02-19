@@ -11,7 +11,7 @@ namespace UKMNorge\Innslag\Nominasjon;
 class Placeholder {
 	private $har_nominasjon = false;
 
-	public function __construct( $skip1, $skip2, $skip3 ) {
+	public function __construct( $skip1 ) {
 		// Do nothing	
 	}
 
