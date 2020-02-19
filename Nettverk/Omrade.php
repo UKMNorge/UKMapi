@@ -148,7 +148,7 @@ class Omrade
      */
     public function getLink() {
         if( $this->getType() == 'fylke' ) {
-            return $this->getFylke()->getLink();
+            return $this->getFylke()->getLink(false);
         }
         if( $this->getType() == 'kommune') {
             return $this->getKommune()->getLink();
