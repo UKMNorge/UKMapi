@@ -142,6 +142,20 @@ class Omrade
     }
 
     /**
+     * Hent en lenke til dette området
+     *
+     * @return String full url
+     */
+    public function getLink() {
+        if( $this->getType() == 'fylke' ) {
+            return $this->getFylke()->getLink();
+        }
+        if( $this->getType() == 'kommune') {
+            return $this->getKommune()->getLink();
+        }
+    }
+
+    /**
      * Hent administratorer for området
      *
      * @return Administratorer
