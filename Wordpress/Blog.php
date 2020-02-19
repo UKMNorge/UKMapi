@@ -858,7 +858,8 @@ class Blog
             $blog_id,
             [
                 ['id' => 'forside', 'name' => 'Forside', 'viseng' => null],
-                ['id' => 'nyheter', 'name' => 'Nyheter', 'viseng' => null]
+                ['id' => 'nyheter', 'name' => 'Nyheter', 'viseng' => null],
+                ['id' => 'kontaktpersoner', 'name' => 'Kontaktpersoner', 'viseng' => 'kontaktpersoner']
             ]
         );
 
