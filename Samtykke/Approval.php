@@ -3,6 +3,7 @@
 namespace UKMNorge\Samtykke;
 
 use Exception;
+use UKMNorge\Database\SQL\Query;
 
 require_once('UKM/Autoloader.php');
 

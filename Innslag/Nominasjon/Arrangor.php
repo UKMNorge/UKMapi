@@ -1,7 +1,8 @@
 <?php
-require_once('UKM/nominasjon.class.php');
 
-class nominasjon_arrangor extends nominasjon {
+namespace UKMNorge\Innslag\Nominasjon;
+
+class Arrangor extends Nominasjon {
 	
 	var $type_lydtekniker = false;
 	var $type_lystekniker = false;

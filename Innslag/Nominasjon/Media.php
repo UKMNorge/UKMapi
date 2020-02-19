@@ -1,8 +1,8 @@
 <?php
-require_once('UKM/nominasjon.class.php');
-require_once('UKM/nominasjon_voksen.class.php');
 
-class nominasjon_media extends nominasjon {
+namespace UKMNorge\Innslag\Nominasjon;
+
+class Media extends Nominasjon {
 	
 	private $pri1;
 	private $pri2;
