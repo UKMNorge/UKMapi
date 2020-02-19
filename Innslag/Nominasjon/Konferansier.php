@@ -1,11 +1,12 @@
 <?php
-require_once('UKM/nominasjon.class.php');
 
-class nominasjon_konferansier extends nominasjon {
+namespace UKMNorge\Innslag\Nominasjon;
+
+class Konferansier extends Nominasjon {
 	
 	private $hvorfor;
 	private $beskrivelse;
-	private $fil_plassering;
+	private $plassering;
 	private $fil_url;
 	
 	
