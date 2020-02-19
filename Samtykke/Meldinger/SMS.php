@@ -39,9 +39,15 @@ class SMS {
 	}
 	
 	private static function _doSend( $mottaker, $melding ) {
-		require_once('UKM/sms.class.php');
-		$sms = new UKMlibSMS('samtykke', 0);
-        $sms->text($melding)->to($mottaker)->from('UKMNorge')->ok();
+        require_once('UKM/sms.class.php');
+        if( UKM_HOSTNAME == 'ukm.dev' ) {
+            echo '<h3>SMS-debug</h3>'.
+                '<b>TEXT: </b>'. $melding .' <br />'.
+                '<b>TO: </b>'. $mottaker;
+        } else {
+            $sms = new UKMlibSMS('samtykke', 0);
+            $sms->text($melding)->to($mottaker)->from('UKMNorge')->ok();
+        }
 	}
 	
 	public static function getMelding( $id, $samtykke ) {

@@ -14,8 +14,10 @@ use statistikk;
 use UKMNorge\Arrangement\Kontaktperson\Samling as KontaktpersonSamling;
 use UKMNorge\Arrangement\Program\Hendelser;
 use UKMNorge\Arrangement\Skjema\Skjema;
+use UKMNorge\Arrangement\Videresending\Avsender;
 use UKMNorge\Google\StaticMap;
 use UKMNorge\Arrangement\Videresending\Videresending;
+use UKMNorge\Filmer\UKMTV\Filmer;
 use UKMNorge\Innslag\Context\Context;
 use UKMNorge\Meta\Value as MetaValue;
 use UKMNorge\Meta\Collection as MetaCollection;
@@ -78,6 +80,9 @@ class Arrangement
     var $synlig = true;
 
     var $har_bilder = null;
+    
+    var $har_filmer;
+    var $filmer;
 
     var $uregistrerte = null;
     var $publikum = null;
@@ -89,6 +94,7 @@ class Arrangement
     var $netter = null;
 
     var $videresending = null;
+    var $avsender = [];
     var $log = null;
     var $deleted = false;
     var $subtype = null;
@@ -164,9 +170,9 @@ class Arrangement
         $this->setType($row['pl_type']);
 
 
-        $this->setFylke((Int)$row['pl_owner_fylke']);
-        $this->setEierFylke((Int)$row['pl_owner_fylke']);
-        $this->setEierKommune((Int)$row['pl_owner_kommune']);
+        $this->setFylke((int) $row['pl_owner_fylke']);
+        $this->setEierFylke((int) $row['pl_owner_fylke']);
+        $this->setEierKommune((int) $row['pl_owner_kommune']);
 
         // Legg til kommuner
         if ($this->getType() == 'kommune') {
@@ -184,7 +190,7 @@ class Arrangement
         $this->setStop(new DateTime($row['pl_stop']));
         $this->setFrist1(new DateTime($row['pl_deadline']));
         $this->setFrist2(new DateTime($row['pl_deadline2']));
-        $this->setSesong($row['season']);
+        $this->setSesong(intval($row['season']));
         $this->setSted($row['pl_place']);
         $this->setGoogleMapData($row['pl_location']);
         $this->setPublikum($row['pl_public']);
@@ -498,14 +504,14 @@ class Arrangement
      */
     public function getFrist(Int $frist)
     {
-        if( $frist == 1 ) {
+        if ($frist == 1) {
             return $this->getFrist1();
         }
-        if( $frist == 2 ) {
+        if ($frist == 2) {
             return $this->getFrist2();
         }
         throw new Exception(
-            'Kan ikke hente frist '. $frist,
+            'Kan ikke hente frist ' . $frist,
             101002
         );
     }
@@ -710,33 +716,12 @@ class Arrangement
     }
 
     /**
-     * Hent ut fylkesmønstringene lokalmønstringen kan sende videre til
-     **/
-    public function getFylkesmonstringer()
-    {
-        throw new Exception('DEVELOPER ALERT: getFylkesmonstringer() er ikke implementert. Kontakt support@ukm.no');
-        if ($this->getType() !== 'kommune') {
-            throw new Exception('MONSTRING_V2: Fylkesmønstringer kan ikke videresende til fylkesmønstringer');
-        }
-        require_once('UKM/monstringer.collection.php');
-        if (null === $this->fylkesmonstringer) {
-            $this->fylkesmonstringer = [];
-            foreach ($this->getKommuner() as $kommune) {
-                if (!isset($this->fylkesmonstringer[$kommune->getFylke()->getId()])) {
-                    $this->fylkesmonstringer[$kommune->getFylke()->getId()] = monstringer_v2::fylke($kommune->getFylke(), $this->getSesong());
-                }
-            }
-        }
-        return $this->fylkesmonstringer;
-    }
-
-    /**
      * Sett sesong
      *
      * @param int $seson
      * @return $this
      **/
-    public function setSesong($sesong)
+    public function setSesong(Int $sesong)
     {
         $this->sesong = $sesong;
         return $this;
@@ -764,9 +749,9 @@ class Arrangement
                 if (null == $first_kommune || !is_object($first_kommune)) {
                     throw new Exception('Beklager, klarte ikke å finne en kommune som tilhører denne mønstringen');
                 }
-                $this->setFylke((Int)$first_kommune->getFylke()->getId());
+                $this->setFylke((int) $first_kommune->getFylke()->getId());
             }
-            $this->fylke = Fylker::getById((Int)$this->fylke_id);
+            $this->fylke = Fylker::getById((int) $this->fylke_id);
         }
         return $this->fylke;
     }
@@ -777,8 +762,19 @@ class Arrangement
      *
      * @return void
      */
-    public function resetProgram() {
+    public function resetProgram()
+    {
         $this->program = null;
+    }
+
+    /**
+     * Har arrangementet et offentlig program?
+     *
+     * @return bool
+     */
+    public function harProgram()
+    {
+        return $this->getProgram()->getAntall() > 0;
     }
 
     /**
@@ -796,8 +792,48 @@ class Arrangement
         return $this->program;
     }
 
-    public function harBilder() {
-        if( null === $this->har_bilder ) {
+    /**
+     * Har arrangementet filmer (av innslag, eller reportasje?)
+     *
+     * @return bool
+     */
+    public function harFilmer() {
+        if( is_null( $this->har_filmer ) ) {
+            $this->har_filmer = Filmer::harArrangementFilmer($this->getId());
+        }
+        return $this->har_filmer;
+    }
+
+    /**
+     * Hent UKM-TV-lenke for dette arrangementet
+     *
+     * @return String url
+     */
+    public function getUKMTVLink() {
+        return '//tv.'. UKM_HOSTNAME .'/arrangement/'. $this->getId().'/';
+    }
+
+    /**
+     * Hent en samling filmer fra dette arrangementet
+     *
+     * @return Filmer
+     */
+    public function getFilmer() {
+        if( is_null($this->filmer)) {
+            $this->filmer = Filmer::getByArrangement($this->getId());
+            $this->har_filmer = $this->filmer->getAntall() > 0;
+        }
+        return $this->filmer;
+    }
+
+    /**
+     * Har arrangementet noen bilder (av innslag)?
+     *
+     * @return bool
+     */
+    public function harBilder()
+    {
+        if (null === $this->har_bilder) {
             $query = new Query(
                 "SELECT `id`
                 FROM `ukm_bilder` 
@@ -808,9 +844,31 @@ class Arrangement
                 ]
             );
             $test = $query->run();
-            $this->har_bilder = Query::numRows( $test ) > 0;
+            $this->har_bilder = Query::numRows($test) > 0;
         }
         return $this->har_bilder;
+    }
+
+    /**
+     * Har arrangementet påmeldte innslag?
+     *
+     * @return bool
+     */
+    public function harInnslag()
+    {
+        return $this->getInnslag()->harInnslag(false);
+    }
+
+    /**
+     * Har arrangementet påmeldte innslag?
+     * 
+     * @alias harInnslag()
+     *
+     * @return bool
+     */
+    public function harPameldte()
+    {
+        return $this->harInnslag();
     }
 
     /**
@@ -864,9 +922,9 @@ class Arrangement
             );
             $res = $sql->run();
             // Arrangementet bruker den nye beregningen for tillatte typer (2020)
-            if( Query::numRows( $res ) > 0 ) {
+            if (Query::numRows($res) > 0) {
                 while ($r = Query::fetch($res)) {
-                    $this->innslagTyper->add( Typer::getByKey( $r['type_id']));
+                    $this->innslagTyper->add(Typer::getByKey($r['type_id']));
                 }
             }
             // Arrangementet bruker den gamle beregningen for tillatte typer (pre2020)
@@ -874,8 +932,8 @@ class Arrangement
                 $this->_loadInnslagTyperPre2020();
             }
 
-            if( 0 == $this->innslagTyper->getAntall() ) {
-                foreach( Typer::getStandardTyper() as $type ) {
+            if (0 == $this->innslagTyper->getAntall()) {
+                foreach (Typer::getStandardTyper() as $type) {
                     $this->innslagTyper->add($type);
                 }
             }
@@ -894,7 +952,8 @@ class Arrangement
      *
      * @return void
      */
-    private function _loadInnslagTyperPre2020() {
+    private function _loadInnslagTyperPre2020()
+    {
         $sql = new Query(
             "SELECT `bt_id`
                         FROM `smartukm_rel_pl_bt`
@@ -915,7 +974,7 @@ class Arrangement
                     $r['bt_id'] = 8;
                 }
                 if (!$this->innslagTyper->find($r['bt_id'])) {
-                    $this->innslagTyper->addById((Int)$r['bt_id']);
+                    $this->innslagTyper->addById((int) $r['bt_id']);
                 }
             }
         }
@@ -942,7 +1001,8 @@ class Arrangement
      *
      * @return void
      */
-    public function resetInnslagTyper() {
+    public function resetInnslagTyper()
+    {
         $this->innslagTyper = null;
     }
 
@@ -977,9 +1037,10 @@ class Arrangement
      *
      * @return KontaktpersonSamling
      */
-    public function getKontaktpersonerEllerAdministratorer() {        
+    public function getKontaktpersonerEllerAdministratorer()
+    {
         // Hvis arrangementet har kontaktpersoner - returner de
-        if( $this->getKontaktpersoner()->getAntall() > 0 ) {
+        if ($this->getKontaktpersoner()->getAntall() > 0) {
             return $this->getKontaktpersoner();
         }
 
@@ -987,28 +1048,28 @@ class Arrangement
         $samling = $this->getKontaktpersoner();
 
         // Hent områdets (arrangementets hovedeier) administratorer
-        if( $this->getEierOmrade()->getAdministratorer()->getAntall() > 0 ) {
-            foreach( $this->getEierOmrade()->getAdministratorer()->getAll() as $admin ) {
-                $samling->add( new AdminKontaktProxy( $admin ) );
+        if ($this->getEierOmrade()->getAdministratorer()->getAntall() > 0) {
+            foreach ($this->getEierOmrade()->getAdministratorer()->getAll() as $admin) {
+                $samling->add(new AdminKontaktProxy($admin));
             }
             return $samling;
         }
 
         // Hent alle kommuner i arrangementet, og finn eierområdenes administratorer
-        if( $this->getType() == 'kommune' ) {
-            foreach( $this->getKommuner()->getAll() as $kommune ) {
-                $omrade = Omrade::getByKommune( $kommune->getId() );
-                foreach( $omrade->getAdministratorer()->getAll() as $admin ) {
-                    $samling->add( new AdminKontaktProxy( $admin ) );
+        if ($this->getType() == 'kommune') {
+            foreach ($this->getKommuner()->getAll() as $kommune) {
+                $omrade = Omrade::getByKommune($kommune->getId());
+                foreach ($omrade->getAdministratorer()->getAll() as $admin) {
+                    $samling->add(new AdminKontaktProxy($admin));
                 }
             }
         }
 
         // Hvis det er en kommune uten admins, hent fylkets kontaktpersoner
-        if( $this->getEierOmrade()->getType() == 'kommune' ) {
-            $omrade = Omrade::getByFylke( $this->getEierOmrade()->getFylke()->getId() );
-            foreach( $omrade->getAdministratorer()->getAll() as $admin ) {
-                $samling->add( new AdminKontaktProxy( $admin ) );
+        if ($this->getEierOmrade()->getType() == 'kommune') {
+            $omrade = Omrade::getByFylke($this->getEierOmrade()->getFylke()->getId());
+            foreach ($omrade->getAdministratorer()->getAll() as $admin) {
+                $samling->add(new AdminKontaktProxy($admin));
             }
             return $samling;
         }
@@ -1160,8 +1221,7 @@ class Arrangement
                 $this->getSesong(),                     // Mønstring sesong
                 $this->getFylke()->getId(),             // Mønstring fylke ID
                 ($this->getType() == 'kommune' ?        // Mønstring kommune ID array
-                    $this->getKommuner()->getIdArray() :
-                    null)
+                    $this->getKommuner()->getIdArray() : null)
             );
         }
         return $context;
@@ -1243,14 +1303,14 @@ class Arrangement
     {
         return $this->registrert;
     }
-    
+
     /**
      * Sett om mønstringen er registrert eller ikke
      *
      * @param Bool $registrert
      * @return self
      */
-    public function setRegistrert( Bool $registrert)
+    public function setRegistrert(Bool $registrert)
     {
         $this->registrert = $registrert;
 
@@ -1265,7 +1325,7 @@ class Arrangement
     public function getEierFylke()
     {
         if (null == $this->eier_fylke) {
-            $this->eier_fylke = Fylker::getById((Int)$this->eier_fylke_id);
+            $this->eier_fylke = Fylker::getById((int) $this->eier_fylke_id);
         }
         return $this->eier_fylke;
     }
@@ -1283,7 +1343,7 @@ class Arrangement
             $this->eier_fylke_id = $fylke->getId();
         } else {
             $this->eier_fylke = null;
-            $this->eier_fylke_id = (Int) $fylke;
+            $this->eier_fylke_id = (int) $fylke;
         }
 
         return $this;
@@ -1380,7 +1440,8 @@ class Arrangement
      *
      * @return Bool
      */
-    public function harKart() {
+    public function harKart()
+    {
         return $this->getKart()->hasMap();
     }
     /**
@@ -1390,7 +1451,8 @@ class Arrangement
      *
      * @return StaticMap
      */
-    public function getKart() {
+    public function getKart()
+    {
         return $this->getGoogleMap();
     }
 
@@ -1400,7 +1462,7 @@ class Arrangement
     public function getGoogleMap()
     {
         if (null == $this->googleMap) {
-            if( defined('GOOGLE_API_KEY') ) {
+            if (defined('GOOGLE_API_KEY')) {
                 StaticMap::setApiKey(GOOGLE_API_KEY);
             }
             $this->googleMap = StaticMap::fromJSON(json_decode($this->getGoogleMapData()));
@@ -1437,7 +1499,8 @@ class Arrangement
      *
      * @return Bool
      */
-    public function erMonstring() {
+    public function erMonstring()
+    {
         return $this->subtype == 'monstring';
     }
 
@@ -1448,7 +1511,8 @@ class Arrangement
      *
      * @return void
      */
-    public function erArrangement() {
+    public function erArrangement()
+    {
         return $this->subtype == 'arrangement';
     }
 
@@ -1460,10 +1524,23 @@ class Arrangement
      */
     public function getVideresending()
     {
-        if (null == $this->videresending) {
+        if (is_null($this->videresending)) {
             $this->videresending = new Videresending((int) $this->getId());
         }
         return $this->videresending;
+    }
+
+    /**
+     * Hent arrangement videresendt til gitt innslag
+     *
+     * @param Int $arrangement_id
+     * @return Samling
+     */
+    public function getVideresendte( Int $arrangement_id) {
+        if( !isset($this->avsender[$arrangement_id])) {
+            $this->avsender[$arrangement_id] = new Avsender( $this->getId(), $arrangement_id );
+        }
+        return $this->avsender[$arrangement_id]->getVideresendte();
     }
 
     /**
@@ -1510,9 +1587,10 @@ class Arrangement
      *
      * @return String pressemelding HTML
      */
-    public function getPressemelding() {
+    public function getPressemelding()
+    {
         $pressemelding = $this->getMetaValue('pressemelding');
-        if( is_string($pressemelding) && strlen($pressemelding) > 0 ) {
+        if (is_string($pressemelding) && strlen($pressemelding) > 0) {
             return $pressemelding;
         }
         return '';
@@ -1562,10 +1640,10 @@ class Arrangement
 
     /**
      * Get the value of log
-     */ 
+     */
     public function getLog()
     {
-        if( null == $this->log ) {
+        if (null == $this->log) {
             $this->log = new LogSamling('arrangement', $this->getId());
         }
         return $this->log;
@@ -1573,8 +1651,9 @@ class Arrangement
 
     /**
      * Er arrangementet slettet?
-     */ 
-    public function erSlettet() {
+     */
+    public function erSlettet()
+    {
         return $this->deleted;
     }
 
@@ -1583,7 +1662,7 @@ class Arrangement
      *
      * @param Bool $deleted
      * @return self
-     */ 
+     */
     public function setSlettet(Bool $deleted)
     {
         $this->deleted = $deleted;
@@ -1594,7 +1673,7 @@ class Arrangement
      * Henter type arrangement (bruk heller erMonstring() eller erArrangement())
      * 
      * @return String
-     */ 
+     */
     public function getSubtype()
     {
         return $this->subtype;
@@ -1605,7 +1684,7 @@ class Arrangement
      *
      * @param String $subtype
      * @return self
-     */ 
+     */
     public function setSubtype(String $subtype)
     {
         $this->subtype = $subtype;

@@ -16,6 +16,7 @@ har:
   media:
     filmer: false
     bilder: true
+personer_autofollow: true
 
 tekst:
   artistnavn:

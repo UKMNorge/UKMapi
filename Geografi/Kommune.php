@@ -24,7 +24,7 @@ class Kommune {
 	public function __construct( $kid_or_row ) {
 		if( is_numeric( $kid_or_row ) ) {
 			$this->_loadByID( $kid_or_row );
-		} else {
+		} elseif(!empty($kid_or_row)) {
 			$this->_loadByRow( $kid_or_row );
 		}
     }

@@ -20,22 +20,24 @@ class Type
     var $har_sjanger = false;
     var $har_funksjoner = false;
     var $har_tekniske_behov = false;
-    
+
     var $har_filmer = false; # Kan det finnes noe i UKM-TV?
     var $har_bilder = false;
-    
+
     var $funksjoner = null;
     var $tabell = null;
 
+    var $autfollow_personer = null;
+
     public function __construct(String $id)
     {
-        switch( $id ) {
+        switch ($id) {
             case 'annet':
                 $id = 'scene';
-            break;
+                break;
             case 'video':
                 $id = 'film';
-            break;
+                break;
         }
 
         try {
@@ -45,9 +47,9 @@ class Type
                     $filename
                 )
             );
-        } catch( Exception $e ) {
+        } catch (Exception $e) {
             throw new Exception(
-                'Kunne ikke laste inn innslag type '. $id,
+                'Kunne ikke laste inn innslag type ' . $id,
                 110003
             );
         }
@@ -70,10 +72,12 @@ class Type
         $this->har_filmer           = $config['har']['media']['filmer'];
         $this->har_bilder           = $config['har']['media']['bilder'];
 
+        $this->autfollow_personer   = isset($config['personer_autofollow']) && $config['personer_autofollow'];
+
         if (isset($config['funksjoner'])) {
             $keyval = [];
-            foreach( $config['funksjoner'] as $key ) {
-                $keyval[ $key ] = $this->getTekst( 'funksjon.'.$key );
+            foreach ($config['funksjoner'] as $key) {
+                $keyval[$key] = $this->getTekst('funksjon.' . $key);
             }
             $this->funksjoner = $keyval;
         }
@@ -106,7 +110,8 @@ class Type
      *
      * @return Array<String>
      */
-    public function getAllTekst() {
+    public function getAllTekst()
+    {
         return $this->tekst;
     }
 
@@ -254,7 +259,8 @@ class Type
      *
      * @return Bool
      */
-    public function erViseFrem() {
+    public function erViseFrem()
+    {
         return $this->kategori == 'vise';
     }
 
@@ -283,6 +289,16 @@ class Type
     }
 
     /**
+     * Skal personer i innslaget automatisk følge med når det videresendes?
+     *
+     * @return bool
+     */
+    public function harAutomatiskVideresendingAvPersoner()
+    {
+        return $this->autfollow_personer;
+    }
+
+    /**
      * Har typen tekniske behov?
      *
      * @return Bool
@@ -297,7 +313,8 @@ class Type
      *
      * @return void
      */
-    public function harBeskrivelse() {
+    public function harBeskrivelse()
+    {
         return $this->har_beskrivelse;
     }
 
@@ -370,10 +387,11 @@ class Type
      * @param Array $valgte_funksjoner
      * @return Array $valgte_funksjoner
      */
-    public function getValgteFunksjonerSomKeyVal( Array $valgte_funksjoner ) {
+    public function getValgteFunksjonerSomKeyVal(array $valgte_funksjoner)
+    {
         $return = [];
-        foreach( $valgte_funksjoner as $key ) {
-            $return[$key] = $this->getTekst('funksjon.'.$key);
+        foreach ($valgte_funksjoner as $key) {
+            $return[$key] = $this->getTekst('funksjon.' . $key);
         }
         return $return;
     }

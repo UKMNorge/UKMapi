@@ -3,6 +3,8 @@
 namespace UKMNorge\Arrangement\Videresending;
 use Exception, DateTime;
 use UKMNorge\Arrangement\Arrangement;
+use UKMNorge\Innslag\Context\Context;
+use UKMNorge\Innslag\Samling;
 
 require_once('UKM/Autoloader.php');
 
@@ -16,6 +18,8 @@ abstract class Videresender {
     private $navn;
     private $eier;
 
+
+
     /**
      * Opprett en videresender
      *
@@ -28,15 +32,16 @@ abstract class Videresender {
         $this->til = $pl_til;   
     }
 
+    /**
+     * Hent arrangement-objektet
+     *
+     * @return Arrangement
+     */
     public function getArrangement() {
         if( null == $this->arrangement ) {
             $this->arrangement = new Arrangement( $this->getPlId() );
         }
         return $this->arrangement;
-    }
-
-    public function getVideresendte() {
-        throw new Exception('Må implementeres!');
     }
 
     public function setProxyData( String $navn, Bool $registrert, DateTime $start, $eier) {
@@ -84,6 +89,17 @@ abstract class Videresender {
     }
 
     /**
+     * Hent informasjonstekst som skal vises ved videresending til dette arrangementet
+     * 
+     * Proxy for Arrangement::getInformasjonstekst()
+     *
+     * @return String
+     */
+    public function getInformasjonstekst() {
+        return $this->getArrangement()->getInformasjonstekst();
+    }
+
+    /**
      * Set the value of navn
      *
      * @return  self
@@ -96,12 +112,11 @@ abstract class Videresender {
     }
 
     /**
-     * Get the value of innslag
+     * Hent innslag-collection for arrangementet
      */ 
     public function getInnslag()
     {
-        throw new Exception('getInnslag må implementeres');
-        return $this->innslag;
+        return $this->getArrangement()->getInnslag();
     }
 
     /**

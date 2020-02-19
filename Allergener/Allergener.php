@@ -1,16 +1,26 @@
 <?php
 
+namespace UKMNorge\Allergener;
+
 /**
  * https://helsedirektoratet.no/folkehelse/kosthold-og-ernering/erneringsarbeid-i-helse-og-omsorgstjenesten/religiose-og-kulturelle-kostholdshensyn#syvendedags-adventister
  * https://www.mattilsynet.no/mat_og_vann/merking_av_mat/generelle_krav_til_merking_av_mat/matmerking_allergener__ikke_ferdigpakket_mat.16637/binary/Matmerking%20Allergener%20-%20ikke%20ferdigpakket%20mat
  */
-require_once('UKM/allergen.class.php');
 
 class Allergener {
 	private static $allergener = null;
 	private static $kulturelle = null;
 	private static $all = null;
 
+    /**
+     * Hent kulturelle "allergener"
+     * 
+     * Dette er jo ikke et allergen so-to-speak, men en liste over
+     * ingredienser som skal merkes. Kaller det allergen for å holde
+     * systemet enkelt.
+     *
+     * @return Array<Allergen>
+     */
 	public static function getKulturelle() {
 		if( static::$kulturelle == null ) {
 			static::_loadAll();
@@ -18,6 +28,11 @@ class Allergener {
 		return static::$kulturelle;
 	}
 
+    /**
+     * Hent standard-allergener
+     *
+     * @return Array<Allergen>
+     */
 	public static function getStandard() {
 		if( static::$allergener == null ) {
 			static::_loadAll();
@@ -25,6 +40,11 @@ class Allergener {
 		return static::$allergener;
 	}
 
+    /**
+     * Hent alle intoleranser/allergener
+     *
+     * @return Array<Allergen>
+     */
 	public static function getAll() {
 		if( static::$all == null ) {
 			static::_loadAll();
@@ -32,7 +52,13 @@ class Allergener {
 		return static::$all;
 	}
 
-	public static function getById( $id ) {
+    /**
+     * Hent gitt intoleranse/allergen fra ID
+     *
+     * @param String $id
+     * @return Allergen
+     */
+	public static function getById( String $id ) {
 		if( is_array( static::getAll() ) ) {
 			return static::getAll()[ $id ];
 		}
@@ -42,6 +68,11 @@ class Allergener {
 		);
 	}
 
+    /**
+     * Last inn alle allergener
+     *
+     * @return void
+     */
 	private static function _loadAll() {
 		foreach( static::_getDefinitions() as $intoleranse_data ) {
 			$intoleranse = new Allergen( $intoleranse_data );
@@ -55,6 +86,11 @@ class Allergener {
 		}
 	}
 
+    /**
+     * Hent definisjoner av alle kjente allergener
+     *
+     * @return Array<Array>
+     */
 	private static function _getDefinitions() {
 		return [
 			[

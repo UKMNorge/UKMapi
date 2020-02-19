@@ -2,9 +2,9 @@
 
 namespace UKMNorge\Sensitivt;
 
-require_once('UKM/Sensitivt/Requester.php');
-
-use SQL, SQLins, Exception;
+use Exception;
+use UKMNorge\Database\SQL\Insert;
+use UKMNorge\Database\SQL\Query;
 
 abstract class Sensitivt {
 
@@ -23,7 +23,7 @@ abstract class Sensitivt {
         $this->id = $id;
     }
 
-    public static function setRequester( $requester ) {
+    public static function setRequester( Requester $requester ) {
         if( !is_object( $requester ) || get_class( $requester ) !== 'UKMNorge\Sensitivt\Requester' ) {
             throw new Exception(
                 'Kan ikke lese ut sensitiv data uten gitt requester-objekt',
@@ -59,6 +59,14 @@ abstract class Sensitivt {
      * @return UKMNorge\Sensitivt\Requester $requester
      */
     public function getRequester() {
+        if( is_null(self::$requester)) {
+            throw new Exception(
+                'Kunne ikke hente sensitiv data, på grunn av programmeringsfeil. '.
+                'Systemet må kjøre setRequester() først, for å kunne hente ut sensitiv data. '.
+                '<a href="mailto:support@ukm.no">Kontakt UKM Norge</a>',
+                117006
+            );
+        }
         return self::$requester;
     }
 
@@ -70,7 +78,7 @@ abstract class Sensitivt {
      * @return Array $data
      */
     public function getFirstRow( $res ) {
-        return SQL::fetch( $res );
+        return Query::fetch( $res );
     }
 
     /**
@@ -86,7 +94,7 @@ abstract class Sensitivt {
         if( self::getRequester()->isReady() ) {
 
             $this->log();
-            $sql = new SQL( $sql, $data );
+            $sql = new Query( $sql, $data );
 
             $res = $sql->run();
             return $res;
@@ -111,7 +119,7 @@ abstract class Sensitivt {
             $this->log('write');
 
             // TODO: SJEKK OM RAD ER SATT INN FRA FØR AV, ELLER OM DEN SKAL INSERTES
-            $sql = new SQL("
+            $sql = new Query("
                 SELECT `#db_id`
                 FROM `#db_table`
                 WHERE `#db_id` = '#id'",
@@ -124,13 +132,13 @@ abstract class Sensitivt {
 
             $res = $sql->run();
             
-            if( SQL::numRows( $res ) == 0 ) {
-                $insupd = new SQLins( 
+            if( Query::numRows( $res ) == 0 ) {
+                $insupd = new Insert( 
                     static::DB_TABLE
                 );
                 $insupd->add( static::DB_ID, $this->getId() );
             } else {
-                $insupd = new SQLins( 
+                $insupd = new Insert( 
                     static::DB_TABLE, 
                     [
                         static::DB_ID => $this->getId()
@@ -170,7 +178,7 @@ abstract class Sensitivt {
      * @return bool true
      */
     public function log( $direction='read' ) {
-        $sql = new SQLins('log_sensitivt');
+        $sql = new Insert('log_sensitivt');
         
         $sql->add( 'direction', $direction);
 

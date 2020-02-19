@@ -3,6 +3,7 @@
 namespace UKMNorge\Innslag\Context;
 
 use Exception;
+use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Innslag\Personer\Person;
 
 require_once('UKM/Autoloader.php');
@@ -42,6 +43,47 @@ class Context
             $kommuner
         );
         return $context;
+    }
+
+    public static function createVideresending( Arrangement $fra, Arrangement $til ) {
+        $context = new Context('videresending');
+        $context->sesong = $fra->getSesong();
+        $context->fra = static::_createMonstringFromArrangement( $fra );
+        $context->til = static::_createMonstringFromArrangement( $til );
+        return $context;
+    }
+
+    /**
+     * Opprett mønstring-context fra arrangement
+     * 
+     * Brukes kun internt, da målsettingen er å kunne opprette
+     * disse kontekstene uten å opprette arrangement-objektet først
+     * (opprinnelig i alle fall)
+     *
+     * @param Arrangement $arrangement
+     * @return Monstring
+     */
+    private static function _createMonstringFromArrangement( Arrangement $arrangement ) {
+
+        if( $arrangement->getEierType() != 'land' ) {
+            $fylke = $arrangement->getFylke()->getId();
+        } else {
+            $fylke = null;
+        }
+
+        if( $arrangement->getEierType() == 'kommune' ) {
+            $kommuner = $arrangement->getKommuner()->getIdArray();
+        } else {
+            $kommuner = null;
+        }
+
+        return new Monstring(
+            $arrangement->getId(),
+            $arrangement->getType(),
+            $arrangement->getSesong(),
+            $fylke,
+            $kommuner
+        );
     }
 
     /**
@@ -184,7 +226,29 @@ class Context
      */
     public function getMonstring()
     {
+        if( $this->getType() == 'videresending') {
+            return $this->getFra();
+        }
+        
         return $this->monstring;
+    }
+
+    /**
+     * Videresending: hvilken videresending er avsender?
+     *
+     * @return Monstring
+     */
+    public function getFra() {
+        return $this->fra;
+    }
+
+    /**
+     * Videresending: hvilken videresending er mottaker?
+     *
+     * @return Monstring
+     */
+    public function getTil() {
+        return $this->til;
     }
 
     /**
@@ -259,6 +323,7 @@ class Context
             case 'deltauser':
             case 'kontaktperson':
             case 'sesong':
+            case 'videresending':
                 return $this->sesong;
             case 'forestilling':
             case 'monstring':
@@ -273,23 +338,6 @@ class Context
                     112001
                 );
         }
-    }
-
-    /**
-     * Hvis innslaget er hentet ut som en del av en innslag-collection,
-     * og funksjonen getVideresendte() er kjørt, settes dette på innslagets
-     * kontekst, slik at det kan brukes på hentPersoner
-     **/
-    public function getVideresendTil()
-    {
-        return $this->videresend_til;
-    }
-    public function setVideresendTil($monstring)
-    {
-        if (is_object($monstring) && in_array(get_class($monstring), ['UKMNorge\Arrangement\Arrangement', 'monstring_v2'])) {
-            $monstring = $monstring->getId();
-        }
-        $this->videresend_til = $monstring;
     }
 
     /**

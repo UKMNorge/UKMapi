@@ -104,8 +104,6 @@ class Typer implements \Iterator
     /**
      * Har vi noen innslag i kategorien "jobbe med"?
      * 
-     * @todo: refaktor og implementer harGruppe elns
-     *
      * @return Bool
      */
     public function harJobbeMed()

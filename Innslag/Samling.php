@@ -3,6 +3,7 @@
 namespace UKMNorge\Innslag;
 
 use Exception;
+use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Geografi\Fylke;
 use UKMNorge\Geografi\Kommune;
@@ -140,43 +141,6 @@ class Samling {
             $this->_load();
 		}
 		return $this->innslag;
-	}
-	
-	public function getVideresendte() {
-		if( $this->getContext()->getType() != 'monstring' ) {
-			throw new Exception(
-				'Kan kun hente videresendte fra mønstring-context',
-				10405
-			);
-		}
-
-		if( null == $this->videresendte ) {
-			$videresendTil = $this->getContext()->getMonstring()->getVideresendTil();
-			
-			// LOKAL TIL FYLKE
-			if( $this->getContext()->getMonstring()->getType() == 'kommune' ) {		
-				foreach( $this->getAll() as $innslag ) {
-					if( !$innslag->erVideresendtTil( $videresendTil[ $innslag->getFylke()->getId() ] ) ) {
-						continue;
-					}
-					$innslag->getContext()->setVideresendTil( $videresendTil[ $innslag->getFylke()->getId() ] );
-					$this->videresendte[] = $innslag;
-				}
-			} else {
-				foreach( $this->getAll() as $innslag ) {
-					if( !$innslag->erVideresendtTil( $videresendTil ) ) {
-						continue;
-					}
-					if( is_object( $videresendTil ) ) { 
-						$innslag->getContext()->setVideresendTil( $videresendTil );
-					} else {
-						$innslag->getContext()->setVideresendTil( $videresendTil[ $innslag->getFylke()->getId() ] );
-					}
-					$this->videresendte[] = $innslag;
-				}
-			}
-		}
-		return $this->videresendte;
 	}
 	
 	/**
@@ -455,7 +419,7 @@ class Samling {
 		
 		$SQL = $this->_getQuery( $pameldte );
 		$res = $SQL->run();
-		#echo $SQL->debug();
+		#echo $this->getContext()->getType() .': '. $SQL->debug();
 		if( !$res ) {
 			return false;
 		}
@@ -636,6 +600,25 @@ class Samling {
                 );
                 throw new Exception("Loading deltausers via b_password is deprecated! Dette skal ikke skje og er en systemfeil. Kontakt UKM Support for hjelp.");
                 return $qry;
+            case 'videresending':
+                return new Query(
+                    Innslag::getLoadQuery()."
+                    JOIN `ukm_rel_arrangement_innslag`
+                        ON(
+                            `smartukm_band`.`b_id` = `ukm_rel_arrangement_innslag`.`innslag_id`
+                            AND
+                            `ukm_rel_arrangement_innslag`.`fra_arrangement_id` = '#fra'
+                            AND 
+                            `ukm_rel_arrangement_innslag`.`arrangement_id` = '#til'
+                        )
+                    WHERE `b_season` = '#sesong'
+                    AND `b_status` = 8",
+                    [
+                        'fra' => $this->getContext()->getFra()->getId(),
+                        'til' => $this->getContext()->getTil()->getId(),
+                        'sesong' => $this->getContext()->getSesong()
+                    ]
+                );
             case 'sesong':
                 return new Query(
                     "SELECT `band`.*, 

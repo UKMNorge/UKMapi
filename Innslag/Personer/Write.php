@@ -74,7 +74,7 @@ class Write {
 		}
 		// Valider input-data
 		try {
-			Write::_validerCreate( $fornavn, $etternavn, $mobil, $kommune );
+			static::_validerCreate( $fornavn, $etternavn, $mobil, $kommune );
 		} catch( Exception $e ) {
 			throw new Exception(
 				'Kunne ikke opprette person. '. $e->getMessage(),
@@ -134,7 +134,7 @@ class Write {
 		}
 		// Valider inputdata
 		try {
-			Write::validerPerson( $person_save );
+			static::validerPerson( $person_save );
 		} catch( Exception $e ) {
 			throw new Exception(
 				'Kan ikke lagre person. '. $e->getMessage(),
@@ -224,7 +224,7 @@ class Write {
 	public static function saveRolle( Person $person_save ) {
 		// Valider input-data
 		try {
-			Write::validerPerson( $person_save );
+			static::validerPerson( $person_save );
 		} catch( Exception $e ) {
 			throw new Exception(
 				'Kan ikke oppdatere personens rolle. '. $e->getMessage(),
@@ -307,12 +307,12 @@ class Write {
 		$innslag_db = $monstring->getInnslag()->get( $person_save->getContext()->getInnslag()->getId(), true );
 		
 		// Alltid legg til personen lokalt
-		$res = Write::_leggTilInnslaget( $person_save );
+		$res = static::_leggTilInnslaget( $person_save );
 
 		// Sett rolle på personen. 
 		// Worst case: vi setter blank rolle hvis dette ikke er satt på objektet fra før
 		if( $res ) {
-			Write::saveRolle( $person_save );
+			static::saveRolle( $person_save );
 		}
 
         /**
@@ -331,7 +331,7 @@ class Write {
 
 		// Legg til relasjon til arrangement / gammel videresend
 		if( $res ) {
-			$res = Write::_leggTilArrangement( $person_save );
+			$res = static::_leggTilArrangement( $person_save );
 		}
 		
 		if( $res ) {
@@ -366,9 +366,9 @@ class Write {
         // Pre-2020-relasjon
         if( $innslag_db->getSesong() < 2020 ) {
             if( $monstring->getType() == 'kommune' || $person_save->getContext()->getInnslag()->getType()->getId() == 1 ) {
-                $res = Write::_slett( $person_save );
+                $res = static::_slett( $person_save );
             } else {
-                $res = Write::_fjernArrangement( $person_save );
+                $res = static::_fjernArrangement( $person_save );
             }
         }
         // 2020-relasjon
@@ -385,9 +385,9 @@ class Write {
             $antall_relasjoner = (int) $antall_relasjoner->getField();
 
             if( $antall_relasjoner == 1 ) {
-                $res = Write::_slett( $person_save );
+                $res = static::_slett( $person_save );
             } else {
-                $res = Write::_fjernArrangement( $person_save );
+                $res = static::_fjernArrangement( $person_save );
             }
         }
 		
@@ -436,7 +436,7 @@ class Write {
 		$sql = new Insert("smartukm_rel_b_p");
 		$sql->add('b_id', $person_save->getContext()->getInnslag()->getId() );
 		$sql->add('p_id', $person_save->getId());
-		$res = $sql->run();
+        $res = $sql->run();
         
         // Insert OK, lagre 2020-relasjon 
         if( $res ) {
@@ -448,6 +448,26 @@ class Write {
                 $res = $insert->run();
                 return true;
             } catch( Exception $e ) {
+                // Når insert feiler, er det som oftest en unique-constraint som slår til
+                if( $e->getCode() == 901001 ) {
+                    // Sjekk om relasjonen finnes, og kall det i tilfelle en suksess
+                    $test = new Query(
+                        "SELECT `id`
+                        FROM `ukm_rel_arrangement_person`
+                        WHERE `innslag_id` = '#innslag'
+                        AND `person_id` = '#person'
+                        AND `arrangement_id` = '#arrangement'",
+                        [
+                            'innslag' => $person_save->getContext()->getInnslag()->getId(),
+                            'person' => $person_save->getId(),
+                            'arrangement' => $person_save->getContext()->getMonstring()->getId()
+                        ]
+                    );
+                    $test = $test->getField();
+                    if( !is_null($res) ) {
+                        return true;
+                    }
+                }
                 throw new Exception(
                     'Kunne ikke lagre relasjon mellom arrangement og person. Kontakt support@ukm.no. Systemet sa:'. $e->getMessage(),
                     506013
@@ -737,7 +757,7 @@ class Write {
 	private static function _validerLeggtil( $person_save ) {
 		// Valider input-data
 		try {
-			Write::validerPerson( $person_save );
+			static::validerPerson( $person_save );
 		} catch( Exception $e ) {
 			throw new Exception(
 				'Kan ikke legge til/fjerne person. '. $e->getMessage(),

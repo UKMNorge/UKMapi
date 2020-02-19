@@ -1,8 +1,8 @@
 <?php
 
-namespace UKMNorge\Filmer;
+namespace UKMNorge\Filmer\UKMTV;
 
-use UKMNorge\Filmer\Server\Server;
+use UKMNorge\Filmer\UKMTV\Server\Server;
 
 class Html {
 
@@ -32,10 +32,12 @@ class Html {
      * @return String html
      */
     public static function getEmbed( Film $film ) {
-        return '<iframe src="'. $film->getEmbedUrl() .'" '
+        return '<div class="embed-responsive embed-responsive-16by9">'
+        .  '<iframe src="'. $film->getEmbedUrl() .'" '
         .  ' style="width: 100vw; height: Calc( (100vw/16)*9); max-height: 85vh;" '
-        .  ' class="ukmtv" border="0" frameborder="0" '
+        .  ' class="ukmtv embed-responsive-item" border="0" frameborder="0" '
         .  ' mozallowfullscreen="true" webkitallowfullscreen="true" allowfullscreen="true">'
-        .  '</iframe>';
+        .  '</iframe>'
+        .  '</div>';
     }
 }
