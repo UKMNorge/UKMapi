@@ -32,7 +32,7 @@ class Write {
         if( !$res ) {
             throw new Exception(
                 'Kunne ikke opprette spørreskjema. '.
-                'Systemet sa '. $res->getError(),
+                'Systemet sa '. $insert->getError(),
                 551001
             );
         }
