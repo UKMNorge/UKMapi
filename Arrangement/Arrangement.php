@@ -1134,9 +1134,32 @@ class Arrangement
         return $res;
     }
 
+    /**
+     * Er videresendingen til dette arrangementet åpen?
+     *
+     * @return Bool
+     */
     public function erVideresendingApen()
     {
-        return time() < $this->getFrist1()->getTimestamp() && time() > $this->getFrist2()->getTimestamp();
+        return $this->harVideresendingStartet() && !$this->erVideresendingOver();
+    }
+
+    /**
+     * Har vi passert vinduet for videresending?
+     * 
+     * @return Bool
+     */
+    public function erVideresendingOver() {
+        return time() > $this->getFrist1()->getTimestamp();
+    }
+
+    /**
+     * Har videresendingen startet
+     *
+     * @return Bool
+     */
+    public function harVideresendingStartet() {
+        return time() > $this->getFrist2()->getTimestamp();
     }
 
     /**
