@@ -44,7 +44,7 @@ class Skjema {
         if( !$db_row ) {
             throw new Exception(
                 'Arrangementet har ikke skjema',
-                1551001
+                151001
             );
         }
         return new Skjema(
