@@ -132,6 +132,62 @@ class Skjema {
     }
 
     /**
+     * Hvor mange overskrifter har skjemaet 
+     *
+     * @return Int
+     */
+    public function getAntallOverskrifter() {
+        return sizeof( $this->getOverskrifter() );
+    }
+
+    /**
+     * Hent alle overskrifter
+     *
+     * @return Array<Sporsmal>
+     */
+    public function getOverskrifter() {
+        $this->overskrifter = [];
+        foreach( $this->getAll() as $sporsmal ) {
+            if( $sporsmal->getType() == 'overskrift') {
+                $this->overskrifter[] = $sporsmal;
+            }
+        }
+        return $this->overskrifter;
+    }
+
+    /**
+     * Grupper spørsmål etter overskrift
+     *
+     * @return Array
+     */
+    public function getSporsmalGruppertPerOverskrift() {
+        if( is_null($this->grupper)){
+            $this->grupper = [];
+            $count = 0;
+            $current_index = 0;
+            foreach( $this->getAll() as $sporsmal ) {
+                if( $count == 0 && $sporsmal->getType() != 'overskrift' ) {
+                    $this->grupper[] = Gruppe::createEmpty();
+                    $current_index = sizeof($this->grupper)-1;
+                }
+                
+                switch( $sporsmal->getType() ) {
+                    case 'overskrift':
+                        $this->grupper[] = Gruppe::createFromSporsmal($sporsmal);
+                        $current_index = sizeof($this->grupper)-1;
+                    break;
+                    default:
+                        $this->grupper[ $current_index ]->add( $sporsmal );
+                }
+
+                $count++;
+            }
+
+        }
+        return $this->grupper;
+    }
+
+    /**
      * Hent alle spørsmål
      * 
      * @return Array<Sporsmal>
