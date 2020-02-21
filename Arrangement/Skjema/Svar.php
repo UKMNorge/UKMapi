@@ -10,6 +10,7 @@ class Svar {
     private $fra;
     private $value;
     private $value_raw;
+    private $value_updated = false;
 
     /**
      * Opprett objekt fra databasen
@@ -40,6 +41,22 @@ class Svar {
      */
     public static function createEmpty() {
         return new Svar(0,0,0,'');
+    }
+
+    /**
+     * Opprett placeholder for et nytt svar
+     *
+     * @param Int $sporsmal_id
+     * @param Int $arrangement_id
+     * @return Svar
+     */
+    public static function createForSvar( Int $sporsmal_id, Int $arrangement_id ) {
+        return new Svar(
+            0,
+            $sporsmal_id,
+            $arrangement_id,
+            ''
+        );
     }
 
     /**
@@ -94,12 +111,39 @@ class Svar {
      * 
      * @return Any $svar
      */ 
-    public function getValue()
+    public function getValue( $value_key = null)
     {
-        if( null == $this->value ) {
+        if( is_null($this->value) ) {
             $this->value = json_decode( $this->getValueRaw() );
         }
+        // Hvis vi leter etter en "underverdi" av verdien
+        if( !is_null($value_key)) {
+            if( isset( $this->value->$value_key ) ) {
+                return $this->value->$value_key;
+            }
+            return $this->value;
+        }
         return $this->value;
+    }
+
+    /**
+     * Sett ny verdi for svaret
+     *
+     * @param Array|String $value
+     * @return self
+     */
+    public function setValue($value) {
+        if( json_encode($value) != $this->getValueRaw() ) {
+            // Cast array to object fordi json henter array som objekt
+            // (og det er allerede i bruk flere steder)
+            if( is_array($value)) {
+                $value = (object) $value;
+            }
+            $this->value_raw = json_encode($value);
+            $this->value = $value;
+            $this->value_updated = true;
+        }
+       return $this;
     }
 
     /**
@@ -110,5 +154,27 @@ class Svar {
     public function getValueRaw()
     {
         return $this->value_raw;
+    }
+
+    /**
+     * Har verdien endret seg (og skal lagres?)
+     *
+     * @return Bool
+     */
+    public function isChanged() {
+        return $this->value_updated;
+    }
+
+    /**
+     * Sett ny ID for svaret
+     * 
+     * Brukes av Write::_saveSporsmal() etter suksessfull lagring
+     *
+     * @param Int $id
+     * @return self
+     */
+    public function setId( Int $id ) {
+        $this->id = $id;
+        return $this;
     }
 }

@@ -13,7 +13,7 @@ class Skjema {
 
     private $id;
     private $sporsmal;
-    private $svar;
+    private $svar_sett;
     private $arrangement;
     private $arrangement_id;
     private $eier;
@@ -39,12 +39,43 @@ class Skjema {
                 'arrangement' => $pl_id
             ]
         );
-        $db_row = $query->run('array');
+        $db_row = $query->getArray();
 
         if( !$db_row ) {
             throw new Exception(
                 'Arrangementet har ikke skjema',
-                151001
+                1551001
+            );
+        }
+        return new Skjema(
+            $db_row['id'],
+            $db_row['pl_id'],
+            $db_row['eier_type'],
+            $db_row['eier_id']
+        );
+    }
+
+    /**
+     * Hent gitt skjema
+     *
+     * @param Int $id
+     * @return Skjema
+     */
+    public static function getFromId( Int $id ) {
+        $query = new Query(
+            "SELECT *
+            FROM `ukm_videresending_skjema`
+            WHERE `id` = '#id'",
+            [
+                'id' => $id
+            ]
+        );
+        $db_row = $query->getArray();
+
+        if( !$db_row ) {
+            throw new Exception(
+                'Finner ikke skjema '. $id,
+                151002
             );
         }
         return new Skjema(
@@ -80,27 +111,48 @@ class Skjema {
     }
 
     /**
-     * Get the value of sporsmal
+     * Henter alle spørsmål, eller ett gitt spørsmål
+     * 
+     * @param Int Spørsmål-ID, default null
+     * @throws Exception
+     * @return Array<Sporsmal>|Sporsmal
      */ 
-    public function getSporsmal()
+    public function getSporsmal( Int $sporsmal_id = null)
     {
-        if( null == $this->sporsmal ) {
+        if( is_null($sporsmal_id ) ) {
+            return $this->getAll();
+        }
+        if( !isset($this->getAll()[$sporsmal_id])) {
+            throw new Exception(
+                'Beklager, skjema '. $this->getId() .' har ikke spørsmål '. $sporsmal_id,
+                151003
+            );
+        };
+        return $this->getAll()[$sporsmal_id];
+    }
+
+    /**
+     * Hent alle spørsmål
+     * 
+     * @return Array<Sporsmal>
+     */
+    public function getAll() {
+        if( is_null($this->sporsmal )) {
             $this->sporsmal = [];
 
             $select = new Query(
                 "SELECT * 
                 FROM `ukm_videresending_skjema_sporsmal`
-                WHERE `skjema` = '#skjema'",
+                WHERE `skjema` = '#skjema'
+                ORDER BY `rekkefolge` ASC",
                 [
                     'skjema' => $this->getId()
                 ]
             );
             $res = $select->run();
             while( $db_row = Query::fetch( $res ) ) {
-                $sporsmal = Sporsmal::createFromDatabase( $db_row );
-                $this->sporsmal[ $sporsmal->getRekkefolge().'_'.$sporsmal->getId() ] = $sporsmal;
+                $this->addSporsmal( Sporsmal::createFromDatabase( $db_row ));
             }
-            ksort( $this->sporsmal );
         }
         return $this->sporsmal;
     }
@@ -117,8 +169,8 @@ class Skjema {
      * @return Array $SvarSett 
      */
     public function getSvarSett() {
-        if( null == $this->svar ) {
-            $this->svar = [];
+        if( is_null($this->svar_sett) ) {
+            $this->svar_sett = [];
 
             $select = new Query(
                 "SELECT * 
@@ -132,28 +184,25 @@ class Skjema {
             $res = $select->run();
 
             while( $db_row = Query::fetch( $res ) ) {
-                $svar = SvarSett::createFromDatabase( $db_row );
-                $this->svar[ $svar->getFra() ] = $svar;
+                $this->svar_sett[ intval($db_row['pl_fra']) ] =
+                    new SvarSett( $this->getId(), intval($db_row['pl_fra']));
             }
         }
 
-        return $this->svar;
+        return $this->svar_sett;
     }
 
     /**
      * Hent svar fra ett gitt arrangement
      *
-     * @param Int $pl_id
+     * @param Int $arrangement_id
      * @return SvarSett $svar
      */
-    public function getSvarSettFor( Int $pl_id ) {
-        if( !isset( $this->getSvar()[ $pl_id ] ) ) {
-            throw new Exception(
-                'Arrangement '. $pl_id .' har ikke svart på dette skjemaet',
-                151002
-            );
+    public function getSvarSettFor( Int $arrangement_id ) {
+        if( !isset( $this->getSvarSett()[ $arrangement_id ] ) ) {
+            $this->svar_sett[ $arrangement_id ] = new SvarSett( $this->getId(), $arrangement_id);
         }
-        return $this->getSvar()[ $pl_id ];
+        return $this->getSvarSett()[ $arrangement_id ];
     }
 
     /**

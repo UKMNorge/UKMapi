@@ -8,6 +8,7 @@ use UKMNorge\Database\SQL\Query;
 use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Database\SQL\Delete;
 use Exception;
+use UKMNorge\Database\SQL\Update;
 
 require_once('UKM/Autoloader.php');
 
@@ -151,6 +152,84 @@ class Write {
                 551006
             );
         }
+    }
 
+
+    /**
+     * Lagre et helt svarsett
+     *
+     * @param SvarSett $svarSett
+     * @return SvarSett
+     */
+    public static function saveSvarSett( SvarSett $svarSett ) {
+        $errors = [];
+        foreach( $svarSett->getAll() as $svar ) {
+            try {
+                static::_saveSvar($svarSett, $svar);
+            } catch( Exception $e ) {
+                $errors[] = $e->getMessage();
+            }
+        }
+
+        if( sizeof($errors) > 0 ) {
+            throw new Exception(
+                'Kunne ikke lagre alle svar. Systemet sa: '.
+                join("\r\n", $errors),
+                551008
+            );
+        }
+        return $svarSett;
+    }
+
+    /**
+     * Skriv svar til databasde
+     *
+     * @param SvarSett $svarSett
+     * @param Svar $svar
+     * @throws Exception
+     * @return Bool
+     */
+    public static function _saveSvar(SvarSett $svarSett, Svar $svar) {
+        if( !$svar->isChanged() ) {
+            return true;
+        }
+
+        if( $svar->getId() == 0 ) {
+            $query = new Insert(
+                'ukm_videresending_skjema_svar'
+            );
+            $query->add('skjema', $svarSett->getSkjemaId());
+            $query->add('pl_fra', $svarSett->getFra());
+            $query->add('sporsmal', $svar->getSporsmalId());
+        } else {
+            $query = new Update(
+                'ukm_videresending_skjema_svar',
+                [
+                    'id' => $svar->getId()
+                ]
+            );
+        }
+        $query->add('svar', $svar->getValueRaw());
+
+        $res = $query->run();
+
+        if( $res ) {
+            if( get_class($query) == 'UKMNorge\Database\SQL\Insert') {
+                $svar->setId( $res );
+            }
+            return true;
+        }
+
+        if( $res === 0 && get_class($query) == 'UKMNorge\Database\SQL\Update') {
+            return true;//-ish
+        }
+        
+        throw new Exception(
+            'Kunne ikke lagre svar for "'. 
+            $svarSett->getSkjema()->getSporsmal( $svar->getSporsmalId() )
+                ->getTittel()
+            .'".',
+            551009
+        );
     }
 }
