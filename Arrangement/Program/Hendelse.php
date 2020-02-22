@@ -149,6 +149,7 @@ class Hendelse
         $this->context = $context;
         return $this;
     }
+    
     public function getContext()
     {
         return $this->context;
