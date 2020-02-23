@@ -394,6 +394,24 @@ class Write
     }
 
     /**
+     * Reverser rekkefølgen på innslag i gitt hendelse
+     *
+     * @param Hendelse $hendelse
+     * @return Bool success
+     */
+    public static function setRekkefolgeMotsatt( Hendelse $hendelse ) {
+        $alle_innslag = $hendelse->getInnslag()->getAll();
+        $reverserte_innslag = array_reverse($alle_innslag);
+        $reversert_id = array();
+
+        foreach( $reverserte_innslag as $innslag ) {
+            $reversert_id[] = $innslag->getId();
+        }
+
+        return static::redefineOrder($hendelse, $reversert_id);
+    }
+
+    /**
      * Tell opp og lagre innslagenes rekkefølge på nytt.
      *
      * @param Hendelse $hendelse
