@@ -32,12 +32,12 @@ class Server extends BandwidthMode
             $server = $sql->getField();
             if (!$server) {
                 error_log('NO ACTIVE CACHE');
-                static::$cache = static::getStorageUrl($skipProtocol);
+                static::$cache = static::getStorageUrl(true);
             } else {
                 static::$cache = $server;
             }
         }
-        return ($skipProtocol ? '' : 'https://') . static::$cache . '/';
+        return ($skipProtocol ? '' : 'https://') . rtrim(static::$cache,'/') . '/';
     }
 
     /**

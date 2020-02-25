@@ -7,9 +7,9 @@ class Tag {
      * Opprett tag-objekt
      *
      * @param String $id
-     * @param Int $value
+     * @param Int|Array $value
      */
-    public function __construct( String $id, Int $value ) {
+    public function __construct( String $id, $value ) {
         if( is_numeric( $value ) ) {
             $value = intval($value);
         }

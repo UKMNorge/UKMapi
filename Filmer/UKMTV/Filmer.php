@@ -119,7 +119,8 @@ class Filmer extends Collection
                 AND `ukm_tv_tags`.`foreign_id` = '#foreignid'
             )
             WHERE `tv_deleted` = 'false'
-            GROUP BY `ukm_tv_files`.`tv_id`",
+            GROUP BY `ukm_tv_files`.`tv_id`
+            ORDER BY `tv_title` ASC",
             [
                 'tagtype' => $tag,
                 'foreignid' => $id
@@ -163,38 +164,142 @@ class Filmer extends Collection
     }
 
     /**
-     * Finnes det filmer med disse to tag'ene?
+     * Finnes det filmer med disse tag'ene?
      *
-     * @param String $tag1
-     * @param Int $tagId1
-     * @param String $tag2
-     * @param Int $tagId2
-     * @return void
+     * @param Array<Tag>
+     * @return Bool
      */
-    public static function harTagsFilmer(String $tag1, Int $tagId1, String $tag2, Int $tagId2)
+    public static function harTagsFilmer(array $tags)
     {
         $query = new Query(
-            static::_getTagQuery() . " LIMIT 1",
-            [
-                'tagNameOne' => $tag1,
-                'tagValueOne' => $tagId1,
-                'tagNameTwo' => $tag2,
-                'tagValueTwo' => $tagId2
-            ]
+            static::_getTagQuery(sizeof($tags)) . " LIMIT 1",
+            static::_getTagQueryReplacement($tags)
         );
+        #echo $query->debug();
         return !!$query->getField(); # (dobbel nekting er riktig)        
     }
 
-    public static function getByTags(String $tag1, Int $tagId1, String $tag2, Int $tagId2)
+    /**
+     * Hent alle filmer som har alle disse tag'ene
+     *
+     * @param Array<Tag> tags
+     * @return Filmer
+     */
+    public static function getByTags(array $tags)
     {
         return new Filmer(
             new Query(
-                static::_getTagQuery(),
+                static::_getTagQuery(sizeof($tags)),
+                static::_getTagQueryReplacement($tags)
+            )
+        );
+    }
+
+    /**
+     * Hent alle filmer fra søkestreng
+     *
+     * @param String $search_string
+     * @return Filmer
+     */
+    public function getBySearchString(String $search_string)
+    {
+        // SEARCH FOR TITLE AND BAND NAME (TV TITLE)
+        $search_for = str_replace(',', ' ', $search_string);
+        if (substr_count($search_for, ' ') == 0) {
+            $where = " `tv_title` LIKE '%#title%'";
+        } else {
+            $where = "MATCH (`tv_title`) AGAINST('+#title' IN BOOLEAN MODE)";
+        }
+        $qry = new Query(
+            "SELECT `tv_id`,
+                    MATCH (`tv_title`) AGAINST('#title') AS `score`
+                    FROM `ukm_tv_files`
+                    WHERE $where
+                    AND `tv_deleted` = 'false'",
+            [
+                'title' => $search_string
+            ]
+        );
+        $res = $qry->run();
+        $i = 0;
+        if ($res) {
+            while ($r = Query::fetch($res)) {
+                $videos[$r['tv_id']] = $r['score'];
+                $titles[] = $r['tv_id'];
+            }
+        }
+
+        // SEARCH FOR PERSONS NAME
+        $qry = new Query(
+            "SELECT `p`.`tv_id`, `p_name`,
+                    MATCH (`p`.`p_name`) AGAINST('#title') AS `score`
+                    FROM `ukm_tv_persons` AS `p`
+                    LEFT JOIN `ukm_tv_files` AS `tv` ON (`tv`.`tv_id` = `p`.`tv_id`)
+                    WHERE MATCH (`p`.`p_name`) AGAINST('#title' IN BOOLEAN MODE)
+                    AND `tv`.`tv_deleted` = 'false'
+                    ",
+            [
+                'title' => '+' . $search_string
+            ]
+        );
+        $res = $qry->run();
+        $i = 0;
+        if ($res) {
+            while ($r = Query::fetch($res)) {
+                if (is_array($titles) && in_array($r['tv_id'], $titles)) {
+                    $videos[$r['tv_id']] = $videos[$r['tv_id']] + $r['score'];
+                } else
+                    $videos[$r['tv_id']] = $r['score'];
+            }
+        }
+
+        @arsort($videos);
+
+
+        $filmer = [];
+        if (is_array($videos)) {
+            foreach ($videos as $id => $score) {
+                $filmer[] = $id;
+            }
+        }
+
+        return Filmer::getByIdList($filmer);
+    }
+
+    /**
+     * Lag Query-parameter 2 fra et array med tags
+     *
+     * @param Array<Tag> $tags
+     * @return Array
+     */
+    private static function _getTagQueryReplacement(array $tags)
+    {
+        $replace = [];
+        $count = 0;
+        foreach ($tags as $tag) {
+            $count++;
+            $replace['tagName' . $count] = $tag->getId();
+            $replace['tagOperand' . $count] = is_array($tag->getValue()) ? 'IN' : '=';
+            $replace['tagValue' . $count] = is_array($tag->getValue()) ? '(' . join(',', $tag->getValue()) . ')' : $tag->getValue();
+        }
+        return $replace;
+    }
+
+    /**
+     * Hent flere filmer fra ID
+     *
+     * @param Array<Int>
+     * @return Filmer
+     */
+    public static function getByIdList(array $idList)
+    {
+        return new Filmer(
+            new Query(
+                Film::getLoadQuery() . "
+                WHERE `tv_id` IN (#list)
+                AND `tv_deleted` = 'false'",
                 [
-                    'tagNameOne' => $tag1,
-                    'tagValueOne' => $tagId1,
-                    'tagNameTwo' => $tag2,
-                    'tagValueTwo' => $tagId2
+                    'list' => join(',', $idList)
                 ]
             )
         );
@@ -202,17 +307,25 @@ class Filmer extends Collection
 
 
     /**
-     * Undocumented function
+     * Lag SQL-spørring for å hente ut alle filmer med de gitte tag'ene
      *
-     * @return void
+     * @return String sql-query
      */
-    private static function _getTagQuery()
+    private static function _getTagQuery(Int $number_of_tags)
     {
-        return "SELECT *
-            FROM `ukm_tv_files` 
-            JOIN `ukm_tv_tags` AS `tag1`
-                ON (`ukm_tv_files`.`tv_id` = `tag1`.`tv_id` AND `tag1`.`type`='#tagNameOne' AND `tag1`.`foreign_id` = #tagValueOne)
-            JOIN `ukm_tv_tags` AS `tag2`
-                ON (`ukm_tv_files`.`tv_id` = `tag2`.`tv_id` AND `tag2`.`type`='#tagNameTwo' AND `tag2`.`foreign_id` = #tagValueTwo)";
+        $query = "SELECT *
+            FROM `ukm_tv_files`";
+
+        for ($i = 1; $i <= $number_of_tags; $i++) {
+            $query .= "
+            JOIN `ukm_tv_tags` AS `tag" . $i . "`
+                ON (`ukm_tv_files`.`tv_id` = `tag" . $i . "`.`tv_id` AND `tag" . $i . "`.`type`='#tagName" . $i . "' AND `tag" . $i . "`.`foreign_id` #tagOperand" . $i . " #tagValue" . $i . ")";
+        }
+
+        $query .= "    
+            WHERE `ukm_tv_files`.`tv_deleted` = 'false'
+            ORDER BY `tv_title` ASC";
+
+        return $query;
     }
 }
