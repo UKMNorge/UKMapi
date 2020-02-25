@@ -248,7 +248,7 @@ class Kommune {
      * @return String CSV ID-liste
      */
     public function getTidligereIdList() {
-        return $this->tidligere_list;
+        return rtrim($this->tidligere_list,',');
     }
 
     /**

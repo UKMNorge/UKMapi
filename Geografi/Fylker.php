@@ -74,7 +74,7 @@ class Fylker {
      * Hent fylke fra tekst-id
      *
      * @param String $id
-     * @return void
+     * @return Fylke
      */
 	public static function getByLink( String $id ) {
 		if( null == self::$fylker ) {
@@ -141,8 +141,14 @@ class Fylker {
      */
     public static function getAbsoluteAll() {
         self::initialize();
+        
+        $sortert = [];
+        foreach( self::$fylker as $fylke ) {
+            $sortert[$fylke->getNavn()] = $fylke;
+        }
+        ksort($sortert);
 
-        return self::$fylker;
+        return $sortert;
     }
     
     /**
@@ -175,7 +181,18 @@ class Fylker {
             }
         }
         return $sortert;
-    }    
+    }
+
+    /**
+     * Hent aktive og deaktiverte fylker
+     * 
+     * Men ikke falske
+     *
+     * @return Array<Fylke>
+     */
+    public static function getAllInkludertDeaktiverte() {
+        return static::filterEkte( static::getAbsoluteAll() );
+    }
 
 	public static function getAllInkludertFalske() {
 		self::initialize();
@@ -205,5 +222,102 @@ class Fylker {
 
 	public static function setLogMethod($method) {
 		self::$logMethod = $method;
-	}
+    }
+    
+    /**
+     * Hent hvilket fylke gitt fylke er overtatt av
+     *
+     * @param Int $fylke_id
+     * @throws Exception
+     * @return Fylke
+     */
+    public static function getOvertattAv(Int $fylke_id) {
+        switch ($fylke_id) {
+            // Agder
+            case 9:
+            case 10:
+                return Fylker::getById(42);
+                // Viken
+            case 1:
+            case 2:
+            case 6:
+                return Fylker::getById(30);
+                // Troms og Finnmark
+            case 19:
+            case 20:
+                return Fylker::getById(54);
+                // Innlandet
+            case 4:
+            case 5:
+                return Fylker::getById(34);
+                // Vestland
+            case 12:
+            case 14:
+                return Fylker::getById(46);
+                // Trøndelag
+            case 16:
+            case 17:
+                return Fylker::getById(50);
+                // Vestfold og Telemark
+            case 7:
+            case 8:
+                return Fylker::getById(38);
+        }
+        throw new Exception(
+            'Dette fylket har ikke blit overtatt av et annet',
+            163004
+        );
+    }
+
+    /**
+     * Hvilket fylke har overtatt for gitt fylke?
+     *
+     * @param Int $fylke_id
+     * @throws Exception
+     * @return Array<Fylke>
+     */
+    public static function getOvertattFor( Int $fylke_id ) {
+        switch( $fylke_id ) {
+            case 30:
+                return [
+                    1 => Fylker::getById(1),
+                    2 => Fylker::getById(2),
+                    6 => Fylker::getById(6)
+                ];
+            case 34:
+                return [
+                    4 => Fylker::getById(4),
+                    5 => Fylker::getById(5)
+                ];
+            case 38:
+                return [
+                    7 => Fylker::getById(7),
+                    8 => Fylker::getById(8)
+                ];
+            case 42:
+                return [
+                    9 => Fylker::getById(9),
+                    10 => Fylker::getById(10)
+                ];
+            case 46:
+                return [
+                    12 => Fylker::getById(12),
+                    14 => Fylker::getById(14)
+                ];
+            case 50:
+                return [
+                    16 => Fylker::getById(16),
+                    17 => Fylker::getById(17)
+                ];
+            case 54:
+                return [
+                    19 => Fylker::getById(19),
+                    20 => Fylker::getById(20)
+                ];
+            }
+        throw new Exception(
+            'Dette fylket har ikke overtatt for andre fylker.',
+            163003
+        );
+    }
 }
