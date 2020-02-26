@@ -544,6 +544,15 @@ class Film implements FilmInterface
     }
 
     /**
+     * Hent bilde-URL
+     *
+     * @return String url
+     */
+    public function getImageUrl() {
+        return Server::getStorageUrl() . $this->getImagePath();
+    }
+
+    /**
      * Hent filmens sesong
      *
      * @return void
