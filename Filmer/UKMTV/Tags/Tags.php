@@ -57,7 +57,8 @@ class Tags extends Collection {
         $alle = $this->getAll();
         foreach( static::ALLOW_MANY as $many_id => $many_class ) {
             $alle = array_merge(
-                $this->getManyCollectionFor($many_id)->getAll()
+                $this->getManyCollectionFor($many_id)->getAll(),
+                $alle
             );
         }
         return $alle;
