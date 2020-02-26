@@ -59,7 +59,7 @@ class Write
             );
             $insert->add('tv_id', $film->getTvId());
             $insert->add('type', $tag->getId());
-            $insert->add('foreign_key', $tag->getValue());
+            $insert->add('foreign_id', $tag->getValue());
             $insert->run();
         }
         
