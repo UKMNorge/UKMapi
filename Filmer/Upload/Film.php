@@ -303,7 +303,7 @@ class Film implements FilmInterface
         if ($this->_img_exists($img)) {
             return $img;
         }
-        return str_replace($video, '.mp4', '.jpg');
+        return str_replace('.mp4', '.jpg', $video);
     }
 
     /**
