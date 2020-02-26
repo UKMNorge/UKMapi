@@ -186,9 +186,9 @@ class Film implements FilmInterface
             $this->file_exists_smil = false;
         }
 
-        if($this->har720p()) {
-            return str_replace('.mp4', '_720p.mp4', $this->file);
-        }
+        #if($this->har720p()) {
+        #    return str_replace('.mp4', '_720p.mp4', $this->file);
+        #}
 
         return $this->file;
     }
