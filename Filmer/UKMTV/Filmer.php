@@ -201,7 +201,7 @@ class Filmer extends Collection
      * @param String $search_string
      * @return Filmer
      */
-    public function getBySearchString(String $search_string)
+    public static function getBySearchString(String $search_string)
     {
         // SEARCH FOR TITLE AND BAND NAME (TV TITLE)
         $search_for = str_replace(',', ' ', $search_string);
