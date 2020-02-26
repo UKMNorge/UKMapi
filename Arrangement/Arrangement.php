@@ -810,7 +810,7 @@ class Arrangement
      * @return String url
      */
     public function getUKMTVLink() {
-        return '//tv.'. UKM_HOSTNAME .'/arrangement/'. $this->getId().'/';
+        return '//tv.'. UKM_HOSTNAME .'/tag/arrangement-'. $this->getId().'/';
     }
 
     /**
