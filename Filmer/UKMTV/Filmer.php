@@ -8,6 +8,9 @@ use UKMNorge\Database\SQL\Query;
 
 class Filmer extends Collection
 {
+
+    var $is_empty = false;
+
     public $query;
     /**
      * Henter inn filmer basert på gitt spørring (via constructor)
@@ -17,6 +20,10 @@ class Filmer extends Collection
      */
     public function _load()
     {
+        if( $this->is_empty) {
+            return true;
+        }
+        
         $res = $this->query->run();
         if (!$res) {
             throw new Exception(
@@ -210,6 +217,7 @@ class Filmer extends Collection
         } else {
             $where = "MATCH (`tv_title`) AGAINST('+#title' IN BOOLEAN MODE)";
         }
+        $titles = [];
         $qry = new Query(
             "SELECT `tv_id`,
                     MATCH (`tv_title`) AGAINST('#title') AS `score`
@@ -261,6 +269,12 @@ class Filmer extends Collection
             foreach ($videos as $id => $score) {
                 $filmer[] = $id;
             }
+        }
+
+        if( sizeof($filmer) == 0 ) {
+            $object = new Filmer(new Query(""));
+            $object->is_empty = true;
+            return $object;
         }
 
         return Filmer::getByIdList($filmer);
