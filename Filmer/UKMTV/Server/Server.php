@@ -37,7 +37,7 @@ class Server extends BandwidthMode
                 static::$cache = $server;
             }
         }
-        return ($skipProtocol ? '' : 'https://') . rtrim(static::$cache,'/') . '/';
+        return ($skipProtocol ? '' : 'http://') . rtrim(static::$cache,'/') . '/';
     }
 
     /**
