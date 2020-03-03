@@ -227,7 +227,7 @@ class Context
     public function getMonstring()
     {
         if( $this->getType() == 'videresending') {
-            return $this->getFra();
+            return $this->getTil();
         }
         
         return $this->monstring;
