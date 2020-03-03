@@ -94,7 +94,7 @@ class Arrangement
     var $netter = null;
 
     var $videresending = null;
-    var $avsender = [];
+    var $videresending_til = [];
     var $log = null;
     var $deleted = false;
     var $subtype = null;
@@ -1554,16 +1554,16 @@ class Arrangement
     }
 
     /**
-     * Hent arrangement videresendt til gitt innslag
+     * Hent innslag videresendt til gitt arrangement
      *
      * @param Int $arrangement_id
      * @return Samling
      */
     public function getVideresendte( Int $arrangement_id) {
-        if( !isset($this->avsender[$arrangement_id])) {
-            $this->avsender[$arrangement_id] = new Avsender( $this->getId(), $arrangement_id );
+        if( !isset($this->videresending_til[$arrangement_id])) {
+            $this->videresending_til[$arrangement_id] = new Avsender( $this->getId(), $arrangement_id );
         }
-        return $this->avsender[$arrangement_id]->getVideresendte();
+        return $this->videresending_til[$arrangement_id]->getVideresendte();
     }
 
     /**
