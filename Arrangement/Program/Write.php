@@ -4,6 +4,8 @@ namespace UKMNorge\Arrangement\Program;
 
 use Exception;
 use UKMNorge\Arrangement\Arrangement;
+use UKMNorge\Innslag\Context\Context;
+use UKMNorge\Innslag\Context\Forestilling;
 use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Database\SQL\Query;
@@ -75,6 +77,72 @@ class Write
         }
 
         return new Hendelse($id);
+    }
+
+    /**
+     *
+     * Dupliserer et arrangement med alle innstillinger og innslag.
+     * @param Hendelse $opprinnelig_hendelse
+     * @return Hendelse $ny_hendelse
+     */
+    public static function dupliser( Hendelse $hendelse ) {
+        // Valider at logger er på plass
+        if (!Logger::ready()) {
+            throw new Exception(
+                'Logger is missing or incorrect set up.',
+                517004
+            );
+        }
+        Logger::log(230, $hendelse->getId(), $hendelse->getNavn());
+
+        // Finn mønstring fra hendelsen
+        $monstring = $hendelse->getMonstring();
+
+        if (!is_object($monstring) || !Arrangement::validateClass($monstring)) {
+            throw new Exception(
+                'Fant ikke gyldig mønstrings-objekt i hendelsen',
+                517005
+            );
+        }
+
+        // Opprett den nye hendelsen
+        $ny_hendelse = static::create($monstring, "Kopi av ".$hendelse->getNavn(), $hendelse->getStart());
+
+        if( get_class($ny_hendelse) != 'UKMNorge\Arrangement\Program\Hendelse' ) {
+            throw new Exception(
+                'Klarte ikke å opprette en kopi av hendelsen. '.get_class($ny_hendelse),
+                517009
+            );
+        }
+
+        // Last inn hendelse på nytt for å få rett context.
+        $ny_hendelse = $monstring->getProgram()->get($ny_hendelse->getId());
+        
+        // Sett verdier fra original hendelse til ny hendelse
+        $ny_hendelse->setSted($hendelse->getSted());
+        $ny_hendelse->setSynligDetaljprogram($hendelse->getSynligDetaljprogram());
+        $ny_hendelse->setType($hendelse->getType());
+        $ny_hendelse->setSynligRammeProgram($hendelse->getSynligRammeProgram());
+        $ny_hendelse->setIntern($hendelse->getIntern());
+        $ny_hendelse->setBeskrivelse($hendelse->getBeskrivelse());
+        $ny_hendelse->setTypePostId($hendelse->getTypePostId()); # ? 
+        $ny_hendelse->setTypeCategoryId($hendelse->getTypeCategoryId());
+        $ny_hendelse->setFarge($hendelse->getFarge());
+        $ny_hendelse->setFremhevet($hendelse->getFremhevet());
+        $ny_hendelse->setOppmoteFor($hendelse->getOppmoteFor());
+        $ny_hendelse->setOppmoteDelay($hendelse->getOppmoteDelay());
+        $ny_hendelse->setSynligOppmotetid($hendelse->getSynligOppmotetid());
+
+        static::save($ny_hendelse);
+
+        // Legg til alle innslag fra original hendelse.
+        $alle_innslag = $hendelse->getInnslag()->getAll();
+
+        foreach($alle_innslag as $innslag) {
+            $ny_hendelse = static::leggTil($ny_hendelse, $innslag);
+        }
+
+        return $ny_hendelse;
     }
 
     public static function slett( Hendelse $hendelse ) {
@@ -323,6 +391,24 @@ class Write
                 $res = $qry->run();
             }
         }
+    }
+
+    /**
+     * Reverser rekkefølgen på innslag i gitt hendelse
+     *
+     * @param Hendelse $hendelse
+     * @return Bool success
+     */
+    public static function setRekkefolgeMotsatt( Hendelse $hendelse ) {
+        $alle_innslag = $hendelse->getInnslag()->getAll();
+        $reverserte_innslag = array_reverse($alle_innslag);
+        $reversert_id = array();
+
+        foreach( $reverserte_innslag as $innslag ) {
+            $reversert_id[] = $innslag->getId();
+        }
+
+        return static::redefineOrder($hendelse, $reversert_id);
     }
 
     /**
