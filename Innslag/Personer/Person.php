@@ -396,6 +396,8 @@ class Person
      * 
      * (i.e. instrument for scene, film/flerkamera/tekst/foto for UKM Media osv)
      *
+     * OBS OBS: setRolle MÅ kalles med key/value-array der key er funksjons-key og value er nicename. 
+     *
      * @param String|Array $rolle
      * @return self
      */
@@ -764,9 +766,9 @@ class Person
             // da dette gir bedre verdi for getRolle() / getInstrument()
             if( is_array( $roller ) ) {
                 try {
-                    if( is_int($row['bt_id']) ) {
+                    if( is_numeric($row['bt_id']) ) {
                         $innslag_type = Typer::getById( $row['bt_id'] );
-                        $roller = $innslag_type->getValgteFunksjonerSomKeyVal( $roller );    
+                        $roller = $innslag_type->getValgteFunksjonerSomKeyVal( $roller );
                     }
                 } catch( Exception $e ) {
                     // Ignorer feil - da turer vi bare på med opprinnelig verdi
