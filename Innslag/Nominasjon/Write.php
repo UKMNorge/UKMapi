@@ -325,8 +325,7 @@ class Write
 
         if (!$nominasjon->eksisterer()) {
             throw new Exception(
-                '
-            Lagring av nominasjon-detaljer krever numerisk id',
+                'Lagring av nominasjon-detaljer krever numerisk id',
                 522002
             );
         }

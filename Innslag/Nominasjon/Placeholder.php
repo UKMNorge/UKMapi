@@ -11,6 +11,10 @@ namespace UKMNorge\Innslag\Nominasjon;
 class Placeholder {
 	private $har_nominasjon = false;
 
+    public function getId() {
+        return 0;
+    }
+
 	/**
      * Har innslaget nominasjon?
      *

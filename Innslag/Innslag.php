@@ -8,8 +8,6 @@ use DateTime;
 use bilder;
 use tv_files;
 use artikler;
-use playback_collection;
-use nominasjon_media, nominasjon_konferansier, nominasjon_arrangor, nominasjon_placeholder;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Arrangement\Program\Hendelser;
 use UKMNorge\Database\SQL\Query;
@@ -24,6 +22,7 @@ use UKMNorge\Innslag\Media\Filmer;
 use UKMNorge\Innslag\Nominasjon\Arrangor;
 use UKMNorge\Innslag\Nominasjon\Konferansier;
 use UKMNorge\Innslag\Nominasjon\Media;
+use UKMNorge\Innslag\Nominasjon\Nominasjoner;
 use UKMNorge\Innslag\Nominasjon\Placeholder;
 use UKMNorge\Innslag\Personer\Person;
 use UKMNorge\Innslag\Personer\Personer;
@@ -68,7 +67,7 @@ class Innslag
     var $delta_eier = null;
 
     var $er_videresendt = null;
-    var $nominasjon = null;
+    var $nominasjoner = null;
 
     var $kontaktperson_id = null;
     var $kontaktperson = null;
@@ -279,28 +278,23 @@ class Innslag
         return $this->samtykker;
     }
 
-    public function getNominasjon(Int $til_arrangement_id)
+    /**
+     * Hent alle nominasjoner dette innslaget måtte ha
+     *
+     * @return Nominasjoner
+     */
+    public function getNominasjoner()
     {
-        if (null == $this->nominasjon) {
-            switch ($this->getType()->getKey()) {
-                case 'nettredaksjon':
-                case 'media':
-                    $this->nominasjon = Media::getByInnslag($this, $this->getContext()->getMonstring()->getId(), $til_arrangement_id);
-                    break;
-                case 'konferansier':
-                    $this->nominasjon = Konferansier::getByInnslag($this, $this->getContext()->getMonstring()->getId(), $til_arrangement_id);
-                    break;
-                case 'arrangor':
-                    $this->nominasjon = Arrangor::getByInnslag($this, $this->getContext()->getMonstring()->getId(), $til_arrangement_id);
-                    break;
-                default:
-                    $this->nominasjon = Placeholder::getByInnslag($this, $this->getContext()->getMonstring()->getId(), $til_arrangement_id);
-                    break;
+        if (is_null($this->nominasjoner)) {
+            $this->nominasjoner = new Nominasjoner($this->getId(), $this->getType());
+            // Hvis vi har kontekst, sett denne
+            if (!is_null($this->getContext()->getMonstring())) {
+                $this->nominasjoner->setFra( $this->getContext()->getMonstring()->getId());
             }
         }
-
-        return $this->nominasjon;
+        return $this->nominasjoner;
     }
+
     /**
      * Sett ID
      *
