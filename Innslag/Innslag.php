@@ -126,9 +126,9 @@ class Innslag
         $homePlace = new Arrangement($contextQry->run('field'));
 
         $context = Context::createMonstring(
-            $homePlace->getId(), 
-            $homePlace->getType(), 
-            $homePlace->getSesong(), 
+            $homePlace->getId(),
+            $homePlace->getType(),
+            $homePlace->getSesong(),
             $homePlace->getFylke()->getId(),
             $homePlace->getKommuner()->getIdArray()
         );
@@ -140,12 +140,12 @@ class Innslag
     }
 
 
-    public static function getLoadQuery($selectFields='')
+    public static function getLoadQuery($selectFields = '')
     {
         return "SELECT `smartukm_band`.*, 
                     `td`.`td_demand`,
-                    `td`.`td_konferansier` ".(strlen($selectFields)>0?',':'').
-                $selectFields ."
+                    `td`.`td_konferansier` " . (strlen($selectFields) > 0 ? ',' : '') .
+            $selectFields . "
                 FROM `smartukm_band`
                 LEFT JOIN `smartukm_technical` AS `td` ON (`td`.`b_id` = `smartukm_band`.`b_id`)";
     }
@@ -230,7 +230,7 @@ class Innslag
      **/
     public function getBilder()
     {
-        if( null == $this->bilder_collection ) {
+        if (null == $this->bilder_collection) {
             $this->bilder_collection = new BilderSamling($this->getId());
         }
 
@@ -244,7 +244,7 @@ class Innslag
      **/
     public function getFilmer()
     {
-        if( null == $this->filmer ) {
+        if (null == $this->filmer) {
             $this->filmer = Filmer::getByInnslag($this->getId());
         }
         return $this->filmer;
@@ -277,7 +277,6 @@ class Innslag
 
     public function getNominasjon($monstring)
     {
-        require_once('UKM/nominasjon.class.php');
         if (null == $this->nominasjon) {
 
             if (!is_object($monstring)) {
@@ -316,7 +315,7 @@ class Innslag
      **/
     public function setId($id)
     {
-        $this->id = (Int) $id;
+        $this->id = (int) $id;
         return $this;
     }
     /**
@@ -356,9 +355,9 @@ class Innslag
      *
      * @return Bool
      */
-    public function erPameldt( Int $arrangement_id = null)
+    public function erPameldt(Int $arrangement_id = null)
     {
-        if( !is_null($arrangement_id) ) {
+        if (!is_null($arrangement_id)) {
             return $this->getStatus() == 8 && $this->erVideresendtTil($arrangement_id);
         }
         return $this->getStatus() == 8;
@@ -790,7 +789,7 @@ class Innslag
                     $this->getId(),                        // Innslag ID
                     $this->getType()->getKey(),            // Innslag type (objekt)
                     $this->getContext()->getMonstring()    // Mønstring-context
-                )    
+                )
             );
         }
         return $this->program;
@@ -805,8 +804,8 @@ class Innslag
     {
         if (null == $this->titler) {
             $this->titler = new Titler(
-                $this->getContext()->setInnslag( 
-                    $this->getId(), 
+                $this->getContext()->setInnslag(
+                    $this->getId(),
                     $this->getType()->getKey()
                 )
             );
@@ -822,7 +821,7 @@ class Innslag
     public function erVideresendt()
     {
         // Gammel beregning
-        if( $this->getSesong() < 2020 ) {
+        if ($this->getSesong() < 2020) {
             $qry = new Query(
                 "SELECT COUNT(*) FROM `smartukm_rel_pl_b` WHERE `b_id` = '#b_id'",
                 array('b_id' => $this->getId())
@@ -848,7 +847,8 @@ class Innslag
 
         // 2020-beregning
         if (null == $this->er_videresendt) {
-            $query = new Query("SELECT COUNT(`id`)
+            $query = new Query(
+                "SELECT COUNT(`id`)
                 FROM `ukm_rel_arrangement_innslag`
                 WHERE `innslag_id` = '#innslag'",
                 [
@@ -864,7 +864,7 @@ class Innslag
 
     public function erVideresendtTil($monstring)
     {
-        if ( Arrangement::validateClass($monstring) ) {
+        if (Arrangement::validateClass($monstring)) {
             $monstring_id = $monstring->getId();
         } elseif (is_numeric($monstring)) {
             $monstring_id = $monstring;
@@ -886,7 +886,7 @@ class Innslag
             return $this->videresendt_til[$monstring_id];
         }
 
-        if( $this->getSesong() < 2020 ) {
+        if ($this->getSesong() < 2020) {
             $qry = new Query(
                 "
                 SELECT `rel`.`pl_id` 
@@ -902,7 +902,8 @@ class Innslag
                 ]
             );
         } else {
-            $qry = new Query("SELECT `arrangement_id`
+            $qry = new Query(
+                "SELECT `arrangement_id`
                 FROM `ukm_rel_arrangement_innslag`
                 WHERE `innslag_id` = '#innslag'
                 AND `arrangement_id` = '#arrangement'",
@@ -957,7 +958,8 @@ class Innslag
      *
      * @return void
      */
-    public function getTid() {
+    public function getTid()
+    {
         return $this->getTitler()->getVarighet();
     }
     /**
@@ -1105,10 +1107,10 @@ class Innslag
 
     /**
      * Get the value of log
-     */ 
+     */
     public function getLog()
     {
-        if( null == $this->log ) {
+        if (null == $this->log) {
             $this->log = new LogSamling('innslag', $this->getId());
         }
         return $this->log;
