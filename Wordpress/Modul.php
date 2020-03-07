@@ -245,7 +245,7 @@ abstract class Modul {
     /**
      * Hent alle ajax response-data
      *
-     * @return array
+     * @return Array
     **/
     public static function getResponseData() {
         return static::$ajax_response;
@@ -257,8 +257,8 @@ abstract class Modul {
      * Tar i mot array med flere keys (ett parameter)
      * eller key, value (to parameter)
      *
-     * @param [string|array] key eller [key => val]
-     * @param [null|array] data hvis oppgitt key som string
+     * @param String|Array key eller [key => val]
+     * @param Null|Array data hvis oppgitt key som string
      * @return void
     **/
     public static function addResponseData( $key_or_array, $data=null ) {
@@ -272,10 +272,10 @@ abstract class Modul {
 	/**
 	 * Require a file from the plugin directory
 	 *
-	 * @param string $file_path_in_plugin_dir
+	 * @param String $file_path_in_plugin_dir
 	 * @return void
 	 */
-    public function require( $file ) {
+    public static function require( $file ) {
         if( strpos( $file, 'UKM/' ) === 0 ) {
             require_once( $file );
         } else {
@@ -286,10 +286,10 @@ abstract class Modul {
 	/**
 	 * Include a file from the plugin directory if it exists
 	 *
-	 * @param string $file_path_in_plugin_dir
+	 * @param String $file_path_in_plugin_dir
 	 * @return void
 	 */
-    public function include( $file ) {
+    public static function include( $file ) {
         if( strpos( $file, 'UKM/' ) !== 0 ) {
             $file = static::getPluginPath() . $file;
         }
@@ -307,6 +307,11 @@ abstract class Modul {
         static::include('controller/'. static::getAction() .'.controller.php');
     }
 
+    /**
+     * Set up logger for current user
+     *
+     * @return void
+     */
 	public static function setupLogger() {
 		## SETUP LOGGER
 		global $current_user;

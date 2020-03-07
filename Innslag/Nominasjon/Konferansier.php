@@ -17,10 +17,20 @@ class Konferansier extends Nominasjon {
 		$this->setFilPlassering( $row['fil-plassering'] );
 		$this->setFilUrl( $row['fil-url'] );
 
-		if( !empty( $row['hvorfor'] ) && !empty( $row['beskrivelse'] ) ) {
+        $this->calcHarSkjemaStatus();
+    }
+    
+    /**
+     * Beregn om deltaker- eller voksen-skjema er utfylt
+     *
+     * @return self
+     */
+    public function calcHarSkjemaStatus() {
+        if( !empty( $this->getHvorfor() ) && !empty( $this->getBeskrivelse() ) ) {
 			$this->setHarVoksenskjema( true );
-		}
-	}
+        }
+        return $this;
+    }
 	
 	public function getHvorfor() {
 		return $this->hvorfor;

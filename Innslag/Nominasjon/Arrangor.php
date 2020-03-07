@@ -67,15 +67,23 @@ class Arrangor extends Nominasjon {
 		
 		$this->sorry = $row['sorry'];
 		
-		if( !empty( $row['samarbeid'] ) ) {
+		$this->calcHarSkjemaStatus();
+    }
+    
+    /**
+     * Beregn om deltaker- eller voksen-skjema er utfylt
+     *
+     * @return self
+     */
+    public function calcHarSkjemaStatus() {
+        if( !empty( $this->getSamarbeid() ) ) {
 			$this->setHarDeltakerskjema( true );
 		}
-		if( !empty( $row['voksen-samarbeid'] ) && !empty( $row['voksen-erfaring'] ) ) {
+		if( !empty( $this->getVoksenSamarbeid() ) && !empty( $this->getVoksenErfaring() )) {
 			$this->setHarVoksenskjema( true );
-		}
-
-
-	}
+        }
+        return $this;
+    }
 	
 	public function getSorry() {
 		return $this->sorry;

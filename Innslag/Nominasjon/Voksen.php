@@ -2,6 +2,8 @@
 
 namespace UKMNorge\Innslag\Nominasjon;
 
+use UKMNorge\Database\SQL\Query;
+use Exception;
 
 class Voksen extends PlaceholderVoksen
 {
@@ -14,25 +16,31 @@ class Voksen extends PlaceholderVoksen
     public function __construct(Int $nominasjon_id)
     {
         if (!is_numeric($nominasjon_id)) {
-            throw new Exception('NOMINASJON_VOKSEN: Trenger numerisk nominasjons-ID for å opprette voksen', 1);
+            throw new Exception(
+                'Trenger numerisk nominasjons-ID for å opprette voksen',
+                122001
+            );
         }
 
-        $sql = new SQL(
+        $sql = new Query(
             "SELECT * 
 			FROM `ukm_nominasjon_voksen`
 			WHERE `nominasjon` = '#nominasjon'",
             ['nominasjon' => $nominasjon_id]
         );
-        $res = $sql->run('array');
+        $res = $sql->getArray();
 
-        if (!is_array($res)) {
-            throw new Exception('NOMINASJON_VOKSEN: Kunne ikke finne voksen for nominasjon ' . $nominasjon_id, 2);
+        if (is_null($res)) {
+            throw new Exception(
+                'Kunne ikke finne voksen for nominasjon ' . $nominasjon_id,
+                122002
+            );
         }
 
-        $this->setId($res['id']);
+        $this->setId(intval($res['id']));
         $this->setNominasjon($res['nominasjon']);
         $this->setNavn($res['navn']);
-        $this->setMobil($res['mobil']);
+        $this->setMobil(intval($res['mobil']));
         $this->setRolle($res['rolle']);
     }
 }

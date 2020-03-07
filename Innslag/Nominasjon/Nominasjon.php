@@ -13,7 +13,6 @@ class Nominasjon extends Placeholder {
 	private $innslag_id;
 	private $type;
 	
-	private $niva;
 	private $fra_id;
 	private $til_id;
 	private $sesong;
@@ -25,13 +24,16 @@ class Nominasjon extends Placeholder {
 	private $voksen;
 	
 	public function __construct( Query $query ) {
-		$this->_loadByRow( $query->getArray() );
+        $data = $query->getArray();
+        if( is_array($data)) {
+            $this->_loadByRow( $data );
+        }
 	}
     
     /**
      * Hent databasespørringen som brukes
      *
-     * @return String sql
+     * @return String 
      */
 	public static function getLoadQuery() {
 		return "SELECT *
@@ -48,11 +50,11 @@ class Nominasjon extends Placeholder {
 	public static function getDetailTable( $innslag_type ) {
 		switch( $innslag_type ) {
 			case 'nettredaksjon':
-				return 'Media';
+				return 'ukm_nominasjon_media';
 			case 'media':
 			case 'arrangor';
 			case 'konferansier';
-				return ucfirst($innslag_type);
+                return 'ukm_nominasjon_'.$innslag_type;
 			default:
 				throw new Exception('NOMINASJON: Kan ikke laste inn nominasjon pga ukjent type '. $innslag_type, 2 );
 		}
@@ -120,23 +122,28 @@ class Nominasjon extends Placeholder {
 			throw new Exception('NOMINASJON: Kan ikke laste inn nominasjon fra annet enn array', 3);
 		}
 		
-		$this->setId( $row['id'] );
-		$this->setInnslagId( $row['b_id'] );
-		$this->setNiva( $row['niva'] );
-		$this->setFylkeId( $row['fylke_id'] );
-		$this->setKommuneId( $row['kommune_id'] );
-		$this->setSesong( $row['season'] );
-		$this->setType( $row['type'] );
-		$this->setErNominert( $row['nominert'] == 'true' );
-		$this->exists = true;
-
+		$this->id = intval($row['id']);
+		$this->innslag_id = intval($row['b_id']);
+		$this->sesong = intval($row['season']);
+		$this->type = $row['type'];
+		$this->er_nominert = $row['nominert'] == 'true';
 		$this->setHarNominasjon( true );
-		try {
+        
+        try {
 			$this->setVoksen( new Voksen( intval($row['id']) ) );
 		} catch( Exception $e ) {
 			$this->setVoksen( new PlaceholderVoksen( null ));
 		}
-	}
+    }
+    
+    /**
+     * Har vi en databaserad for denne nominasjonen?
+     *
+     * @return Bool
+     */
+    public function eksisterer() {
+        return is_numeric($this->getId()) && $this->getId() > 0;
+    }
     
     /**
      * Hent nominasjons-id

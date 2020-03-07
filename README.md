@@ -30,6 +30,7 @@ prefix | objekt | les | skriv
 19 | Intoleranse | 119yyy | -
 20 | Hendelse/forestilling | 120yyy | 520yyy
 21 | HendelseCollection | 121yyy | 521yyy
+22 | Nominasjon | 122yyy | 522yyy
 30 | Innslag/Type | 301yyy | - 
 31 | Media/Artikkel | 311yyy | -
 32 | Media/Bilde | 321yyy | -

@@ -6,6 +6,7 @@ use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Innslag\Innslag;
 use UKMNorge\Log\Logger;
 use Exception;
+use ReflectionClass;
 use UKMNorge\Database\SQL\Update;
 
 class Write
@@ -20,12 +21,10 @@ class Write
      */
     public static function create(Innslag $innslag, Int $fra_arrangement_id, Int $til_arrangement_id)
     {
-        if (!Logger::ready()) {
-            throw new Exception('Logger is missing or incorrect set up.');
-        }
+        static::requireLogger();
 
         $innslag_type = $innslag->getType()->getKey() == 'nettredaksjon' ? 'media' : $innslag->getType()->getKey();
-        $classname = ucfirst($innslag_type);
+        $classname = 'UKMNorge\Innslag\Nominasjon\\' . ucfirst($innslag_type);
         $obj = $classname::getByInnslag($innslag, $fra_arrangement_id, $til_arrangement_id);
 
         if (!$obj->harNominasjon()) {
@@ -41,7 +40,10 @@ class Write
             self::log($sql->debug());
 
             if (!$insert_id) {
-                throw new Exception('WRITE_NOMINASJON: Kunne ikke opprette nominasjon!');
+                throw new Exception(
+                    'Kunne ikke opprette nominasjon!',
+                    522003
+                );
             }
 
             $sql2 = new Insert('ukm_nominasjon_' . $innslag_type);
@@ -50,13 +52,19 @@ class Write
             self::log($sql2->debug());
 
             if (!$res2) {
-                throw new Exception('WRITE_NOMINASJON: Kunne ikke opprette nominasjon (opprettelse detaljrad feilet)');
+                throw new Exception(
+                    'Kunne ikke opprette nominasjon (opprettelse detaljrad feilet)',
+                    522004
+                );
             }
 
             $obj = $classname::getByInnslag($innslag, $fra_arrangement_id, $til_arrangement_id);
 
             if (!$obj) {
-                throw new Exception('WRITE_NOMINASJON: Noe feilet ved opprettelsen av nominasjonen');
+                throw new Exception(
+                    'Noe feilet ved opprettelsen av nominasjonen',
+                    522005
+                );
             }
         }
 
@@ -70,15 +78,9 @@ class Write
      * @param Bool $state
      * @return Bool
      */
-    public static function saveNominertState(Nominasjon $nominasjon, Bool $state)
+    public static function saveState(Nominasjon $nominasjon, Bool $state)
     {
-        if (!Logger::ready()) {
-            throw new Exception('Logger is missing or incorrect set up.');
-        }
-
-        if (!is_numeric($nominasjon->getId())) {
-            throw new Exception('WRITE_NOMINASJON: Lagring av nominasjon-detaljer krever numerisk id');
-        }
+        static::requireNominasjon($nominasjon);
 
         $sql = new Update(
             'ukm_nominasjon',
@@ -102,10 +104,7 @@ class Write
      */
     public static function createVoksen(Int $nominasjon_id)
     {
-        if (!Logger::ready()) {
-            throw new Exception('Logger is missing or incorrect set up.');
-        }
-
+        static::requireLogger();
 
         try {
             $obj = new Voksen($nominasjon_id);
@@ -117,7 +116,10 @@ class Write
             self::log($sql->debug());
 
             if (!$res) {
-                throw new Exception('WRITE_NOMINASJON_VOKSEN: Kunne ikke opprette voksen!');
+                throw new Exception(
+                    'Kunne ikke opprette voksen!',
+                    522005
+                );
             }
 
             $obj = new Voksen($nominasjon_id);
@@ -133,15 +135,6 @@ class Write
      */
     public static function saveVoksen(Voksen $voksen)
     {
-        if (!Logger::ready()) {
-            throw new Exception('Logger is missing or incorrect set up.');
-        }
-
-        if (!is_numeric($voksen->getId())) {
-            throw new Exception('WRITE_NOMINASJON: Lagring av voksen-detaljer krever numerisk id');
-        }
-
-
         $sql = new Update(
             'ukm_nominasjon_voksen',
             [
@@ -167,13 +160,7 @@ class Write
      */
     public static function saveMedia(Media $nominasjon)
     {
-        if (!Logger::ready()) {
-            throw new Exception('Logger is missing or incorrect set up.');
-        }
-
-        if (!is_numeric($nominasjon->getId())) {
-            throw new Exception('WRITE_NOMINASJON: Lagring av media-detaljer krever numerisk id');
-        }
+        static::requireNominasjon($nominasjon);
 
         $sql = new Update(
             'ukm_nominasjon_media',
@@ -201,13 +188,7 @@ class Write
      */
     public static function saveKonferansier(Konferansier $nominasjon)
     {
-        if (!Logger::ready()) {
-            throw new Exception('Logger is missing or incorrect set up.');
-        }
-
-        if (!is_numeric($nominasjon->getId())) {
-            throw new Exception('WRITE_NOMINASJON: Lagring av konferansier-detaljer krever numerisk id');
-        }
+        static::requireNominasjon($nominasjon);
 
         $sql = new Update(
             'ukm_nominasjon_konferansier',
@@ -232,13 +213,7 @@ class Write
      */
     public static function saveArrangor(Arrangor $nominasjon)
     {
-        if (!UKMlogger::ready()) {
-            throw new Exception('Logger is missing or incorrect set up.');
-        }
-
-        if (!is_numeric($nominasjon->getId())) {
-            throw new Exception('WRITE_NOMINASJON: Lagring av arrangør-detaljer krever numerisk id');
-        }
+        static::requireNominasjon($nominasjon);
 
         $sql = new Update(
             'ukm_nominasjon_arrangor',
@@ -286,15 +261,9 @@ class Write
      * @param String $flagg
      * @return Bool
      */
-    public static function saveSorry( Nominasjon $nominasjon, String $flagg)
+    public static function saveSorry(Nominasjon $nominasjon, String $flagg)
     {
-        if (!Logger::ready()) {
-            throw new Exception('Logger is missing or incorrect set up.');
-        }
-
-        if (!is_numeric($nominasjon->getId())) {
-            throw new Exception('WRITE_NOMINASJON: Lagring av flagg krever nominasjonsobjekt med numerisk id');
-        }
+        static::requireNominasjon($nominasjon);
 
         $sql = new Update(
             'ukm_nominasjon_arrangor',
@@ -307,6 +276,23 @@ class Write
 
         self::log($sql->debug());
         return true;
+    }
+
+    /**
+     * Lagre en hvilken som helst nominasjon
+     *
+     * @param Nominasjon $nominasjon
+     * @return void
+     */
+    public static function save(Nominasjon $nominasjon) {
+        static::requireLogger();
+        
+        $nominasjon->calcHarSkjemaStatus();
+
+
+        $classname = (new ReflectionClass($nominasjon))->getShortName();
+        $save = 'save'.ucfirst($classname);
+        return static::$save($nominasjon);
     }
 
 
@@ -324,5 +310,41 @@ class Write
         error_log($string);
         ini_set("error_log", $_ENV['HOME'] . "/logs/error_log_write_nominasjon.log");
         error_log($string);
+    }
+
+    /**
+     * Sjekk at vi har et gyldig nominasjon-objekt med databaserad å
+     *
+     * @param Nominasjon $nominasjon
+     * @throws Exception
+     * @return void
+     */
+    public static function requireNominasjon(Nominasjon $nominasjon)
+    {
+        static::requireLogger();
+
+        if (!$nominasjon->eksisterer()) {
+            throw new Exception(
+                '
+            Lagring av nominasjon-detaljer krever numerisk id',
+                522002
+            );
+        }
+    }
+
+    /**
+     * Sjekk at loggeren er riktig satt opp
+     *
+     * @return void
+     * @throws Exception
+     */
+    public static function requireLogger()
+    {
+        if (!Logger::ready()) {
+            throw new Exception(
+                'Logger is missing or incorrect set up.',
+                522001
+            );
+        }
     }
 }

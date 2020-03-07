@@ -297,15 +297,24 @@ class Word extends OfficeDok
      * @param Array paragraph style
      * @return \PhpOffice\PhpWord\Element\AbstractElement $target
      */
-    public function tekst(String $tekst, $target = null, array $paragraph_style = null)
+    public function tekst(String $tekst, $target = null, array $paragraph_style = null, array $font_style = null)
     {
-        return $this->getTarget($target)->addText(
-            htmlspecialchars($tekst),
+        if (is_null($font_style)) {
+            $font_style = [];
+        }
+
+        $font_style = array_merge(
+            $font_style,
             [
                 'spaceAfter' => static::pcToTwips(
                     static::getParagraphHeight()
                 )
-            ],
+            ]
+        );
+
+        return $this->getTarget($target)->addText(
+            htmlspecialchars($tekst),
+            $font_style,
             $paragraph_style
         );
     }
@@ -318,13 +327,22 @@ class Word extends OfficeDok
      * @param Array paragraph style
      * @return \PhpOffice\PhpWord\Element\AbstractElement $target
      */
-    public function tekstFare(String $tekst, $target = null, array $paragraph_style = null)
+    public function tekstFare(String $tekst, $target = null, array $paragraph_style = null, array $font_style = null)
     {
-        return $this->getTarget($target)->addText(
-            htmlspecialchars($tekst),
+        if (is_null($font_style)) {
+            $font_style = [];
+        }
+
+        $font_style = array_merge(
+            $font_style,
             [
                 'color' => 'dc3545'
-            ],
+            ]
+        );
+
+        return $this->getTarget($target)->addText(
+            htmlspecialchars($tekst),
+            $font_style,
             $paragraph_style
         );
     }
@@ -336,13 +354,22 @@ class Word extends OfficeDok
      * @param Array $paragraph_style
      * @return \PhpOffice\PhpWord\Element\AbstractElement $target
      */
-    public function tekstLiten(String $tekst, $target = null, array $paragraph_style = null)
+    public function tekstLiten(String $tekst, $target = null, array $paragraph_style = null, array $font_style = null)
     {
-        return $this->getTarget($target)->addText(
-            htmlspecialchars($tekst),
+        if (is_null($font_style)) {
+            $font_style = [];
+        }
+
+        $font_style = array_merge(
+            $font_style,
             [
                 'size' => static::DEFAULT_FONT_SIZE - static::DEFAULT_FONT_SIZE_INCREMENT
             ],
+        );
+
+        return $this->getTarget($target)->addText(
+            htmlspecialchars($tekst),
+            $font_style,
             $paragraph_style
         );
     }
@@ -355,14 +382,22 @@ class Word extends OfficeDok
      * @param Array $paragraph_style
      * @return \PhpOffice\PhpWord\Element\AbstractElement $target
      */
-    public function tekstMuted(String $tekst, $target = null, array $paragraph_style = null)
+    public function tekstMuted(String $tekst, $target = null, array $paragraph_style = null, array $font_style = null)
     {
-        return $this->getTarget($target)->addText(
-            htmlspecialchars($tekst),
+        if (is_null($font_style)) {
+            $font_style = [];
+        }
+
+        $font_style = array_merge(
+            $font_style,
             [
                 'color' => '999999',
                 'bold' => true
-            ],
+            ]
+        );
+        return $this->getTarget($target)->addText(
+            htmlspecialchars($tekst),
+            $font_style,
             $paragraph_style
         );
     }
@@ -375,13 +410,21 @@ class Word extends OfficeDok
      * @param Array $paragraph_style
      * @return \PhpOffice\PhpWord\Element\AbstractElement $target
      */
-    public function tekstFet(String $tekst, $target = null, array $paragraph_style = null)
+    public function tekstFet(String $tekst, $target = null, array $paragraph_style = null, array $font_style = null)
     {
-        return $this->getTarget($target)->addText(
-            htmlspecialchars($tekst),
+        if (is_null($font_style)) {
+            $font_style = [];
+        }
+
+        $font_style = array_merge(
+            $font_style,
             [
                 'bold' => true
-            ],
+            ]
+        );
+        return $this->getTarget($target)->addText(
+            htmlspecialchars($tekst),
+            $font_style,
             $paragraph_style
         );
     }
