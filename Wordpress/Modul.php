@@ -275,7 +275,7 @@ abstract class Modul {
 	 * @param String $file_path_in_plugin_dir
 	 * @return void
 	 */
-    public function require( $file ) {
+    public static function require( $file ) {
         if( strpos( $file, 'UKM/' ) === 0 ) {
             require_once( $file );
         } else {
@@ -289,7 +289,7 @@ abstract class Modul {
 	 * @param String $file_path_in_plugin_dir
 	 * @return void
 	 */
-    public function include( $file ) {
+    public static function include( $file ) {
         if( strpos( $file, 'UKM/' ) !== 0 ) {
             $file = static::getPluginPath() . $file;
         }
