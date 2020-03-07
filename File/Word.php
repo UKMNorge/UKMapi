@@ -122,6 +122,8 @@ class Word extends OfficeDok
         $this->sections[] = $this->phpWord->addSection(['orientation' => $orientation]);
 
         $this->current_section = sizeof($this->sections) - 1;
+        $this->setMargins(); // Sett standardmargin på ny section
+        
         return $this->current_section;
     }
 
