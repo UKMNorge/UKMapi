@@ -364,7 +364,7 @@ class Word extends OfficeDok
             $font_style,
             [
                 'size' => static::DEFAULT_FONT_SIZE - static::DEFAULT_FONT_SIZE_INCREMENT
-            ],
+            ]
         );
 
         return $this->getTarget($target)->addText(
