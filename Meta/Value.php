@@ -26,6 +26,13 @@ class Value {
         $this->id = $existing_id;
     }
 
+    /**
+     * Last inn metadata fra database
+     *
+     * @param ParentObject $parent
+     * @param String $key
+     * @return Value
+     */
     public static function loadFromKey( ParentObject $parent, String $key ) {
         $sql = new Query(
             "SELECT `value`, `id`
@@ -39,15 +46,27 @@ class Value {
                 'key' => $key
             ]
         );
-        $result = $sql->run('array');
-        if( null == $result ) {
-            $result = [
+    
+        return static::loadFromData( $parent, $key, $sql->getArray() );
+    }
+
+    /**
+     * Last inn metadata fra rådata
+     *
+     * @param ParentObject $parent
+     * @param String $key
+     * @param Array $data
+     * @return Value
+     */
+    public static function loadFromData( ParentObject $parent, String $key, Array $data = null) {
+        if( null == $data ) {
+            $data = [
                 'value' => json_encode(null),
                 'id' => 0
             ];
         }
 
-        return new Value( $parent, $key, $result['value'], $result['id'] );
+        return new Value( $parent, $key, $data['value'], $data['id'] );
     }
 
 

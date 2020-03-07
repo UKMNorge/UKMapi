@@ -27,6 +27,7 @@ use UKMNorge\Geografi\Fylke;
 use UKMNorge\Geografi\Fylker;
 use UKMNorge\Geografi\Kommuner;
 use UKMNorge\Innslag\Samling;
+use UKMNorge\Innslag\Typer\Type;
 use UKMNorge\Innslag\Typer\Typer;
 use UKMNorge\Log\Samling as LogSamling;
 use UKMNorge\Nettverk\Proxy\Kontaktperson as AdminKontaktProxy;
@@ -1567,6 +1568,56 @@ class Arrangement
     }
 
     /**
+     * Er det noen sjangre som har nominasjon på dette arrangementet?
+     *
+     * @return Bool
+     */
+    public function harNominasjon() {
+        return $this->getMetaValue('har_nominasjon');
+    }
+
+    /**
+     * Angi hvorvidt vi ønsker at noe skal nomineres
+     *
+     * @param Bool $state
+     * @return self
+     */
+    public function setHarNominasjon( Bool $state ) {
+        $this->getMeta('har_nominasjon')->set($state);
+        return $this;
+    }
+
+    /**
+     * Skal gitt type innslag ha nominasjon før videresending?
+     *
+     * @param Type $type
+     * @return Bool
+     */
+    public function harNominasjonFor( Type $type ) {
+        // Typen innslag kan ikke ha nominasjon. Stay negative.
+        if( !$type->kanHaNominasjon() ) {
+            return false;
+        }
+        // Hvis nominasjon er slått av
+        if( !$this->harNominasjon() ) {
+            return false;
+        }
+        return $this->getMetaValue('nominere_'. $type->getKey());
+    }
+
+    /**
+     * Angi hvorvidt en type innslag skal nomineres før videresending til dette arrangementet
+     *
+     * @param Type $type
+     * @param Bool $state
+     * @return self
+     */
+    public function setHarNominasjonFor( Type $type, Bool $state ) {
+        $this->getMeta('nominere_'. $type->getKey())->set($state);
+        return $this;
+    }
+
+    /**
      * Hent metadata
      * 
      * @param String $key
@@ -1574,13 +1625,24 @@ class Arrangement
      */
     public function getMeta($key)
     {
-        if (null == $this->meta) {
+        return $this->getMetaCollection()->get($key);
+    }
+
+    /**
+     * Hent metadata-samlingen
+     * 
+     * Nyttig for lagring, for eksempel.
+     *
+     * @return MetaCollection
+     */
+    public function getMetaCollection() {
+        if ( is_null($this->meta) ) {
             $this->meta = MetaCollection::createByParentInfo(
                 'arrangement',
                 $this->getId()
             );
         }
-        return $this->meta->get($key);
+        return $this->meta;
     }
 
     /**
@@ -1651,7 +1713,12 @@ class Arrangement
         return $this;
     }
 
-
+    /**
+     * Er gitt objekt gyldig arrangement-objekt?
+     *
+     * @param mixed $object
+     * @return Bool
+     */
     public static function validateClass($object)
     {
         return is_object($object) &&

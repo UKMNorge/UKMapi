@@ -20,6 +20,7 @@ use UKMNorge\Innslag\Typer\Type;
 use UKMNorge\Innslag\Write as WriteInnslag;
 use UKMNorge\Innslag\Titler\Write as WriteTitler;
 use UKMNorge\Innslag\Personer\Write as WritePerson;
+use UKMNorge\Meta\Write as WriteMeta;
 use UKMNorge\Wordpress\Blog;
 
 require_once('UKM/Autoloader.php');
@@ -348,6 +349,11 @@ class Write
                     throw $e;
                 }
             }
+        }
+
+        // Lagre meta-data
+        foreach( $monstring_save->getMetaCollection()->getAll() as $meta ) {
+            WriteMeta::set($meta);
         }
 
         return $res;
