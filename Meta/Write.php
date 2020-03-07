@@ -47,7 +47,7 @@ class Write {
         $persist->allowHtmlFor('value');
 
         $result = $persist->run();
-        echo $persist->debug();
+        #echo $persist->debug();
 
         // Lagring ok
         if( $result ) {
