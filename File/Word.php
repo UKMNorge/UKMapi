@@ -294,9 +294,10 @@ class Word extends OfficeDok
      *
      * @param String $tekst
      * @param \PhpOffice\PhpWord\Element\AbstractElement|null $target
+     * @param Array paragraph style
      * @return \PhpOffice\PhpWord\Element\AbstractElement $target
      */
-    public function tekst(String $tekst, $target = null)
+    public function tekst(String $tekst, $target = null, array $paragraph_style = null)
     {
         return $this->getTarget($target)->addText(
             htmlspecialchars($tekst),
@@ -304,7 +305,8 @@ class Word extends OfficeDok
                 'spaceAfter' => static::pcToTwips(
                     static::getParagraphHeight()
                 )
-            ]
+            ],
+            $paragraph_style
         );
     }
 
@@ -313,25 +315,35 @@ class Word extends OfficeDok
      *
      * @param String $tekst
      * @param \PhpOffice\PhpWord\Element\AbstractElement|null $target
+     * @param Array paragraph style
      * @return \PhpOffice\PhpWord\Element\AbstractElement $target
      */
-    public function tekstFare(String $tekst, $target = null)
+    public function tekstFare(String $tekst, $target = null, array $paragraph_style = null)
     {
         return $this->getTarget($target)->addText(
             htmlspecialchars($tekst),
             [
                 'color' => 'dc3545'
-            ]
+            ],
+            $paragraph_style
         );
     }
-
-    public function tekstLiten(String $tekst, $target = null)
+    /**
+     * Sett inn en liten tekst
+     *
+     * @param String $tekst
+     * @param \PhpOffice\PhpWord\Element\AbstractElement|null $target
+     * @param Array $paragraph_style
+     * @return \PhpOffice\PhpWord\Element\AbstractElement $target
+     */
+    public function tekstLiten(String $tekst, $target = null, array $paragraph_style = null)
     {
         return $this->getTarget($target)->addText(
             htmlspecialchars($tekst),
             [
                 'size' => static::DEFAULT_FONT_SIZE - static::DEFAULT_FONT_SIZE_INCREMENT
-            ]
+            ],
+            $paragraph_style
         );
     }
 
@@ -340,16 +352,18 @@ class Word extends OfficeDok
      *
      * @param String $tekst
      * @param \PhpOffice\PhpWord\Element\AbstractElement|null $target
+     * @param Array $paragraph_style
      * @return \PhpOffice\PhpWord\Element\AbstractElement $target
      */
-    public function tekstMuted(String $tekst, $target = null)
+    public function tekstMuted(String $tekst, $target = null, array $paragraph_style = null)
     {
         return $this->getTarget($target)->addText(
             htmlspecialchars($tekst),
             [
                 'color' => '999999',
                 'bold' => true
-            ]
+            ],
+            $paragraph_style
         );
     }
 
@@ -358,15 +372,17 @@ class Word extends OfficeDok
      *
      * @param String $tekst
      * @param \PhpOffice\PhpWord\Element\AbstractElement|null $target
+     * @param Array $paragraph_style
      * @return \PhpOffice\PhpWord\Element\AbstractElement $target
      */
-    public function tekstFet(String $tekst, $target = null)
+    public function tekstFet(String $tekst, $target = null, array $paragraph_style = null)
     {
         return $this->getTarget($target)->addText(
             htmlspecialchars($tekst),
             [
                 'bold' => true
-            ]
+            ],
+            $paragraph_style
         );
     }
 
