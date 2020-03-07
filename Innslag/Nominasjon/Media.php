@@ -21,15 +21,26 @@ class Media extends Nominasjon {
 		$this->setBeskrivelse( $row['beskrivelse'] );
 		$this->setSamarbeid( $row['samarbeid'] );
 		$this->setErfaring( $row['erfaring'] );
-		
-		if( !empty( $row['beskrivelse'] ) ) {
+        
+        $this->calcHarSkjemaStatus();
+    }
+        
+    /**
+     * Beregn om deltaker- eller voksen-skjema er utfylt
+     *
+     * @return self
+     */
+    public function calcHarSkjemaStatus() {
+
+        if( !empty( $this->getBeskrivelse() ) ) {
 			$this->setHarDeltakerskjema( true );
 		}
-		if( !empty( $row['samarbeid'] ) && !empty( $row['erfaring'] ) ) {
+		if( !empty( $this->getSamarbeid() ) && !empty( $this->getErfaring() ) ) {
 			$this->setHarVoksenskjema( true );
-		}
-
-	}
+        }
+        
+        return $this;
+    }
 	
 	public function getPri1(){
 		return $this->pri1;

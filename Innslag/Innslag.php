@@ -21,6 +21,10 @@ use UKMNorge\Innslag\Mangler\Mangler;
 use UKMNorge\Innslag\Media\Artikler\Samling as ArtiklerSamling;
 use UKMNorge\Innslag\Media\Bilder\Samling as BilderSamling;
 use UKMNorge\Innslag\Media\Filmer;
+use UKMNorge\Innslag\Nominasjon\Arrangor;
+use UKMNorge\Innslag\Nominasjon\Konferansier;
+use UKMNorge\Innslag\Nominasjon\Media;
+use UKMNorge\Innslag\Nominasjon\Placeholder;
 use UKMNorge\Innslag\Personer\Person;
 use UKMNorge\Innslag\Personer\Personer;
 use UKMNorge\Innslag\Playback\Samling as PlaybackSamling;
@@ -275,33 +279,24 @@ class Innslag
         return $this->samtykker;
     }
 
-    public function getNominasjon($monstring)
+    public function getNominasjon(Int $til_arrangement_id)
     {
         if (null == $this->nominasjon) {
-
-            if (!is_object($monstring)) {
-                throw new Exception(
-                    'INNSLAG: Mønstring må være gitt som objekt for å hente nominasjon',
-                    105004
-                );
-            }
-
             switch ($this->getType()->getKey()) {
                 case 'nettredaksjon':
                 case 'media':
-                    $classname = 'nominasjon_media';
+                    $this->nominasjon = Media::getByInnslag($this, $this->getContext()->getMonstring()->getId(), $til_arrangement_id);
                     break;
                 case 'konferansier':
-                    $classname = 'nominasjon_konferansier';
+                    $this->nominasjon = Konferansier::getByInnslag($this, $this->getContext()->getMonstring()->getId(), $til_arrangement_id);
                     break;
                 case 'arrangor':
-                    $classname = 'nominasjon_arrangor';
+                    $this->nominasjon = Arrangor::getByInnslag($this, $this->getContext()->getMonstring()->getId(), $til_arrangement_id);
                     break;
                 default:
-                    $classname = 'nominasjon_placeholder';
-                    $key = false;
+                    $this->nominasjon = Placeholder::getByInnslag($this, $this->getContext()->getMonstring()->getId(), $til_arrangement_id);
+                    break;
             }
-            $this->nominasjon = new $classname($this->getId(), $this->getType()->getKey(), $monstring->getType());
         }
 
         return $this->nominasjon;
