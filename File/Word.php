@@ -13,7 +13,7 @@ require_once('UKM/vendor/autoload.php');
 class Word extends OfficeDok
 {
 
-    const DEFAULT_FONT_SIZE = 12;
+    const DEFAULT_FONT_SIZE = 14;
     const DEFAULT_FONT_SIZE_INCREMENT = 4;
     const HEADER_TYPE_COUNT = 4; // Number of headers available (h1 throug h-HEADER_TYPE_COUNT)
 
