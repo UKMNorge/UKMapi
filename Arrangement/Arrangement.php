@@ -699,9 +699,6 @@ class Arrangement
      **/
     public function getSkjema()
     {
-        if ($this->getType() == 'land') {
-            throw new Exception('Videresendingsskjema ikke støttet for UKM-festivalen');
-        }
         if ($this->skjema == null) {
             try {
                 $this->skjema = Skjema::loadFromArrangement($this->getId());
@@ -1681,6 +1678,26 @@ class Arrangement
     public function getInformasjonstekst()
     {
         return $this->getMetaValue('infotekst_videresending');
+    }
+
+    /**
+     * Hent informasjonstekst som skal vises ved nominasjon (for voksne, ikke deltakere)
+     *
+     * @return String
+     */
+    public function getNominasjonInformasjon() {
+        return $this->getMetaValue('infotekst_nominasjon');
+    }
+
+    /**
+     * Sett informasjonstekst som skal vises ved nominasjon (for voksne, ikke deltakere)
+     *
+     * @param String $tekst
+     * @return self
+     */
+    public function setNominasjonInformasjon( String $tekst ) {
+        $this->getMeta('infotekst_nominasjon')->set($tekst);
+        return $this;
     }
 
     /**
