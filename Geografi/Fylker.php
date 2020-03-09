@@ -271,8 +271,8 @@ class Fylker {
                 return Fylker::getById(38);
         }
         throw new Exception(
-            'Dette fylket har ikke blit overtatt av et annet',
-            163004
+            'Dette fylket har ikke blitt overtatt av et annet',
+            103004
         );
     }
 
@@ -324,7 +324,7 @@ class Fylker {
             }
         throw new Exception(
             'Dette fylket har ikke overtatt for andre fylker.',
-            163003
+            103005
         );
     }
 }
