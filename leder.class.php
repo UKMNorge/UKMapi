@@ -15,38 +15,6 @@ class leder {
 		$this->$key = $val;
 	}
 	
-	public function update() {
-		$sql = new SQLins('smartukm_videresending_ledere_ny', array('l_id' => $this->ID));
-		$this->_add_sql_values( $sql );
-		$res = $sql->run();
-		return $res !== false;
-	}
-	
-	public function create( $pl_from, $pl_to, $season ) {
-		$this->pl_from = $pl_from;
-		$this->pl_to = $pl_to;
-		$this->season = $season;
-		
-		$sql = new SQLins('smartukm_videresending_ledere_ny');
-		$this->_add_sql_values( $sql );
-		$this->ID = $sql->run();
-	}
-	
-	public function load_by_type( $pl_from, $pl_to, $type ) {
-		$this->l_type = $type;
-		$sql = new SQL("SELECT `l_id`
-						FROM `smartukm_videresending_ledere_ny`
-						WHERE `pl_id_from` = '#from'
-						AND `pl_id_to` = '#to'
-						AND `l_type` = '#type' ",
-					array(	'from' => $pl_from,
-							'to' => $pl_to,
-							'type' => $type
-						)
-					);
-		$this->ID = $sql->run('field', 'l_id');
-		return $this->_load();
-	}
 	
 	public function delete( $pl_from ) {
 		$sql = new SQLdel('smartukm_videresending_ledere_ny', array('l_id' => $this->ID, 'pl_id_from' => $pl_from ));

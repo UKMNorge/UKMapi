@@ -46,6 +46,7 @@ prefix | objekt | les | skriv
 57 | Arrangement/Videresending/Mottaker | 157yyy | - 
 58 | Arrangement/Videresending/Avsender | 158yyy | - 
 59 | Arrangement/Eier | 159yyy | - 
+60 | Arrangement/Videresending/Ledere | 160yyy | 560yyy
 61 | Nettverk/Administrator | 161yyy | 561yyy
 62 | Nettverk/Omrade | 162yyy | 562yyy
 71 | Wordpress/User | 171yyy | 571yyy
