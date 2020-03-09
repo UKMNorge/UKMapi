@@ -1417,10 +1417,19 @@ class Arrangement
      */
     public function getEierType()
     {
-        if ($this->getEierKommune()) {
+        if ($this->eier_kommune_id > 0 ) {
             return 'kommune';
         }
-        return 'fylke';
+        if( $this->eier_fylke_id > 0 ) {
+            return 'fylke';
+        }
+        if( $this->eier_kommune_id == 0 && $this->eier_fylke_id == 0 ) {
+            return 'land';
+        }
+        throw new Exception(
+            'Ukjent eier-type',
+            101003
+        );
     }
 
     /**
@@ -1430,10 +1439,14 @@ class Arrangement
      */
     public function getEier()
     {
-        if ($this->getEierType() == 'kommune') {
-            return $this->getEierKommune();
+        switch($this->getEierType()) {
+            case 'kommune':
+                return $this->getEierKommune();
+            case 'fylke':
+                return $this->getEierFylke();
+            default: 
+                return $this->getEierObjekt();
         }
-        return $this->getEierFylke();
     }
 
     /**
@@ -1443,6 +1456,9 @@ class Arrangement
      */
     public function getEierObjekt()
     {
+        if( $this->getEierType() == 'land' ) {
+            return new Eier('land',0);
+        }
         return new Eier($this->getEierType(), $this->getEier()->getId());
     }
 

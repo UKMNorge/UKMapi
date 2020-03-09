@@ -205,8 +205,6 @@ class Write
             'Frist2'            => ['smartukm_place', 'pl_deadline2', 107],
             'Skjema'            => ['smartukm_place', 'pl_form', 113],
             'Pamelding'         => ['smartukm_place', 'pl_pamelding', 119],
-            'EierFylke'         => ['smartukm_place', 'pl_owner_fylke', 120],
-            'EierKommune'       => ['smartukm_place', 'pl_owner_kommune', 121],
             'GoogleMapData'     => ['smartukm_place', 'pl_location', 122],
             'harVideresending'  => ['smartukm_place', 'pl_videresending', 123],
             'Pamelding'         => ['smartukm_place', 'pl_pamelding', 124],
@@ -214,6 +212,16 @@ class Write
             'Synlig'            => ['smartukm_place', 'pl_visible', 128],
             'Subtype'            => ['smartukm_place', 'pl_subtype', 131]
         ];
+
+        // Eierfylke lagres for kommuner og fylker, men ikke land
+        if (in_array($monstring_save->getEierType(), ['kommune', 'fylke'])) {
+            $properties['EierFylke'] = ['smartukm_place', 'pl_owner_fylke', 120];
+        }
+
+        // Eierkommune lagres kun for kommuner
+        if ($monstring_save->getEierType() == 'kommune') {
+            $properties['EierKommune'] = ['smartukm_place', 'pl_owner_kommune', 121];
+        }
 
         // LOOP ALLE VERDIER, OG EVT LEGG TIL I SQL
         foreach ($properties as $functionName => $logValues) {
@@ -260,7 +268,7 @@ class Write
 
 
         // Hvis lokalmønstring, sjekk og lagre kommunesammensetning
-        if ($monstring_save->getType() == 'kommune') {
+        if ($monstring_save->getEierType() == 'kommune') {
             foreach ($monstring_save->getKommuner()->getAll() as $kommune) {
                 if (!$monstring_db->getKommuner()->har($kommune)) {
                     self::_leggTilKommune($monstring_save, $kommune);

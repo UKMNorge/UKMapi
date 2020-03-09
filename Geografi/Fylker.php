@@ -66,8 +66,12 @@ class Fylker {
 			return self::$fylker[ (int) $id ];
 		}
 		
-		if('throw' == self::$logMethod)
-			throw new Exception('Prøvde å aksessere et fylke som ikke finnes (ID: '. $id .')');
+		if('throw' == self::$logMethod) {
+			throw new Exception(
+                'Prøvde å aksessere et fylke som ikke finnes (ID: '. $id .')',
+                103001
+            );
+        }
 	}
     
     /**
@@ -115,7 +119,10 @@ class Fylker {
             case 'tromsogfinnmark': return self::getById(54);
 		}
 
-		throw new Exception('Prøvde å aksessere et fylke som ikke finnes (ID: '. $id .')');
+		throw new Exception(
+            'Prøvde å aksessere et fylke som ikke finnes (ID: '. $id .')',
+            103001
+        );
 	}
     
     /**
