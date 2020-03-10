@@ -15,6 +15,7 @@ class Leder
     var $type;
     var $arrangement_fra;
     var $arrangement_til;
+    var $netter;
 
     /**
      * Opprett nytt lederobjekt
@@ -29,7 +30,7 @@ class Leder
         $this->arrangement_til = $til;
 
         if (!is_null($data)) {
-            $this->id = $data['l_id'];
+            $this->id = intval($data['l_id']);
             $this->navn = $data['l_navn'];
             $this->epost = $data['l_epost'];
             $this->mobil = intval($data['l_mobilnummer']);
@@ -88,7 +89,7 @@ class Leder
      * @param Int $id
      * @return Leder
      */
-    public function getById(Int $id)
+    public static function getById(Int $id)
     {
         $query = new Query(
             "SELECT *
@@ -142,7 +143,34 @@ class Leder
         $data->mobilnummer = $this->getMobil();
         $data->type = $this->getType();
         $data->typeNavn = $this->getTypeNavn();
+
+        $data->netter = [];
+        foreach( $this->getNetter()->getAll() as $natt ) {
+            $data->netter[ $natt->getId() ] = $natt->getJsObject();
+        }
         return $data;
+    }
+
+    /**
+     * Hent alle overnattinger for lederen
+     *
+     * @return Netter
+     */
+    public function getNetter() {
+        if( is_null($this->netter)) {
+            $this->netter = new Netter( $this );
+        }
+        return $this->netter;
+    }
+
+    /**
+     * Hent inn én gitt natt for denne lederen
+     *
+     * @param String $dato
+     * @return Natt
+     */
+    public function getNatt( String $dato ) {
+        return $this->getNetter()->get($dato);
     }
 
     /**

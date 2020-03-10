@@ -94,4 +94,61 @@ class Write
 
         return !!$res;
     }
+
+    /**
+     * Lagre en natt
+     *
+     * @param Natt $natt
+     * @return Natt $natt
+     */
+    public static function saveNatt( Natt $natt ) {
+        if( $natt->eksisterer() ) {
+            $query = new Update(
+                Natt::TABLE,
+                [
+                    'dato' => $natt->getDato(),
+                    'l_id' => $natt->getLederId()
+                ]
+            );
+        } else {
+            $query = new Insert(
+                Natt::TABLE
+            );
+        }
+
+        $query->add('l_id', $natt->getLederId());
+        $query->add('dato', $natt->getDato());
+        $query->add('sted', $natt->getSted());
+
+        $res = $query->run();
+                
+        if( !$natt->eksisterer() ) {
+            $natt->setNattId( intval($res));
+        }
+
+        return true;
+    }
+
+    /**
+     * Slett overnattingsvalget for en natt (for en gitt leder)
+     *
+     * @param Natt $natt
+     * @return Bool
+     */
+    public static function deleteNatt( Natt $natt ) {
+        if( !$natt->eksisterer()) {
+            return true;
+        }
+
+        $query = new Delete(
+            Natt::TABLE,
+            [
+                'dato' => $natt->getDato(),
+                'l_id' => $natt->getLederId()
+            ]
+        );
+        $res = $query->run();
+
+        return !!$res;
+    }
 }
