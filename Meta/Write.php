@@ -48,7 +48,10 @@ class Write {
         if( $value->eksisterer() && $result == 0 ) {
             return true;
         }
-        throw new Exception('Klarte ikke å lagre MetaVerdi '. $value->getKey());
+        throw new Exception(
+            'Klarte ikke å lagre MetaVerdi '. $value->getKey(),
+            523001
+        );
     }
 
     /**
@@ -72,7 +75,10 @@ class Write {
         if( $result ) {
             return true;
         }
-        throw new Exception('Klarte ikke å slette MetaVerdi '. $value->getKey());
+        throw new Exception(
+            'Klarte ikke å slette MetaVerdi '. $value->getKey(),
+            523002
+        );
     }
 
     /**
