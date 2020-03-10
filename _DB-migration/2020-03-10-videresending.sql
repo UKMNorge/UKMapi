@@ -40,12 +40,16 @@ CREATE TABLE `ukm_videresending_leder_natt` (
   KEY `dato` (`dato`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `ukm_videresending_leder_hoved`;
 CREATE TABLE `ukm_videresending_leder_hoved` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `l_id` int(11) NOT NULL,
   `dato` varchar(5) COLLATE utf8mb4_danish_ci NOT NULL DEFAULT '',
   `arrangement_fra` int(11) NOT NULL,
   `arrangement_til` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UNQ_dato_fra_til` (`dato`,`arrangement_fra`,`arrangement_til`),
+  KEY `l_id` (`l_id`),
+  KEY `dato` (`dato`),
+  KEY `arrangement_fra` (`arrangement_fra`),
+  KEY `arrangement_til` (`arrangement_til`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_danish_ci;
