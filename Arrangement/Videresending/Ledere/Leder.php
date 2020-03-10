@@ -102,17 +102,17 @@ class Leder
         );
 
         $data = $query->getArray();
-        
+
         // Hvis ikke i databasen
         if (!$data) {
             throw new Exception(
-                'Fant ikke leder '. $id,
+                'Fant ikke leder ' . $id,
                 160002
             );
         }
 
         // Returner reelt leder-objekt
-        return Leder::loadFromDatabaseRow( $data );
+        return Leder::loadFromDatabaseRow($data);
     }
 
     /**
@@ -146,8 +146,8 @@ class Leder
         $data->typeNavn = $this->getTypeNavn();
 
         $data->netter = [];
-        foreach( $this->getNetter()->getAll() as $natt ) {
-            $data->netter[ $natt->getId() ] = $natt->getJsObject();
+        foreach ($this->getNetter()->getAll() as $natt) {
+            $data->netter[$natt->getId()] = $natt->getJsObject();
         }
         return $data;
     }
@@ -157,9 +157,10 @@ class Leder
      *
      * @return Netter
      */
-    public function getNetter() {
-        if( is_null($this->netter)) {
-            $this->netter = new Netter( $this );
+    public function getNetter()
+    {
+        if (is_null($this->netter)) {
+            $this->netter = new Netter($this);
         }
         return $this->netter;
     }
@@ -170,7 +171,8 @@ class Leder
      * @param String $dato
      * @return Natt
      */
-    public function getNatt( String $dato ) {
+    public function getNatt(String $dato)
+    {
         return $this->getNetter()->get($dato);
     }
 
@@ -223,8 +225,10 @@ class Leder
                 return 'Utstillingsleder';
             case 'reise':
                 return 'Reiseleder';
+            case 'ledsager':
+                return 'Ledsager';
             case 'turist':
-                return 'Turist / ledsager';
+                return 'Turist';
         }
         throw new Exception(
             'Ukjent leder-type ' . $this->getType(),
