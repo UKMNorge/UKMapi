@@ -59,7 +59,7 @@ class Samling extends MediaSamling
     {
         $sql = new Query(
 			"SELECT `bilde_id` 
-			FROM `smartukm_videresending_media`
+			FROM `ukm_videresending_media`
 			WHERE `b_id` = '#innslag'
 			" . ($tittel === false ? '' : "AND `t_id` = '#tittel'"),
             [
