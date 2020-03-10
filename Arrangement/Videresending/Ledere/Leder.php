@@ -3,6 +3,7 @@
 namespace UKMNorge\Arrangement\Videresending\Ledere;
 
 use stdClass;
+use Exception;
 use UKMNorge\Database\SQL\Query;
 
 class Leder

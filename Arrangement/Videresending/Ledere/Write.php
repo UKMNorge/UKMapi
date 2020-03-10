@@ -6,6 +6,7 @@ use Exception;
 use UKMNorge\Database\SQL\Common;
 use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Insert;
+use UKMNorge\Database\SQL\Query;
 use UKMNorge\Database\SQL\Update;
 
 class Write
@@ -148,6 +149,47 @@ class Write
             ]
         );
         $res = $query->run();
+
+        return !!$res;
+    }
+
+    /**
+     * Lagre hvem som er hovedleder en gitt natt
+     *
+     * @param Hovedleder $hovedleder
+     * @return Bool
+     */
+    public static function saveHovedLeder( Hovedleder $hovedleder ) {
+        $unique_database_id = [
+            'dato' => $hovedleder->getDato(),
+            'arrangement_fra' => $hovedleder->getArrangementFraId(),
+            'arrangement_til' => $hovedleder->getArrangementTilId()
+        ];
+
+        $test_finnes = new Query(
+            "SELECT `id`
+            FROM `". Hovedleder::TABLE ."`
+            WHERE `dato` = '#dato'
+            AND `arrangement_fra` = '#arrangement_fra'
+            AND `arrangement_til` = '#arrangement_til'",
+            $unique_database_id
+        );
+        $test = $test_finnes->run();
+
+        if( Query::numRows( $test ) == 0 ) {
+            $save = new Insert( Hovedleder::TABLE );
+            $save->add('dato', $hovedleder->getDato());
+            $save->add('arrangement_fra', $hovedleder->getArrangementFraId());
+            $save->add('arrangement_til', $hovedleder->getArrangementTilId());
+        } else {
+            $save = new Update(
+                Hovedleder::TABLE,
+                $unique_database_id
+            );
+        }
+        $save->add('l_id', $hovedleder->getLederId());
+
+        $res = $save->run();
 
         return !!$res;
     }
