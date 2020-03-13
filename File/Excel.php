@@ -112,6 +112,26 @@ class Excel extends OfficeDok {
     }
 
     /**
+     * Angi fet skrift for en celle
+     *
+     * @param String A1-style refereanse
+     * @return self
+     */
+    public function fet( String $cell_ref ) {
+        $this->phpSpreadsheet
+            ->getActiveSheet()
+            ->getStyle($cell_ref)
+            ->applyFromArray(
+                [
+                    'font' => [
+                        'bold' => true,
+                    ]
+                ]
+            );
+        return $this;
+    }
+
+    /**
      * Hent aktiv rad
      *
      * @return void
