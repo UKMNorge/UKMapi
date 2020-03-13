@@ -80,7 +80,7 @@ class Arrangementer
                     150002
                 );
                 break;
-                /*
+            /*
              * Lokalmønstringer som er eid av en kommune i fylket, 
              * eller som deltar i en fellesmønstring i fylket
              */

@@ -130,7 +130,6 @@ class Arrangement
 
     public function __construct($id_or_row)
     {
-
         if (is_numeric($id_or_row)) {
             $this->_load_by_id($id_or_row);
         } elseif (is_array($id_or_row)) {
