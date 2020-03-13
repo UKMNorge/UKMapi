@@ -74,6 +74,10 @@ class Excel extends OfficeDok {
             $sheet->getTabColor()->setRGB( static::COLORS[ array_search($id, $this->sheet_ids) ] );
         }
     }
+
+    /**
+     * @inheritdoc 
+     */
     public function ark( String $id ) {
         $this->setArk( $id );
     }
@@ -134,7 +138,7 @@ class Excel extends OfficeDok {
     /**
      * Hent aktiv rad
      *
-     * @return void
+     * @return Int
      */
     public function getRad() {
         return $this->row[ $this->phpSpreadsheet->getActiveSheetIndex() ];
@@ -143,7 +147,7 @@ class Excel extends OfficeDok {
     /**
      * Lagre excel-fil og returner URL for nedlasting
      *
-     * @return void
+     * @return String
      */
     public function writeToFile() {
         $filename = OfficeDok::sanitizeFilename($this->name .'.xlsx');
