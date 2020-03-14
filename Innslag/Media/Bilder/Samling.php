@@ -19,8 +19,7 @@ class Samling extends MediaSamling
     public function harValgt(Int $tittel = 0)
     {
         try {
-            $this->getvalgt($tittel);
-            return true;
+            return !!$this->getvalgt($tittel);
         } catch (Exception $e) {
             return false;
         }
