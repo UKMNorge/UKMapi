@@ -292,6 +292,30 @@ class Word extends OfficeDok
     }
 
     /**
+     * Sett inn en lenke
+     *
+     * @param String $url
+     * @param String $text
+     * @return \PhpOffice\PhpWord\Element\AbstractElement $target
+     */
+    public function link( String $url, String $text, $target = null ) {
+        return $this->getTarget($target)->addLink(
+            $url,
+            $text
+        );
+    }
+
+    /**
+     * Sett inn en tekst løpende
+     *
+     * @param \PhpOffice\PhpWord\Element\AbstractElement|null $target
+     * @return \PhpOffice\PhpWord\Style\Paragraph\TextRun
+    **/
+    public function tekstRun($target = null) {
+        return $this->getTarget($target)->addTextRun();
+    }
+
+    /**
      * Sett inn en tekst
      *
      * @param String $tekst
