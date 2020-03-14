@@ -306,6 +306,18 @@ class Word extends OfficeDok
     }
 
     /**
+     * Legg til et bilde
+     *
+     * @param String $path
+     * @param array $format
+     * @param \PhpOffice\PhpWord\Element\AbstractElement|null $target
+     * @return \PhpOffice\PhpWord\Element\AbstractElement $target
+     */
+    public function bilde( String $path, array $format = [], $target = null ) {
+        return $this->getTarget( $target )->addImage($path, $format);
+    }
+
+    /**
      * Sett inn en tekst løpende
      *
      * @param \PhpOffice\PhpWord\Element\AbstractElement|null $target
