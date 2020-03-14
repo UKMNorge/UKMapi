@@ -10,7 +10,7 @@ class Samling extends Collection {
 	var $innslag_id = false;
 
     /**
-     * Opprett en ny artikkel-samling
+     * Opprett en ny media-samling
      *
      * @param Int $innslag_id
      */
