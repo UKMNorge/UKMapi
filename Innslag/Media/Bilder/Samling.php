@@ -19,7 +19,7 @@ class Samling extends MediaSamling
     public function harValgt(Int $tittel = 0)
     {
         try {
-            return !!$this->getvalgt($tittel);
+            return !!$this->getValgt($tittel);
         } catch (Exception $e) {
             return false;
         }
@@ -58,7 +58,7 @@ class Samling extends MediaSamling
     {
         $sql = new Query(
 			"SELECT `bilde_id` 
-			FROM `smartukm_videresending_media`
+			FROM `ukm_videresending_media`
 			WHERE `b_id` = '#innslag'
 			" . ($tittel === false ? '' : "AND `t_id` = '#tittel'"),
             [
@@ -66,8 +66,13 @@ class Samling extends MediaSamling
                 'tittel'    => $tittel,
             ]
         );
-       # echo $sql->debug();
-        return $this->find($sql->getField());
+        
+        // getAll() kjører _load() på riktig måte, mens
+        // find ikke gjør det. Kjør derfor getAll() først,
+        // så vi vet vi har alle bilder i collection
+        $this->getAll();
+
+        return $this->find(intval($sql->getField()));
     }
 
     /**
@@ -97,6 +102,7 @@ class Samling extends MediaSamling
             );
         }
         while ($row = Query::fetch($get)) {
+            #echo 'ADD IMAGE '. var_export($row,true);
             $this->add(new Bilde($row));
         }
     }

@@ -80,7 +80,7 @@ class Bilde
      **/
     public function __construct(array $bilde)
     {
-        $this->setId($bilde['id']);
+        $this->setId(intval($bilde['id']));
         $this->setBlogId($bilde['wp_blog']);
         $this->setPostId($bilde['wp_post']);
         
