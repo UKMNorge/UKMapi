@@ -838,6 +838,11 @@ class Blog
     public static function setStandardInnhold(Int $blog_id)
     {
         static::controlBlogId($blog_id);
+        // Det finnes jo noen sider som ikke skal ha standard-innholdet,
+        // og som ikke skal følge standardinstillinger for page_on_front osv
+        if( !in_array( static::getOption($blog_id, 'site_type'), ['kommune','fylke','land','arrangement']) ) {
+            return true;
+        }
         
         // Kategorier
         static::leggTilKategorier(
