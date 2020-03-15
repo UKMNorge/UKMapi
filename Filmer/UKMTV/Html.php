@@ -31,10 +31,10 @@ class Html {
      * @param Film $film
      * @return String html
      */
-    public static function getEmbed( Film $film ) {
-        return '<div class="embed-responsive embed-responsive-16by9">'
+    public static function getEmbed( Film $film, String $class = null, String $style = null ) {
+        return '<div class="embed-responsive embed-responsive-16by9 '. ( !is_null($class) ? $class :'' ) .' ">'
         .  '<iframe src="'. $film->getEmbedUrl() .'" '
-        .  ' style="width: 100vw; height: Calc( (100vw/16)*9); max-height: 85vh;" '
+        .  ' style="width: 100vw; height: Calc( (100vw/16)*9); max-height: 85vh; '. ( !is_null($style) ? $style :'' ) .'" '
         .  ' class="ukmtv embed-responsive-item" border="0" frameborder="0" '
         .  ' mozallowfullscreen="true" webkitallowfullscreen="true" allowfullscreen="true">'
         .  '</iframe>'

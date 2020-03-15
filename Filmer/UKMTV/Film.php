@@ -383,9 +383,9 @@ class Film implements FilmInterface
      *
      * @return String html iframe
      */
-    public function getEmbedHtml()
+    public function getEmbedHtml(String $class = null, String $style = null)
     {
-        return Html::getEmbed($this);
+        return Html::getEmbed($this, $class, $style);
     }
 
     /**
