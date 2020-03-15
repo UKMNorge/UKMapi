@@ -14,6 +14,7 @@ har:
   media:
     filmer: true
     bilder: true
+er_scene: true
 titler:
   tabell: smartukm_titles_scene
 personer_autofollow: true
