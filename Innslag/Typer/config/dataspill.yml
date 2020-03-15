@@ -15,7 +15,7 @@ har:
   media:
     filmer: false
     bilder: true
-
+er_scene: false
 ## Denne må være her, selv om den ikke brukes...
 tekst:
   artistnavn:

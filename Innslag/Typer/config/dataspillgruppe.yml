@@ -16,8 +16,8 @@ har:
   media:
     filmer: false
     bilder: true
+er_scene: false
 personer_autofollow: true
-
 tekst:
   artistnavn:
     alene:

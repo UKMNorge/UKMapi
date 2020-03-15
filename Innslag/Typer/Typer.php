@@ -289,7 +289,7 @@ class Typer implements \Iterator
     /**
      * Hent alle typer som er på scenen
      * 
-     * Denne bør vi nok snart bort fra
+     * Denne bør vi nok snart bort fra, da dette er lagret i yaml-filene nå
      *
      * @return Array<Type>
      */

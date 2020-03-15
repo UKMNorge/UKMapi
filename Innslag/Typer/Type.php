@@ -15,6 +15,7 @@ class Type
     var $tekst = null;
     var $type = false; # gruppe|person
     var $frist = 1;
+    var $er_scene = false;
 
     var $har_titler = false;
     var $har_sjanger = false;
@@ -61,6 +62,7 @@ class Type
         $this->type         = $config['type'];
         $this->kategori     = $config['kategori'];
         $this->frist        = $config['frist'];
+        $this->er_scene     = $config['er_scene'];
 
         $this->har_tid              = $config['har']['varighet'];
         $this->har_titler           = $config['har']['titler'];
@@ -286,6 +288,15 @@ class Type
     public function erGruppe()
     {
         return $this->type == 'gruppe';
+    }
+
+    /**
+     * Er dette en underkategori av scene?
+     *
+     * @return Bool
+     */
+    public function erScene() {
+        return $this->er_scene;
     }
 
     /**

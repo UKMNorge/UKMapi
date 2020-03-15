@@ -16,7 +16,7 @@ har:
   media:
     filmer: true
     bilder: true
-
+er_scene: false
 tekst:
   artistnavn:
     alene:

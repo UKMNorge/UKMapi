@@ -14,6 +14,7 @@ har:
   media:
     filmer: true
     bilder: true
+er_scene: false
 funksjoner:
   - lyd
   - lys

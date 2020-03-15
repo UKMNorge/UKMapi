@@ -14,7 +14,7 @@ har:
   media:
     filmer: true
     bilder: true
-
+er_scene: false
 tekst:
   rolle:
     navn: Beskrivelse av deg og din konferansier-erfaring
