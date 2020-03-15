@@ -13,11 +13,11 @@ class Film implements FilmInterface
 {
     var $id = 0;
     var $cron_id = null;
-    
+
     var $title = null;
     var $sanitized_title = null;
     var $description = null;
-    
+
     var $image_url = null;
 
     var $tags = null;
@@ -43,7 +43,7 @@ class Film implements FilmInterface
         $this->arrangement_id = intval($data['pl_id']);
         $this->innslag_id = intval($data['b_id']);
         $this->season = intval($data['season']);
-        
+
         $this->title = $data['tv_title'];
         $this->description = $data['tv_description'];
 
@@ -124,7 +124,8 @@ class Film implements FilmInterface
      *
      * @return String beskrivelse
      */
-    public function getBeskrivelse() {
+    public function getBeskrivelse()
+    {
         return $this->description;
     }
 
@@ -140,27 +141,29 @@ class Film implements FilmInterface
         }
         return $this->sanitized_title;
     }
-    
-        /**
-         * Har filmen en .smil-fil?
-         *
-         * @return bool
-         */
-        public function harSmil() {
-            return $this->file_exists_smil;
+
+    /**
+     * Har filmen en .smil-fil?
+     *
+     * @return bool
+     */
+    public function harSmil()
+    {
+        return $this->file_exists_smil;
+    }
+
+    /**
+     * Hent URL til smil-filen
+     *
+     * @return String $url
+     */
+    public function getSmilFile()
+    {
+        if (null == $this->smil_file) {
+            $this->smil_file = str_replace('_720p.mp4', '.smil', $this->getFile());
         }
-    
-        /**
-         * Hent URL til smil-filen
-         *
-         * @return String $url
-         */
-        public function getSmilFile() {
-            if( null == $this->smil_file ) {
-                $this->smil_file = str_replace('_720p.mp4','.smil', $this->getFile());
-            }
-            return $this->smil_file;
-        }
+        return $this->smil_file;
+    }
 
     /**
      * Hent full filbane (inkl navn) til filen
@@ -186,7 +189,7 @@ class Film implements FilmInterface
             $this->file_exists_smil = false;
         }
 
-        if( !strpos($this->file, '_720p') && $this->har720p()) {
+        if (!strpos($this->file, '_720p') && $this->har720p()) {
             return str_replace('.mp4', '_720p.mp4', $this->file);
         }
 
@@ -468,7 +471,8 @@ class Film implements FilmInterface
      * @param Int $tv_id
      * @return self
      */
-    public function setTvId( Int $tv_id ) {
+    public function setTvId(Int $tv_id)
+    {
         $this->id = $tv_id;
         return $this;
     }
@@ -478,7 +482,8 @@ class Film implements FilmInterface
      *
      * @return Int tv_id
      */
-    public function getTvId() {
+    public function getTvId()
+    {
         return $this->getId();
     }
 
@@ -487,7 +492,8 @@ class Film implements FilmInterface
      *
      * @return Int|null
      */
-    public function getCronId() {
+    public function getCronId()
+    {
         return $this->cron_id;
     }
 
@@ -511,10 +517,11 @@ class Film implements FilmInterface
      *
      * @return String
      */
-    public function getTitle() {
+    public function getTitle()
+    {
         return $this->getNavn();
     }
-    
+
     /**
      * Hent filmens beskrivelse
      *
@@ -530,7 +537,8 @@ class Film implements FilmInterface
      *
      * @return String
      */
-    public function getFilePath() {
+    public function getFilePath()
+    {
         return $this->file;
     }
 
@@ -539,7 +547,8 @@ class Film implements FilmInterface
      *
      * @return String
      */
-    public function getImagePath() {
+    public function getImagePath()
+    {
         return $this->image_url;
     }
 
@@ -548,7 +557,8 @@ class Film implements FilmInterface
      *
      * @return String url
      */
-    public function getImageUrl() {
+    public function getImageUrl()
+    {
         return Server::getStorageUrl() . $this->getImagePath();
     }
 
@@ -557,7 +567,8 @@ class Film implements FilmInterface
      *
      * @return void
      */
-    public function getSeason() {
+    public function getSeason()
+    {
         return $this->season;
     }
 }
