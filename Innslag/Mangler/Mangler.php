@@ -43,6 +43,15 @@ class Mangler extends Collection
         return json_encode($this->getAll());
     }
 
+    /**
+     * Hent alle mangler som JSON-string
+     *
+     * @return String json
+     */
+    public function getJSON() {
+        return $this->toJSON();
+    }
+
 
     /**
      * Legg til et nytt element

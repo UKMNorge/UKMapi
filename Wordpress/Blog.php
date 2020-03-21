@@ -973,6 +973,16 @@ class Blog
         return (Int) get_page_by_path($slug)->ID;
     }
 
+    public static function oppdaterSideInnhold( Int $blog_id, String $slug, String $content ) {
+        $side = static::hentSideByPath($blog_id, $slug);
+        wp_update_post(
+            [
+                'ID' => $side->ID,
+                'post_content' => $content
+            ]
+        );
+    }
+
     /**
      * Set meta-data for en page (/post?)
      * 
@@ -1041,7 +1051,7 @@ class Blog
     }
 
     /**
-     * Fjern er array av page-slugs fra gitt blogg
+     * Fjern et array av page-slugs fra gitt blogg
      *
      * @param Int $blog_id
      * @param Array $sider
@@ -1049,15 +1059,33 @@ class Blog
      */
     public static function fjernSider( Int $blog_id, Array $sider ) {
         static::switchTo($blog_id);
-        
-        foreach( $sider as $side ) {
-            $page = get_page_by_path($side, OBJECT, 'post');
-            if (is_object($page)) {
-                wp_delete_post($page->ID);
-            }
+        foreach( $sider as $side_path ) {
+            static::fjernSide($blog_id, $side_path);
+        }
+        static::restore();
+    }
+
+    /**
+     * Fjern en gitt side fra page-slug
+     *
+     * @param Int $blog_id
+     * @param String $path
+     * @param Bool $switched
+     * @return void
+     */
+    public static function fjernSide( Int $blog_id, String $path, Bool $switched = false ) {
+        if( !$switched ) {
+            static::switchTo($blog_id);
         }
 
-        static::restore();
+        $page = get_page_by_path($path, OBJECT, 'page');
+        if (is_object($page)) {
+            wp_delete_post($page->ID);
+        }
+
+        if( !$switched ) {
+            static::restore();
+        }
     }
 
     /**
