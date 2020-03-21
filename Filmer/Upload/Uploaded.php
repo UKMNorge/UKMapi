@@ -6,6 +6,7 @@ use Exception;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Filmer\UKMTV\Tags\Tags;
+use UKMNorge\Http\Curl;
 use UKMNorge\Innslag\Innslag;
 
 class Uploaded
@@ -46,6 +47,8 @@ class Uploaded
                 515001
             );
         }
+
+        static::pullRegistrerData($cronId);
         return true;
     }
 
@@ -75,7 +78,24 @@ class Uploaded
                 515002
             );
         }
-
+        
+        static::pullRegistrerData($cronId);
         return true;
+    }
+
+    /**
+     * Registrer filmen om den allerede er konvertert
+     * 
+     * Sender request til videoconverter, som re-sender data-pakken
+     * til api.ukm.no, likt som når filmen er konvertert første gang.
+     * 
+     * Vi curler videoconverter, som curler oss altså. Curling! 🥌
+     *
+     * @param Int $cronId
+     * @return Bool result
+     */
+    public static function pullRegistrerData(Int $cronId ) {
+        $request = new Curl();
+        return !!$request->request('https://videoconverter.' . UKM_HOSTNAME . '/api/resend_registration.php?cronId=' . $cronId);
     }
 }
