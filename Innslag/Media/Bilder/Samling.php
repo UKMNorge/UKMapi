@@ -41,7 +41,7 @@ class Samling extends MediaSamling
             } catch (Exception $inner_e) {
                 throw new Exception(
                     'Innslaget har ingen bilder',
-                    321006
+                    132006
                 );
             }
         }
@@ -98,7 +98,7 @@ class Samling extends MediaSamling
         if (!$get) {
             throw new Exception(
                 'Kunne ikke hente inn bilder for innslag ' . $this->getInnslagId(),
-                321007
+                132007
             );
         }
         while ($row = Query::fetch($get)) {

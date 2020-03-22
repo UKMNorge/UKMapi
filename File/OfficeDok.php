@@ -16,7 +16,7 @@ abstract class OfficeDok {
             throw new Exception(
                 'Kan ikke opprette filen, da systemet mangler mappen det skal lagres i. '.
                 'Kontakt <a href="mailto:support@ukm.no?subject=UKMAPI%2FFile%2FExcel-eller-Word feil satt opp">support@ukm.no</a>',
-                401002
+                140002
             );
         }
         $this->name = $filnavn;
@@ -34,7 +34,7 @@ abstract class OfficeDok {
         if( !in_array($retning, ['portrett','landskap'] ) ) {
             throw new Exception(
                 'Excel-dokumenter støtter kun portrett eller landskap',
-                401001
+                140001
             );
         }
         $this->orientation = $retning == 'portrett' ? 'portrait' : 'landscape';

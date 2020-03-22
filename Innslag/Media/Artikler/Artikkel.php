@@ -55,7 +55,7 @@ class Artikkel
         if (!$res) {
             throw new Exception(
                 'Fant ikke artikkel ' . $id,
-                311003
+                131003
             );
         }
         return new Artikkel($res);
@@ -223,7 +223,7 @@ class Artikkel
         if (null == $this->getInnslagId()) {
             throw new Exception(
                 'Beklager, klarte ikke å finne innslaget for artikkel ' . $this->getId(),
-                311002
+                131002
             );
         }
 
@@ -233,7 +233,7 @@ class Artikkel
         if (null == $innslag->getId()) {
             throw new Exception(
                 'Beklager, klarte ikke å finne innslaget som tilhører artikkel ' . $this->getId(),
-                311001
+                131001
             );
         }
 

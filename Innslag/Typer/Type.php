@@ -388,7 +388,7 @@ class Type
         }
         throw new Exception(
             'Innslag-type ' . $this->getNavn() . ' har ikke titler',
-            301001
+            130001
         );
     }
 

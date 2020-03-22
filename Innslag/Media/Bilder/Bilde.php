@@ -294,7 +294,7 @@ class Bilde
             if (null == $this->getKommuneId()) {
                 throw new Exception(
                     'Beklager, ukjent kommune',
-                    321003
+                    132003
                 );
             }
             $this->kommune = new Kommune($this->getKommuneId());
@@ -361,7 +361,7 @@ class Bilde
             if (null == $this->getPlId()) {
                 throw new Exception(
                     'Beklager, ukjent arrangement-ID',
-                    321004
+                    132004
                 );
             }
             $this->monstring = new Arrangement($this->getPlId());
@@ -409,7 +409,7 @@ class Bilde
             if (null == $this->getAuthorId()) {
                 throw new Exception(
                     'Beklager, ukjent fotograf',
-                    321005
+                    132005
                 );
             }
             $this->author = User::loadById($this->getAuthorId());
@@ -455,7 +455,7 @@ class Bilde
             if (null == $this->getInnslagId()) {
                 throw new Exception(
                     'Beklager, fant ikke igjen innslaget for bilde ' . $this->getId(),
-                    321001
+                    132001
                 );
             }
 

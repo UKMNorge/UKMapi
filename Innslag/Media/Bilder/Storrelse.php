@@ -19,7 +19,7 @@ class Storrelse
         if (!defined('UKM_HOSTNAME')) {
             throw new Exception(
                 'Bilde-størrelse krever UKM_HOSTNAME',
-                321005
+                132005
             );
         }
         $this->basepath =  UKM_HOSTNAME == 'ukm.dev' ?
