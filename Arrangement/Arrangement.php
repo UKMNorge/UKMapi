@@ -27,6 +27,7 @@ use UKMNorge\Geografi\Fylke;
 use UKMNorge\Geografi\Fylker;
 use UKMNorge\Geografi\Kommuner;
 use UKMNorge\Innslag\Samling;
+use UKMNorge\Innslag\Typer\Type;
 use UKMNorge\Innslag\Typer\Typer;
 use UKMNorge\Log\Samling as LogSamling;
 use UKMNorge\Nettverk\Proxy\Kontaktperson as AdminKontaktProxy;
@@ -697,9 +698,6 @@ class Arrangement
      **/
     public function getSkjema()
     {
-        if ($this->getType() == 'land') {
-            throw new Exception('Videresendingsskjema ikke støttet for UKM-festivalen');
-        }
         if ($this->skjema == null) {
             try {
                 $this->skjema = Skjema::loadFromArrangement($this->getId());
@@ -1415,10 +1413,19 @@ class Arrangement
      */
     public function getEierType()
     {
-        if ($this->getEierKommune()) {
+        if ($this->eier_kommune_id > 0 ) {
             return 'kommune';
         }
-        return 'fylke';
+        if( $this->eier_fylke_id > 0 ) {
+            return 'fylke';
+        }
+        if( $this->eier_kommune_id == 0 && $this->eier_fylke_id == 0 ) {
+            return 'land';
+        }
+        throw new Exception(
+            'Ukjent eier-type',
+            101003
+        );
     }
 
     /**
@@ -1428,10 +1435,14 @@ class Arrangement
      */
     public function getEier()
     {
-        if ($this->getEierType() == 'kommune') {
-            return $this->getEierKommune();
+        switch($this->getEierType()) {
+            case 'kommune':
+                return $this->getEierKommune();
+            case 'fylke':
+                return $this->getEierFylke();
+            default: 
+                return $this->getEierObjekt();
         }
-        return $this->getEierFylke();
     }
 
     /**
@@ -1441,6 +1452,9 @@ class Arrangement
      */
     public function getEierObjekt()
     {
+        if( $this->getEierType() == 'land' ) {
+            return new Eier('land',0);
+        }
         return new Eier($this->getEierType(), $this->getEier()->getId());
     }
 
@@ -1566,6 +1580,56 @@ class Arrangement
     }
 
     /**
+     * Er det noen sjangre som har nominasjon på dette arrangementet?
+     *
+     * @return Bool
+     */
+    public function harNominasjon() {
+        return $this->getMetaValue('har_nominasjon');
+    }
+
+    /**
+     * Angi hvorvidt vi ønsker at noe skal nomineres
+     *
+     * @param Bool $state
+     * @return self
+     */
+    public function setHarNominasjon( Bool $state ) {
+        $this->getMeta('har_nominasjon')->set($state);
+        return $this;
+    }
+
+    /**
+     * Skal gitt type innslag ha nominasjon før videresending?
+     *
+     * @param Type $type
+     * @return Bool
+     */
+    public function harNominasjonFor( Type $type ) {
+        // Typen innslag kan ikke ha nominasjon. Stay negative.
+        if( !$type->kanHaNominasjon() ) {
+            return false;
+        }
+        // Hvis nominasjon er slått av
+        if( !$this->harNominasjon() ) {
+            return false;
+        }
+        return $this->getMetaValue('nominere_'. $type->getKey());
+    }
+
+    /**
+     * Angi hvorvidt en type innslag skal nomineres før videresending til dette arrangementet
+     *
+     * @param Type $type
+     * @param Bool $state
+     * @return self
+     */
+    public function setHarNominasjonFor( Type $type, Bool $state ) {
+        $this->getMeta('nominere_'. $type->getKey())->set($state);
+        return $this;
+    }
+
+    /**
      * Hent metadata
      * 
      * @param String $key
@@ -1573,13 +1637,24 @@ class Arrangement
      */
     public function getMeta($key)
     {
-        if (null == $this->meta) {
+        return $this->getMetaCollection()->get($key);
+    }
+
+    /**
+     * Hent metadata-samlingen
+     * 
+     * Nyttig for lagring, for eksempel.
+     *
+     * @return MetaCollection
+     */
+    public function getMetaCollection() {
+        if ( is_null($this->meta) ) {
             $this->meta = MetaCollection::createByParentInfo(
                 'arrangement',
                 $this->getId()
             );
         }
-        return $this->meta->get($key);
+        return $this->meta;
     }
 
     /**
@@ -1602,6 +1677,26 @@ class Arrangement
     public function getInformasjonstekst()
     {
         return $this->getMetaValue('infotekst_videresending');
+    }
+
+    /**
+     * Hent informasjonstekst som skal vises ved nominasjon (for voksne, ikke deltakere)
+     *
+     * @return String
+     */
+    public function getNominasjonInformasjon() {
+        return $this->getMetaValue('infotekst_nominasjon');
+    }
+
+    /**
+     * Sett informasjonstekst som skal vises ved nominasjon (for voksne, ikke deltakere)
+     *
+     * @param String $tekst
+     * @return self
+     */
+    public function setNominasjonInformasjon( String $tekst ) {
+        $this->getMeta('infotekst_nominasjon')->set($tekst);
+        return $this;
     }
 
     /**
@@ -1650,7 +1745,12 @@ class Arrangement
         return $this;
     }
 
-
+    /**
+     * Er gitt objekt gyldig arrangement-objekt?
+     *
+     * @param mixed $object
+     * @return Bool
+     */
     public static function validateClass($object)
     {
         return is_object($object) &&

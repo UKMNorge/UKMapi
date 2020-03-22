@@ -20,6 +20,7 @@ use UKMNorge\Innslag\Typer\Type;
 use UKMNorge\Innslag\Write as WriteInnslag;
 use UKMNorge\Innslag\Titler\Write as WriteTitler;
 use UKMNorge\Innslag\Personer\Write as WritePerson;
+use UKMNorge\Meta\Write as WriteMeta;
 use UKMNorge\Wordpress\Blog;
 
 require_once('UKM/Autoloader.php');
@@ -37,7 +38,7 @@ class Write
      * @param String $path
      * @return Arrangement $created_monstring
      */
-    public static function create(String $type, Int $eier_id, Int $sesong, String $navn, Array $geografi, String $path)
+    public static function create(String $type, Int $eier_id, Int $sesong, String $navn, array $geografi, String $path)
     {
         // Oppdater loggeren til å bruke riktig PL_ID
         Logger::setPlId(0);
@@ -60,7 +61,7 @@ class Write
             );
         }
 
-        if($type == 'kommune') {
+        if ($type == 'kommune') {
             if (!is_array($geografi)) {
                 throw new Exception(
                     'Arrangement::create: Geografiobjekt må være array kommuner, ikke' . (is_object($geografi) ? get_class($geografi) : is_array($geografi) ? 'array' : is_integer($geografi) ? 'integer' : is_string($geografi) ? 'string' : 'ukjent datatype'),
@@ -123,7 +124,7 @@ class Write
 
         $monstring = new Arrangement($pl_id);
 
-        if( $type == 'kommune' ) {
+        if ($type == 'kommune') {
             foreach ($geografi as $kommune) {
                 $monstring->getKommuner()->leggTil($kommune);
             }
@@ -204,8 +205,6 @@ class Write
             'Frist2'            => ['smartukm_place', 'pl_deadline2', 107],
             'Skjema'            => ['smartukm_place', 'pl_form', 113],
             'Pamelding'         => ['smartukm_place', 'pl_pamelding', 119],
-            'EierFylke'         => ['smartukm_place', 'pl_owner_fylke', 120],
-            'EierKommune'       => ['smartukm_place', 'pl_owner_kommune', 121],
             'GoogleMapData'     => ['smartukm_place', 'pl_location', 122],
             'harVideresending'  => ['smartukm_place', 'pl_videresending', 123],
             'Pamelding'         => ['smartukm_place', 'pl_pamelding', 124],
@@ -213,6 +212,16 @@ class Write
             'Synlig'            => ['smartukm_place', 'pl_visible', 128],
             'Subtype'            => ['smartukm_place', 'pl_subtype', 131]
         ];
+
+        // Eierfylke lagres for kommuner og fylker, men ikke land
+        if (in_array($monstring_save->getEierType(), ['kommune', 'fylke'])) {
+            $properties['EierFylke'] = ['smartukm_place', 'pl_owner_fylke', 120];
+        }
+
+        // Eierkommune lagres kun for kommuner
+        if ($monstring_save->getEierType() == 'kommune') {
+            $properties['EierKommune'] = ['smartukm_place', 'pl_owner_kommune', 121];
+        }
 
         // LOOP ALLE VERDIER, OG EVT LEGG TIL I SQL
         foreach ($properties as $functionName => $logValues) {
@@ -259,7 +268,7 @@ class Write
 
 
         // Hvis lokalmønstring, sjekk og lagre kommunesammensetning
-        if ($monstring_save->getType() == 'kommune') {
+        if ($monstring_save->getEierType() == 'kommune') {
             foreach ($monstring_save->getKommuner()->getAll() as $kommune) {
                 if (!$monstring_db->getKommuner()->har($kommune)) {
                     self::_leggTilKommune($monstring_save, $kommune);
@@ -283,7 +292,7 @@ class Write
                 self::_fjernKontaktperson($monstring_save, $kontakt);
             }
         }
-        
+
         // Sjekk tillatte typer innslag og lagre endringer
         foreach ($monstring_save->getInnslagtyper()->getAll() as $innslag_type) {
             // Fordi mønstringen aldri skal ha 0 innslag-typer returneres et
@@ -294,7 +303,7 @@ class Write
             // loader den med standard-settet.
             try {
                 self::_leggTilInnslagtype($monstring_save, $innslag_type);
-            } catch( Exception $e ) {}
+            } catch (Exception $e) { }
         }
         foreach ($monstring_db->getInnslagtyper()->getAll() as $innslag_type) {
             if (!$monstring_save->getInnslagtyper()->har($innslag_type)) {
@@ -324,7 +333,7 @@ class Write
         // Arrangementet har endret navn. Oppdater relasjon mellom arrangement og innslag
         // da arrangementsnavnet mellomlagres her
         // Skulle det feile varsles ingen (dette er IKKE kritisk, da det håndterer en ufarlig edge-case)
-        if( $monstring_save->getNavn() != $monstring_db->getNavn() ) {
+        if ($monstring_save->getNavn() != $monstring_db->getNavn()) {
             $rel = new Update(
                 'ukm_rel_arrangement_innslag',
                 [
@@ -334,20 +343,25 @@ class Write
             $rel->add('fra_arrangement_navn', $monstring_save->getNavn());
             $rel->run();
         }
-        
+
         // Oppdater tilhørende blogg
         // Ved sletting av blogg settes path==null. Ettersom dette lagres før vi kommer hit,
         // vil getIdByPath feile (da path==null). Hopp over denne i slike tilfeller.
-        if( !empty( $monstring_save->getPath() ) ) {
+        if (!empty($monstring_save->getPath())) {
             try {
-                Blog::setArrangementData( Blog::getIdByPath( $monstring_save->getPath() ), $monstring_save );
-            } catch (Exception $e ) {
+                Blog::setArrangementData(Blog::getIdByPath($monstring_save->getPath()), $monstring_save);
+            } catch (Exception $e) {
                 // 172007 = fant ingen blogg (som er naturlig når den opprettes, f.eks.)
                 // 172010 = vi er ikke i wordpress-environment
-                if( $e->getCode() != 172007 && $e->getCode() != 172010 ) {
+                if ($e->getCode() != 172007 && $e->getCode() != 172010) {
                     throw $e;
                 }
             }
+        }
+
+        // Lagre meta-data
+        foreach ($monstring_save->getMetaCollection()->getAll() as $meta) {
+            WriteMeta::set($meta);
         }
 
         return $res;
@@ -359,7 +373,8 @@ class Write
      * @param Arrangement $arrangement
      * @return void
      */
-    public static function slett( Arrangement $arrangement ) {
+    public static function slett(Arrangement $arrangement)
+    {
         Logger::log(
             129,
             $arrangement->getId(),
@@ -372,8 +387,8 @@ class Write
         $arrangement->setNavn('SLETTET: ' . $arrangement->getNavn());
         $arrangement->setPath(NULL);
         $arrangement->setSlettet(true);
-        static::save( $arrangement );
-        
+        static::save($arrangement);
+
         // Logg navne-endring
         Logger::log(
             115,
@@ -392,12 +407,12 @@ class Write
         $res = $sql->run();
 
         // Fjern kommuner fra arrangementet
-        if( $arrangement->getEierType() == 'kommune' ) {
-            foreach( $arrangement->getKommuner()->getAll() as $kommune ) {
+        if ($arrangement->getEierType() == 'kommune') {
+            foreach ($arrangement->getKommuner()->getAll() as $kommune) {
                 self::_fjernKommune($arrangement, $kommune);
             }
         }
-        
+
         return $arrangement;
     }
 
@@ -409,8 +424,9 @@ class Write
      * @param Int $arrangement_id
      * @return Arrangement
      */
-    public static function gjenopprett( Int $arrangement_id ) {
-        $arrangement = new Arrangement( $arrangement_id );
+    public static function gjenopprett(Int $arrangement_id)
+    {
+        $arrangement = new Arrangement($arrangement_id);
 
         Logger::log(
             130,
@@ -428,10 +444,10 @@ class Write
         $res = $sql->run();
 
         // ENDRE TILBAKE NAVNET
-        $arrangement->setNavn(str_replace('SLETTET: ','', $arrangement->getNavn()));
-        $arrangement->setPath( Blog::sanitizePath( $arrangement->getNavn() ));
+        $arrangement->setNavn(str_replace('SLETTET: ', '', $arrangement->getNavn()));
+        $arrangement->setPath(Blog::sanitizePath($arrangement->getNavn()));
         $arrangement->setSlettet(false);
-        static::save( $arrangement );
+        static::save($arrangement);
 
         return $arrangement;
     }
@@ -505,29 +521,29 @@ class Write
     {
         // Bloggen håndterer selv sletting, flytting, om det er en kommune-side osv.
         Blog::avlys(
-            Blog::getIdByPath( $arrangement->getPath() )
+            Blog::getIdByPath($arrangement->getPath())
         );
         // Slett arrangementet
         self::slett($arrangement);
 
         // Hvis kommunen nå har bare ett arrangement, må vi oppdatere
         // arrangementet til å ha kommune-path
-        if( $arrangement->getEierType() == 'kommune' ) {
+        if ($arrangement->getEierType() == 'kommune') {
             $omrade = $arrangement->getEierOmrade();
             $eier = $arrangement->getEier();
-            
+
             $count = 0;
             $arrangement_som_skal_overta = false;
-            foreach( $omrade->getArrangementer($arrangement->getSesong())->getAll() as $annet_arrangement ) {
-                if( $annet_arrangement->getId() != $arrangement->getId() ) {
+            foreach ($omrade->getArrangementer($arrangement->getSesong())->getAll() as $annet_arrangement) {
+                if ($annet_arrangement->getId() != $arrangement->getId()) {
                     $count++;
-                    if( !$annet_arrangement->erFellesmonstring() ) {
+                    if (!$annet_arrangement->erFellesmonstring()) {
                         $arrangement_som_skal_overta = $annet_arrangement;
                     }
                 }
             }
-            if( $count == 1 && $arrangement_som_skal_overta) {
-                $arrangement_som_skal_overta->setPath( trim($eier->getPath(),'/') );
+            if ($count == 1 && $arrangement_som_skal_overta) {
+                $arrangement_som_skal_overta->setPath(trim($eier->getPath(), '/'));
                 self::save($arrangement_som_skal_overta);
             }
         }
@@ -757,7 +773,7 @@ class Write
     {
         try {
             self::_controlMonstring($monstring_save);
-            if ( !Arrangement::validateClass($monstring_save)) {
+            if (!Arrangement::validateClass($monstring_save)) {
                 throw new Exception(
                     'mønstring ikke er lokal-mønstring',
                     501019
@@ -816,7 +832,7 @@ class Write
      * @return Bool 
      * @throws Exception
      */
-    private static function _fjernKommune( Arrangement $arrangement, Kommune $kommune)
+    private static function _fjernKommune(Arrangement $arrangement, Kommune $kommune)
     {
         try {
             self::_controlMonstring($arrangement);
@@ -869,7 +885,7 @@ class Write
      */
     private static function _controlMonstring($monstring)
     {
-        if (!Arrangement::validateClass($monstring)){
+        if (!Arrangement::validateClass($monstring)) {
             throw new Exception(
                 'mønstring ikke er objekt av typen Arrangement / Arrangement. Fikk (' . get_class($monstring) . ')',
                 501023
@@ -922,7 +938,7 @@ class Write
      */
     private static function _controlKommune($kommune)
     {
-        if ( !Kommune::validateClass($kommune) ) {
+        if (!Kommune::validateClass($kommune)) {
             throw new Exception(
                 'kommune ikke er objekt av typen kommune',
                 501028
@@ -947,7 +963,7 @@ class Write
      * @param Type $innslag_type
      * @return bool $sucess
      **/
-    private static function _leggTilInnslagtype( Arrangement $monstring_save, Type $innslag_type)
+    private static function _leggTilInnslagtype(Arrangement $monstring_save, Type $innslag_type)
     {
         try {
             self::_controlMonstring($monstring_save);
@@ -1001,7 +1017,7 @@ class Write
      * @param Type $innslag_type
      * @return bool $sucess
      **/
-    private static function _fjernInnslagtype( Arrangement $monstring_save, Type $innslag_type)
+    private static function _fjernInnslagtype(Arrangement $monstring_save, Type $innslag_type)
     {
         try {
             self::_controlMonstring($monstring_save);
@@ -1035,23 +1051,24 @@ class Write
 
 
     /**
-	 * Legg til innslag i arrangement
-	 *
-	 * Bruk Innslag\Write::create for å legge til på lokalnivå !
+     * Legg til innslag i arrangement
+     *
+     * Bruk Innslag\Write::create for å legge til på lokalnivå !
      * 
      * @param Arrangement $arrangement
-	 * @param Innslag $innslag
+     * @param Innslag $innslag
      * @param Arrangement $fra_arrangement
      * @return void
      * @throws Exception
-	**/
-	public static function leggTilInnslag( Arrangement $arrangement, Innslag $innslag, Arrangement $fra_arrangement ) {
+     **/
+    public static function leggTilInnslag(Arrangement $arrangement, Innslag $innslag, Arrangement $fra_arrangement)
+    {
 
-        Logger::log( 318, $innslag->getId(), $innslag->getContext()->getMonstring()->getId() );
+        Logger::log(318, $innslag->getId(), $innslag->getContext()->getMonstring()->getId());
 
         // Når innslaget opprettes, inputter vi samme arrangement både som 
         // mottaker og avsender.
-        if( $arrangement->getId() == $fra_arrangement->getId() ) {
+        if ($arrangement->getId() == $fra_arrangement->getId()) {
             $fra_id = 0;
             $fra_navn = $innslag->getKommune()->getNavn();
         }
@@ -1064,21 +1081,21 @@ class Write
         // Opprett relasjon mellom innslaget og arrangementet
         // Påkrevd f.o.m. 2020
         $relasjon = new Insert('ukm_rel_arrangement_innslag');
-        $relasjon->add('innslag_id', (Int) $innslag->getId());
+        $relasjon->add('innslag_id', (int) $innslag->getId());
         $relasjon->add('arrangement_id', $arrangement->getId());
         $relasjon->add('fra_arrangement_id', $fra_id);
         $relasjon->add('fra_arrangement_navn', $fra_navn);
-        
+
         try {
             $res = $relasjon->run();
-            if( !$res ) {
+            if (!$res) {
                 throw new Exception(
                     'Klarte ikke å melde på innslaget',
                     505010
                 );
             }
-        } catch( Exception $e ) {
-            if( $e->getCode() == 901001 ) {
+        } catch (Exception $e) {
+            if ($e->getCode() == 901001) {
                 $test = new Query(
                     "SELECT `id` 
                     FROM `ukm_rel_arrangement_innslag`
@@ -1090,7 +1107,7 @@ class Write
                     ]
                 );
                 $test = $test->getField();
-                if( is_null($test) ) {
+                if (is_null($test)) {
                     throw $e;
                 }
             } else {
@@ -1099,51 +1116,51 @@ class Write
         }
 
         // Sett inn gammel relasjon også
-		$rel = new Insert('smartukm_rel_pl_b');
-		$rel->add('pl_id', $arrangement->getId() );
-		$rel->add('b_id', $innslag->getId() );
-		$rel->add('season', $arrangement->getSesong() );
-		
-		$relres = $rel->run();
-		if( !$relres ) {
-			throw new Exception(
-				"Klarte ikke å melde på det nye innslaget til mønstringen.",
-				505021
-			);
+        $rel = new Insert('smartukm_rel_pl_b');
+        $rel->add('pl_id', $arrangement->getId());
+        $rel->add('b_id', $innslag->getId());
+        $rel->add('season', $arrangement->getSesong());
+
+        $relres = $rel->run();
+        if (!$relres) {
+            throw new Exception(
+                "Klarte ikke å melde på det nye innslaget til mønstringen.",
+                505021
+            );
         }
-        
+
         // Når det er enkeltperson-innslag, skal personen automatisk videresendes
-        if( $innslag->getType()->erEnkeltPerson() ) {
-            
+        if ($innslag->getType()->erEnkeltPerson()) {
+
             // Hent fra riktig context for å legge til på nytt (aka videresende)
             $person = $innslag->getPersoner()->getSingle();
             // I det innslaget opprettes vil vi ikke finne personen enda, 
             // da den snart legges til 
             // (2020-02-19: det er i alle fall teorien om hvorfor det feiler)
-            if($person) {
-                $innslag = $arrangement->getInnslag()->get($innslag->getId(),true);
+            if ($person) {
+                $innslag = $arrangement->getInnslag()->get($innslag->getId(), true);
                 $innslag->getPersoner()->leggTil($person);
                 $person = $innslag->getPersoner()->get($person->getId());
                 WritePerson::leggTil($person); # aka persist
-            }            
+            }
         }
         // For noen innslag skal alle personer automatisk følge innslaget
-        elseif( $innslag->getType()->harAutomatiskVideresendingAvPersoner() ) {
+        elseif ($innslag->getType()->harAutomatiskVideresendingAvPersoner()) {
             $personer = [];
-            foreach( $innslag->getPersoner()->getAll() as $person ) {
+            foreach ($innslag->getPersoner()->getAll() as $person) {
                 $personer[] = $person;
             }
 
             // Reload innslag, og legg til
             $innslag = $arrangement->getInnslag()->get($innslag->getId(), true);
-            foreach( $personer as $person ) {
+            foreach ($personer as $person) {
                 $innslag->getPersoner()->leggTil($person);
                 $person = $innslag->getPersoner()->get($person->getId());
                 WritePerson::leggTil($person); # aka persist
             }
         }
     }
-    
+
     /**
      * Fjern innslag fra arrangement
      * 
@@ -1153,39 +1170,40 @@ class Write
      * @param Innslag $innslag
      * @return void
      */
-    public static function fjernInnslag( Innslag $innslag ) {
+    public static function fjernInnslag(Innslag $innslag)
+    {
 
-        Logger::log( 319, $innslag->getId(), $innslag->getContext()->getMonstring()->getId() );
+        Logger::log(319, $innslag->getId(), $innslag->getContext()->getMonstring()->getId());
 
         // Fjern fra alle forestillinger på mønstringen
-        WriteHendelse::fjernInnslagFraAlleForestillingerIMonstring( $innslag );
-        
+        WriteHendelse::fjernInnslagFraAlleForestillingerIMonstring($innslag);
+
         // Fjern personer pre 2020
-        if( $innslag->getSesong() < 2020 && $innslag->getType()->getId() != 1) {
+        if ($innslag->getSesong() < 2020 && $innslag->getType()->getId() != 1) {
             // Meld av alle personer hvis dette er innslag hvor man kan velge personer som følger innslaget
-            foreach( $innslag->getPersoner()->getAllInkludertIkkePameldte() as $person ) {
-                $innslag->getPersoner()->fjern( $person );
+            foreach ($innslag->getPersoner()->getAllInkludertIkkePameldte() as $person) {
+                $innslag->getPersoner()->fjern($person);
             }
-            WriteInnslag::savePersoner( $innslag );
+            WriteInnslag::savePersoner($innslag);
         }
         // Fjern personer 2020
         else {
             // Bruker ikke getAll() i stedet for getAllInkludertIkkePameldte()
             // da vi kun skal melde av personer påmeldt dette arrangementet
-            foreach( $innslag->getPersoner()->getAll() as $person ) {
-                $innslag->getPersoner()->fjern( $person );
+            foreach ($innslag->getPersoner()->getAll() as $person) {
+                $innslag->getPersoner()->fjern($person);
             }
-            WriteInnslag::savePersoner( $innslag );
+            WriteInnslag::savePersoner($innslag);
         }
 
         // Meld av alle titler
-        if( $innslag->getType()->harTitler() ) {
+        if ($innslag->getType()->harTitler()) {
             // Bruker ikke getAll() i stedet for getAllInkludertIkkePameldte()
             // da vi kun skal melde av titler påmeldt dette arrangementet
-            foreach( $innslag->getTitler()->getAll() as $tittel ) {
-                $innslag->getTitler()->fjern( $tittel );
+            foreach ($innslag->getTitler()->getAll() as $tittel) {
+                $innslag->getTitler()->fjern($tittel);
             }
-            WriteInnslag::saveTitler( $innslag );
+            WriteInnslag::saveTitler($innslag);
         }
 
         // Fjern innslagets relasjon til arrangementet
@@ -1198,13 +1216,13 @@ class Write
             ]
         );
         $res = $relasjon->run();
-        
+
         // Fjern gammel relasjon videresendingen av innslaget
         $SQLdel = new Delete(
             'smartukm_fylkestep',
             [
                 'pl_id' => $innslag->getContext()->getMonstring()->getId(),
-                'b_id'	=> $innslag->getId(),
+                'b_id'    => $innslag->getId(),
             ]
         );
 
@@ -1214,15 +1232,15 @@ class Write
         $slett_relasjon = new Delete(
             'smartukm_rel_pl_b',
             [
-                'pl_id'		=> $innslag->getContext()->getMonstring()->getId(),
-                'b_id'		=> $innslag->getId(),
-                'season'	=> $innslag->getContext()->getMonstring()->getSesong(),
+                'pl_id'        => $innslag->getContext()->getMonstring()->getId(),
+                'b_id'        => $innslag->getId(),
+                'season'    => $innslag->getContext()->getMonstring()->getSesong(),
             ]
         );
         $slett_relasjon->run();
 
 
-        if($res) {
+        if ($res) {
             return true;
         }
 
@@ -1235,11 +1253,12 @@ class Write
      * @param Any $object
      * @return Bool
      */
-    public static function validateClass( $object ) {
-        return is_object( $object ) &&
-            in_array( 
+    public static function validateClass($object)
+    {
+        return is_object($object) &&
+            in_array(
                 get_class($object),
-                ['UKMNorge\Arrangement\Write','write_monstring']
+                ['UKMNorge\Arrangement\Write', 'write_monstring']
             );
     }
 }

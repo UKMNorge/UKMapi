@@ -36,6 +36,12 @@ abstract class Collection implements Iterator
 	    return $this->find( $object->getId() );
     }
 
+    /**
+     * Hent ett gitt objekt
+     *
+     * @param mixed $id
+     * @return mixed item
+     */
     public function get( $id ) {
         $this->_doLoad();
         return $this->find( $id );
@@ -158,6 +164,8 @@ abstract class Collection implements Iterator
 
     /**
      * Hent Collection ID
+     * 
+     * @return mixed
      */ 
     public function getId()
     {
