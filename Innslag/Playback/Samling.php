@@ -2,6 +2,7 @@
 
 namespace UKMNorge\Innslag\Playback;
 
+use Exception;
 use UKMNorge\Collection;
 use UKMNorge\Database\SQL\Query;
 
@@ -53,5 +54,30 @@ class Samling extends Collection
     public function getInnslagID()
     {
         return $this->innslag_id;
+    }
+
+    /**
+     * Hent gitt playbackfil fra ID
+     *
+     * @param Int $id
+     * @throws Exception
+     * @return Playback
+     */
+    public static function getById(Int $id) {
+        $sql = new Query(
+            Playback::getLoadQuery() . "
+						WHERE `pb_id` = '#playbackid'",
+            [
+                'playbackid' => $id
+            ]
+        );
+        $res = $sql->getArray();
+        if ($res) {
+            return new Playback($res);
+        }
+        throw new Exception(
+            'Kunne ikke hente mediefil',
+            133001
+        );
     }
 }

@@ -32,9 +32,10 @@ prefix | objekt | les | skriv
 21 | HendelseCollection | 121yyy | 521yyy
 22 | Nominasjon | 122yyy | 522yyy
 23 | Meta | 123yyy | 523yyy
-30 | Innslag/Type | 301yyy | - 
-31 | Media/Artikkel | 311yyy | -
-32 | Media/Bilde | 321yyy | -
+30 | Innslag/Type | 130yyy | - 
+31 | Media/Artikkel | 131yyy | -
+32 | Media/Bilde | 132yyy | -
+33 | Innslag/Playback | 133yyy | 533yyy
 40 | Fil/Excel | 401yyy | - 
 40 | Kommunikasjon/Epost | 402yyy | - 
 50 | Arrangement/Arrangementer | 150yyy | -

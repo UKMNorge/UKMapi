@@ -4,6 +4,7 @@ namespace UKMNorge\Innslag\Playback;
 
 class Playback
 {
+    const TABLE = 'ukm_playback';
     var $base_url = 'http://playback.' . UKM_HOSTNAME . '/';
 
     var $id = null;
@@ -23,7 +24,7 @@ class Playback
     public static function getLoadQuery()
     {
         return "SELECT *
-            FROM `ukm_playback`";
+            FROM `". static::TABLE ."`";
     }
 
     public function __construct($data)
