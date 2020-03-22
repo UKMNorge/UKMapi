@@ -9,6 +9,15 @@ require_once('UKM/Autoloader.php');
 require_once('UKM/vendor/autoload.php');
 
 class Excel extends OfficeDok {
+    const COLORS = [
+        '00004c',
+        'ff128b',
+        'fff056',
+        '00ff89',
+        '235da9',
+        '72f379',
+        'f29d73'
+    ];
     var $row = [];
     var $sheet_ids = [];
     var $sheet_names = [];
@@ -60,8 +69,15 @@ class Excel extends OfficeDok {
                 $sheet->setTitle( $navn );
             }
         }
-        $this->phpSpreadsheet->setActiveSheetIndex( array_search($id, $this->sheet_ids) );
+        $sheet = $this->phpSpreadsheet->setActiveSheetIndex( array_search($id, $this->sheet_ids) );
+        if( isset( static::COLORS[ array_search($id, $this->sheet_ids) ] ) ) {
+            $sheet->getTabColor()->setRGB( static::COLORS[ array_search($id, $this->sheet_ids) ] );
+        }
     }
+
+    /**
+     * @inheritdoc 
+     */
     public function ark( String $id ) {
         $this->setArk( $id );
     }
@@ -100,9 +116,29 @@ class Excel extends OfficeDok {
     }
 
     /**
+     * Angi fet skrift for en celle
+     *
+     * @param String A1-style refereanse
+     * @return self
+     */
+    public function fet( String $cell_ref ) {
+        $this->phpSpreadsheet
+            ->getActiveSheet()
+            ->getStyle($cell_ref)
+            ->applyFromArray(
+                [
+                    'font' => [
+                        'bold' => true,
+                    ]
+                ]
+            );
+        return $this;
+    }
+
+    /**
      * Hent aktiv rad
      *
-     * @return void
+     * @return Int
      */
     public function getRad() {
         return $this->row[ $this->phpSpreadsheet->getActiveSheetIndex() ];
@@ -111,7 +147,7 @@ class Excel extends OfficeDok {
     /**
      * Lagre excel-fil og returner URL for nedlasting
      *
-     * @return void
+     * @return String
      */
     public function writeToFile() {
         $filename = OfficeDok::sanitizeFilename($this->name .'.xlsx');

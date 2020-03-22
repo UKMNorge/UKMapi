@@ -370,6 +370,16 @@ class Kommune {
         }
         return $this->omrade;
     }
+
+    /**
+     * Hent kommunens nettverksområde
+     *
+     * @return Omrade
+     */
+    public function getNettverkOmrade() {
+        return $this->getOmrade();
+    }
+
 	/**
 	 * Hent attributt
 	 *
