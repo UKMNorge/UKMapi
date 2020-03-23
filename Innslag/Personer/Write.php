@@ -119,7 +119,7 @@ class Write {
 	/**
 	 * Lagre et person-objekt
 	 *
-	 * Lagring av rolle skjer via write_innslag::setRolle( $innslag, $person );
+	 * Lagring av rolle skjer via UKMNorge\Innslag\Write::setRolle( $innslag, $person );
 	 *
 	 * @param Person $person_save
 	 * @return bool true
@@ -711,7 +711,7 @@ class Write {
 	public static function validerPerson( $person ) {
 		if( !Person::validateClass($person)) {
 			throw new Exception(
-				'Person må være objekt av klassen person_v2',
+				'Person må være Person-objekt',
 				506009
 			);
 		}

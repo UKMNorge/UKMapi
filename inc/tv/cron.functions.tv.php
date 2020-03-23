@@ -1,9 +1,12 @@
 <?php
 
+use UKMNorge\Arrangement\Arrangement;
+use UKMNorge\Database\SQL\Query;
+use UKMNorge\Innslag\Innslag;
+
+require_once('UKM/Autoloader.php');
+
 require_once('UKM/sql.class.php');
-require_once('UKM/monstring.class.php');
-require_once('UKM/innslag.class.php');
-require_once('UKM/person.class.php');
 
 global $looped_videos;
 $looped_videos = array();
@@ -121,7 +124,7 @@ function video_calc_data($algorithm, $res) {
 			$data['description'] = $res['video_description'];
 			return $data;
 		case 'wp_related':
-			$inn = new innslag($res['b_id']);
+			$inn = new Innslag($res['b_id']);
 			$monstring = video_calc_monstring($res['b_id'], $res['pl_type'], $res['b_kommune'], $res['b_season']);
 			$pl = $monstring['pl'];
 			$kategori = $monstring['kategori'];
@@ -148,7 +151,7 @@ function video_calc_data($algorithm, $res) {
 			return $data;
 			
 		case 'smartukm_tag':
-			$inn = new innslag($res['b_id'],true);
+			$inn = new Innslag($res['b_id'],true);
 			$b_id = $inn->g('b_id');
 			if(empty($b_id))
 				return false;
@@ -156,14 +159,14 @@ function video_calc_data($algorithm, $res) {
 			$kommune = $inn->g('b_kommune');
 			$season = $inn->g('b_season');
 			if($kommune != 0 && $season != 0) {
-				$kommuneQ = new SQL("SELECT `pl_id`
+				$kommuneQ = new Query("SELECT `pl_id`
 									 FROM `smartukm_rel_pl_k`
 									 WHERE `k_id` = '#kid'
 									 AND `season` = '#season'",
 									 array('kid' => $kommune, 'season' => $season));
 				$pl_id = $kommuneQ->run('field','pl_id');
 			} else {
-				$geo = new SQL("SELECT `smartukm_place`.`pl_id`,
+				$geo = new Query("SELECT `smartukm_place`.`pl_id`,
 										 `smartukm_rel_pl_k`.`k_id`,
 										 `smartukm_place`.`season`
 									 FROM `smartukm_rel_pl_b`
@@ -337,10 +340,10 @@ function video_calc_data($algorithm, $res) {
 			
 			if(!$type) {
 				$season = $geo['season'];
-				$pl = new monstring($geo['pl_id']);
+				$pl = new Arrangement($geo['pl_id']);
 				$type = $pl->g('type');
 			} else {
-				$pl = new monstring($pl_id);
+				$pl = new Arrangement($pl_id);
 			}
 			
 			$monstring = video_calc_monstring($inn->g('b_id'), $type, $kommune, $season);
@@ -436,7 +439,7 @@ function video_calc_monstring($b_id, $pl_type, $kommune, $season) {
 	}
 }
 function video_calc_tag_standalone($res) {
-	$place = new monstring($res['pl_id']);
+	$place = new Arrangement($res['pl_id']);
 	$type = $place->g('type');
 	$tags = '|pl_'.$res['pl_id'].'|'
 		   .'|t_'.$place->g('type').'|'

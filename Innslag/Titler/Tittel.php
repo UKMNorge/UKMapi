@@ -171,7 +171,7 @@ abstract class Tittel
     public function setSelvlaget($selvlaget)
     {
         if (!is_bool($selvlaget)) {
-            throw new Exception('TITTEL_V2: Selvlaget må angis som boolean');
+            throw new Exception('Tittel: Selvlaget må angis som boolean');
         }
         $this->selvlaget = $selvlaget;
         return $this;
@@ -327,8 +327,7 @@ abstract class Tittel
                     'UKMNorge\Innslag\Titler\Matkultur',
                     'UKMNorge\Innslag\Titler\Musikk',
                     'UKMNorge\Innslag\Titler\Teater',
-                    'UKMNorge\Innslag\Titler\Utstilling',
-                    'tittel_v2'
+                    'UKMNorge\Innslag\Titler\Utstilling'
                 ]
             );
     }

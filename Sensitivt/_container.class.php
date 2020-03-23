@@ -8,7 +8,7 @@
  * Informasjonshentingen kan derfor være lite effektiv,
  * men det skal heller ikke brukes så ofte, så det er ok.
  * 
- * Klassen instantieres som en egenskap på et objekt, f.eks person_v2,
+ * Klassen instantieres som en egenskap på et objekt, f.eks Person,
  * og aksesseres via ->getSensitivt()->getSomething...
  * 
 **/

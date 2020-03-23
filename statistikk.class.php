@@ -1,4 +1,7 @@
 <?php
+
+use UKMNorge\Innslag\Innslag;
+
 require_once 'UKM/sql.class.php';
 
 class statistikk {
@@ -262,10 +265,10 @@ class statistikk {
 	/**
 	 * Oppdater statistikk for innslag
 	 *
-	 * @param (innslag|write_innslag) $innslag
+	 * @param (Innslag) $innslag
 	 * @return void
 	**/
-	public static function oppdater_innslag( $innslag ) {
+	public static function oppdater_innslag( Innslag $innslag ) {
 		$sqldel = new SQLdel('ukm_statistics',
 							 array('season' => $innslag->getSesong(),
 							 	   'b_id' => $innslag->getId()));

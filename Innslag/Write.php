@@ -387,8 +387,8 @@ class Write {
 	 * Lagre endringer i titler-collection
 	 *
 	 * Samme som å kjøre flere 
-	 *  write_tittel::leggTil( $tittel ) eller
-	 *  write_tittel::fjern( $tittel )
+	 *  Write::leggTil( $tittel ) eller
+	 *  Write::fjern( $tittel )
 	 *
 	 * @param Innslag $innslag_save
 	 * @return void
@@ -442,8 +442,8 @@ class Write {
 	 * Lagre endringer i program-collection
 	 *
 	 * Samme som å kjøre flere 
-	 *  write_forestilling::leggTil( $tittel ) eller
-	 *  write_forestilling::fjern( $tittel )
+	 *  Write::leggTil( $tittel ) eller
+	 *  Write::fjern( $tittel )
 	 *
 	 * @param Innslag $innslag_save
 	 * @return void

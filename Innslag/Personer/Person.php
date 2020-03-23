@@ -718,7 +718,7 @@ class Person
             $this->_load_from_array($person);
         } else {
             throw new Exception(
-                'PERSON_V2: Oppretting krever parameter $person som numerisk id eller array, fikk ' . gettype($person) . '.',
+                'PERSON: Oppretting krever parameter $person som numerisk id eller array, fikk ' . gettype($person) . '.',
                 109001
             );
         }
@@ -802,7 +802,7 @@ class Person
         return is_object($object) &&
             in_array(
                 get_class($object),
-                ['UKMNorge\Innslag\Personer\Person', 'person_v2']
+                ['UKMNorge\Innslag\Personer\Person']
             );
     }
 }

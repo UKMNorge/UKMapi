@@ -1,5 +1,10 @@
 <?php
-	
+
+use UKMNorge\Database\SQL\Query;
+use UKMNorge\Innslag\Innslag;
+
+require_once('UKM/Autoloader.php');
+
 class AlternativeInnslag {
 	var $sporsmalId = null;
 	var $name = null;
@@ -39,8 +44,7 @@ class AlternativeInnslag {
 	
 	public function getInnslag() {
 		if( null == $this->innslag ) {
-			require_once('UKM/innslag.class.php');
-			$this->innslag = new innslag_v2( $this->getId() );
+			$this->innslag = new Innslag( $this->getId() );
 		}
 		return $this->innslag;
 	}
@@ -49,7 +53,7 @@ class AlternativeInnslag {
 	public function getCount() {
 		if( null == $this->count ) {
 			require_once('UKM/Konkurranse/answer.collection.php');
-			$sql = new SQL("
+			$sql = new Query("
 				SELECT COUNT(`id`) AS `count`
 				FROM `#table`
 				WHERE `sporsmal_id` = '#sporsmal_id'

@@ -2,11 +2,11 @@
 
 namespace UKMNorge\Arrangement;
 
-use kommune, fylker;
-use UKMNorge\Database\SQL\Query;
+require_once('UKM/Autoloader.php');
 
-require_once('UKM/fylker.class.php');
-require_once('UKM/kommune.class.php');
+use UKMNorge\Database\SQL\Query;
+use UKMNorge\Geografi\Fylker;
+use UKMNorge\Geografi\Kommune;
 
 class Eier
 {
@@ -72,10 +72,10 @@ class Eier
         if( null == $this->parent ) {
             switch( $this->getType() ) {
                 case 'kommune': 
-                    $this->parent = new kommune( $this->getId() );
+                    $this->parent = new Kommune( $this->getId() );
                     break;
                 case 'fylke':
-                    $this->parent = fylker::getById( $this->getId() );
+                    $this->parent = Fylker::getById( $this->getId() );
                     break;
             }
             $this->name = $this->parent->getNavn();

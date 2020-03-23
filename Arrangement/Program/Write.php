@@ -366,10 +366,10 @@ class Write
      * Fjern et innslag fra alle forestillinger på en mønstring
      * Gjøres når et innslag er avmeldt en mønstring
      *
-     * @param write_innslag $innslag
+     * @param Innslag $innslag
      * @return $this
      **/
-    public static function fjernInnslagFraAlleForestillingerIMonstring($innslag)
+    public static function fjernInnslagFraAlleForestillingerIMonstring(Innslag $innslag)
     {
         Innslag::validateClass($innslag);
 

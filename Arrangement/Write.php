@@ -485,7 +485,7 @@ class Write
                 break;
             case 'default':
                 throw new Exception(
-                    'WRITE_MONSTRING::createLink() kan ikke genere link for ukjent type mønstring!',
+                    'Arrangement\Write::createLink() kan ikke genere link for ukjent type arrangement!',
                     501009
                 );
         }
@@ -1239,7 +1239,7 @@ class Write
         return is_object( $object ) &&
             in_array( 
                 get_class($object),
-                ['UKMNorge\Arrangement\Write','write_monstring']
+                ['UKMNorge\Arrangement\Write']
             );
     }
 }

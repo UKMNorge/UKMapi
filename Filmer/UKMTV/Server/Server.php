@@ -20,16 +20,8 @@ class Server extends BandwidthMode
      */
     public static function getCacheUrl($skipProtocol = false)
     {
-        if (null == static::$cache) {
-            $sql = new Query(
-                "SELECT `ip`
-                FROM `ukm_tv_caches_caches`
-                WHERE `last_heartbeat` >= NOW() - INTERVAL 3 MINUTE
-                    AND `status` = 'ok' AND `deactivated` = 0
-                ORDER BY RAND()
-                LIMIT 1"
-            );
-            $server = $sql->getField();
+        if (null == static::$cache) {    
+            $server = static::getActiveCacheUrl();
             if (!$server) {
                 error_log('NO ACTIVE CACHE');
                 static::$cache = static::getStorageUrl(true);
@@ -39,6 +31,25 @@ class Server extends BandwidthMode
         }
         return ($skipProtocol ? '' : 'http://') . rtrim(static::$cache,'/') . '/';
     }
+
+    /**
+     * Hent URL til én tilfeldig aktiv cache
+     * 
+     * Returnerer bool false hvis ingen finnes
+     *
+     * @return String|Bool
+     */
+    public static function getActiveCacheUrl() {
+		$sql = new Query(
+            "SELECT `ip`
+            FROM `ukm_tv_caches_caches`
+            WHERE `last_heartbeat` >= NOW() - INTERVAL 3 MINUTE
+                AND `status` = 'ok' AND `deactivated` = 0
+            ORDER BY RAND()
+            LIMIT 1"
+        );
+        return $sql->getField();
+	}
 
     /**
      * Hent app-name for wowza

@@ -247,7 +247,7 @@ class Samling {
 	**/
 	public static function filterByStatus( $status_array, $innslag_array ) {
 		if( !is_array( $status_array ) ) {
-			throw new Exception('innslag_collection::filterByStatus() krever at parameter 1 er array. Gitt '. get_class( $status_array ) );
+			throw new Exception('InnslagCollection::filterByStatus() krever at parameter 1 er array. Gitt '. get_class( $status_array ) );
 		}
 
 		$selected_innslag = [];
@@ -268,7 +268,7 @@ class Samling {
 	**/
 	public static function filterByType( Type $innslag_type, Array $innslag_array ) {
 		if( !Type::validateClass($innslag_type ) ) {
-			throw new Exception('innslag_collection::getAllByType() krever objekt av klassen innslag_type. Gitt '. get_class( $innslag_type ) );
+			throw new Exception('InnslagCollection::getAllByType() krever objekt av klassen innslag_type. Gitt '. get_class( $innslag_type ) );
 		}
 		
 		$selected_innslag = [];
@@ -293,7 +293,7 @@ class Samling {
 	public static function filterByGeografi( $geografi, $innslag_array ) {
 		if( !Kommune::validateClass( $geografi ) && !Fylke::validateClass( $geografi ) ) {
 			throw new Exception(
-				'innslag_collection::filterByGeografi: '.
+				'InnslagCollection::filterByGeografi: '.
 				'Type (param 2) må være kommune eller fylke'
 			);
 		}
@@ -566,7 +566,7 @@ class Samling {
 				}
 			case 'forestilling':
 				if( null == $this->getContext()->getForestilling()->getId() ) {
-					throw new Exception('INNSLAG_COLLECTION: Krever forestilling-ID for å hente forestillingens innslag', 2);
+					throw new Exception('InnslagCollection: Krever forestilling-ID for å hente forestillingens innslag', 2);
 				}
 				return new Query(Innslag::getLoadQuery()."
 								JOIN `smartukm_rel_b_c` AS `rel`
