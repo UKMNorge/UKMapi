@@ -1,5 +1,7 @@
 <?php
 
+use UKMNorge\Database\SQL\Insert;
+
 /**
  * SENSITIVT:
  * Access-control og logger for sensitiv person-informasjon
@@ -8,7 +10,7 @@
  * Informasjonshentingen kan derfor være lite effektiv,
  * men det skal heller ikke brukes så ofte, så det er ok.
  * 
- * Klassen instantieres som en egenskap på et objekt, f.eks person_v2,
+ * Klassen instantieres som en egenskap på et objekt, f.eks Person,
  * og aksesseres via ->getSensitivt()->getSomething...
  * 
 **/
@@ -30,7 +32,7 @@ abstract class container {
         
         $object = substr($action, 0, (strlen($action)-2));
         
-        $sql = new SQLins('log_sensitivt');
+        $sql = new Insert('log_sensitivt');
         $sql->add( 'log_u_id', self::getUser() );
         $sql->add( 'log_system_id', self::getSystem() );
         $sql->add( 'log_pl_id', self::getPlId() );

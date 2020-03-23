@@ -5,14 +5,12 @@ use UKMNorge\Wordpress\User;
 use UKMNorge\Nettverk\Administratorer;
 
 use Exception;
-use SQLdel;
-use SQLins;
+use UKMNorge\Database\SQL\Delete;
+use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Kommunikasjon\Epost;
 use UKMNorge\Kommunikasjon\Mottaker;
 use UKMNorge\Twig\Twig;
 use UKMNorge\Wordpress\Blog;
-
-require_once('UKM/Autoloader.php');
 
 class WriteOmrade {
 
@@ -24,7 +22,7 @@ class WriteOmrade {
      * @return Bool
      */
     public function leggTilAdmin( Omrade $omrade, Administrator $admin ) {
-        $sql = new SQLins('ukm_nettverk_admins');
+        $sql = new Insert('ukm_nettverk_admins');
         $sql->add('wp_user_id', $admin->getId());
         $sql->add('geo_type', $omrade->getType());
         $sql->add('geo_id', $omrade->getForeignId());
@@ -112,7 +110,7 @@ class WriteOmrade {
      * 
      */
     public function fjernAdmin( Omrade $omrade, Administrator $admin ) {
-        $sql = new SQLdel(
+        $sql = new Delete(
             'ukm_nettverk_admins',
             [
                 'wp_user_id' => $admin->getId(),

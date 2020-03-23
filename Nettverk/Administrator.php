@@ -3,6 +3,7 @@
 namespace UKMNorge\Nettverk;
 use UKMNorge\Wordpress\User;
 use SQL;
+use UKMNorge\Database\SQL\Query;
 use UKMNorge\Wordpress\Blog;
 
 require_once('UKM/Autoloader.php');
@@ -160,7 +161,7 @@ class Administrator
      * @return Array<Omrade>
      */
     private function _loadOmrader() {
-        $sql = new SQL("SELECT * 
+        $sql = new Query("SELECT * 
             FROM `ukm_nettverk_admins`
             WHERE `wp_user_id` = '#userid'",
             [
@@ -170,7 +171,7 @@ class Administrator
         $res = $sql->run();
 
         $this->omrader = [];
-        while( $row = SQL::fetch( $res ) ) {
+        while( $row = Query::fetch( $res ) ) {
             $omrade = new Omrade( $row['geo_type'], (Int) $row['geo_id'] );
             $this->omrader[ $omrade->getId() ] = $omrade;
         }

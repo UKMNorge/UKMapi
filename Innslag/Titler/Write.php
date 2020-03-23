@@ -10,6 +10,7 @@ use Exception;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Database\SQL\Update;
 
 require_once('UKM/Autoloader.php');
 
@@ -121,7 +122,7 @@ class Write
         $tittel_db = $innslag_db->getTitler()->get($tittel_save->getId());
 
         // TABELLER SOM KAN OPPDATERES
-        $sql = new Insert(
+        $sql = new Update(
             $tittel_save::TABLE,
             [
                 't_id' => $tittel_save->getId(),
@@ -310,7 +311,7 @@ class Write
     /**
      * Legg til en tittel på videresendt nivå
      *
-     * @param tittel_v2 $tittel_save
+     * @param Tittel $tittel_save
      **/
     private static function _leggTilVideresend($tittel_save)
     {
@@ -414,7 +415,7 @@ class Write
      * 
      * Avrelaterer en tittel fra dette innslaget.
      *
-     * @param tittel_v2 $tittel_save
+     * @param Tittel $tittel_save
      *
      * @return (bool true|throw exception)
      */
@@ -492,14 +493,14 @@ class Write
      * Valider at gitt tittel-objekt er av riktig type
      * og har en numerisk Id som kan brukes til database-modifisering
      *
-     * @param tittel_V2 $tittel
+     * @param Tittel $tittel
      * @return void
      **/
     public static function validerTittel($tittel)
     {
         if (!Tittel::validateClass($tittel)) {
             throw new Exception(
-                'Tittel må være objekt av klassen tittel_v2',
+                'Tittel må være Tittel-objekt',
                 508012
             );
         }

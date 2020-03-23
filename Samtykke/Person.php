@@ -127,14 +127,14 @@ class Person {
         $this->antall_innslag--;
         
         try {
-            $SQLdel = new Delete(
+            $delete = new Delete(
                 'samtykke_deltaker_innslag',
                 [
                     'p_id' => $this->getPerson()->getId(),
                     'b_id' => $innslag_id
                 ]
             );
-            $SQLdel->run();
+            $delete->run();
         } catch( Exception $e ) {
             // Do nothing
         }

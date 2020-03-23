@@ -178,9 +178,6 @@ class Fylke
     public function getKommuner()
     {
         if (null == $this->kommuner) {
-            require_once('UKM/kommuner.collection.php');
-            require_once('UKM/kommune.class.php');
-
             $this->kommuner = new Kommuner();
 
             $sql = new Query(

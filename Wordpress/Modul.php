@@ -1,11 +1,10 @@
 <?php
 
 namespace UKMNorge\Wordpress;
-use \Flashbag;
-use UKMlogger;
 
-require_once('UKM/logger.class.php');
-require_once('UKM/flashbag.class.php');
+use UKMNorge\Flashbag;
+use UKMNorge\Log\Logger;
+
 require_once('UKM/inc/twig-admin.inc.php');
 
 /**
@@ -316,7 +315,6 @@ abstract class Modul {
 		## SETUP LOGGER
 		global $current_user;
 		get_currentuserinfo();
-		require_once('UKM/logger.class.php'); 
-		UKMlogger::setID( 'wordpress', $current_user->ID, get_option('pl_id') );
+		Logger::setID( 'wordpress', $current_user->ID, get_option('pl_id') );
 	}
 }

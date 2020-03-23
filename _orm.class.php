@@ -1,6 +1,9 @@
 <?php
 
-require_once('UKM/sql.class.php');
+use UKMNorge\Database\SQL\Query;
+use UKMNorge\Database\SQL\Update;
+
+require_once('UKM/Autoloader.php');
 
 abstract class ORM {
 	var $attr = null;
@@ -38,7 +41,7 @@ abstract class ORM {
 	}
 	
 	public static function getRowFromDb( $id ) {
-		$sql = new SQL("SELECT * FROM `". self::getTableName()."` WHERE `id` = '". $id ."'");
+		$sql = new Query("SELECT * FROM `". self::getTableName()."` WHERE `id` = '". $id ."'");
 		$res = $sql->run('array');
 		return $res;
 	}
@@ -53,7 +56,7 @@ abstract class ORM {
 	}
 		
 	public function _update( $mapped_values ) {
-		$sqlUpd = new SQLins( self::getTableName(), ['id' => $this->getId()] );
+		$sqlUpd = new Update( self::getTableName(), ['id' => $this->getId()] );
 		foreach( $mapped_values as $key => $val) {
 			$sqlUpd->add( $key, $val );
 		}

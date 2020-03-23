@@ -1,5 +1,6 @@
 <?php
 
+use UKMNorge\Database\SQL\Query;
 
 require_once('UKM/_orm.collection.php');
 require_once('UKM/Konkurranse/answer.class.php');
@@ -25,7 +26,7 @@ class AnswerColl extends Coll {
 			$question_id = $question_id->getId();
 		}
 
-		$sql = new SQL(
+		$sql = new Query(
 			"SELECT * FROM `". self::TABLE_NAME ."`
 			WHERE `sporsmal_id` = '#question_id'
 			AND `mobil` = '#mobil'",
@@ -51,7 +52,7 @@ class AnswerColl extends Coll {
 			$question_id = $question_id->getId();
 		}
 
-		$sql = new SQL(
+		$sql = new Query(
 			"SELECT * FROM `". self::TABLE_NAME ."`
 			WHERE `sporsmal_id` = '#question_id'",
 			[
@@ -70,7 +71,7 @@ class AnswerColl extends Coll {
 	public static function getAllUniqueByQuestion( $question_id ) {
 		$child = get_called_class();
 
-		$sql = new SQL(
+		$sql = new Query(
 			"SELECT * FROM `". self::TABLE_NAME ."`
 			WHERE `sporsmal_id` = '#question_id'
 			GROUP BY `svar`",
@@ -81,7 +82,7 @@ class AnswerColl extends Coll {
 		$res = $sql->run();
 		
 		$models = [];
-		while( $row = SQL::fetch( $res ) ) {
+		while( $row = Query::fetch( $res ) ) {
 			$object_class = str_replace('Coll', '', $child);
 			$models[] = new $object_class( $row );
 		}

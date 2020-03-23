@@ -1,6 +1,10 @@
 <?php
 
-require_once('UKM/sql.class.php');
+use UKMNorge\Database\SQL\Delete;
+use UKMNorge\Database\SQL\Insert;
+use UKMNorge\Database\SQL\Query;
+
+require_once('UKM/Autoloader.php');
 	
 abstract class InstanceColl {
 	var $parent_id = null;
@@ -16,7 +20,7 @@ abstract class InstanceColl {
 	public function getById( $id ) {
 		$child = get_called_class();
 		
-		$sql = new SQL(
+		$sql = new Query(
 			"SELECT * 
 			FROM `". $child::getTableName() ."` 
 			WHERE `id` = '#id'
@@ -36,7 +40,7 @@ abstract class InstanceColl {
 	public function getByKey( $key, $value ) {
 		$child = get_called_class();
 
-		$sql = new SQL(
+		$sql = new Query(
 			"SELECT * 
 			FROM `". $child::getTableName() ."` 
 			WHERE `". $key ."` = '#id'
@@ -79,7 +83,7 @@ abstract class InstanceColl {
 		$child = get_called_class();
 		$this->models = [];
 		
-		$sql = new SQL("
+		$sql = new Query("
 			SELECT * 
 			FROM `". $child::getTableName() ."`
 			WHERE `". $child::PARENT_FIELD ."` = '#parent_id'
@@ -90,7 +94,7 @@ abstract class InstanceColl {
 		);
 		$res = $sql->run();
 
-		while( $row = SQL::fetch( $res ) ) {
+		while( $row = Query::fetch( $res ) ) {
 			$object_class = str_replace('Coll', '', $child);
 			$this->models[] = new $object_class( $row );
 		}
@@ -100,7 +104,7 @@ abstract class InstanceColl {
 		$child = get_called_class();
 		$this->models = [];
 
-		$sql = new SQL(
+		$sql = new Query(
 			"SELECT * 
 			FROM `". $child::getTableName() ."` 
 			WHERE `". $whereKey ."` = '#value'
@@ -113,7 +117,7 @@ abstract class InstanceColl {
 		);
 		$res = $sql->run();
 
-		while( $row = SQL::fetch( $res ) ) {
+		while( $row = Query::fetch( $res ) ) {
 			$object_class = str_replace('Coll', '', $child);
 			$this->models[] = new $object_class( $row );
 		}
@@ -122,7 +126,7 @@ abstract class InstanceColl {
 	public function _create( $mapped_values ) {
 		$child = str_replace('InstanceColl','', get_called_class());
 
-		$sqlIns = new SQLins($child::getTableName());
+		$sqlIns = new Insert($child::getTableName());
 		$sqlIns->add( $child::getParentField(), $this->parent_id );
 		foreach( $mapped_values as $key => $val ) {
 			$sqlIns->add( $key, $val );
@@ -136,8 +140,8 @@ abstract class InstanceColl {
 		$child = str_replace('Coll','', get_called_class());		
 		$mapped_values[ $child::getParentField() ] = $this->parent_id;
 
-		$sqlDel = new SQLdel($child::getTableName(), $mapped_values);
-		return $sqlDel->run();
+		$delete = new Delete($child::getTableName(), $mapped_values);
+		return $delete->run();
 	}
 
 

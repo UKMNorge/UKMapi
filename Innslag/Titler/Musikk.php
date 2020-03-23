@@ -108,7 +108,7 @@ class Musikk extends Tittel
     public function setInstrumental($instrumental)
     {
         if (!is_bool($instrumental)) {
-            throw new Exception('TITTEL_V2: Instrumental må angis som boolean');
+            throw new Exception('Tittel: Instrumental må angis som boolean');
         }
         $this->instrumental = $instrumental;
         return $this;

@@ -211,7 +211,7 @@ class Personer extends Collection
     public function getSingle()
     {
         if (1 < $this->getAntall()) {
-            throw new Exception('PERSON_V2: getSingle() er kun ment for bruk med tittelløse innslag som har ett personobjekt. '
+            throw new Exception('PERSON: getSingle() er kun ment for bruk med tittelløse innslag som har ett personobjekt. '
                 . 'Dette innslaget har ' . $this->getAntall() . ' personer');
         }
         $all = $this->getAll();

@@ -1,5 +1,7 @@
 <?php
 
+use UKMNorge\Geografi\Fylker;
+require_once('UKM/Autoloader.php');
 
 require_once('UKM/_orm.instanceCollection.php');
 require_once('UKM/Konkurranse/alternative.class.php');
@@ -29,10 +31,8 @@ class AlternativeColl extends InstanceColl {
 	
 	public function getAllByName() {
 		switch( $this->getType() ) {
-			case 'fylke':
-				require_once('UKM/fylker.class.php');
-				
-				foreach( fylker::getAll() as $fylke ) {
+			case 'fylke':				
+				foreach( Fylker::getAll() as $fylke ) {
 					$this->models[] = new AlternativeFylke( $this->getParentId(), $fylke);
 				}
 				return $this->models;

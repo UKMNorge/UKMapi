@@ -2,7 +2,6 @@
 
 namespace UKMNorge\Samtykke\Meldinger;
 
-use SQL, SQLins;
 use Exception;
 use \SMS as UKMlibSMS;
 use UKMNorge\Database\SQL\Insert;

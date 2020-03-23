@@ -95,7 +95,7 @@ class Write {
                 551003
             );
         }
-        $query = new Insert(
+        $query = new Update(
             'ukm_videresending_skjema_sporsmal',
             [
                 'id' => $sporsmal->getId()
@@ -195,7 +195,7 @@ class Write {
         }
 
         if( $svar->getId() == 0 ) {
-            $query = new Insert(
+            $query = new Update(
                 'ukm_videresending_skjema_svar'
             );
             $query->add('skjema', $svarSett->getSkjemaId());

@@ -1,5 +1,6 @@
 <?php
 
+use UKMNorge\Database\SQL\Query;
 
 require_once('UKM/_orm.class.php');
 require_once('UKM/Konkurranse/alternative.class.php');
@@ -44,7 +45,7 @@ class Alternative extends ORM {
 	public function getCount() {
 		if( null == $this->count ) {
 			require_once('UKM/Konkurranse/answer.collection.php');
-			$sql = new SQL("
+			$sql = new Query("
 				SELECT COUNT(`id`) AS `count`
 				FROM `#table`
 				WHERE `sporsmal_id` = '#sporsmal_id'
@@ -63,7 +64,7 @@ class Alternative extends ORM {
 	public function getAnswers() {
 		if( null == $this->answers ) {
 			require_once('UKM/Konkurranse/answer.collection.php');
-			$sql = new SQL("
+			$sql = new Query("
 				SELECT *
 				FROM `#table`
 				WHERE `sporsmal_id` = '#sporsmal_id'
@@ -77,7 +78,7 @@ class Alternative extends ORM {
 			$answers = $sql->run();
 			
 			$this->answers = [];
-			while( $row = SQL::fetch( $answers ) ) {
+			while( $row = Query::fetch( $answers ) ) {
 				$this->answers[] = new Answer( $row );
 			}
 			return $this->answers;

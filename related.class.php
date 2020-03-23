@@ -1,4 +1,9 @@
 <?php
+
+use UKMNorge\Database\SQL\Delete;
+use UKMNorge\Database\SQL\Insert;
+use UKMNorge\Database\SQL\Query;
+
 class related {
 	var $table = 'ukmno_wp_related';
 	var $authors;
@@ -26,7 +31,7 @@ class related {
 	public function set($post_id, $post_type, $post_meta=array()) {
 		$this->delete($post_id, $post_type);
 		
-		$set = new SQLins($this->table);
+		$set = new Insert($this->table);
 		
 		$set->add('blog_id', $this->blog_id);
 		$set->add('blog_url', $this->blog_url);
@@ -49,14 +54,14 @@ class related {
 	###
 	public function delete($post_id, $post_type) {
 		if($post_type == 'post') 
-			$del = new SQLdel($this->table,
+			$del = new Delete($this->table,
 							  array('blog_id'=>$this->blog_id,
 							  		'post_id'=>$post_id,
 							  		'post_type'=>$post_type,
 							  		'b_id'=>$this->b_id)
 							  );
 		else
-			$del = new SQLdel($this->table,
+			$del = new Delete($this->table,
 							  array('blog_id'=>$this->blog_id,
 							  		'post_id'=>$post_id,
 							  		'post_type'=>$post_type)
@@ -69,13 +74,13 @@ class related {
 	###
 	# Get related items for one band
 	public function getAlbum() {
-		$get = new SQL("SELECT * FROM `#table`
+		$get = new Query("SELECT * FROM `#table`
 						WHERE `a_id` = '#aid'",
 						array('table'=>$this->table,
 							  'aid'=>$this->album_id)
 						);
 		$get = $get->run();
-		while($r = SQL::fetch($get)) {
+		while($r = Query::fetch($get)) {
 			$r['post_meta'] = unserialize($r['post_meta']);
 			$ret[$r['post_id']] = $r;
 		}	
@@ -85,7 +90,7 @@ class related {
 	
 	public function get() {
 		$ret = null;
-		$get = new SQL("SELECT * FROM `#table`
+		$get = new Query("SELECT * FROM `#table`
 						WHERE `b_id` = '#bid'",
 						array('table'=>$this->table,
 							  'bid'=>$this->b_id)
@@ -93,7 +98,7 @@ class related {
 		$get = $get->run();
 		if(!$get)
 			return false;
-		while($r = SQL::fetch($get)){
+		while($r = Query::fetch($get)){
 			$r['post_meta'] = unserialize($r['post_meta']);
 			$r['post_meta'] = $this->loadAuthor($r['post_meta']);
 			$r['post_meta'] = $this->missingLarge($r['post_meta']);
@@ -133,7 +138,7 @@ class related {
 	}
 	
 	public function getLastImage($size){
-		$get = new SQL("SELECT * FROM `#table`
+		$get = new Query("SELECT * FROM `#table`
 						WHERE `b_id` = '#bid'
 						ORDER BY `rel_id` DESC
 						LIMIT 1",
@@ -170,7 +175,7 @@ class related {
 			$this->b_kommune = false;
 			return;
 		}
-		$load = new SQL("SELECT `b_kommune`
+		$load = new Query("SELECT `b_kommune`
 						 FROM `smartukm_band` 
 						 WHERE `b_id` = '#bid'",
 						 array('bid'=>$this->b_id));

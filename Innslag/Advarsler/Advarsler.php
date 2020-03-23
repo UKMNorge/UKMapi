@@ -2,10 +2,11 @@
 
 namespace UKMNorge\Innslag\Advarsler;
 
-require_once('UKM/Autoloader.php');
-require_once('UKM/_collection.class.php');
+use UKMNorge\Collection;
 
-class Advarsler extends \Collection
+require_once('UKM/Autoloader.php');
+
+class Advarsler extends Collection
 {
     public function har($kategori)
     {

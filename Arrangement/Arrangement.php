@@ -5,11 +5,9 @@ namespace UKMNorge\Arrangement;
 use UKMNorge\Database\SQL\Query;
 use Exception;
 
-require_once 'UKM/sql.class.php';
 require_once('UKM/Autoloader.php');
 
 use DateTime, DatePeriod, DateInterval;
-use kontaktpersoner;
 use statistikk;
 use UKMNorge\Arrangement\Kontaktperson\Samling as KontaktpersonSamling;
 use UKMNorge\Arrangement\Program\Hendelser;
@@ -33,7 +31,6 @@ use UKMNorge\Log\Samling as LogSamling;
 use UKMNorge\Nettverk\Proxy\Kontaktperson as AdminKontaktProxy;
 
 require_once 'UKM/statistikk.class.php';
-require_once 'UKM/monstring_tidligere.class.php';
 
 /**
  * Arrangement
@@ -639,8 +636,6 @@ class Arrangement
      **/
     public function getKommuner()
     {
-        require_once('UKM/kommuner.collection.php');
-
         if (null == $this->kommuner) {
             if ('kommune' == $this->getType()) {
                 $this->kommuner = new Kommuner();

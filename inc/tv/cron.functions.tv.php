@@ -1,9 +1,12 @@
 <?php
 
-require_once('UKM/sql.class.php');
-require_once('UKM/monstring.class.php');
-require_once('UKM/innslag.class.php');
-require_once('UKM/person.class.php');
+use UKMNorge\Arrangement\Arrangement;
+use UKMNorge\Database\SQL\Insert;
+use UKMNorge\Database\SQL\Query;
+use UKMNorge\Database\SQL\Update;
+use UKMNorge\Innslag\Innslag;
+
+require_once('UKM/Autoloader.php');
 
 global $looped_videos;
 $looped_videos = array();
@@ -12,7 +15,7 @@ function tv_update($data) {
 	error_log('CRON:TV_UPDATE: Init');
 	global $looped_videos;
 	if(is_array($data) && !in_array($data['file'], $looped_videos)) {
-		$test = new SQL("SELECT `tv_id`
+		$test = new Query("SELECT `tv_id`
 						 FROM `ukm_tv_files`
 						 WHERE `tv_file` = '#file'",
 						 array('file' => $data['file']));
@@ -21,10 +24,10 @@ function tv_update($data) {
 		
 		if($tv_id && is_numeric($tv_id) ) {
 			error_log('CRON:TV_UPDATE: Eksisterende fil funnet (TVID: '. $tv_id .')');
-			$ins = new SQLins('ukm_tv_files', array('tv_id' => $tv_id));
+			$ins = new Update('ukm_tv_files', array('tv_id' => $tv_id));
 		} else {
 			error_log('CRON:TV_UPDATE: Registrer som ny fil');
-			$ins = new SQLins('ukm_tv_files');
+			$ins = new Insert('ukm_tv_files');
 		}
 		tv_clean_description($data['description']);
 		
@@ -68,7 +71,7 @@ function tv_person_update($tags, $tv_id) {
 		$p_id = str_replace('p_', '', $tag);
 		$p = new person($p_id);
 		
-		$sqltest = new SQL("SELECT `tv_p_id` FROM `ukm_tv_persons`
+		$sqltest = new Query("SELECT `tv_p_id` FROM `ukm_tv_persons`
 							WHERE `tv_id` = '#tvid'
 							AND `p_id` = '#pid'",
 							array('tvid' => $tv_id,
@@ -76,9 +79,9 @@ function tv_person_update($tags, $tv_id) {
 		$sqltest = $sqltest->run('field','tv_p_id');
 		
 		if(is_numeric($sqltest))
-			$sql = new SQLins('ukm_tv_persons', array('tv_id' => $tv_id, 'p_id' => $p_id));
+			$sql = new Update('ukm_tv_persons', array('tv_id' => $tv_id, 'p_id' => $p_id));
 		else
-			$sql = new SQLins('ukm_tv_persons');
+			$sql = new Insert('ukm_tv_persons');
 		
 		$sql->add('tv_id', $tv_id);
 		$sql->add('p_id', $p_id);
@@ -89,7 +92,7 @@ function tv_person_update($tags, $tv_id) {
 
 function tv_category_update($category) {
 	try {
-		$qry = new SQLins('ukm_tv_categories');
+		$qry = new Insert('ukm_tv_categories');
 		$qry->add('c_name', $category);
 
 		if(strpos($category, 'UKM-F') !== false)
@@ -121,7 +124,7 @@ function video_calc_data($algorithm, $res) {
 			$data['description'] = $res['video_description'];
 			return $data;
 		case 'wp_related':
-			$inn = new innslag($res['b_id']);
+			$inn = new Innslag($res['b_id']);
 			$monstring = video_calc_monstring($res['b_id'], $res['pl_type'], $res['b_kommune'], $res['b_season']);
 			$pl = $monstring['pl'];
 			$kategori = $monstring['kategori'];
@@ -148,7 +151,7 @@ function video_calc_data($algorithm, $res) {
 			return $data;
 			
 		case 'smartukm_tag':
-			$inn = new innslag($res['b_id'],true);
+			$inn = new Innslag($res['b_id'],true);
 			$b_id = $inn->g('b_id');
 			if(empty($b_id))
 				return false;
@@ -156,14 +159,14 @@ function video_calc_data($algorithm, $res) {
 			$kommune = $inn->g('b_kommune');
 			$season = $inn->g('b_season');
 			if($kommune != 0 && $season != 0) {
-				$kommuneQ = new SQL("SELECT `pl_id`
+				$kommuneQ = new Query("SELECT `pl_id`
 									 FROM `smartukm_rel_pl_k`
 									 WHERE `k_id` = '#kid'
 									 AND `season` = '#season'",
 									 array('kid' => $kommune, 'season' => $season));
 				$pl_id = $kommuneQ->run('field','pl_id');
 			} else {
-				$geo = new SQL("SELECT `smartukm_place`.`pl_id`,
+				$geo = new Query("SELECT `smartukm_place`.`pl_id`,
 										 `smartukm_rel_pl_k`.`k_id`,
 										 `smartukm_place`.`season`
 									 FROM `smartukm_rel_pl_b`
@@ -337,10 +340,10 @@ function video_calc_data($algorithm, $res) {
 			
 			if(!$type) {
 				$season = $geo['season'];
-				$pl = new monstring($geo['pl_id']);
+				$pl = new Arrangement($geo['pl_id']);
 				$type = $pl->g('type');
 			} else {
-				$pl = new monstring($pl_id);
+				$pl = new Arrangement($pl_id);
 			}
 			
 			$monstring = video_calc_monstring($inn->g('b_id'), $type, $kommune, $season);
@@ -355,7 +358,7 @@ function video_calc_data($algorithm, $res) {
 			}
 			$tittel = $titler[0]->g('tittel');
 			
-			$fylkeid = new SQL("SELECT `idfylke` FROM `smartukm_kommune`
+			$fylkeid = new Query("SELECT `idfylke` FROM `smartukm_kommune`
 								WHERE `id` = '#kommune'",
 								array('kommune' => $geo['k_id']));
 			$fylkeid = $fylkeid->run('field', 'idfylke');
@@ -408,7 +411,7 @@ function img_exists($url, $timeout=5) {
 function video_calc_monstring($b_id, $pl_type, $kommune, $season) {
 	switch($pl_type) {
 		case 'fylke': 
-			$fylke = new SQL("SELECT `fylke`.`id`, `fylke`.`name`
+			$fylke = new Query("SELECT `fylke`.`id`, `fylke`.`name`
 							  FROM `smartukm_kommune` AS `kommune`
 							  JOIN `smartukm_fylke` AS `fylke` ON (`kommune`.`idfylke` = `fylke`.`id`)
 							  WHERE `kommune`.`id` = '#kommune'
@@ -423,7 +426,7 @@ function video_calc_monstring($b_id, $pl_type, $kommune, $season) {
 			return array('pl' => $land->monstring_get(),
 						 'kategori' => 'UKM-Festivalen '.$season);
 		default:
-			$kommune = new SQL("SELECT `kommune`.`name`, `kommune`.`id`
+			$kommune = new Query("SELECT `kommune`.`name`, `kommune`.`id`
 							  FROM `smartukm_kommune` AS `kommune`
 							  WHERE `kommune`.`id` = '#kommune'
 							  ",
@@ -436,7 +439,7 @@ function video_calc_monstring($b_id, $pl_type, $kommune, $season) {
 	}
 }
 function video_calc_tag_standalone($res) {
-	$place = new monstring($res['pl_id']);
+	$place = new Arrangement($res['pl_id']);
 	$type = $place->g('type');
 	$tags = '|pl_'.$res['pl_id'].'|'
 		   .'|t_'.$place->g('type').'|'

@@ -454,7 +454,7 @@ class Type
         return is_object($object) &&
             in_array(
                 get_class($object),
-                ['UKMNorge\Innslag\Typer\Type', 'innslag_type']
+                ['UKMNorge\Innslag\Typer\Type']
             );
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use UKMNorge\Database\SQL\Query;
 
 require_once('UKM/_orm.class.php');
 	
@@ -47,14 +48,14 @@ class Geocache extends ORM {
 	
 	public function getCount() {
 		if( null == $this->count ) {
-			$sql = new SQL("
+			$sql = new Query("
 				SELECT COUNT(`id`) AS `count`
 				FROM `konkurranse_geocache_checkin`
 				WHERE `cache` = '#code'
 				",
 				['code' => $this->getCode()]
 			);
-			$this->count = $sql->run('field', 'count');
+			$this->count = $sql->getField();
 		}
 		return $this->count;
 	}

@@ -185,7 +185,7 @@ class Write
         $monstring_db = new Arrangement($monstring_save->getId());
 
         // TABELLER SOM KAN OPPDATERES
-        $smartukm_place = new Insert(
+        $smartukm_place = new Update(
             'smartukm_place',
             [
                 'pl_id' => $monstring_save->getId()
@@ -501,7 +501,7 @@ class Write
                 break;
             case 'default':
                 throw new Exception(
-                    'WRITE_MONSTRING::createLink() kan ikke genere link for ukjent type mønstring!',
+                    'Arrangement\Write::createLink() kan ikke genere link for ukjent type arrangement!',
                     501009
                 );
         }
@@ -1218,7 +1218,7 @@ class Write
         $res = $relasjon->run();
 
         // Fjern gammel relasjon videresendingen av innslaget
-        $SQLdel = new Delete(
+        $delete = new Delete(
             'smartukm_fylkestep',
             [
                 'pl_id' => $innslag->getContext()->getMonstring()->getId(),
@@ -1226,7 +1226,7 @@ class Write
             ]
         );
 
-        $res = $SQLdel->run();
+        $res = $delete->run();
 
         // Fjern gammel relasjon til personer videresendt til denne mønstringen
         $slett_relasjon = new Delete(
