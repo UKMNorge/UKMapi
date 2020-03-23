@@ -1,5 +1,7 @@
 <?php
 
+use UKMNorge\Database\SQL\Query;
+use UKMNorge\Database\SQL\Update;
 
 require_once('UKM/_orm.collection.php');
 	
@@ -28,7 +30,7 @@ class Config extends Coll {
 	}
 	
 	public static function update( $name, $value ) {
-		$sqlIns = new SQLins(
+		$sqlIns = new Update(
 			self::getTableName(),
 			[
 				'name' => $name
@@ -40,7 +42,7 @@ class Config extends Coll {
 	}
 
 	public static function get( $name ) {
-		$sql = new SQL(
+		$sql = new Query(
 			"SELECT * FROM `". self::TABLE_NAME ."` WHERE `name` = '#id' ",
 			['id' => $name]
 		);

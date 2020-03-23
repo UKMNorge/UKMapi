@@ -2,9 +2,10 @@
 
 namespace UKMNorge\Meta;
 
+use Exception;
 use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Insert;
-use Exception;
+use UKMNorge\Database\SQL\Update;
 
 require_once('UKM/Autoloader.php');
 
@@ -19,7 +20,7 @@ class Write {
      */
     public static function set( Value $value ) {
         if( $value->eksisterer() ) {
-            $persist = new Insert(
+            $persist = new Update(
                 'ukm_meta',
                 [
                     'id' => $value->getId()

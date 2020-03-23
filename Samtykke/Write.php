@@ -31,7 +31,7 @@ class Write {
 	public static function saveProsjekt( $prosjekt ) {
 		$prosjekt_db = new Prosjekt( $prosjekt->getId() );
 		
-		$sql = new Insert(
+		$sql = new Update(
 			'samtykke_prosjekt',
 			[
 				'id' => $prosjekt->getId()
@@ -73,7 +73,7 @@ class Write {
 			return true;
 		}
 		
-		$sql = new Insert(
+		$sql = new Update(
 			'samtykke_prosjekt',
 			[
 				'id' => $prosjekt->getId()

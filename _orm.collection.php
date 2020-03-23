@@ -1,13 +1,17 @@
 <?php
 
-require_once('UKM/sql.class.php');
+use UKMNorge\Database\SQL\Delete;
+use UKMNorge\Database\SQL\Insert;
+use UKMNorge\Database\SQL\Query;
+
+require_once('UKM/Autoloader.php');
 	
 abstract class Coll {
 
 	public static function getById( $id ) {
 		$child = get_called_class();
 		
-		$sql = new SQL(
+		$sql = new Query(
 			"SELECT * FROM `". $child::TABLE_NAME ."` WHERE `id` = '#id' ",
 			['id' => $id]
 		);
@@ -21,7 +25,7 @@ abstract class Coll {
 	public static function getByKey( $key, $value ) {
 		$child = get_called_class();
 
-		$sql = new SQL(
+		$sql = new Query(
 			"SELECT * FROM `". $child::TABLE_NAME ."` WHERE `". $key ."` = '#id' ",
 			['id' => $value]
 		);
@@ -58,10 +62,10 @@ abstract class Coll {
 		$child = get_called_class();
 		$child::$models = [];
 		
-		$sql = new SQL("SELECT * FROM `". $child::TABLE_NAME ."`");
+		$sql = new Query("SELECT * FROM `". $child::TABLE_NAME ."`");
 		$res = $sql->run();
 
-		while( $row = SQL::fetch( $res ) ) {
+		while( $row = Query::fetch( $res ) ) {
 			$object_class = str_replace('Coll', '', $child);
 			$child::$models[] = new $object_class( $row );
 		}
@@ -71,13 +75,13 @@ abstract class Coll {
 		$child = get_called_class();
 		$child::$models = [];
 
-		$sql = new SQL(
+		$sql = new Query(
 			"SELECT * FROM `". $child::TABLE_NAME ."` WHERE `". $whereKey ."` = '#value'",
 			['value' => $where]
 		);
 		$res = $sql->run();
 
-		while( $row = SQL::fetch( $res ) ) {
+		while( $row = Query::fetch( $res ) ) {
 			$object_class = str_replace('Coll', '', $child);
 			$child::$models[] = new $object_class( $row );
 		}
@@ -86,7 +90,7 @@ abstract class Coll {
 	public static function _create( $mapped_values ) {
 		$child = str_replace('Coll','', get_called_class());
 
-		$sqlIns = new SQLins($child::getTableName());
+		$sqlIns = new Insert($child::getTableName());
 		foreach( $mapped_values as $key => $val ) {
 			$sqlIns->add( $key, $val );
 		}
@@ -98,8 +102,8 @@ abstract class Coll {
 	public static function _delete( $mapped_values ) {
 		$child = str_replace('Coll','', get_called_class());
 
-		$sqlDel = new SQLdel($child::getTableName(), $mapped_values);
-		return $sqlDel->run();
+		$delete = new Delete($child::getTableName(), $mapped_values);
+		return $delete->run();
 	}
 
 

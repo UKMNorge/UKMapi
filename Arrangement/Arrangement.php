@@ -5,7 +5,6 @@ namespace UKMNorge\Arrangement;
 use UKMNorge\Database\SQL\Query;
 use Exception;
 
-require_once 'UKM/sql.class.php';
 require_once('UKM/Autoloader.php');
 
 use DateTime, DatePeriod, DateInterval;

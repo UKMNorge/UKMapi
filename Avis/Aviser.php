@@ -66,13 +66,13 @@ class Aviser {
 	}
 	
 	public function unrelateAllForKommune( $k_id ) {
-		$SQLdel = new Delete(
+		$delete = new Delete(
             'ukm_avis_nedslagsfelt',
             [
                 'kommune_id' => $k_id
             ]
         );
-		$res = $SQLdel->run();
+		$res = $delete->run();
 		return $res;
 	}
 	

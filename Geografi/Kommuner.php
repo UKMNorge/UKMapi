@@ -2,9 +2,7 @@
 
 namespace UKMNorge\Geografi;
 
-use Collection;
-
-require_once('UKM/_collection.class.php');
+use UKMNorge\Collection;
 
 class Kommuner extends Collection
 {

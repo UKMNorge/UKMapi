@@ -10,6 +10,7 @@ use Exception;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Database\SQL\Update;
 
 require_once('UKM/Autoloader.php');
 
@@ -121,7 +122,7 @@ class Write
         $tittel_db = $innslag_db->getTitler()->get($tittel_save->getId());
 
         // TABELLER SOM KAN OPPDATERES
-        $sql = new Insert(
+        $sql = new Update(
             $tittel_save::TABLE,
             [
                 't_id' => $tittel_save->getId(),

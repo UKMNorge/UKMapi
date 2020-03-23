@@ -5,6 +5,7 @@ namespace UKMNorge\Arrangement\Kontaktperson;
 use Exception;
 use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Insert;
+use UKMNorge\Database\SQL\Update;
 use UKMNorge\Log\Logger;
 
 class Write {
@@ -50,7 +51,7 @@ class Write {
 		$kontakt_db = new Kontaktperson( $kontakt_save->getId() );
 		
 		// TABELLER SOM KAN OPPDATERES
-		$smartukm_contacts = new Insert(
+		$smartukm_contacts = new Update(
 			'smartukm_contacts', 
 			[
 				'id' => $kontakt_save->getId()

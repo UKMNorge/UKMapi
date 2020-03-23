@@ -1,5 +1,7 @@
 <?php
-	
+
+use UKMNorge\Database\SQL\Query;
+
 class AlternativeFylke {
 	
 	var $sporsmalId = null;
@@ -51,7 +53,7 @@ class AlternativeFylke {
 	public function getCount() {
 		if( null == $this->count ) {
 			require_once('UKM/Konkurranse/answer.collection.php');
-			$sql = new SQL("
+			$sql = new Query("
 				SELECT COUNT(`id`) AS `count`
 				FROM `#table`
 				WHERE `sporsmal_id` = '#sporsmal_id'
@@ -62,7 +64,7 @@ class AlternativeFylke {
 					'svar' => $this->getKey(),
 				]
 			);
-			$this->count = $sql->run('field','count');
+			$this->count = $sql->getField();
 		}
 		return $this->count;
 	}

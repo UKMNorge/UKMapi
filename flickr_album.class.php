@@ -1,4 +1,9 @@
 <?php
+
+use UKMNorge\Database\SQL\Insert;
+use UKMNorge\Database\SQL\Query;
+use UKMNorge\Database\SQL\Update;
+
 class flickr_album {
 	var $id = false;
 	var $flickr_id = false;
@@ -8,7 +13,7 @@ class flickr_album {
 		$this->type = $type;
 		$this->id = $id;
 		
-		$sql = new SQL("SELECT *
+		$sql = new Query("SELECT *
 						FROM `flickr_albums`
 						WHERE `object_type` = '#type'
 						AND `object_id` = '#id'",
@@ -28,7 +33,7 @@ class flickr_album {
 		if( false == $this->id ) {
 			throw new Exception('Cannot set Flickr ID of album without ID. Maybe run create?');
 		}
-		$sql = new SQLins('flickr_albums', array('object_type'=>$this->type, 'object_id'=>$this->id) );
+		$sql = new Update('flickr_albums', array('object_type'=>$this->type, 'object_id'=>$this->id) );
 		$sql->add('flickr_id', $flickr_id);
 		$sql->run();
 		
@@ -41,7 +46,7 @@ class flickr_album {
 		}
 		$this->flickr_album_name = $album_name;
 
-		$sql = new SQLins('flickr_albums', array('object_type'=>$this->type, 'object_id'=>$this->id) );
+		$sql = new Update('flickr_albums', array('object_type'=>$this->type, 'object_id'=>$this->id) );
 		$sql->add('flickr_album_name', $album_name);
 		$sql->run();
 	}
@@ -51,7 +56,7 @@ class flickr_album {
 	}
 	
 	public function create( $object_type, $object_id, $flickr_album_id, $flickr_album_name ) {
-		$sql = new SQLins('flickr_albums');
+		$sql = new Insert('flickr_albums');
 		$sql->add('object_type', $object_type);
 		$sql->add('object_id', $object_id);
 		$sql->add('flickr_album_id', $flickr_album_id);

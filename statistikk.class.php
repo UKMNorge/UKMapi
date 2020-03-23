@@ -1,8 +1,12 @@
 <?php
 
+use UKMNorge\Database\SQL\Delete;
+use UKMNorge\Database\SQL\Insert;
+use UKMNorge\Database\SQL\Query;
+use UKMNorge\Database\SQL\Update;
 use UKMNorge\Innslag\Innslag;
 
-require_once 'UKM/sql.class.php';
+require_once 'UKM/Autoloader.php';
 
 class statistikk {
 	var $data = false;
@@ -57,7 +61,7 @@ class statistikk {
                     AND `pl`.`season` = #season 
                     GROUP BY `pl`.`pl_id`) AS `temptable`";
                 
-                $sql = new SQL("SELECT SUM(`pl_missing`) as `missing` FROM `smartukm_place`
+                $sql = new Query("SELECT SUM(`pl_missing`) as `missing` FROM `smartukm_place`
                                         WHERE `season`= #season 
                                         AND `pl_owner_fylke` = #fylkeID
                                         ",
@@ -83,7 +87,7 @@ class statistikk {
             
             // PL_missing
             $kommuner_array_2014 = isset( $this->kommuner[0] ) ? $this->kommuner[0] : false;
-            $sql = new SQL($query_pl_missing, array('season'=>(int)$season,
+            $sql = new Query($query_pl_missing, array('season'=>(int)$season,
                                                     'fylkeID'=>(int)$this->fylkeID,
                                                     'kommune' => $kommuner_array_2014,
                                                     'kommuner' => implode(',', $this->kommuner)));
@@ -91,14 +95,14 @@ class statistikk {
             $missing += (int)$sql->run('field', 'missing');
             
             // Persons
-            $sql = new SQL($query_persons, array('season'=>(int)$season,
+            $sql = new Query($query_persons, array('season'=>(int)$season,
                                                  'fylkeID'=>(int)$this->fylkeID,
                                                  'kommuner' => implode(',', $this->kommuner)));
             $persons = (int)$sql->run('field', 'persons');
             $persons += $missing;
             
             // Bands
-            $sql = new SQL($query_bands, array('season'=>(int)$season,
+            $sql = new Query($query_bands, array('season'=>(int)$season,
                                                 'fylkeID'=>(int)$this->fylkeID,
                                                 'kommuner' => implode(',', $this->kommuner)));
             $bands = (int)$sql->run('field', 'bands');
@@ -141,7 +145,7 @@ class statistikk {
 		$subcat_qry .= " GROUP BY `subcat` ORDER BY `subcat` desc;"; // desc ER viktig!
 
 		// stats
-		$sql = new SQL($qry, array('season'=>(int)$season,
+		$sql = new Query($qry, array('season'=>(int)$season,
 									'fylkeID'=>(int)$this->fylkeID,
 									'kommuner' => implode(',', $this->kommuner)));
 		$result = $sql->run();
@@ -154,19 +158,19 @@ class statistikk {
 		
 		//echo($sql->debug());
 		
-		while ($r = SQL::fetch($result)) {
+		while ($r = Query::fetch($result)) {
 			// var_dump($r);
 			$array['bt_'.$r['bt_id']] = $r['count'];
 			
 			//subkategorier
 			if($r['bt_id'] == 1) {
-				$sql2 = new SQL($subcat_qry, array('season'=>(int)$season,
+				$sql2 = new Query($subcat_qry, array('season'=>(int)$season,
 										'fylkeID'=>(int)$this->fylkeID,
 										'kommuner' => implode(',', $this->kommuner)));
 				$subcat_result = $sql2->run();
 				//echo($sql2->debug());
 				
-				while ($sr = SQL::fetch($subcat_result)) {
+				while ($sr = Query::fetch($subcat_result)) {
 					if ($sr['subcat'] == "")
 						$array['annet'] += $sr['count'];
 					else
@@ -225,7 +229,7 @@ class statistikk {
 							" ORDER BY `subcat` desc;"; // desc ER viktig!
 
 			// stats
-			$sql = new SQL($qry, array('season'=>(int)$season,
+			$sql = new Query($qry, array('season'=>(int)$season,
 										'fylkeID'=>(int)$this->fylkeID,
 										'kommuner' => implode(',', $this->kommuner)));
 			$result = $sql->run();
@@ -238,19 +242,19 @@ class statistikk {
 			
 			// echo($sql->debug());
 			
-			while ($r = SQL::fetch($result)) {
+			while ($r = Query::fetch($result)) {
 				// var_dump($r);
 				$array['bt_'.$r['bt_id']] = $r['count'];
 				
 				//subkategorier
 				if($r['bt_id'] == 1) {
-					$sql2 = new SQL($subcat_qry, array('season'=>(int)$season,
+					$sql2 = new Query($subcat_qry, array('season'=>(int)$season,
 											'fylkeID'=>(int)$this->fylkeID,
 											'kommuner' => implode(',', $this->kommuner)));
 					$subcat_result = $sql2->run();
 					// var_dump($sql->debug());
 					
-					while ($sr = SQL::fetch($subcat_result)) {
+					while ($sr = Query::fetch($subcat_result)) {
 						if ($sr['subcat'] == "")
 							$array['annet'] += $sr['count'];
 						else
@@ -269,10 +273,10 @@ class statistikk {
 	 * @return void
 	**/
 	public static function oppdater_innslag( Innslag $innslag ) {
-		$sqldel = new SQLdel('ukm_statistics',
+		$delete = new Delete('ukm_statistics',
 							 array('season' => $innslag->getSesong(),
 							 	   'b_id' => $innslag->getId()));
-		$sqldel->run();
+		$delete->run();
 
 		if( $innslag->getStatus() == 8 ) {
 			foreach( $innslag->getPersoner()->getAll() as $person ) { // behandle hver person
@@ -302,17 +306,17 @@ class statistikk {
 						" AND `p_id` = '" . $stats_info["p_id"] . "'" .
 						" AND `k_id` = '" . $stats_info["k_id"] . "'"  .
 						" AND `season` = '" . $stats_info["season"] . "'";
-				$sql = new SQL($qry);
+				$sql = new Query($qry);
 				// Sjekke om ting skal settes inn eller oppdateres
-				if (SQL::numRows($sql->run()) > 0) {
-					$sql_ins = new SQLins('ukm_statistics', array(
+				if (Query::numRows($sql->run()) > 0) {
+					$sql_ins = new Update('ukm_statistics', array(
 						"b_id" => $stats_info["b_id"], // innslag-id
 						"p_id" => $stats_info["p_id"], // person-id
 						"k_id" => $stats_info["k_id"], // kommune-id
 						"season" => $stats_info["season"], // kommune-id
 					) );
 				} else {
-					$sql_ins = new SQLins("ukm_statistics");
+					$sql_ins = new Insert("ukm_statistics");
 				}
 				
 				// Legge til info i insert-sporringen
@@ -329,7 +333,7 @@ class statistikk {
 	private function _load($season) {
                 $kommuneList = implode(', ', $this->kommuner);
 		
-		$sql = new SQL("SELECT * FROM `ukm_statistics`
+		$sql = new Query("SELECT * FROM `ukm_statistics`
 						WHERE `k_id` IN (#kommuneList)
 						AND `season` = '#season'",
 						array('kommuneList' => $kommuneList, 'season' => $season));

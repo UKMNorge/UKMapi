@@ -59,7 +59,7 @@ class Query extends Common {
         if( self::_isMysqliResult($result) ) {
             return mysqli_num_rows( $result );
         }
-        return SQL::numRows( $result );
+        return Query::numRows( $result );
     }
 
     private static function _isMysqliResult( $result ) {

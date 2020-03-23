@@ -1,5 +1,7 @@
 <?php
 
+use UKMNorge\Database\SQL\Insert;
+
 /**
  * SENSITIVT:
  * Access-control og logger for sensitiv person-informasjon
@@ -30,7 +32,7 @@ abstract class container {
         
         $object = substr($action, 0, (strlen($action)-2));
         
-        $sql = new SQLins('log_sensitivt');
+        $sql = new Insert('log_sensitivt');
         $sql->add( 'log_u_id', self::getUser() );
         $sql->add( 'log_system_id', self::getSystem() );
         $sql->add( 'log_pl_id', self::getPlId() );

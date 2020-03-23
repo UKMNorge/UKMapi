@@ -54,9 +54,7 @@ class Write
         static::deleteRemovedTags($film);
 
         foreach( $film->getTags()->getAllInkludertManyCollections() as $tag ) {
-            $insert = new Insert(
-                'ukm_tv_tags'
-            );
+            $insert = new Insert('ukm_tv_tags');
             $insert->add('tv_id', $film->getTvId());
             $insert->add('type', $tag->getId());
             $insert->add('foreign_id', $tag->getValue());
@@ -158,9 +156,7 @@ class Write
         
         if(!$tv_id) {
             $action = 'opprett';
-            $query = new Insert(
-                'ukm_tv_files'
-            );
+            $query = new Insert('ukm_tv_files');
         } else {
             $action = 'oppdater';
             $query = new Update(

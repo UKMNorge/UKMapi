@@ -105,7 +105,7 @@ class Write {
 		}
 		// Personen finnes i databasen, oppdater kommune
 		else {
-			$sql = new Insert(
+			$sql = new Update(
                 "smartukm_participant",
                 ['p_id' => $p_id]
             );

@@ -508,7 +508,7 @@ class Write {
         // sted.
 
         // Slett gammel relasjon til mønstringen
-		$SQLdel = new Delete(
+		$delete = new Delete(
 			'smartukm_rel_pl_b',
 			[
 				'b_id' => $innslag->getId(),
@@ -516,7 +516,7 @@ class Write {
 				'season' => $innslag->getContext()->getMonstring()->getSesong()
 			]
 		);
-		$res = $SQLdel->run();
+		$res = $delete->run();
 
         // Avbryt samtykkeforespørsel
         static::requestSamtykkeCancel( $innslag );

@@ -3,6 +3,7 @@
 namespace UKMNorge\API\SSB;
 
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Database\SQL\Update;
 use UKMNorge\Database\SQL\Write;
 
 use stdClass;
@@ -38,9 +39,7 @@ class Levendefodte extends SSB {
 		#return array($this->getSSBifiedKommuneId(104),$this->getSSBifiedKommuneId(105));
 	}
 
-	public function getAllYears() {
-		require_once('UKM/sql.class.php');
-	
+	public function getAllYears() {	
 		$sql = new Query("DESCRIBE ukm_befolkning_ssb");
 	
 		$res = $sql->run();
@@ -119,7 +118,7 @@ class Levendefodte extends SSB {
 				var_dump($antall);
 				return "Kan ikke oppdatere uten k_id eller antall!";
 			}
-			$qry = new Insert('ukm_befolkning_ssb', array('kommune_id' => $k_id));	
+			$qry = new Update('ukm_befolkning_ssb', array('kommune_id' => $k_id));	
 			$qry->add($year, $antall);
 			$res = $qry->run();
 			
