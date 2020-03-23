@@ -111,6 +111,9 @@ class Eier
     }
 
     public static function loadFromKommuneFylkeData( Int $owner_kommune, Int $owner_fylke ) {
+        if( $owner_kommune == 0 && $owner_fylke == 0 ) {
+            return new Eier('land',0);
+        }
         return new Eier(
             $owner_kommune == 0 ? 'fylke' : 'kommune',
             $owner_kommune == 0 ? $owner_fylke : $owner_kommune

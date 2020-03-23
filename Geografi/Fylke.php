@@ -270,7 +270,7 @@ class Fylke
         if (!$this->erOvertatt()) {
             throw new Exception(
                 $this->getNavn() . ' er fortsatt aktivt, og ikke overtatt av et annet fylke',
-                163001
+                103002
             );
         }
         return Fylker::getOvertattAv($this->getId());
@@ -302,7 +302,7 @@ class Fylke
         if (!$this->harOvertatt()) {
             throw new Exception(
                 $this->getNavn() . ' har ikke overtatt for et annet fylke.',
-                163002
+                103003
             );
         }
 

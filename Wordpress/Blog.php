@@ -726,7 +726,6 @@ class Blog
         static::controlBlogId($blog_id);
 
         $meta = [
-            'fylke'             => $arrangement->getFylke()->getId(),
             'pl_eier_type'      => $arrangement->getEierType(),
             'pl_eier_id'        => $arrangement->getEier()->getId(),
             'pl_id'             => $arrangement->getId(),
@@ -735,6 +734,10 @@ class Blog
         ];
         if ($arrangement->getType() == 'kommune') {
             $meta['kommuner']           = implode(',', $arrangement->getKommuner()->getIdArray());
+        }
+        
+        if( in_array($arrangement->getEierType(), ['kommune','fylke'])) {
+            $meta['fylke'] = $arrangement->getFylke()->getId();
         }
 
         static::applyMeta($blog_id, $meta);

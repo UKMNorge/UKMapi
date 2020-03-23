@@ -4,6 +4,7 @@ namespace UKMNorge\Innslag\Nominasjon;
 
 use Exception;
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Innslag\Innslag;
 use UKMNorge\Innslag\Typer\Type;
 
@@ -15,7 +16,9 @@ class Nominasjon extends Placeholder
     private $type;
 
     private $fra_id;
+    private $fra_arrangement;
     private $til_id;
+    private $til_arrangement;
     private $sesong;
 
     private $er_nominert = false;
@@ -238,6 +241,18 @@ class Nominasjon extends Placeholder
     }
 
     /**
+     * Hent avsenderarrangement
+     *
+     * @return Arrangement
+     */
+    public function getFraArrangement() {
+        if($this->fra_arrangement == null) {
+            $this->fra_arrangement = new Arrangement($this->getFraArrangementId());
+        }
+        return $this->fra_arrangement; 
+    }
+
+    /**
      * Hent avsenderarrangement-id
      *
      * @return Int
@@ -257,6 +272,18 @@ class Nominasjon extends Placeholder
     {
         $this->fra_id = $arrangement_id;
         return $this;
+    }
+
+    /**
+     * Hent mottaker-arrangement.
+     *
+     * @return Arrangement
+     */
+    public function getTilArrangement() {
+        if($this->til_arrangement == null) {
+            $this->til_arrangement = new Arrangement($this->getTilArrangementId());
+        }
+        return $this->til_arrangement;
     }
 
     /**

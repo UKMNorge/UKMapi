@@ -19,6 +19,17 @@ class Write {
      * @throws Exception $persist_error
      */
     public static function set( Value $value ) {
+        
+        // false er standard-svar hvis vi ikke finner verdien, 
+        // derfor er det greit å rydde opp litt når verdien == false
+        if( $value->getValue() == false && $value->eksisterer() ) {
+            static::delete($value);
+        }
+        // og hvis vi ikke har lagret false, ikke gjør det heller
+        elseif( $value->getValue() == false) {
+            return true;
+        }
+
         if( $value->eksisterer() ) {
             $persist = new Update(
                 'ukm_meta',
@@ -37,6 +48,7 @@ class Write {
         $persist->allowHtmlFor('value');
 
         $result = $persist->run();
+        #echo $persist->debug();
 
         // Lagring ok
         if( $result ) {
@@ -72,6 +84,7 @@ class Write {
             ]
         );
         $result = $delete->run();
+        #echo $delete->debug();
 
         if( $result ) {
             return true;

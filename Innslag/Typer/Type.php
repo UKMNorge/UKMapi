@@ -21,6 +21,7 @@ class Type
     var $har_sjanger = false;
     var $har_funksjoner = false;
     var $har_tekniske_behov = false;
+    var $har_nominasjon = false;
 
     var $har_filmer = false; # Kan det finnes noe i UKM-TV?
     var $har_bilder = false;
@@ -70,9 +71,11 @@ class Type
         $this->har_sjanger          = $config['har']['sjanger'];
         $this->har_funksjoner       = $config['har']['funksjon'];
         $this->har_tekniske_behov   = $config['har']['tekniske_behov'];
+        $this->har_nominasjon       = $config['har']['nominasjon'];
 
         $this->har_filmer           = $config['har']['media']['filmer'];
         $this->har_bilder           = $config['har']['media']['bilder'];
+
 
         $this->autfollow_personer   = isset($config['personer_autofollow']) && $config['personer_autofollow'];
 
@@ -171,6 +174,19 @@ class Type
     public function getNavn()
     {
         return $this->name;
+    }
+
+    /**
+     * Kan denne typen innslag ha nominasjon?
+     * 
+     * Det er arrangementet som bestemmer hvorvidt det skal være nominasjon før videresending,
+     * denne funksjonen sier bare hvorvidt innslag-typen i teorien kan ha nominasjon.
+     *
+     * @return Bool
+     */
+    public function kanHaNominasjon()
+    {
+        return $this->har_nominasjon;
     }
 
     /**

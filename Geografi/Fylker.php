@@ -66,8 +66,12 @@ class Fylker {
 			return self::$fylker[ (int) $id ];
 		}
 		
-		if('throw' == self::$logMethod)
-			throw new Exception('Prøvde å aksessere et fylke som ikke finnes (ID: '. $id .')');
+		if('throw' == self::$logMethod) {
+			throw new Exception(
+                'Prøvde å aksessere et fylke som ikke finnes (ID: '. $id .')',
+                103001
+            );
+        }
 	}
     
     /**
@@ -115,7 +119,10 @@ class Fylker {
             case 'tromsogfinnmark': return self::getById(54);
 		}
 
-		throw new Exception('Prøvde å aksessere et fylke som ikke finnes (ID: '. $id .')');
+		throw new Exception(
+            'Prøvde å aksessere et fylke som ikke finnes (ID: '. $id .')',
+            103001
+        );
 	}
     
     /**
@@ -264,8 +271,8 @@ class Fylker {
                 return Fylker::getById(38);
         }
         throw new Exception(
-            'Dette fylket har ikke blit overtatt av et annet',
-            163004
+            'Dette fylket har ikke blitt overtatt av et annet',
+            103004
         );
     }
 
@@ -317,7 +324,7 @@ class Fylker {
             }
         throw new Exception(
             'Dette fylket har ikke overtatt for andre fylker.',
-            163003
+            103005
         );
     }
 }

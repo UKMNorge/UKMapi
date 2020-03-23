@@ -760,6 +760,16 @@ class Innslag
     }
 
     /**
+     * Hent personen i innslaget (hvis dette er enkeltperson-innslag)
+     *
+     * @throws Exception fra getPersoner() hvis feil type innslag
+     * @return Person
+     */
+    public function getPerson() {
+        return $this->getPersoner()->getSingle();
+    }
+
+    /**
      * Hent program for dette innslaget på gitt mønstring
      *
      * INTERNALS: program bruker context som eneste input-parameter

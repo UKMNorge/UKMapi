@@ -11,6 +11,7 @@ har:
   tekniske_behov: false
   titler: false
   funksjon: false
+  nominasjon: true
   media:
     filmer: true
     bilder: true
