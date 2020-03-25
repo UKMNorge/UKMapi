@@ -21,7 +21,7 @@ class Caches extends Collection
      * @throws Exception
      * @return Cache
      */
-    public function getRandomActiveCache()
+    public static function getRandomActiveCache()
     {
         $sql = new Query(
             "SELECT *
