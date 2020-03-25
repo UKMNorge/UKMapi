@@ -30,7 +30,7 @@ class Collection
      * @param String $key
      * @return Value $value
      */
-    public function get($key)
+    public function get(String $key)
     {
         if (!isset($this->values[$key])) {
             $this->values[$key] = Value::loadFromKey($this->getParent(), $key);
@@ -38,9 +38,26 @@ class Collection
         return $this->values[$key];
     }
 
-    public function getValue($key)
+    /**
+     * Hent den faktiske verdien av en metaverdi
+     *
+     * @param String $key
+     * @return mixed
+     */
+    public function getValue(String $key)
     {
         return $this->get($key)->getValue();
+    }
+
+    /**
+     * Oppdater en verdi internt i collection
+     *
+     * @param Value $value
+     * @return self
+     */
+    public function set(Value $value) {
+        $this->values[ $value->getKey() ] = $value;
+        return $this;
     }
 
     /**
