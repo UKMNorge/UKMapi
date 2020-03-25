@@ -5,6 +5,7 @@ namespace UKMNorge\Meta;
 use Exception;
 use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Insert;
+use UKMNorge\Database\SQL\Query;
 use UKMNorge\Database\SQL\Update;
 
 require_once('UKM/Autoloader.php');
@@ -75,20 +76,40 @@ class Write {
      * @throws Exception $delete_error
      */
     public static function delete( Value $value ) {
-        $delete = new Delete(
-            'ukm_meta',
+        $value->set(false);
+        $where = 
             [
                 'parent_type' => $value->getParent()->getType(),
                 'parent_id' => $value->getParent()->getId(),
                 'name' => $value->getKey()
-            ]
+            ];
+        
+        $delete = new Delete(
+            'ukm_meta',
+            $where
         );
         $result = $delete->run();
-        #echo $delete->debug();
 
+        // Hvis slettet, all ok
         if( $result ) {
             return true;
         }
+        
+        // Hvis ikke slettet, og ikke i databasen er det en slags suksess
+        $test = new Query(
+            "SELECT `value` 
+            FROM `ukm_meta`
+            WHERE `parent_type` = '#parent_type'
+            AND `parent_id` = '#parent_id'
+            AND `name` = '#name'
+            LIMIT 1",
+            $where
+        );
+        $res = $test->run();
+        if( Query::numRows($res) == 0 ) {
+            return true;
+        }
+        
         throw new Exception(
             'Klarte ikke å slette MetaVerdi '. $value->getKey(),
             523002
