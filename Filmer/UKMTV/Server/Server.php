@@ -2,12 +2,15 @@
 
 namespace UKMNorge\Filmer\UKMTV\Server;
 
+use Exception;
+use UKMNorge\Collection;
 use UKMNorge\Database\SQL\Query;
 
 class Server extends BandwidthMode
 {
     const STORAGE_BASEPATH = 'ukmno/videos/';
     static $cache = null;
+    static $caches;
 
     /**
      * Hent en aktiv cache-server, eller videostorage
@@ -40,16 +43,12 @@ class Server extends BandwidthMode
      * @return String|Bool
      */
     public static function getActiveCacheUrl() {
-		$sql = new Query(
-            "SELECT `ip`
-            FROM `ukm_tv_caches_caches`
-            WHERE `last_heartbeat` >= NOW() - INTERVAL 3 MINUTE
-                AND `status` = 'ok' AND `deactivated` = 0
-            ORDER BY RAND()
-            LIMIT 1"
-        );
-        return $sql->getField();
-	}
+        try {
+            return Caches::getRandomActiveCache()->getIp();
+        } catch( Exception $e ) {
+            return false;
+        }
+    }
 
     /**
      * Hent app-name for wowza
