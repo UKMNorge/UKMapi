@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS `ukm_tv_config`;
