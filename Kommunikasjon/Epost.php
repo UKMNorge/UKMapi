@@ -41,7 +41,7 @@ class Epost
         if (!$mottaker->harNavn()) {
             throw new Exception(
                 'Vil ikke sende e-post fra avsender uten navn',
-                402004
+                142004
             );
         }
         $this->fra = $mottaker;
@@ -59,7 +59,7 @@ class Epost
         if (!$mottaker->harNavn()) {
             throw new Exception(
                 'Vil ikke sende e-post fra avsender uten navn',
-                402004
+                142004
             );
         }
         $this->svar_til = $mottaker;
@@ -154,28 +154,28 @@ class Epost
         if (null == $this->emne) {
             throw new Exception(
                 'Kan ikke sende e-post: Mangler emne-felt',
-                402001
+                142001
             );
         }
 
         if (null == $this->melding) {
             throw new Exception(
                 'Kan ikke sende e-post: Mangler innhold i e-posten',
-                402002
+                142002
             );
         }
 
         if (null == $this->mottakere || sizeof($this->mottakere) == 0) {
             throw new Exception(
                 'Kan ikke sende e-post: Mangler mottakere',
-                402003
+                142003
             );
         }
 
         if( null == $this->fra ) {
             throw new Exception(
                 'Kan ikke sende e-post: Mangler avsender',
-                402007
+                142007
             );
         }
 
@@ -256,18 +256,18 @@ class Epost
             //Pretty error messages from PHPMailer
             throw new Exception(
                 'Mailer: ' . $e->errorMessage(),
-                402005
+                142005
             );
         } catch (Exception $e) {
             //Boring error messages from anything else!
             throw new Exception(
                 'Mailer: ' . $e->getMessage(),
-                402006
+                142006
             );  
         }
         throw new Exception(
             'Beklager, klarte ikke å sende e-posten. Server sa: ' . $e->getMessage(),
-            402004
+            142004
         );
     }
 }
