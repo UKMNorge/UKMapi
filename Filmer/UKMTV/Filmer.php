@@ -342,4 +342,25 @@ class Filmer extends Collection
 
         return $query;
     }
+
+    /**
+     * Hent filmens ID fra URL-adresse
+     *
+     * @param String $url
+     * @return Int $id
+     */
+    public static function getIdFromUrl( String $url ) {
+        $url = rtrim($url, '/');
+        $urldata = explode ('/', $url);
+        $id = array_pop($urldata);
+        
+        if( is_null($id) || empty($id) || !is_numeric($id) ) {
+            throw new Exception(
+                'Klarte ikke å finne filmens ID fra URL',
+                143001
+            );
+        }
+        
+        return intval($id);
+    }
 }

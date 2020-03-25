@@ -208,8 +208,31 @@ class Film implements FilmInterface
         $lastslash          = strrpos($this->file, '/');
         $this->file_path    = substr($this->file, 0, $lastslash);
         $this->file_name    = substr($this->file, $lastslash + 1);
-        $this->file_720p    = str_replace('.mp4', '_720p.mp4', $this->file);
-        $this->file_mobile  = str_replace('.mp4', '_mobile.mp4', $this->file);
+        if( strpos($this->file, '_720p') === false ) {
+            $this->file_720p    = str_replace('.mp4', '_720p.mp4', $this->file);
+            $this->file_mobile  = $this->file;
+        } else {
+            $this->file_720p    = $this->file;
+            $this->file_mobile    = str_replace('_720p.mp4', '_mobile.mp4', $this->file_720p);
+        }
+    }
+
+    /**
+     * Hent mobilfilens navn
+     *
+     * @return String
+     */
+    public function getFileMobile(){
+        return basename($this->file_mobile);
+    }
+
+    /**
+     * Hent 720p-filens navn
+     *
+     * @return String
+     */
+    public function getFile720() {
+        return basename($this->file_720p);
     }
 
     /**
@@ -287,7 +310,7 @@ class Film implements FilmInterface
      */
     public function getServerFilepath()
     {
-        return $this->file_path;
+        return rtrim($this->file_path,'/').'/';
     }
 
     /**
