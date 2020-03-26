@@ -29,7 +29,19 @@ class Write {
 		$sql->add('pb_season', $_POST['season']);
         $sql->add('pb_name', $_POST['name']);
         $sql->add('pb_description', $_POST['description']);
-        $res = $sql->run();
+
+        try {
+            $res = $sql->run();
+        } catch( Exception $e ) {
+            if( $e->getCode() == 901001 ) {
+                throw new Exception(
+                    'Kunne lagre mediefil. '.
+                    'Dette er dessverre en kjent feil, og om du prøver igjen, så burde det fungere.'
+                );
+            } else {
+                throw $e;
+            }
+        }
 
         if( !$res ) {
             throw new Exception(
