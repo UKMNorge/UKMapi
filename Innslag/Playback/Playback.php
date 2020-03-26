@@ -228,7 +228,7 @@ class Playback
      */
     public function getUrl()
     {
-        return $this->url . $this->fil;
+        return $this->url;// . $this->fil;
     }
 
     /**
