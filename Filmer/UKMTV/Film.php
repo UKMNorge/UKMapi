@@ -382,6 +382,27 @@ class Film implements FilmInterface
     }
 
 
+    /**
+     * Hent filmens bredde
+     * 
+     * @todo: IMPLEMENTER SKIKKELIG!
+     *
+     * @return Int
+     */
+    public function getWidth() {
+        return 1280;
+    }
+
+    /**
+     * Hent filmens høyde
+     * 
+     * @todo: IMPLEMENTER SKIKKELIG!
+     *
+     * @return Int
+     */
+    public function getHeight() {
+        return 720;
+    }
 
     /**
      * Registrer en avspilling
