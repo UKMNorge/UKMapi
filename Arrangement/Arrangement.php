@@ -731,7 +731,7 @@ class Arrangement
     /**
      * Hent fylke
      *
-     * @return fylke
+     * @return Fylke
      **/
     public function getFylke()
     {

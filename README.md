@@ -39,6 +39,7 @@ prefix | objekt | les | skriv
 41 | Fil/Excel | 141yyy | - 
 42 | Kommunikasjon/Epost | 142yyy | - 
 43 | Filmer/UKMTV | 143yyy | 543yyy
+44 | Filmer/UKMTV/Direkte | 144yyy | 544yyy
 50 | Arrangement/Arrangementer | 150yyy | -
 51 | Arrangement/Skjema/Skjema | 151yyy | 551yyy
 52 | Arrangement/Skjema/Sporsmal | 152yyy | -

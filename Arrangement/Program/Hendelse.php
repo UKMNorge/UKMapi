@@ -8,6 +8,8 @@ use UKMNorge\Database\SQL\Query;
 
 use Exception;
 use DateTime, DateInterval;
+use UKMNorge\Filmer\UKMTV\Direkte\Sending;
+use UKMNorge\Filmer\UKMTV\Direkte\Sendinger;
 
 require_once('UKM/Autoloader.php');
 
@@ -474,6 +476,52 @@ class Hendelse
         return $this->getInnslag()->getTid();
     }
 
+    /**
+     * Har hendelsen en sending?
+     *
+     * @throws Exception ved ukjent feil
+     * @return Bool
+     */
+    public function harSending() {
+        try {
+            $this->getSending();
+            return true;
+        } catch( Exception $e ) {
+            if( $e->getCode() == 144001 ) {
+                return false;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Hent hendelsens sending
+     *
+     * @return Sending
+     * @throws Exception hvis ingen sending finnes
+     */
+    public function getSending() {
+        if( is_null($this->sending) ) {
+            $this->sending = Sendinger::getByHendelse($this->getId());
+        }
+        return $this->sending;
+    }
+
+    /**
+     * Fjern sending (brukes etter sletting)
+     *
+     * @return void
+     */
+    public function fjernSending() {
+        $this->sending = null;
+    }
+
+    /**
+     * Er gitt objekt gyldig hendelse?
+     *
+     * @param mixed $object
+     * @return bool
+     */
     public static function validateClass( $object ) {
         return is_object( $object ) &&
             in_array( 
