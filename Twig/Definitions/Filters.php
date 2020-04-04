@@ -31,6 +31,23 @@ class Filters
      */
     public function tid($seconds)
     {
+        // Hvis vi også har timer med i bildet
+        $h = floor($seconds / 3600);
+        if( $h > 0 ) {
+            $q = ($seconds / 60) % 60;
+            $r = $seconds % 60;
+
+            if ($q == 0)
+                return $h .' time'. ($h != 1 ? 'r' : '');
+
+            if ($r == 0)
+                return $h .' time'. ($h != 1 ? 'r' : '') .' '. $q . ' min';
+            
+            return $h .'t '. $q . 'm ' . $r . 's' ;
+        }
+
+        // Mindre enn en time
+
         $q = floor($seconds / 60);
         $r = $seconds % 60;
 
