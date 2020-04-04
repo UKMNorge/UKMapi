@@ -54,6 +54,7 @@ prefix | objekt | les | skriv
 62 | Nettverk/Omrade | 162yyy | 562yyy
 71 | Wordpress/User | 171yyy | 571yyy
 72 | Wordpress/Blog | 172yyy | 572yyy
+73 | Wordpress/Modul | 173yyy | 573yyy
 81 | Slack | 181yyy | 581yyy
 82 | Mailchimp | - | 582yyy
 

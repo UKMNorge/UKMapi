@@ -2,6 +2,8 @@
 
 namespace UKMNorge\Wordpress;
 
+use Exception;
+use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Flashbag;
 use UKMNorge\Log\Logger;
 
@@ -14,6 +16,8 @@ require_once('UKM/inc/twig-admin.inc.php');
  * Kun denne skal brukes fra nå
  */
 abstract class Modul {
+    public static $arrangement;
+
     public static $view_data = [];
     public static $ajax_response = [];
 
@@ -41,6 +45,25 @@ abstract class Modul {
             static::setAction( $_GET['action'] );
         }
         static::setPluginPath( $plugin_path );
+    }
+
+    /**
+     * Hent arrangementet for denne bloggen
+     *
+     * @return Arrangement
+     * @throws Exception
+     */
+    public static function getArrangement() {
+        if( !get_option('pl_id')) {
+            throw new Exception(
+                'Kan ikke kjøre getArrangement() på en blogg som ikke tilhører et arrangement',
+                173001
+            );
+        }
+        if( is_null( static::$arrangement ) ) {
+            static::$arrangement = new Arrangement( intval(get_option('pl_id')));
+        }
+        return static::$arrangement;
     }
     
     /**
