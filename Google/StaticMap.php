@@ -156,7 +156,7 @@ class StaticMap {
      * @return Bool
      */
     public function hasMap() {
-        return !empty( $this->map );
+        return !empty( $this->map ) && !empty($this->getLat());
     }
 
     /**
