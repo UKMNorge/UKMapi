@@ -40,7 +40,7 @@ class Fylker {
 		self::$fylker[21]	= new Fylke(21, 'testfylke', 'Testfylke', true, true);
 		self::$fylker[31]	= new Fylke(31, 'internasjonalt', 'Internasjonalt', true, true);
 		self::$fylker[32]	= new Fylke(32, 'gjester', 'Gjester', true, true);
-		self::$fylker[33]	= new Fylke(33, 'norgescupen', 'Norgescupen', true, true);
+		self::$fylker[33]	= new Fylke(33, 'digital', 'Digital', true, true);
 
         // 2020-fylker 🎉
 		self::$fylker[30]	= new Fylke(30, 'viken', 'Viken', true);
