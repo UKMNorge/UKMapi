@@ -360,8 +360,10 @@ class Write
         }
 
         // Lagre meta-data
-        foreach ($monstring_save->getMetaCollection()->getAll() as $meta) {
-            WriteMeta::set($meta);
+        if( is_array($monstring_save->getMetaCollection()->getAll())) {
+            foreach ($monstring_save->getMetaCollection()->getAll() as $meta) {
+                WriteMeta::set($meta);
+            }
         }
 
         return $res;
