@@ -1091,7 +1091,7 @@ class Arrangement
     }
 
     /**
-     * Er mønstringen registrert?
+     * Er arrangementet registrert?
      *
      * @return Bool $registrert
      */
@@ -1125,10 +1125,21 @@ class Arrangement
         return time() > $this->getStart()->getTimestamp();
     }
 
+    /**
+     * Er arrangementet aktiv akkurat nå?
+     *
+     * @return Bool
+     */
     public function erAktiv()
     {
         return $this->erStartet() && !$this->erFerdig();
     }
+
+    /**
+     * Er arrangementet ferdig?
+     *
+     * @return Bool
+     */
     public function erFerdig()
     {
         return time() > $this->getStop()->getTimestamp();
