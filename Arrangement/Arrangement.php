@@ -1100,6 +1100,26 @@ class Arrangement
         return $this->registrert;
     }
 
+    /**
+     * Er arrangementet i dag?
+     * Returnerer true fra dagen arrangementet starter,
+     * til og med dagen arrangementet slutter.
+     *
+     * @return Bool
+     */
+    public function erIDag() {
+        if( $this->erAktiv() ) {
+            return true;
+        }
+        $now = new DateTime();
+        return $now->format('Y-m-d') == ($this->getStart()->format('Y-m-d') || $this->getStop()->format('Y-m-d'));
+    }
+
+    /**
+     * Har arrangementet startet?
+     *
+     * @return Bool
+     */
     public function erStartet()
     {
         return time() > $this->getStart()->getTimestamp();
