@@ -1115,7 +1115,7 @@ class Arrangement
             return true;
         }
         $now = new DateTime();
-        return $now->format('Y-m-d') == ($this->getStart()->format('Y-m-d') || $this->getStop()->format('Y-m-d'));
+        return $now->format('Y-m-d') == $this->getStart()->format('Y-m-d') || $now->format('Y-m-d') == $this->getStop()->format('Y-m-d'));
     }
 
     /**
