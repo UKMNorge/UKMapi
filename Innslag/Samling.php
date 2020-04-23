@@ -153,6 +153,11 @@ class Samling {
     }
     
 
+    /**
+     * Hent ut hvor lang varighet innslagene i samlingen har til sammen
+     *
+     * @return Tid
+     */
     public function getTid() {
         if( null == $this->varighet ) {
             $sekunder = 0;
