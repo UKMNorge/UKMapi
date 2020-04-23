@@ -10,6 +10,7 @@ use Exception;
 use DateTime, DateInterval;
 use UKMNorge\Filmer\UKMTV\Direkte\Sending;
 use UKMNorge\Filmer\UKMTV\Direkte\Sendinger;
+use UKMNorge\Tid;
 
 require_once('UKM/Autoloader.php');
 
@@ -87,6 +88,11 @@ class Hendelse
         return $this;
     }
 
+    /**
+     * Hvilken type hendelse er dette?
+     *
+     * @return String default|post|category
+     */
     public function getType()
     {
         return $this->type;
@@ -470,7 +476,7 @@ class Hendelse
     /**
      * Hvor lenge varer innslagene i hendelsen?
      *
-     * @return void
+     * @return Tid
      */
     public function getTid() {
         return $this->getInnslag()->getTid();
