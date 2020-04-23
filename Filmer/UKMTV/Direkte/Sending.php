@@ -43,7 +43,7 @@ class Sending
         $this->navn = $data['navn'];
         $this->sted = $data['sted'];
         $this->start = new DateTime($data['start']);
-        $this->stopp = new DateTime($data['stop']);
+        $this->stopp = new DateTime($data['stopp']);
 
         $this->arrangement_id = intval($data['arrangement_id']);
         $this->arrangement_navn = $data['arrangement_navn'];
@@ -183,7 +183,56 @@ class Sending
      */
     public function getStop()
     {
-        return $this->stop;
+        return $this->stopp;
+    }
+    /**
+     * Sendingens sluttid
+     *
+     * @see getStop
+     * @return DateTime
+     */
+    public function getStopp() {
+        return $this->getStop();
+    }
+
+    /**
+     * Har sendingen startet?
+     *
+     * @return Bool
+     */
+    public function erStartet()
+    {
+        return time() > $this->getStart()->getTimestamp();
+    }
+
+    /**
+     * Er sendingen i dag?
+     *
+     * @return Bool
+     */
+    public function erIDag() {
+        $now = new DateTime();
+        return $now->format('Y-m-d') == $this->getStart()->format('Y-m-d');
+    }
+    
+    /**
+     * Er sendingen aktiv akkurat nå?
+     *
+     * @return Bool
+     */
+    public function erAktiv()
+    {
+        return $this->erStartet() && !$this->erFerdig();
+    }
+
+    /**
+     * Har sendingen sluttet?
+     *
+     * @return Bool
+     */
+    public function erFerdig()
+    {
+        return time() > $this->getStop()->getTimestamp();
     }
 
     /**
