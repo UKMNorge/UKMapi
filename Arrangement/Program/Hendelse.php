@@ -546,4 +546,51 @@ class Hendelse
         );
         return $query->getArray();
     }
+
+    /**
+     * Har hendelsen startet?
+     *
+     * @return Bool
+     */
+    public function erStartet()
+    {
+        return time() > $this->getStart()->getTimestamp();
+    }
+
+    /**
+     * Er hendelsen aktiv akkurat nå?
+     *
+     * @return Bool
+     */
+    public function erAktiv()
+    {
+        return $this->erStartet() && !$this->erFerdig();
+    }
+
+    /**
+     * Er hendelsen i dag?
+     *
+     * @return Bool
+     */
+    public function erIDag() {
+        $now = new DateTime();
+        return $now->format('Y-m-d') == $this->getStart()->format('Y-m-d');
+    }
+
+    /**
+     * Er hendelsen ferdig?
+     *
+     * @return Bool
+     */
+    public function erFerdig()
+    {
+        // Har hendelsen innslag kan vi beregne stop-tid
+        if( $this->getType() == 'default' ) {
+            return time() > ($this->getStart()->getTimestamp() + $this->getTid()->getSekunder());
+        }
+
+        // Andre hendelser kan vi anta varer en halvtime 
+        // (bare tull egentlig, men da har vi noe i alle fall..)
+        return time() > ($this->getStart()->getTimestamp() + 3600);
+    }
 }
