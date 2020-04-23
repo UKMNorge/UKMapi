@@ -15,6 +15,7 @@ use UKMNorge\Arrangement\Skjema\Skjema;
 use UKMNorge\Arrangement\Videresending\Avsender;
 use UKMNorge\Google\StaticMap;
 use UKMNorge\Arrangement\Videresending\Videresending;
+use UKMNorge\Filmer\UKMTV\Direkte\Sendinger;
 use UKMNorge\Filmer\UKMTV\Filmer;
 use UKMNorge\Innslag\Context\Context;
 use UKMNorge\Meta\Value as MetaValue;
@@ -96,6 +97,8 @@ class Arrangement
     var $log = null;
     var $deleted = false;
     var $subtype = null;
+
+    var $sendinger;
 
     /**
      * getLoadQry
@@ -1838,5 +1841,17 @@ class Arrangement
         $this->subtype = $subtype;
 
         return $this;
+    }
+
+    /**
+     * Hent alle direktesendinger arrangementet har
+     *
+     * @return Sendinger
+     */
+    public function getDirektesending() {
+        if( is_null($this->sendinger)) {
+            $this->sendinger = Sendinger::getAllByArrangement($this->getId());
+        }
+        return $this->sendinger;
     }
 }
