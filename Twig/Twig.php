@@ -2,7 +2,6 @@
 
 namespace UKMNorge\Twig;
 
-use Twig\LogicException;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 use Twig\Loader\FilesystemLoader;
