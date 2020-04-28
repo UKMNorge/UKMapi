@@ -2,6 +2,7 @@
 
 namespace UKMNorge\Twig;
 
+use Twig\LogicException;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 use Twig\Loader\FilesystemLoader;
@@ -209,14 +210,26 @@ class Twig
 
             }
                 
-            static::$twig->addFilter($filter);
+            try {
+                static::$twig->addFilter($filter);
+            } catch( LogicException $e ) {
+                // ignorer LogicException (som betyr at den er lagt til fra før)
+            }
         }
         foreach (static::getFunctions() as $name => $function) {
             $function = new TwigFunction($name, $function);
-            static::$twig->addFunction($function);
+            try {
+                static::$twig->addFunction($function);
+            } catch( LogicException $e ) {
+                // ignorer LogicException (som betyr at den er lagt til fra før)
+            }
         }
         foreach (static::getExtensions() as $extension) {
-            static::$twig->addExtension($extension);
+            try {
+                static::$twig->addExtension($extension);
+            } catch( LogicException $e ) {
+                // ignorer LogicException (som betyr at den er lagt til fra før)
+            }
         }
     }
 
