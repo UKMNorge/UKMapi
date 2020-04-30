@@ -23,18 +23,20 @@ abstract class App implements AppInterface
      * @throws VerificationException
      */
     public static function verifyRequestOrigin(String $request_body) {
+        $version = explode('=',$_SERVER['HTTP_X_SLACK_SIGNATURE'])[0];
+        
         $sign_data = 
             'v0:'. 
             $_SERVER['HTTP_X_SLACK_REQUEST_TIMESTAMP'] .
             ':'. $request_body;
 
-        $signature = 'v0='. hash_hmac(
+        $signature = $version.'='. hash_hmac(
             'sha256',
             $sign_data,
-            static::getSecret()
+            static::getSigningSecret()
         );
 
-        if( $signature != $_SERVER['HTTP_X_SLACK_SIGNATURE'] ) {
+        if( !hash_equals($_SERVER['HTTP_X_SLACK_SIGNATURE'], $signature )) {
             throw new VerificationException('Could not verify that request originated from Slack');
         }
         return true;
