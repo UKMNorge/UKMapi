@@ -14,6 +14,7 @@ class Curl
     var $headerList = array();
     var $error;
     var $user = false;
+    var $encoding;
 
     public function __construct()
     { }
@@ -77,6 +78,11 @@ class Curl
         return $this;
     }
 
+    public function setEncoding( String $encoding ) {
+        $this->encoding = $encoding;
+        return $this;
+    }
+
     public function request($url)
     {
         $this->url = $url;
@@ -106,6 +112,10 @@ class Curl
         // Set extra headers	
         if (!empty($this->headerList)) {
             curl_setopt($this->curl, CURLOPT_HTTPHEADER, $this->headerList);
+        }
+
+        if( !is_null($this->encoding)) {
+            curl_setopt($this->curl, CURLOPT_ENCODING, $this->encoding);
         }
 
         if ($this->json) {
