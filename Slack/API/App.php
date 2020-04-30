@@ -5,12 +5,39 @@ namespace UKMNorge\Slack\API;
 use UKMNorge\Http\Curl;
 use UKMNorge\Slack\API\Exceptions\InitException;
 use UKMNorge\Slack\Exceptions\CommunicationException;
+use UKMNorge\Slack\Exceptions\VerificationException;
 
 abstract class App implements AppInterface
 {
     protected static $id;
     protected static $secret;
     protected static $token;
+
+
+    /**
+     * Verify request origin
+     *
+     * @param String body of POST request
+     * @return Bool
+     * @throws VerificationException
+     */
+    public static function verifyRequestOrigin(String $request_body) {
+        $sign_data = 
+            'v0:'. 
+            $_SERVER['HTTP_X-Slack-Request-Timestamp'] .
+            ':'. $request_body;
+
+        $signature = hash_hmac(
+            'sha256',
+            $sign_data,
+            static::getSecret()
+        );
+
+        if( $signature != $_SERVER['HTTP_X-Slack-Signature'] ) {
+            throw new VerificationException('Could not verify that request originated from Slack');
+        }
+        return true;
+    }
 
     /**
      * Initiate and identify app
