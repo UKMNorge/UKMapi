@@ -8,9 +8,9 @@ use UKMNorge\Slack\Exceptions\CommunicationException;
 
 abstract class App implements AppInterface
 {
-    private static $id;
-    private static $secret;
-    private static $token;
+    protected static $id;
+    protected static $secret;
+    protected static $token;
 
     /**
      * Initiate and identify app
