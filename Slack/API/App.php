@@ -133,7 +133,7 @@ abstract class App implements AppInterface
 			'client_id' => static::getId(),
 			'client_secret' => static::getSecret(),
 			'code' => $code,
-			'redirect_uri' => static::getRedirectUrlRaw(false)
+			'redirect_uri' => static::getOAuthRedirectUrlRaw(false)
 		]);
 		$result = $curl->request('https://slack.com/api/oauth.access');
 
@@ -169,6 +169,6 @@ abstract class App implements AppInterface
         return 'https://slack.com/oauth/authorize'.
             '?scope='. static::getScope() .
 			'&client_id='. static::getId() .
-			'&redirect_uri='. static::getRedirectUrl();
+			'&redirect_uri='. static::getOAuthRedirectUrl();
     }
 }
