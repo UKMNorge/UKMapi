@@ -23,7 +23,6 @@ abstract class App implements AppInterface
     {
         static::setId($id);
         static::setSecret($secret);
-        static::$oauth = null;
     }
 
     /**
