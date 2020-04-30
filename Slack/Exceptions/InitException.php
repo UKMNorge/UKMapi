@@ -14,6 +14,7 @@ class InitException extends \Exception {
             case 'token':
                 parent::__construct('App initFromToken() must be run before getToken()');
             break;
+            case 'signingsecret':
             case 'idsecret':
                 parent::__construct('App initFromAppDetails() must be run before getToken()');
             break;

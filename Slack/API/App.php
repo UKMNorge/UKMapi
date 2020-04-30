@@ -11,6 +11,7 @@ abstract class App implements AppInterface
 {
     protected static $id;
     protected static $secret;
+    protected static $signing_secret;
     protected static $token;
 
 
@@ -27,7 +28,7 @@ abstract class App implements AppInterface
             $_SERVER['HTTP_X_SLACK_REQUEST_TIMESTAMP'] .
             ':'. $request_body;
 
-        $signature = hash_hmac(
+        $signature = 'v0='. hash_hmac(
             'sha256',
             $sign_data,
             static::getSecret()
@@ -46,10 +47,11 @@ abstract class App implements AppInterface
      * @param String $secret
      * @return void
      */
-    public static function initFromAppDetails(String $id, String $secret)
+    public static function initFromAppDetails(String $id, String $secret, String $signing_secret)
     {
         static::setId($id);
         static::setSecret($secret);
+        static::setSigningSecret($signing_secret);
     }
 
     /**
@@ -112,6 +114,31 @@ abstract class App implements AppInterface
             throw new InitException('idsecret');
         }
         return static::$secret;
+    }
+
+    /**
+     * Set app signing secret
+     * 
+     * See Slack App Credentials for your app signing secret
+     *
+     * @param String signing secret
+     * @return void
+     */
+    private static function setSigningSecret(String $secret)
+    {
+        static::$signing_secret = $secret;
+    }
+
+    /**
+     * Get app signing secret
+     *
+     * @return String
+     */
+    public static function getSigningSecret() {
+        if(is_null(static::$signing_secret)) {
+            throw new InitException('signing');
+        }
+        return static::$signing_secret;
     }
 
     /**
