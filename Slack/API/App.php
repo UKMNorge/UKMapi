@@ -167,7 +167,7 @@ abstract class App implements AppInterface
      */
     public static function getAuthUrl() {
         return 'https://slack.com/oauth/authorize'.
-            '?scope='. static::getScope() .
+            '?scope='. join(',',static::getScope()) .
 			'&client_id='. static::getId() .
 			'&redirect_uri='. static::getOAuthRedirectUrl();
     }

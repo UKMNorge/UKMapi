@@ -9,7 +9,7 @@ interface AppInterface {
      * Returns CSV-list of requested scopes according to Slack docs
      * @see https://api.slack.com/scopes
      *
-     * @return String csv scopes
+     * @return Array scopes
      */
     public static function getScope();
 
