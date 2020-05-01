@@ -9,6 +9,8 @@ use UKMNorge\Slack\Exceptions\VerificationException;
 
 abstract class App implements AppInterface
 {
+    const SLACK_API_URL = 'https://slack.com/api/';
+
     protected static $id;
     protected static $secret;
     protected static $signing_secret;
@@ -149,7 +151,7 @@ abstract class App implements AppInterface
      * @param String $token
      * @return void
      */
-    private static function setToken($token)
+    public static function setToken($token)
     {
         static::$token = $token;
     }
@@ -191,7 +193,7 @@ abstract class App implements AppInterface
 			'code' => $code,
 			'redirect_uri' => static::getOAuthRedirectUrlRaw(false)
 		]);
-		$result = $curl->request('https://slack.com/api/oauth.access');
+		$result = $curl->request( static::SLACK_API_URL . 'oauth.access');
 
 		if( is_object( $result ) && $result->ok ) {
 			return $result;
@@ -226,5 +228,18 @@ abstract class App implements AppInterface
             '?scope='. join(',',static::getScope()) .
 			'&client_id='. static::getId() .
 			'&redirect_uri='. static::getOAuthRedirectUrl();
+    }
+
+	/**
+	 * Send request to Slack API
+	 *
+	 * @param String api endpoint id
+	 * @param String json-data to post
+	 */
+	public static function post( String $endpoint, String $json_data ) {
+        $this->curl = new Curl();
+        $this->curl->json( $json_data );
+        $this->curl->addHeader('Authorization: Bearer '. static::getToken() );
+        return $this->curl->request( static::SLACK_API_URL . $endpoint);
     }
 }
