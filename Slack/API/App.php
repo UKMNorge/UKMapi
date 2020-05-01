@@ -15,6 +15,7 @@ abstract class App implements AppInterface
     protected static $secret;
     protected static $signing_secret;
     protected static $token;
+    protected static $curl;
 
 
     /**
@@ -233,6 +234,9 @@ abstract class App implements AppInterface
 	/**
 	 * Send request to Slack API
 	 *
+     * Uses static::$curl for potential debug purposes 
+     * currently not implemented (auch)
+     * 
 	 * @param String api endpoint id
 	 * @param String json-data to post
 	 */
