@@ -237,9 +237,9 @@ abstract class App implements AppInterface
 	 * @param String json-data to post
 	 */
 	public static function post( String $endpoint, String $json_data ) {
-        $this->curl = new Curl();
-        $this->curl->json( $json_data );
-        $this->curl->addHeader('Authorization: Bearer '. static::getToken() );
-        return $this->curl->request( static::SLACK_API_URL . $endpoint);
+        static::$curl = new Curl();
+        static::$curl->json( $json_data );
+        static::$curl->addHeader('Authorization: Bearer '. static::getToken() );
+        return static::$curl->request( static::SLACK_API_URL . $endpoint);
     }
 }
