@@ -41,7 +41,7 @@ class Kanaler extends Collection
      *
      * @return Kanaler
      */
-    public function getAll()
+    public static function getAll()
     {
         $kanaler = new static('alle',0);
         $query = new Query(
@@ -65,7 +65,7 @@ class Kanaler extends Collection
      * @param String $id
      * @return Kanal
      */
-    public function getById(String $id)
+    public static function getById(String $id)
     {
         $query = new Query(
             "SELECT *
@@ -76,6 +76,7 @@ class Kanaler extends Collection
                 'id' => $id
             ]
         );
+
         $data = $query->getArray();
 
         if (!$data) {
