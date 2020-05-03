@@ -46,7 +46,7 @@ class Ide
                 static::TABLE_REL_KANAL,
                 Kanal::TABLE
             ],
-            "SELECT *, `#table_id`.`id` AS `faktisk_ide_id`
+            "SELECT *, `#table_ide`.`id` AS `faktisk_ide_id`
             FROM `#table_ide`
             LEFT JOIN `#table_rel`
                 ON(`#table_ide`.`id` = `#table_rel`.`ide_id`)
