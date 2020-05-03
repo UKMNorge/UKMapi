@@ -21,7 +21,7 @@ class Ide
 
     public function __construct( Array $data )
     {
-        $this->id = intval($data['id']);
+        $this->id = intval($data['faktisk_ide_id']);
         $this->publisering = new DateTime($data['publisering']);
         $this->beskrivelse = $data['beskrivelse'];
         $this->eier_id = $data['eier_id'];
