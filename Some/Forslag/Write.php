@@ -40,7 +40,7 @@ class Write {
      * @return Bool true
      */
     public static function save( Ide $ide ) {
-        $db_ide = Ide::getById($ide->getId());
+        $db_ide = Ideer::getById($ide->getId());
 
         $query = new Update(
             Ide::TABLE,
