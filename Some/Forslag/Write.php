@@ -4,6 +4,7 @@ namespace UKMNorge\Some\Forslag;
 
 use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Insert;
+use UKMNorge\Database\SQL\Update;
 
 class Write {
 
