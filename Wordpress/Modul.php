@@ -196,6 +196,7 @@ abstract class Modul {
      * @return array
     **/
     public static function getViewData() {
+        static::$view_data['plugin_url'] = static::getPluginUrl();
         static::$view_data['flashbag'] = static::getFlashbag();
         static::$view_data['is_super_admin'] = is_super_admin();
         return static::$view_data;
