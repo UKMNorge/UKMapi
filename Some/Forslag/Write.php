@@ -53,7 +53,7 @@ class Write {
         foreach( static::MAP as $db_field => $function ) {
             if( $db_ide->$function() != $ide->$function() ) {
                 $value = $ide->$function();
-                if( is_object( $value )) {
+                if( is_array($value) || is_a( $value, '\stdClass' ) ) {
                     $value = json_encode($value);
                 }
                 $query->add( $db_field, $value );
