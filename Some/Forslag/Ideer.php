@@ -5,7 +5,6 @@ namespace UKMNorge\Some\Forslag;
 use Exception;
 use UKMNorge\Collection;
 use UKMNorge\Database\SQL\Query;
-use UKMNorge\Some\Kanaler\Kanal;
 
 class Ideer extends Collection
 {
@@ -20,9 +19,8 @@ class Ideer extends Collection
     {
         $query = new Query(
             Ide::getLoadQuery() . "
-            WHERE `#table`.`id` = '#id'",
+            WHERE `faktisk_ide_id` = '#id'",
             [
-                'table' => Ide::TABLE,
                 'id' => $id
             ]
         );
@@ -44,10 +42,7 @@ class Ideer extends Collection
     public function _load()
     {
         $query = new Query(
-            Ide::getLoadQuery() . " ORDER BY `#table`.`id` DESC",
-            [
-                'table' => Ide::TABLE
-            ]
+            Ide::getLoadQuery() . " ORDER BY `faktisk_ide_id` DESC"
         );
         $res = $query->run();
 
