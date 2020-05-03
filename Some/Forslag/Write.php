@@ -21,7 +21,7 @@ class Write {
      * @param String $tekst
      * @return Ide
      */
-    public function create( String $team_id, String $eier_id, String $tekst ) {
+    public static function create( String $team_id, String $eier_id, String $tekst ) {
         $insert = new Insert(Ide::TABLE);
         $insert->add('team_id', $team_id);
         $insert->add('eier_id', $eier_id);
@@ -38,7 +38,7 @@ class Write {
      * @param Ide $ide
      * @return Bool true
      */
-    public function save( Ide $ide ) {
+    public static function save( Ide $ide ) {
         $db_ide = Ide::getById($ide->getId());
 
         $query = new Update(

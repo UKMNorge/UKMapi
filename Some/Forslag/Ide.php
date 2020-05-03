@@ -9,7 +9,7 @@ use UKMNorge\Some\Kanaler\Kanaler;
 class Ide
 {
     const TABLE = 'some_status_ide';
-    const TABLE_REL_KANAL = 'some_status_ide_rel_kanal';
+    const TABLE_REL_KANAL = 'some_status_ide_rel_kanaler';
 
     public $id;
     public $publisering;
