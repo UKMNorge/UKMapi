@@ -329,7 +329,7 @@ abstract class App implements AppInterface
         $endpoint .= (!is_null($data) && sizeof($data) > 0) ?
         '?'. http_build_query( $data ) :
         '';
-        return static::query('GET', $token, $endpoint, $data);
+        return static::query('GET', $token, $endpoint);
     }
 
     /**
@@ -362,6 +362,7 @@ abstract class App implements AppInterface
     private static function query( String $method, String $accessToken, String $endpoint, Array $data=null ) {
         static::$curl = new Curl();
         switch( $method ) {
+            case 'POST':
             case 'post':
                 static::$curl->json( $data );
             break;
