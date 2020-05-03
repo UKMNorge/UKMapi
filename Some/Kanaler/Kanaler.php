@@ -65,7 +65,7 @@ class Kanaler extends Collection
      * @param String $id
      * @return Kanal
      */
-    public function getByID(String $id)
+    public function getById(String $id)
     {
         $query = new Query(
             "SELECT *

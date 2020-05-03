@@ -2,6 +2,7 @@
 
 namespace UKMNorge\Some\Forslag;
 
+use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Insert;
 
 class Write {
@@ -56,11 +57,73 @@ class Write {
             }
         }
 
+
+        foreach( $ide->getKanaler()->getAll() as $kanal ) {
+            if( !$db_ide->getKanaler()->har( $kanal->getId() ) ) {
+                static::leggtilKanal( $kanal, $this->getId() );
+            }
+        }
+
+        foreach( $db_ide->getKanaler()->getAll() as $db_kanal ) {
+            if( !$ide->getKanaler()->har( $db_kanal->getId() ) ) {
+                static::fjernKanal($db_kanal, $this->getId());
+            }
+        }
+
         if( !$query->hasChanges() ) {
             return true;
         }
 
         $query->run();
+        return true;
+    }
+
+        
+    /**
+     * Legg til relasjon mellom idé og kanal
+     *
+     * @param Kanal $kanal
+     * @param Int $ide_id
+     * @return Bool true
+     * @throws Exception
+     */
+    public static function leggtilKanal( Kanal $kanal, Int $ide_id ) {
+        $query = new Insert( Ide::TABLE_REL_KANAL );
+        $query->add('kanal_id', $kanal->getId());
+        $query->add('ide_id', $ide_id);
+        
+        try {
+            $res = $query->run();
+        } catch( Exception $e ) {
+            throw $e; // handle e->getCode() == null_affected_rows_error
+        }
+
+        return true;
+    }
+    
+    /**
+     * Slett relasjon mellom idé og kanal
+     *
+     * @param Kanal $kanal
+     * @param Int $ide_id
+     * @return Bool true
+     * @throws Exception
+     */
+    public static function fjernKanal( Kanal $kanal, Int $ide_id ) {
+        $query = new Delete(
+            Ide::TABLE_REL_KANAL,
+            [
+                'kanal_id' => $kanal->getId(),
+                'ide_id' => $ide_id
+            ]
+        );
+
+        try {
+            $res = $query->run();
+        } catch( Exception $e ) {
+            throw $e; // handle e->getCode() == null_affected_rows_error
+        }
+
         return true;
     }
 }
