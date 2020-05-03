@@ -11,8 +11,8 @@ class Write {
     const MAP = [
         'publisering' => 'getPubliseringsdato',
         'beskrivelse' => 'getBeskrivelse',
-        'eier_id' => 'getEier',
-        'team_id' => 'getTeam'
+        'eier_id' => 'getEierId',
+        'team_id' => 'getTeamId'
     ];
 
     /**
