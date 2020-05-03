@@ -61,13 +61,13 @@ class Write {
 
         foreach( $ide->getKanaler()->getAll() as $kanal ) {
             if( !$db_ide->getKanaler()->har( $kanal->getId() ) ) {
-                static::leggtilKanal( $kanal, $this->getId() );
+                static::leggtilKanal( $kanal, $ide->getId() );
             }
         }
 
         foreach( $db_ide->getKanaler()->getAll() as $db_kanal ) {
             if( !$ide->getKanaler()->har( $db_kanal->getId() ) ) {
-                static::fjernKanal($db_kanal, $this->getId());
+                static::fjernKanal($db_kanal, $ide->getId());
             }
         }
 
