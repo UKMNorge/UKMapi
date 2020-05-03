@@ -3,6 +3,8 @@
 namespace UKMNorge\Slack\App;
 
 use UKMNorge\Slack\API\App;
+use UKMNorge\Database\SQL\Query;
+use UKMNorge\Slack\Response;
 
 class UKMApp extends App
 {
