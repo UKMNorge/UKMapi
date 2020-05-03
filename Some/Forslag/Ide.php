@@ -21,7 +21,7 @@ class Ide
 
     public function __construct( Array $data )
     {
-        $this->id = $data['id'];
+        $this->id = intval($data['ide_id']);
         $this->publisering = new DateTime($data['publisering']);
         $this->beskrivelse = $data['beskrivelse'];
         $this->eier_id = $data['eier_id'];
@@ -46,10 +46,10 @@ class Ide
                 static::TABLE_REL_KANAL,
                 Kanal::TABLE
             ],
-            "SELECT *
+            "SELECT `#table_ide`.`id` AS `ide_id`, *
             FROM `#table_ide`
             LEFT JOIN `#table_rel`
-                ON(`#table_ide`.`id` = `#table_rel`.`ide_id`)
+                ON(`#table_ide`.`ide_id` = `#table_rel`.`ide_id`)
             LEFT JOIN `#table_kanal` 
                 ON(`#table_kanal`.`id` = `#table_rel`.`kanal_id`)"
         );
