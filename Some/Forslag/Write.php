@@ -2,9 +2,11 @@
 
 namespace UKMNorge\Some\Forslag;
 
+use Exception;
 use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Database\SQL\Update;
+use UKMNorge\Some\Kanaler\Kanal;
 
 class Write {
 
