@@ -41,7 +41,7 @@ class Kanaler extends Collection
      *
      * @return Kanaler
      */
-    public static function getAll()
+    public static function getAlle()
     {
         $kanaler = new static('alle',0);
         $query = new Query(
