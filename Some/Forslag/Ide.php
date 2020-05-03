@@ -49,7 +49,7 @@ class Ide
             "SELECT *, `#table_id`.`id` AS `faktisk_ide_id`
             FROM `#table_ide`
             LEFT JOIN `#table_rel`
-                ON(`faktisk_ide_id` = `#table_rel`.`ide_id`)
+                ON(`#table_ide`.`id` = `#table_rel`.`ide_id`)
             LEFT JOIN `#table_kanal` 
                 ON(`#table_kanal`.`id` = `#table_rel`.`kanal_id`)"
         );
