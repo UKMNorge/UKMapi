@@ -3,8 +3,10 @@
 namespace UKMNorge\Slack\API;
 
 use UKMNorge\Http\Curl;
-use UKMNorge\Slack\API\Exceptions\InitException;
 use UKMNorge\Slack\Exceptions\CommunicationException;
+use UKMNorge\Slack\Exceptions\InitException;
+use UKMNorge\Slack\Exceptions\ResponseException;
+use UKMNorge\Slack\Exceptions\TokenException;
 use UKMNorge\Slack\Exceptions\VerificationException;
 
 abstract class App implements AppInterface
@@ -16,6 +18,7 @@ abstract class App implements AppInterface
     protected static $signing_secret;
     protected static $token;
     protected static $curl;
+    protected static $bot_token;
 
 
     /**
@@ -68,6 +71,17 @@ abstract class App implements AppInterface
     public static function initFromToken(String $token)
     {
         static::setToken($token);
+    }
+
+    /**
+     * Initiate app api access from bot token
+     *
+     * @param String $bot_token
+     * @return void
+     */
+    public static function initFromBotToken(String $bot_token)
+    {
+        static::setBotToken($bot_token);
     }
 
     /**
@@ -170,6 +184,31 @@ abstract class App implements AppInterface
 
         return static::$token;
     }
+    
+    /**
+     * Set Slack Bot Access Token
+     *
+     * @param String $bot_token
+     * @return void
+     */
+    public static function setBotToken(String $bot_token)
+    {
+        static::$bot_token = $bot_token;
+    }
+
+    /**
+     * Get Slack Bot Access Token
+     *
+     * @return String
+     */
+    public static function getBotToken()
+    {
+        if (is_null(static::$bot_token)) {
+            throw new InitException('bottoken');
+        }
+
+        return static::$bot_token;
+    }
 
     /**
      * Get encoded oAuth redirect url
@@ -231,19 +270,115 @@ abstract class App implements AppInterface
 			'&redirect_uri='. static::getOAuthRedirectUrl();
     }
 
+    /**
+	 * Send user authenticated request to Slack API
+     * 
+     * @param String api endpoint id
+     * @param Array data for query string
+     * @return stdClass Slack api response
+	 */
+    public static function get( String $endpoint, Array $query_parameters = null ) {
+        return static::_get(static::getToken(), $endpoint, $query_parameters);
+    }
+
 	/**
-	 * Send request to Slack API
+	 * Send POST request to Slack API
 	 *
      * Uses static::$curl for potential debug purposes 
      * currently not implemented (auch)
      * 
 	 * @param String api endpoint id
 	 * @param Array json-data to post
+     * @return stdClass Slack api response
 	 */
 	public static function post( String $endpoint, Array $json_data ) {
+        return static::_post(static::getToken(), $endpoint, $json_data);
+    }
+    
+    /**
+     * Send bot authenticated request to Slack API
+     *
+     * @param String $endpoint
+     * @param Array $query_parameters
+     * @return stdClass Slack api response
+     */
+    public static function botGet( String $endpoint, Array $query_parameters = null ) {
+        return static::_get(static::getBotToken(), $endpoint, $query_parameters);
+    }
+    
+    /**
+     * Send bot authenticated request to Slack API
+     *
+     * @param String $endpoint
+     * @param Array $query_parameters
+     * @return stdClass Slack api response
+     */
+    public static function botPost( String $endpoint, Array $json_data ) {
+        return static::_post(static::getBotToken(), $endpoint, $json_data);
+    }
+
+    /**
+     * Prepare get query
+     *
+     * @param String $token
+     * @param String $endpoint
+     * @param Array $data
+     * @return stdClass Slack api response
+     */
+    private static function _get(String $token, String $endpoint, Array $data = null ) {
+        $endpoint .= (!is_null($data) && sizeof($data) > 0) ?
+        '?'. http_build_query( $data ) :
+        '';
+        return static::query('GET', $token, $endpoint, $data);
+    }
+
+    /**
+	 * Prepare post query
+     *
+     * @param String access token
+     * @param String api endpoint id
+	 * @param Array json-data to post
+     * @return stdClass Slack api response
+     */
+    public static function _post(String $token, String $endpoint, Array $data ) {
+        return static::query('POST', $token, $endpoint, $data);
+    }
+
+    /**
+     * Send the authenticated request to slack
+     * 
+     * Uses static::$curl for potential debug purposes 
+     * currently not implemented (auch)
+     *
+     * NOTE FOR GET: since http_build_query omits all key-value pairs with
+     * null value, you should make sure every key has a not-null value. 
+     * 
+     * @param String GET|POST method
+     * @param String $accessToken
+     * @param String slack api endpoint url (without https://slack.com/api/)
+     * @param Array additional data
+     * @return stdClass Slack api response
+     */
+    private static function query( String $method, String $accessToken, String $endpoint, Array $data=null ) {
         static::$curl = new Curl();
-        static::$curl->json( $json_data );
-        static::$curl->addHeader('Authorization: Bearer '. static::getToken() );
-        return static::$curl->request( static::SLACK_API_URL . $endpoint);
+        switch( $method ) {
+            case 'post':
+                static::$curl->json( $data );
+            break;
+        }
+        static::$curl->addHeader('Authorization: Bearer '. $accessToken );
+        $result = static::$curl->request( static::SLACK_API_URL . $endpoint);
+
+        if( !$result->ok ) {
+            switch( $result->error ) {
+                case 'invalid_auth':
+                    throw new TokenException('Invalid authentication given for request for endpoint '. $endpoint);
+                case 'missing_scope':
+                    throw new TokenException('Given token does not have the correct scope ('.$result->needed.') for endpoint '. $endpoint .'. Token has '. $result->provided);
+            }
+            throw new ResponseException('Unknown exception. Slack said '. $result->error .' ('. $endpoint .')');
+        }
+
+        return $result;
     }
 }
