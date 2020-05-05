@@ -18,6 +18,6 @@ class Conversations {
             ],
             $data
         );
-        return App::botPost('conversations.start', $request_data);
+        return App::botPost('conversations.open', $request_data);
     }
 }
