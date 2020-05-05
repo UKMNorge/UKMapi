@@ -3,6 +3,7 @@
 namespace UKMNorge\Slack\Team;
 
 use DateTime;
+use UKMNorge\Slack\Channel\Channels;
 use UKMNorge\Slack\User\Users;
 
 class Team {
@@ -15,6 +16,7 @@ class Team {
     private $data;
 
     private $users;
+    private $channels;
 
     public function __construct( Array $data ) {
 
@@ -145,5 +147,12 @@ class Team {
             $this->users = new Users($this->getTeamId());
         }
         return $this->users;
+    }
+
+    public function getChannels() {
+        if( is_null($this->channels)) {
+            $this->channels = new Channels($this->getTeamId());
+        }
+        return $this->channels;
     }
 }

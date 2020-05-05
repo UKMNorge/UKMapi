@@ -1,12 +1,12 @@
 <?php
 
-namespace UKMNorge\Slack\User;
+namespace UKMNorge\Slack\Channel;
 
 use Exception;
 use UKMNorge\Collection;
 use UKMNorge\Database\SQL\Query;
 
-class Users extends Collection
+class Channels extends Collection
 {
     public $team_id;
 
@@ -36,50 +36,24 @@ class Users extends Collection
             FROM `#table`
             WHERE `slack_id` = '#slack_id'",
             [
-                'table' => User::TABLE,
+                'table' => Channel::TABLE,
                 'slack_id' => $slack_id
             ]
         );
         $data = $query->getArray();
 
         if( $data ) {
-            return new User($data);
+            return new Channel($data);
         }
-        throw new Exception('Could not find user with slack id: '. $slack_id);
-    }
-
-    /**
-     * Get user by handlebar
-     *
-     * @param String $slack_id
-     * @return User
-     * @throws Exception
-     */
-    public static function getByHandlebar(String $handlebar) {
-        $handlebar = str_replace('@','', $handlebar);
-        $query = new Query(
-            "SELECT * 
-            FROM `#table`
-            WHERE `name` = '#slack_id'",
-            [
-                'table' => User::TABLE,
-                'slack_id' => $handlebar
-            ]
-        );
-        $data = $query->getArray();
-
-        if( $data ) {
-            return new User($data);
-        }
-        throw new Exception('Could not find user @'. $handlebar);
+        throw new Exception('Could not find channel with slack id: '. $slack_id);
     }
 
 
     /**
-     * Get user by internal database Id
+     * Get channel by internal database Id
      *
      * @param Int $id
-     * @return User
+     * @return Channel
      * @throws Exception
      */
     public static function getById(Int $id) {
@@ -88,20 +62,20 @@ class Users extends Collection
             FROM `#table`
             WHERE `id` = '#id'",
             [
-                'table' => User::TABLE,
+                'table' => Channel::TABLE,
                 'id' => $id
             ]
         );
         $data = $query->getArray();
 
         if( $data ) {
-            return new User($data);
+            return new Channel($data);
         }
-        throw new Exception('Could not find user with id: '. $id);
+        throw new Exception('Could not find channel with id: '. $id);
     }
 
     /**
-     * Load all users from database
+     * Load all channels from database
      *
      * @return void
      */
@@ -114,14 +88,14 @@ class Users extends Collection
         ORDER BY `name` ASC
         ",
             [
-                'table' => User::TABLE,
+                'table' => Channel::TABLE,
                 'team_id' => $this->getTeamId()
             ]
         );
         $res = $query->run();
         
         while($row = Query::fetch($res)) {
-            $this->add( new User( $row ));
+            $this->add( new Channel( $row ));
         }
     }
 }

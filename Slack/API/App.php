@@ -11,6 +11,7 @@ use UKMNorge\Slack\Exceptions\VerificationException;
 
 abstract class App implements AppInterface
 {
+    const DEBUG = true;
     const SLACK_API_URL = 'https://slack.com/api/';
 
     protected static $id;
@@ -28,21 +29,22 @@ abstract class App implements AppInterface
      * @return Bool
      * @throws VerificationException
      */
-    public static function verifyRequestOrigin(String $request_body) {
-        $version = explode('=',$_SERVER['HTTP_X_SLACK_SIGNATURE'])[0];
-        
-        $sign_data = 
-            'v0:'. 
-            $_SERVER['HTTP_X_SLACK_REQUEST_TIMESTAMP'] .
-            ':'. $request_body;
+    public static function verifyRequestOrigin(String $request_body)
+    {
+        $version = explode('=', $_SERVER['HTTP_X_SLACK_SIGNATURE'])[0];
 
-        $signature = $version.'='. hash_hmac(
+        $sign_data =
+            'v0:' .
+            $_SERVER['HTTP_X_SLACK_REQUEST_TIMESTAMP'] .
+            ':' . $request_body;
+
+        $signature = $version . '=' . hash_hmac(
             'sha256',
             $sign_data,
             static::getSigningSecret()
         );
 
-        if( !hash_equals($_SERVER['HTTP_X_SLACK_SIGNATURE'], $signature )) {
+        if (!hash_equals($_SERVER['HTTP_X_SLACK_SIGNATURE'], $signature)) {
             throw new VerificationException('Could not verify that request originated from Slack');
         }
         return true;
@@ -128,8 +130,9 @@ abstract class App implements AppInterface
      *
      * @return String
      */
-    public static function getSecret() {
-        if(is_null(static::$secret)) {
+    public static function getSecret()
+    {
+        if (is_null(static::$secret)) {
             throw new InitException('idsecret');
         }
         return static::$secret;
@@ -153,8 +156,9 @@ abstract class App implements AppInterface
      *
      * @return String
      */
-    public static function getSigningSecret() {
-        if(is_null(static::$signing_secret)) {
+    public static function getSigningSecret()
+    {
+        if (is_null(static::$signing_secret)) {
             throw new InitException('signing');
         }
         return static::$signing_secret;
@@ -184,7 +188,7 @@ abstract class App implements AppInterface
 
         return static::$token;
     }
-    
+
     /**
      * Set Slack Bot Access Token
      *
@@ -215,9 +219,10 @@ abstract class App implements AppInterface
      *
      * @return String urlencoded redirect url
      */
-	public static function getOAuthRedirectUrl() {
-        return urlencode( static::getOAuthRedirectUrlRaw() );
-	}
+    public static function getOAuthRedirectUrl()
+    {
+        return urlencode(static::getOAuthRedirectUrlRaw());
+    }
 
     /**
      * Get oAuth access token
@@ -225,76 +230,81 @@ abstract class App implements AppInterface
      * @param String $code
      * @return mixed curl request result
      */
-	public static function getOAuthAccessToken( $code ) {
-		$curl = new Curl();
-		$curl->post([
-			'client_id' => static::getId(),
-			'client_secret' => static::getSecret(),
-			'code' => $code,
-			'redirect_uri' => static::getOAuthRedirectUrlRaw(false)
-		]);
-		$result = $curl->request( static::SLACK_API_URL . 'oauth.access');
+    public static function getOAuthAccessToken($code)
+    {
+        $curl = new Curl();
+        $curl->post([
+            'client_id' => static::getId(),
+            'client_secret' => static::getSecret(),
+            'code' => $code,
+            'redirect_uri' => static::getOAuthRedirectUrlRaw(false)
+        ]);
+        $result = $curl->request(static::SLACK_API_URL . 'oauth.access');
 
-		if( is_object( $result ) && $result->ok ) {
-			return $result;
-		}
+        if (is_object($result) && $result->ok) {
+            return $result;
+        }
 
-		throw new CommunicationException(
-			'Could not get access token. Slack said: '.
-			$result->error,
-			181003
-		);
-	}
+        throw new CommunicationException(
+            'Could not get access token. Slack said: ' .
+                $result->error,
+            181003
+        );
+    }
 
     /**
      * Get "Add to Slack"-button
      *
      * @return String html button
      */
-	public static function getButton() {
-		return '<a href="'. static::getAuthUrl() .'">'.
-			'<img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" '.
-				' srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" />'.
-			'</a>';
+    public static function getButton()
+    {
+        return '<a href="' . static::getAuthUrl() . '">' .
+            '<img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" ' .
+            ' srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" />' .
+            '</a>';
     }
-    
+
     /**
      * Get Auth URL for add to slack
      *
      * @return String url
      */
-    public static function getAuthUrl() {
-        return 'https://slack.com/oauth/authorize'.
-            '?scope='. join(',',static::getScope()) .
-			'&client_id='. static::getId() .
-			'&redirect_uri='. static::getOAuthRedirectUrl();
+    public static function getAuthUrl()
+    {
+        return 'https://slack.com/oauth/authorize' .
+            '?scope=' . join(',', static::getScope()) .
+            '&client_id=' . static::getId() .
+            '&redirect_uri=' . static::getOAuthRedirectUrl();
     }
 
     /**
-	 * Send user authenticated request to Slack API
+     * Send user authenticated request to Slack API
      * 
      * @param String api endpoint id
      * @param Array data for query string
      * @return stdClass Slack api response
-	 */
-    public static function get( String $endpoint, Array $query_parameters = null ) {
+     */
+    public static function get(String $endpoint, array $query_parameters = null)
+    {
         return static::_get(static::getToken(), $endpoint, $query_parameters);
     }
 
-	/**
-	 * Send POST request to Slack API
-	 *
+    /**
+     * Send POST request to Slack API
+     *
      * Uses static::$curl for potential debug purposes 
      * currently not implemented (auch)
      * 
-	 * @param String api endpoint id
-	 * @param Array json-data to post
+     * @param String api endpoint id
+     * @param Array json-data to post
      * @return stdClass Slack api response
-	 */
-	public static function post( String $endpoint, Array $json_data ) {
+     */
+    public static function post(String $endpoint, array $json_data)
+    {
         return static::_post(static::getToken(), $endpoint, $json_data);
     }
-    
+
     /**
      * Send bot authenticated request to Slack API
      *
@@ -302,10 +312,11 @@ abstract class App implements AppInterface
      * @param Array $query_parameters
      * @return stdClass Slack api response
      */
-    public static function botGet( String $endpoint, Array $query_parameters = null ) {
+    public static function botGet(String $endpoint, array $query_parameters = null)
+    {
         return static::_get(static::getBotToken(), $endpoint, $query_parameters);
     }
-    
+
     /**
      * Send bot authenticated request to Slack API
      *
@@ -313,7 +324,8 @@ abstract class App implements AppInterface
      * @param Array $query_parameters
      * @return stdClass Slack api response
      */
-    public static function botPost( String $endpoint, Array $json_data ) {
+    public static function botPost(String $endpoint, array $json_data)
+    {
         return static::_post(static::getBotToken(), $endpoint, $json_data);
     }
 
@@ -325,22 +337,23 @@ abstract class App implements AppInterface
      * @param Array $data
      * @return stdClass Slack api response
      */
-    private static function _get(String $token, String $endpoint, Array $data = null ) {
+    private static function _get(String $token, String $endpoint, array $data = null)
+    {
         $endpoint .= (!is_null($data) && sizeof($data) > 0) ?
-        '?'. http_build_query( $data ) :
-        '';
+            '?' . http_build_query($data) : '';
         return static::query('GET', $token, $endpoint);
     }
 
     /**
-	 * Prepare post query
+     * Prepare post query
      *
      * @param String access token
      * @param String api endpoint id
-	 * @param Array json-data to post
+     * @param Array json-data to post
      * @return stdClass Slack api response
      */
-    public static function _post(String $token, String $endpoint, Array $data ) {
+    public static function _post(String $token, String $endpoint, array $data)
+    {
         return static::query('POST', $token, $endpoint, $data);
     }
 
@@ -359,27 +372,53 @@ abstract class App implements AppInterface
      * @param Array additional data
      * @return stdClass Slack api response
      */
-    private static function query( String $method, String $accessToken, String $endpoint, Array $data=null ) {
+    private static function query(String $method, String $accessToken, String $endpoint, array $data = null)
+    {
         static::$curl = new Curl();
-        switch( $method ) {
+        switch ($method) {
             case 'POST':
             case 'post':
-                static::$curl->json( $data );
-            break;
+                static::$curl->json($data);
+                break;
         }
-        static::$curl->addHeader('Authorization: Bearer '. $accessToken );
-        $result = static::$curl->request( static::SLACK_API_URL . $endpoint);
+        static::log($method . '://' . $endpoint);
+        static::log('-> data: ' . var_export($data, true));
 
-        if( !$result->ok ) {
-            switch( $result->error ) {
+        static::$curl->addHeader('Authorization: Bearer ' . $accessToken);
+        $result = static::$curl->request(static::SLACK_API_URL . $endpoint);
+
+        if (!$result->ok) {
+            switch ($result->error) {
                 case 'invalid_auth':
-                    throw new TokenException('Invalid authentication given for request for endpoint '. $endpoint);
+                    $message = 'Invalid authentication given for request for endpoint ' . $endpoint;
+                    static::log('-> ' . $message);
+                    throw new TokenException($message);
                 case 'missing_scope':
-                    throw new TokenException('Given token does not have the correct scope ('.$result->needed.') for endpoint '. $endpoint .'. Token has '. $result->provided);
+                    $message =
+                        'Given token does not have the correct scope (' . $result->needed . ') for endpoint ' .
+                        $endpoint . '. Token has ' . $result->provided;
+                        static::log('-> ' . $message);
+                    throw new TokenException($message);
             }
-            throw new ResponseException('Unknown exception. Slack said '. $result->error .' ('. $endpoint .')');
+            $message = 'Unknown exception. Slack said ' . $result->error . ' (' . $endpoint . ')';
+            static::log('-> ' . $message);
+            throw new ResponseException($message);
         }
+        static::log('-> success');
 
         return $result;
+    }
+
+    /**
+     * Log something if we're in debug mode
+     *
+     * @param String $message
+     * @return void
+     */
+    private function log(String $message)
+    {
+        if (static::DEBUG) {
+            error_log($message);
+        }
     }
 }

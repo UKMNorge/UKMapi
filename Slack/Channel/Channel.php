@@ -1,19 +1,19 @@
 <?php
 
-namespace UKMNorge\Slack\User;
+namespace UKMNorge\Slack\Channel;
 
 use stdClass;
 use DateTime;
 
-class User
+class Channel
 {
-    const TABLE = "slack_user";
+    const TABLE = "slack_channel";
 
     public $id;
     public $team_id;
     public $slack_id;
     public $name;
-    public $real_name;
+    public $description;
     public $data;
     public $updated;
 
@@ -26,7 +26,7 @@ class User
         $this->team_id = $data['team_id'];
         $this->slack_id = $data['slack_id'];
         $this->name = $data['name'];
-        $this->real_name = $data['real_name'];
+        $this->description = $data['description'];
         $this->data = $data['data'];
         $this->updated = new DateTime($data['timestamp']);
     }
@@ -83,24 +83,24 @@ class User
     }
 
     /**
-     * Get the real name (display name)
+     * Get the real channel description
      *
      * @return String
      */
-    public function getRealName()
+    public function getDescription()
     {
-        return $this->real_name;
+        return $this->description;
     }
 
     /**
-     * Set the real name (display name)
+     * Set the description
      *
-     * @param String $real_name
+     * @param String $description
      * @return self
      */
-    public function setRealName(String $real_name)
+    public function setDescription(String $description)
     {
-        $this->real_name = $real_name;
+        $this->description = $description;
         return $this;
     }
 
