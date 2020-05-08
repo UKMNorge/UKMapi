@@ -39,7 +39,7 @@ class Tags {
         // eller bryr vi oss om kommuner og fylker kun for innslagsfilmer, sånn egentlig?
         $tags = static::_getForArrangement($arrangement);
         
-        if( $arrangement->getEierType() == 'kommune') {
+        if( $arrangement->getEierType() == 'kommune' && $arrangement->erSingelmonstring() ) {
             $tags->opprett('kommune', $arrangement->getKommune()->getId());
         } elseif($arrangement->getEierType() == 'fylke') {
             $tags->opprett('fylke', $arrangement->getFylke()->getId());
