@@ -95,7 +95,7 @@ class Select extends ElementWithPlaceholder
      * @throws Exception
      */
     public static function requireSingleSelect() {
-        if( !static::isMultiSelect() ) {
+        if( static::isMultiSelect() ) {
             static::unsupported('requireSingleSelect', 'function_requires_single_select');
         }
     }
