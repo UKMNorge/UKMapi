@@ -62,8 +62,8 @@ class Kanaler extends Collection
                     WHERE `#rel`.`ide_id` = '#ide_id'
                     ORDER BY `navn` ASC",
                         [
-                            'rel' => Ide::TABLE_REL_KANAL,
                             'table' => Kanal::TABLE,
+                            'rel' => Ide::TABLE_REL_KANAL,
                             'ide_id' => $this->getId()
                         ]
                     )
