@@ -12,6 +12,7 @@ class Kanal
     public $handlebar;
     public $url;
     public $emoji;
+    public $emoji_kode;
 
     public function __construct(array $data)
     {
@@ -21,6 +22,7 @@ class Kanal
         $this->url = $data['url'];
         $this->farge = '#'. $data['farge'];
         $this->emoji = $data['emoji'];
+        $this->emoji_kode = $data['emojicode'];
     }
 
     /**
@@ -75,9 +77,18 @@ class Kanal
     /**
      * Hent kanalens emoji
      *
-     * @return String emoji
+     * @return String unicode
      */
     public function getEmoji() {
-        return $this->emjoi;
+        return $this->emoji;
+    }
+
+    /**
+     * Hent kanalens emoji-kode
+     *
+     * @return String colon-format
+     */
+    public function getEmojiKode() {
+        return $this->emoji_kode;
     }
 }
