@@ -58,7 +58,8 @@ class Kanaler extends Collection
                         "SELECT * 
                     FROM `#table`
                     LEFT JOIN `#rel`
-                        ON (`#rel`.`kanal_id` = `#table`.`id` AND `#rel`.`ide_id` = '#ide_id')
+                        ON (`#rel`.`kanal_id` = `#table`.`id`)
+                    WHERE `#rel`.`ide_id` = '#ide_id'
                     ORDER BY `navn` ASC",
                         [
                             'rel' => Ide::TABLE_REL_KANAL,
@@ -87,7 +88,7 @@ class Kanaler extends Collection
     private function addFromQuery(Query $query)
     {
         $res = $query->run();
-
+                
         while ($row = Query::fetch($res)) {
             $this->add(new Kanal($row));
         }
