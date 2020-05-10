@@ -55,7 +55,7 @@ class Kanaler extends Collection
             case 'ide':
                 $this->addFromQuery(
                     new Query(
-                        "SELECT * 
+                        "SELECT `#table`.*
                     FROM `#table`
                     LEFT JOIN `#rel`
                         ON (`#rel`.`kanal_id` = `#table`.`id`)
@@ -88,7 +88,8 @@ class Kanaler extends Collection
     private function addFromQuery(Query $query)
     {
         $res = $query->run();
-                
+        error_log('KANAL QRY: '. $query->debug());
+
         while ($row = Query::fetch($res)) {
             $this->add(new Kanal($row));
         }
