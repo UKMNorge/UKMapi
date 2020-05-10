@@ -63,6 +63,9 @@ class Write {
 
 
         foreach( $ide->getKanaler()->getAll() as $kanal ) {
+            if( is_null($kanal)) {
+                continue;
+            }
             if( !$db_ide->getKanaler()->har( $kanal->getId() ) ) {
                 static::leggtilKanal( $kanal, $ide->getId() );
             }
