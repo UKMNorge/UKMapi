@@ -1,19 +1,19 @@
 <?php
 
-namespace UKMNorge\Slack\API;
+namespace UKMNorge\Slack\API\Response;
 
 use stdClass;
 use UKMNorge\Slack\BlockAction;
 use UKMNorge\Slack\Log;
 use UKMNorge\Slack\Exceptions\VerificationException;
-use UKMNorge\Slack\Plugin\Filter\FilterInterface;
-use UKMNorge\Slack\Plugin\Filter\BlockAction as BlockActionFilter;
-use UKMNorge\Slack\Plugin\Filter\Trigger as TriggerFilter;
-use UKMNorge\Slack\Plugin\Filter\ViewSubmission as ViewSubmissionFilter;
-use UKMNorge\Slack\Plugin\Transport\TransportInterface;
-use UKMNorge\Slack\Plugin\Transport\BlockAction as BlockActionTransport;
-use UKMNorge\Slack\Plugin\Transport\Trigger as TriggerTransport;
-use UKMNorge\Slack\Plugin\Transport\ViewSubmission as ViewSubmissionTransport;
+use UKMNorge\Slack\API\Response\Plugin\Filter\FilterInterface;
+use UKMNorge\Slack\API\Response\Plugin\Filter\BlockAction as BlockActionFilter;
+use UKMNorge\Slack\API\Response\Plugin\Filter\Trigger as TriggerFilter;
+use UKMNorge\Slack\API\Response\Plugin\Filter\ViewSubmission as ViewSubmissionFilter;
+use UKMNorge\Slack\API\Response\Plugin\Transport\TransportInterface;
+use UKMNorge\Slack\API\Response\Plugin\Transport\BlockAction as BlockActionTransport;
+use UKMNorge\Slack\API\Response\Plugin\Transport\Trigger as TriggerTransport;
+use UKMNorge\Slack\API\Response\Plugin\Transport\ViewSubmission as ViewSubmissionTransport;
 
 class Interaction extends Log {
 
