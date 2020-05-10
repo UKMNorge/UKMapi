@@ -11,6 +11,7 @@ class Kanal
     public $navn;
     public $handlebar;
     public $url;
+    public $emoji;
 
     public function __construct(array $data)
     {
