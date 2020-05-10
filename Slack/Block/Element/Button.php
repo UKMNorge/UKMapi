@@ -3,8 +3,7 @@
 namespace UKMNorge\Slack\Block\Element;
 
 use stdClass;
-use UKMNorge\Slack\Block\Composition\Confirm;
-use UKMNorge\Slack\Block\Composition\Text;
+use UKMNorge\Slack\Block\Composition\PlainText;
 use UKMNorge\Slack\Block\Structure\Element;
 use UKMNorge\Slack\Block\Structure\Exception;
 use UKMNorge\Slack\Payload\Payload;
@@ -32,10 +31,10 @@ class Button extends Element
     /**
      * Create button element
      *
-     * @param Text $text
+     * @param PlainText $text
      * @param String $action_id
      */
-    public function __construct(String $action_id, Text $text)
+    public function __construct(String $action_id, PlainText $text)
     {
         $this->setText($text);
         $this->setActionId($action_id);
@@ -44,10 +43,10 @@ class Button extends Element
     /**
      * Set text
      *
-     * @param Text max 75 chars
+     * @param PlainText max 75 chars
      * @return self
      */
-    public function setText(Text $text)
+    public function setText(PlainText $text)
     {
         if ($text->getLength() > static::MAX_TEXT_LENGTH) {
             throw new Exception(
