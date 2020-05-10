@@ -46,7 +46,27 @@ class Template
 
         return $select;
     }
+    
+    /**
+     * Hent initial options for kanalSelector ut fra gitt idé
+     *
+     * @param Ide $ide
+     * @return Array<Option>
+     */
+    public function getKanalSelectorInitialOptions( Ide $ide ) {
+        $selected = [];
+        foreach( $ide->getKanaler()->getAll() as $kanal ) {
+            $selected[] = new Option(
+                MultiSelect::class, new PlainText( $kanal->getNavn() ), $kanal->getId()
+            );
+        }
 
+        if( sizeof( $selected ) == 0 ) {
+            return null;
+        }
+
+        return $selected;
+    }
     /**
      * Forhåndsvisning av ønsket status
      *
