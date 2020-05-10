@@ -122,6 +122,7 @@ class Input extends Block
 
     public function setMultiline( Bool $status ) {
         $this->getElement()->setMultiline($status);
+        return $this;
     }
 
     /**
