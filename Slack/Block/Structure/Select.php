@@ -51,7 +51,7 @@ class Select extends ElementWithPlaceholder
         $data = parent::export(); // type + action_id (if not null) + confirm (if not null)
 
         // Max selected items
-        if( static::IS_MULTI_SELECT && !is_null($this->getMaxSelectedItems()) ) {
+        if( static::isMultiSelect() && !is_null($this->getMaxSelectedItems()) ) {
             $data->max_selected_items = Payload::convert($this->getMaxSelectedItems());
         }
 
@@ -84,7 +84,7 @@ class Select extends ElementWithPlaceholder
      */
     public static function requireMultiSelect() {
         if( !static::isMultiSelect() ) {
-            static::unsupported('getMaxSelectedItems', 'max_selected_items_in_single_select');
+            static::unsupported('requireMultiSelect', 'function_requires_multi_select');
         }
     }
 
@@ -96,7 +96,7 @@ class Select extends ElementWithPlaceholder
      */
     public static function requireSingleSelect() {
         if( !static::isMultiSelect() ) {
-            static::unsupported('getMaxSelectedItems', 'max_selected_items_in_single_select');
+            static::unsupported('requireSingleSelect', 'function_requires_single_select');
         }
     }
 }
