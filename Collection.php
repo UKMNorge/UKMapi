@@ -10,30 +10,34 @@ abstract class Collection implements Iterator
     private $var = array();
     public $id = null;
     private $loaded = false;
-    
-    public function add( $item ) {
+
+    public function add($item)
+    {
         // Denne må bruke find, og ikke har,
         // da har kjører doLoad, og doLoad kjører
         // add, som kjører har() (infinite loop, altså)
-        if( !$this->find($item) ) {
+        if (!$this->find($item)) {
             $this->var[] = $item;
         }
-	    return $this;
+        return $this;
     }
 
-    public function leggTil( $item ) {
-        $this->add( $item );
+    public function leggTil($item)
+    {
+        $this->add($item);
     }
-    public function fjern( $item ) {
-        $this->remove( $item );
+    public function fjern($item)
+    {
+        $this->remove($item);
     }
-    
-    public function har( $object ) {
+
+    public function har($object)
+    {
         $this->_doLoad();
-        if( is_string( $object ) ) {
-            return $this->find( $object );
+        if (is_string($object)) {
+            return $this->find($object);
         }
-	    return $this->find( $object->getId() );
+        return $this->find($object->getId());
     }
 
     /**
@@ -42,9 +46,10 @@ abstract class Collection implements Iterator
      * @param mixed $id
      * @return mixed item
      */
-    public function get( $id ) {
+    public function get($id)
+    {
         $this->_doLoad();
-        return $this->find( $id );
+        return $this->find($id);
     }
 
     /**
@@ -53,100 +58,108 @@ abstract class Collection implements Iterator
      * @param Any $id
      * @return Item
      */
-    public function find( $id ) {
-        if( is_object( $id ) ) {
+    public function find($id)
+    {
+        if (is_object($id)) {
             $id = $id->getId();
         }
-	    foreach( $this as $item ) {
-		    if( $id == $item->getId() ) {
-			    return $item;
-		    }
-	    }
-	    return false;
+        foreach ($this as $item) {
+            if ($id == $item->getId()) {
+                return $item;
+            }
+        }
+        return false;
     }
-    
+
     /**
      * Hent alle
      *
      * @return Array
      */
-    public function getAll() {
+    public function getAll()
+    {
         $this->_doLoad();
-	    return $this->var;
+        return $this->var;
     }
 
-    private function _doLoad() {
-        if( $this->loaded ) {
+    private function _doLoad()
+    {
+        if ($this->loaded) {
             return true;
         }
-        if( method_exists( get_called_class(), '_load' ) ) {
+        if (method_exists(get_called_class(), '_load')) {
             $this->_load();
         }
         $this->loaded = true;
         return true;
     }
-    
+
     /**
      * Antall elementer i collection
      *
      * @return Int $antall
      */
-    public function getAntall() {
-	    return sizeof( $this->getAll() );
+    public function getAntall()
+    {
+        return sizeof($this->getAll());
     }
-    
-    public function remove( $id ) {
-        if( is_object( $id ) ) {
+
+    public function remove($id)
+    {
+        if (is_object($id)) {
             $id = $id->getId();
         }
-    
-        foreach( $this->getAll() as $key => $val ) {
-            if( $id == $val->getId() ) {
-                unset( $this->var[ $key ] );
+
+        foreach ($this->getAll() as $key => $val) {
+            if ($id == $val->getId()) {
+                unset($this->var[$key]);
                 return true;
             }
         }
-        throw new Exception('Could not find and remove '. $id, 110001 );
+        throw new Exception('Could not find and remove ' . $id, 110001);
     }
-    
-    public function first() {
-		if( isset( array_values( $this->var )[ 0 ] ) ) {
-			return array_values( $this->var )[0];
-		}
+
+    public function first()
+    {
+        if (isset(array_values($this->var)[0])) {
+            return array_values($this->var)[0];
+        }
     }
-    public function last() {
-	    // TODO: Untested!!!!
-	    return array_slice($this->var, -1)[0];
+    public function last()
+    {
+        // TODO: Untested!!!!
+        return array_slice($this->var, -1)[0];
     }
-    
-    
-    public function count() {
-	    return sizeof( $this->var );
+
+
+    public function count()
+    {
+        return sizeof($this->var);
     }
 
     public function rewind()
     {
         reset($this->var);
     }
-  
+
     public function current()
     {
         $var = current($this->var);
         return $var;
     }
-  
-    public function key() 
+
+    public function key()
     {
         $var = key($this->var);
         return $var;
     }
-  
-    public function next() 
+
+    public function next()
     {
         $var = next($this->var);
         return $var;
     }
-  
+
     public function valid()
     {
         $key = key($this->var);
@@ -154,19 +167,20 @@ abstract class Collection implements Iterator
         return $var;
     }
 
-    public function reset() {
+    public function reset()
+    {
         $this->var = [];
         $this->loaded = false;
     }
 
     public function __construct()
-    {}
+    { }
 
     /**
      * Hent Collection ID
      * 
      * @return mixed
-     */ 
+     */
     public function getId()
     {
         return $this->id;
@@ -176,7 +190,7 @@ abstract class Collection implements Iterator
      * Sett collection ID
      *
      * @return  self
-     */ 
+     */
     public function setId($id)
     {
         $this->id = $id;
