@@ -37,7 +37,30 @@ class Ideer extends Collection
     }
 
     /**
-     * Last inn alle ideer
+     * Hent alle ideer i systemet
+     *
+     * @return Ideer
+     */
+    public static function loadAll() {
+        $query = new Query(
+            Ide::getLoadQuery() . "
+            ORDER BY `publisering` ASC, `#table_ide`.`id` ASC",
+            [
+                'table_ide' => Ide::TABLE
+            ]
+        );
+        $res = $query->run();
+
+        $ideer = new static();
+
+        while( $data = Query::fetch($res)) {
+            $ideer->add( new Ide($data));
+        }
+        return $ideer;
+    }
+
+    /**
+     * Last inn alle ideer til collection
      *
      * @return void
      */

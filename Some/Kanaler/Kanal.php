@@ -18,6 +18,7 @@ class Kanal
         $this->navn = $data['navn'];
         $this->handlebar = $data['handlebar'];
         $this->url = $data['url'];
+        $this->farge = '#'. $data['farge'];
     }
 
     /**
@@ -58,5 +59,14 @@ class Kanal
     public function getUrl()
     {
         return $this->url;
+    }
+
+    /**
+     * Hent fargekode (hex med prefix)
+     *
+     * @return String
+     */
+    public function getFarge() {
+        return $this->farge;
     }
 }

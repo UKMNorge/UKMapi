@@ -40,6 +40,9 @@ prefix | objekt | les | skriv
 42 | Kommunikasjon/Epost | 142yyy | - 
 43 | Filmer/UKMTV | 143yyy | 543yyy
 44 | Filmer/UKMTV/Direkte | 144yyy | 544yyy
+45 | Some/Forslag | 145yyy | 545yyy
+46 | Some/Kanaler | 146yyy | 546yyy
+47 | Some/Kanaler | 147yyy | 547yyy
 50 | Arrangement/Arrangementer | 150yyy | -
 51 | Arrangement/Skjema/Skjema | 151yyy | 551yyy
 52 | Arrangement/Skjema/Sporsmal | 152yyy | -

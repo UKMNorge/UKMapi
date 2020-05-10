@@ -3,6 +3,8 @@
 namespace UKMNorge\Some\Forslag;
 
 use DateTime;
+use UKMNorge\Slack\Cache\User\User;
+use UKMNorge\Slack\Cache\User\Users;
 use UKMNorge\Some\Kanaler\Kanal;
 use UKMNorge\Some\Kanaler\Kanaler;
 
@@ -13,6 +15,7 @@ class Ide
 
     public $id;
     public $publisering;
+    public $hva;
     public $beskrivelse;
     public $kanaler;
     public $eier_id;
@@ -23,6 +26,7 @@ class Ide
     {
         $this->id = intval($data['faktisk_ide_id']);
         $this->publisering = new DateTime($data['publisering']);
+        $this->hva = $data['hva'];
         $this->beskrivelse = $data['beskrivelse'];
         $this->eier_id = $data['eier_id'];
         $this->team_id = $data['team_id'];
@@ -55,28 +59,80 @@ class Ide
         );
     }
 
+    /**
+     * Hent hva som skal deles
+     *
+     * @return String
+     */
+    public function getHva() {
+        return $this->hva;
+    }
+
+    /**
+     * Set hva som skal deles
+     *
+     * @param String $hva
+     * @return self
+     */
+    public function setHva( String $hva ) {
+        $this->hva = $hva;
+        return $this;
+    }
+
+    /**
+     * Hent forslagets id
+     *
+     * @return Int
+     */
     public function getId() {
         return $this->id;
     }
 
+    /**
+     * Hent forslagets ønskede publiseringsdato
+     *
+     * @return DateTime
+     */
     public function getPubliseringsdato() {
         return $this->publisering;
     }
 
+    /**
+     * Set ønsket publiseringsdato
+     *
+     * @param DateTime $dato
+     * @return self
+     */
     public function setPubliseringsdato( DateTime $dato ) {
         $this->publisering = $dato;
         return $this;
     }
 
+    /**
+     * Hent beskrivelse / tekst for det som skal deles
+     *
+     * @return String
+     */
     public function getBeskrivelse() {
         return $this->beskrivelse;
     }
 
+    /**
+     * Set beskrivelse / tekst for det som skal deles
+     *
+     * @param String $beskrivelse
+     * @return self
+     */
     public function setBeskrivelse( String $beskrivelse ) {
         $this->beskrivelse = $beskrivelse;
         return $this;
     }
 
+    /**
+     * Hent en samling med ønskede kanaler
+     *
+     * @return Kanaler
+     */
     public function getKanaler() {
         if( is_null($this->kanaler) ) {
             $this->kanaler = new Kanaler('ide', $this->getId());
@@ -84,19 +140,65 @@ class Ide
         return $this->kanaler;
     }
 
+    /**
+     * Hent eierens ID
+     *
+     * @return String
+     */
     public function getEierId() {
         return $this->eier_id;
     }
 
+    /**
+     * Angi eierens id
+     *
+     * @param String $eier_id
+     * @return self
+     */
     public function setEierId( String $eier_id ) {
         $this->eier_id = $eier_id;
         return $this;
     }
 
+    /**
+     * Hent eier-objektet
+     *
+     * @return User
+     */
+    public function getEier() {
+        if( is_null($this->eier)) {
+            $this->eier = Users::getBySlackId( $this->getEierId());
+        }
+        return $this->eier;
+    }
+
+    /**
+     * Hent deeplink for eieren
+     *
+     * @return String html
+     */
+    public function getEierLink() {
+        return '<a href="slack://user?team='.
+            $this->getTeamId() . '&id='. $this->getEierId() .'">'.
+            $this->getEier()->getRealName() .
+            '</a>';
+    }
+
+    /**
+     * Hent eierens team-id 
+     *
+     * @return String
+     */
     public function getTeamId() {
         return $this->team_id;
     }
 
+    /**
+     * Angi eierens team-id
+     *
+     * @param String $team_id
+     * @return self
+     */
     public function setTeamId( String $team_id ) {
         $this->team_id = $team_id;
         return $this;

@@ -5,6 +5,7 @@ namespace UKMNorge\Some\Kanaler;
 use Exception;
 use UKMNorge\Collection;
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Some\Forslag\Ide;
 
 class Kanaler extends Collection
 {
@@ -23,7 +24,8 @@ class Kanaler extends Collection
      *
      * @return String
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
@@ -32,7 +34,8 @@ class Kanaler extends Collection
      *
      * @return Int
      */
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
 
@@ -43,20 +46,53 @@ class Kanaler extends Collection
      */
     public static function getAlle()
     {
-        $kanaler = new static('alle',0);
-        $query = new Query(
-            "SELECT * 
-            FROM `#table`
-            ORDER BY `navn` ASC",
-            [
-                'table' => Kanal::TABLE
-            ]
-        );
+        return new static('alle', 0);
+    }
+
+    public function _load()
+    {
+        switch ($this->getType()) {
+            case 'ide':
+                $this->addFromQuery(
+                    new Query(
+                        "SELECT * 
+                    FROM `#table`
+                    LEFT JOIN `#rel`
+                        ON (`#rel`.`kanal_id` = `#table`.`id` AND `#rel`.`ide_id` = '#ide_id')
+                    ORDER BY `navn` ASC",
+                        [
+                            'rel' => Ide::TABLE_REL_KANAL,
+                            'table' => Kanal::TABLE,
+                            'ide_id' => $this->getId()
+                        ]
+                    )
+                );
+                break;
+
+            case 'alle':
+                $this->addFromQuery(
+                    new Query(
+                        "SELECT * 
+                    FROM `#table`
+                    ORDER BY `navn` ASC",
+                        [
+                            'table' => Kanal::TABLE
+                        ]
+                    )
+                );
+                break;
+        }
+    }
+
+    private function addFromQuery(Query $query)
+    {
         $res = $query->run();
 
         while ($row = Query::fetch($res)) {
-            $kanaler->add(new Kanal($row));
+            $this->add(new Kanal($row));
         }
+
+        return true;
     }
 
     /**

@@ -13,6 +13,7 @@ class Write {
     const MAP = [
         'publisering' => 'getPubliseringsdato',
         'beskrivelse' => 'getBeskrivelse',
+        'hva' => 'getHva',
         'eier_id' => 'getEierId',
         'team_id' => 'getTeamId'
     ];
@@ -127,6 +128,33 @@ class Write {
             throw $e; // handle e->getCode() == null_affected_rows_error
         }
 
+        return true;
+    }
+
+
+    /**
+     * Slett gitt forslag/ide
+     *
+     * @param Ide $ide
+     * @return bool
+     * @throws Exception
+     */
+    public function delete(Ide $ide) {
+        $query = new Delete(
+            Ide::TABLE,
+            [
+                'id' => $ide->getId()
+            ]
+        );
+
+        $res = $query->run();
+
+        if( !$res ) {
+            throw new Exception(
+                'Kunne ikke slette forslag. ',
+                546001
+            );
+        }
         return true;
     }
 }
