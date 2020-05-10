@@ -64,7 +64,7 @@ class Write
             }
         }
 
-
+error_log(var_export($ide->getKanaler()->getAll(),true));
         foreach ($ide->getKanaler()->getAll() as $kanal) {
             if (!is_null($kanal) && !$db_ide->getKanaler()->har($kanal->getId())) {
                 static::leggtilKanal($kanal, $ide->getId());
