@@ -58,6 +58,7 @@ class Home extends Payload
         }
 
         $this->callback_id = $callback_id;
+        return $this;
     }
 
     /**
