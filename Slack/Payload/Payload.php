@@ -6,7 +6,7 @@ use stdClass;
 use UKMNorge\Slack\Block\Structure\Exception;
 use UKMNorge\Slack\Block\Structure\Collection\Blocks;
 
-abstract class Payload
+abstract class Payload implements PayloadInterface
 {
     public $blocks;
 
