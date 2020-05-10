@@ -1,6 +1,6 @@
 <?php
 
-namespace UKMNorge\Slack\Channel;
+namespace UKMNorge\Slack\Cache\Channel;
 
 use Exception;
 use UKMNorge\Collection;

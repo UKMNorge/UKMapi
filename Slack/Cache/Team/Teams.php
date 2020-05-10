@@ -1,6 +1,6 @@
 <?php
 
-namespace UKMNorge\Slack\Team;
+namespace UKMNorge\Slack\Cache\Team;
 
 use UKMNorge\Collection;
 use UKMNorge\Database\SQL\Query;

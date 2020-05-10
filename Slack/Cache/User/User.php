@@ -1,6 +1,6 @@
 <?php
 
-namespace UKMNorge\Slack\User;
+namespace UKMNorge\Slack\Cache\User;
 
 use stdClass;
 use DateTime;

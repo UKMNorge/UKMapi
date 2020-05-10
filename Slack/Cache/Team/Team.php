@@ -1,6 +1,6 @@
 <?php
 
-namespace UKMNorge\Slack\Team;
+namespace UKMNorge\Slack\Cache\Team;
 
 use DateTime;
 use UKMNorge\Slack\Channel\Channels;
