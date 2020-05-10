@@ -3,11 +3,12 @@
 namespace UKMNorge\Some\Slack;
 
 use UKMNorge\Slack\Block\Composition\Markdown;
+use UKMNorge\Slack\Block\Composition\Option;
 use UKMNorge\Slack\Block\Composition\PlainText;
 use UKMNorge\Slack\Block\Element\MultiSelect;
 use UKMNorge\Slack\Block\Section;
-use UKMNorge\Slack\Option;
 use UKMNorge\Slack\Payload\PayloadInterface;
+
 use UKMNorge\Some\Forslag\Ide;
 use UKMNorge\Some\Kanaler\Kanaler;
 
