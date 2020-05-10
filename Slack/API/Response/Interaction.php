@@ -135,6 +135,14 @@ class Interaction extends Log {
                     $this->applyFilters(BlockActionFilter::TYPE, $transport );
                 }
             break;
+            case 'message':
+                $this->log('--> from message');
+                foreach( $this->data->actions as $action ) {
+                    $transport = new BlockActionTransport( $this->data, $this->response );
+                    $transport->setId(strval($action->action_id));
+                    $this->applyFilters(BlockActionFilter::TYPE, $transport );
+                }
+            break;
             default:
                 $this->log('--> unknown container type '. $this->data->container->type);
         }
