@@ -19,6 +19,7 @@ class Kanal
         $this->handlebar = $data['handlebar'];
         $this->url = $data['url'];
         $this->farge = '#'. $data['farge'];
+        $this->emoji = $data['emoji'];
     }
 
     /**
@@ -68,5 +69,14 @@ class Kanal
      */
     public function getFarge() {
         return $this->farge;
+    }
+
+    /**
+     * Hent kanalens emoji
+     *
+     * @return String emoji
+     */
+    public function getEmoji() {
+        return $this->emjoi;
     }
 }

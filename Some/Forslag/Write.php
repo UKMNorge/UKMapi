@@ -128,6 +128,7 @@ error_log(var_export($ide->getKanaler()->getAll(),true));
         );
 
         try {
+            error_log('DELETE: '. $query->debug());
             $res = $query->run();
         } catch (Exception $e) {
             throw $e; // handle e->getCode() == null_affected_rows_error
