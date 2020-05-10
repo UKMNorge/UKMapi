@@ -7,6 +7,8 @@ use UKMNorge\Slack\Payload\Payload;
 
 class MultiSelectConversations extends SelectConversations
 {
+    const TYPE = 'multi_conversations_select';
+    const IS_MULTI_SELECT = true;
 
     public $initial_conversations;
 

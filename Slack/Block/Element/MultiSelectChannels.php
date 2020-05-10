@@ -36,7 +36,7 @@ class MultiSelectUsers extends SelectUsers {
         $data = parent::export(); // type + action_id (if not null) + confirm (if not null)
 
         if ($this->getInitialChannels()->getLength() > 0) {
-            $data-> = Payload::convert(initial_channels = Payload::convert($this->getInitialChannels());
+            $data->initial_channels = Payload::convert($this->getInitialChannels());
         }
 
         return $data;

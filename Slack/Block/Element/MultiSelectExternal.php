@@ -10,6 +10,7 @@ use UKMNorge\Slack\Payload\Payload;
 class MultiSelectExternal extends SelectExternal
 {
     const TYPE = 'multi_external_select';
+    const IS_MULTI_SELECT = true;
 
     public $initial_options;
 
