@@ -88,7 +88,6 @@ class Kanaler extends Collection
     private function addFromQuery(Query $query)
     {
         $res = $query->run();
-        error_log('KANAL QRY: '. $query->debug());
 
         while ($row = Query::fetch($res)) {
             $this->add(new Kanal($row));
