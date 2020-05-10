@@ -8,6 +8,7 @@ class Transport implements TransportInterface {
     private $response;
     private $data;
     public $id;
+    private $additional_data;
 
     final public function __construct( stdClass $interaction_data, stdClass $interaction_response ) {
         $this->response = $interaction_response;
@@ -37,5 +38,14 @@ class Transport implements TransportInterface {
     public function setId( String $id ) {
         $this->id = $id;
         return $this;
+    }
+
+    public function setAdditionalData( String $key, $data ) {
+        $this->additional_data[$key] = $data;
+        return $this;
+    }
+
+    public function getAdditionalData( String $key) {
+        return $this->additional_data[$key];
     }
 }
