@@ -28,7 +28,7 @@ class Template
             )
             ->add(
                 new Markdown(
-                    "*Ønsket dato* \n\n" . $ide->getPubliseringsdato()
+                    "*Ønsket dato* \n\n" . $ide->getPubliseringsdato()->format('d.m')
                 )
             );
 
