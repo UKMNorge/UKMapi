@@ -41,7 +41,7 @@ class Template
         );
 
         if( !is_null($initial_options)) {
-            $select->getAccessory()->setInitialOptions($initial_options);
+            $select->getAccessory()->getInitialOptions()->set($initial_options);
         }
 
         return $select;
