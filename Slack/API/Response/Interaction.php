@@ -3,6 +3,7 @@
 namespace UKMNorge\Slack\API\Response;
 
 use stdClass;
+use UKMNorge\Slack\API\App;
 use UKMNorge\Slack\BlockAction;
 use UKMNorge\Slack\Log;
 use UKMNorge\Slack\Exceptions\VerificationException;
