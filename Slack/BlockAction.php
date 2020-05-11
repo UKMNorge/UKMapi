@@ -187,6 +187,8 @@ class BlockAction {
         switch( $field->type ) {
             case 'datepicker':
                 return $field->selected_date;
+            case 'static_select':
+                return $field->selected_option->value;
             case 'multi_static_select':
                 $value = [];
                 foreach( $field->selected_options as $option ) {
