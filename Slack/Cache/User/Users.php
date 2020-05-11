@@ -97,9 +97,10 @@ class Users extends Collection
             ORDER BY `real_name` ASC, `name` ASC
             ",
             [
-                User::TABLE
+                'table' => User::TABLE
             ]
         );
+        error_log('getByHandlebars: '. $query->debug());
 
         $res = $query->run();
 
