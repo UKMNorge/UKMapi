@@ -57,6 +57,7 @@ class Log extends Collection
             AND `objekt_id` = '#objekt_id'
             ORDER BY `id` ASC",
             [
+                'table' => Event::TABLE,
                 'objekt_type' => $this->objekt_type,
                 'objekt_id' => $this->objekt_id
             ]
