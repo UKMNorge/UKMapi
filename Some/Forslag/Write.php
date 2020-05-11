@@ -147,7 +147,7 @@ error_log(var_export($ide->getKanaler()->getAll(),true));
      * @param String $tekst
      * @return Tekst
      */
-    public function createText(Ide $ide, Kanal $kanal, String $team_id, String $user_id, String $tekst=null)
+    public function opprettTekst(Ide $ide, Kanal $kanal, String $team_id, String $user_id, String $tekst=null)
     {
         $query = new Insert(Tekst::TABLE);
         $query->add('objekt_type', 'ide');
