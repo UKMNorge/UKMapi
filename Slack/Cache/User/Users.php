@@ -74,6 +74,42 @@ class Users extends Collection
         throw new Exception('Could not find user @'. $handlebar);
     }
 
+    /**
+     * Get multiple users by handlebar
+     *
+     * @param String $team_id
+     * @param Array $handlebars
+     * @return Users
+     */
+    public static function getByHandleBars( String $team_id, Array $handlebars ) {
+        $users = new static( $team_id );
+
+        // Sanitize data before direct query insert
+        $san_helper = new Query('', []);
+        foreach( $handlebars as $index => $handlebar ) {
+            $handlebars[$index] = $san_helper->sanitize($handlebar);
+        }
+
+        $query = new Query(
+            "SELECT *
+            FROM `#table`
+            WHERE `name` IN ('". join("','", $handlebars) ."')
+            ORDER BY `real_name` ASC, `name` ASC
+            ",
+            [
+                User::TABLE
+            ]
+        );
+
+        $res = $query->run();
+
+        while( $data = Query::fetch( $res ) ) {
+            $users->add( new User( $data ));
+        }
+
+        return $users;
+    }
+
 
     /**
      * Get user by internal database Id
