@@ -3,6 +3,7 @@
 namespace UKMNorge\Some\Log;
 
 use DateTime;
+use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Slack\Cache\User\Users;
 
 class Event {
