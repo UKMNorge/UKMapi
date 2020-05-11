@@ -118,6 +118,8 @@ class Interaction extends Log {
     private function processBlockAction() {
         switch($this->data->container->type) {
             // Data from a view
+            case 'static_select':
+                $this->log('--> from static_select (do:view)');
             case 'view':
                 $this->log('--> from view');
                 // Fetch value from actions
