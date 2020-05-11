@@ -82,6 +82,35 @@ abstract class Collection implements Iterator
         return $this->var;
     }
 
+    /**
+     * Hent et array med id til objektene
+     *
+     * @return Array<Int>
+     */
+    public function getIdArray() {
+        $array = [];
+
+        foreach( $this->getAll() as $item ) {
+            $array[] = $item->getId();
+        }
+
+        return $array;
+    }
+
+    /**
+     * Generisk __toArray (krever at alle objektene implementerer __toArray)
+     *
+     * @return Array
+     */
+    public function __toArray() {
+        $array = [];
+
+        foreach( $this->getAll() as $item ) {
+            $array[] = $item->__toArray();
+        }
+        return $array;
+    }
+
     private function _doLoad()
     {
         if ($this->loaded) {

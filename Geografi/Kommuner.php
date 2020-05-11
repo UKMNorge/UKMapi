@@ -6,21 +6,6 @@ use UKMNorge\Collection;
 
 class Kommuner extends Collection
 {
-
-    /**
-     * Hent ID-array for alle kommuner i collection
-     *
-     * @return Array<Int>
-     */
-    public function getIdArray()
-    {
-        $array = array();
-        foreach ($this as $kommune) {
-            $array[] = $kommune->getId();
-        }
-        return $array;
-    }
-
     /**
      * Hent alle kommuneID + navn
      *
