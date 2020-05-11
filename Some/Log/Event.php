@@ -9,6 +9,7 @@ use UKMNorge\Slack\Cache\User\Users;
 class Event {
     const TABLE = 'some_log';
 
+    public $id;
     public $objekt_type;
     public $objekt_id;
     public $event_id;
@@ -55,6 +56,7 @@ class Event {
      */
     public function __construct( Array $data )
     {
+        $this->id = intval($data['id']);
         $this->timestamp = new DateTime($data['timestamp']);
         $this->objekt_type = $data['objekt_type'];
         $this->objekt_id = $data['objekt_id'];
@@ -169,5 +171,15 @@ class Event {
             $this->getTeamId() . '&id=' . $this->getUserId() . '">' .
             $this->getEier()->getRealName() .
             '</a>';
+    }
+
+    /**
+     * Hent database-id (auto_increment primary key)
+     * 
+     * @return Int
+     */ 
+    public function getId()
+    {
+        return $this->id;
     }
 }
