@@ -9,6 +9,7 @@ use UKMNorge\Database\SQL\Query;
 class Users extends Collection
 {
     public $team_id;
+    private $manual_load = false;
 
     public function __construct( String $team_id ) {
         $this->team_id = $team_id;
@@ -83,6 +84,7 @@ class Users extends Collection
      */
     public static function getByHandleBars( String $team_id, Array $handlebars ) {
         $users = new static( $team_id );
+        $users->setManualLoad(true);
 
         // Sanitize data before direct query insert
         $san_helper = new Query('', []);
@@ -100,7 +102,6 @@ class Users extends Collection
                 'table' => User::TABLE
             ]
         );
-        error_log('getByHandlebars: '. $query->debug());
 
         $res = $query->run();
 
@@ -138,12 +139,29 @@ class Users extends Collection
     }
 
     /**
+     * Add possibility to create a users collection without autoloading all
+     * 
+     * @param Bool $status
+     * @return self
+     */
+    public function setManualLoad( Bool $status ) {
+        $this->manual_load = $status;
+        return $this;
+    }
+
+    /**
      * Load all users from database
+     * 
+     * use static->setManualLoad(true) to deactivate autoload
      *
      * @return void
      */
     public function _load()
     {
+        if( $this->manual_load ) {
+            return true;
+        }
+
         $query = new Query(
             "SELECT *
         FROM `#table`
