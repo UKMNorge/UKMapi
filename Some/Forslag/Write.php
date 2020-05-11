@@ -155,6 +155,7 @@ error_log(var_export($ide->getKanaler()->getAll(),true));
         $query->add('kanal_id', $kanal->getId());
         $query->add('team_id', $team_id);
         $query->add('user_id', $user_id);
+        $query->add('tekst', $tekst);
         
         $res = $query->run();
         if( $res ) {
