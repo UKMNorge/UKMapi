@@ -34,6 +34,23 @@ class Ide
     }
 
     /**
+     * Konverter objektet til array
+     *
+     * @return Array
+     */
+    public function __toArray() {
+        return [
+            'id' => $this->getId(),
+            'publiseringsdato' => $this->getPubliseringsdato()->format(DateTime::RFC3339),
+            'hva' => $this->getHva(),
+            'beskrivelse' => $this->getBeskrivelse(),
+            'kanaler' => $this->getKanaler()->__toArray(),
+            'eier_id' => $this->getEierId(),
+            'team_id' => $this->getTeamId(),
+        ];
+    }
+
+    /**
      * Hent load-query for ideer
      *
      * @return String sql

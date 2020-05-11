@@ -26,6 +26,23 @@ class Kanal
     }
 
     /**
+     * Array-representasjon av objektet
+     *
+     * @return Array
+     */
+    public function __toArray() {
+        return [
+            'id' => $this->getId(),
+            'navn' => $this->getNavn(),
+            'handlebar' => $this->getHandlebar(),
+            'url' => $this->getUrl(),
+            'farge' => $this->getFarge(),
+            'emoji' => $this->getEmoji(),
+            'emojikode' => $this->getEmojiKode()
+        ];
+    }
+
+    /**
      * Hent kanalens Id
      *
      * @return String
