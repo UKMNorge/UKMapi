@@ -2,6 +2,9 @@
 
 namespace UKMNorge\Some\Log;
 
+use DateTime;
+use UKMNorge\Slack\Cache\User\Users;
+
 class Event {
     const TABLE = 'some_log';
 
@@ -12,6 +15,8 @@ class Event {
     public $user_id;
     public $oppsummering;
     public $data;
+    public $timestamp;
+    public $eier;
 
     /**
      * Opprett og lagre et event
@@ -49,6 +54,7 @@ class Event {
      */
     public function __construct( Array $data )
     {
+        $this->timestamp = new DateTime($data['timestamp']);
         $this->objekt_type = $data['objekt_type'];
         $this->objekt_id = $data['objekt_id'];
         $this->event_id = $data['event_id'];
@@ -126,5 +132,41 @@ class Event {
     public function getData()
     {
         return $this->data;
+    }
+
+    /**
+     * Hent tidspunkt for loggføringen
+     * 
+     * @return DateTime
+     */ 
+    public function getTimestamp()
+    {
+        return $this->timestamp;
+    }
+
+    /**
+     * Hent eier-objektet
+     *
+     * @return User
+     */
+    public function getEier()
+    {
+        if (is_null($this->eier)) {
+            $this->eier = Users::getBySlackId($this->getUserId());
+        }
+        return $this->eier;
+    }
+
+    /**
+     * Hent deeplink for eieren
+     *
+     * @return String html
+     */
+    public function getEierLink()
+    {
+        return '<a href="slack://user?team=' .
+            $this->getTeamId() . '&id=' . $this->getUserId() . '">' .
+            $this->getEier()->getRealName() .
+            '</a>';
     }
 }

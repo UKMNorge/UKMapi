@@ -7,6 +7,7 @@ use UKMNorge\Slack\Cache\User\User;
 use UKMNorge\Slack\Cache\User\Users;
 use UKMNorge\Some\Kanaler\Kanal;
 use UKMNorge\Some\Kanaler\Kanaler;
+use UKMNorge\Some\Log\Log;
 
 class Ide
 {
@@ -20,9 +21,9 @@ class Ide
     public $kanaler;
     public $eier_id;
     public $team_id;
+    public $log;
 
-
-    public function __construct( Array $data )
+    public function __construct(array $data)
     {
         $this->id = intval($data['faktisk_ide_id']);
         $this->publisering = new DateTime($data['publisering']);
@@ -60,11 +61,25 @@ class Ide
     }
 
     /**
+     * Hent logg for hva som har skjedd med ideen
+     *
+     * @return Log
+     */
+    public function getLog()
+    {
+        if (is_null($this->log)) {
+            $this->log = new Log(static::class, $this->getId());
+        }
+        return $this->log;
+    }
+
+    /**
      * Hent hva som skal deles
      *
      * @return String
      */
-    public function getHva() {
+    public function getHva()
+    {
         return $this->hva;
     }
 
@@ -74,7 +89,8 @@ class Ide
      * @param String $hva
      * @return self
      */
-    public function setHva( String $hva ) {
+    public function setHva(String $hva)
+    {
         $this->hva = $hva;
         return $this;
     }
@@ -84,7 +100,8 @@ class Ide
      *
      * @return Int
      */
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
 
@@ -93,7 +110,8 @@ class Ide
      *
      * @return DateTime
      */
-    public function getPubliseringsdato() {
+    public function getPubliseringsdato()
+    {
         return $this->publisering;
     }
 
@@ -103,7 +121,8 @@ class Ide
      * @param DateTime $dato
      * @return self
      */
-    public function setPubliseringsdato( DateTime $dato ) {
+    public function setPubliseringsdato(DateTime $dato)
+    {
         $this->publisering = $dato;
         return $this;
     }
@@ -113,7 +132,8 @@ class Ide
      *
      * @return String
      */
-    public function getBeskrivelse() {
+    public function getBeskrivelse()
+    {
         return $this->beskrivelse;
     }
 
@@ -123,7 +143,8 @@ class Ide
      * @param String $beskrivelse
      * @return self
      */
-    public function setBeskrivelse( String $beskrivelse ) {
+    public function setBeskrivelse(String $beskrivelse)
+    {
         $this->beskrivelse = $beskrivelse;
         return $this;
     }
@@ -133,8 +154,9 @@ class Ide
      *
      * @return Kanaler
      */
-    public function getKanaler() {
-        if( is_null($this->kanaler) ) {
+    public function getKanaler()
+    {
+        if (is_null($this->kanaler)) {
             $this->kanaler = new Kanaler('ide', $this->getId());
         }
         return $this->kanaler;
@@ -145,7 +167,8 @@ class Ide
      *
      * @return String
      */
-    public function getEierId() {
+    public function getEierId()
+    {
         return $this->eier_id;
     }
 
@@ -155,7 +178,8 @@ class Ide
      * @param String $eier_id
      * @return self
      */
-    public function setEierId( String $eier_id ) {
+    public function setEierId(String $eier_id)
+    {
         $this->eier_id = $eier_id;
         return $this;
     }
@@ -165,9 +189,10 @@ class Ide
      *
      * @return User
      */
-    public function getEier() {
-        if( is_null($this->eier)) {
-            $this->eier = Users::getBySlackId( $this->getEierId());
+    public function getEier()
+    {
+        if (is_null($this->eier)) {
+            $this->eier = Users::getBySlackId($this->getEierId());
         }
         return $this->eier;
     }
@@ -177,9 +202,10 @@ class Ide
      *
      * @return String html
      */
-    public function getEierLink() {
-        return '<a href="slack://user?team='.
-            $this->getTeamId() . '&id='. $this->getEierId() .'">'.
+    public function getEierLink()
+    {
+        return '<a href="slack://user?team=' .
+            $this->getTeamId() . '&id=' . $this->getEierId() . '">' .
             $this->getEier()->getRealName() .
             '</a>';
     }
@@ -189,7 +215,8 @@ class Ide
      *
      * @return String
      */
-    public function getTeamId() {
+    public function getTeamId()
+    {
         return $this->team_id;
     }
 
@@ -199,7 +226,8 @@ class Ide
      * @param String $team_id
      * @return self
      */
-    public function setTeamId( String $team_id ) {
+    public function setTeamId(String $team_id)
+    {
         $this->team_id = $team_id;
         return $this;
     }
