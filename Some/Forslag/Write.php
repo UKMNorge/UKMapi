@@ -128,13 +128,38 @@ error_log(var_export($ide->getKanaler()->getAll(),true));
         );
 
         try {
-            error_log('DELETE: '. $query->debug());
+            error_log('DELETE: ' . $query->debug());
             $res = $query->run();
         } catch (Exception $e) {
             throw $e; // handle e->getCode() == null_affected_rows_error
         }
 
         return true;
+    }
+
+    /**
+     * Opprett en tekst for en idé
+     *
+     * @param Ide $ide
+     * @param Kanal $kanal
+     * @param String $team_id
+     * @param String $user_id
+     * @param String $tekst
+     * @return Tekst
+     */
+    public function createText(Ide $ide, Kanal $kanal, String $team_id, String $user_id, String $tekst=null)
+    {
+        $query = new Insert(Tekst::TABLE);
+        $query->add('objekt_type', 'ide');
+        $query->add('objekt_id', $ide->getId());
+        $query->add('kanal_id', $kanal->getId());
+        $query->add('team_id', $team_id);
+        $query->add('user_id', $user_id);
+        
+        $res = $query->run();
+        if( $res ) {
+            return Tekster::getById( $res );
+        }
     }
 
 

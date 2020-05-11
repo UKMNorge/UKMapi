@@ -22,6 +22,7 @@ class Ide
     public $eier_id;
     public $team_id;
     public $log;
+    public $tekster;
 
     public function __construct(array $data)
     {
@@ -47,6 +48,7 @@ class Ide
             'kanaler' => $this->getKanaler()->__toArray(),
             'eier_id' => $this->getEierId(),
             'team_id' => $this->getTeamId(),
+            'tekster' => $this->getTekster()->__toArray()
         ];
     }
 
@@ -177,6 +179,18 @@ class Ide
             $this->kanaler = new Kanaler('ide', $this->getId());
         }
         return $this->kanaler;
+    }
+    
+    /**
+     * Hent en samling av tilknyttede tekster
+     *
+     * @return Tekster
+     */
+    public function getTekster() {
+        if( is_null($this->tekster)) {
+            $this->tekster = new Tekster('ide', $this->getId());
+        }
+        return $this->tekster;
     }
 
     /**
