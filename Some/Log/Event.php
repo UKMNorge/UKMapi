@@ -30,7 +30,7 @@ class Event {
      * @param array $data
      * @return void
      */
-    public static function create(String $objekt_type, Int $objekt_id, String $event_id, String $team_id, String $user_id, String $oppsummering, array $data)
+    public static function create(String $objekt_type, Int $objekt_id, String $event_id, String $team_id, String $user_id, String $oppsummering, array $data=null)
     {
         $insert = new Insert(static::TABLE);
         $insert->add('objekt_type', $objekt_type);
