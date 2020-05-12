@@ -81,6 +81,15 @@ class Ide
     }
 
     /**
+     * Hent lenke til public preview av saken
+     *
+     * @return String
+     */
+    public function getLink() {
+        return 'https://ukm.no/wp-admin/user/?page=UKMmarketing&action=some&forslag=' . $this->getId();
+    }
+
+    /**
      * Hent logg for hva som har skjedd med ideen
      *
      * @return Log
