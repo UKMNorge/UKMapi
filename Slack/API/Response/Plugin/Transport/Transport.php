@@ -46,6 +46,9 @@ class Transport implements TransportInterface {
     }
 
     public function getAdditionalData( String $key) {
+        if( !isset($this->additional_data[$key])) {
+            return null;
+        }
         return $this->additional_data[$key];
     }
 }
