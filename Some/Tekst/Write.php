@@ -29,7 +29,7 @@ class Write
      * @param String $tekst
      * @return Tekst
      */
-    public function opprettForIde(Ide $ide, Kanal $kanal, String $team_id, String $user_id, String $tekst = null)
+    public static function opprettForIde(Ide $ide, Kanal $kanal, String $team_id, String $user_id, String $tekst = null)
     {
         return static::opprett(
             'ide',
@@ -78,7 +78,7 @@ class Write
      * @param Tekst $tekst
      * @return Bool
      */
-    public function save(Tekst $tekst)
+    public static function save(Tekst $tekst)
     {
         $db_tekst = Tekster::getById($tekst->getId());
 
