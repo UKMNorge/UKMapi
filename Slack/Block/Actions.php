@@ -6,7 +6,7 @@ use stdClass;
 use UKMNorge\Slack\Block\Structure\Block;
 use UKMNorge\Slack\Block\Structure\Collection\Elements;
 use UKMNorge\Slack\Block\Structure\Exception;
-use UKMNorge\Slack\Payload;
+use UKMNorge\Slack\Payload\Payload;
 
 /**
  * Actions block
