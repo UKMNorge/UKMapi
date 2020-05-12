@@ -1,6 +1,6 @@
 <?php
 
-namespace UKMNorge\Some\Forslag;
+namespace UKMNorge\Some\Tekst;
 
 use UKMNorge\Collection;
 use UKMNorge\Database\SQL\Query;

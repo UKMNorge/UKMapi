@@ -1,6 +1,6 @@
 <?php
 
-namespace UKMNorge\Some\Forslag;
+namespace UKMNorge\Some\Tekst;
 
 use UKMNorge\Slack\Cache\User\Users;
 use UKMNorge\Some\Kanaler\Kanaler;

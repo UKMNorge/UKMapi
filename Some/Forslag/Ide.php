@@ -8,6 +8,7 @@ use UKMNorge\Slack\Cache\User\Users;
 use UKMNorge\Some\Kanaler\Kanal;
 use UKMNorge\Some\Kanaler\Kanaler;
 use UKMNorge\Some\Log\Log;
+use UKMNorge\Some\Tekst\Tekster;
 
 class Ide
 {
