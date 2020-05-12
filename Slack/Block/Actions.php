@@ -40,7 +40,7 @@ class Actions extends Block {
         if( $this->getElements()->getLength() == 0 ) {
             throw new Exception('Actions blocks must contain at least one element', 'missing_elements');
         }
-        $data->elements = Payload::export($this->getElements());
+        $data->elements = Payload::convert($this->getElements());
         return $data;
     }
 }
