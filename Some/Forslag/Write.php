@@ -32,8 +32,8 @@ class Write
     public static function create(String $team_id, String $eier_id, String $tekst)
     {
         $insert = new Insert(Ide::TABLE);
-        $insert->add('team_id', $team_id);
         $insert->add('eier_id', $eier_id);
+        $insert->add('eier_team_id', $team_id);
         $insert->add('beskrivelse', $tekst);
 
         $insert_id = $insert->run();
