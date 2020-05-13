@@ -32,6 +32,7 @@ class Home extends Payload
             );
         }
         $this->private_metadata = $metadata;
+        return $this;
     }
 
     /**
