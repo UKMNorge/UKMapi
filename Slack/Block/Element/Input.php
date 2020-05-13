@@ -127,7 +127,7 @@ class Input extends ElementWithPlaceholder
         
         // Initial value
         if( !is_null( $this->getInitialValue() )) {
-            $datainitial_value = Payload::convert($this->getInitialValue());
+            $data->initial_value = Payload::convert($this->getInitialValue());
         }
         
         // Multiline
