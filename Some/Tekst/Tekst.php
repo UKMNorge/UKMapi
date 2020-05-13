@@ -17,6 +17,7 @@ class Tekst
     public $user_id;
     public $tekst;
     public $notater;
+    public $status;
 
     public $kanal;
     public $eier;
@@ -31,6 +32,7 @@ class Tekst
         $this->user_id = $data['user_id'];
         $this->tekst = $data['tekst'];
         $this->notater = $data['notater'];
+        $this->status = $data['status'];
     }
 
     /**
@@ -191,5 +193,23 @@ class Tekst
             $this->eier = Users::getBySlackId($this->getUserId());
         }
         return $this->eier;
+    }
+
+    /**
+     * Er teksten en kladd?
+     *
+     * @return Bool
+     */
+    public function erKladd() {
+        return $this->status == 'kladd';
+    }
+
+    /**
+     * Er teksten ferdig?
+     *
+     * @return Bool
+     */
+    public function erFerdig() {
+        return $this->status == 'ferdig';
     }
 }
