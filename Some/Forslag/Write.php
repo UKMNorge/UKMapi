@@ -16,7 +16,7 @@ class Write
         'beskrivelse' => 'getBeskrivelse',
         'hva' => 'getHva',
         'eier_id' => 'getEier()->getSlackId',
-        'team_id' => 'getEier()->getTeamId',
+        'eier_team_id' => 'getEier()->getTeamId',
         'ansvarlig_id' => 'getAnsvarlig()->getSlackId',
         'ansvarlig_team_id' => 'getAnsvarlig()->getTeamId'
     ];
