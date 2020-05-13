@@ -81,7 +81,7 @@ class Message extends Payload
         }
 
         if (!is_null($this->as_user)) {
-            $data->timestamp = $this->getAsUser() ? 'true' : 'false';
+            $data->as_user = $this->getAsUser() ? 'true' : 'false';
         }
 
         return $data;
