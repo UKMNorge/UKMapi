@@ -69,4 +69,13 @@ class Transport implements TransportInterface {
     public function getTeamId() {
         return $this->getData()->team->id;
     }
+
+    /**
+     * Fetch trigger id
+     *
+     * @return String
+     */
+    public function getTriggerId() {
+        return $this->getData()->trigger_id;
+    }
 }
