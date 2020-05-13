@@ -26,7 +26,7 @@ class Tekst
         $this->objekt_type = $data['objekt_type'];
         $this->objekt_id = intval($data['objekt_id']);
         $this->kanal_id = $data['kanal_id'];
-        $this->eier = Users::getBySlackId($data['eier_team_id'], $data['eier_id']);
+        $this->eier = Users::getBySlackId($data['team_id'], $data['user_id']);
         $this->tekst = $data['tekst'];
         $this->notater = $data['notater'];
         $this->status = $data['status'];
