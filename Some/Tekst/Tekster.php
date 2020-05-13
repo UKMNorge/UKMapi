@@ -70,7 +70,6 @@ class Tekster extends Collection
         }
 
         if ($query) {
-            error_log('TEKSTER_QUERY: '. $query->debug());
             $res = $query->run();
 
             while ($data = Query::fetch($res)) {

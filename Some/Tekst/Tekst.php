@@ -36,7 +36,8 @@ class Tekst
      *
      * @return Array
      */
-    public function __toArray() {
+    public function __toArray()
+    {
         return get_object_vars($this);
     }
 
@@ -51,6 +52,18 @@ class Tekst
     }
 
     /**
+     * Sett ansvarlig brukers team id
+     *
+     * @param String $team_id
+     * @return self
+     */
+    public function setTeamId(String $team_id)
+    {
+        $this->team_id = $team_id;
+        return $this;
+    }
+
+    /**
      * Hent team eventet skjedde i
      * 
      * @return String
@@ -58,6 +71,18 @@ class Tekst
     public function getTeamId()
     {
         return $this->team_id;
+    }
+
+    /**
+     * Oppdater ansvarlig bruker-id
+     *
+     * @param String $user_id
+     * @return self
+     */
+    public function setUserId(String $user_id)
+    {
+        $this->user_id = $user_id;
+        return $this;
     }
 
     /**
@@ -109,6 +134,18 @@ class Tekst
             $this->kanal = Kanaler::getById($this->getKanalId());
         }
         return $this->kanal;
+    }
+
+    /**
+     * Oppdater teksten
+     *
+     * @param String $tekst
+     * @return self
+     */
+    public function setTekst(String $tekst)
+    {
+        $this->tekst = $tekst;
+        return $this;
     }
 
     /**
