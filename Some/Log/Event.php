@@ -155,7 +155,7 @@ class Event {
     public function getEier()
     {
         if (is_null($this->eier)) {
-            $this->eier = Users::getBySlackId($this->getUserId());
+            $this->eier = Users::getBySlackId($this->getTeamId(), $this->getUserId());
         }
         return $this->eier;
     }

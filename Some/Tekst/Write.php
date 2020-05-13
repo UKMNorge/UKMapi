@@ -14,8 +14,8 @@ class Write
         'objekt_type' => 'getObjektType',
         'objekt_id' => 'getObjektId',
         'kanal_id' => 'getKanalId',
-        'team_id' => 'getTeamId',
-        'user_id' => 'getUserId',
+        'team_id' => 'getEier()->getTeamId',
+        'user_id' => 'getEier()->getSlackId',
         'tekst' => 'getTekst',
         'notater' => 'getNotater'
     ];

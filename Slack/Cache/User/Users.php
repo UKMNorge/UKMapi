@@ -25,19 +25,34 @@ class Users extends Collection
     }
 
     /**
+     * Create a proxy user
+     * 
+     * Gives a user object, with only id's. If needed, the rest is loaded upon request
+     *
+     * @param String $team_id
+     * @param String $user_id
+     * @return void
+     */
+    public static function getProxy( String $team_id, String $user_id ) {
+        return new User(['team_id' => $team_id, 'user_id' => $user_id], true);
+    }
+
+    /**
      * Get user by slack Id
      *
      * @param String $slack_id
      * @return User
      * @throws Exception
      */
-    public static function getBySlackId(String $slack_id) {
+    public static function getBySlackId(String $team_id, String $slack_id) {
         $query = new Query(
             "SELECT * 
             FROM `#table`
-            WHERE `slack_id` = '#slack_id'",
+            WHERE `slack_id` = '#slack_id'
+            AND `team_id` = '#team_id'",
             [
                 'table' => User::TABLE,
+                'team_id' => $team_id,
                 'slack_id' => $slack_id
             ]
         );
@@ -61,10 +76,10 @@ class Users extends Collection
         $query = new Query(
             "SELECT * 
             FROM `#table`
-            WHERE `name` = '#slack_id'",
+            WHERE `name` = '#handlebar'",
             [
                 'table' => User::TABLE,
-                'slack_id' => $handlebar
+                'handlebar' => $handlebar
             ]
         );
         $data = $query->getArray();

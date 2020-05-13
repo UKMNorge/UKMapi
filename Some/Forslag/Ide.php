@@ -20,10 +20,10 @@ class Ide
     public $hva;
     public $beskrivelse;
     public $kanaler;
-    public $eier_id;
-    public $team_id;
+    public $eier;
     public $log;
     public $tekster;
+    public $ansvarlig;
 
     public function __construct(array $data)
     {
@@ -31,8 +31,10 @@ class Ide
         $this->publisering = new DateTime($data['publisering']);
         $this->hva = $data['hva'];
         $this->beskrivelse = $data['beskrivelse'];
-        $this->eier_id = $data['eier_id'];
-        $this->team_id = $data['team_id'];
+        $this->eier = Users::getProxy($data['eier_team_id'], $data['eier_id']);
+        if (!is_null($data['eier_team_id']) && !is_null($data['eier_id'])) {
+            $this->ansvarlig = Users::getProxy($data['eier_team_id'], $data['eier_id']);
+        }
     }
 
     /**
@@ -40,15 +42,16 @@ class Ide
      *
      * @return Array
      */
-    public function __toArray() {
+    public function __toArray()
+    {
         return [
             'id' => $this->getId(),
             'publiseringsdato' => $this->getPubliseringsdato()->format(DateTime::RFC3339),
             'hva' => $this->getHva(),
             'beskrivelse' => $this->getBeskrivelse(),
             'kanaler' => $this->getKanaler()->__toArray(),
-            'eier_id' => $this->getEierId(),
-            'team_id' => $this->getTeamId(),
+            'eier' => (array) $this->getEier(),
+            'ansvarlig' => (array) $this->getAnsvarlig(),
             'tekster' => $this->getTekster()->__toArray()
         ];
     }
@@ -85,7 +88,8 @@ class Ide
      *
      * @return String
      */
-    public function getLink() {
+    public function getLink()
+    {
         return 'https://ukm.no/wp-admin/user/?page=UKMmarketing&action=some&forslag=' . $this->getId();
     }
 
@@ -190,86 +194,61 @@ class Ide
         }
         return $this->kanaler;
     }
-    
+
     /**
      * Hent en samling av tilknyttede tekster
      *
      * @return Tekster
      */
-    public function getTekster() {
-        if( is_null($this->tekster)) {
+    public function getTekster()
+    {
+        if (is_null($this->tekster)) {
             $this->tekster = new Tekster('ide', $this->getId());
         }
         return $this->tekster;
     }
 
     /**
-     * Hent eierens ID
-     *
-     * @return String
-     */
-    public function getEierId()
-    {
-        return $this->eier_id;
-    }
-
-    /**
-     * Angi eierens id
-     *
-     * @param String $eier_id
-     * @return self
-     */
-    public function setEierId(String $eier_id)
-    {
-        $this->eier_id = $eier_id;
-        return $this;
-    }
-
-    /**
-     * Hent eier-objektet
+     * Hent eier
      *
      * @return User
      */
     public function getEier()
     {
-        if (is_null($this->eier)) {
-            $this->eier = Users::getBySlackId($this->getEierId());
-        }
         return $this->eier;
     }
 
     /**
-     * Hent deeplink for eieren
+     * Oppdater eier-objekt
      *
-     * @return String html
-     */
-    public function getEierLink()
-    {
-        return '<a href="slack://user?team=' .
-            $this->getTeamId() . '&id=' . $this->getEierId() . '">' .
-            $this->getEier()->getRealName() .
-            '</a>';
-    }
-
-    /**
-     * Hent eierens team-id 
-     *
-     * @return String
-     */
-    public function getTeamId()
-    {
-        return $this->team_id;
-    }
-
-    /**
-     * Angi eierens team-id
-     *
-     * @param String $team_id
+     * @param User $eier
      * @return self
      */
-    public function setTeamId(String $team_id)
+    public function setEier(User $eier)
     {
-        $this->team_id = $team_id;
+        $this->eier = $eier;
+        return $this;
+    }
+
+    /**
+     * Hent ansvarlig for oppfølgingen
+     *
+     * @return User
+     */
+    public function getAnsvarlig()
+    {
+        return $this->ansvarlig;
+    }
+
+    /**
+     * Angi ansvarlig for oppfølgingen
+     *
+     * @param User $ansvarlig
+     * @return self
+     */
+    public function setAnsvarlig(User $ansvarlig)
+    {
+        $this->ansvarlig = $ansvarlig;
         return $this;
     }
 }

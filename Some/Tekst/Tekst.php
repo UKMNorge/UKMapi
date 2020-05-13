@@ -13,14 +13,12 @@ class Tekst
     public $objekt_id;
     public $objekt_type;
     public $kanal_id;
-    public $team_id;
-    public $user_id;
+    public $eier;
     public $tekst;
     public $notater;
     public $status;
 
     public $kanal;
-    public $eier;
 
     public function __construct(array $data)
     {
@@ -28,8 +26,7 @@ class Tekst
         $this->objekt_type = $data['objekt_type'];
         $this->objekt_id = intval($data['objekt_id']);
         $this->kanal_id = $data['kanal_id'];
-        $this->team_id = $data['team_id'];
-        $this->user_id = $data['user_id'];
+        $this->eier = Users::getBySlackId($data['team_id'], $data['eier_id']);
         $this->tekst = $data['tekst'];
         $this->notater = $data['notater'];
         $this->status = $data['status'];
@@ -53,50 +50,6 @@ class Tekst
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * Sett ansvarlig brukers team id
-     *
-     * @param String $team_id
-     * @return self
-     */
-    public function setTeamId(String $team_id)
-    {
-        $this->team_id = $team_id;
-        return $this;
-    }
-
-    /**
-     * Hent team eventet skjedde i
-     * 
-     * @return String
-     */
-    public function getTeamId()
-    {
-        return $this->team_id;
-    }
-
-    /**
-     * Oppdater ansvarlig bruker-id
-     *
-     * @param String $user_id
-     * @return self
-     */
-    public function setUserId(String $user_id)
-    {
-        $this->user_id = $user_id;
-        return $this;
-    }
-
-    /**
-     * Hent slack bruker-id
-     * 
-     * @return String
-     */
-    public function getUserId()
-    {
-        return $this->user_id;
     }
 
     /**
@@ -168,7 +121,8 @@ class Tekst
      * @param String $notater
      * @return self
      */
-    public function setNotater(String $notater) {
+    public function setNotater(String $notater)
+    {
         $this->notater = $notater;
         return $this;
     }
@@ -178,7 +132,8 @@ class Tekst
      *
      * @return String
      */
-    public function getNotater() {
+    public function getNotater()
+    {
         return $this->notater;
     }
 
@@ -189,9 +144,6 @@ class Tekst
      */
     public function getEier()
     {
-        if (is_null($this->eier)) {
-            $this->eier = Users::getBySlackId($this->getUserId());
-        }
         return $this->eier;
     }
 
@@ -200,7 +152,8 @@ class Tekst
      *
      * @return Bool
      */
-    public function erKladd() {
+    public function erKladd()
+    {
         return $this->status == 'kladd';
     }
 
@@ -209,7 +162,8 @@ class Tekst
      *
      * @return Bool
      */
-    public function erFerdig() {
+    public function erFerdig()
+    {
         return $this->status == 'ferdig';
     }
 }
