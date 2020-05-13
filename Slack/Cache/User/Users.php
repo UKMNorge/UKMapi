@@ -34,7 +34,7 @@ class Users extends Collection
      * @return void
      */
     public static function getProxy( String $team_id, String $user_id ) {
-        return new User(['team_id' => $team_id, 'user_id' => $user_id], true);
+        return new User(['team_id' => $team_id, 'slack_id' => $user_id], true);
     }
 
     /**

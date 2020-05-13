@@ -113,6 +113,7 @@ class Write
             }
         }
 
+
         if (!$query->hasChanges()) {
             return true;
         }

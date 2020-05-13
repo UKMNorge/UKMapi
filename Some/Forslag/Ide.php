@@ -32,8 +32,8 @@ class Ide
         $this->hva = $data['hva'];
         $this->beskrivelse = $data['beskrivelse'];
         $this->eier = Users::getProxy($data['eier_team_id'], $data['eier_id']);
-        if (!is_null($data['eier_team_id']) && !is_null($data['eier_id'])) {
-            $this->ansvarlig = Users::getProxy($data['eier_team_id'], $data['eier_id']);
+        if (!is_null($data['ansvarlig_team_id']) && !is_null($data['ansvarlig_id'])) {
+            $this->ansvarlig = Users::getProxy($data['ansvarlig_team_id'], $data['ansvarlig_id']);
         }
     }
 
