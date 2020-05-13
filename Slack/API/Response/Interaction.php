@@ -77,7 +77,7 @@ class Interaction extends Log {
      *
      */
     public function process() {
-        $this->log('- registered filters: '. var_export( $this->filters, true));
+        #$this->log('- registered filters: '. var_export( $this->filters, true));
         $this->log('- process '. static::$syncMode);
         if( isset($this->data->callback_id ) ) {
             $this->processTrigger();
