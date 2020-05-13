@@ -98,7 +98,7 @@ class Tekst
     /**
      * Hent objekt-id på parent-objektet
      */
-    public function getOjektId()
+    public function getObjektId()
     {
         return $this->objekt_id;
     }
