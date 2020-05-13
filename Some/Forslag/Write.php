@@ -62,8 +62,13 @@ class Write
                 $value = $ide;
                 $db_value = $db_ide;
                 foreach( $functions as $next_function ) {
+                    if( is_null($value)) {
+                        continue 2;
+                    }
                     $value = $value->$next_function();
-                    $db_value = $db_value->$next_function();
+                    if( !is_null($db_value)) {
+                        $db_value = $db_value->$next_function();
+                    }
                 }
             } else {
                 $value = $ide->$function();
