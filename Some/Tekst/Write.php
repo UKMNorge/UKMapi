@@ -16,7 +16,8 @@ class Write
         'kanal_id' => 'getKanalId',
         'team_id' => 'getTeamId',
         'user_id' => 'getUserId',
-        'tekst' => 'getTekst'
+        'tekst' => 'getTekst',
+        'notater' => 'getNotater'
     ];
 
     /**
@@ -29,7 +30,7 @@ class Write
      * @param String $tekst
      * @return Tekst
      */
-    public static function opprettForIde(Ide $ide, Kanal $kanal, String $team_id, String $user_id, String $tekst = null)
+    public static function opprettForIde(Ide $ide, Kanal $kanal, String $team_id, String $user_id, String $tekst = null, String $notater = null)
     {
         return static::opprett(
             'ide',
@@ -37,7 +38,8 @@ class Write
             $kanal->getId(),
             $team_id,
             $user_id,
-            $tekst
+            $tekst,
+            $notater
         );
     }
 
@@ -53,7 +55,7 @@ class Write
      * @return Tekst
      * @throws Exception
      */
-    private static function opprett(String $objekt_type, Int $objekt_id, String $kanal_id, String $team_id, String $user_id, String $tekst = null)
+    private static function opprett(String $objekt_type, Int $objekt_id, String $kanal_id, String $team_id, String $user_id, String $tekst = null, $notater = null)
     {
         $query = new Insert(Tekst::TABLE);
         $query->add('objekt_type', $objekt_type);
@@ -62,6 +64,7 @@ class Write
         $query->add('team_id', $team_id);
         $query->add('user_id', $user_id);
         $query->add('tekst', $tekst);
+        $query->add('notater', $notater);
 
         $res = $query->run();
         if ($res) {

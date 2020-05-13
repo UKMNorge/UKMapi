@@ -16,6 +16,7 @@ class Tekst
     public $team_id;
     public $user_id;
     public $tekst;
+    public $notater;
 
     public $kanal;
     public $eier;
@@ -29,6 +30,7 @@ class Tekst
         $this->team_id = $data['team_id'];
         $this->user_id = $data['user_id'];
         $this->tekst = $data['tekst'];
+        $this->notater = $data['notater'];
     }
 
     /**
@@ -156,6 +158,26 @@ class Tekst
     public function getTekst()
     {
         return $this->tekst;
+    }
+
+    /**
+     * Oppdater notater
+     *
+     * @param String $notater
+     * @return self
+     */
+    public function setNotater(String $notater) {
+        $this->notater = $notater;
+        return $this;
+    }
+
+    /**
+     * Hent notater
+     *
+     * @return String
+     */
+    public function getNotater() {
+        return $this->notater;
     }
 
     /**
