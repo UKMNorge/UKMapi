@@ -25,4 +25,8 @@ class ViewSubmission extends Transport implements TransportInterface {
     public function getView() {
         return $this->view;
     }
+
+    public function getCallbackId() {
+        return $this->getView()->getCallbackId();
+    }
 }

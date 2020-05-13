@@ -17,4 +17,13 @@ class BlockAction extends Transport implements TransportInterface {
     public function getValue() {
         return $this->value;
     }
+    
+    /**
+     * Fetch action id
+     *
+     * @return String
+     */
+    public function getActionId() {
+        return $this->getData()->actions[0]->action_id;
+    }
 }
