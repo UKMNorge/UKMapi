@@ -57,8 +57,19 @@ class Write
         );
 
         foreach (static::MAP as $db_field => $function) {
-            if ($db_ide->$function() != $ide->$function()) {
+            if( strpos($function, '()->') !== true ) {
+                $functions = explode('()->', $function);
+                $value = $ide;
+                $db_value = $db_ide;
+                foreach( $functions as $next_function ) {
+                    $value = $value->$next_function();
+                    $db_value = $db_value->$next_function();
+                }
+            } else {
                 $value = $ide->$function();
+                $db_value = $db_ide->$function();
+            }
+            if ($db_value != $value) {
                 if (is_array($value) || is_a($value, '\stdClass')) {
                     $value = json_encode($value);
                 }
