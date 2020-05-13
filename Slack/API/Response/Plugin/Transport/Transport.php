@@ -51,4 +51,22 @@ class Transport implements TransportInterface {
         }
         return $this->additional_data[$key];
     }
+
+    /**
+     * Fetch sender slack id
+     *
+     * @return String
+     */
+    public function getUserId() {
+        return $this->getData()->user->id;
+    }
+
+    /**
+     * Fetch senders team id
+     *
+     * @return String
+     */
+    public function getTeamId() {
+        return $this->getData()->team->id;
+    }
 }
