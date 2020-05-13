@@ -76,11 +76,11 @@ class Message extends Payload
         $data->channel = $this->channel_id;
         $data->text = $this->text->getText();
 
-        if (!is_null($this->timestamp)) {
-            $data->timestamp = $this->getTimestamp();
+        if (!is_null($this->getTimestamp())) {
+            $data->ts = $this->getTimestamp();
         }
 
-        if (!is_null($this->as_user)) {
+        if (!is_null($this->getAsUser())) {
             $data->as_user = $this->getAsUser() ? 'true' : 'false';
         }
 
