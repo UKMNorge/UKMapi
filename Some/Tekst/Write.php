@@ -5,6 +5,7 @@ namespace UKMNorge\Some\Tekst;
 use Exception;
 use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Database\SQL\Update;
+use UKMNorge\Slack\Cache\User\User;
 use UKMNorge\Some\Forslag\Ide;
 use UKMNorge\Some\Kanaler\Kanal;
 
@@ -55,14 +56,14 @@ class Write
      * @return Tekst
      * @throws Exception
      */
-    private static function opprett(String $objekt_type, Int $objekt_id, String $kanal_id, String $team_id, String $user_id, String $tekst = null, $notater = null)
+    private static function opprett(String $objekt_type, Int $objekt_id, String $kanal_id, User $eier, String $tekst = null, $notater = null)
     {
         $query = new Insert(Tekst::TABLE);
         $query->add('objekt_type', $objekt_type);
         $query->add('objekt_id', $objekt_id);
         $query->add('kanal_id', $kanal_id);
-        $query->add('team_id', $team_id);
-        $query->add('user_id', $user_id);
+        $query->add('team_id', $eier->getTeamId());
+        $query->add('user_id', $eier->getSlackId());
         $query->add('tekst', $tekst);
         $query->add('notater', $notater);
 
