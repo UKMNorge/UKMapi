@@ -2,9 +2,9 @@
 
 namespace UKMNorge\Slack\Payload;
 
-use Exception;
 use stdClass;
 use UKMNorge\Slack\Block\Composition\PlainText;
+use UKMNorge\Slack\Block\Structure\Exception;
 
 class Modal extends Home {
 
