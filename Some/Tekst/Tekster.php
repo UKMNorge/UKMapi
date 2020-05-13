@@ -53,7 +53,7 @@ class Tekster extends Collection
     public function _load()
     {
         $query = false;
-        switch ($this->type) {
+        switch ($this->objekt_type) {
             case 'ide':
                 $query = new Query(
                     "SELECT * 
