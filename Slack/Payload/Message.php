@@ -24,7 +24,7 @@ class Message extends Payload
      * @param Bool $status
      * @return self
      */
-    public static function setAsUser(Bool $status)
+    public function setAsUser(Bool $status)
     {
         $this->as_user = $status;
         return $this;
