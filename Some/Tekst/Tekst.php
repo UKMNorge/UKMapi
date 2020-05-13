@@ -2,6 +2,7 @@
 
 namespace UKMNorge\Some\Tekst;
 
+use UKMNorge\Slack\Cache\User\User;
 use UKMNorge\Slack\Cache\User\Users;
 use UKMNorge\Some\Kanaler\Kanaler;
 
@@ -145,6 +146,18 @@ class Tekst
     public function getEier()
     {
         return $this->eier;
+    }
+
+    /**
+     * Sett eier-objekt
+     *
+     * @param User $user
+     * @return self
+     */
+    public function setEier(User $user)
+    {
+        $this->eier = $user;
+        return $this;
     }
 
     /**
