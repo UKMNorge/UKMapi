@@ -62,8 +62,8 @@ class Tekster extends Collection
                     AND `objekt_id` = '#objektid'",
                     [
                         'table' => Tekst::TABLE,
-                        'objekt_type' => $this->objekt_type,
-                        'objekt_id' => $this->objekt_id
+                        'objekttype' => $this->objekt_type,
+                        'objektid' => $this->objekt_id
                     ]
                 );
                 break;
