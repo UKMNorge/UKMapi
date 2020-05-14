@@ -3,8 +3,8 @@
 namespace UKMNorge\Slack\Cache\Team;
 
 use DateTime;
-use UKMNorge\Slack\Channel\Channels;
-use UKMNorge\Slack\User\Users;
+use UKMNorge\Slack\Cache\Channel\Channels;
+use UKMNorge\Slack\Cache\User\Users;
 
 class Team {
 

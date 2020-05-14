@@ -4,7 +4,7 @@ namespace UKMNorge\Slack\Cache\User;
 
 use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Database\SQL\Update;
-use UKMNorge\Slack\User\Users;
+use UKMNorge\Slack\Cache\User\Users;
 
 class Write
 {
