@@ -15,7 +15,7 @@ class Write {
 	 */
 	public static function storeAPIAccessToken($data)
 	{
-		$sql = new Insert(self::TABLE);
+		$sql = new Insert(UKMApp::TABLE);
 		$sql->add('team_id', $data->team_id);
 		$sql->add('team_name', $data->team_name);
 		$sql->add('access_token', $data->access_token);
