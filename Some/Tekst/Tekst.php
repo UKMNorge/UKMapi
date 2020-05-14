@@ -182,11 +182,26 @@ class Tekst
         return $this->status == 'ferdig';
     }
 
+    /**
+     * Oppdater status for teksten
+     *
+     * @param String <kladd|ferdig>
+     * @return self
+     */
     public function setStatus( String $status ) {
         if( !in_array($status, static::STATUS_ENUM)) {
             throw new Exception('Ukjent status for tekst: '. $status);
         }
         $this->status = $status;
         return $this;
+    }
+
+    /**
+     * Hent status som streng
+     *
+     * @return String
+     */
+    public function getStatus() {
+        return $this->status;
     }
 }
