@@ -18,7 +18,8 @@ class Write
         'team_id' => 'getEier()->getTeamId',
         'user_id' => 'getEier()->getSlackId',
         'tekst' => 'getTekst',
-        'notater' => 'getNotater'
+        'notater' => 'getNotater',
+        'status' => 'getStatus'
     ];
 
     /**
