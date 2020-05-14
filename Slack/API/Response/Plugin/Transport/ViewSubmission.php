@@ -45,7 +45,7 @@ class ViewSubmission extends Transport implements TransportInterface
     public function getMetadata(String $key = null)
     {
         if (is_null($this->metadata)) {
-            $this->metadata = json_decode($this->getView()->private_metadata);
+            $this->metadata = json_decode($this->getData()->view->private_metadata);
         }
 
         if (is_null($key)) {
