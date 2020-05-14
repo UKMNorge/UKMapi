@@ -2,6 +2,7 @@
 
 namespace UKMNorge\Some\Tekst;
 
+use Exception;
 use UKMNorge\Slack\Cache\User\User;
 use UKMNorge\Slack\Cache\User\Users;
 use UKMNorge\Some\Kanaler\Kanaler;
@@ -9,6 +10,7 @@ use UKMNorge\Some\Kanaler\Kanaler;
 class Tekst
 {
     const TABLE = 'some_status_tekst';
+    const STATUS_ENUM = ['ferdig','kladd'];
 
     public $id;
     public $objekt_id;
@@ -178,5 +180,13 @@ class Tekst
     public function erFerdig()
     {
         return $this->status == 'ferdig';
+    }
+
+    public function setStatus( String $status ) {
+        if( !in_array($status, static::STATUS_ENUM)) {
+            throw new Exception('Ukjent status for tekst: '. $status);
+        }
+        $this->status = $status;
+        return $this;
     }
 }
