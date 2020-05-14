@@ -31,14 +31,13 @@ class Write
      * @param String $tekst
      * @return Tekst
      */
-    public static function opprettForIde(Ide $ide, Kanal $kanal, String $team_id, String $user_id, String $tekst = null, String $notater = null)
+    public static function opprettForIde(Ide $ide, Kanal $kanal, User $eier, String $tekst = null, String $notater = null)
     {
         return static::opprett(
             'ide',
             $ide->getId(),
             $kanal->getId(),
-            $team_id,
-            $user_id,
+            $eier,
             $tekst,
             $notater
         );
