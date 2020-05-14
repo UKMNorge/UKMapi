@@ -1,6 +1,6 @@
 <?php
 
-namespace UKMNorge\Slack;
+namespace UKMNorge\Slack\App;
 
 use Exception;
 use UKMNorge\Database\SQL\Insert;
