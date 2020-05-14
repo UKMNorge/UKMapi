@@ -2,8 +2,10 @@
 
 namespace UKMNorge\Some\Tekst;
 
+use Exception;
 use UKMNorge\Collection;
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Some\Kanaler\Kanal;
 
 class Tekster extends Collection
 {
@@ -22,6 +24,21 @@ class Tekster extends Collection
     {
         $this->objekt_type = $type;
         $this->objekt_id = $objekt_id;
+    }
+
+    /**
+     * Hent tekst for gitt kanal
+     *
+     * @param Kanal $kanal
+     * @return Tekst
+     */
+    public function getForKanal( Kanal $kanal ) {
+        foreach ($this->getAll() as $ide_tekst) {
+            if ($ide_tekst->getKanalId() == $kanal->getId()) {
+                return $ide_tekst;
+            }
+        }
+        throw new Exception('Fant ikke tekst for kanal '. $kanal->getId());
     }
 
     /**
