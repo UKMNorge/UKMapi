@@ -48,6 +48,7 @@ class UKMApp extends App
      *
      * Team ID kommer alltid med henvendelser fra Slack
      *
+     * @param String $team_id
      * @return Bool success
      */
     public static function setAPITokenFromTeamId($team_id)
@@ -74,7 +75,33 @@ class UKMApp extends App
         return true;
     }
 
-    public static function setBotTokenFromTeamId(String $team_id){
+    /**
+     * Hent bot access token ut fra gitt Team Id
+     *
+     * @param String $team_id
+     * @return Bool success
+     */
+    public static function getBotTokenFromTeamId(String $team_id)
+    {
+        $sql = new Query(
+            "SELECT `bot_token`
+            FROM `#table`
+            WHERE `team_id` = '#team'",
+            [
+                'table' => self::TABLE,
+                'team' => $team_id
+            ]
+        );
+        $token = $sql->run('field', 'bot_access_token');
 
+        if (!$token) {
+            $response = new Response(
+                'ephemeral',
+                ':sob: Beklager, UKM-bot\'en er ikke godkjent for ditt team enda. Kontakt support@ukm.no'
+            );
+            $response->renderAndDie();
+        }
+        App::setBotToken($token);
+        return true;
     }
 }

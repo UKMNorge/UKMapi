@@ -3,10 +3,12 @@
 namespace UKMNorge\Slack\Cache\Team;
 
 use DateTime;
+use UKMNorge\Slack\Cache\Bot;
 use UKMNorge\Slack\Cache\Channel\Channels;
 use UKMNorge\Slack\Cache\User\Users;
 
-class Team {
+class Team
+{
 
     public $id;
     private $team_id;
@@ -14,18 +16,21 @@ class Team {
     private $access_token;
     private $timestamp;
     private $data;
+    private $bot;
 
     private $users;
     private $channels;
 
-    public function __construct( Array $data ) {
+    public function __construct(array $data)
+    {
 
         $this->id = $data['id'];
         $this->team_id = $data['team_id'];
         $this->team_name = $data['team_name'];
         $this->access_token = $data['access_token'];
-        $this->timestamp = new DateTime( $data['timestamp'] );
+        $this->timestamp = new DateTime($data['timestamp']);
         $this->data = $data['data'];
+        $this->bot = new Bot($data['bot_id'], $data['bot_access_token']);
     }
 
     /**
@@ -33,7 +38,8 @@ class Team {
      *
      * @return Int
      */
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
 
@@ -43,7 +49,8 @@ class Team {
      * @param Int $id
      * @return self
      */
-    public function setId( Int $id ) {
+    public function setId(Int $id)
+    {
         $this->id = $id;
         return $this;
     }
@@ -53,7 +60,8 @@ class Team {
      *
      * @return String
      */
-    public function getTeamId() {
+    public function getTeamId()
+    {
         return $this->team_id;
     }
 
@@ -63,7 +71,8 @@ class Team {
      * @param String $team_id
      * @return self
      */
-    public function setTeamId(String $team_id) {
+    public function setTeamId(String $team_id)
+    {
         $this->team_id = $team_id;
         return $this;
     }
@@ -73,7 +82,8 @@ class Team {
      *
      * @return String
      */
-    public function getTeamName() {
+    public function getTeamName()
+    {
         return $this->team_name;
     }
 
@@ -83,7 +93,8 @@ class Team {
      * @param String $team_name
      * @return self
      */
-    public function setTeamName(String $team_name) {
+    public function setTeamName(String $team_name)
+    {
         $this->team_name = $team_name;
         return $this;
     }
@@ -93,7 +104,8 @@ class Team {
      *
      * @return String
      */
-    public function getAccessToken() {
+    public function getAccessToken()
+    {
         return $this->access_token;
     }
 
@@ -103,7 +115,8 @@ class Team {
      * @param String $access_token
      * @return self
      */
-    public function setAccessToken(String $access_token) {
+    public function setAccessToken(String $access_token)
+    {
         $this->access_token = $access_token;
         return $this;
     }
@@ -113,7 +126,8 @@ class Team {
      *
      * @return DateTime
      */
-    public function getTimestamp() {
+    public function getTimestamp()
+    {
         return $this->timestamp;
     }
 
@@ -122,7 +136,8 @@ class Team {
      *
      * @return Array ?
      */
-    public function getAdditionalData() {
+    public function getAdditionalData()
+    {
         return $this->data;
     }
 
@@ -132,7 +147,8 @@ class Team {
      * @param Array $data
      * @return self
      */
-    public function setAdditionalData($data) {
+    public function setAdditionalData($data)
+    {
         $this->data = $data;
         return $this;
     }
@@ -142,17 +158,29 @@ class Team {
      *
      * @return Users
      */
-    public function getUsers() {
-        if( is_null($this->users) ) {
+    public function getUsers()
+    {
+        if (is_null($this->users)) {
             $this->users = new Users($this->getTeamId());
         }
         return $this->users;
     }
 
-    public function getChannels() {
-        if( is_null($this->channels)) {
+    public function getChannels()
+    {
+        if (is_null($this->channels)) {
             $this->channels = new Channels($this->getTeamId());
         }
         return $this->channels;
+    }
+
+    /**
+     * Hent bot-data
+     * 
+     * @return Bot $bot
+     */
+    public function getBot()
+    {
+        return $this->bot;
     }
 }
