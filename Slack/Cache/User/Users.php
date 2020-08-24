@@ -89,7 +89,7 @@ class Users extends Collection
         if( $data ) {
             return new User($data);
         }
-        throw new Exception('Could not find user @'. $handlebar);
+        throw new Exception('Could not find user @'. $handlebar .' in team '. $team_id);
     }
 
     /**
