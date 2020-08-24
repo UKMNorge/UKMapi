@@ -154,10 +154,14 @@ class User
      */
     public function getLink()
     {
-        return '<a href="slack://user?team=' .
-            $this->getTeamId() . '&id=' . $this->getId() . '">' .
+        return '<a href="'. $this->getSlackLink() . '">' .
             $this->getNameOrHandlebar() .
             '</a>';
+    }
+
+    public function getSlackLink() {
+        return 'slack://user?team=' .
+            $this->getTeamId() . '&id=' . $this->getSlackId();
     }
 
     /**
