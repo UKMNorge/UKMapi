@@ -382,7 +382,6 @@ abstract class App implements AppInterface
                 break;
         }
         static::log($method . '://' . $endpoint);
-        static::log('-> AUTH: '. $accessToken);
         static::log('-> data: ' . var_export($data, true));
 
         static::$curl->addHeader('Authorization: Bearer ' . $accessToken);
