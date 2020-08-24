@@ -28,6 +28,11 @@ class UKMApp extends App
     public static function getScope()
     {
         return [
+            'identify',
+            'bot',
+            'incoming-webhook',
+            'users.profile:read',
+            'chat:write:bot',
             'commands', # Add shortcuts and/or slash commands that people can use
             'users.profile:read' # View profile details about people in the workspace
         ];
