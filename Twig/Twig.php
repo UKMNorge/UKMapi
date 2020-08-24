@@ -132,7 +132,7 @@ class Twig
      * @param Any $value
      * @return void
      */
-    public function setEnvironment(String $key, $value)
+    public static function setEnvironment(String $key, $value)
     {
         static::$environment[$key] = $value;
     }
@@ -195,7 +195,7 @@ class Twig
      *
      * @return void
      */
-    private function _prepare()
+    private static function _prepare()
     {
         static::$twig = new Environment(
             static::getLoader(),
@@ -289,7 +289,7 @@ class Twig
      * 
      * Array[funksjonsnavn] = funksjon
      *
-     * @return void
+     * @return Array<callable>
      */
     public static function getFunctions()
     {
