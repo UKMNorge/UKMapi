@@ -92,7 +92,7 @@ class UKMApp extends App
     public static function getBotTokenFromTeamId(String $team_id)
     {
         $sql = new Query(
-            "SELECT `bot_token`
+            "SELECT `bot_access_token`
             FROM `#table`
             WHERE `team_id` = '#team'",
             [
@@ -100,7 +100,7 @@ class UKMApp extends App
                 'team' => $team_id
             ]
         );
-        $token = $sql->run('field', 'bot_access_token');
+        $token = $sql->getField();
 
         if (!$token) {
             $response = new Response(
