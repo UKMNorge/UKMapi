@@ -71,7 +71,7 @@ class Users extends Collection
      * @return User
      * @throws Exception
      */
-    public static function getByHandlebar(String $handlebar) {
+    public static function getByHandlebar(String $team_id, String $handlebar) {
         $handlebar = str_replace('@','', $handlebar);
         $query = new Query(
             "SELECT * 
