@@ -239,7 +239,7 @@ abstract class App implements AppInterface
             'code' => $code,
             'redirect_uri' => static::getOAuthRedirectUrlRaw(false)
         ]);
-        $result = $curl->request(static::SLACK_API_URL . 'oauth.access');
+        $result = $curl->request(static::SLACK_API_URL . 'oauth.v2.access');
 
         if (is_object($result) && $result->ok) {
             return $result;
