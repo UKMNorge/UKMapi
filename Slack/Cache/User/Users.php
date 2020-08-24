@@ -76,10 +76,12 @@ class Users extends Collection
         $query = new Query(
             "SELECT * 
             FROM `#table`
-            WHERE `name` = '#handlebar'",
+            WHERE `name` = '#handlebar'
+            AND `team_id` = '#team'",
             [
                 'table' => User::TABLE,
-                'handlebar' => $handlebar
+                'handlebar' => $handlebar,
+                'team' => $team_id
             ]
         );
         $data = $query->getArray();
@@ -111,10 +113,12 @@ class Users extends Collection
             "SELECT *
             FROM `#table`
             WHERE `name` IN ('". join("','", $handlebars) ."')
+            AND `team_id` = '#team'
             ORDER BY `real_name` ASC, `name` ASC
             ",
             [
-                'table' => User::TABLE
+                'table' => User::TABLE,
+                'team' => $team_id
             ]
         );
 
