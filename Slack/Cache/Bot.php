@@ -2,12 +2,13 @@
 
 namespace UKMNorge\Slack\Cache;
 
-class Bot {
+class Bot
+{
 
     private $id;
     private $access_token;
 
-    public function __construct( String $id, String $access_token )
+    public function __construct(String $id = null, String $access_token = null)
     {
         $this->id = $id;
         $this->access_token = $access_token;
@@ -18,7 +19,7 @@ class Bot {
      * Hent bot'ens access token
      * 
      * @return String
-     */ 
+     */
     public function getAccessToken()
     {
         return $this->access_token;
@@ -28,7 +29,7 @@ class Bot {
      * Hent bot'ens id
      * 
      * @return String
-     */ 
+     */
     public function getId()
     {
         return $this->id;
