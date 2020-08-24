@@ -21,6 +21,7 @@ class Interaction extends Log {
     private $has_async = false;
     private $filters = [];
     private $response;
+    private $team_id;
 
     private static $syncMode = 'SYNC';
 
@@ -54,6 +55,7 @@ class Interaction extends Log {
         
         $this->request = $request_body;
         $this->data = json_decode($_POST['payload']);
+        $this->team_id = $this->data->team->id;
         $this->response = new stdClass();
         $this->response->status = 'ok'; // default to all okay (positive thinkin')
 
@@ -228,5 +230,15 @@ class Interaction extends Log {
     public function processAsync() {
         static::$syncMode = 'ASYNC';
         $this->process();
+    }
+
+    /**
+     * Get the team id where interaction originated
+     * 
+     * @return String
+     */ 
+    public function getTeamId()
+    {
+        return $this->team_id;
     }
 }
