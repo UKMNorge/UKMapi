@@ -17,8 +17,9 @@ class User
     public $data;
     public $updated;
     public $loaded = false;
+    public $do_lazyload = true;
 
-    public function __construct(array $data, $lazyload=false)
+    public function __construct(array $data, $lazyload = false)
     {
         if (isset($data['id'])) {
             $this->id = $data['id'];
@@ -26,8 +27,8 @@ class User
 
         $this->team_id = $data['team_id'];
         $this->slack_id = $data['slack_id'];
-        
-        if( !$lazyload) {
+
+        if (!$lazyload) {
             $this->loaded = true;
             $this->name = $data['name'];
             $this->real_name = $data['real_name'];
@@ -41,8 +42,9 @@ class User
      *
      * @return Bool true
      */
-    public function deactivateLoad() {
-        $this->loaded = true;
+    public function deactivateLoad()
+    {
+        $this->do_lazyload = false;
         return true;
     }
 
@@ -51,7 +53,8 @@ class User
      *
      * @return Int
      */
-    public function getId() {
+    public function getId()
+    {
         $this->_lazyload();
         return $this->id;
     }
@@ -152,7 +155,8 @@ class User
      *
      * @return DateTime
      */
-    public function getUpdated() {
+    public function getUpdated()
+    {
         $this->_lazyload();
         return $this->updated;
     }
@@ -164,12 +168,13 @@ class User
      */
     public function getLink()
     {
-        return '<a href="'. $this->getSlackLink() . '">' .
+        return '<a href="' . $this->getSlackLink() . '">' .
             $this->getNameOrHandlebar() .
             '</a>';
     }
 
-    public function getSlackLink() {
+    public function getSlackLink()
+    {
         return 'slack://user?team=' .
             $this->getTeamId() . '&id=' . $this->getSlackId();
     }
@@ -179,8 +184,9 @@ class User
      *
      * @return String 
      */
-    public function getNameOrHandlebar() {
-        if( !empty( $this->getRealName())) {
+    public function getNameOrHandlebar()
+    {
+        if (!empty($this->getRealName())) {
             return $this->getRealName();
         }
         return $this->getName();
@@ -189,12 +195,18 @@ class User
     /**
      * Load user infos from database
      *
-     * @return void
+     * @return Bool did actually load
      */
-    private function _lazyload() {
+    private function _lazyload()
+    {
+        if (!$this->do_lazyload) {
+            return false;
+        }
+
         $data = Users::getBySlackId($this->getTeamId(), $this->getSlackId());
-        foreach( get_object_vars( $data ) as $key => $value) {
+        foreach (get_object_vars($data) as $key => $value) {
             $this->$key = $value;
         }
+        return true;
     }
 }
