@@ -37,6 +37,16 @@ class User
     }
 
     /**
+     * Deactivate lazyloading
+     *
+     * @return Bool true
+     */
+    public function deactivateLoad() {
+        $this->loaded = true;
+        return true;
+    }
+
+    /**
      * Get internal db id
      *
      * @return Int

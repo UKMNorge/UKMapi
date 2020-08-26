@@ -41,6 +41,9 @@ class Write
      */
     public static function save(User $user)
     {
+        // Deactivate load, so given object doesn't reload
+        // database values before comparing (rendering save mute)
+        $user->deactivateLoad();
         $db_user = Users::getById($user->getId());
 
         $query = new Update(
