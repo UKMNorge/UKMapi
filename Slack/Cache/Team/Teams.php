@@ -63,10 +63,10 @@ class Teams extends Collection
         $query = new Query(
             "SELECT * 
             FROM `#table`
-            WHERE `id` = '#id'",
+            WHERE `team_id` = '#id'",
             [
                 'table' => static::TABLE,
-                'team_id' => $id
+                'id' => $id
             ]
         );
         $data = $query->getArray();
