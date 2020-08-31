@@ -1,0 +1,23 @@
+{% if adjust is defined %}
+	{% set left = adjust[0] %}
+{% else %}
+	{% set left = 5 %}
+{% endif %}
+{% set right = 12 - left %}
+
+{% set colWidth = colAdjust is defined ? colAdjust : 70 %}
+
+<div class="clearfix"></div>
+<div class="row flex-row">
+	<div class="col-12">
+		<h3 class="mt-5">{{ header is defined ? header : data|header(col) }}</h3>
+	</div>
+
+	<div class="col-12 mb-3 col-sm-{{ left }}">
+		{{ group is defined ? data|countByCol(col,group,{colWidth: colWidth, label: label, kunSvar: kunSvar}) : data|count( col, {kunSvar: kunSvar} ) }}
+	</div>
+	
+	<div class="col-12 col-sm-{{ right }} graphContainer">
+		{% include "Excel:graph.html.twig"|UKMpath with { id: col~ (group is defined ? '-by-'~ group : '-count') } %}
+	</div>
+</div>

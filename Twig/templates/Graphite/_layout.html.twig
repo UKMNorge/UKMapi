@@ -1,0 +1,25 @@
+{% extends "UKMDesign/Layout/base.html.twig"|UKMpath %}
+
+{% block content %}
+	<h1>Velkommen til statistikk-siden</h1>
+	
+	Her kommer en meny
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+	<script type="text/javascript">
+		google.charts.load('current', {'packages':['corechart']});
+	</script>
+	<script>
+		{% include "Resources:graph.js"|UKMpath %}
+	</script>
+{% endblock %}
+
+{% block css %}
+	{{ parent() }}
+	<style>
+		{% include "Resources:style.css"|UKMpath %}
+	</style>
+{% endblock %}

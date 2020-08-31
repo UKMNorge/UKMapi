@@ -1,0 +1,34 @@
+<table class="table table-striped table-hover mt-3 mb-0" data-num-rows="{{ num_rows }}" id="{{ id }}" data-header="{{ header }}" data-type="group">
+	<thead>
+		<tr>
+			<th width="*%">{{ label }}</th>
+			{% for alternative in alternatives %}
+				<th class="right" width="{{ (colWidth/alternatives|length)|round() }}%">{{ alternative is empty ? 'Ikke svart' : alternative }}</th>
+			{% endfor %}
+		</tr>
+	</thead>
+	<tbody>
+		{% for group, groupdata in data|slice(0,data|length-1) %}
+			<tr class="count-data count-grouped-data" data-total="false" data-per-count="false">
+				<th>{{ group }}</th>
+				{% for count in groupdata %}
+					<td align="right" class="count" data-count="{{ count }}" data-percent="false">{{ count }}</td>
+				{% endfor %}
+			</tr>
+		{% endfor %}
+	</tbody>
+	<tfoot>
+		{% for group, groupdata in data|slice(data|length-1) %}
+			<tr class="count-data count-grouped-data" data-total="false" data-per-count="false">
+				<th>{{ group }}</th>
+				{% for count in groupdata %}
+					<td align="right" class="count" data-count="{{ count }}" data-percent="false">{{ count }}</td>
+				{% endfor %}
+			</tr>
+		{% endfor %}
+	</tfoot>
+</table>
+
+<p class="small mt-0 pt-0" align="right">
+	<a href="#" class="toggleNumbers" id="toggleNumbers-for-{{ id }}" data-target="{{ id }}">Vis prosent</a>
+</p>

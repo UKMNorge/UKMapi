@@ -39,6 +39,9 @@
                 {% block content %}
                     <h1>Beklager, en feil har oppstått</h1>
 
+                    {% if message is defined %}
+                        {{ message }}
+                    {% endif %}
                     <p>
                         <a href="javascript:window.close()">Lukk</a>
                     </p>

@@ -1,0 +1,12 @@
+{% set per_count = 100 / num_rows %}
+<table class="table table-striped table-hover mt-3 mb-0" data-num-rows="{{ num_rows }}" id="{{ id }}" data-header="{{ header }}" data-type="count" data-per_count="{{ per_count }}" data-num-rows="{{ num_rows }}">
+	<tbody>
+		{% for alternative, count in data %}
+			<tr class="count-data">
+				<th width="*%">{{ alternative is empty ? 'Ikke svart' : alternative }}</th>
+				<td align="right" width="65" class="count" data-count="{{ count }}" data-percent="{{ (per_count * count)|round() }}">{{ count }}</td>
+				<td align="right" width="65">{{ (per_count * count)|round() }}%</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
