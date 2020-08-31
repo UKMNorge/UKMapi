@@ -1,6 +1,7 @@
 <?php
 namespace UKMNorge\File;
 
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Settings;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -166,6 +167,16 @@ class Excel extends OfficeDok {
      */
     public static function i2a(Int $nummer) {
 		return ($nummer-->26?chr(($nummer/26+25)%26+ord('A')):'').chr($nummer%26+ord('A'));
+    }
+
+    /**
+     * Åpen eksisterende excel-fil
+     *
+     * @param String $filename
+     * @return Spreadsheet
+     */
+    public static function readFile( String $filename ) {
+        return IOFactory::load($filename);
     }
 }
 if( defined('DOWNLOAD_PATH_EXCEL') ) {
