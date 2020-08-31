@@ -90,7 +90,7 @@ class Ide
      */
     public function getLink()
     {
-        return 'https://ukm.no/wp-admin/user/?page=UKMmarketing&action=some&forslag=' . $this->getId();
+        return 'https://ukm.no/wp-admin/user/admin.php?page=UKMmarketing&action=some&forslag=' . $this->getId();
     }
 
     /**
