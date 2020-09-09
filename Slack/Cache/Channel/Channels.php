@@ -45,7 +45,36 @@ class Channels extends Collection
         );
         $data = $query->getArray();
 
-        if( $data ) {
+        if ($data) {
+            return new Channel($data);
+        }
+        throw new Exception('Could not find channel with slack id: ' . $slack_id);
+    }
+
+    /**
+     * Get channel by name
+     *
+     * @param String $team_id
+     * @param String $channel_name
+     * @return Channel
+     * @throws Exception
+     */
+    public static function getByName(String $team_id, String $channel_name)
+    {
+        $query = new Query(
+            "SELECT * 
+            FROM `#table`
+            WHERE `id` = '#id'
+            AND `team_id` = '#team_id'",
+            [
+                'table' => Channel::TABLE,
+                'name' => trim($channel_name, '#'),
+                'team_id' => $team_id
+            ]
+        );
+        $data = $query->getArray();
+
+        if ($data) {
             return new Channel($data);
         }
         throw new Exception('Could not find channel #' . trim($channel_name,'#'));
