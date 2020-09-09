@@ -10,7 +10,8 @@ class Channels extends Collection
 {
     public $team_id;
 
-    public function __construct( String $team_id ) {
+    public function __construct(String $team_id)
+    {
         $this->team_id = $team_id;
     }
 
@@ -19,7 +20,8 @@ class Channels extends Collection
      *
      * @return String
      */
-    public function getTeamId() {
+    public function getTeamId()
+    {
         return $this->team_id;
     }
 
@@ -30,7 +32,8 @@ class Channels extends Collection
      * @return User
      * @throws Exception
      */
-    public static function getBySlackId(String $slack_id) {
+    public static function getBySlackId(String $slack_id)
+    {
         $query = new Query(
             "SELECT * 
             FROM `#table`
@@ -45,7 +48,7 @@ class Channels extends Collection
         if( $data ) {
             return new Channel($data);
         }
-        throw new Exception('Could not find channel with slack id: '. $slack_id);
+        throw new Exception('Could not find channel #' . trim($channel_name,'#'));
     }
 
 
@@ -56,7 +59,8 @@ class Channels extends Collection
      * @return Channel
      * @throws Exception
      */
-    public static function getById(Int $id) {
+    public static function getById(Int $id)
+    {
         $query = new Query(
             "SELECT * 
             FROM `#table`
@@ -68,10 +72,10 @@ class Channels extends Collection
         );
         $data = $query->getArray();
 
-        if( $data ) {
+        if ($data) {
             return new Channel($data);
         }
-        throw new Exception('Could not find channel with id: '. $id);
+        throw new Exception('Could not find channel with id: ' . $id);
     }
 
     /**
@@ -93,9 +97,9 @@ class Channels extends Collection
             ]
         );
         $res = $query->run();
-        
-        while($row = Query::fetch($res)) {
-            $this->add( new Channel( $row ));
+
+        while ($row = Query::fetch($res)) {
+            $this->add(new Channel($row));
         }
     }
 }
