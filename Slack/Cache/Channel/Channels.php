@@ -64,7 +64,7 @@ class Channels extends Collection
         $query = new Query(
             "SELECT * 
             FROM `#table`
-            WHERE `id` = '#id'
+            WHERE `name` = '#name'
             AND `team_id` = '#team_id'",
             [
                 'table' => Channel::TABLE,
