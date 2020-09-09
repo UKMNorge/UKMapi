@@ -1,16 +1,18 @@
 <?php
-	
+
 namespace UKMNorge\Slack\API;
 
-class Conversations {    
+class Conversations
+{
     /**
      * Start (or resume) a conversation with given user
      * 
      * @param String slack id
      * @return String slack response
      */
-    public static function startWithUser( String $user_id ) {
-        return static::start( ['users' => $user_id]);
+    public static function startWithUser(String $user_id)
+    {
+        return static::start(['users' => $user_id]);
     }
 
     /**
@@ -19,8 +21,9 @@ class Conversations {
      * @param String $channel_id
      * @return String slack response
      */
-    public static function startWithChannel( String $channel_id ) {
-        return static::start( ['channel' => $channel_id]);
+    public static function startWithChannel(String $channel_id)
+    {
+        return static::start(['channel' => $channel_id]);
     }
 
     /**
@@ -28,9 +31,10 @@ class Conversations {
      *
      * @param Array slack ids
      * @return String slack response
-     */    
-    public static function startWithUsers( Array $user_ids ) {
-        return static::start( ['users' => implode(',',$user_ids)]);
+     */
+    public static function startWithUsers(array $user_ids)
+    {
+        return static::start(['users' => implode(',', $user_ids)]);
     }
 
     /**
@@ -39,7 +43,8 @@ class Conversations {
      * @param Array $data
      * @return String slack response
      */
-    private static function start( Array $data ) {
+    private static function start(array $data)
+    {
         $request_data = array_merge(
             [
                 'types' => 'public_channel,private_channel,im',
