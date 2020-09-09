@@ -14,6 +14,16 @@ class Conversations {
     }
 
     /**
+     * Start (or resume) a conversation in a channel
+     *
+     * @param String $channel_id
+     * @return String slack response
+     */
+    public static function startWithChannel( String $channel_id ) {
+        return static::start( ['channel' => $channel_id]);
+    }
+
+    /**
      * Start (or resume) a dm with multiple users
      *
      * @param Array slack ids
