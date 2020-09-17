@@ -18,6 +18,7 @@ class User
     public $updated;
     public $loaded = false;
     public $do_lazyload = true;
+    public $active = true;
 
     public function __construct(array $data, $lazyload = false)
     {
@@ -33,6 +34,7 @@ class User
             $this->name = $data['name'];
             $this->real_name = $data['real_name'];
             $this->data = $data['data'];
+            $this->active = $data['active'] == 'true';
             $this->updated = new DateTime($data['timestamp']);
         }
     }
@@ -46,6 +48,34 @@ class User
     {
         $this->do_lazyload = false;
         return true;
+    }
+
+    /**
+     * Mark user as deactivated
+     *
+     * @return self
+     */
+    public function deactivate() {
+        $this->active = false;
+        return $this;
+    }
+
+    /**
+     * Mark user as active
+     *
+     * @return self
+     */
+    public function activate() {
+        $this->active = true;
+    }
+
+    /**
+     * Is user active
+     *
+     * @return boolean
+     */
+    public function isActive() {
+        return $this->active;
     }
 
     /**

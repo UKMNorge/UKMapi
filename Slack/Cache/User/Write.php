@@ -11,7 +11,8 @@ class Write
     const MAP = [
         'name' => 'getName',
         'real_name' => 'getRealName',
-        'data' => 'getAdditionalData'
+        'data' => 'getAdditionalData',
+        'active' => 'isActive'
     ];
 
     /**
