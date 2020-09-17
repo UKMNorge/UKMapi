@@ -101,6 +101,15 @@ class Collection {
     }
 
     /**
+     * Get current type (set by child)
+     *
+     * @return String
+     */
+    public function getType() {
+        return $this->type;
+    }
+
+    /**
      * Make sure we stay within the maximum allowed elements limit
      *
      * @param Int $current_length
