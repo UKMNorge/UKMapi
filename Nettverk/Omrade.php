@@ -7,6 +7,7 @@ require_once('UKM/Autoloader.php');
 use Exception;
 use UKMNorge\Arrangement\Arrangementer;
 use UKMNorge\Arrangement\Arrangement;
+use UKMNorge\Arrangement\Filter;
 use UKMNorge\Geografi\Fylker;
 use UKMNorge\Geografi\Kommune;
 use UKMNorge\Nettverk\Administratorer;
@@ -176,10 +177,12 @@ class Omrade
      */
     public function getArrangementer( Int $season ) {
         if ( !isset( $this->arrangementer[ $season ] ) ) {
+            $filter = new Filter();
+            $filter->sesong($season);
             $this->arrangementer[ $season ] = new Arrangementer(
-                $season,
                 'eier-'.$this->getType(),
-                (int) $this->getForeignId()
+                (int) $this->getForeignId(),
+                $filter
             );
         }
         

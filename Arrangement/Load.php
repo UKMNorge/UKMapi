@@ -19,7 +19,11 @@ class Load {
      * @return Arrangementer
      */
     public static function bySesong( Int $sesong, $filter=false ) {
-        return new Arrangementer( $sesong, 'alle', 0);
+        if( !$filter ) {
+            $filter = new Filter();
+        }
+        $filter->sesong($sesong);
+        return new Arrangementer('alle', 0);
     }
 
     /**
@@ -87,7 +91,8 @@ class Load {
         if( $filter == null ) {
             $filter = new Filter();
         }
-        return new Arrangementer( $sesong, $omrade_type, $omrade_id, $filter );
+        $filter->sesong($sesong);
+        return new Arrangementer($omrade_type, $omrade_id, $filter );
     }
 
     /**

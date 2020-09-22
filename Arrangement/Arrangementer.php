@@ -11,13 +11,11 @@ class Arrangementer
 {
     private $omrade_type = null;
     private $omrade_id = null;
-    private $season = null;
     private $arrangementer = [];
     private $filter = null;
 
-    public function __construct(Int $season, String $omrade_type, Int $omrade_id, $filter = false)
+    public function __construct(String $omrade_type, Int $omrade_id, $filter = false)
     {
-        $this->season = $season;
         $this->omrade_type = $omrade_type;
         $this->omrade_id = $omrade_id;
         if ($filter) {
@@ -80,16 +78,15 @@ class Arrangementer
                     150002
                 );
                 break;
-            /*
+                /*
              * Lokalmønstringer som er eid av en kommune i fylket, 
              * eller som deltar i en fellesmønstring i fylket
              */
             case 'fylke':
                 $sql = new Query(
                     Arrangement::getLoadQry()
-                        . "WHERE
-                        `season` = '#season'
-                        AND `pl_deleted` = 'false'
+                        . "WHERE `pl_deleted` = 'false'
+                        ". $this->getSesongSQL() ."
                         AND (
                             (#fylke) IN (
                                 SELECT `smartukm_kommune`.`idfylke`
@@ -119,7 +116,7 @@ class Arrangementer
                     Arrangement::getLoadQry()
                         . "WHERE `pl_type` = 'kommune' 
                         AND `pl_owner_kommune` = '#omrade_id'
-                        AND `season` = '#season'
+                        ". $this->getSesongSQL() ."
                         AND `pl_deleted` = 'false'
                         ",
                     [
@@ -133,7 +130,7 @@ class Arrangementer
                     Arrangement::getLoadQry()
                         . "WHERE `pl_type` = 'fylke'
                         AND `pl_owner_fylke` = '#omrade_id'
-                        AND `season` = '#season'
+                        ". $this->getSesongSQL() ."
                         AND `pl_deleted` = 'false'
                         ",
                     [
@@ -160,7 +157,7 @@ class Arrangementer
                     Arrangement::getLoadQry()
                         . "WHERE `pl_type` = 'kommune' 
                         AND `pl_owner_kommune` = '#omrade_id'
-                        AND `season` = '#season'
+                        ". $this->getSesongSQL() ."
                         AND `pl_deleted` = 'false'",
                     [
                         'omrade_id' => $postnummer->run('field'),
@@ -171,8 +168,8 @@ class Arrangementer
             case 'alle':
                 $sql = new Query(
                     Arrangement::getLoadQry() . "
-                    WHERE `season` = '#season'
-                    AND `pl_deleted` = 'false'",
+                    WHERE `pl_deleted` = 'false'
+                    ". $this->getSesongSQL() ."",
                     [
                         'season' => $this->getSesong()
                     ]
@@ -220,7 +217,7 @@ class Arrangementer
                 LEFT JOIN `smartukm_rel_pl_k` AS `pl_k`
                     ON(`pl_k`.`pl_id` = `place`.`pl_id`)
                 WHERE `pl_type` = 'kommune' 
-                AND `place`.`season` = '#season'
+                ". $this->getSesongSQL() ."
                 AND `pl_deleted` = 'false'
                 AND
                     (
@@ -323,6 +320,24 @@ class Arrangementer
      */
     public function getSesong()
     {
-        return $this->season;
+        return $this->filter->getSesong();
+    }
+
+    /**
+     * Hent SQL for å filtrere på sesong fra databasen
+     * 
+     * For å spare ressurser, vil et filter med satt sesong 
+     * legge til dette i SQL-spørringen, slik at vi ikke oppretter
+     * mange unødvendige Arrangement-objekter som deretter lukes ut i 
+     * filtreringen gjort av getAll().
+     *
+     * @return String
+     */
+    private function getSesongSQL()
+    {
+        if (in_array('sesong', array_keys($this->filter->getFilters()))) {
+            return " AND `place`.`season` = '#season' ";
+        }
+        return '';
     }
 }
