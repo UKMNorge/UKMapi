@@ -185,7 +185,7 @@ class Omrade
         // Oppdater hvis nytt filter
         if( $this->arrangementer_filter === false || $filter != $this->arrangementer_filter ) {
             $this->arrangementer_filter = $filter;
-            $this->arrangementer = Load::byOmrade($this, $filter);
+            $this->arrangementer = Load::byOmradeInfo('eier-'.$this->getType(), (int) $this->getForeignId(), $filter);
         }
         
         return $this->arrangementer;
@@ -199,7 +199,7 @@ class Omrade
      */
     public function getKommendeArrangementer(Filter $filter=null) {
         if( !isset($this->arrangementer_kommende) ) {
-            $this->arrangementer_kommende = Kommende::byOmrade($this, $filter);
+            $this->arrangementer_kommende = Kommende::byOmradeInfo('eier-'.$this->getType(), (int) $this->getForeignId(), $filter);
         }
         return $this->arrangementer_kommende;
     }
@@ -212,7 +212,7 @@ class Omrade
      */
     public function getTidligereArrangementer(Filter $filter=null) {
         if( !isset($this->arrangementer_tidligere) ) {
-            $this->arrangementer_tidligere = Tidligere::byOmrade($this, $filter);
+            $this->arrangementer_tidligere = Tidligere::byOmradeInfo('eier-'.$this->getType(), (int) $this->getForeignId(), $filter);
         }
         return $this->arrangementer_tidligere;
     }
