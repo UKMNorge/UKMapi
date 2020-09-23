@@ -8,6 +8,9 @@ use Exception;
 use UKMNorge\Arrangement\Arrangementer;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Arrangement\Filter;
+use UKMNorge\Arrangement\Kommende;
+use UKMNorge\Arrangement\Load;
+use UKMNorge\Arrangement\Tidligere;
 use UKMNorge\Geografi\Fylker;
 use UKMNorge\Geografi\Kommune;
 use UKMNorge\Nettverk\Administratorer;
@@ -16,8 +19,6 @@ use UKMNorge\Nettverk\Proxy\KontaktpersonSamling as KontaktpersonSamlingProxy;
 
 class Omrade
 {
-    private $kontaktpersoner = null;
-
     /**
      * Hent nasjonalt område
      * (WHY?)
@@ -75,9 +76,14 @@ class Omrade
     private $id = 0;
     private $navn = null;
     private $administratorer = null;
-    private $arrangementer = [];
+    private $kontaktpersoner = null;
+    private $arrangementer = null;
+    private $arrangementer_filter = false;
+    private $arrangementer_kommende = null;
+    private $arrangementer_tidligere = null;
     private $fylke = null;
     private $kommune = null;
+
 
     public function __construct(String $type, Int $id)
     {
@@ -172,21 +178,43 @@ class Omrade
     /**
      * Hent arrangementer for området
      *
-     * @param Int $season
-     * @return Array<Arrangementer>
+     * @param Filter $filter
+     * @return Arrangementer
      */
-    public function getArrangementer( Int $season ) {
-        if ( !isset( $this->arrangementer[ $season ] ) ) {
-            $filter = new Filter();
-            $filter->sesong($season);
-            $this->arrangementer[ $season ] = new Arrangementer(
-                'eier-'.$this->getType(),
-                (int) $this->getForeignId(),
-                $filter
-            );
+    public function getArrangementer( Filter $filter=null ) {
+        // Oppdater hvis nytt filter
+        if( $this->arrangementer_filter === false || $filter != $this->arrangementer_filter ) {
+            $this->arrangementer_filter = $filter;
+            $this->arrangementer = Load::byOmrade($this, $filter);
         }
         
-        return $this->arrangementer[ $season ];
+        return $this->arrangementer;
+    }
+
+    /**
+     * Hent områdets kommende arrangement
+     *
+     * @param Filter $filter
+     * @return Arrangementer
+     */
+    public function getKommendeArrangementer(Filter $filter=null) {
+        if( !isset($this->arrangementer_kommende) ) {
+            $this->arrangementer_kommende = Kommende::byOmrade($this, $filter);
+        }
+        return $this->arrangementer_kommende;
+    }
+
+    /**
+     * Hent områdets tidligere arrangement
+     *
+     * @param Filter $filter
+     * @return Arrangementer
+     */
+    public function getTidligereArrangementer(Filter $filter=null) {
+        if( !isset($this->arrangementer_tidligere) ) {
+            $this->arrangementer_tidligere = Tidligere::byOmrade($this, $filter);
+        }
+        return $this->arrangementer_tidligere;
     }
 
 

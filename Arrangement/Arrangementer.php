@@ -207,7 +207,7 @@ class Arrangementer
     /**
      * Lag sql-spørring for kommune-arrangement
      *
-     * @return String SQL
+     * @return Query
      */
     private function _getKommuneQuery()
     {
