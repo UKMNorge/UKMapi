@@ -579,6 +579,24 @@ class Arrangement
     }
 
     /**
+     * Hent antall innslag
+     * 
+     * @return Int
+     */
+    public function getAntallInnslag() {
+        return $this->getInnslag()->getAntallSimple();
+    }
+
+    /**
+     * Hent antall personer
+     * 
+     * @return Int
+     */
+    public function getAntallPersoner() {
+        return $this->getInnslag()->getAntallPersonerSimple();
+    }
+
+    /**
      * harKommune
      * Sjekker om en mønstring har en gitt kommune uten å laste inn objekter
      *
