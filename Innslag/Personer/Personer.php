@@ -19,6 +19,7 @@ class Personer extends Collection
     var $personer_videresendt = null;
     var $personer_ikke_videresendt = null;
     var $debug = false;
+    var $simple_count = null;
 
     /**
      * Opprett en ny collection
@@ -276,6 +277,39 @@ class Personer extends Collection
         parent::fjern($person);
 
         return true;
+    }
+
+
+    /**
+     * Spør databasen hvor mange personer det er i innslaget
+     *
+     * @return Int
+     */
+    public function getAntallSimple() {
+        if( is_null( $this->simple_count ) ) {
+            if( $this->getContext()->getSesong() < 2020 ) {
+                throw new Exception(
+                    'Kan ikke beregne antall personer i innslaget for innslag påmeldt før 2020',
+                    106004
+                );
+            }
+
+            $query = new Query(
+                "SELECT COUNT(`person_id`)
+                FROM `ukm_rel_arrangement_person`
+                JOIN `smartukm_band` AS `innslag`
+                    ON `innslag`.`b_id` = `ukm_rel_arrangement_person`.`innslag_id`
+                WHERE `innslag_id` = '#innslag' 
+                AND `arrangement_id` = '#arrangement'
+                AND `b_status` = 8",
+                [
+                    'innslag' => $this->getContext()->getInnslag()->getId(),
+                    'arrangement' => $this->getContext()->getMonstring()->getId()
+                ]
+            );
+            $this->simple_count = (int) $query->getField();
+        }
+        return $this->simple_count;
     }
 
     /**
