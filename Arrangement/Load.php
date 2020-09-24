@@ -131,7 +131,7 @@ class Load
             case 'UKMNorge\Arrangement\Kommende':
                 $filter->erKommende();
                 break;
-            case 'UKMNorge\Arrangement\Kommende':
+            case 'UKMNorge\Arrangement\Tidligere':
                 $filter->erTidligere();
                 break;
         }
