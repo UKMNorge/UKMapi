@@ -9,6 +9,7 @@ use UKMNorge\Arrangement\Arrangementer;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Arrangement\Filter;
 use UKMNorge\Arrangement\Kommende;
+use UKMNorge\Arrangement\Kontaktperson\Kontaktperson;
 use UKMNorge\Arrangement\Load;
 use UKMNorge\Arrangement\Tidligere;
 use UKMNorge\Geografi\Fylker;
@@ -81,6 +82,7 @@ class Omrade
     private $arrangementer_filter = false;
     private $arrangementer_kommende = null;
     private $arrangementer_tidligere = null;
+    private $arrangementer_aktuelle = null;
     private $fylke = null;
     private $kommune = null;
 
@@ -153,11 +155,12 @@ class Omrade
      *
      * @return String full url
      */
-    public function getLink() {
-        if( $this->getType() == 'fylke' ) {
+    public function getLink()
+    {
+        if ($this->getType() == 'fylke') {
             return $this->getFylke()->getLink(false);
         }
-        if( $this->getType() == 'kommune') {
+        if ($this->getType() == 'kommune') {
             return $this->getKommune()->getLink();
         }
     }
@@ -181,13 +184,14 @@ class Omrade
      * @param Filter $filter
      * @return Arrangementer
      */
-    public function getArrangementer( Filter $filter=null ) {
+    public function getArrangementer(Filter $filter = null)
+    {
         // Oppdater hvis nytt filter
-        if( $this->arrangementer_filter === false || $filter != $this->arrangementer_filter ) {
+        if ($this->arrangementer_filter === false || $filter != $this->arrangementer_filter) {
             $this->arrangementer_filter = $filter;
-            $this->arrangementer = Load::byOmradeInfo('eier-'.$this->getType(), (int) $this->getForeignId(), $filter);
+            $this->arrangementer = Load::byOmradeInfo('eier-' . $this->getType(), (int) $this->getForeignId(), $filter);
         }
-        
+
         return $this->arrangementer;
     }
 
@@ -197,11 +201,38 @@ class Omrade
      * @param Filter $filter
      * @return Arrangementer
      */
-    public function getKommendeArrangementer(Filter $filter=null) {
-        if( !isset($this->arrangementer_kommende) ) {
-            $this->arrangementer_kommende = Kommende::byOmradeInfo('eier-'.$this->getType(), (int) $this->getForeignId(), $filter);
+    public function getKommendeArrangementer(Filter $filter = null)
+    {
+        if (!isset($this->arrangementer_kommende)) {
+            $this->arrangementer_kommende = Kommende::byOmradeInfo('eier-' . $this->getType(), (int) $this->getForeignId(), $filter);
         }
         return $this->arrangementer_kommende;
+    }
+
+    /**
+     * Hent områdets aktuelle arrangement (frem i tid, eller fra årets sesong)
+     *
+     * @param Filter $filter
+     * @return Arrangementer
+     */
+    public function getAktuelleArrangementer(Filter $filter = null)
+    {
+        if (!isset($this->arrangementer_aktuelle)) {
+            if (is_null($filter)) {
+                $filter = new Filter();
+            }
+
+            if (date('n') < 8) {
+                $season_one = (int) date('Y');
+                $season_two = (int) date('Y') - 1;
+            } else {
+                $season_one = (int) date('Y');
+                $season_two = (int) date('Y') + 1;
+            }
+            $filter->sesong([$season_one, $season_two]);
+            $this->arrangementer_aktuelle = Load::byOmradeInfo('eier-' . $this->getType(), (int) $this->getForeignId(), $filter);
+        }
+        return $this->arrangementer_aktuelle;
     }
 
     /**
@@ -210,9 +241,10 @@ class Omrade
      * @param Filter $filter
      * @return Arrangementer
      */
-    public function getTidligereArrangementer(Filter $filter=null) {
-        if( !isset($this->arrangementer_tidligere) ) {
-            $this->arrangementer_tidligere = Tidligere::byOmradeInfo('eier-'.$this->getType(), (int) $this->getForeignId(), $filter);
+    public function getTidligereArrangementer(Filter $filter = null)
+    {
+        if (!isset($this->arrangementer_tidligere)) {
+            $this->arrangementer_tidligere = Tidligere::byOmradeInfo('eier-' . $this->getType(), (int) $this->getForeignId(), $filter);
         }
         return $this->arrangementer_tidligere;
     }
@@ -224,8 +256,9 @@ class Omrade
      * @throws Exception
      * @return Fylke
      */
-    public function getFylke() {
-        if( null == $this->fylke ) {
+    public function getFylke()
+    {
+        if (null == $this->fylke) {
             throw new Exception(
                 'Dette området tilhører ikke et fylke'
             );
@@ -239,8 +272,9 @@ class Omrade
      * @throws Exception
      * @return Kommune
      */
-    public function getKommune() {
-        if( null == $this->kommune ) {
+    public function getKommune()
+    {
+        if (null == $this->kommune) {
             throw new Exception(
                 'Dette området tilhører ikke en kommune'
             );
@@ -253,7 +287,7 @@ class Omrade
      * (WHY?)
      * 
      * @return Int $sesong
-     */ 
+     */
     public function getSeason()
     {
         return $this->season;
@@ -264,7 +298,7 @@ class Omrade
      * 
      * @param Int $season
      * @return self
-     */ 
+     */
     public function setSeason($season)
     {
         $this->season = $season;
@@ -277,15 +311,16 @@ class Omrade
      *
      * @return KontakpersonSamling
      */
-    public function getKontaktpersoner() {
-        if( $this->kontaktpersoner == null ) {
+    public function getKontaktpersoner()
+    {
+        if ($this->kontaktpersoner == null) {
             $this->_loadKontaktpersoner();
         }
         return $this->kontaktpersoner;
-    
     }
 
-    private function _loadKontaktpersoner() {
+    private function _loadKontaktpersoner()
+    {
         $this->kontaktpersoner = new KontaktpersonSamlingProxy();
 
         // Hent områdets (arrangementets hovedeier) administratorer
@@ -293,14 +328,14 @@ class Omrade
             foreach( $this->getAdministratorer()->getAll() as $admin ) {
                 $this->kontaktpersoner->add( new KontaktpersonProxy( $admin ) );
             }
-            return ;
+            return;
         }
 
         // Hvis det er en kommune uten admins, hent fylkets kontaktpersoner
-        if( $this->getType() == 'kommune' ) {
-            $omrade = Omrade::getByFylke( $this->getFylke()->getId() );
-            foreach( $omrade->getAdministratorer()->getAll() as $admin ) {
-                $this->kontaktpersoner->add( new KontaktpersonProxy( $admin ) );
+        if ($this->getType() == 'kommune') {
+            $omrade = Omrade::getByFylke($this->getFylke()->getId());
+            foreach ($omrade->getAdministratorer()->getAll() as $admin) {
+                $this->kontaktpersoner->add(new KontaktpersonProxy($admin));
             }
         }
     }

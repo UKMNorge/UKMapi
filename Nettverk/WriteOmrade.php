@@ -49,7 +49,7 @@ class WriteOmrade {
      */
     public static function leggTilAdminIAlleArrangementer( Omrade $omrade, Administrator $admin, Int $sesong ) {
         $error_names = [];
-        foreach( $omrade->getArrangementer($sesong)->getAll() as $arrangement ) {
+        foreach( $omrade->getArrangementer()->getAll() as $arrangement ) {
             try {
                 Blog::leggTilBruker(
                     Blog::getIdByPath( $arrangement->getPath() ),
@@ -81,7 +81,7 @@ class WriteOmrade {
      */
     public static function fjernAdminFraAlleArrangementer( Omrade $omrade, Administrator $admin, Int $sesong ) {
         $error_names = [];
-        foreach( $omrade->getArrangementer($sesong)->getAll() as $arrangement ) {
+        foreach( $omrade->getArrangementer()->getAll() as $arrangement ) {
             try {
                 Blog::fjernBruker(
                     Blog::getIdByPath( $arrangement->getPath() ),

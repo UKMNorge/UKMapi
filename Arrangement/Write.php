@@ -541,7 +541,7 @@ class Write
 
             $count = 0;
             $arrangement_som_skal_overta = false;
-            foreach ($omrade->getArrangementer($arrangement->getSesong())->getAll() as $annet_arrangement) {
+            foreach ($omrade->getArrangementer()->getAll() as $annet_arrangement) {
                 if ($annet_arrangement->getId() != $arrangement->getId()) {
                     $count++;
                     if (!$annet_arrangement->erFellesmonstring()) {
