@@ -324,9 +324,20 @@ class Omrade
         $this->kontaktpersoner = new KontaktpersonSamlingProxy();
 
         // Hent områdets (arrangementets hovedeier) administratorer
-        if( $this->getAdministratorer()->getAntall() > 0 ) {
-            foreach( $this->getAdministratorer()->getAll() as $admin ) {
-                $this->kontaktpersoner->add( new KontaktpersonProxy( $admin ) );
+        if ($this->getAdministratorer()->getAntall() > 0) {
+            foreach ($this->getAdministratorer()->getAll() as $admin) {
+                if( !$admin->erKontaktperson($this) ) {
+                    continue;
+                }
+                try {
+                    $kontakt = Kontaktperson::getByAdminId($admin->getId());
+                } catch( Exception $e ) {
+                    if( $e->getCode() != 111001 ) {
+                        throw $e;
+                    }
+                    $kontakt = new KontaktpersonProxy($admin);
+                }
+                $this->kontaktpersoner->add($kontakt);
             }
             return;
         }

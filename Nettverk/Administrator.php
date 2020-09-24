@@ -13,6 +13,7 @@ class Administrator
     private $wp_user_id = 0;
     private $user = null;
     private $omrader = null;
+    private $kontakt_synlighet = [];
 
     /**
      * Nytt Administrator-objekt
@@ -46,6 +47,55 @@ class Administrator
             $this->_load();
         }
         return $this->user;
+    }
+
+    /**
+     * Er administratoren også en kontaktperson for området?
+     *
+     * @return Bool
+     */
+    public function erKontaktperson( Omrade $omrade ) {
+        if( !isset( $this->kontakt_synlighet[ $omrade->getId() ] ) ) {
+            $this->loadKontaktpersonSynlighet( $omrade );
+        }
+        return $this->kontakt_synlighet[ $omrade->getId() ];
+    }
+
+    /**
+     * Angi om administratoren er kontaktperson for gitt område
+     *
+     * @param Omrade $omrade
+     * @param Bool $synlig
+     * @return self
+     */
+    public function setKontaktpersonSynlighet( Omrade $omrade, Bool $synlig) {
+        $this->kontakt_synlighet[ $omrade->getId() ] = $synlig;
+        return $this;
+    }
+
+    /**
+     * Hent fra database hvorvidt administratoren er kontakt for gitt område
+     *
+     * @param Omrade $omrade
+     * @return self
+     */
+    private function loadKontaktpersonSynlighet( Omrade $omrade ) {
+        $query = new Query(
+            "SELECT `is_contact`
+            FROM `ukm_nettverk_admins`
+            WHERE `wp_user_id` = '#userid'
+                AND `geo_type` = '#geo_type'
+                AND `geo_id` = '#geo_id'
+            ",
+            [
+                'userid' => $this->getId(),
+                'geo_type' => $omrade->getType(),
+                'geo_id' => $omrade->getForeignId()
+            ]
+        );
+        echo $query->debug();
+        $this->kontakt_synlighet[ $omrade->getId() ] = $query->getField() == 'true';
+        return $this;
     }
 
     /**
