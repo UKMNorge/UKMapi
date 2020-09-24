@@ -1,10 +1,13 @@
 <?php
 
 namespace UKMNorge\Nettverk;
-use UKMNorge\Wordpress\User;
-use SQL;
+
+use Exception;
+use UKMNorge\Arrangement\Kontaktperson\Kontaktperson;
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Nettverk\Proxy\Kontaktperson as KontaktpersonProxy;
 use UKMNorge\Wordpress\Blog;
+use UKMNorge\Wordpress\User;
 
 require_once('UKM/Autoloader.php');
 
@@ -62,6 +65,23 @@ class Administrator
     }
 
     /**
+     * Hent kontaktperson-objektet (eller proxy)
+     *
+     * @throws Exception
+     * @return Kontaktperson|KontaktpersonProxy
+     */
+    public function getKontaktperson() {
+        try {
+            return Kontaktperson::getByAdminId($this->getId());
+        } catch (Exception $e) {
+            if ($e->getCode() != 111001) {
+                throw $e;
+            }
+            return new KontaktpersonProxy($this);
+        }
+    }
+
+    /**
      * Angi om administratoren er kontaktperson for gitt område
      *
      * @param Omrade $omrade
@@ -93,7 +113,6 @@ class Administrator
                 'geo_id' => $omrade->getForeignId()
             ]
         );
-        echo $query->debug();
         $this->kontakt_synlighet[ $omrade->getId() ] = $query->getField() == 'true';
         return $this;
     }

@@ -309,30 +309,37 @@ class Omrade
     /**
      * Hent kontaktpersoner for området, eller foreldre-området
      *
+     * @param Bool inkluder skjulte
      * @return KontakpersonSamling
      */
-    public function getKontaktpersoner()
+    public function getKontaktpersoner(Bool $inkluder_skjulte = false)
     {
         if ($this->kontaktpersoner == null) {
-            $this->_loadKontaktpersoner();
+            $this->_loadKontaktpersoner($inkluder_skjulte);
         }
         return $this->kontaktpersoner;
     }
 
-    private function _loadKontaktpersoner()
+    /**
+     * Last inn kontaktpersoner
+     *
+     * @param Bool $inkluder_skjulte
+     * @return void
+     */
+    private function _loadKontaktpersoner(Bool $inkluder_skjulte = false)
     {
         $this->kontaktpersoner = new KontaktpersonSamlingProxy();
 
         // Hent områdets (arrangementets hovedeier) administratorer
         if ($this->getAdministratorer()->getAntall() > 0) {
             foreach ($this->getAdministratorer()->getAll() as $admin) {
-                if( !$admin->erKontaktperson($this) ) {
+                if (!$inkluder_skjulte && !$admin->erKontaktperson($this)) {
                     continue;
                 }
                 try {
                     $kontakt = Kontaktperson::getByAdminId($admin->getId());
-                } catch( Exception $e ) {
-                    if( $e->getCode() != 111001 ) {
+                } catch (Exception $e) {
+                    if ($e->getCode() != 111001) {
                         throw $e;
                     }
                     $kontakt = new KontaktpersonProxy($admin);

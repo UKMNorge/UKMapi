@@ -33,7 +33,12 @@ class Write {
         $sql->add('firstname', $fornavn);
         $sql->add('lastname', $etternavn);
         $sql->add('tlf', $telefon);
-        $kontakt_id = $sql->run(); 
+        
+        try {
+            $kontakt_id = $sql->run(); 
+        } catch( Exception $e ) {
+            throw new Exception('CRAP: '. $e->getMessage() .' ('. $e->getCode() .')');
+        }
         
         // Database-oppdatering feilet
         if( !$kontakt_id ) {
@@ -66,7 +71,8 @@ class Write {
 			'Tittel'	    => ['title', 1108],
 			'Epost'		    => ['email', 1106],
             'Facebook'		=> ['facebook', 1107],
-            'Bilde'         => ['picture', 1109]
+            'Bilde'         => ['picture', 1109],
+            'AdminId'       => ['admin_id', 1110]
 		];
 		
 		// LOOP ALLE VERDIER, OG EVT LEGG TIL I SQL
