@@ -6,29 +6,61 @@ class Filter
 {
     var $filters = [];
 
-    public function sesong(Int $sesong)
+    /**
+     * Arrangement må være fra gitt(e) sesong(er)
+     *
+     * @param Int|Array<Int> $sesong
+     * @return self
+     */
+    public function sesong($sesong)
     {
         $this->filters['sesong'] = $sesong;
+        return $this;
     }
 
+    /**
+     * Arrangement må ha påmelding
+     *
+     * @return self
+     */
     public function harPamelding()
     {
         $this->filters['pamelding'] = true;
+        return $this;
     }
 
+    /**
+     * Arrangementet er ikke gjennomført enda
+     *
+     * @return self
+     */
     public function erKommende()
     {
         $this->filters['kommende'] = true;
+        return $this;
     }
 
+    /**
+     * Arrangementet er gjennomført 
+     *
+     * @return self
+     */
     public function erTidligere()
     {
         $this->filters['tidligere'] = true;
+        return $this;
     }
 
+    /**
+     * Arrangementet er eid av gitt eier
+     *
+     * @param Eier $eier
+     * @return self
+     */
     public function byEier(Eier $eier)
     {
         $this->filters['eier'] = $eier;
+        return $this;
     }
 
     /**
@@ -93,7 +125,8 @@ class Filter
      *
      * @return Array
      */
-    public function getFilters() {
+    public function getFilters()
+    {
         return $this->filters;
     }
 
@@ -101,10 +134,11 @@ class Filter
     /**
      * Hent verdien for sesong-filteret hvis dette er satt
      *
-     * @return Int|Bool
+     * @return Int|Array|Bool
      */
-    public function getSesong() {
-        if( isset($this->filters['sesong']) ) {
+    public function getSesong()
+    {
+        if (isset($this->filters['sesong'])) {
             return $this->filters['sesong'];
         }
         return false;
@@ -150,11 +184,14 @@ class Filter
      * Finn arrangement for gitt sesong
      *
      * @param Arrangement $arrangement
-     * @param Int $sesong
+     * @param Int|Array<Int> $sesong
      * @return Bool
      */
-    private function _filterSesong(Arrangement $arrangement, Int $sesong)
+    private function _filterSesong(Arrangement $arrangement, $sesong)
     {
+        if( is_array($sesong)) {
+            return in_array($arrangement->getSesong(), $sesong);
+        }
         return $arrangement->getSesong() == $sesong;
     }
 }
