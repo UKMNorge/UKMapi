@@ -122,7 +122,7 @@ class WriteOmrade {
 
         if( !$res ) {
             throw new Exception(
-                'Klarte ikke å fjerne '. $admin->getName() .' fra '. $omrade->getNavn(),
+                'Klarte ikke å fjerne '. $admin->getNavn() .' fra '. $omrade->getNavn(),
                 562002
             );
         }
