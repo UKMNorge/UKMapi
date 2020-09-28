@@ -32,7 +32,7 @@ use UKMNorge\Innslag\Typer\Type;
 use UKMNorge\Innslag\Typer\Typer;
 use UKMNorge\Log\Samling as LogSamling;
 use UKMNorge\Samtykke\Innslag as InnslagSamtykke;
-
+use UKMNorge\Tid;
 
 class Innslag
 {
@@ -955,7 +955,7 @@ class Innslag
     /**
      * Hvor lang tid bruker innslaget?
      *
-     * @return void
+     * @return Tid
      */
     public function getTid()
     {
@@ -964,7 +964,7 @@ class Innslag
     /**
      * Hvor lang tid bruker innslaget?
      *
-     * @return void
+     * @return Tid
      */
     public function getVarighet()
     {
