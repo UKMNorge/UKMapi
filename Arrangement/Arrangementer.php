@@ -107,7 +107,6 @@ class Arrangementer
                         'idag' => static::getIDag()
                     ]
                 );
-                #echo $sql->debug();
                 break;
                 /**
                  * HENT KOMMUNE & FYLKE FRA GITT OMRÅDE
