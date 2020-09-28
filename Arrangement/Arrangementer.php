@@ -2,6 +2,7 @@
 
 namespace UKMNorge\Arrangement;
 
+use DateTime;
 use UKMNorge\Database\SQL\Query;
 use Exception;
 
@@ -13,6 +14,7 @@ class Arrangementer
     private $omrade_id = null;
     private $arrangementer = [];
     private $filter = null;
+    private static $now = null;
 
     public function __construct(String $omrade_type, Int $omrade_id, $filter = false)
     {
@@ -86,7 +88,8 @@ class Arrangementer
                 $sql = new Query(
                     Arrangement::getLoadQry()
                         . "WHERE `pl_deleted` = 'false'
-                        ". $this->getSesongSQL() ."
+                        " . $this->getSesongSQL() . "
+                        " . $this->getTidligereKommendeFilter() . "
                         AND (
                             (#fylke) IN (
                                 SELECT `smartukm_kommune`.`idfylke`
@@ -100,7 +103,8 @@ class Arrangementer
                         )",
                     [
                         'fylke' => $this->getOmradeId(),
-                        'season' => $this->getSesong()
+                        'season' => $this->getSesong(),
+                        'idag' => static::getIDag()
                     ]
                 );
                 #echo $sql->debug();
@@ -116,12 +120,14 @@ class Arrangementer
                     Arrangement::getLoadQry()
                         . "WHERE `pl_type` = 'kommune' 
                         AND `pl_owner_kommune` = '#omrade_id'
-                        ". $this->getSesongSQL() ."
+                        " . $this->getSesongSQL() . "
+                        " . $this->getTidligereKommendeFilter() . "
                         AND `pl_deleted` = 'false'
                         ",
                     [
                         'omrade_id' => $this->getOmradeId(),
-                        'season' => $this->getSesong()
+                        'season' => $this->getSesong(),
+                        'idag' => static::getIDag()
                     ]
                 );
                 break;
@@ -130,12 +136,14 @@ class Arrangementer
                     Arrangement::getLoadQry()
                         . "WHERE `pl_type` = 'fylke'
                         AND `pl_owner_fylke` = '#omrade_id'
-                        ". $this->getSesongSQL() ."
+                        " . $this->getSesongSQL() . "
+                        " . $this->getTidligereKommendeFilter() . "
                         AND `pl_deleted` = 'false'
                         ",
                     [
                         'omrade_id' => $this->getOmradeId(),
-                        'season' => $this->getSesong()
+                        'season' => $this->getSesong(),
+                        'idag' => static::getIDag()
                     ]
                 );
                 break;
@@ -157,21 +165,25 @@ class Arrangementer
                     Arrangement::getLoadQry()
                         . "WHERE `pl_type` = 'kommune' 
                         AND `pl_owner_kommune` = '#omrade_id'
-                        ". $this->getSesongSQL() ."
+                        " . $this->getSesongSQL() . "
+                        " . $this->getTidligereKommendeFilter() . "
                         AND `pl_deleted` = 'false'",
                     [
                         'omrade_id' => $postnummer->run('field'),
-                        'season' => $this->getSesong()
+                        'season' => $this->getSesong(),
+                        'idag' => static::getIDag()
                     ]
                 );
                 break;
             case 'alle':
                 $sql = new Query(
                     Arrangement::getLoadQry() . "
-                    WHERE `pl_deleted` = 'false'
-                    ". $this->getSesongSQL() ."",
+                        WHERE `pl_deleted` = 'false'
+                        " . $this->getSesongSQL() . "
+                        " . $this->getTidligereKommendeFilter() . "",
                     [
-                        'season' => $this->getSesong()
+                        'season' => $this->getSesong(),
+                        'idag' => static::getIDag()
                     ]
                 );
                 break;
@@ -214,21 +226,23 @@ class Arrangementer
         return new Query(
             Arrangement::getLoadQry()
                 . "
-                LEFT JOIN `smartukm_rel_pl_k` AS `pl_k`
+                    LEFT JOIN `smartukm_rel_pl_k` AS `pl_k`
                     ON(`pl_k`.`pl_id` = `place`.`pl_id`)
-                WHERE `pl_type` = 'kommune' 
-                ". $this->getSesongSQL() ."
-                AND `pl_deleted` = 'false'
-                AND
+                    WHERE `pl_type` = 'kommune' 
+                    " . $this->getSesongSQL() . "
+                    " . $this->getTidligereKommendeFilter() . "
+                    AND `pl_deleted` = 'false'
+                    AND
                     (
                         `place`.`pl_owner_kommune` = '#omrade_id'
                         OR
                         `pl_k`.`k_id` = '#omrade_id'
-                    )
-                ",
+                        )
+                        ",
             [
                 'omrade_id' => (int) $this->getOmradeId(),
-                'season' => $this->getSesong()
+                'season' => $this->getSesong(),
+                'idag' => static::getIDag()
             ]
         );
     }
@@ -337,12 +351,43 @@ class Arrangementer
     {
         if (in_array('sesong', array_keys($this->filter->getFilters()))) {
             // Hvis flere sesonger
-            if( is_array($this->filter->getFilters()['sesong'])) {
-                return " AND `place`.`season` IN (". implode(",", $this->filter->getSesong()) . ") ";
+            if (is_array($this->filter->getFilters()['sesong'])) {
+                return " AND `place`.`season` IN (" . implode(",", $this->filter->getSesong()) . ") ";
             }
             // Hvis en sesong
             return " AND `place`.`season` = '#season' ";
         }
         return '';
+    }
+
+    /**
+     * Hent SQL for å filtrere på tidligere / kommende
+     * 
+     * Dette filteret legges automatisk på når man benytter
+     * UKMNorge\Arrangement\Tidligere eller 
+     * UKMNorge\Arrangement\Kommende
+     *
+     * @return String
+     */
+    private function getTidligereKommendeFilter() {
+        if( in_array('kommende', $this->filter->getFilters()) ) {
+            return " AND `pl_start` > '#idag' ";
+        }
+        if( in_array('tidligere', $this->filter->getFilters()) ) {
+            return " AND `pl_start` < '#idag' ";
+        }
+        return '';
+    }
+
+    /**
+     * Hent timestamp for dagen i dag
+     *
+     * @return void
+     */
+    private static function getIDag() {
+        if( is_null( static::$now ) ) {
+            static::$now = new DateTime('now');
+        }
+        return static::$now->format('Y-m-d H:i:s');
     }
 }
