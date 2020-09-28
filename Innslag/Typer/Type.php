@@ -42,7 +42,7 @@ class Type
                 break;
         }
 
-        if( strpos( $id, 'annet') ) {
+        if( strpos( $id, 'annet') !== false ) {
             $id = 'scene';
         }
 
