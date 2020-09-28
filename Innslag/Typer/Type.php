@@ -42,6 +42,10 @@ class Type
                 break;
         }
 
+        if( strpos( $id, 'annet') ) {
+            $id = 'scene';
+        }
+
         try {
             $filename = stream_resolve_include_path('UKM/Innslag/Typer/config/' . basename($id) . '.yml');
             if( empty( $filename ) ) {
