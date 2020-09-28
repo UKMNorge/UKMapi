@@ -21,7 +21,7 @@ class WriteOmrade {
      * @param Administrator $user
      * @return Bool
      */
-    public function leggTilAdmin( Omrade $omrade, Administrator $admin ) {
+    public static function leggTilAdmin( Omrade $omrade, Administrator $admin ) {
         $sql = new Insert('ukm_nettverk_admins');
         $sql->add('wp_user_id', $admin->getId());
         $sql->add('geo_type', $omrade->getType());
