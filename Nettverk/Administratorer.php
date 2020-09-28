@@ -7,7 +7,8 @@ use UKMNorge\Database\SQL\Query;
 
 require_once('UKM/Autoloader.php');
 
-class Administratorer {
+class Administratorer
+{
 
     private $type = null;
     private $id = 0;
@@ -20,7 +21,8 @@ class Administratorer {
      * @param Int $geo_id
      * @return self
      */
-    public function __construct( String $geo_type, Int $geo_id ) {
+    public function __construct(String $geo_type, Int $geo_id)
+    {
         $this->type = $geo_type;
         $this->id = $geo_id;
     }
@@ -32,8 +34,9 @@ class Administratorer {
      *
      * @return String $sql
      */
-    public static function getLoadQuery() {
-        return "SELECT `wp_user_id` FROM `ukm_nettverk_admins`";
+    public static function getLoadQuery()
+    {
+        return "SELECT `wp_user_id`, `is_contact` FROM `ukm_nettverk_admins`";
     }
 
     /**
@@ -41,8 +44,10 @@ class Administratorer {
      *
      * @return void
      */
-    private function _load() {
-        $sql = new Query( static::getLoadQuery() . "
+    private function _load()
+    {
+        $sql = new Query(
+            static::getLoadQuery() . "
             WHERE `geo_type` = '#geo_type'
             AND `geo_id` = '#geo_id'",
             [
@@ -51,9 +56,13 @@ class Administratorer {
             ]
         );
         $res = $sql->run();
-        while( $r = Query::fetch( $res ) ) {
-            $user = new Administrator( (Int) $r['wp_user_id'] );
-            $this->admins[ $user->getId() ] = $user;
+        while ($r = Query::fetch($res)) {
+            $user = new Administrator((int) $r['wp_user_id']);
+            $user->setKontaktpersonSynlighet(
+                Omrade::getByType($this->getType(), $this->getId()),
+                $r['is_contact'] == 'true'
+            );
+            $this->admins[$user->getId()] = $user;
         }
     }
 
@@ -64,14 +73,15 @@ class Administratorer {
      * @return Administrator
      * @throws Exception ikke funnet
      */
-    public function get( Int $id ) {
-        foreach( $this->getAll() as $admin ) {
-            if( $admin->getId() == $id ) {
+    public function get(Int $id)
+    {
+        foreach ($this->getAll() as $admin) {
+            if ($admin->getId() == $id) {
                 return $admin;
             }
         }
         throw new Exception(
-            'Admin '. $id .' er ikke admin for '. $this->getNavn(),
+            'Admin ' . $id . ' er ikke admin for ' . $this->getNavn(),
             161001
         );
     }
@@ -82,9 +92,10 @@ class Administratorer {
      * @param Int $id
      * @return true
      */
-    public function fjern( Int $id ) {
-        if( isset( $this->admins[ $id ] ) ) {
-            unset( $this->admins[ $id ] );
+    public function fjern(Int $id)
+    {
+        if (isset($this->admins[$id])) {
+            unset($this->admins[$id]);
         }
         return true;
     }
@@ -94,8 +105,9 @@ class Administratorer {
      *
      * @return Array<Administrator>
      */
-    public function getAll() {
-        if( empty( $this->admins ) ) {
+    public function getAll()
+    {
+        if (empty($this->admins)) {
             $this->_load();
         }
         return $this->admins;
@@ -106,13 +118,14 @@ class Administratorer {
      *
      * @return Int $antall
      */
-    public function getAntall() {
-        return sizeof( $this->getAll() );
+    public function getAntall()
+    {
+        return sizeof($this->getAll());
     }
 
     /**
      * Hent områdets ID
-     */ 
+     */
     public function getId()
     {
         return $this->id;
@@ -120,7 +133,7 @@ class Administratorer {
 
     /**
      * Hent type område
-     */ 
+     */
     public function getType()
     {
         return $this->type;
@@ -131,7 +144,8 @@ class Administratorer {
      *
      * @return String
      */
-    public function getNavn() {
-        return $this->getType() .' '. $this->getId();
+    public function getNavn()
+    {
+        return $this->getType() . ' ' . $this->getId();
     }
 }

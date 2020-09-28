@@ -1,10 +1,13 @@
 <?php
 
 namespace UKMNorge\Nettverk;
-use UKMNorge\Wordpress\User;
-use SQL;
+
+use Exception;
+use UKMNorge\Arrangement\Kontaktperson\Kontaktperson;
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Nettverk\Proxy\Kontaktperson as KontaktpersonProxy;
 use UKMNorge\Wordpress\Blog;
+use UKMNorge\Wordpress\User;
 
 require_once('UKM/Autoloader.php');
 
@@ -13,6 +16,7 @@ class Administrator
     private $wp_user_id = 0;
     private $user = null;
     private $omrader = null;
+    private $kontakt_synlighet = [];
 
     /**
      * Nytt Administrator-objekt
@@ -46,6 +50,71 @@ class Administrator
             $this->_load();
         }
         return $this->user;
+    }
+
+    /**
+     * Er administratoren også en kontaktperson for området?
+     *
+     * @return Bool
+     */
+    public function erKontaktperson( Omrade $omrade ) {
+        if( !isset( $this->kontakt_synlighet[ $omrade->getId() ] ) ) {
+            $this->loadKontaktpersonSynlighet( $omrade );
+        }
+        return $this->kontakt_synlighet[ $omrade->getId() ];
+    }
+
+    /**
+     * Hent kontaktperson-objektet (eller proxy)
+     *
+     * @throws Exception
+     * @return Kontaktperson|KontaktpersonProxy
+     */
+    public function getKontaktperson() {
+        try {
+            return Kontaktperson::getByAdminId($this->getId());
+        } catch (Exception $e) {
+            if ($e->getCode() != 111001) {
+                throw $e;
+            }
+            return new KontaktpersonProxy($this);
+        }
+    }
+
+    /**
+     * Angi om administratoren er kontaktperson for gitt område
+     *
+     * @param Omrade $omrade
+     * @param Bool $synlig
+     * @return self
+     */
+    public function setKontaktpersonSynlighet( Omrade $omrade, Bool $synlig) {
+        $this->kontakt_synlighet[ $omrade->getId() ] = $synlig;
+        return $this;
+    }
+
+    /**
+     * Hent fra database hvorvidt administratoren er kontakt for gitt område
+     *
+     * @param Omrade $omrade
+     * @return self
+     */
+    private function loadKontaktpersonSynlighet( Omrade $omrade ) {
+        $query = new Query(
+            "SELECT `is_contact`
+            FROM `ukm_nettverk_admins`
+            WHERE `wp_user_id` = '#userid'
+                AND `geo_type` = '#geo_type'
+                AND `geo_id` = '#geo_id'
+            ",
+            [
+                'userid' => $this->getId(),
+                'geo_type' => $omrade->getType(),
+                'geo_id' => $omrade->getForeignId()
+            ]
+        );
+        $this->kontakt_synlighet[ $omrade->getId() ] = $query->getField() == 'true';
+        return $this;
     }
 
     /**

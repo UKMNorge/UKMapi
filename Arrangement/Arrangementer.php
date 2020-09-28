@@ -207,7 +207,7 @@ class Arrangementer
     /**
      * Lag sql-spørring for kommune-arrangement
      *
-     * @return String SQL
+     * @return Query
      */
     private function _getKommuneQuery()
     {
@@ -320,7 +320,7 @@ class Arrangementer
      */
     public function getSesong()
     {
-        return $this->filter->getSesong();
+        return !is_array($this->filter->getSesong()) ? $this->filter->getSesong() : '';
     }
 
     /**
@@ -336,6 +336,11 @@ class Arrangementer
     private function getSesongSQL()
     {
         if (in_array('sesong', array_keys($this->filter->getFilters()))) {
+            // Hvis flere sesonger
+            if( is_array($this->filter->getFilters()['sesong'])) {
+                return " AND `place`.`season` IN (". implode(",", $this->filter->getSesong()) . ") ";
+            }
+            // Hvis en sesong
             return " AND `place`.`season` = '#season' ";
         }
         return '';

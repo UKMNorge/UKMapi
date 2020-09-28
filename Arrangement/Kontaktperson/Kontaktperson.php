@@ -12,6 +12,7 @@ class Kontaktperson implements KontaktInterface
 
     public $fornavn = null;
     public $etternavn = null;
+    private $navn_backup = null;
     public $telefon = null;
     public $epost = null;
 
@@ -26,6 +27,8 @@ class Kontaktperson implements KontaktInterface
     private $lastUpdated = null;
     private $system_locked = null;
 
+    private $admin_id = null;
+
     public function __construct($id_or_row)
     {
         if (is_numeric($id_or_row)) {
@@ -35,6 +38,32 @@ class Kontaktperson implements KontaktInterface
         } else {
             throw new Exception('KONTAKT: Oppretting av objekt krever numerisk id eller databaserad');
         }
+    }
+
+    /**
+     * Hent kontaktpersonobjekt fra admin id
+     *
+     * @param Int $admin_id
+     * @throws Exception
+     * @return Kontaktperson
+     */
+    public static function getByAdminId( Int $admin_id ) {
+        $query = new Query(
+            self::getLoadQry().
+            "WHERE `admin_id` = '#admin_id'",
+            [
+                'admin_id' => $admin_id
+            ]
+        );
+        
+        $res = $query->getArray();
+        if( !$res) {
+            throw new Exception(
+                'Fant ingen kontaktperson-objekter for '. $admin_id,
+                111001
+            );
+        }
+        return new Kontaktperson( $res );        
     }
 
     private function _load_by_id($id)
@@ -60,6 +89,7 @@ class Kontaktperson implements KontaktInterface
         $this->id = $row['id'];
         $this->fornavn =  $row['firstname'];
         $this->etternavn = $row['lastname'];
+        $this->navn_backup = $row['name'];
         $this->telefon = $row['tlf'];
         $this->epost = $row['email'];
         $this->tittel = $row['title'];
@@ -73,6 +103,7 @@ class Kontaktperson implements KontaktInterface
         if (isset($row['beskrivelse'])) {
             $this->beskrivelse = $row['beskrivelse'];
         }
+        $this->admin_id = is_null($row['admin_id']) ? null : (int) $row['admin_id'];
     }
 
     public static function getLoadQry()
@@ -92,6 +123,9 @@ class Kontaktperson implements KontaktInterface
 
     public function getNavn()
     {
+        if( empty($this->getFornavn()) && empty($this->getEtternavn())) {
+            return $this->navn_backup;
+        }
         return $this->getFornavn() . ' ' . $this->getEtternavn();
     }
 
@@ -210,6 +244,28 @@ class Kontaktperson implements KontaktInterface
     public function setBeskrivelse($beskrivelse)
     {
         $this->beskrivelse = $beskrivelse;
+        return $this;
+    }
+
+    /**
+     * Hent hvilken administrator ID denne kontaktpersonen er tilknyttet
+     * WP_user::ID
+     *
+     * @return Int
+     */
+    public function getAdminId() {
+        return $this->admin_id;
+    }
+
+    /**
+     * Relater denne kontaktpersonen til en administrator
+     * WP_user::ID
+     *
+     * @param Int $admin_id
+     * @return self
+     */
+    public function setAdminId( Int $admin_id ) {
+        $this->admin_id = $admin_id;
         return $this;
     }
 

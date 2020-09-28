@@ -84,4 +84,14 @@ class Kontaktperson implements KontaktInterface {
     public function getFacebook() {
         return null;
     }
+
+    /**
+     * Hent brukerens bilde
+     * (vil alltid returnere null)
+     *
+     * @return null
+     */
+    public function getBilde() {
+        return null;
+    }
 }

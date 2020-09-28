@@ -8,6 +8,10 @@ use Exception;
 use UKMNorge\Arrangement\Arrangementer;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Arrangement\Filter;
+use UKMNorge\Arrangement\Kommende;
+use UKMNorge\Arrangement\Kontaktperson\Kontaktperson;
+use UKMNorge\Arrangement\Load;
+use UKMNorge\Arrangement\Tidligere;
 use UKMNorge\Geografi\Fylker;
 use UKMNorge\Geografi\Kommune;
 use UKMNorge\Nettverk\Administratorer;
@@ -16,8 +20,6 @@ use UKMNorge\Nettverk\Proxy\KontaktpersonSamling as KontaktpersonSamlingProxy;
 
 class Omrade
 {
-    private $kontaktpersoner = null;
-
     /**
      * Hent nasjonalt område
      * (WHY?)
@@ -75,9 +77,15 @@ class Omrade
     private $id = 0;
     private $navn = null;
     private $administratorer = null;
-    private $arrangementer = [];
+    private $kontaktpersoner = null;
+    private $arrangementer = null;
+    private $arrangementer_filter = false;
+    private $arrangementer_kommende = null;
+    private $arrangementer_tidligere = null;
+    private $arrangementer_aktuelle = null;
     private $fylke = null;
     private $kommune = null;
+
 
     public function __construct(String $type, Int $id)
     {
@@ -147,11 +155,12 @@ class Omrade
      *
      * @return String full url
      */
-    public function getLink() {
-        if( $this->getType() == 'fylke' ) {
+    public function getLink()
+    {
+        if ($this->getType() == 'fylke') {
             return $this->getFylke()->getLink(false);
         }
-        if( $this->getType() == 'kommune') {
+        if ($this->getType() == 'kommune') {
             return $this->getKommune()->getLink();
         }
     }
@@ -172,21 +181,72 @@ class Omrade
     /**
      * Hent arrangementer for området
      *
-     * @param Int $season
-     * @return Array<Arrangementer>
+     * @param Filter $filter
+     * @return Arrangementer
      */
-    public function getArrangementer( Int $season ) {
-        if ( !isset( $this->arrangementer[ $season ] ) ) {
-            $filter = new Filter();
-            $filter->sesong($season);
-            $this->arrangementer[ $season ] = new Arrangementer(
-                'eier-'.$this->getType(),
-                (int) $this->getForeignId(),
-                $filter
-            );
+    public function getArrangementer(Filter $filter = null)
+    {
+        // Oppdater hvis nytt filter
+        if ($this->arrangementer_filter === false || $filter != $this->arrangementer_filter) {
+            $this->arrangementer_filter = $filter;
+            $this->arrangementer = Load::byOmradeInfo('eier-' . $this->getType(), (int) $this->getForeignId(), $filter);
         }
-        
-        return $this->arrangementer[ $season ];
+
+        return $this->arrangementer;
+    }
+
+    /**
+     * Hent områdets kommende arrangement
+     *
+     * @param Filter $filter
+     * @return Arrangementer
+     */
+    public function getKommendeArrangementer(Filter $filter = null)
+    {
+        if (!isset($this->arrangementer_kommende)) {
+            $this->arrangementer_kommende = Kommende::byOmradeInfo('eier-' . $this->getType(), (int) $this->getForeignId(), $filter);
+        }
+        return $this->arrangementer_kommende;
+    }
+
+    /**
+     * Hent områdets aktuelle arrangement (frem i tid, eller fra årets sesong)
+     *
+     * @param Filter $filter
+     * @return Arrangementer
+     */
+    public function getAktuelleArrangementer(Filter $filter = null)
+    {
+        if (!isset($this->arrangementer_aktuelle)) {
+            if (is_null($filter)) {
+                $filter = new Filter();
+            }
+
+            if (date('n') < 8) {
+                $season_one = (int) date('Y');
+                $season_two = (int) date('Y') - 1;
+            } else {
+                $season_one = (int) date('Y');
+                $season_two = (int) date('Y') + 1;
+            }
+            $filter->sesong([$season_one, $season_two]);
+            $this->arrangementer_aktuelle = Load::byOmradeInfo('eier-' . $this->getType(), (int) $this->getForeignId(), $filter);
+        }
+        return $this->arrangementer_aktuelle;
+    }
+
+    /**
+     * Hent områdets tidligere arrangement
+     *
+     * @param Filter $filter
+     * @return Arrangementer
+     */
+    public function getTidligereArrangementer(Filter $filter = null)
+    {
+        if (!isset($this->arrangementer_tidligere)) {
+            $this->arrangementer_tidligere = Tidligere::byOmradeInfo('eier-' . $this->getType(), (int) $this->getForeignId(), $filter);
+        }
+        return $this->arrangementer_tidligere;
     }
 
 
@@ -196,8 +256,9 @@ class Omrade
      * @throws Exception
      * @return Fylke
      */
-    public function getFylke() {
-        if( null == $this->fylke ) {
+    public function getFylke()
+    {
+        if (null == $this->fylke) {
             throw new Exception(
                 'Dette området tilhører ikke et fylke'
             );
@@ -211,8 +272,9 @@ class Omrade
      * @throws Exception
      * @return Kommune
      */
-    public function getKommune() {
-        if( null == $this->kommune ) {
+    public function getKommune()
+    {
+        if (null == $this->kommune) {
             throw new Exception(
                 'Dette området tilhører ikke en kommune'
             );
@@ -225,7 +287,7 @@ class Omrade
      * (WHY?)
      * 
      * @return Int $sesong
-     */ 
+     */
     public function getSeason()
     {
         return $this->season;
@@ -236,7 +298,7 @@ class Omrade
      * 
      * @param Int $season
      * @return self
-     */ 
+     */
     public function setSeason($season)
     {
         $this->season = $season;
@@ -247,32 +309,51 @@ class Omrade
     /**
      * Hent kontaktpersoner for området, eller foreldre-området
      *
+     * @param Bool inkluder skjulte
      * @return KontakpersonSamling
      */
-    public function getKontaktpersoner() {
-        if( $this->kontaktpersoner == null ) {
-            $this->_loadKontaktpersoner();
+    public function getKontaktpersoner(Bool $inkluder_skjulte = false)
+    {
+        if ($this->kontaktpersoner == null) {
+            $this->_loadKontaktpersoner($inkluder_skjulte);
         }
         return $this->kontaktpersoner;
-    
     }
 
-    private function _loadKontaktpersoner() {
+    /**
+     * Last inn kontaktpersoner
+     *
+     * @param Bool $inkluder_skjulte
+     * @return void
+     */
+    private function _loadKontaktpersoner(Bool $inkluder_skjulte = false)
+    {
         $this->kontaktpersoner = new KontaktpersonSamlingProxy();
 
         // Hent områdets (arrangementets hovedeier) administratorer
-        if( $this->getAdministratorer()->getAntall() > 0 ) {
-            foreach( $this->getAdministratorer()->getAll() as $admin ) {
-                $this->kontaktpersoner->add( new KontaktpersonProxy( $admin ) );
+        if ($this->getAdministratorer()->getAntall() > 0) {
+            foreach ($this->getAdministratorer()->getAll() as $admin) {
+                if (!$inkluder_skjulte && !$admin->erKontaktperson($this)) {
+                    continue;
+                }
+                try {
+                    $kontakt = Kontaktperson::getByAdminId($admin->getId());
+                } catch (Exception $e) {
+                    if ($e->getCode() != 111001) {
+                        throw $e;
+                    }
+                    $kontakt = new KontaktpersonProxy($admin);
+                }
+                $this->kontaktpersoner->add($kontakt);
             }
-            return ;
+            return;
         }
 
         // Hvis det er en kommune uten admins, hent fylkets kontaktpersoner
-        if( $this->getType() == 'kommune' ) {
-            $omrade = Omrade::getByFylke( $this->getFylke()->getId() );
-            foreach( $omrade->getAdministratorer()->getAll() as $admin ) {
-                $this->kontaktpersoner->add( new KontaktpersonProxy( $admin ) );
+        if ($this->getType() == 'kommune') {
+            $omrade = Omrade::getByFylke($this->getFylke()->getId());
+            foreach ($omrade->getAdministratorer()->getAll() as $admin) {
+                $this->kontaktpersoner->add(new KontaktpersonProxy($admin));
             }
         }
     }

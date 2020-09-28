@@ -115,6 +115,7 @@ class Write
                 break;
         }
 
+        $navn = str_replace(['UKM ','UKM'],'',$navn);
         $place->add('pl_name', ltrim(rtrim($navn)));
         $place->add('season', $sesong);
 
@@ -242,6 +243,10 @@ class Write
                 if ($monstring_db->$function() != $monstring_save->$function()) {
                     # Mellomlagre verdi som skal settes
                     $value = $monstring_save->$function();
+                    # Fjern UKM fra alle arrangementnavn
+                    if( $functionName == 'getNavn' ) {
+                        $value = str_replace(['UKM ','UKM'],'',$value);
+                    }
                     # Legg til i SQL
                     $sql->add($field, $value);     // SQL satt dynamisk i foreach til $$table
                     # Logg (eller dø) før vi kjører run
@@ -536,7 +541,7 @@ class Write
 
             $count = 0;
             $arrangement_som_skal_overta = false;
-            foreach ($omrade->getArrangementer($arrangement->getSesong())->getAll() as $annet_arrangement) {
+            foreach ($omrade->getArrangementer()->getAll() as $annet_arrangement) {
                 if ($annet_arrangement->getId() != $arrangement->getId()) {
                     $count++;
                     if (!$annet_arrangement->erFellesmonstring()) {

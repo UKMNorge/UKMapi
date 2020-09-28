@@ -22,7 +22,10 @@ class Samling {
 	var $innslag = null;
 	var $innslag_ufullstendige = null;
 	var $containerType = null;
-	var $containerId = null;
+    var $containerId = null;
+    
+    var $simple_count = null;
+    var $simple_count_personer = null;
 
 	var $monstring_type = null; // Brukes av container_type 'monstring'
 	var $monstring_sesong = null; // Brukes av container_type 'monstring'
@@ -151,6 +154,68 @@ class Samling {
 	public function getAntall() {
 		return sizeof( $this->getAll() );
     }
+
+    /**
+     * Spør databasen hvor mange innslag det skal være i denne collectionen
+     *
+     * @return Int
+     */
+    public function getAntallSimple() {
+        if( is_null( $this->simple_count ) ) {
+            if( $this->getContext()->getSesong() < 2020 ) {
+                throw new Exception(
+                    'Kan ikke beregne antall for innslag påmeldt før 2019',
+                    104001
+                );
+            }
+
+            $query = new Query(
+                "SELECT COUNT(`innslag_id`)
+                FROM `ukm_rel_arrangement_innslag`
+                JOIN `smartukm_band` AS `innslag`
+                    ON `innslag`.`b_id` = `ukm_rel_arrangement_innslag`.`innslag_id`
+                WHERE `arrangement_id` = '#arrangement'
+                AND `b_status` = 8",
+                [
+                    'arrangement' => $this->getContext()->getMonstring()->getId()
+                ]
+            );
+            $this->simple_count = (int) $query->getField();
+        }
+        return $this->simple_count;
+    }
+
+    /**
+     * Spør databasen hvor mange personer det skal være i denne collectionen
+     *
+     * @return Int
+     */
+    public function getAntallPersonerSimple() {
+        if( is_null( $this->simple_count_personer ) ) {
+            if( $this->getContext()->getSesong() < 2020 ) {
+                throw new Exception(
+                    'Kan ikke beregne antall for innslag påmeldt før 2019',
+                    104001
+                );
+            }
+
+            $query = new Query(
+                "SELECT COUNT(`person_id`)
+                FROM `ukm_rel_arrangement_person`
+                JOIN `smartukm_band` AS `innslag`
+                    ON `innslag`.`b_id` = `ukm_rel_arrangement_person`.`innslag_id`
+                WHERE `arrangement_id` = '#arrangement'
+                AND `b_status` = 8",
+                [
+                    'arrangement' => $this->getContext()->getMonstring()->getId()
+                ]
+            );
+            $this->simple_count_personer = (int) $query->getField();
+        }
+        return $this->simple_count_personer;
+    }
+
+
     
 
     /**
