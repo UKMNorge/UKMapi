@@ -160,14 +160,12 @@ class Context
      * Opprett kontaktperson-context
      *
      * @param Int $id
-     * @param Int $sesong
      * @return Context
      */
-    public static function createKontaktperson(Int $id, Int $sesong)
+    public static function createKontaktperson(Int $id)
     {
         $context = new Context('kontaktperson');
         $context->kontaktperson = new Kontaktperson($id);
-        $context->sesong = $sesong;
         return $context;
     }
 

@@ -649,7 +649,6 @@ class Samling {
                 return new Query(
                         Innslag::getLoadQuery()."
                         WHERE `b_contact` = '#kontakt'
-                        AND `b_season` = '#sesong'
                         AND `b_status` <= 8
                         ",
                         [
