@@ -44,6 +44,9 @@ class Type
 
         try {
             $filename = stream_resolve_include_path('UKM/Innslag/Typer/config/' . basename($id) . '.yml');
+            if( empty( $filename ) ) {
+                throw new Exception('Ukjent innslag type '. $id );
+            }
             $config = Yaml::parse(
                 file_get_contents(
                     $filename
