@@ -194,8 +194,8 @@ class Samling {
         if( is_null( $this->simple_count_personer ) ) {
             if( $this->getContext()->getSesong() < 2020 ) {
                 throw new Exception(
-                    'Kan ikke beregne antall for innslag påmeldt før 2019',
-                    104001
+                    'Kan ikke beregne antall påmeldte for innslag påmeldt før 2019',
+                    104002
                 );
             }
 
