@@ -187,7 +187,7 @@ class Curl
     private function _isJson()
     {
         $decoded = @json_decode($this->result);
-        $this->is_json = is_object($decoded);
+        $this->is_json = is_array($decoded) || is_object($decoded);
 
         if ($this->is_json)
             $this->data = $decoded;
