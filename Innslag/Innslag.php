@@ -487,6 +487,17 @@ class Innslag
     {
         if (null == $this->kommune) {
             $this->kommune = new Kommune($this->kommune_id);
+            // Whoa, her snubla vi over en deluxe edge-case!
+            // Kommunen som innslaget deltok i har blitt slettet,
+            // og det har kun skjedd med falske kommuner, som har hatt
+            // nesten ingen påmeldte, men måtte slettes pga regionreformen
+            if( null == $this->kommune ) {
+                throw new Exception(
+                    'Kommunen innslaget deltok i har blitt slettet, '.
+                    'og vi kan ikke hente ut innslaget.',
+                    105008
+                );
+            }
         }
         return $this->kommune;
     }
