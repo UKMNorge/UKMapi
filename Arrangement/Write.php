@@ -527,9 +527,19 @@ class Write
     public static function avlys(Arrangement $arrangement)
     {
         // Bloggen håndterer selv sletting, flytting, om det er en kommune-side osv.
-        Blog::avlys(
-            Blog::getIdByPath($arrangement->getPath())
-        );
+        try {
+            Blog::avlys(
+                Blog::getIdByPath($arrangement->getPath())
+            );
+        } catch( Exception $e ) {
+            /**
+             * 572001: bloggen antas å være slettet tidligere
+             * pga manglende PL_ID
+             */
+            if( $e->getCode() != 572001 ) {
+                throw $e;
+            }
+        }
         // Slett arrangementet
         self::slett($arrangement);
 
