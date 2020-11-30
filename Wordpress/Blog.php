@@ -1152,7 +1152,14 @@ class Blog
      * @return void
      */
     public static function avlys( Int $blog_id ) {
-        $arrangement = new Arrangement( static::getOption( $blog_id, 'pl_id' ) );
+        $arrangement_id = static::getOption( $blog_id, 'pl_id' );
+        if( !$arrangement_id ) {
+            throw new Exception(
+                'Blog ('. $blog_id .') har ikke angitt arrangement-ID (pl_id)',
+                572001
+            );
+        }
+        $arrangement = new Arrangement( $arrangement_id );
         $sesong = $arrangement->getSesong();
         $omrade = $arrangement->getEierOmrade();
         
