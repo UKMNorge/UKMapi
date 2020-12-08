@@ -107,7 +107,7 @@ class Filter
                     }
                     break;
                 case 'tidligere':
-                    if (!$this->_filterErGjennomfort($arrangement)) {
+                    if (!$this->_filterErStartet($arrangement)) {
                         return false;
                     }
                 case 'sesong':
@@ -179,6 +179,20 @@ class Filter
     {
         return $arrangement->erFerdig();
     }
+
+    
+    /**
+     * Finn arrangement som er startet
+     *
+     * @param Arrangement $arrangement
+     * @return Bool
+     */
+    private function _filterErStartet(Arrangement $arrangement)
+    {
+        return $arrangement->erStartet();
+    }
+
+    
 
     /**
      * Finn arrangement for gitt sesong
