@@ -107,7 +107,7 @@ class Filter
                     }
                     break;
                 case 'tidligere':
-                    if (!$this->_filterErStartet($arrangement)) {
+                    if (!$this->_filterErGjennomfort($arrangement)) {
                         return false;
                     }
                 case 'sesong':
