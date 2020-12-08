@@ -370,7 +370,7 @@ class Arrangementer
      */
     private function getTidligereKommendeFilter() {
         if( in_array('kommende', array_keys($this->filter->getFilters())) ) {
-            return " AND `pl_start` > '#idag' ";
+            return " AND `pl_start` >= '#idag' ";
         }
         if( in_array('tidligere', array_keys($this->filter->getFilters())) ) {
             return " AND `pl_start` < '#idag' ";
