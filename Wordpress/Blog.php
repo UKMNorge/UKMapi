@@ -60,6 +60,7 @@ class Blog
      * Finn ID for en blogg fra gitt path
      *
      * @param String $path
+     * @throws Exception 172007 hvis blogg ikke finnes
      * @return Int $id
      */
     public static function getIdByPath(String $path)

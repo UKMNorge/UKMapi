@@ -189,6 +189,7 @@ class Innslag
      * Last inn objekt fra databaserad
      *
      * @param database_row $row
+     * @throws Exception hvis den ikke finner innslag-data
      * @return $this;
      **/
     private function _loadByRow($row)
