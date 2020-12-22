@@ -61,6 +61,7 @@ prefix | objekt | les | skriv
 73 | Wordpress/Modul | 173yyy | 573yyy
 81 | Slack | 181yyy | 581yyy
 82 | Mailchimp | - | 582yyy
+83 | OAuth2 | 183yyy | 583yyy
 
 
 # Wordpress-options
