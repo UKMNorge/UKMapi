@@ -59,6 +59,7 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
             $user = $this->getUser($tel_nr);
             return $this->checkPassword($user, $password);
         }
+        // The user has not been found
         catch(Exception $e) {
             // Trace down exception
             return false;
@@ -66,10 +67,11 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
     }
 
     public function isUserLoggedin() : bool {
-        if(!isset($_SESSION)) { 
+        if(!isset($_SESSION)) {
             session_start(); 
         }
 
+        // Sjekk User class  
         if (isset($_SESSION['valid']) && $_SESSION['valid'] == true) {
             return true;
         }
