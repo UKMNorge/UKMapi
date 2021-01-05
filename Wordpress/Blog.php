@@ -371,6 +371,8 @@ class Blog
 
         // settes f.eks. hvis arrangementet er avlyst 
         static::deleteOption( $blog_id, 'status_monstring' );
+        // sikre at alle standard-sider er der (bug pre 2020)
+        static::setStandardSider($blog_id);
     }
 
     /**
@@ -863,14 +865,7 @@ class Blog
         );
         
         // Sider
-        static::leggTilSider(
-            $blog_id,
-            [
-                ['id' => 'forside', 'name' => 'Forside', 'viseng' => null],
-                ['id' => 'nyheter', 'name' => 'Nyheter', 'viseng' => null],
-                ['id' => 'kontaktpersoner', 'name' => 'Kontaktpersoner', 'viseng' => 'kontaktpersoner']
-            ]
-        );
+        static::setStandardSider($blog_id);
 
         // Fjern standard-sider
         static::fjernSider(
@@ -891,6 +886,25 @@ class Blog
         update_blog_option($blog_id, 'show_on_front', 'posts'); // 2019-02-07: endret til posts for at paginering skal funke
         update_blog_option($blog_id, 'page_on_front', $page_on_front->ID);
         update_blog_option($blog_id, 'page_for_posts', $page_for_posts->ID);
+    }
+
+    /**
+     * Oppretter standardsidene som alle blogger har
+     * 
+     * (gjelder både arrangement-, kommune- og fylkessider)
+     *
+     * @param Int $blog_id
+     * @return void
+     */
+    public static function setStandardSider(Int $blog_id) {
+        static::leggTilSider(
+            $blog_id,
+            [
+                ['id' => 'forside', 'name' => 'Forside', 'viseng' => null],
+                ['id' => 'nyheter', 'name' => 'Nyheter', 'viseng' => null],
+                ['id' => 'kontaktpersoner', 'name' => 'Kontaktpersoner', 'viseng' => 'kontaktpersoner']
+            ]
+        );
     }
 
     /**
