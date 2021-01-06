@@ -158,6 +158,24 @@ class Curl
         return $this->data;
     }
 
+    /**
+     * Hent response-objekt fra forespørselen
+     *
+     * @return any
+     */
+    public function getData() {
+        return $this->data;
+    }
+
+    /**
+     * Hent (raw) response fra forespørselen
+     *
+     * @return String 
+     */
+    public function getResult() {
+        return $this->result;
+    }
+
     private function _init()
     {
         $this->curl = curl_init();
