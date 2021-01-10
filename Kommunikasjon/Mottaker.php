@@ -62,7 +62,7 @@ class Mottaker
      * @param Int $maxlength
      * @return String
      */
-    public static function clean(String $string, String $allow_pattern = 'A-Za-z0-9-', Int $maxlength = false)
+    public static function clean(String $string, String $allow_pattern = 'A-Za-z0-9-', Int $maxlength = null)
     {
         $string = preg_replace('/[^' . $allow_pattern . '.]/', '', strip_tags($string));
         if ($maxlength) {
