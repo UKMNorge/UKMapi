@@ -4,6 +4,7 @@ require_once("UKM/Autoloader.php");
 
 use PHPUnit\Framework\TestCase;
 use UKMNorge\Kommunikasjon\SMS;
+use UKMNorge\Kommunikasjon\Mottaker;
 
 class SMSTest extends TestCase {
 
