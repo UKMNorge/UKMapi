@@ -8,6 +8,20 @@ use UKMNorge\Kommunikasjon\Mottaker;
 
 class SMSTest extends TestCase {
 
+    public function testMobilnummerString() {
+        SMS::setSystemId('UKMid', 0);
+        $sms = new SMS('UKMNorge');
+        $sms->setMelding( 'Test' )->setMottaker( Mottaker::fraMobil("+4798004248"));
+        $this->assertInstanceOf(SMS::class, $sms);
+        // Trying to send in dev generates exception, so no need to assert anything on this line.
+        try {
+            $sms->send();
+        } catch(Exception $e) {
+            $this->assertEquals(148005, $e->getCode());
+            $this->assertEquals('SMS "SENDT" I DEV-MILJØ TIL (98004248): Test', $e->getMessage());
+        }
+    }
+
     public function testSendToSingleNumber() {
         SMS::setSystemId('UKMid', 0);
         $sms = new SMS('UKMNorge');

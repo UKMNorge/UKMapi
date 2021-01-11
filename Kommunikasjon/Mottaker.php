@@ -79,12 +79,17 @@ class Mottaker
      */
     public static function cleanMobil(String $mobil)
     {
-
+        
         // REMOVE FACEBOOK 3 SPECIAL CHARS
         if (strlen($mobil) == 11 && (int)$mobil == 0) {
             $mobil = substr($mobil, 3);
         }
 
+        // Remove country code
+        if (substr($mobil, 0, 1) == '+' && strlen($mobil) == 11) {
+            $mobil = substr($mobil, 3);
+        }
+        
         return static::clean($mobil, 'A-Za-z0-9-', SMS::AVSENDER_MAKSLENGDE);
     }
 
