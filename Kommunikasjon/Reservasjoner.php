@@ -49,7 +49,7 @@ class Reservasjoner {
         // Sikre at vi jobber med standardisert mobilnummer
         $mobilnummer = Mottaker::cleanMobil($mobilnummer);
 
-        if( !empty(static::$blokkerteMobilNummer) && in_array($mobilnummer, static::$blokkerteMobilnummer) ) {
+        if( !empty(static::$blokkerteMobilnummer) && in_array($mobilnummer, static::$blokkerteMobilnummer) ) {
             return true;
         }
 

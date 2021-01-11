@@ -34,4 +34,19 @@ class SMSTest extends TestCase {
         $sms->setMelding($dobbelMelding);
         $this->assertEquals(2, $sms->getAntallSMS());        
     }
+
+    /**
+     * Requires a row in the `sms_block`-table for 98004248. Could add this to the test, but can't be bothered yet. Will add automated test setup / teardown when we need it.
+     */
+    public function testBlokkertMobil() {
+        SMS::setSystemId('UKMid', 0);
+        $sms = new SMS('UKMNorge');
+        try {
+            $sms->setMelding( 'Test' )->setMottaker( Mottaker::fraMobil(98004240));
+            throw new Exception("Blokkert mobilnummer laget ikke Exception");
+        } catch (Exception $e) {
+            $this->assertEquals("Mottakeren er blokkert fra å motta SMS.", $e->getMessage());
+            $this->assertEquals(148009, $e->getCode());
+        }
+    }
 }

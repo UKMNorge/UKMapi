@@ -108,12 +108,15 @@ class SMS
      * Angi mottaker av meldingen
      *
      * @param Mottaker $mottaker
+     * @throws Exception
      * @return self
      */
     public function setMottaker(Mottaker $mottaker)
     {
+        if(Reservasjoner::erBlokkertMotSms($mottaker->getMobil())) {
+            throw new Exception('Mottakeren er blokkert fra å motta SMS.', 148009);
+        }
         $this->mottaker = $mottaker;
-        Reservasjoner::erBlokkertMotSms($mottaker->getMobil());
         return $this;
     }
 
