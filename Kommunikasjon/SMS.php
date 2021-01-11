@@ -166,7 +166,7 @@ class SMS
         if (strlen($this->melding) <= 160) {
             return 1;
         }
-        return 1 * round(strlen($this->melding) / 154);
+        return (int)1 * ceil(strlen($this->melding) / 154);
     }
 
     /**

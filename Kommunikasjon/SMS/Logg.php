@@ -59,7 +59,6 @@ class Logg
         $recipient_add = new Insert('log_sms_transaction_recipients');
         $recipient_add->add('t_id',         $transaction_id);
         $recipient_add->add('tr_recipient', $sms->getMottaker()->getMobil());
-        $recipient_add->add('tr_status',     'queued');
 
         return $recipient_add;
     }
