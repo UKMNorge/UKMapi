@@ -25,7 +25,7 @@ jobs:
       working-directory: UKM
 
     - name: Add dummy UKMconfig.inc.php-file
-      run: echo "<?php" > ${{ github.workspace }}/UKMconfig2.inc.php
+      run: echo "<?php" > ${{ github.workspace }}/UKMconfig.inc.php
 
     - name: Cache Composer packages
       id: composer-cache
