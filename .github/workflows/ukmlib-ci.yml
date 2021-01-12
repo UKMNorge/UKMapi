@@ -40,6 +40,11 @@ jobs:
       run: composer run-script test
       working-directory: UKM
 
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3
+
     - name: Publish Unit Test Results
       #uses: EnricoMi/publish-unit-test-result-action@v1.6
       uses: docker://ghcr.io/enricomi/publish-unit-test-result-action:v1.6
