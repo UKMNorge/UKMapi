@@ -5,6 +5,8 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v2
+      with:
+        path: UKM
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -15,14 +17,17 @@ jobs:
 
     - name: Validate composer.json and composer.lock
       run: composer validate
+      working-directory: UKM
     
     - name: Install dependencies
       if: steps.composer-cache.outputs.cache-hit != 'true'
       run: composer install --prefer-dist --no-progress --no-suggest
+      working-directory: UKM
 
     - name: Cache Composer packages
       id: composer-cache
       uses: actions/cache@v2
+      working-directory: UKM
       with:
         path: vendor
         key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
@@ -31,3 +36,4 @@ jobs:
     
     - name: Run test suite
       run: composer run-script test
+      working-directory: UKM
