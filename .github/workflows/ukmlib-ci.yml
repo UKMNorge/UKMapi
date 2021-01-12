@@ -24,6 +24,9 @@ jobs:
       run: composer install --prefer-dist --no-progress --no-suggest
       working-directory: UKM
 
+    - name: Add dummy UKMconfig.inc.php-file
+      run: echo "<?php" > ${{ github.workspace }}/UKMconfig2.inc.php
+
     - name: Cache Composer packages
       id: composer-cache
       uses: actions/cache@v2
