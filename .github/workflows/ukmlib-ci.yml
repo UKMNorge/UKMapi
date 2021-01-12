@@ -39,3 +39,11 @@ jobs:
     - name: Run test suite
       run: composer run-script test
       working-directory: UKM
+
+    - name: Publish Unit Test Results
+      #uses: EnricoMi/publish-unit-test-result-action@v1.6
+      uses: docker://ghcr.io/enricomi/publish-unit-test-result-action:v1.6
+      if: always()
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        files: ${{ github.workspace }}/UKM/tests/phpunit-results.xml
