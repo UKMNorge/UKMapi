@@ -5,8 +5,6 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v2
-      with: 
-        path: UKM
 
     - name: Validate composer.json and composer.lock
       run: composer validate
