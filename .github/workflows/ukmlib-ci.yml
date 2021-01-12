@@ -13,7 +13,7 @@ jobs:
       with:
         php-version: 7.2
         extensions: mbstring
-        ini-values: post_max_size=256M, log_errors=1, include_path=${{ GITHUB_WORKSPACE }}
+        ini-values: post_max_size=256M, log_errors=1, include_path=${{ env.GITHUB_WORKSPACE }}
 
     - name: Validate composer.json and composer.lock
       run: composer validate
