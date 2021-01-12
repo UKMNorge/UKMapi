@@ -51,4 +51,4 @@ jobs:
       if: always()
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        files: ${{ github.workspace }}/UKM/tests/phpunit-results.xml
+        files: UKM/tests/phpunit-results.xml
