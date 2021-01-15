@@ -183,27 +183,43 @@ class BlockAction {
      *
      * @return String
      */
-    public static function getValueFromField( $field ) {
-        error_log('getValueFromField():'. var_export($field, true));
-        switch( $field->type ) {
+    public static function getValueFromField($field)
+    {
+        error_log('getValueFromField():' . var_export($field, true));
+        switch ($field->type) {
             case 'datepicker':
                 return $field->selected_date;
             case 'static_select':
                 return $field->selected_option->value;
+            case 'conversations_select':
+                return $field->selected_conversation;
             case 'multi_static_select':
-                $value = [];
-                if( is_array($field->selected_options)) {
-                    foreach( $field->selected_options as $option ) {
-                        $value[] = $option->value;
-                    }
-                }
-                return join(',', $value);
+                return static::getValueArrayAsString($field->selected_options);
+            case 'multi_users_select':
+                return static::getValueArrayAsString($field->selected_users);
             case 'plain_text_input':
                 return $field->value;
             case 'radio_buttons':
                 return $field->selected_option->value;
         }
-        throw new Exception('Unsupported data type '. $field->type);
+        throw new Exception('Unsupported data type ' . $field->type);
+    }
+
+    /**
+     * Fetch all selected values as csv
+     *
+     * @param array
+     * @return String
+     */
+    public static function getValueArrayAsString(array $array)
+    {
+        $value = [];
+        if (is_array($array)) {
+            foreach ($array as $option) {
+                $value[] = $option->value;
+            }
+        }
+        return join(',', $value);
     }
 
     /**
