@@ -227,7 +227,11 @@ class BlockAction
         $value = [];
         if (is_array($array)) {
             foreach ($array as $option) {
-                $value[] = $option->value;
+                if( is_object($option) && isset($option->value ) ) {
+                    $value[] = $option->value;
+                } else {
+                    $value[] = $option;
+                }
             }
         }
         return join(',', $value);
