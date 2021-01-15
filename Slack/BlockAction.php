@@ -8,7 +8,8 @@ use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Update;
 
-class BlockAction {
+class BlockAction
+{
 
     const TABLE = 'slack_view_tempdata';
 
@@ -22,12 +23,13 @@ class BlockAction {
      * @param String view id
      * @param String key
      * @return BlockAction
-    */
-    public function __construct( String $view_id, String $key ) {
+     */
+    public function __construct(String $view_id, String $key)
+    {
         $this->view_id = $view_id;
         $this->key = $key;
     }
-    
+
     /**
      * Create and persist new Block Action
      *
@@ -35,25 +37,26 @@ class BlockAction {
      * @param String key
      * @param String value
      * @return BlockAction
-    */
-    public static function create( String $view_id, String $key, String $value ) {
+     */
+    public static function create(String $view_id, String $key, String $value)
+    {
 
         try {
-            $blockAction = static::get( $view_id, $key );
+            $blockAction = static::get($view_id, $key);
             $blockAction->setValue($value);
             return static::update($blockAction);
-        } catch( Exception $e ) {
-            if( $e->getCode() == 1 ) {
+        } catch (Exception $e) {
+            if ($e->getCode() == 1) {
                 $query = new Insert(static::TABLE);
                 $query->add('view_id', $view_id);
                 $query->add('key', $key);
                 $query->add('value', $value);
                 $res = $query->run();
-        
+
                 $object = new static($view_id, $key);
                 return $object->setValue($value);
             }
-            throw $e;   
+            throw $e;
         }
     }
 
@@ -63,8 +66,9 @@ class BlockAction {
      * @param String view id
      * @param String block action key
      * @return BlockAction
-    */
-    public static function get( String $view_id, String $key ) {
+     */
+    public static function get(String $view_id, String $key)
+    {
         $query = new Query(
             "SELECT `value` 
             FROM `#table`
@@ -78,9 +82,9 @@ class BlockAction {
         );
         $data = $query->getArray();
 
-        if( !$data ) {
+        if (!$data) {
             throw new Exception(
-                'Could not find BlockAction '. $view_id .'::'.$key,
+                'Could not find BlockAction ' . $view_id . '::' . $key,
                 1
             );
         }
@@ -96,7 +100,8 @@ class BlockAction {
      * @param BlockAction 
      * @return Bool
      */
-     public static function delete( BlockAction $blockaction ) {
+    public static function delete(BlockAction $blockaction)
+    {
         $query = new Delete(
             static::TABLE,
             [
@@ -116,7 +121,8 @@ class BlockAction {
      * @param String block action key
      * @return Bool
      */
-     public static function update( BlockAction $blockaction ) {
+    public static function update(BlockAction $blockaction)
+    {
         $query = new Update(
             static::TABLE,
             [
@@ -134,8 +140,9 @@ class BlockAction {
      * toString output value
      *
      * @see getValue()
-    */
-    public function __toString() {
+     */
+    public function __toString()
+    {
         return $this->getValue();
     }
 
@@ -144,8 +151,9 @@ class BlockAction {
      *
      * @param String value
      * @return self
-    */
-    public function setValue( String $value ) {
+     */
+    public function setValue(String $value)
+    {
         $this->value = $value;
         return $this;
     }
@@ -154,8 +162,9 @@ class BlockAction {
      * Get value
      *
      * @return String
-    */
-    public function getValue() {
+     */
+    public function getValue()
+    {
         return $this->value;
     }
 
@@ -163,8 +172,9 @@ class BlockAction {
      * Get view Id
      *
      * @return String
-    */
-    public function getViewId() {
+     */
+    public function getViewId()
+    {
         return $this->view_id;
     }
 
@@ -172,8 +182,9 @@ class BlockAction {
      * Get key
      *
      * @return String key
-    */
-    public function getKey() {
+     */
+    public function getKey()
+    {
         return $this->key;
     }
 
@@ -228,7 +239,8 @@ class BlockAction {
      * @param String view id
      * @return Array<BlockAction>
      */
-    public static function getAllFromView( String $view_id ) {
+    public static function getAllFromView(String $view_id)
+    {
         $query = new Query(
             "SELECT * 
             FROM `#table`
@@ -241,9 +253,9 @@ class BlockAction {
         $res = $query->run();
 
         $values = [];
-        while( $row = Query::fetch( $res ) ) {
-            $value = new static( $view_id, $row['key'] );
-            $values[$row['key']] = $value->setValue( $row['value'] );
+        while ($row = Query::fetch($res)) {
+            $value = new static($view_id, $row['key']);
+            $values[$row['key']] = $value->setValue($row['value']);
         }
         return $values;
     }
