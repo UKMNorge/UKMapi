@@ -184,17 +184,18 @@ class BlockAction {
      * @return String
      */
     public static function getValueFromField( $field ) {
+        error_log('getValueFromField():'. var_export($field, true));
         switch( $field->type ) {
             case 'datepicker':
                 return $field->selected_date;
             case 'static_select':
                 return $field->selected_option->value;
             case 'multi_static_select':
-            case 'conversations_select':
-            case 'multi_users_select':
                 $value = [];
-                foreach( $field->selected_options as $option ) {
-                    $value[] = $option->value;
+                if( is_array($field->selected_options)) {
+                    foreach( $field->selected_options as $option ) {
+                        $value[] = $option->value;
+                    }
                 }
                 return join(',', $value);
             case 'plain_text_input':
