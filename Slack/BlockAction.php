@@ -190,6 +190,8 @@ class BlockAction {
             case 'static_select':
                 return $field->selected_option->value;
             case 'multi_static_select':
+            case 'conversations_select':
+            case 'multi_users_select':
                 $value = [];
                 foreach( $field->selected_options as $option ) {
                     $value[] = $option->value;
