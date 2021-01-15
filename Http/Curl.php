@@ -127,7 +127,7 @@ class Curl
             #curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
 
             // Force headers to be json
-            $this->headerList[] = 'Content-Type: application/json';
+            $this->headerList[] = 'Content-type: application/json; charset=utf-8';
             $this->headerList[] = 'Content-Length: ' . strlen($this->json_data);
             curl_setopt($this->curl, CURLOPT_HTTPHEADER, $this->headerList);
         }
