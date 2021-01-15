@@ -75,7 +75,7 @@ class Select extends SelectStructure
     /**
      * Get collection of option groups
      *
-     * @return void
+     * @return OptionGroups
      */
     public function getOptionGroups()
     {

@@ -26,6 +26,11 @@ class ViewSubmission extends Transport implements TransportInterface
         $this->view = $view;
     }
 
+    /**
+     * Hent view-objektet
+     * 
+     * @return View
+     */
     public function getView()
     {
         return $this->view;
