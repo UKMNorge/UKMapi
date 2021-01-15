@@ -402,6 +402,7 @@ abstract class App implements AppInterface
             }
             $message = 'Unknown exception. Slack said ' . $result->error . ' (' . $endpoint . ')';
             static::log('-> message: ' . $message);
+            static::log('-> json: '. json_encode($data));
             static::log('-> result: ' . var_export($result,true));
             throw new ResponseException($message);
         }
