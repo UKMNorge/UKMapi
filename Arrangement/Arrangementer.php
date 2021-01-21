@@ -100,7 +100,8 @@ class Arrangementer
                             )
                             OR
                             (`pl_type` != 'fylke' AND `pl_owner_fylke` = '#fylke')
-                        )",
+                        )
+                        ". $this->getSortString(),
                     [
                         'fylke' => $this->getOmradeId(),
                         'season' => $this->getSesong(),
@@ -122,7 +123,7 @@ class Arrangementer
                         " . $this->getSesongSQL() . "
                         " . $this->getTidligereKommendeFilter() . "
                         AND `pl_deleted` = 'false'
-                        ",
+                        ". $this->getSortString(),
                     [
                         'omrade_id' => $this->getOmradeId(),
                         'season' => $this->getSesong(),
@@ -138,7 +139,7 @@ class Arrangementer
                         " . $this->getSesongSQL() . "
                         " . $this->getTidligereKommendeFilter() . "
                         AND `pl_deleted` = 'false'
-                        ",
+                        ". $this->getSortString(),
                     [
                         'omrade_id' => $this->getOmradeId(),
                         'season' => $this->getSesong(),
@@ -166,7 +167,8 @@ class Arrangementer
                         AND `pl_owner_kommune` = '#omrade_id'
                         " . $this->getSesongSQL() . "
                         " . $this->getTidligereKommendeFilter() . "
-                        AND `pl_deleted` = 'false'",
+                        AND `pl_deleted` = 'false'
+                        ". $this->getSortString(),
                     [
                         'omrade_id' => $postnummer->run('field'),
                         'season' => $this->getSesong(),
@@ -179,7 +181,8 @@ class Arrangementer
                     Arrangement::getLoadQry() . "
                         WHERE `pl_deleted` = 'false'
                         " . $this->getSesongSQL() . "
-                        " . $this->getTidligereKommendeFilter() . "",
+                        " . $this->getTidligereKommendeFilter() ."
+                        " . $this->getSortString(),
                     [
                         'season' => $this->getSesong(),
                         'idag' => static::getIDag()
@@ -369,13 +372,41 @@ class Arrangementer
      * @return String
      */
     private function getTidligereKommendeFilter() {
-        if( in_array('kommende', array_keys($this->filter->getFilters())) ) {
+        if($this->erKommende()) {
             return " AND `pl_stop` >= '#idag' ";
         }
-        if( in_array('tidligere', array_keys($this->filter->getFilters())) ) {
+        if($this->erTidligere()) {
             return " AND `pl_stop` < '#idag' ";
         }
         return '';
+    }
+
+    /**
+     * Hent SQL for å sortere listen
+     * 
+     * @return String
+     */
+    private function getSortString() {
+        return 'ORDER BY `pl_start` ASC, 
+        `pl_name` ASC';
+    }
+
+    /**
+     * Sjekk hvorvidt vi forsøker å filtrere ut tidligere arrangement
+     * 
+     * @return Bool
+     */
+    private function erTidligere() {
+        return in_array('tidligere', array_keys($this->filter->getFilters()));
+    }
+
+    /**
+     * Sjekk hvorvidt vi forsøker å filtrere ut kommende arrangement
+     * 
+     * @return Bool
+     */
+    private function erKommende() {
+        return in_array('kommende', array_keys($this->filter->getFilters()));
     }
 
     /**
