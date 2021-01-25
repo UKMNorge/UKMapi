@@ -26,10 +26,10 @@ class Select extends SelectStructure
      * Create a new multiselect list
      *
      * @param String $action_id
-     * @param array $options
      * @param Text $placeholder
+     * @param array $options
      */
-    public function __construct(String $action_id, array $options, Text $placeholder)
+    public function __construct(String $action_id, Text $placeholder, array $options=[])
     {
         $this->setActionId($action_id);
         $this->getOptions()->set($options);
@@ -75,7 +75,7 @@ class Select extends SelectStructure
     /**
      * Get collection of option groups
      *
-     * @return void
+     * @return OptionGroups
      */
     public function getOptionGroups()
     {

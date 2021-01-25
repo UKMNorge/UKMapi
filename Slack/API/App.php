@@ -401,7 +401,9 @@ abstract class App implements AppInterface
                     throw new TokenException($message);
             }
             $message = 'Unknown exception. Slack said ' . $result->error . ' (' . $endpoint . ')';
-            static::log('-> ' . $message);
+            static::log('-> message: ' . $message);
+            static::log('-> json: '. json_encode($data));
+            static::log('-> result: ' . var_export($result,true));
             throw new ResponseException($message);
         }
         static::log('-> success');
@@ -415,7 +417,7 @@ abstract class App implements AppInterface
      * @param String $message
      * @return void
      */
-    private function log(String $message)
+    private static function log(String $message)
     {
         if (static::DEBUG) {
             error_log($message);

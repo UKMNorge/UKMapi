@@ -127,7 +127,7 @@ class Curl
             #curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
 
             // Force headers to be json
-            $this->headerList[] = 'Content-Type: application/json';
+            $this->headerList[] = 'Content-type: application/json; charset=utf-8';
             $this->headerList[] = 'Content-Length: ' . strlen($this->json_data);
             curl_setopt($this->curl, CURLOPT_HTTPHEADER, $this->headerList);
         }
@@ -156,6 +156,24 @@ class Curl
         curl_close($this->curl);
 
         return $this->data;
+    }
+
+    /**
+     * Hent response-objekt fra forespørselen
+     *
+     * @return any
+     */
+    public function getData() {
+        return $this->data;
+    }
+
+    /**
+     * Hent (raw) response fra forespørselen
+     *
+     * @return String 
+     */
+    public function getResult() {
+        return $this->result;
     }
 
     private function _init()

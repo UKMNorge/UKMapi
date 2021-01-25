@@ -35,8 +35,8 @@ class Template
         $select->setAccessory(
             new MultiSelect(
                 'channels',
-                $options,
-                new PlainText('Velg kanaler')
+                new PlainText('Velg kanaler'),
+                $options
             )
         );
 

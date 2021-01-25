@@ -3,6 +3,7 @@
 namespace UKMNorge\Slack\Block\Element;
 
 use stdClass;
+use UKMNorge\Slack\Block\Structure\Collection\UserIds;
 use UKMNorge\Slack\Payload\Payload;
 
 class MultiSelectUsers extends SelectUsers {

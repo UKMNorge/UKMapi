@@ -1,6 +1,19 @@
 UKMapi
 ======
 
+## For å bruke biblioteket
+Alle våre servere har `/etc/php-includes/` definert i php include path, og i det er i denne mappen du vanligvis finner dette repoet, klonet inn i mappen `UKM`. 
+Autoloaderen finner du derfor her:
+```php
+require_once('UKM/Autoloader.php');
+```
+
+Config-konstanter (env) finner du her
+```php
+require_once('UKMconfig.inc.php');
+```
+
+
 ## Exceptions:
 API V2 skal kaste kodede exceptions. For exceptions benyttes følgende struktur og tabell for å genere sekssifret unik error-kode
 `[ les|skriv {1|5} ] [ objekt {xx} ] [ action {yyy} ]`
@@ -36,6 +49,7 @@ prefix | objekt | les | skriv
 31 | Media/Artikkel | 131yyy | -
 32 | Media/Bilde | 132yyy | -
 33 | Innslag/Playback | 133yyy | 533yyy
+34 | Kommunikasjon/Reservasjon | 134yyy | - 
 41 | Fil/Excel | 141yyy | - 
 42 | Kommunikasjon/Epost | 142yyy | - 
 43 | Filmer/UKMTV | 143yyy | 543yyy
@@ -43,6 +57,8 @@ prefix | objekt | les | skriv
 45 | Some/Forslag | 145yyy | 545yyy
 46 | Some/Kanaler | 146yyy | 546yyy
 47 | Some/Kanaler | 147yyy | 547yyy
+48 | Kommunikasjon/SMS | 148yyy | - 
+49 | Kommunikasjon/Mottaker | 149yyy | - 
 50 | Arrangement/Arrangementer | 150yyy | -
 51 | Arrangement/Skjema/Skjema | 151yyy | 551yyy
 52 | Arrangement/Skjema/Sporsmal | 152yyy | -

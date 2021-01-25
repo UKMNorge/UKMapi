@@ -28,19 +28,22 @@ class Channels extends Collection
     /**
      * Get user by slack Id
      *
+     * @param String $team_id
      * @param String $slack_id
      * @return User
      * @throws Exception
      */
-    public static function getBySlackId(String $slack_id)
+    public static function getBySlackId(String $team_id, String $slack_id)
     {
         $query = new Query(
             "SELECT * 
             FROM `#table`
-            WHERE `slack_id` = '#slack_id'",
+            WHERE `slack_id` = '#slack_id'
+            AND `team_id` = '#team_id'",
             [
                 'table' => Channel::TABLE,
-                'slack_id' => $slack_id
+                'slack_id' => $slack_id,
+                'team_id' => $team_id
             ]
         );
         $data = $query->getArray();
