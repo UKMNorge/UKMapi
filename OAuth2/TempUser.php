@@ -9,10 +9,12 @@ use Exception;
 // Kan brukes for å opprere nye brukere.
 class TempUser extends User {
 
-    public function __construct(string $tel_nr, string $first_name, string $last_name) {
+    public function __construct(string $tel_nr, string $first_name, string $last_name, $birthday) {
         parent::setTelNumber($tel_nr);
+        parent::setTelCountryCode(); // +47 default
         parent::setFirstName($first_name);
         parent::setLastName($last_name);
+        parent::setBirthday($birthday);
     }
 
 

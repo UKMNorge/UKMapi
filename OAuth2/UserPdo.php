@@ -14,25 +14,43 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
      *
      * @param TempUser $user
      * @param string $password
-     * @return User
+     * @return bool
      */
-    public function createUser(TempUser $user, $password) : User {        
+    public function createUser(TempUser $user, $password) : bool {
+        $tel_country_code = $user->getTelCountryCode();
         $tel_nr = $user->getTelNr();
         $firstName = $user->getFirstName();
         $lastName = $user->getLastName();
-
+        $birthday = $user->getBirthday()->format('Y-m-d');
+        
+        try {
+            $this->validatePassword($password);
+        }catch(Exception $e) {
+            throw $e;
+        }
+        
 
         if($this->userExists($user->getTelNr())) {
             throw new Exception('Ny bruker kan ikke oppretes fordi den eksisterer');
         }
         
+        // Delete not verified user with this tel_nr if it is created
+        $this->deleteNotVerifiedUser($user->getTelNr());
+
         // User does not exist, OK
         $password = $this->hashPassword($password);
-        $stmt = $this->db->prepare(sprintf('INSERT INTO %s (tel_nr, password, first_name, last_name, tel_nr_verified) VALUES (:tel_nr, :password, :firstName, :lastName, false)', $this->config['user_table']));    
-        $stmt->execute(compact('tel_nr', 'password', 'firstName', 'lastName'));            
+        $stmt = $this->db->prepare(sprintf('INSERT INTO %s (tel_nr, password, first_name, last_name, tel_nr_verified, birthday, tel_country_code) VALUES (:tel_nr, :password, :firstName, :lastName, false, :birthday, :tel_country_code)', $this->config['user_table']));    
+        $stmt->execute(compact('tel_nr', 'password', 'firstName', 'lastName', 'birthday', 'tel_country_code'));            
         
-        return new User($tel_nr);
+        return true;
     }
+
+    
+    private function deleteNotVerifiedUser(string $tel_nr) : void {
+        $stmt = $this->db->prepare(sprintf('DELETE FROM %s WHERE tel_nr = :tel_nr and tel_nr_verified=0', $this->config['user_table']));
+        $stmt->execute(compact('tel_nr'));
+    }
+    
 
     /**
      * Update the user data. This can not be used to update the password!
@@ -79,6 +97,26 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
         return false;
     }
 
+    private function validatePassword($password) : bool {
+        if(strlen($password) < 8) {
+			throw new Exception("Passordet må inneholde minst 8 tegn");
+		}
+		if(preg_match('/[a-z]/i', $password) < 1 ) {
+			throw new Exception("Passordet må inneholde minst 1 bokstav");
+		}
+		if(preg_match('/^(?=.*[A-Z])/', $password) < 1) {
+			throw new Exception("Passordet må inneholde minst 1 stor bokstav");
+		}
+		if(preg_match('/(?=.*[0-9])/', $password) < 1) {
+			throw new Exception("Passordet må inneholde minst 1 tall"); 
+		}
+		if(preg_match('/(?=.*[%@$])/', $password) > 0) {
+			throw new Exception("Passordet kan ikke inneholde symbolene %@$"); 
+		}
+        
+        return true;
+    }
+
     public function getUserLoggedinTelNr() : string {
         if(!isset($_SESSION)) { 
             session_start(); 
@@ -99,19 +137,18 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
      * @return bool
      */
     public function changePassword(User $user, string $password) {
-        $uppercase = preg_match('@[A-Z]@', $password);
-        $lowercase = preg_match('@[a-z]@', $password);
-        $number    = preg_match('@[0-9]@', $password);
-
-        if(!$uppercase || !$lowercase || !$number || strlen($password) < 7) {
-            throw new Exception("Passordet er ikke gyldig! Må ha minst 8 tegn og inneholde både tall og store/små bokstaver");
+        try {
+            if($this->validatePassword($password)) {
+       
+                $tel_nr = $user->getTelNr();
+                $password = $this->hashPassword($password);
+                
+                $stmt = $this->db->prepare($sql = sprintf('UPDATE %s SET password=:password where tel_nr=:tel_nr', $this->config['user_table']));
+                return $stmt->execute(compact('tel_nr', 'password'));
+            }
+        }catch (Exception $e) {
+            throw $e;
         }
-
-        $tel_nr = $user->getTelNr();
-        $password = $this->hashPassword($password);
-
-        $stmt = $this->db->prepare($sql = sprintf('UPDATE %s SET password=:password where tel_nr=:tel_nr', $this->config['user_table']));
-        return $stmt->execute(compact('tel_nr', 'password'));
     }
 
     /**
@@ -120,8 +157,7 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
      * @param User $user
      * @return bool
      */
-    public function setVerifiedTelNr(User $user) : bool {
-        $tel_nr = $user->getTelNr();
+    public function setUserToVerified(string $tel_nr) : bool {
         $trueVal = '1';
 
         $stmt = $this->db->prepare($sql = sprintf('UPDATE %s SET tel_nr_verified=:trueVal where tel_nr=:tel_nr', $this->config['user_table']));
@@ -147,4 +183,3 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
 
 }
 
-?>

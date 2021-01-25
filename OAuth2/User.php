@@ -5,14 +5,17 @@ namespace UKMNorge\OAuth2;
 ini_set("display_errors", true);
 
 use Exception;
+use Datetime;
 
 // Representasjon av en bruker for autentisering
 class User {
 
     private $user_id;
+    private $tel_country_code;
     private $tel_nr;
     private $first_name;
     private $last_name;
+    private $birthday;
     private $tel_nr_verified;
 
     protected $notFound = true;
@@ -24,11 +27,13 @@ class User {
         $this->load();
     }
 
-    public function setTelNumber(string $tel_nr) {
-        if(preg_match("/^[++]{1}47[0-9]{8}$/", $tel_nr) == 0) {
-            throw new Exception("Telefonnummer er ikke gyldig, format: +47XXXXXXXX", 583001);
-        }
+    // Støtter bare Norge for nå
+    // Om systemet skal utvides til å støtte flere land, da skal country code brukes som del av autentisering 
+    public function setTelCountryCode() {
+        $this->tel_country_code = "+47";
+    }
 
+    public function setTelNumber(string $tel_nr) {
         $this->tel_nr = $tel_nr;
     }
 
@@ -39,7 +44,11 @@ class User {
     public function setLastName(string $last_name) {
         $this->last_name = $last_name;
     }
-
+    
+    public function setBirthday(DateTime $birthday) {
+        $this->birthday = $birthday;
+    }
+    
     public function changePassword(string $password) : bool {
         return static::$storage->changePassword($this, $password);
     }
@@ -51,6 +60,10 @@ class User {
         return static::$storage->setVerifiedTelNr($this);
     }
 
+
+    public function getTelCountryCode() : string {
+        return $this->tel_country_code;
+    }
 
     public function getTelNr() : string {
         return $this->tel_nr;
@@ -64,6 +77,10 @@ class User {
         return $this->last_name;
     }
 
+    public function getBirthday() : DateTime {
+        return $this->birthday;
+    }
+
     public function isTelNrVerified() : bool {
         return $this->tel_nr_verified;
     }
@@ -73,10 +90,11 @@ class User {
         $userArr = static::$storage->getUser($this->tel_nr); // Throws exception if user is not found!
         
         $this->user_id = $userArr['user_id'];
+        $this->tel_country_code = $userArr['tel_country_code'];
         $this->first_name = $userArr['first_name'];
         $this->last_name = $userArr['last_name'];
+        $this->birthday = new DateTime($userArr['birthday']);
         $this->tel_nr_verified = $userArr['tel_nr_verified'] == "1";
-        
     }
 
     public function save() {

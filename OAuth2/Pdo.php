@@ -41,7 +41,7 @@ class Pdo extends BshafferPdo {
      */
     public function getUser($tel_nr)
     {
-        $stmt = $this->db->prepare($sql = sprintf('SELECT * from %s where tel_nr=:tel_nr', $this->config['user_table']));
+        $stmt = $this->db->prepare($sql = sprintf('SELECT * from %s where tel_nr=:tel_nr and tel_nr_verified=1' , $this->config['user_table']));
         $stmt->execute(array('tel_nr' => $tel_nr));
 
         $userInfo = $stmt->fetch(\PDO::FETCH_ASSOC);
