@@ -17,6 +17,7 @@ class User {
     private $last_name;
     private $birthday;
     private $tel_nr_verified;
+    private $vilkaar;
 
     protected $notFound = true;
     protected static $storage;
@@ -60,7 +61,6 @@ class User {
         return static::$storage->setVerifiedTelNr($this);
     }
 
-
     public function getTelCountryCode() : string {
         return $this->tel_country_code;
     }
@@ -85,6 +85,10 @@ class User {
         return $this->tel_nr_verified;
     }
 
+    public function isVilkaarAccepted() : bool {
+        return $this->vilkaar;
+    }
+
     // This must be private and called by constructor only
     private function load() {
         $userArr = static::$storage->getUser($this->tel_nr); // Throws exception if user is not found!
@@ -95,6 +99,7 @@ class User {
         $this->last_name = $userArr['last_name'];
         $this->birthday = new DateTime($userArr['birthday']);
         $this->tel_nr_verified = $userArr['tel_nr_verified'] == "1";
+        $this->vilkaar = $userArr['vilkaar'] == "1";
     }
 
     public function save() {

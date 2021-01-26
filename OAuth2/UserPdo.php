@@ -39,7 +39,7 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
 
         // User does not exist, OK
         $password = $this->hashPassword($password);
-        $stmt = $this->db->prepare(sprintf('INSERT INTO %s (tel_nr, password, first_name, last_name, tel_nr_verified, birthday, tel_country_code) VALUES (:tel_nr, :password, :firstName, :lastName, false, :birthday, :tel_country_code)', $this->config['user_table']));    
+        $stmt = $this->db->prepare(sprintf('INSERT INTO %s (tel_nr, password, first_name, last_name, tel_nr_verified, birthday, tel_country_code, vilkaar) VALUES (:tel_nr, :password, :firstName, :lastName, false, :birthday, :tel_country_code, false)', $this->config['user_table']));    
         $stmt->execute(compact('tel_nr', 'password', 'firstName', 'lastName', 'birthday', 'tel_country_code'));            
         
         return true;
@@ -163,6 +163,15 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
         $stmt = $this->db->prepare($sql = sprintf('UPDATE %s SET tel_nr_verified=:trueVal where tel_nr=:tel_nr', $this->config['user_table']));
         return $stmt->execute(compact('tel_nr', 'trueVal'));
        
+    }
+
+    public function setVilkaarToAccepted(User $user) : bool {
+        $trueVal = '1';
+
+        $tel_nr = $user->getTelNr();
+
+        $stmt = $this->db->prepare($sql = sprintf('UPDATE %s SET vilkaar=:trueVal where tel_nr=:tel_nr', $this->config['user_table']));
+        return $stmt->execute(compact('tel_nr', 'trueVal'));
     }
 
     // Is tel_nr verified
