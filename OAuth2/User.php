@@ -28,6 +28,10 @@ class User {
         $this->load();
     }
 
+    public function reloadUser() {
+        $this->load();
+    }
+
     // Støtter bare Norge for nå
     // Om systemet skal utvides til å støtte flere land, da skal country code brukes som del av autentisering 
     public function setTelCountryCode() {
@@ -61,6 +65,11 @@ class User {
         return static::$storage->setVerifiedTelNr($this);
     }
 
+    public function setVilkaarToAccepted() {
+        $this->vilkaar = true;
+    }
+
+
     public function getTelCountryCode() : string {
         return $this->tel_country_code;
     }
@@ -92,7 +101,7 @@ class User {
     // This must be private and called by constructor only
     private function load() {
         $userArr = static::$storage->getUser($this->tel_nr); // Throws exception if user is not found!
-        
+
         $this->user_id = $userArr['user_id'];
         $this->tel_country_code = $userArr['tel_country_code'];
         $this->first_name = $userArr['first_name'];

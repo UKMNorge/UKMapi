@@ -89,7 +89,9 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
             session_start(); 
         }
 
-        // Sjekk User class  
+        // TODO: Sjekk User klasse !!
+
+
         if (isset($_SESSION['valid']) && $_SESSION['valid'] == true) {
             return true;
         }
@@ -167,7 +169,6 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
 
     public function setVilkaarToAccepted(User $user) : bool {
         $trueVal = '1';
-
         $tel_nr = $user->getTelNr();
 
         $stmt = $this->db->prepare($sql = sprintf('UPDATE %s SET vilkaar=:trueVal where tel_nr=:tel_nr', $this->config['user_table']));

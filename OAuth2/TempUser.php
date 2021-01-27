@@ -19,6 +19,11 @@ class TempUser extends User {
 
 
     // Override
+    public function update() {
+        throw new Exception('En midlertidig bruker kan ikke opdateres');
+    }
+
+    // Override
     public function save() {
         throw new Exception('En midlertidig bruker kan ikke lagres i database');
     }
