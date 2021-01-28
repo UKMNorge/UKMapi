@@ -20,4 +20,9 @@ class Request extends BshafferRequest {
         return $arg;
     }
 
+    // Add request item to the list of items from the 
+    public function addRequestItem($name, $value) {
+        $this->request[$name] = $value;
+    }
+
 }
