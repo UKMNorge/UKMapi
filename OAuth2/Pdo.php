@@ -56,6 +56,78 @@ class Pdo extends BshafferPdo {
         ), $userInfo);
     }
 
+
+    /**
+     * @param string $access_token
+     * @param mixed  $client_id
+     * @param mixed  $user_id
+     * @param int    $expires
+     * @param string $scope
+     * @return bool
+     */
+    public function setAccessToken($access_token, $client_id, $user_id, $expires, $scope = null)
+    {
+      // var_dump(debug_backtrace());
+      
+      // convert expires to datestring
+        $expires = date('Y-m-d H:i:s', $expires);
+
+        $requestToken = $this->generateAccessToken();
+
+        // if it exists, update it.
+        if ($this->getAccessToken($access_token)) {
+            $stmt = $this->db->prepare(sprintf('UPDATE %s SET client_id=:client_id, expires=:expires, user_id=:user_id, scope=:scope where access_token=:access_token', $this->config['access_token_table']));
+        } else {
+            $stmt = $this->db->prepare(sprintf('INSERT INTO %s (access_token, client_id, expires, user_id, scope, request_token) VALUES (:access_token, :client_id, :expires, :user_id, :scope, :requestToken)', $this->config['access_token_table']));
+        }
+
+        return $stmt->execute(compact('access_token', 'client_id', 'user_id', 'expires', 'scope', 'requestToken'));
+    }
+
+    
+    // Copied from AccessToken.php
+    private function generateAccessToken()
+    {
+        if (function_exists('random_bytes')) {
+            $randomData = random_bytes(20);
+            if ($randomData !== false && strlen($randomData) === 20) {
+                return bin2hex($randomData);
+            }
+        }
+        if (function_exists('openssl_random_pseudo_bytes')) {
+            $randomData = openssl_random_pseudo_bytes(20);
+            if ($randomData !== false && strlen($randomData) === 20) {
+                return bin2hex($randomData);
+            }
+        }
+        if (function_exists('mcrypt_create_iv')) {
+            $randomData = mcrypt_create_iv(20, MCRYPT_DEV_URANDOM);
+            if ($randomData !== false && strlen($randomData) === 20) {
+                return bin2hex($randomData);
+            }
+        }
+        if (@file_exists('/dev/urandom')) { // Get 100 bytes of random data
+            $randomData = file_get_contents('/dev/urandom', false, null, 0, 20);
+            if ($randomData !== false && strlen($randomData) === 20) {
+                return bin2hex($randomData);
+            }
+        }
+        // Last resort which you probably should just get rid of:
+        $randomData = mt_rand() . mt_rand() . mt_rand() . mt_rand() . microtime(true) . uniqid(mt_rand(), true);
+
+        return substr(hash('sha512', $randomData), 0, 40);
+    }
+
+
+
+
+
+
+
+
+
+
+
     /**
      * plaintext passwords are bad!  Override this for your application
      * override
