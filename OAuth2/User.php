@@ -32,6 +32,15 @@ class User {
         $this->load();
     }
 
+    /**
+     * Get user by Id
+     * 
+     * @return User
+     */
+    public static function getById( $id ) {
+        return new static($id);
+    }
+
     // Støtter bare Norge for nå
     // Om systemet skal utvides til å støtte flere land, da skal country code brukes som del av autentisering 
     public function setTelCountryCode() {
@@ -90,10 +99,20 @@ class User {
         return $this->birthday;
     }
 
+    /**
+     * Has the user verified his/hers phone number?
+     * 
+     * @return bool
+     */
     public function isTelNrVerified() : bool {
         return $this->tel_nr_verified;
     }
 
+    /**
+     * Has the user accepted the toc
+     * 
+     * @return bool
+     */
     public function isVilkaarAccepted() : bool {
         return $this->vilkaar;
     }

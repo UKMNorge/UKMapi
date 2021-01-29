@@ -84,11 +84,15 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
         }
     }
 
+    /**
+     * Is the user currently logged in?
+     * 
+     * @return bool
+     */
     public function isUserLoggedin() : bool {
         if(!isset($_SESSION)) {
             session_start(); 
         }
-
         // TODO: Sjekk User klasse !!
 
 
