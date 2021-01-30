@@ -25,4 +25,14 @@ class Request extends BshafferRequest {
         $this->request[$name] = $value;
     }
 
+    /**
+     * Bare for VS CODE skyld
+     * 
+     * @return Request
+     */
+    public static function createFromGlobals() {
+        return parent::createFromGlobals();
+    }
+
+
 }

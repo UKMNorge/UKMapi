@@ -93,7 +93,7 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
         if(!isset($_SESSION)) {
             session_start(); 
         }
-        // TODO: Sjekk User klasse !!
+        // TODO: Sjekk User klasse !!  IMPORTANT::::::::::::::::IMPORTANT:::::
 
 
         if (isset($_SESSION['valid']) && $_SESSION['valid'] == true) {
@@ -176,7 +176,12 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
         $tel_nr = $user->getTelNr();
 
         $stmt = $this->db->prepare($sql = sprintf('UPDATE %s SET vilkaar=:trueVal where tel_nr=:tel_nr', $this->config['user_table']));
-        return $stmt->execute(compact('tel_nr', 'trueVal'));
+        
+        $execute = $stmt->execute(compact('tel_nr', 'trueVal'));
+        if(!$execute) {
+            throw new Exception('Vilkaar ble ikke lagret!');
+        }
+        return $execute;
     }
 
     // Is tel_nr verified

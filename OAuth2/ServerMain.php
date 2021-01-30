@@ -7,6 +7,14 @@ use \OAuth2\Server as BshafferServer;
 require_once('UKM/vendor/autoload.php');
 require_once('UKMconfig.inc.php');
 
+use OAuth2\GrantType\AuthorizationCode;
+// use UKMNorge\OAuth2\ModifiedServer as ModifiedServer;
+// use UKMNorge\OAuth2\ModifiedServer;
+
+
+
+
+
 
 class ServerMain {
     
@@ -47,7 +55,7 @@ class ServerMain {
         // $server->addGrantType(new OAuth2\GrantType\ClientCredentials($storage));
 
         // Add the "Authorization Code" grant type (this is where the oauth magic happens)
-        // $server->addGrantType(new OAuth2\GrantType\AuthorizationCode($storage));
+        static::$server->addGrantType(new AuthorizationCode(static::$storage));
         
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+# NOTE: IF THE GRANT TYPE USER CREDENTIALS IS NOT USED, THEN THIS CLASS CAN BE DELETED
+
 namespace UKMNorge\OAuth2;
 
 use \OAuth2\GrantType\UserCredentials as BshafferUserCredentials;
@@ -7,6 +9,7 @@ use \OAuth2\RequestInterface;
 use \OAuth2\ResponseInterface;
 use OAuth2\ResponseType\AccessTokenInterface;
 
+use \OAuth2\storage\UserCredentialsInterface as UserCredentialsInterface;
 
 
 
@@ -38,29 +41,30 @@ class UserCredentials extends BshafferUserCredentials {
      * @throws LogicException
      */
     public function validateRequest(RequestInterface $request, ResponseInterface $response) {
-         $tel_nr = $this->storage->getUserLoggedinTelNr(); 
+        //  $tel_nr = $this->storage->getUserLoggedinTelNr(); 
          
-         if (empty($tel_nr) || !$this->storage->isUserLoggedin()) {
-             $response->setError(401, 'invalid_grant', 'The user is not logged in!');
+        //  if (empty($tel_nr) || !$this->storage->isUserLoggedin()) {
+        //      $response->setError(401, 'invalid_grant', 'The user is not logged in!');
  
-             return null;
-         }
+        //      return null;
+        //  }
+        
 
-         $userInfo = $this->storage->getUserDetails($tel_nr);
- 
-         if (empty($userInfo)) {
-             $response->setError(400, 'invalid_grant', 'Unable to retrieve user information');
- 
-             return null;
-         }
- 
-         if (!isset($userInfo['user_id'])) {
-             throw new \LogicException("you must set the user_id on the array returned by getUserDetails");
-         }
- 
-         $this->userInfo = $userInfo;
- 
-         return true;
+        // $userInfo = $this->storage->getUserDetails($tel_nr);
+
+        if (empty($userInfo)) {
+            $response->setError(400, 'invalid_grant', 'Unable to retrieve user information');
+
+            return null;
+        }
+
+        if (!isset($userInfo['user_id'])) {
+            throw new \LogicException("you must set the user_id on the array returned by getUserDetails");
+        }
+
+        $this->userInfo = $userInfo;
+
+        return true;
     }
 
     /**

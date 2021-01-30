@@ -56,37 +56,26 @@ class Pdo extends BshafferPdo {
         ), $userInfo);
     }
 
+    public function getUserByAccessToken(string $accessToken, string $scope) {
+      $userId = parent::getAccessToken($accessToken)['user_id'];
 
-    /**
-     * @param string $access_token
-     * @param mixed  $client_id
-     * @param mixed  $user_id
-     * @param int    $expires
-     * @param string $scope
-     * @return bool
-     */
-    public function setAccessToken($access_token, $client_id, $user_id, $expires, $scope = null)
-    {
-      // var_dump(debug_backtrace());
-      
-      // convert expires to datestring
-        $expires = date('Y-m-d H:i:s', $expires);
-
-        $requestToken = $this->generateAccessToken();
-
-        // if it exists, update it.
-        if ($this->getAccessToken($access_token)) {
-            $stmt = $this->db->prepare(sprintf('UPDATE %s SET client_id=:client_id, expires=:expires, user_id=:user_id, scope=:scope where access_token=:access_token', $this->config['access_token_table']));
-        } else {
-            $stmt = $this->db->prepare(sprintf('INSERT INTO %s (access_token, client_id, expires, user_id, scope, request_token) VALUES (:access_token, :client_id, :expires, :user_id, :scope, :requestToken)', $this->config['access_token_table']));
-        }
-
-        return $stmt->execute(compact('access_token', 'client_id', 'user_id', 'expires', 'scope', 'requestToken'));
+      return $this->getDisplayUser($userId, $scope);
     }
 
+    public function getDisplayUser(string $tel_nr, string $scope) {
+      if($scope == 'identify') {
+        $user = $this->getUser($tel_nr);
+        return json_encode(array(
+          'user_id' => $user['user_id'],
+          'first_name' => $user['first_name'],
+          'last_name' => $user['last_name']
+        ));
+      }
+      throw new Exception('Scope er ikke støttet!');
+    }
     
     // Copied from AccessToken.php
-    private function generateAccessToken()
+    public function generateRandomToken()
     {
         if (function_exists('random_bytes')) {
             $randomData = random_bytes(20);
