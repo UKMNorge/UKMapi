@@ -9,7 +9,8 @@ use Exception;
 
 require_once('UKM/Autoloader.php');
 
-class Skjema {
+class Skjema
+{
 
     private $id;
     private $sporsmal;
@@ -18,10 +19,12 @@ class Skjema {
     private $arrangement_id;
     private $eier;
 
-    public function __construct( Int $id, Int $pl_id, String $eier_type, Int $eier_id ) {
+    public function __construct(Int $id, Int $pl_id, String $eier_type, Int $eier_id, String $type)
+    {
         $this->id = $id;
         $this->arrangement_id = $pl_id;
-        $this->eier = new Eier( $eier_type, $eier_id );
+        $this->eier = new Eier($eier_type, $eier_id);
+        $this->type = $type;
     }
 
     /**
@@ -30,29 +33,58 @@ class Skjema {
      * @param Int $pl_id
      * @return Skjema $skjema
      */
-    public static function loadFromArrangement( Int $pl_id ) {
-        $query = new Query(
-            "SELECT *
+    public static function getArrangementSkjema(Int $pl_id)
+    {
+        return static::load(
+            new Query(
+                "SELECT `id`
             FROM `ukm_videresending_skjema`
-            WHERE `pl_id` = '#arrangement'",
-            [
-                'arrangement' => $pl_id
-            ]
+            WHERE `pl_id` = '#arrangement'
+            AND `type` = 'arrangement'",
+                [
+                    'arrangement' => $pl_id
+                ]
+            )
         );
-        $db_row = $query->getArray();
+    }
 
-        if( !$db_row ) {
+    /**
+     * Hent skjema for deltakere (person)
+     * 
+     * @param Int $pl_id
+     * @return Skjema $skjema
+     */
+    public static function getDeltakerSkjema(Int $pl_id)
+    {
+        return static::load(
+            new Query(
+                "SELECT `id`
+                FROM `ukm_videresending_skjema`
+                WHERE `pl_id` = '#arrangement'
+                AND `type` = 'person'",
+                [
+                    'arrangement' => $pl_id
+                ]
+            )
+        );
+    }
+
+    /**
+     * Last inn skjema fra Query
+     * 
+     * @return Skjema $skjema
+     */
+    private static function load(Query $query)
+    {
+        $skjema_id = $query->getField();
+
+        if (!$skjema_id) {
             throw new Exception(
-                'Arrangementet har ikke skjema',
+                'Fant ikke skjema for arrangementet',
                 151001
             );
         }
-        return new Skjema(
-            $db_row['id'],
-            $db_row['pl_id'],
-            $db_row['eier_type'],
-            $db_row['eier_id']
-        );
+        return Skjema::getFromId($skjema_id);
     }
 
     /**
@@ -61,7 +93,8 @@ class Skjema {
      * @param Int $id
      * @return Skjema
      */
-    public static function getFromId( Int $id ) {
+    public static function getFromId(Int $id)
+    {
         $query = new Query(
             "SELECT *
             FROM `ukm_videresending_skjema`
@@ -72,9 +105,9 @@ class Skjema {
         );
         $db_row = $query->getArray();
 
-        if( !$db_row ) {
+        if (!$db_row) {
             throw new Exception(
-                'Finner ikke skjema '. $id,
+                'Finner ikke skjema ' . $id,
                 151002
             );
         }
@@ -82,7 +115,8 @@ class Skjema {
             $db_row['id'],
             $db_row['pl_id'],
             $db_row['eier_type'],
-            $db_row['eier_id']
+            $db_row['eier_id'],
+            $db_row['type']
         );
     }
 
@@ -224,8 +258,9 @@ class Skjema {
      *
      * @return Array $SvarSett 
      */
-    public function getSvarSett() {
-        if( is_null($this->svar_sett) ) {
+    public function getSvarSett()
+    {
+        if (is_null($this->svar_sett)) {
             $this->svar_sett = [];
 
             $select = new Query(
@@ -239,9 +274,9 @@ class Skjema {
 
             $res = $select->run();
 
-            while( $db_row = Query::fetch( $res ) ) {
-                $this->svar_sett[ intval($db_row['pl_fra']) ] =
-                    new SvarSett( $this->getId(), intval($db_row['pl_fra']));
+            while ($db_row = Query::fetch($res)) {
+                $this->svar_sett[intval($db_row['pl_fra'])] =
+                    new SvarSett($this->getId(), intval($db_row['pl_fra']));
             }
         }
 
@@ -256,21 +291,23 @@ class Skjema {
      * @param Int $arrangement_id
      * @return SvarSett $svar
      */
-    public function getSvarSettFor( Int $arrangement_id ) {
-        return $this->getSvarSettForArrangement($arrangement_id); 
+    public function getSvarSettFor(Int $arrangement_id)
+    {
+        return $this->getSvarSettForArrangement($arrangement_id);
     }
-    
+
     /**
      * Hent svar fra ett gitt arrangement
      * 
      * @param Int $arrangement_id
      * @return SvarSett $svar
      */
-    public function getSvarSettForArrangement( Int $arrangement_id ) {
-        if( !isset( $this->getSvarSett()[ $arrangement_id ] ) ) {
-            $this->svar_sett[ $arrangement_id ] = SvarSett::getForArrangement($arrangement_id, $this->getId());
+    public function getSvarSettForArrangement(Int $arrangement_id)
+    {
+        if (!isset($this->getSvarSett()[$arrangement_id])) {
+            $this->svar_sett[$arrangement_id] = SvarSett::getForArrangement($arrangement_id, $this->getId());
         }
-        return $this->getSvarSett()[ $arrangement_id ];
+        return $this->getSvarSett()[$arrangement_id];
     }
 
     /**
@@ -279,7 +316,8 @@ class Skjema {
      * @param Int $arrangement_id
      * @return SvarSett $svar
      */
-    public function getSvarSettForPerson( Int $person_id ) {
+    public function getSvarSettForPerson(Int $person_id)
+    {
         return SvarSett::getForPerson($person_id, $this->getId());
     }
 
@@ -287,7 +325,7 @@ class Skjema {
      * Hent skjema-ID
      * 
      * @return Int $id
-     */ 
+     */
     public function getId()
     {
         return $this->id;

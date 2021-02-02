@@ -13,20 +13,46 @@ use UKMNorge\Database\SQL\Update;
 require_once('UKM/Autoloader.php');
 
 class Write {
+    
     /**
      * Opprett et skjema
      * Lagres automatisk i databasen
      *
      * @param Arrangement $arrangement
-     * @param Eier $eier
      * @return Skjema $skjema
      * @throws Exception hvis database-persist feiler
      */
-    public static function create( Arrangement $arrangement ) {
+    public static function createForArrangement( Arrangement $arrangement ) {
+        return static::create($arrangement, 'arrangement');
+    }
+
+    /**
+     * Opprett et skjema
+     * Lagres automatisk i databasen
+     *
+     * @param Arrangement $arrangement
+     * @return Skjema $skjema
+     * @throws Exception hvis database-persist feiler
+     */
+    public static function createForPerson( Arrangement $arrangement ) {
+        return static::create($arrangement, 'person');
+    }
+
+    /**
+     * Opprett et skjema
+     * Lagres automatisk i databasen
+     *
+     * @deprecated Should be private
+     * @param Arrangement $arrangement
+     * @return Skjema $skjema
+     * @throws Exception hvis database-persist feiler
+     */
+    public static function create( Arrangement $arrangement, $type = 'arrangement' ) {
         $insert = new Insert('ukm_videresending_skjema');
         $insert->add('pl_id', $arrangement->getId());
         $insert->add('eier_type', $arrangement->getEierObjekt()->getType());
         $insert->add('eier_id', $arrangement->getEierObjekt()->getId());
+        $insert->add('type', $type);
 
         $res = $insert->run();
 
@@ -42,7 +68,8 @@ class Write {
             $res,
             $arrangement->getId(),
             $arrangement->getEierObjekt()->getType(),
-            $arrangement->getEierObjekt()->getId()
+            $arrangement->getEierObjekt()->getId(),
+            $type
         );
     }
 

@@ -717,7 +717,7 @@ class Arrangement
     {
         if ($this->skjema == null) {
             try {
-                $this->skjema = Skjema::loadFromArrangement($this->getId());
+                $this->skjema = Skjema::getArrangementSkjema($this->getId());
             } catch (Exception $e) {
                 // Betyr at arrangementet ikke har skjeam
                 if ($e->getCode() == 151001) {
@@ -739,35 +739,21 @@ class Arrangement
      */
     public function getDeltakerSkjema() {
         if( $this->deltakerskjema == null ) {
-            /** @var Int $skjema_id  */
-            $skjema_id = $this->getMetaValue('deltakerskjema');
-            if( is_null($skjema_id)) {
-                throw new Exception(
-                    $this->getNavn() .' har ikke et deltakerskjema',
-                    101004
-                );
-            }
-            $this->deltakerskjema = Skjema::getFromId($skjema_id);
+            $this->deltakerskjema = Skjema::getDeltakerSkjema( $this->getId() );
         }
         return $this->deltakerskjema;
     }
 
     /**
-     * Sjekk om arrangementet har et deltakerskjema
+     * Sjekk om arrangementet skal ha et deltakerskjema
      * 
      * @return bool
-     * @throws Exception if unknown exception
      */
     public function harDeltakerSkjema() {
-        try {
-            $this->getDeltakerSkjema();
-            return true;
-        } catch( Exception $e ) {
-            if( $e->getCode() == 101004) {
-                return false;
-            }
-            throw $e;
+        if( is_null( $this->getMetaValue('harDeltakerskjema'))) {
+            return false;
         }
+        return true;
     }
 
     /**
