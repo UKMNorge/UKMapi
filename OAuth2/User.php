@@ -63,8 +63,8 @@ class User {
         $this->birthday = $birthday;
     }
     
-    public function changePassword(string $password) : bool {
-        return static::$storage->changePassword($this, $password);
+    public function changePassword(string $newPassword) : bool {
+        return static::$storage->changePassword($this, $newPassword);
     }
 
     public function setTelNrVerified() : bool {
