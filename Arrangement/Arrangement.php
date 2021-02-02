@@ -66,6 +66,7 @@ class Arrangement
     var $path = null;
     var $har_skjema = false;
     var $skjema = null;
+    var $deltakerskjema = null;
     var $kontaktpersoner = null;
     var $pamelding = null;
     var $registrert = null;
@@ -710,7 +711,7 @@ class Arrangement
      * OBS: du kan få et skjema, selv om arrangementet ikke ønsker
      * å bruke det!
      *
-     * @return skjema $skjema
+     * @return Skjema $skjema
      **/
     public function getSkjema()
     {
@@ -726,6 +727,47 @@ class Arrangement
             }
         }
         return $this->skjema;
+    }
+
+    /**
+     * Hent deltakerskjema
+     * 
+     * Noen arrangement kan også ha et skjema med spørsmål til deltakerne
+     * 
+     * @return Skjema $skjema
+     * @throws Exception
+     */
+    public function getDeltakerSkjema() {
+        if( $this->deltakerskjema == null ) {
+            /** @var Int $skjema_id  */
+            $skjema_id = $this->getMetaValue('deltakerskjema');
+            if( is_null($skjema_id)) {
+                throw new Exception(
+                    $this->getNavn() .' har ikke et deltakerskjema',
+                    101004
+                );
+            }
+            $this->deltakerskjema = Skjema::getFromId($skjema_id);
+        }
+        return $this->deltakerskjema;
+    }
+
+    /**
+     * Sjekk om arrangementet har et deltakerskjema
+     * 
+     * @return bool
+     * @throws Exception if unknown exception
+     */
+    public function harDeltakerSkjema() {
+        try {
+            $this->getDeltakerSkjema();
+            return true;
+        } catch( Exception $e ) {
+            if( $e->getCode() == 101004) {
+                return false;
+            }
+            throw $e;
+        }
     }
 
     /**

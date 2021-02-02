@@ -195,11 +195,9 @@ class Write {
         }
 
         if( $svar->getId() == 0 ) {
-            $query = new Update(
-                'ukm_videresending_skjema_svar'
-            );
+            $query = new Insert('ukm_videresending_skjema_svar');
             $query->add('skjema', $svarSett->getSkjemaId());
-            $query->add('pl_fra', $svarSett->getFra());
+            $query->add( ($svarSett->erArrangement() ? 'pl':'p').'_fra', $svarSett->getFra());
             $query->add('sporsmal', $svar->getSporsmalId());
         } else {
             $query = new Update(

@@ -250,15 +250,37 @@ class Skjema {
 
     /**
      * Hent svar fra ett gitt arrangement
+     * 
+     * @deprecated see getSvarSettForArrangement
      *
      * @param Int $arrangement_id
      * @return SvarSett $svar
      */
     public function getSvarSettFor( Int $arrangement_id ) {
+        return $this->getSvarSettForArrangement($arrangement_id); 
+    }
+    
+    /**
+     * Hent svar fra ett gitt arrangement
+     * 
+     * @param Int $arrangement_id
+     * @return SvarSett $svar
+     */
+    public function getSvarSettForArrangement( Int $arrangement_id ) {
         if( !isset( $this->getSvarSett()[ $arrangement_id ] ) ) {
-            $this->svar_sett[ $arrangement_id ] = new SvarSett( $this->getId(), $arrangement_id);
+            $this->svar_sett[ $arrangement_id ] = SvarSett::getForArrangement($arrangement_id, $this->getId());
         }
         return $this->getSvarSett()[ $arrangement_id ];
+    }
+
+    /**
+     * Hent svar fra en gitt deltaker
+     * 
+     * @param Int $arrangement_id
+     * @return SvarSett $svar
+     */
+    public function getSvarSettForPerson( Int $person_id ) {
+        return SvarSett::getForPerson($person_id, $this->getId());
     }
 
     /**

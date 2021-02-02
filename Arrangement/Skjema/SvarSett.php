@@ -2,6 +2,7 @@
 
 namespace UKMNorge\Arrangement\Skjema;
 
+use Exception;
 use UKMNorge\Database\SQL\Query;
 
 require_once('UKM/Autoloader.php');
@@ -13,12 +14,34 @@ class SvarSett
     private $fra = 0;
     private $svar = [];
     private $loaded = false;
+    private $type;
 
+
+    public static function getForArrangement( Int $arrangement_id, Int $skjema ) {
+        return new static($skjema, $arrangement_id);
+    }
+
+    public static function getForPerson( Int $person_id, Int $skjema ) {
+        return new static($skjema, null, $person_id);
+    }
     
-    public function __construct(Int $skjema, Int $pl_id_fra)
+    public function __construct(Int $skjema, Int $pl_id_fra = null, Int $person_id = null)
     {
         $this->skjema = $skjema;
-        $this->fra = $pl_id_fra;
+        if( !is_null($pl_id_fra) && !is_null($person_id)) {
+            throw new Exception(
+                'Kan ikke hente svarsett for arrangement og deltaker samtidig.',
+                153001
+            );
+        }
+        if( !is_null( $pl_id_fra ) ) {
+            $this->type = 'arrangement';
+            $this->fra = $pl_id_fra;
+        } 
+        if( !is_null($person_id)) {
+            $this->type = 'person';
+            $this->fra = $person_id;
+        }
     }
 
     /**
@@ -48,11 +71,38 @@ class SvarSett
      * Hent eier av svar-settet
      * (Hvem har svart?)
      * 
-     * @return Int $pl_id_fra
+     * @return Int $id
      */
     public function getFra()
     {
         return $this->fra;
+    }
+
+    /**
+     * Hvilken entitet har svart? Person / Arrangement
+     * 
+     * @return String
+     */
+    public function getType() {
+        return $this->type;
+    }
+
+    /**
+     * Er dette svarsettet for et arrangement?
+     * 
+     * @return bool
+     */
+    public function erArrangement() {
+        return $this->getType() == 'arrangement';
+    }
+
+    /**
+     * Er dette svarsettet for en person?
+     * 
+     * @return bool
+     */
+    public function erPerson() {
+        return $this->getType() == 'person';
     }
 
     /**
@@ -67,13 +117,13 @@ class SvarSett
                 "SELECT *
                 FROM `ukm_videresending_skjema_svar`
                 WHERE `skjema` = '#skjema'
-                AND `pl_fra` = '#fra'",
+                AND `#felt_fra` = '#fra'",
                 [
                     'skjema' => $this->getSkjemaId(),
-                    'fra' => $this->getFra()
+                    'fra' => $this->getFra(),
+                    'felt_fra' => $this->erArrangement() ? 'pl_fra' : 'p_fra'
                 ]
             );
-
             $result = $select->run();
             while ($row = Query::fetch($result)) {
                 $this->svar[$row['sporsmal']] = Svar::createFromDatabase($row);
