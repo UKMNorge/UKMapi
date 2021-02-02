@@ -126,11 +126,11 @@ class Skjema
      * fra Arrangement-klassen.
      * 
      * @return Arrangement $arrangement
-     */ 
+     */
     public function getArrangement()
     {
-        if( null == $this->arrangement ) {
-            $this->arrangement = new Arrangement( $this->getArrangementId() );
+        if (null == $this->arrangement) {
+            $this->arrangement = new Arrangement($this->getArrangementId());
         }
         return $this->arrangement;
     }
@@ -140,7 +140,8 @@ class Skjema
      *
      * @return Int $pl_id
      */
-    public function getArrangementId() {
+    public function getArrangementId()
+    {
         return $this->arrangement_id;
     }
 
@@ -150,15 +151,15 @@ class Skjema
      * @param Int Spørsmål-ID, default null
      * @throws Exception
      * @return Array<Sporsmal>|Sporsmal
-     */ 
-    public function getSporsmal( Int $sporsmal_id = null)
+     */
+    public function getSporsmal(Int $sporsmal_id = null)
     {
-        if( is_null($sporsmal_id ) ) {
+        if (is_null($sporsmal_id)) {
             return $this->getAll();
         }
-        if( !isset($this->getAll()[$sporsmal_id])) {
+        if (!isset($this->getAll()[$sporsmal_id])) {
             throw new Exception(
-                'Beklager, skjema '. $this->getId() .' har ikke spørsmål '. $sporsmal_id,
+                'Beklager, skjema ' . $this->getId() . ' har ikke spørsmål ' . $sporsmal_id,
                 151003
             );
         };
@@ -170,8 +171,9 @@ class Skjema
      *
      * @return Int
      */
-    public function getAntallOverskrifter() {
-        return sizeof( $this->getOverskrifter() );
+    public function getAntallOverskrifter()
+    {
+        return sizeof($this->getOverskrifter());
     }
 
     /**
@@ -179,10 +181,11 @@ class Skjema
      *
      * @return Array<Sporsmal>
      */
-    public function getOverskrifter() {
+    public function getOverskrifter()
+    {
         $this->overskrifter = [];
-        foreach( $this->getAll() as $sporsmal ) {
-            if( $sporsmal->getType() == 'overskrift') {
+        foreach ($this->getAll() as $sporsmal) {
+            if ($sporsmal->getType() == 'overskrift') {
                 $this->overskrifter[] = $sporsmal;
             }
         }
@@ -194,29 +197,29 @@ class Skjema
      *
      * @return Array
      */
-    public function getSporsmalGruppertPerOverskrift() {
-        if( is_null($this->grupper)){
+    public function getSporsmalGruppertPerOverskrift()
+    {
+        if (is_null($this->grupper)) {
             $this->grupper = [];
             $count = 0;
             $current_index = 0;
-            foreach( $this->getAll() as $sporsmal ) {
-                if( $count == 0 && $sporsmal->getType() != 'overskrift' ) {
+            foreach ($this->getAll() as $sporsmal) {
+                if ($count == 0 && $sporsmal->getType() != 'overskrift') {
                     $this->grupper[] = Gruppe::createEmpty();
-                    $current_index = sizeof($this->grupper)-1;
+                    $current_index = sizeof($this->grupper) - 1;
                 }
-                
-                switch( $sporsmal->getType() ) {
+
+                switch ($sporsmal->getType()) {
                     case 'overskrift':
                         $this->grupper[] = Gruppe::createFromSporsmal($sporsmal);
-                        $current_index = sizeof($this->grupper)-1;
-                    break;
+                        $current_index = sizeof($this->grupper) - 1;
+                        break;
                     default:
-                        $this->grupper[ $current_index ]->add( $sporsmal );
+                        $this->grupper[$current_index]->add($sporsmal);
                 }
 
                 $count++;
             }
-
         }
         return $this->grupper;
     }
@@ -226,8 +229,9 @@ class Skjema
      * 
      * @return Array<Sporsmal>
      */
-    public function getAll() {
-        if( is_null($this->sporsmal )) {
+    public function getAll()
+    {
+        if (is_null($this->sporsmal)) {
             $this->sporsmal = [];
 
             $select = new Query(
@@ -240,16 +244,17 @@ class Skjema
                 ]
             );
             $res = $select->run();
-            while( $db_row = Query::fetch( $res ) ) {
-                $this->addSporsmal( Sporsmal::createFromDatabase( $db_row ));
+            while ($db_row = Query::fetch($res)) {
+                $this->addSporsmal(Sporsmal::createFromDatabase($db_row));
             }
         }
         return $this->sporsmal;
     }
 
-    public function addSporsmal( Sporsmal $sporsmal ) {
+    public function addSporsmal(Sporsmal $sporsmal)
+    {
         $this->getSporsmal();
-        $this->sporsmal[ $sporsmal->getId() ] = $sporsmal;
+        $this->sporsmal[$sporsmal->getId()] = $sporsmal;
         return $this;
     }
 
