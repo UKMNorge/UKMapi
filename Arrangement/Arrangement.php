@@ -691,7 +691,14 @@ class Arrangement
      **/
     public function harSkjema()
     {
-        return $this->har_skjema;
+        if($this->har_skjema) {
+            try {
+                $this->getSkjema();
+                return true;
+            } catch( Exception $e ) {
+                return false;
+            }
+        }
     }
 
     /**
@@ -712,19 +719,12 @@ class Arrangement
      * å bruke det!
      *
      * @return Skjema $skjema
+     * @throws Exception 151002
      **/
     public function getSkjema()
     {
         if ($this->skjema == null) {
-            try {
-                $this->skjema = Skjema::getArrangementSkjema($this->getId());
-            } catch (Exception $e) {
-                // Betyr at arrangementet ikke har skjeam
-                if ($e->getCode() == 151001) {
-                    return false;
-                }
-                throw $e;
-            }
+            $this->skjema = Skjema::getArrangementSkjema($this->getId());
         }
         return $this->skjema;
     }
@@ -735,7 +735,7 @@ class Arrangement
      * Noen arrangement kan også ha et skjema med spørsmål til deltakerne
      * 
      * @return Skjema $skjema
-     * @throws Exception
+     * @throws Exception 151002
      */
     public function getDeltakerSkjema() {
         if( $this->deltakerskjema == null ) {

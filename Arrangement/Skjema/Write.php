@@ -66,10 +66,10 @@ class Write {
 
         return new Skjema(
             $res,
+            $type,
             $arrangement->getId(),
             $arrangement->getEierObjekt()->getType(),
-            $arrangement->getEierObjekt()->getId(),
-            $type
+            $arrangement->getEierObjekt()->getId()
         );
     }
 
@@ -94,8 +94,7 @@ class Write {
         $res = $insert->run();
         if( !$res ) {
             throw new Exception(
-                'Kunne ikke opprette spørsmål '. $tittel .'. '.
-                'Systemet sa '. $res->getError(),
+                'Kunne ikke opprette spørsmål '. $tittel .'. ',
                 551002
             );
         }
@@ -137,8 +136,7 @@ class Write {
 
         if( $res === false ) {
             throw new Exception(
-                'Kunne ikke lagre spørsmål '. $sporsmal->getTittel() .'. '.
-                'Systemet sa: '. $res->getError(),
+                'Kunne ikke lagre spørsmål '. $sporsmal->getTittel() .'. ',
                 551004
             );
         }
@@ -224,7 +222,7 @@ class Write {
         if( $svar->getId() == 0 ) {
             $query = new Insert('ukm_videresending_skjema_svar');
             $query->add('skjema', $svarSett->getSkjemaId());
-            $query->add( ($svarSett->erArrangement() ? 'pl':'p').'_fra', $svarSett->getFra());
+            $query->add( ($svarSett->getType() == 'arrangement' ? 'pl':'p').'_fra', $svarSett->getId());
             $query->add('sporsmal', $svar->getSporsmalId());
         } else {
             $query = new Update(
@@ -250,10 +248,7 @@ class Write {
         }
         
         throw new Exception(
-            'Kunne ikke lagre svar for "'. 
-            $svarSett->getSkjema()->getSporsmal( $svar->getSporsmalId() )
-                ->getTittel()
-            .'".',
+            'Kunne ikke lagre svar for "'. $svar->getSporsmalId() .'".',
             551009
         );
     }
