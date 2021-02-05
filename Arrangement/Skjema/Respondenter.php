@@ -112,6 +112,8 @@ class Respondenter
             $respondent = new Respondent($id, $this->getSkjemaType(), $this->getSkjemaId());
             $this->respondenter[$respondent->getNavn() .'-'. $id] = $respondent;
         }
+
+        ksort($this->respondenter);
     }
 
     /**
