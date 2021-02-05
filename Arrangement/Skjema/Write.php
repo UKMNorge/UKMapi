@@ -13,20 +13,46 @@ use UKMNorge\Database\SQL\Update;
 require_once('UKM/Autoloader.php');
 
 class Write {
+    
     /**
      * Opprett et skjema
      * Lagres automatisk i databasen
      *
      * @param Arrangement $arrangement
-     * @param Eier $eier
      * @return Skjema $skjema
      * @throws Exception hvis database-persist feiler
      */
-    public static function create( Arrangement $arrangement ) {
+    public static function createForArrangement( Arrangement $arrangement ) {
+        return static::create($arrangement, 'arrangement');
+    }
+
+    /**
+     * Opprett et skjema
+     * Lagres automatisk i databasen
+     *
+     * @param Arrangement $arrangement
+     * @return Skjema $skjema
+     * @throws Exception hvis database-persist feiler
+     */
+    public static function createForPerson( Arrangement $arrangement ) {
+        return static::create($arrangement, 'person');
+    }
+
+    /**
+     * Opprett et skjema
+     * Lagres automatisk i databasen
+     *
+     * @deprecated Should be private
+     * @param Arrangement $arrangement
+     * @return Skjema $skjema
+     * @throws Exception hvis database-persist feiler
+     */
+    public static function create( Arrangement $arrangement, $type = 'arrangement' ) {
         $insert = new Insert('ukm_videresending_skjema');
         $insert->add('pl_id', $arrangement->getId());
         $insert->add('eier_type', $arrangement->getEierObjekt()->getType());
         $insert->add('eier_id', $arrangement->getEierObjekt()->getId());
+        $insert->add('type', $type);
 
         $res = $insert->run();
 
@@ -40,6 +66,7 @@ class Write {
 
         return new Skjema(
             $res,
+            $type,
             $arrangement->getId(),
             $arrangement->getEierObjekt()->getType(),
             $arrangement->getEierObjekt()->getId()
@@ -67,8 +94,7 @@ class Write {
         $res = $insert->run();
         if( !$res ) {
             throw new Exception(
-                'Kunne ikke opprette spørsmål '. $tittel .'. '.
-                'Systemet sa '. $res->getError(),
+                'Kunne ikke opprette spørsmål '. $tittel .'. ',
                 551002
             );
         }
@@ -110,8 +136,7 @@ class Write {
 
         if( $res === false ) {
             throw new Exception(
-                'Kunne ikke lagre spørsmål '. $sporsmal->getTittel() .'. '.
-                'Systemet sa: '. $res->getError(),
+                'Kunne ikke lagre spørsmål '. $sporsmal->getTittel() .'. ',
                 551004
             );
         }
@@ -195,11 +220,9 @@ class Write {
         }
 
         if( $svar->getId() == 0 ) {
-            $query = new Update(
-                'ukm_videresending_skjema_svar'
-            );
+            $query = new Insert('ukm_videresending_skjema_svar');
             $query->add('skjema', $svarSett->getSkjemaId());
-            $query->add('pl_fra', $svarSett->getFra());
+            $query->add( ($svarSett->getType() == 'arrangement' ? 'pl':'p').'_fra', $svarSett->getId());
             $query->add('sporsmal', $svar->getSporsmalId());
         } else {
             $query = new Update(
@@ -225,10 +248,7 @@ class Write {
         }
         
         throw new Exception(
-            'Kunne ikke lagre svar for "'. 
-            $svarSett->getSkjema()->getSporsmal( $svar->getSporsmalId() )
-                ->getTittel()
-            .'".',
+            'Kunne ikke lagre svar for "'. $svar->getSporsmalId() .'".',
             551009
         );
     }

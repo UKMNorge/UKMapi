@@ -72,6 +72,7 @@ prefix | objekt | les | skriv
 60 | Arrangement/Videresending/Ledere | 160yyy | 560yyy
 61 | Nettverk/Administrator | 161yyy | 561yyy
 62 | Nettverk/Omrade | 162yyy | 562yyy
+63 | Arrangement/Skjema/Respondent | 163yyy | 563yyy
 71 | Wordpress/User | 171yyy | 571yyy
 72 | Wordpress/Blog | 172yyy | 572yyy
 73 | Wordpress/Modul | 173yyy | 573yyy

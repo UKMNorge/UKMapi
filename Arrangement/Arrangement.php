@@ -66,6 +66,7 @@ class Arrangement
     var $path = null;
     var $har_skjema = false;
     var $skjema = null;
+    var $deltakerskjema = null;
     var $kontaktpersoner = null;
     var $pamelding = null;
     var $registrert = null;
@@ -690,7 +691,14 @@ class Arrangement
      **/
     public function harSkjema()
     {
-        return $this->har_skjema;
+        if($this->har_skjema) {
+            try {
+                $this->getSkjema();
+                return true;
+            } catch( Exception $e ) {
+                return false;
+            }
+        }
     }
 
     /**
@@ -710,22 +718,42 @@ class Arrangement
      * OBS: du kan få et skjema, selv om arrangementet ikke ønsker
      * å bruke det!
      *
-     * @return skjema $skjema
+     * @return Skjema $skjema
+     * @throws Exception 151002
      **/
     public function getSkjema()
     {
         if ($this->skjema == null) {
-            try {
-                $this->skjema = Skjema::loadFromArrangement($this->getId());
-            } catch (Exception $e) {
-                // Betyr at arrangementet ikke har skjeam
-                if ($e->getCode() == 151001) {
-                    return false;
-                }
-                throw $e;
-            }
+            $this->skjema = Skjema::getArrangementSkjema($this->getId());
         }
         return $this->skjema;
+    }
+
+    /**
+     * Hent deltakerskjema
+     * 
+     * Noen arrangement kan også ha et skjema med spørsmål til deltakerne
+     * 
+     * @return Skjema $skjema
+     * @throws Exception 151002
+     */
+    public function getDeltakerSkjema() {
+        if( $this->deltakerskjema == null ) {
+            $this->deltakerskjema = Skjema::getDeltakerSkjema( $this->getId() );
+        }
+        return $this->deltakerskjema;
+    }
+
+    /**
+     * Sjekk om arrangementet skal ha et deltakerskjema
+     * 
+     * @return bool
+     */
+    public function harDeltakerSkjema() {
+        if( is_null( $this->getMetaValue('harDeltakerskjema'))) {
+            return false;
+        }
+        return true;
     }
 
     /**
