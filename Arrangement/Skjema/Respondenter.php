@@ -109,7 +109,8 @@ class Respondenter
 
         while ($row = Query::fetch($res)) {
             $id = $row[$felt];
-            $this->respondenter[$id] = new Respondent($id, $this->getSkjemaType(), $this->getSkjemaId());
+            $respondent = new Respondent($id, $this->getSkjemaType(), $this->getSkjemaId());
+            $this->respondenter[$respondent->getNavn() .'-'. $id] = $respondent;
         }
     }
 
