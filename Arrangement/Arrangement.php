@@ -1249,7 +1249,7 @@ class Arrangement
      * @return DateTime
      */
     public function getVideresendingStenger() {
-        return $this->vidersending_stenger;
+        return $this->videresending_stenger;
     }
 
     /**
