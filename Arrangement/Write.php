@@ -92,6 +92,8 @@ class Write
         $place->add('pl_type', $type);
         $place->add('pl_deadline', static::getStandardFrist($sesong, $type));
         $place->add('pl_deadline2', static::getStandardFrist($sesong, $type));
+        $place->add('pl_forward_start', static::getStandardFrist($sesong, $type));
+        $place->add('pl_forward_stop', static::getStandardFrist($sesong, $type));
 
         switch ($type) {
             case 'kommune':
@@ -195,23 +197,25 @@ class Write
 
         // VERDIER SOM KAN OPPDATERES
         $properties = [
-            'Navn'                 => ['smartukm_place', 'pl_name', 100],
-            'Path'                 => ['smartukm_place', 'pl_link', 110],
-            'Uregistrerte'        => ['smartukm_place', 'pl_missing', 108],
-            'Publikum'          => ['smartukm_place', 'pl_public', 109],
-            'Sted'                => ['smartukm_place', 'pl_place', 101],
-            'Start'                => ['smartukm_place', 'pl_start', 102],
-            'Stop'              => ['smartukm_place', 'pl_stop', 103],
-            'Frist1'            => ['smartukm_place', 'pl_deadline', 106],
-            'Frist2'            => ['smartukm_place', 'pl_deadline2', 107],
-            'Skjema'            => ['smartukm_place', 'pl_form', 113],
-            'Pamelding'         => ['smartukm_place', 'pl_pamelding', 119],
-            'GoogleMapData'     => ['smartukm_place', 'pl_location', 122],
-            'harVideresending'  => ['smartukm_place', 'pl_videresending', 123],
-            'Pamelding'         => ['smartukm_place', 'pl_pamelding', 124],
-            'harSkjema'         => ['smartukm_place', 'pl_has_form', 127],
-            'Synlig'            => ['smartukm_place', 'pl_visible', 128],
-            'Subtype'            => ['smartukm_place', 'pl_subtype', 131]
+            'Navn'                  => ['smartukm_place', 'pl_name', 100],
+            'Path'                  => ['smartukm_place', 'pl_link', 110],
+            'Uregistrerte'          => ['smartukm_place', 'pl_missing', 108],
+            'Publikum'              => ['smartukm_place', 'pl_public', 109],
+            'Sted'                  => ['smartukm_place', 'pl_place', 101],
+            'Start'                 => ['smartukm_place', 'pl_start', 102],
+            'Stop'                  => ['smartukm_place', 'pl_stop', 103],
+            'Frist1'                => ['smartukm_place', 'pl_deadline', 106],
+            'Frist2'                => ['smartukm_place', 'pl_deadline2', 107],
+            'Skjema'                => ['smartukm_place', 'pl_form', 113],
+            'Pamelding'             => ['smartukm_place', 'pl_pamelding', 119],
+            'GoogleMapData'         => ['smartukm_place', 'pl_location', 122],
+            'harVideresending'      => ['smartukm_place', 'pl_videresending', 123],
+            'Pamelding'             => ['smartukm_place', 'pl_pamelding', 124],
+            'harSkjema'             => ['smartukm_place', 'pl_has_form', 127],
+            'Synlig'                => ['smartukm_place', 'pl_visible', 128],
+            'Subtype'               => ['smartukm_place', 'pl_subtype', 131],
+            'VideresendingApner'    => ['smartukm_place', 'pl_forward_start', 132],
+            'VideresendingStenger'  => ['smartukm_place', 'pl_forward_stop', 133]
         ];
 
         // Eierfylke lagres for kommuner og fylker, men ikke land
