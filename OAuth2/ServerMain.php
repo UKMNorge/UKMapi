@@ -8,12 +8,6 @@ require_once('UKM/vendor/autoload.php');
 require_once('UKMconfig.inc.php');
 
 use OAuth2\GrantType\AuthorizationCode;
-// use UKMNorge\OAuth2\ModifiedServer as ModifiedServer;
-// use UKMNorge\OAuth2\ModifiedServer;
-
-
-
-
 
 
 class ServerMain {
@@ -46,7 +40,7 @@ class ServerMain {
         static::$server = new BshafferServer(static::$storage);
 
         // Add the "User Credentials" grant type (authentication of the users)
-        static::$server->addGrantType(new UserCredentials(static::$storage));
+        // static::$server->addGrantType(new UserCredentials(static::$storage));
 
 
         // ************** To add another grand types remove comments ********************

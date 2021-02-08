@@ -4,11 +4,16 @@ namespace UKMNorge\OAuth2;
 
 
 use Exception;
+use UKMNorge\OAuth2\Interfaces\UserCredentialsInterface;
 
 // This class is an extension of Pdo to modify the functionality for the users
 // This is a storage for the user
 class UserPdo extends Pdo implements UserCredentialsInterface {
     
+
+    public function __construct($connection, $config = array()) {
+        parent::__construct($connection, array('sms_forward_table' => 'sms_forward'));
+    }
     /**
      * Accepts a TempUser and saves it into database. Returns a User.
      *
@@ -93,7 +98,6 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
         if(!isset($_SESSION)) {
             session_start(); 
         }
-        // TODO: Sjekk User klasse !!  IMPORTANT::::::::::::::::IMPORTANT:::::
 
 
         if (isset($_SESSION['valid']) && $_SESSION['valid'] == true) {
@@ -200,5 +204,38 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
         }
     }
 
+    // Add code to database (sms_forward)
+    public function addSMSForward(string $telNr, string $generatedCode) : bool {
+        
+        $stmt = $this->db->prepare(sprintf('REPLACE INTO %s (tel_nr, generated_code, received_code) VALUES (:telNr, :generatedCode, null)', $this->config['sms_forward_table']));    
+        return $stmt->execute(compact('telNr', 'generatedCode'));
+    }
+
+    // Check if code has been received
+    public function checkSMSforward(string $tel_nr, string $generatedCode) : bool {
+        $stmt = $this->db->prepare($sql = sprintf('SELECT * from %s where tel_nr=:tel_nr', $this->config['sms_forward_table']));
+        $stmt->execute(array('tel_nr' => $tel_nr));
+
+        $data = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if(!$data) {
+            return false;
+        }
+
+        if($generatedCode == $data['generated_code'] && $data['generated_code'] == $data['received_code']) {
+            // Clean
+            $this->deleteSMSForward($tel_nr);
+            return true;
+        }
+
+        return false;
+    }
+
+    private function deleteSMSForward(string $tel_nr) : bool {
+        $stmt = $this->db->prepare(sprintf('DELETE FROM %s WHERE tel_nr = :tel_nr', $this->config['sms_forward_table']));
+        $stmt->execute(compact('tel_nr'));
+
+        return $stmt->rowCount() > 0;
+    }
 }
 
