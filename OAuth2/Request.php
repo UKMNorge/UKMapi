@@ -12,10 +12,11 @@ class Request extends BshafferRequest {
      * @param mixed  $default
      * @return mixed
      */
-    public function requestRequired($name) {
-        $arg = parent::request($name, null);
+    public function requestRequired($name, $method = 'POST') { // REMOVE POST from method (required)
+        $arg = $method == 'POST' ? parent::request($name, null) : $arg = parent::query($name);
+
         if($arg == null) {
-            throw new Exception($name . ' finnes ikke!');
+            throw new Exception('Argumentet ' . $name . ' finnes ikke!');
         }
         return $arg;
     }
