@@ -7,5 +7,4 @@ interface TransportInterface {
     public function getData();
     public function getId();
     public function getTeamId();
-    public function setResponse();
 }
