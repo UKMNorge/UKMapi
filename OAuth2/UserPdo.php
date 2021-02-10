@@ -140,7 +140,7 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
     }
 
     /**
-     * Change the user password
+     * Change the user's password
      *
      * @param User $user
      * @param string $password
@@ -159,6 +159,40 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
         }catch (Exception $e) {
             throw $e;
         }
+    }
+
+    /**
+     * Change the user's first name
+     *
+     * @param User $user
+     * @param string $password
+     * @return bool
+     */
+    public function changeFirstName(User $user, string $firstName) {
+        if(strlen($firstName) < 2) {
+            throw new Exception('Navn må ha minst 2 tegn!');
+        }
+
+        $tel_nr = $user->getTelNr();
+        $stmt = $this->db->prepare($sql = sprintf('UPDATE %s SET first_name=:firstName where tel_nr=:tel_nr', $this->config['user_table']));
+        return $stmt->execute(compact('tel_nr', 'firstName'));
+    }
+
+    /**
+     * Change the user's last name
+     *
+     * @param User $user
+     * @param string $password
+     * @return bool
+     */
+    public function changeLastName(User $user, string $lastName) {
+        if(strlen($lastName) < 2) {
+            throw new Exception('Navn må ha minst 2 tegn!');
+        }
+
+        $tel_nr = $user->getTelNr();
+        $stmt = $this->db->prepare($sql = sprintf('UPDATE %s SET last_name=:lastName where tel_nr=:tel_nr', $this->config['user_table']));
+        return $stmt->execute(compact('tel_nr', 'lastName'));
     }
 
     /**

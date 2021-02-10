@@ -62,6 +62,14 @@ class User {
     public function setBirthday(DateTime $birthday) {
         $this->birthday = $birthday;
     }
+
+    public function changeFirstName(string $firstName) {
+        return static::$storage->changeFirstName($this, $firstName);
+    }
+
+    public function changeLastName(string $lastName) {
+        return static::$storage->changeLastName($this, $lastName);
+    }
     
     public function changePassword(string $newPassword) : bool {
         return static::$storage->changePassword($this, $newPassword);
