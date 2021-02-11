@@ -35,7 +35,7 @@ interface AccessToken
      * @param stdClass $data
      * @return self
      */
-    public function setData(stdClass $data): self;
+    public function setData(stdClass $data);
 
     /**
      * Hent ekstra data

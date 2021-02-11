@@ -9,19 +9,22 @@ use UKMNorge\OAuth2\IdentityProvider\Basic\User;
 use UKMNorge\OAuth2\IdentityProvider\Basic\AccessToken;
 use UKMNorge\OAuth2\IdentityProvider\Basic\Error;
 
+use UKMNorge\OAuth2\IdentityProvider\Interfaces\AccessToken as AccessTokenInterface;
+use UKMNorge\Oauth2\IdentityProvider\Interfaces\User as UserInterface;
+
 
 class Facebook extends IdentityProvider
 {
     private static $url_graph_api       = 'https://graph.facebook.com/v9.0/';
-    private static $url_auth            = 'https://www.facebook.com/v9.0/dialog/oauth';
-    private static $url_access_token    = 'https://graph.facebook.com/v9.0/oauth/access_token';
-    private static $url_redirect        = 'https://id.' . UKM_HOSTNAME . '/auth/facebook/';
-    private $scope = ['public_profile']; // default scope
+    protected static $url_auth            = 'https://www.facebook.com/v9.0/dialog/oauth';
+    protected static $url_access_token    = 'https://graph.facebook.com/v9.0/oauth/access_token';
+    protected static $url_redirect        = 'https://id.' . UKM_HOSTNAME . '/auth/facebook/';
+    protected $scope = ['public_profile']; // default scope
 
 
     public function getAuthUrl(): string
     {
-        return $this->url_auth .
+        return static::$url_auth .
             '?client_id=' . $this->getId() .
             '&redirect_uri=' . $this->getRedirectUrl(true) .
             '&scope=' . $this->getScope(true) .
@@ -45,7 +48,7 @@ class Facebook extends IdentityProvider
      * @param string $state
      * @return AccessToken
      */
-    public function exchangeCodeForAccessToken(string $code, string $state = null): AccessToken
+    public function exchangeCodeForAccessToken(string $code, string $state = null) : AccessTokenInterface
     {
         $request = new Curl();
         $request->timeout(4);
@@ -76,7 +79,7 @@ class Facebook extends IdentityProvider
      * @throws Error
      * @return User
      */
-    public function getCurrentUser(): User
+    public function getCurrentUser(): UserInterface
     {
         $request = new Curl();
         $request->timeout(4);

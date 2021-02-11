@@ -78,7 +78,7 @@ abstract class IdentityProvider implements IdentityProviderInterface
      * @param array $scope
      * @return self
      */
-    public function setScope(array $scope): self
+    public function setScope(array $scope)
     {
         $this->scope = $scope;
         return $this;
@@ -196,7 +196,7 @@ abstract class IdentityProvider implements IdentityProviderInterface
      * @param AccessToken $accessToken
      * @return self
      */
-    public function setAccessToken(AccessToken $accessToken): self
+    public function setAccessToken(AccessToken $accessToken)
     {
         $this->accessToken = $accessToken;
         return $this;

@@ -16,7 +16,7 @@ class AccessToken implements AccessTokenInterface
      * @param string $accessToken
      * @return self
      */
-    public function __construct(String $accessToken)
+    public function __construct(string $accessToken)
     {
         $this->token = $accessToken;
     }
@@ -48,7 +48,7 @@ class AccessToken implements AccessTokenInterface
      * @param stdClass $data
      * @return self
      */
-    public function setData(stdClass $data): self
+    public function setData(stdClass $data)
     {
         $this->data = $data;
         return $this;

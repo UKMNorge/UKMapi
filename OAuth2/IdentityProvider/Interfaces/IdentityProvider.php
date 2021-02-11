@@ -40,7 +40,7 @@ interface IdentityProvider
      * @param array $scope
      * @return self
      */
-    public function setScope(array $scope): self;
+    public function setScope(array $scope);
 
 
     /**
@@ -57,7 +57,7 @@ interface IdentityProvider
      * @param AccessToken $accessToken
      * @return self
      */
-    public function setAccessToken(AccessToken $accessToken): self;
+    public function setAccessToken(AccessToken $accessToken);
 
     /**
      * Sjekk hvorvidt vi har en access token

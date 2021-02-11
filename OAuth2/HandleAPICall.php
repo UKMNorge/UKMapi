@@ -82,7 +82,6 @@ class HandleAPICall {
             }
         }
         catch(Exception $e) {
-            // http_response_code(400); // BAD REQUEST (missing required arguments)
             $this->sendErrorToClient($e->getMessage(), 400);
         }
     }
