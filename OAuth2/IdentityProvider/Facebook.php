@@ -2,11 +2,13 @@
 
 namespace UKMNorge\OAuth2\IdentityProvider;
 
+use DateTime;
 use UKMNorge\Http\Curl;
 use UKMNorge\OAuth2\IdentityProvider\Basic\IdentityProvider;
 use UKMNorge\OAuth2\IdentityProvider\Basic\User;
 use UKMNorge\OAuth2\IdentityProvider\Basic\AccessToken;
 use UKMNorge\OAuth2\IdentityProvider\Basic\Error;
+
 
 class Facebook extends IdentityProvider
 {
@@ -71,6 +73,7 @@ class Facebook extends IdentityProvider
     /**
      * Hent current user fra facebook
      *
+     * @throws Error
      * @return User
      */
     public function getCurrentUser(): User
@@ -80,9 +83,15 @@ class Facebook extends IdentityProvider
         $userdata = $request->process(
             static::$url_graph_api .
                 'me/' .
-                '&fields=id,name,first_name,last_name' .
+                '&fields=id,name,first_name,last_name,birthday' .
                 '?access_token=' . $this->getAccessToken()
         );
-        return new User($userdata->id, $userdata->first_name, $userdata->last_name);
+        // TODO: Håndter feil fra facebook her
+        // Kast Error hvis noe har gått galt
+        $user = new User($userdata->id, $userdata->first_name, $userdata->last_name);
+        if ($userdata->birthday) {
+            $user->setDateOfBirth(DateTime::createFromFormat('MM/DD/YYYY', $userdata->birthday));
+        }
+        return $user;
     }
 }

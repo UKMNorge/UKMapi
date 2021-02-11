@@ -2,6 +2,7 @@
 
 namespace UKMNorge\OAuth2\IdentityProvider\Basic;
 
+use DateTime;
 use UKMNorge\Oauth2\IdentityProvider\Interfaces\User as UserInterface;
 
 class User implements UserInterface
@@ -10,6 +11,7 @@ class User implements UserInterface
     private $id;
     private $first_name;
     private $last_name;
+    private $date_of_birth;
 
     /**
      * Opprett nytt brukerobjekt
@@ -54,5 +56,25 @@ class User implements UserInterface
     public function getLastName(): string
     {
         return $this->last_name;
+    }
+
+    /**
+     * Sett brukerens fødselsdato
+     *
+     * @param DateTime $date
+     * @return self
+     */
+    public function setDateOfBirth( DateTime $date ) {
+        $this->date_of_birth = $date;
+        return $this;
+    }
+
+    /**
+     * Hent brukerens fødselsdato
+     *
+     * @return DateTime
+     */
+    public function getDateOfBirth() {
+        return $this->date_of_birth;
     }
 }
