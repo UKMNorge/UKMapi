@@ -10,25 +10,51 @@ class HandleAPICall {
     private $request;
     private $method = null;
     private $clientArguments = [];
+    private $optionalArguments = [];
     
-    function __construct(array $requiredArguments, array $optionalAttributes, array $acceptedMethods, bool $loginRequired) {
+    function __construct(array $requiredArguments, array $optionalArguments, array $acceptedMethods, bool $loginRequired) {
         if($loginRequired && !UserManager::isUserLoggedin()){
-            http_response_code(401); // UNAUTHORIZED
-            die;
+            $this->sendErrorToClient('Du er ikke innlogget!', 401); // UNAUTHORIZED
         }
 
         $this->request = Request::createFromGlobals();
     
         $this->verifyMethod($acceptedMethods);
         $this->verifyRequiredArguments($requiredArguments);
+        $this->initOptionalArguments($optionalArguments);
     }
 
+    /**
+     * Get argument by providing the key
+     * @param string $key
+     * @return string|null
+     */
     public function getArgument(string $key) {
-        return $this->clientArguments[$key];
+        return $this->clientArguments[$key] ? $this->clientArguments[$key] : null;
+    }
+
+    /**
+     * Get optional argument by providing the key
+     * @param string $key
+     * @return string|null
+     */
+    public function getOptionalArgument(string $key) {
+        try{
+            $this->optionalArguments[$key];
+        } catch(Exception $e) {
+            throw new Exception($key . ' er ikke definert som et valgfritt argument');
+        }
+        
+        try{
+            return $this->request->requestRequired($key, $this->method);
+        } catch(Exception $e) {
+            return null;
+        }
     }
 
     /**
      * Return the answer to the client
+     * IMPORTANT: This method will stop all the execution (another call from the stack) and return to the client
      * @param string|array $data
      * @param string $statusCode
      * @return void
@@ -41,12 +67,13 @@ class HandleAPICall {
 
     /**
      * Return the answer with error code to the client
+     * IMPORTANT: This method will stop all the execution by calling sendToClient() method
      * @param array $message
      * @param string $statusCode
      * @return void
      */
-    public function sendErrorToClient(string $message, int $statusCode) : void {
-        $this->sendToClient(array('details' => $message), $statusCode);
+    public function sendErrorToClient($message, int $statusCode) : void {
+        $this->sendToClient(is_array($message) ? $message : array('details' => $message), $statusCode);
     }
 
     /**
@@ -78,11 +105,22 @@ class HandleAPICall {
         try{
             foreach($requiredArguments as $arg) {
                 $this->clientArguments[$arg] = $this->request->requestRequired($arg, $this->method);
-
             }
         }
         catch(Exception $e) {
             $this->sendErrorToClient($e->getMessage(), 400);
+        }
+    }
+
+
+    /**
+     * Add all optional arguments
+     * @param array $requiredArguments
+     * @return void
+     */
+    private function initOptionalArguments(array $optionalArguments) {
+        foreach($optionalArguments as $arg) {
+            $this->optionalArguments[$arg] = true;
         }
     }
 

@@ -26,7 +26,7 @@ class Facebook extends IdentityProvider
     {
         return static::$url_auth .
             '?client_id=' . $this->getId() .
-            '&redirect_uri=' . $this->getRedirectUrl(true) .
+            '&redirect_uri=' . 'https://id.ukm.dev/auth/facebook' .
             '&scope=' . $this->getScope(true) .
             '&state=' . $this->getState();
     }

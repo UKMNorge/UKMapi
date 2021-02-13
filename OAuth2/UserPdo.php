@@ -5,6 +5,7 @@ namespace UKMNorge\OAuth2;
 
 use Exception;
 use UKMNorge\OAuth2\Interfaces\UserCredentialsInterface;
+use UKMNorge\OAuth2\IdentityProvider\Basic\User as IPUser;
 
 // This class is an extension of Pdo to modify the functionality for the users
 // This is a storage for the user
@@ -12,7 +13,11 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
     
 
     public function __construct($connection, $config = array()) {
-        parent::__construct($connection, array('sms_forward_table' => 'sms_forward'));
+        parent::__construct($connection, array(
+            'sms_forward_table' => 'sms_forward',
+            'user_IP_table' => 'user_identity_provider'
+            )
+        );
     }
     /**
      * Accepts a TempUser and saves it into database. Returns a User.
@@ -45,7 +50,7 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
         // User does not exist, OK
         $password = $this->hashPassword($password);
         $stmt = $this->db->prepare(sprintf('INSERT INTO %s (tel_nr, password, first_name, last_name, tel_nr_verified, birthday, tel_country_code, vilkaar) VALUES (:tel_nr, :password, :firstName, :lastName, false, :birthday, :tel_country_code, false)', $this->config['user_table']));    
-        $stmt->execute(compact('tel_nr', 'password', 'firstName', 'lastName', 'birthday', 'tel_country_code'));            
+        $stmt->execute(compact('tel_nr', 'password', 'firstName', 'lastName', 'birthday', 'tel_country_code'));
         
         return true;
     }
@@ -270,6 +275,44 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
         $stmt->execute(compact('tel_nr'));
 
         return $stmt->rowCount() > 0;
+    }
+
+    /**
+     * Registrer ny bruker gjennom Service Provider
+     *
+     * @param string $telNr
+     * @param string $provider - for eksempel Facebook
+     * @param string $IPUser - Identity Provider User (from ...IdentityProvider\Basic\User)
+     * @param string $accessToken - Access Token fra provider
+     */
+    public function registerUserWithServiceProvider(string $telNr, string $provider, IPUser $IPUser, string $accessToken) : bool {
+        $userId = $IPUser->getId();
+        $createdDate = date("Y-m-d");
+        
+        $stmt = $this->db->prepare(sprintf('REPLACE INTO %s (user_id, provider, provider_user_id, access_token, created) VALUES (:telNr, :provider, :userId, :accessToken, :createdDate)', $this->config['user_IP_table']));    
+        return $stmt->execute(compact('telNr', 'provider', 'userId', 'accessToken', 'createdDate'));
+    }
+
+    /**
+     * Sjekk bruker legitimasjon (credentials) gjennom Service Provider
+     *
+     * @param string $telNr
+     * @param string $provider - for example Facebook
+     * @param string $IPUser - Identity Provider User (from ...IdentityProvider\Basic\User)
+     * @param string $accessToken - Access Token from provider
+     */
+    public function checkUserCredentialsWithSP(string $telNr, string $userIPID, string $provider, string $accessToken) : bool {
+        $stmt = $this->db->prepare($sql = sprintf('SELECT * from %s where user_id=:telNr AND provider_user_id=:userIPID AND provider=:provider AND access_token=:accessToken ', $this->config['user_IP_table']));
+        $stmt->execute(array(
+            'telNr' => $telNr,
+            'userIPID' => $userIPID,
+            'provider' => $provider,
+            'accessToken' => $accessToken
+        ));
+
+        $data = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        return !$data || $data['user_id'] != $telNr ? false : true;
     }
 }
 
