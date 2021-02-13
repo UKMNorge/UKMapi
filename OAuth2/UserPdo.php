@@ -39,8 +39,10 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
             throw $e;
         }
         
-
-        if($this->userExists($user->getTelNr())) {
+        $userId = $this->telNrToId($tel_nr);
+        
+        
+        if($userId != null && $this->userExists($userId)) {
             throw new Exception('Ny bruker kan ikke oppretes fordi den eksisterer');
         }
         
@@ -82,9 +84,9 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
      * @param string $password
      * @return bool
      */
-    public function checkUserCredentials($tel_nr, $password) : bool {       
+    public function checkUserCredentials($userId, $password) : bool {       
         try{
-            $user = $this->getUser($tel_nr);
+            $user = $this->getUser($userId);
             return $this->checkPassword($user, $password);
         }
         // The user has not been found
@@ -233,9 +235,9 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
         return $user->isTelNrVerified(); 
     }
 
-    public function userExists(string $tel_nr) : bool {
+    public function userExists(string $userId) : bool {
         try{
-            $this->getUser($tel_nr);
+            $this->getUser($userId);
             return true;
         }
         catch(Exception $e) {
@@ -277,6 +279,20 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
         return $stmt->rowCount() > 0;
     }
 
+    // Get id of the user by providing tel_nr
+    // If the user with tel_nr is not found, null will be returned
+    public function telNrToId(string $telNr) {        
+        $stmt = $this->db->prepare($sql = sprintf('SELECT * from %s where tel_nr=:tel_nr' , $this->config['user_table']));
+        $stmt->execute(array('tel_nr' => $telNr));
+
+        $userInfo = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+        if(!$userInfo) {
+            return null;
+        }
+        return $userInfo['id'];        
+    }
+
     /**
      * Registrer ny bruker gjennom Service Provider
      *
@@ -301,18 +317,19 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
      * @param string $IPUser - Identity Provider User (from ...IdentityProvider\Basic\User)
      * @param string $accessToken - Access Token from provider
      */
-    public function checkUserCredentialsWithSP(string $telNr, string $userIPID, string $provider, string $accessToken) : bool {
-        $stmt = $this->db->prepare($sql = sprintf('SELECT * from %s where user_id=:telNr AND provider_user_id=:userIPID AND provider=:provider AND access_token=:accessToken ', $this->config['user_IP_table']));
+    public function checkUserCredentialsWithSP(string $userIPID, string $provider, string $accessToken) : bool {
+        $stmt = $this->db->prepare($sql = sprintf('SELECT * from %s where AND provider_user_id=:userIPID AND provider=:provider AND access_token=:accessToken ', $this->config['user_IP_table']));
         $stmt->execute(array(
-            'telNr' => $telNr,
             'userIPID' => $userIPID,
             'provider' => $provider,
             'accessToken' => $accessToken
         ));
 
+        // TODO: Check if user with $userIPID exists
+        
         $data = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-        return !$data || $data['user_id'] != $telNr ? false : true;
+        return !$data ? false : true;
     }
 }
 
