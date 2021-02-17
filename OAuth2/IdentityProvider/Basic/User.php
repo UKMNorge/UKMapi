@@ -11,7 +11,7 @@ class User implements UserInterface
     private $id;
     private $first_name;
     private $last_name;
-    private $date_of_birth;
+    private $birthday;
 
     /**
      * Opprett nytt brukerobjekt
@@ -65,7 +65,7 @@ class User implements UserInterface
      * @return self
      */
     public function setDateOfBirth( DateTime $date ) {
-        $this->date_of_birth = $date;
+        $this->birthday = $date;
         return $this;
     }
 
@@ -75,6 +75,6 @@ class User implements UserInterface
      * @return DateTime
      */
     public function getDateOfBirth() {
-        return $this->date_of_birth;
+        return $this->birthday;
     }
 }

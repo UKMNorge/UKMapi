@@ -39,10 +39,8 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
             throw $e;
         }
         
-        $userId = $this->telNrToId($tel_nr);
-        
-        
-        if($userId != null && $this->userExists($userId)) {
+
+        if($this->userExists($user->getTelNr())) {
             throw new Exception('Ny bruker kan ikke oppretes fordi den eksisterer');
         }
         
@@ -84,9 +82,9 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
      * @param string $password
      * @return bool
      */
-    public function checkUserCredentials($userId, $password) : bool {       
+    public function checkUserCredentials($tel_nr, $password) : bool {
         try{
-            $user = $this->getUser($userId);
+            $user = $this->getUser($tel_nr);
             return $this->checkPassword($user, $password);
         }
         // The user has not been found
@@ -235,9 +233,9 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
         return $user->isTelNrVerified(); 
     }
 
-    public function userExists(string $userId) : bool {
+    public function userExists(string $tel_nr) : bool {
         try{
-            $this->getUser($userId);
+            $this->getUser($tel_nr);
             return true;
         }
         catch(Exception $e) {
@@ -280,56 +278,93 @@ class UserPdo extends Pdo implements UserCredentialsInterface {
     }
 
     // Get id of the user by providing tel_nr
-    // If the user with tel_nr is not found, null will be returned
-    public function telNrToId(string $telNr) {        
+    protected function telNrToId(string $telNr) : int {
         $stmt = $this->db->prepare($sql = sprintf('SELECT * from %s where tel_nr=:tel_nr' , $this->config['user_table']));
         $stmt->execute(array('tel_nr' => $telNr));
 
         $userInfo = $stmt->fetch(\PDO::FETCH_ASSOC);
-        
-        if(!$userInfo) {
-            return null;
-        }
+
         return $userInfo['id'];        
     }
 
     /**
-     * Registrer ny bruker gjennom Service Provider
+     * Registrer ny bruker gjennom Service Provider. Dette registreres en bruker bare på user_identity_provider
      *
      * @param string $telNr
      * @param string $provider - for eksempel Facebook
      * @param string $IPUser - Identity Provider User (from ...IdentityProvider\Basic\User)
      * @param string $accessToken - Access Token fra provider
      */
-    public function registerUserWithServiceProvider(string $telNr, string $provider, IPUser $IPUser, string $accessToken) : bool {
-        $userId = $IPUser->getId();
+    public function registerUserWithServiceProvider(string $userId, string $provider, string $accessToken) : bool {
         $createdDate = date("Y-m-d");
+
+        // Creating new user provider because it does not exist
+        if(!$this->userWithProviderExists($userId, $provider)) {
+            $stmt = $this->db->prepare(sprintf('REPLACE INTO %s (user_id, provider, provider_user_id, access_token, created) VALUES (null, :provider, :userId, :accessToken, :createdDate)', $this->config['user_IP_table']));
+            return $stmt->execute(compact('provider', 'userId', 'accessToken', 'createdDate'));
+        }
         
-        $stmt = $this->db->prepare(sprintf('REPLACE INTO %s (user_id, provider, provider_user_id, access_token, created) VALUES (:telNr, :provider, :userId, :accessToken, :createdDate)', $this->config['user_IP_table']));    
-        return $stmt->execute(compact('telNr', 'provider', 'userId', 'accessToken', 'createdDate'));
+        // Updating the access token only
+        $stmt = $this->db->prepare(sprintf('UPDATE %s SET access_token=:accessToken WHERE provider_user_id=:userId AND provider=:provider', $this->config['user_IP_table']));
+        $res = $stmt->execute(array(
+            'accessToken' => $accessToken,
+            'userId' => $userId,
+            'provider' => $provider,
+        ));
+        return $res; 
     }
 
     /**
-     * Sjekk bruker legitimasjon (credentials) gjennom Service Provider
+     * Sjekk hvis brukeren med bruker id fra provider og provider navn eksisterer
      *
-     * @param string $telNr
-     * @param string $provider - for example Facebook
+     * @param string $provider - for example 'Facebook'
      * @param string $IPUser - Identity Provider User (from ...IdentityProvider\Basic\User)
-     * @param string $accessToken - Access Token from provider
+     * @return bool
      */
-    public function checkUserCredentialsWithSP(string $userIPID, string $provider, string $accessToken) : bool {
-        $stmt = $this->db->prepare($sql = sprintf('SELECT * from %s where AND provider_user_id=:userIPID AND provider=:provider AND access_token=:accessToken ', $this->config['user_IP_table']));
+    public function userWithProviderExists(string $userIPID, string $provider) : bool {
+        $stmt = $this->db->prepare($sql = sprintf('SELECT * from %s where provider_user_id=:userIPID AND provider=:provider', $this->config['user_IP_table']));
         $stmt->execute(array(
             'userIPID' => $userIPID,
             'provider' => $provider,
-            'accessToken' => $accessToken
         ));
-
-        // TODO: Check if user with $userIPID exists
         
         $data = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         return !$data ? false : true;
     }
-}
 
+    /**
+     * Hent bruker (User) hvis providerUserId er koblet med en bruker fra oauth_user.
+     *
+     * @param string $providerUserId - bruker id fra provider
+     * @param string $provider - for example 'Facebook'
+     * @return User
+     */
+    public function getUserProvider(string $providerUserId, string $provider) : User {
+        $stmt = $this->db->prepare(sprintf('SELECT * from %s where provider_user_id=:providerUserId AND provider=:provider', $this->config['user_IP_table']));
+        $stmt->execute(compact('providerUserId', 'provider'));
+        
+        $data = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+        $tel_nr = $data['user_id'];
+
+        if($tel_nr) {
+            return new User($tel_nr);
+        }
+        throw new Exception("NOT FOUND: User provider with id " . $providerUserId . ' and provider ' . $provider);
+    }
+
+    /**
+     * Koble bruker fra provider med en bruker tel_nr fra oauth_user
+     *
+     * @param string $telNr - bruker id fra oauth_user
+     * @param string $providerUserId - bruker id fra provider
+     * @param string $provider - for example 'Facebook'
+     * @return User
+     */
+    public function addUserToProvider($telNr, $providerUserId, $provider) {
+        $stmt = $this->db->prepare(sprintf('UPDATE %s SET user_id=:telNr WHERE provider_user_id=:providerUserId AND provider=:provider', $this->config['user_IP_table']));
+        return $stmt->execute(compact('telNr', 'providerUserId', 'provider'));
+    }
+    
+}

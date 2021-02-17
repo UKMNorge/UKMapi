@@ -16,7 +16,7 @@ interface Error
      * @param array $additional_data
      * @return self
      */
-    public function __construct(string $message, int $code, array $additional_data = null);
+    public function __construct(string $message, int $code, stdClass $additional_data = null);
 
     /**
      * Hent error-melding
@@ -45,7 +45,7 @@ interface Error
      * @param stdClass $data
      * @return self
      */
-    public function setData(stdClass $data): self;
+    public function setData(stdClass $data);
 
     /**
      * Hent error-melding

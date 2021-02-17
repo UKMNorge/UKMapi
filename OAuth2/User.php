@@ -22,8 +22,8 @@ class User {
     protected $notFound = true;
     protected static $storage;
 
-    public function __construct($userId) {
-        $this->user_id = $userId;
+    public function __construct($tel_nr) {
+        $this->setTelNumber($tel_nr);
         static::$storage = ServerMain::getStorage();
         $this->load();
     }
@@ -33,12 +33,12 @@ class User {
     }
 
     /**
-     * Get user by id
+     * Get user by Id
      * 
      * @return User
      */
-    public static function getById($userId) {
-        return new static($userId);
+    public static function getById( $id ) {
+        return new static($id);
     }
 
     // Støtter bare Norge for nå
@@ -86,9 +86,6 @@ class User {
         $this->vilkaar = true;
     }
 
-    public function getId() {
-        return $this->user_id;
-    }
 
     public function getTelCountryCode() : string {
         return $this->tel_country_code;
@@ -130,9 +127,9 @@ class User {
 
     // This must be private and called by constructor only
     private function load() {
-        $userArr = static::$storage->getUser($this->user_id); // Throws exception if user is not found!
-        
-        $this->tel_nr = $userArr['tel_nr'];
+        $userArr = static::$storage->getUser($this->tel_nr); // Throws exception if user is not found!
+
+        $this->user_id = $userArr['user_id'];
         $this->tel_country_code = $userArr['tel_country_code'];
         $this->first_name = $userArr['first_name'];
         $this->last_name = $userArr['last_name'];

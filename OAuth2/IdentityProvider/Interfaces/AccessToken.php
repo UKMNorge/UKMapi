@@ -14,12 +14,12 @@ interface AccessToken
      */
     public function __construct(string $accessToken);
 
-    /**
-     * Hent faktisk token
-     * 
-     * @return string
-     */
-    public function getToken(): string;
+    // /**
+    //  * Hent faktisk token
+    //  * 
+    //  * @return string
+    //  */
+    // public function getToken(): AccessToken;
 
     /**
      * Hent faktisk token

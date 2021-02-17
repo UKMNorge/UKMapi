@@ -208,7 +208,7 @@ abstract class IdentityProvider implements IdentityProviderInterface
      *
      * @return AccessToken
      */
-    protected function getAccessToken(): AccessToken
+    protected function getAccessToken()
     {
         return $this->accessToken;
     }

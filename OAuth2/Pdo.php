@@ -39,18 +39,21 @@ class Pdo extends BshafferPdo {
      * @param string $tel_nr
      * @return array|bool
      */
-    public function getUser($id)
+    public function getUser($tel_nr)
     {
-        $stmt = $this->db->prepare($sql = sprintf('SELECT * from %s where id=:id and tel_nr_verified=1' , $this->config['user_table']));
-        $stmt->execute(array('id' => $id));
+        $stmt = $this->db->prepare($sql = sprintf('SELECT * from %s where tel_nr=:tel_nr and tel_nr_verified=1' , $this->config['user_table']));
+        $stmt->execute(array('tel_nr' => $tel_nr));
 
         $userInfo = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         if (!$userInfo) {
-          throw new Exception("Bruker eksisterer ikke!", 183001);
+          throw new Exception($tel_nr . " eksisterer ikke!", 183001);
         }
 
-        return $userInfo;
+        // the default behavior is to use "tel_nr" as the user_id
+        return array_merge(array(
+            'user_id' => $tel_nr
+        ), $userInfo);
     }
 
     public function getUserByAccessToken(string $accessToken, string $scope) {

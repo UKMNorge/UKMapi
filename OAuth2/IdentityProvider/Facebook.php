@@ -12,6 +12,9 @@ use UKMNorge\OAuth2\IdentityProvider\Basic\Error;
 use UKMNorge\OAuth2\IdentityProvider\Interfaces\AccessToken as AccessTokenInterface;
 use UKMNorge\Oauth2\IdentityProvider\Interfaces\User as UserInterface;
 
+use Exception;
+use stdClass;
+
 
 class Facebook extends IdentityProvider
 {
@@ -60,10 +63,11 @@ class Facebook extends IdentityProvider
                 '&code=' . $code
         );
 
-        if (!$response || $response->error) {
-            throw new Error(
-                'En feil oppsto ved innlogging. Prøv igjen eller kontakt support@ukm.no',
-                1
+        $responsVars = get_object_vars($response);
+
+        if (!$response || isset($responsVars['error'])) {
+            throw new Exception(
+                'En feil oppsto ved innlogging. Prøv igjen eller kontakt support@ukm.no'
             );
         }
 
@@ -86,14 +90,24 @@ class Facebook extends IdentityProvider
         $userdata = $request->process(
             static::$url_graph_api .
                 'me/' .
-                '&fields=id,name,first_name,last_name,birthday' .
-                '?access_token=' . $this->getAccessToken()
+                '?fields=id,name,first_name,last_name,birthday' .
+                '&access_token=' . $this->getAccessToken()
         );
-        // TODO: Håndter feil fra facebook her
-        // Kast Error hvis noe har gått galt
+    
+        $userVars = get_object_vars($userdata);
+
+        if(isset($userVars['error'])) {
+            throw new Exception('Access token is not valid!');
+        }
+       
         $user = new User($userdata->id, $userdata->first_name, $userdata->last_name);
-        if ($userdata->birthday) {
+        
+        if (isset($userVars['birthday'])) {
             $user->setDateOfBirth(DateTime::createFromFormat('MM/DD/YYYY', $userdata->birthday));
+        }
+        else {
+            // Default birthday
+            $user->setDateOfBirth(DateTime::createFromFormat('Y-m-d', '2000-01-01'));
         }
         return $user;
     }
