@@ -8,6 +8,7 @@ use UKMNorge\OAuth2\IdentityProvider\Interfaces\AccessToken as AccessTokenInterf
 class AccessToken implements AccessTokenInterface
 {
     private $token;
+    private $idToken;
     private $data;
 
     /**
@@ -16,9 +17,10 @@ class AccessToken implements AccessTokenInterface
      * @param string $accessToken
      * @return self
      */
-    public function __construct(string $accessToken)
+    public function __construct(string $accessToken, $idToken = null)
     {
         $this->token = $accessToken;
+        $this->idToken = $idToken;
     }
 
     /**
@@ -29,6 +31,15 @@ class AccessToken implements AccessTokenInterface
     public function getToken(): string
     {
         return $this->token;
+    }
+
+    /**
+     * Hent id token
+     * 
+     * @return string
+     */
+    public function getIdToken(): string {
+        return $this->idToken ? $this->idToken : '-1';
     }
 
     /**
