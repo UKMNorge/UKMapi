@@ -130,12 +130,12 @@ class Google extends IdentityProvider
 
     private function getCredentials() {
         return array (
-            'client_id' => UKM_GOOGLE_APP_ID,
+            'client_id' => $this->id,
             'project_id' => 'ukm-arrangemente-1567942518161',
             'auth_uri' => 'https://accounts.google.com/o/oauth2/auth',
             'token_uri' => 'https://oauth2.googleapis.com/token',
             'auth_provider_x509_cert_url' => 'https://www.googleapis.com/oauth2/v1/certs',
-            'client_secret' => UKM_GOOGLE_APP_SECRET,
+            'client_secret' => $this->secret,
             'redirect_uris' => 
             array (
             0 => 'https://id.ukm.no',
