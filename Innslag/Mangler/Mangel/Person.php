@@ -86,6 +86,7 @@ class Person
                     $person->getId()
                 );
             }
+            /*
             if (empty($person->getEpost())) {
                 $mangler[] = new Mangel(
                     'kontakt.epost.mangler',
@@ -105,6 +106,7 @@ class Person
                     $person->getId()
                 );
             }
+            */
         }
 
         return Mangler::manglerOrTrue($mangler);
