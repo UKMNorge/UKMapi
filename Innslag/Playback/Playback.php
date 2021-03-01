@@ -5,7 +5,7 @@ namespace UKMNorge\Innslag\Playback;
 class Playback
 {
     const TABLE = 'ukm_playback';
-    var $base_url = 'http://playback.' . UKM_HOSTNAME . '/';
+    var $base_url = 'https://playback.' . UKM_HOSTNAME . '/';
 
     var $id = null;
     var $arrangement_id = null;
