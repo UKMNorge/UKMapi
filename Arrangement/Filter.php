@@ -2,6 +2,8 @@
 
 namespace UKMNorge\Arrangement;
 
+use DateTime;
+
 class Filter
 {
     var $filters = [];
@@ -48,6 +50,17 @@ class Filter
     public function erTidligere()
     {
         $this->filters['tidligere'] = true;
+        return $this;
+    }
+
+    /**
+     * Arrangementet er aktuelt, 
+     * altså kommende eller nylig gjennomført
+     *
+     * @return self
+     */
+    public function erAktuell() {
+        $this->filters['aktuelt'] = true;
         return $this;
     }
 
@@ -112,6 +125,11 @@ class Filter
                     }
                 case 'sesong':
                     if (!$this->_filterSesong($arrangement, $filter_values)) {
+                        return false;
+                    }
+                    break;
+                case 'aktuelt':
+                    if( !$this->_filterErAktuelt($arrangement)) {
                         return false;
                     }
                     break;
@@ -192,7 +210,23 @@ class Filter
         return $arrangement->erStartet();
     }
 
-    
+    /**
+     * Finn arrangement som ikke har startet, eller har vært de siste ?? månedene
+     * 
+     * @see UKMNorge\Arrangement\Aktuelle::MONTHS_THRESHOLD for faktisk antall måneder
+     *
+     * @param Arrangement $arrangement
+     * @return void
+     */
+    private function _filterErAktuelt(Arrangement $arrangement) {
+        if(!$arrangement->erStartet()) {
+            return true;
+        }
+
+        if( $arrangement->getStart() <  new DateTime('now - '. Aktuelle::MONTHS_THRESHOLD .' months') ) {
+            return true;
+        }
+    }
 
     /**
      * Finn arrangement for gitt sesong

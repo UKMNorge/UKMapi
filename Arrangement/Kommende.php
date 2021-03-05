@@ -7,7 +7,7 @@ class Kommende extends Load
 {
     
     /**
-     * Hent alle kommende arrangement
+     * Hent alle kommende arrangement i hele Norge
      *
      * @param Filter $filter
      * @return Arrangementer

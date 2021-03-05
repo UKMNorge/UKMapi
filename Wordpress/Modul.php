@@ -61,9 +61,18 @@ abstract class Modul {
             );
         }
         if( is_null( static::$arrangement ) ) {
-            static::$arrangement = new Arrangement( intval(get_option('pl_id')));
+            static::$arrangement = new Arrangement( static::getArrangementId() );
         }
         return static::$arrangement;
+    }
+
+    /**
+     * Hent arrangement-id for denne bloggen
+     *
+     * @return Int
+     */
+    public static function getArrangementId() {
+        return intval( get_option('pl_id'));
     }
     
     /**
