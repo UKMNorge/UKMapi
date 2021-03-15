@@ -129,7 +129,7 @@ class Filter
                     }
                     break;
                 case 'aktuelt':
-                    if( !$this->_filterErAktuelt($arrangement)) {
+                    if( $this->_filterErAktuelt($arrangement)) {
                         return false;
                     }
                     break;
