@@ -59,7 +59,8 @@ class Filter
      *
      * @return self
      */
-    public function erAktuell() {
+    public function erAktuell()
+    {
         $this->filters['aktuelt'] = true;
         return $this;
     }
@@ -130,7 +131,7 @@ class Filter
                     }
                     break;
                 case 'aktuelt':
-                    if( !$this->_filterErAktuelt($arrangement)) {
+                    if (!$this->_filterErAktuelt($arrangement)) {
                         return false;
                     }
                     break;
@@ -199,7 +200,7 @@ class Filter
         return $arrangement->erFerdig();
     }
 
-    
+
     /**
      * Finn arrangement som er startet
      *
@@ -219,15 +220,16 @@ class Filter
      * @see UKMNorge\Arrangement\Aktuelle::MONTHS_THRESHOLD for faktisk antall måneder
      *
      * @param Arrangement $arrangement
-     * @return void
+     * @return Bool
      */
-    private function _filterErAktuelt(Arrangement $arrangement) {
-        if(!$arrangement->erFerdig()) {
+    private function _filterErAktuelt(Arrangement $arrangement)
+    {
+        if (!$arrangement->erFerdig()) {
             return true;
         }
 
         // implisitt: erFerdig()
-        if( $arrangement->getStop() > new DateTime('now - '. Aktuelle::MONTHS_THRESHOLD .' months') ) {
+        if ($arrangement->getStop() > new DateTime('now - ' . Aktuelle::MONTHS_THRESHOLD . ' months')) {
             return true;
         }
 
@@ -243,7 +245,7 @@ class Filter
      */
     private function _filterSesong(Arrangement $arrangement, $sesong)
     {
-        if( is_array($sesong)) {
+        if (is_array($sesong)) {
             return in_array($arrangement->getSesong(), $sesong);
         }
         return $arrangement->getSesong() == $sesong;
