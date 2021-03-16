@@ -123,13 +123,14 @@ class Filter
                     if (!$this->_filterErGjennomfort($arrangement)) {
                         return false;
                     }
+                    break;
                 case 'sesong':
                     if (!$this->_filterSesong($arrangement, $filter_values)) {
                         return false;
                     }
                     break;
                 case 'aktuelt':
-                    if( $this->_filterErAktuelt($arrangement)) {
+                    if( !$this->_filterErAktuelt($arrangement)) {
                         return false;
                     }
                     break;
@@ -211,7 +212,9 @@ class Filter
     }
 
     /**
-     * Finn arrangement som ikke har startet, eller har vært de siste ?? månedene
+     * Finn aktuelle arrangement
+     * 
+     * Aktuell: arrangement som ikke er ferdig (og dermed ikke har startet), eller har vært gjennomført siste ?? månedene
      * 
      * @see UKMNorge\Arrangement\Aktuelle::MONTHS_THRESHOLD for faktisk antall måneder
      *
@@ -219,13 +222,16 @@ class Filter
      * @return void
      */
     private function _filterErAktuelt(Arrangement $arrangement) {
-        if(!$arrangement->erStartet()) {
+        if(!$arrangement->erFerdig()) {
             return true;
         }
 
-        if( $arrangement->getStart() <  new DateTime('now - '. Aktuelle::MONTHS_THRESHOLD .' months') ) {
+        // implisitt: erFerdig()
+        if( $arrangement->getStop() > new DateTime('now - '. Aktuelle::MONTHS_THRESHOLD .' months') ) {
             return true;
         }
+
+        return false;
     }
 
     /**
