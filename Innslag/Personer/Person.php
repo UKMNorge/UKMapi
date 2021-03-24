@@ -802,8 +802,10 @@ class Person
         return is_object($object) &&
             in_array(
                 get_class($object),
-                ['UKMNorge\Innslag\Personer\Person'],
-                ['UKMNorge\Innslag\Personer\Kontaktperson']
+                [
+                    'UKMNorge\Innslag\Personer\Person',
+                    'UKMNorge\Innslag\Personer\Kontaktperson'
+                ]
             );
     }
 }
