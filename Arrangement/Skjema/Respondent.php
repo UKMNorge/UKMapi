@@ -4,7 +4,7 @@ namespace UKMNorge\Arrangement\Skjema;
 
 use Exception;
 use UKMNorge\Arrangement\Arrangement;
-use UKMNorge\Innslag\Personer\Person;
+use UKMNorge\Innslag\Personer\Kontaktperson;
 
 class Respondent
 {
@@ -75,7 +75,7 @@ class Respondent
     /**
      * Hent respondentens objekt
      * 
-     * @return Arrangement|Person
+     * @return Arrangement|Kontaktperson
      */
     public function getObject()
     {
@@ -128,12 +128,12 @@ class Respondent
     /**
      * Hent person-objektet
      * 
-     * @return Person
+     * @return Kontaktperson
      */
     public function getPerson()
     {
         if (is_null($this->person)) {
-            $this->person = new Person($this->getId());
+            $this->person = new Kontaktperson($this->getId());
         }
         return $this->person;
     }
