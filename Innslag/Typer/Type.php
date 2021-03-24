@@ -155,7 +155,7 @@ class Type
      * Hent typens numeriske ID 
      * 
      * @deprecated APIv2
-     *
+     * @see getKey()
      * @return Int $id
      */
     public function getId()

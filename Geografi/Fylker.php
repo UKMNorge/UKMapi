@@ -202,6 +202,11 @@ class Fylker {
         return static::filterEkte( static::getAbsoluteAll() );
     }
 
+    /**
+     * Hent alle aktive fylker, inkludert de som kun finnes i vårt system
+     *
+     * @return Array<Fylke>
+     */
 	public static function getAllInkludertFalske() {
 		self::initialize();
 
@@ -213,6 +218,11 @@ class Fylker {
 		return $sortert;
 	}
 
+    /**
+     * Hent alle aktive fylker, inkludert gjestefylket
+     *
+     * @return Array<Fylke>
+     */
 	public static function getAllInkludertGjester() {
 		self::initialize();
 
