@@ -45,6 +45,7 @@ prefix | objekt | les | skriv
 21 | HendelseCollection | 121yyy | 521yyy
 22 | Nominasjon | 122yyy | 522yyy
 23 | Meta | 123yyy | 523yyy
+24 | Innslag/Personer/Kontaktperson | 124yyy | -
 30 | Innslag/Type | 130yyy | - 
 31 | Media/Artikkel | 131yyy | -
 32 | Media/Bilde | 132yyy | -

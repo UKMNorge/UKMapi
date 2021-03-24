@@ -43,7 +43,7 @@ class Person
      */
     public static function loadFromId(Int $id)
     {
-        $person = new Person($id);
+        $person = new static($id);
         if (!$person) {
             throw new Exception(
                 'Fant ikke person ' . $id,
@@ -140,7 +140,7 @@ class Person
             );
         }
 
-        return new Person($person_data);
+        return new static($person_data);
     }
 
 
@@ -802,7 +802,8 @@ class Person
         return is_object($object) &&
             in_array(
                 get_class($object),
-                ['UKMNorge\Innslag\Personer\Person']
+                ['UKMNorge\Innslag\Personer\Person'],
+                ['UKMNorge\Innslag\Personer\Kontaktperson']
             );
     }
 }
