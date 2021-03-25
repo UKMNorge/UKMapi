@@ -122,6 +122,9 @@ class Write
         $place->add('season', $sesong);
 
         $pl_id = $place->run();
+        if(!$pl_id) {
+            throw new Exception("Kunne ikke opprette arrangement", 501032);
+        }
         // Oppdater loggeren til å bruke riktig PL_ID
         Logger::setPlId($pl_id);
 
