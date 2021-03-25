@@ -134,6 +134,9 @@ class Load
             case 'UKMNorge\Arrangement\Tidligere':
                 $filter->erTidligere();
                 break;
+            case 'UKMNorge\Arrangement\Aktuelle':
+                $filter->erAktuell();
+                break;
         }
         return $filter;
     }

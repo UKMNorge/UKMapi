@@ -66,6 +66,7 @@ class Arrangement
     var $path = null;
     var $har_skjema = false;
     var $skjema = null;
+    var $deltakerskjema = null;
     var $kontaktpersoner = null;
     var $pamelding = null;
     var $registrert = null;
@@ -75,8 +76,11 @@ class Arrangement
     var $eier_kommune_id = null;
     var $innslagTyper = null;
     var $meta = null;
-    var $har_videresending = null;
     var $synlig = true;
+    
+    var $har_videresending = null;
+    var $videresending_apner;
+    var $vidersending_stenger;
 
     var $har_bilder = null;
     
@@ -197,6 +201,8 @@ class Arrangement
         $this->setUregistrerte($row['pl_missing']);
         $this->setPamelding($row['pl_pamelding']);
         $this->setHarVideresending($row['pl_videresending'] == 'true');
+        $this->setVideresendingApner( new DateTime($row['pl_forward_start']));
+        $this->setVideresendingStenger( new DateTime($row['pl_forward_stop']));
         $this->har_skjema = $row['pl_has_form'] == 'true';
         $this->synlig = $row['pl_visible'] == 'true';
         $this->deleted = $row['pl_deleted'] == 'true';
@@ -690,7 +696,14 @@ class Arrangement
      **/
     public function harSkjema()
     {
-        return $this->har_skjema;
+        if($this->har_skjema) {
+            try {
+                $this->getSkjema();
+                return true;
+            } catch( Exception $e ) {
+                return false;
+            }
+        }
     }
 
     /**
@@ -710,22 +723,42 @@ class Arrangement
      * OBS: du kan få et skjema, selv om arrangementet ikke ønsker
      * å bruke det!
      *
-     * @return skjema $skjema
+     * @return Skjema $skjema
+     * @throws Exception 151002
      **/
     public function getSkjema()
     {
         if ($this->skjema == null) {
-            try {
-                $this->skjema = Skjema::loadFromArrangement($this->getId());
-            } catch (Exception $e) {
-                // Betyr at arrangementet ikke har skjeam
-                if ($e->getCode() == 151001) {
-                    return false;
-                }
-                throw $e;
-            }
+            $this->skjema = Skjema::getArrangementSkjema($this->getId());
         }
         return $this->skjema;
+    }
+
+    /**
+     * Hent deltakerskjema
+     * 
+     * Noen arrangement kan også ha et skjema med spørsmål til deltakerne
+     * 
+     * @return Skjema $skjema
+     * @throws Exception 151002
+     */
+    public function getDeltakerSkjema() {
+        if( $this->deltakerskjema == null ) {
+            $this->deltakerskjema = Skjema::getDeltakerSkjema( $this->getId() );
+        }
+        return $this->deltakerskjema;
+    }
+
+    /**
+     * Sjekk om arrangementet skal ha et deltakerskjema
+     * 
+     * @return bool
+     */
+    public function harDeltakerSkjema() {
+        if( is_null( $this->getMetaValue('harDeltakerskjema'))) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -1178,6 +1211,47 @@ class Arrangement
         return $res;
     }
 
+
+    /**
+     * Angi når videresendingen åpner
+     * 
+     * @param DateTime $apner
+     * @return self
+     */
+    public function setVideresendingApner( DateTime $apner ) {
+        $this->videresending_apner = $apner;
+        return $this;
+    }
+
+    /**
+     * Når åpner videresendingen?
+     * 
+     * @return DateTime
+     */
+    public function getVideresendingApner() {
+        return $this->videresending_apner;
+    }
+
+    /**
+     * Angi når videresendingen stenger
+     * 
+     * @param DateTime $stenger
+     * @return self
+     */
+    public function setVideresendingStenger( DateTime $stenger ) {
+        $this->videresending_stenger = $stenger;
+        return $this;
+    }
+
+    /**
+     * Når stenger videresendingen?
+     * 
+     * @return DateTime
+     */
+    public function getVideresendingStenger() {
+        return $this->videresending_stenger;
+    }
+
     /**
      * Er videresendingen til dette arrangementet åpen?
      *
@@ -1194,7 +1268,7 @@ class Arrangement
      * @return Bool
      */
     public function erVideresendingOver() {
-        return time() > $this->getFrist1()->getTimestamp();
+        return time() > $this->getVideresendingStenger()->getTimestamp();
     }
 
     /**
@@ -1203,7 +1277,7 @@ class Arrangement
      * @return Bool
      */
     public function harVideresendingStartet() {
-        return time() > $this->getFrist2()->getTimestamp();
+        return time() > $this->getVideresendingApner()->getTimestamp();
     }
 
     /**
