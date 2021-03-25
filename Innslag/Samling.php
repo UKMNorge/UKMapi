@@ -507,6 +507,13 @@ class Samling {
             // Fix 16.01: Forsøk å skippe innslag med kontakt-person context dersom arrangementet ikke finnes. Issue #315.
             if( $this->getContext()->getType() == 'kontaktperson' ) {
                 try {
+					// 2021.02.05 - https://github.com/UKMNorge/UKMdelta/issues/347
+					if( is_null($innslag) || is_null($innslag->getFylke())) {
+						throw new Exception(
+							'Innslaget mangler fylke'
+						);
+					}
+					// E.O. 2021.02.05
                     $innslag->getContext()->setMonstring(
                         new Monstring(
                             $innslag->getHomeId(),

@@ -2,6 +2,8 @@
 
 namespace UKMNorge\Arrangement;
 
+use DateTime;
+
 class Filter
 {
     var $filters = [];
@@ -48,6 +50,18 @@ class Filter
     public function erTidligere()
     {
         $this->filters['tidligere'] = true;
+        return $this;
+    }
+
+    /**
+     * Arrangementet er aktuelt, 
+     * altså kommende eller nylig gjennomført
+     *
+     * @return self
+     */
+    public function erAktuell()
+    {
+        $this->filters['aktuelt'] = true;
         return $this;
     }
 
@@ -110,8 +124,14 @@ class Filter
                     if (!$this->_filterErGjennomfort($arrangement)) {
                         return false;
                     }
+                    break;
                 case 'sesong':
                     if (!$this->_filterSesong($arrangement, $filter_values)) {
+                        return false;
+                    }
+                    break;
+                case 'aktuelt':
+                    if (!$this->_filterErAktuelt($arrangement)) {
                         return false;
                     }
                     break;
@@ -180,7 +200,7 @@ class Filter
         return $arrangement->erFerdig();
     }
 
-    
+
     /**
      * Finn arrangement som er startet
      *
@@ -192,7 +212,29 @@ class Filter
         return $arrangement->erStartet();
     }
 
-    
+    /**
+     * Finn aktuelle arrangement
+     * 
+     * Aktuell: arrangement som ikke er ferdig (og dermed ikke har startet), eller har vært gjennomført siste ?? månedene
+     * 
+     * @see UKMNorge\Arrangement\Aktuelle::MONTHS_THRESHOLD for faktisk antall måneder
+     *
+     * @param Arrangement $arrangement
+     * @return Bool
+     */
+    private function _filterErAktuelt(Arrangement $arrangement)
+    {
+        if (!$arrangement->erFerdig()) {
+            return true;
+        }
+
+        // implisitt: erFerdig()
+        if ($arrangement->getStop() > new DateTime('now - ' . Aktuelle::MONTHS_THRESHOLD . ' months')) {
+            return true;
+        }
+
+        return false;
+    }
 
     /**
      * Finn arrangement for gitt sesong
@@ -203,7 +245,7 @@ class Filter
      */
     private function _filterSesong(Arrangement $arrangement, $sesong)
     {
-        if( is_array($sesong)) {
+        if (is_array($sesong)) {
             return in_array($arrangement->getSesong(), $sesong);
         }
         return $arrangement->getSesong() == $sesong;

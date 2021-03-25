@@ -9,6 +9,7 @@ use UKMNorge\Kommunikasjon\Mottaker;
 class SMSTest extends TestCase {
 
     public function testMobilnummerString() {
+        $this->markTestSkipped("Missing database-mock / test functionality. Skipping test.");
         SMS::setSystemId('UKMid', 0);
         $sms = new SMS('UKMNorge');
         $sms->setMelding( 'Test' )->setMottaker( Mottaker::fraMobil("+4798004248"));
@@ -23,6 +24,7 @@ class SMSTest extends TestCase {
     }
 
     public function testSendToSingleNumber() {
+        $this->markTestSkipped("Missing database-mock / test functionality. Skipping test.");
         SMS::setSystemId('UKMid', 0);
         $sms = new SMS('UKMNorge');
         $sms->setMelding( 'Test' )->setMottaker( Mottaker::fraMobil(98004248));
@@ -53,6 +55,7 @@ class SMSTest extends TestCase {
      * Requires a row in the `sms_block`-table for 98004248. Could add this to the test, but can't be bothered yet. Will add automated test setup / teardown when we need it.
      */
     public function testBlokkertMobil() {
+        $this->markTestSkipped("Missing database-mock / test functionality. Skipping test.");
         SMS::setSystemId('UKMid', 0);
         $sms = new SMS('UKMNorge');
         try {

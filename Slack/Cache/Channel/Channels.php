@@ -30,7 +30,7 @@ class Channels extends Collection
      *
      * @param String $team_id
      * @param String $slack_id
-     * @return User
+     * @return Channel
      * @throws Exception
      */
     public static function getBySlackId(String $team_id, String $slack_id)

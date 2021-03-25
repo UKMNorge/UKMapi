@@ -74,7 +74,6 @@ abstract class Modul {
     public static function getArrangementId() {
         return intval( get_option('pl_id'));
     }
-
     
     /**
      * Legg til standard ajax hook

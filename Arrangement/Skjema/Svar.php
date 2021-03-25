@@ -7,7 +7,8 @@ use Exception;
 class Svar {
     private $id;
     private $sporsmal_id;
-    private $fra;
+    private $respondent_type;
+    private $respondent_id;
     private $value;
     private $value_raw;
     private $value_updated = false;
@@ -18,43 +19,38 @@ class Svar {
      * @param Array $db_row
      * @return Svar $svar
      */
-    public static function createFromDatabase( $db_row ) {
+    public static function getFromDatabaseRow( Array $db_row ) {
+        if( !empty($db_row['pl_fra']) ) {
+            $respondent_type = 'arrangement';
+            $respondent_id = intval($db_row['pl_fra']);
+        } else {
+            $respondent_type = 'person';
+            $respondent_id = intval($db_row['p_fra']);
+        }
+
         return new Svar(
-            $db_row['id'],
-            $db_row['sporsmal'],
-            $db_row['pl_fra'],
+            intval($db_row['id']),
+            intval($db_row['sporsmal']),
+            $respondent_type,
+            $respondent_id,
             $db_row['svar']
         );
     }
 
-    public static function createFromId( $id ) {
-        throw new Exception(
-            'Ikke mulig: createFromId bør være unødvendig å kjøre, da du bør behandle svaret gjennom riktig SvarSett.',
-            154001
-        );
-    }
-
     /**
-     * Opprett tom placeholder
-     *
-     * @return Svar $empty
-     */
-    public static function createEmpty() {
-        return new Svar(0,0,0,'');
-    }
-
-    /**
-     * Opprett placeholder for et nytt svar
-     *
+     * Hent svar for en respondent
+     * 
      * @param Int $sporsmal_id
-     * @param Int $arrangement_id
+     * @param String $respondent_type <arrangement|person>
+     * @param Int $respondent_id
      * @return Svar
      */
-    public static function createForSvar( Int $sporsmal_id, Int $arrangement_id ) {
-        return new Svar(
+    public static function getPlaceholder( Int $sporsmal_id, String $respondent_type, Int $respondent_id) {
+        return new static(
             0,
             $sporsmal_id,
-            $arrangement_id,
+            $respondent_type,
+            $respondent_id,
             ''
         );
     }
@@ -67,10 +63,11 @@ class Svar {
      * @param Int $pl_fra
      * @param String $json_string
      */
-    public function __construct( Int $id, Int $sporsmal_id, Int $pl_fra, String $json_string ) {
+    public function __construct( Int $id, Int $sporsmal_id, String $respondent_type, Int $respondent_id, String $json_string ) {
         $this->id = $id;
         $this->sporsmal_id = $sporsmal_id;
-        $this->fra = $pl_fra;
+        $this->respondent_id = $respondent_id;
+        $this->respondent_type = $respondent_type;
         $this->value_raw = $json_string;
     }
 

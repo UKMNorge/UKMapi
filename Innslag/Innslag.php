@@ -699,7 +699,7 @@ class Innslag
     /**
      * Hent kontaktperson
      *
-     * @return object person $kontaktperson
+     * @return Person $kontaktperson
      **/
     public function getKontaktperson()
     {

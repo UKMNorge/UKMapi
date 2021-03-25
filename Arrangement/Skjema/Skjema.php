@@ -6,23 +6,21 @@ use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Arrangement\Eier;
 use UKMNorge\Database\SQL\Query;
 use Exception;
+use SporsmalColl;
 
 require_once('UKM/Autoloader.php');
 
-class Skjema {
+class Skjema
+{
 
     private $id;
-    private $sporsmal;
-    private $svar_sett;
-    private $arrangement;
     private $arrangement_id;
     private $eier;
-
-    public function __construct( Int $id, Int $pl_id, String $eier_type, Int $eier_id ) {
-        $this->id = $id;
-        $this->arrangement_id = $pl_id;
-        $this->eier = new Eier( $eier_type, $eier_id );
-    }
+    private $type;
+    private $sporsmal;
+    private $overskrifter;
+    private $gruppert;
+    private $respondenter;
 
     /**
      * Hent skjema for arrangement
@@ -30,83 +28,70 @@ class Skjema {
      * @param Int $pl_id
      * @return Skjema $skjema
      */
-    public static function loadFromArrangement( Int $pl_id ) {
-        $query = new Query(
-            "SELECT *
-            FROM `ukm_videresending_skjema`
-            WHERE `pl_id` = '#arrangement'",
-            [
-                'arrangement' => $pl_id
-            ]
-        );
-        $db_row = $query->getArray();
-
-        if( !$db_row ) {
-            throw new Exception(
-                'Arrangementet har ikke skjema',
-                151001
-            );
-        }
-        return new Skjema(
-            $db_row['id'],
-            $db_row['pl_id'],
-            $db_row['eier_type'],
-            $db_row['eier_id']
-        );
-    }
-
-    /**
-     * Hent gitt skjema
-     *
-     * @param Int $id
-     * @return Skjema
-     */
-    public static function getFromId( Int $id ) {
-        $query = new Query(
-            "SELECT *
-            FROM `ukm_videresending_skjema`
-            WHERE `id` = '#id'",
-            [
-                'id' => $id
-            ]
-        );
-        $db_row = $query->getArray();
-
-        if( !$db_row ) {
-            throw new Exception(
-                'Finner ikke skjema '. $id,
-                151002
-            );
-        }
-        return new Skjema(
-            $db_row['id'],
-            $db_row['pl_id'],
-            $db_row['eier_type'],
-            $db_row['eier_id']
-        );
-    }
-
-    /**
-     * Hent arrangement-objektet
-     * Tror det er dårlig praksis å bruke denne altså, da skjema skal lastes
-     * fra Arrangement-klassen.
-     * 
-     * @return Arrangement $arrangement
-     */ 
-    public function getArrangement()
+    public static function getArrangementSkjema(Int $pl_id)
     {
-        if( null == $this->arrangement ) {
-            $this->arrangement = new Arrangement( $this->getArrangementId() );
-        }
-        return $this->arrangement;
+        return static::load(
+            new Query(
+                "SELECT `id`
+            FROM `ukm_videresending_skjema`
+            WHERE `pl_id` = '#arrangement'
+            AND `type` = 'arrangement'",
+                [
+                    'arrangement' => $pl_id
+                ]
+            ),
+            'arrangement'
+        );
     }
 
+    /**
+     * Hent skjema for deltakere (person)
+     * 
+     * @param Int $pl_id
+     * @return Skjema $skjema
+     */
+    public static function getDeltakerSkjema(Int $pl_id)
+    {
+        return static::load(
+            new Query(
+                "SELECT `id`
+                FROM `ukm_videresending_skjema`
+                WHERE `pl_id` = '#arrangement'
+                AND `type` = 'person'",
+                [
+                    'arrangement' => $pl_id
+                ]
+            ),
+            'person'
+        );
+    }
+
+    /**
+     * Hent skjema-ID
+     * 
+     * @return Int $id
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Hent hvilken type skjema dette er
+     * 
+     * @return String arrangement|person
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
     /**
      * Hent arrangement-ID (pl_id)
      *
      * @return Int $pl_id
      */
-    public function getArrangementId() {
+    public function getArrangementId()
+    {
         return $this->arrangement_id;
     }
 
@@ -115,20 +100,14 @@ class Skjema {
      * 
      * @param Int Spørsmål-ID, default null
      * @throws Exception
-     * @return Array<Sporsmal>|Sporsmal
-     */ 
-    public function getSporsmal( Int $sporsmal_id = null)
+     * @return SporsmalSamling
+     */
+    public function getSporsmal(Int $sporsmal_id = null)
     {
-        if( is_null($sporsmal_id ) ) {
-            return $this->getAll();
+        if (is_null($this->sporsmal)) {
+            $this->sporsmal = new SporsmalSamling($this->getId());
         }
-        if( !isset($this->getAll()[$sporsmal_id])) {
-            throw new Exception(
-                'Beklager, skjema '. $this->getId() .' har ikke spørsmål '. $sporsmal_id,
-                151003
-            );
-        };
-        return $this->getAll()[$sporsmal_id];
+        return $this->sporsmal;
     }
 
     /**
@@ -136,138 +115,113 @@ class Skjema {
      *
      * @return Int
      */
-    public function getAntallOverskrifter() {
-        return sizeof( $this->getOverskrifter() );
+    public function getAntallOverskrifter()
+    {
+        return $this->getOverskrifter()->getAntall();
     }
 
     /**
      * Hent alle overskrifter
      *
-     * @return Array<Sporsmal>
+     * @return Overskrifter
      */
-    public function getOverskrifter() {
-        $this->overskrifter = [];
-        foreach( $this->getAll() as $sporsmal ) {
-            if( $sporsmal->getType() == 'overskrift') {
-                $this->overskrifter[] = $sporsmal;
-            }
+    public function getOverskrifter()
+    {
+        if (is_null($this->overskrifter)) {
+            $this->overskrifter = new Overskrifter($this->getId());
         }
         return $this->overskrifter;
     }
 
     /**
-     * Grupper spørsmål etter overskrift
-     *
-     * @return Array
+     * Hent alle spørsmål, men gruppert per overskrift
+     * 
+     * @return Array<Gruppe>
      */
-    public function getSporsmalGruppertPerOverskrift() {
-        if( is_null($this->grupper)){
-            $this->grupper = [];
+    public function getSporsmalPerOverskrift() {
+        if (is_null($this->gruppert)) {
+            $this->gruppert = [];
             $count = 0;
             $current_index = 0;
-            foreach( $this->getAll() as $sporsmal ) {
-                if( $count == 0 && $sporsmal->getType() != 'overskrift' ) {
-                    $this->grupper[] = Gruppe::createEmpty();
-                    $current_index = sizeof($this->grupper)-1;
+            foreach ($this->getSporsmal()->getAll() as $sporsmal) {
+                if ($count == 0 && $sporsmal->getType() != 'overskrift') {
+                    $this->gruppert[] = Gruppe::createEmpty();
+                    $current_index = sizeof($this->gruppert) - 1;
                 }
-                
-                switch( $sporsmal->getType() ) {
+
+                switch ($sporsmal->getType()) {
                     case 'overskrift':
-                        $this->grupper[] = Gruppe::createFromSporsmal($sporsmal);
-                        $current_index = sizeof($this->grupper)-1;
-                    break;
+                        $this->gruppert[] = Gruppe::createFromSporsmal($sporsmal);
+                        $current_index = sizeof($this->gruppert) - 1;
+                        break;
                     default:
-                        $this->grupper[ $current_index ]->add( $sporsmal );
+                        $this->gruppert[$current_index]->add($sporsmal);
                 }
 
                 $count++;
             }
-
         }
-        return $this->grupper;
+        return $this->gruppert;
     }
 
     /**
-     * Hent alle spørsmål
+     * Hent alle som har respondert på skjemaet
      * 
-     * @return Array<Sporsmal>
+     * @return Respondenter
      */
-    public function getAll() {
-        if( is_null($this->sporsmal )) {
-            $this->sporsmal = [];
-
-            $select = new Query(
-                "SELECT * 
-                FROM `ukm_videresending_skjema_sporsmal`
-                WHERE `skjema` = '#skjema'
-                ORDER BY `rekkefolge` ASC",
-                [
-                    'skjema' => $this->getId()
-                ]
-            );
-            $res = $select->run();
-            while( $db_row = Query::fetch( $res ) ) {
-                $this->addSporsmal( Sporsmal::createFromDatabase( $db_row ));
-            }
-        }
-        return $this->sporsmal;
-    }
-
-    public function addSporsmal( Sporsmal $sporsmal ) {
-        $this->getSporsmal();
-        $this->sporsmal[ $sporsmal->getId() ] = $sporsmal;
-        return $this;
-    }
-
-    /**
-     * Hent svarsett for alle som har svart på dette skjemaet
-     *
-     * @return Array $SvarSett 
-     */
-    public function getSvarSett() {
-        if( is_null($this->svar_sett) ) {
-            $this->svar_sett = [];
-
-            $select = new Query(
-                "SELECT * 
-                FROM `ukm_videresending_skjema_svar`
-                WHERE `skjema` = '#skjema'",
-                [
-                    'skjema' => $this->getId()
-                ]
-            );
-
-            $res = $select->run();
-
-            while( $db_row = Query::fetch( $res ) ) {
-                $this->svar_sett[ intval($db_row['pl_fra']) ] =
-                    new SvarSett( $this->getId(), intval($db_row['pl_fra']));
-            }
-        }
-
-        return $this->svar_sett;
-    }
-
-    /**
-     * Hent svar fra ett gitt arrangement
-     *
-     * @param Int $arrangement_id
-     * @return SvarSett $svar
-     */
-    public function getSvarSettFor( Int $arrangement_id ) {
-        if( !isset( $this->getSvarSett()[ $arrangement_id ] ) ) {
-            $this->svar_sett[ $arrangement_id ] = new SvarSett( $this->getId(), $arrangement_id);
-        }
-        return $this->getSvarSett()[ $arrangement_id ];
-    }
-
-    /**
-     * Hent skjema-ID
-     * 
-     * @return Int $id
-     */ 
-    public function getId()
+    public function getRespondenter()
     {
-        return $this->id;
+        if (is_null($this->respondenter)) {
+            $this->respondenter = new Respondenter($this);
+        }
+        return $this->respondenter;
+    }
+
+
+    /**
+     * Opprett et objekt
+     * 
+     * @see getArrangementSkjema or getDeltakerskjema
+     * @return self
+     */
+    public function __construct(Int $id, String $type, Int $pl_id, String $eier_type, Int $eier_id)
+    {
+        $this->id = $id;
+        $this->arrangement_id = $pl_id;
+        $this->eier = new Eier($eier_type, $eier_id);
+        $this->type = $type;
+    }
+
+    /**
+     * Last inn skjema fra Query
+     * 
+     * @param Query $query
+     * @param String $eier_type
+     * @return Skjema $skjema
+     */
+    private static function load(Query $query, String $eier_type)
+    {
+        $skjema_data = $query->getArray();
+        if (!$skjema_data || is_null($skjema_data)) {
+            throw new Exception(
+                'Finner ikke skjema for '. $eier_type,
+                151002
+            );
+        }
+
+        $id         = isset($skjema_data['id'])         ? intval($skjema_data['id']) : 0;
+        $type       = isset($skjema_data['type'])       ? $skjema_data['type'] : $eier_type;
+        $pl_id      = isset($skjema_data['pl_id'])      ? intval($skjema_data['pl_id']) : 0;
+        $eier_type  = isset($skjema_data['eier_type'])  ? $skjema_data['eier_type'] : $eier_type;
+        $eier_id    = isset($skjema_data['eier_id'])    ? intval($skjema_data['eier_id']) : 0;
+
+
+        return new static(
+            $id,
+            $type,
+            $pl_id,
+            $eier_type,
+            $eier_id
+        );
     }
 }

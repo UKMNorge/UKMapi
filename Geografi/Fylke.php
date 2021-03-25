@@ -128,7 +128,7 @@ class Fylke
     /**
      * Hent geografisk administrasjons-område for fylket
      *
-     * @return UKMNorge\Nettverk\Omrade
+     * @return Omrade
      */
     public function getNettverkOmrade()
     {

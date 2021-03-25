@@ -118,8 +118,6 @@ class Pdo extends BshafferPdo {
 
 
     /**
-     * plaintext passwords are bad!  Override this for your application
-     * override
      *
      * @param string $tel_nr
      * @param string $password
@@ -129,7 +127,6 @@ class Pdo extends BshafferPdo {
      */
     public function setUser($tel_nr, $password, $firstName = null, $lastName = null)
     {
-        // do not store in plaintext
         $password = $this->hashPassword($password);
 
         // if it exists, update it.
