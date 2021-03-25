@@ -27,11 +27,11 @@ use stdClass;
 
 class Google extends IdentityProvider
 {
-    private static $url_graph_api       = 'https://graph.facebook.com/v9.0/';
-    protected static $url_auth            = 'https://www.facebook.com/v9.0/dialog/oauth';
-    protected static $url_access_token    = 'https://graph.facebook.com/v9.0/oauth/access_token';
-    protected static $url_redirect        = 'https://id.' . UKM_HOSTNAME . '/auth/facebook/';
-    protected $scope = ['public_profile']; // default scope
+    private static $url_graph_api       = '';
+    protected static $url_auth            = '';
+    protected static $url_access_token    = '';
+    protected static $url_redirect        = 'https://id.' . UKM_HOSTNAME . '/auth/google/';
+    protected $scope = []; // default scope
     
 
 
