@@ -76,6 +76,21 @@ abstract class Modul {
     }
     
     /**
+     * Legg til standard ajax hook
+     * 
+     * Kjøres fra hook()-funksjonen
+     *
+     * @return void
+     */
+    public static function setupAjax() {
+        add_action(
+            'wp_ajax_'. get_called_class(),
+            [get_called_class(), 'ajax']
+        );
+    }
+
+
+    /**
      * Get Flashbag 
      * Instance of UKMflashbag.class
      * 
