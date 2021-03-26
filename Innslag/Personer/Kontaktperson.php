@@ -3,6 +3,7 @@
 namespace UKMNorge\Innslag\Personer;
 
 use Exception;
+use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Innslag\Context\Context;
 use UKMNorge\Innslag\Samling;
 use UKMNorge\Innslag\Typer\Type;
@@ -17,13 +18,14 @@ class Kontaktperson extends Person
      * Har kontaktpersonen et innslag for denne typen innslag?
      *
      * @param Type $type
+     * @param Arrangement $arrangement
      * @param boolean $inkluder_ufullstendige
      * @return boolean
      */
-    public function harInnslagFor(Type $type, bool $inkluder_ufullstendige = false)
+    public function harInnslagFor(Type $type, Arrangement $arrangement, bool $inkluder_ufullstendige = false)
     {
         try {
-            $this->getInnslagFor($type, $inkluder_ufullstendige);
+            $this->getInnslagFor($type, $arrangement, $inkluder_ufullstendige);
         } catch (Exception $e) {
             return false;
         }
@@ -34,20 +36,23 @@ class Kontaktperson extends Person
      * Hent innslag som denne personen er kontaktperson for
      *
      * @param Type $type
+     * @param Arrangement $arrangement
      * @param boolean $inkluder_ufullstendige
      * @return Samling
      */
-    public function getInnslagFor(Type $type, bool $inkluder_ufullstendige = false)
+    public function getInnslagFor(Type $type, Arrangement $arrangement, bool $inkluder_ufullstendige = false)
     {
+        $id = $type->getKey().'-'.$arrangement->getId();
+        
         // Hent fra cache
-        if (isset($this->type_innslag_map[$type->getKey()])) {
-            return $this->type_innslag_map[$type->getKey()];
+        if (isset($this->type_innslag_map[$id])) {
+            return $this->type_innslag_map[$id];
         }
 
         // Let gjennom påmeldte innslag
         foreach ($this->getInnslag()->getAll() as $innslag) {
             if ($innslag->getType()->getKey() == $type->getKey()) {
-                $this->type_innslag_map[$innslag->getType()->getKey()] = $innslag;
+                $this->type_innslag_map[$innslag->getType()->getKey().'-'.$innslag->getHomeId()] = $innslag;
             }
         }
 
@@ -55,21 +60,21 @@ class Kontaktperson extends Person
         if ($inkluder_ufullstendige) {
             foreach ($this->getInnslag()->getAllUfullstendige() as $innslag) {
                 if ($innslag->getType()->getKey() == $type->getKey()) {
-                    $this->type_innslag_map[$innslag->getType()->getKey()] = $innslag;
+                    $this->type_innslag_map[$innslag->getType()->getKey().'-'.$innslag->getHomeId()] = $innslag;
                 }
             }
         }
 
-        // Det finnes ingen
-        if (!isset($this->type_innslag_map[$type->getKey()])) {
-            throw new Exception(
-                $this->getNavn() . ' har ingen ' . $type->getNavn() . '-innslag',
-                124001
-            );
+        // Vi har ett (og systemet skal unngå at det finnes flere)!
+        if (isset($this->type_innslag_map[$id])) {
+            return $this->type_innslag_map[$id];
         }
 
-        // Vi har ett (og systemet skal unngå at det finnes flere)!
-        return $this->type_innslag_map[$type->getKey()];
+        // Det finnes ingen
+        throw new Exception(
+            $this->getNavn() . ' har ingen ' . $type->getNavn() . '-innslag',
+            124001
+        );
     }
 
     /**
