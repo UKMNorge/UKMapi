@@ -23,12 +23,12 @@ class Write {
      */
     public static function opprett( Arrangement $arrangement, Int $innslagId, String $filnavn, String $nicename, String $beskrivelse ) {        
         $sql = new Insert(Playback::TABLE);
-		$sql->add('pl_id', $_POST['pl_id']);
-		$sql->add('b_id', $_POST['b_id']);
-		$sql->add('pb_file', $_POST['filename']);
-		$sql->add('pb_season', $_POST['season']);
-        $sql->add('pb_name', $_POST['name']);
-        $sql->add('pb_description', $_POST['description']);
+		$sql->add('pl_id', $arrangement->getId());
+		$sql->add('b_id', $innslagId);
+		$sql->add('pb_file', $filnavn);
+		$sql->add('pb_season', $arrangement->getSesong());
+        $sql->add('pb_name', $nicename);
+        $sql->add('pb_description', $beskrivelse);
 
         try {
             $res = $sql->run();
