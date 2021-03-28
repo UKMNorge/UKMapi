@@ -35,8 +35,7 @@ class Write {
         } catch( Exception $e ) {
             if( $e->getCode() == 901001 ) {
                 throw new Exception(
-                    'Kunne lagre mediefil. '.
-                    'Dette er dessverre en kjent feil, og om du prøver igjen, så burde det fungere.'
+                    'Kunne ikke opprette mediefil. '
                 );
             } else {
                 throw $e;
