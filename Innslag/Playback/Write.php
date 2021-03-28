@@ -21,7 +21,7 @@ class Write {
      * @throws Exception
      * @return Playback
      */
-    public function opprett( Arrangement $arrangement, Int $innslagId, String $filnavn, String $nicename, String $beskrivelse ) {        
+    public static function opprett( Arrangement $arrangement, Int $innslagId, String $filnavn, String $nicename, String $beskrivelse ) {        
         $sql = new Insert(Playback::TABLE);
 		$sql->add('pl_id', $_POST['pl_id']);
 		$sql->add('b_id', $_POST['b_id']);
@@ -62,7 +62,7 @@ class Write {
      * @throws Exception
      * @return Bool
      */
-    public function lagre( Playback $playback ) {
+    public static function lagre( Playback $playback ) {
         $database_playback = Samling::getById($playback->getId());
         
         $sql = new Update(
@@ -97,7 +97,7 @@ class Write {
         }
     }
 
-    public function slett( Arrangement $arrangement, Playback $playback ) {
+    public static function slett( Arrangement $arrangement, Playback $playback ) {
         $sql = new Delete(
             Playback::TABLE,
             [
