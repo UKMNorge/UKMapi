@@ -121,7 +121,7 @@ abstract class Modul {
     }
 
     public static function getPluginUrl() {
-        return plugin_dir_url( static::getPluginPath().'dummyfile' );
+        return '//'. UKM_HOSTNAME . '/wp-content/plugins/'. basename(static::getPluginPath()) . '/';
     }
 
     /**
