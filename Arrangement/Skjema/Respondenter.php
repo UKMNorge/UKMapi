@@ -83,12 +83,13 @@ class Respondenter
      * @param Int $id
      * @return bool
      */
-    public function harRespondert(Int $id ) {
+    public function harRespondert(Int $id)
+    {
         try {
             $this->get($id);
             return true;
-        } catch( Exception $e) {
-            if( $e->getCode() == 163003) {
+        } catch (Exception $e) {
+            if ($e->getCode() == 163003) {
                 return false;
             }
             throw $e;
@@ -129,13 +130,13 @@ class Respondenter
                 'skjema_id' => $this->getSkjemaId()
             ]
         );
-    
+
         $res = $query->getResults();
 
         while ($row = Query::fetch($res)) {
             $id = $row[$felt];
             $respondent = new Respondent($id, $this->getSkjemaType(), $this->getSkjemaId());
-            $this->respondenter[$respondent->getNavn() .'-'. $id] = $respondent;
+            $this->respondenter[$respondent->getNavn() . '-' . $id] = $respondent;
         }
 
         ksort($this->respondenter);
