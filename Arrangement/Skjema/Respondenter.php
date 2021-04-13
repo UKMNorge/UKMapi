@@ -3,7 +3,9 @@
 namespace UKMNorge\Arrangement\Skjema;
 
 use Exception;
+use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Innslag\Typer\Typer;
 
 class Respondenter
 {
@@ -11,6 +13,7 @@ class Respondenter
     private $skjema_id;
     private $skjema_type;
     private $respondenter;
+    private $respondenter_for = [];
 
     public function __construct(Skjema $skjema)
     {
@@ -20,7 +23,9 @@ class Respondenter
 
 
     /**
-     * Hent alle respondenter
+     * Hent alle respondenter (uavhengig av påmeldt status)
+     * 
+     * @see getAllPameldt(Arrangement $arrangement)
      * 
      * @return Array<Respondent>
      */
@@ -30,6 +35,26 @@ class Respondenter
             $this->load();
         }
         return $this->respondenter;
+    }
+
+    /**
+     * Hent alle respondenter som er påmeldt arrangementet
+     *
+     * @param Arrangement $arrangement
+     * @return Array<Respondent>
+     */
+    public function getAllPameldt(Arrangement $arrangement)
+    {
+        if (!isset($this->respondenter_for[$arrangement->getId()])) {
+            $this->respondenter_for[$arrangement->getId()] = [];
+            foreach ($this->getAll() as $respondent) {
+                if ($respondent->getPerson()->harInnslagFor(Typer::getByKey('enkeltperson'), $arrangement)) {
+                    $this->respondenter_for[$arrangement->getId()][] = $respondent;
+                }
+            }
+        }
+
+        return $this->respondenter_for[$arrangement->getId()];
     }
 
     /**
