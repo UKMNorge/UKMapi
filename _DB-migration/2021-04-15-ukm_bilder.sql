@@ -1,0 +1,1 @@
+ALTER TABLE `ukm_bilder` CHANGE `status` `status` ENUM('uploaded','compressing','compressed','tagged','crash','cancelled')  CHARACTER SET utf8mb4  COLLATE utf8mb4_danish_ci  NOT NULL  DEFAULT 'uploaded';
