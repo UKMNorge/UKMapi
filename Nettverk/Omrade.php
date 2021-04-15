@@ -260,7 +260,8 @@ class Omrade
     {
         if (null == $this->fylke) {
             throw new Exception(
-                'Dette området tilhører ikke et fylke'
+                'Dette området tilhører ikke et fylke',
+                162001
             );
         }
         return $this->fylke;
@@ -276,7 +277,8 @@ class Omrade
     {
         if (null == $this->kommune) {
             throw new Exception(
-                'Dette området tilhører ikke en kommune'
+                'Dette området tilhører ikke en kommune',
+                162002
             );
         }
         return $this->kommune;
