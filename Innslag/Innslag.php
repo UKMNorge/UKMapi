@@ -767,6 +767,12 @@ class Innslag
     public function getPersoner()
     {
         if (null == $this->personer_collection) {
+            if( is_null($this->getContext())) {
+                throw new Exception(
+                    'Kan ikke hente personer uten å vite kontekst',
+                    105009
+                );
+            }
             $this->personer_collection = new Personer(
                 $this->getContext()->setInnslag(
                     $this->getId(),
