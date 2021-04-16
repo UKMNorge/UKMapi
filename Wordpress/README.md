@@ -226,7 +226,9 @@ Flashbag'en håndterer selv alt av sletting osv, så meldingen din vil kun vises
 #### `setupAjax()`
 Hvis plugin'en din skal bruke ajax, må du kjøre `setupAjax()`, som forteller wordpress om at du plugin støtter ajax.
 
-For å sende et ajax-kall må du.....
+Denne diagramen beskriver ajax prosessen:
+![Diagram](img/ukm_ajax_flow_plugin_no.png)
+
 
 #### `UKMplugin::addResponseData()`
 I ajax-filen bruker du `addResponseData()` i stedet for `addViewData()`. Funksjonene oppfører seg likt.
@@ -234,5 +236,5 @@ I ajax-filen bruker du `addResponseData()` i stedet for `addViewData()`. Funksjo
 Relasjon mellom plugin og modul
 ====
 
-![relasjon plugin og modul](wordpress-ukm-plugin.png)
+![relasjon plugin og modul](img/wordpress-ukm-plugin.png)
 
