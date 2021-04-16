@@ -95,7 +95,21 @@ class Innslag
                 'b_id' => $id
             ]
         );
-        $homePlace = new Arrangement($contextQry->run('field'));
+        $arrangement_id = $contextQry->run('field');
+        if( is_null($arrangement_id) ) {
+            $arrangementQuery = new Query(
+                "SELECT `pl_id`
+                FROM `smartukm_rel_pl_b`
+                WHERE `b_id` = '#innslagId'
+                ORDER BY `pl_b_id` ASC
+                LIMIT 1",
+                [
+                    'innslagId' => $id
+                ]
+            );
+            $arrangement_id = $arrangementQuery->getField();
+        }
+        $homePlace = new Arrangement($arrangement_id);
 
         $context = Context::createMonstring(
             $homePlace->getId(),
