@@ -78,6 +78,38 @@ class Innslag
     var $videresendt_til = null;
     var $log = null;
 
+    /**
+     * Finn et innslag uten å gå veien via arrangement
+     * 
+     * @param Int $id
+     * @param bool hent også hvis ufullstendig
+     * @return Innslag
+     */
+    public static function getById(Int $id, Bool $also_if_incomplete = false)
+    {
+        $contextQry = new Query(
+            "SELECT `b_home_pl`
+            FROM `smartukm_band`
+            WHERE `b_id` = '#b_id'",
+            [
+                'b_id' => $id
+            ]
+        );
+        $homePlace = new Arrangement($contextQry->run('field'));
+
+        $context = Context::createMonstring(
+            $homePlace->getId(),
+            $homePlace->getType(),
+            $homePlace->getSesong(),
+            $homePlace->getFylke()->getId(),
+            $homePlace->getKommuner()->getIdArray()
+        );
+
+        $innslag = new Innslag($id, $also_if_incomplete);
+        $innslag->setContext($context);
+
+        return $innslag;
+    }
 
     public function __construct($bid_or_row, $select_also_if_not_completed = false)
     {
@@ -116,33 +148,6 @@ class Innslag
     {
         return $this->context;
     }
-
-    public static function getById(Int $id, Bool $also_if_incomplete = false)
-    {
-        $contextQry = new Query(
-            "SELECT `b_home_pl`
-            FROM `smartukm_band`
-            WHERE `b_id` = '#b_id'",
-            [
-                'b_id' => $id
-            ]
-        );
-        $homePlace = new Arrangement($contextQry->run('field'));
-
-        $context = Context::createMonstring(
-            $homePlace->getId(),
-            $homePlace->getType(),
-            $homePlace->getSesong(),
-            $homePlace->getFylke()->getId(),
-            $homePlace->getKommuner()->getIdArray()
-        );
-
-        $innslag = new Innslag($id, $also_if_incomplete);
-        $innslag->setContext($context);
-
-        return $innslag;
-    }
-
 
     public static function getLoadQuery($selectFields = '')
     {
