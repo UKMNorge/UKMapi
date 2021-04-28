@@ -144,6 +144,8 @@ class Omrade
 
     /**
      * Hvilken type område er dette?
+     * 
+     * @return String fylke|kommune
      */
     public function getType()
     {

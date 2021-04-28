@@ -133,6 +133,16 @@ class Arrangement
 				";
     }
 
+    /**
+     * Hent arrangement fra ID
+     * 
+     * @param Int $id
+     * @return Arrangement
+     */
+    public static function getById( Int $id ) {
+        return new static( $id );
+    }
+
     public function __construct($id_or_row)
     {
         if (is_numeric($id_or_row)) {
