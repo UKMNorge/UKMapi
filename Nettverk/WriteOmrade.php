@@ -4,6 +4,10 @@ namespace UKMNorge\Nettverk;
 use UKMNorge\Wordpress\User;
 use UKMNorge\Nettverk\Administratorer;
 
+use UKMNorge\Geografi\Fylke;
+use UKMNorge\Arrangement\Load;
+
+
 use Exception;
 use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Insert;
@@ -50,6 +54,7 @@ class WriteOmrade {
     public static function leggTilAdminIAlleArrangementer( Omrade $omrade, Administrator $admin, Int $sesong ) {
         $error_names = [];
         foreach( $omrade->getArrangementer()->getAll() as $arrangement ) {
+            static::leggTilAdminIAlleArrangementerKommune($omrade->getFylke(), $admin);
             try {
                 Blog::leggTilBruker(
                     Blog::getIdByPath( $arrangement->getPath() ),
@@ -61,6 +66,41 @@ class WriteOmrade {
             }
         }
 
+        if( sizeof($error_names) > 0 ) {
+            throw new Exception(
+                'Kunne ikke legge til '. $admin->getNavn() .' som administrator for '. join(', ', $error_names),
+                562003
+            );
+        }
+        return true;
+    }
+
+    /**
+     * Legg til admin i alle arrangmeneter for kommuner i en fylke
+     *
+     * @param Fylke $fylke
+     * @param Administrator $admin
+     * @return Bool
+     * @throws Exception inkludert liste med hvilke arrangementer som feilet
+     */
+    private static function leggTilAdminIAlleArrangementerKommune(Fylke $fylke, Administrator $admin) {
+        $error_names = [];
+        foreach ($fylke->getKommuner()->getAll() as $kommune) {
+            $alle_arrangementer = Load::forKommune($kommune);
+            foreach($alle_arrangementer->getAll() as $arrangement) {
+                try {
+                    Blog::leggTilBruker(
+                        Blog::getIdByPath( $arrangement->getPath() ),
+                        $admin->getUser()->getId(),
+                        'editor'
+                    );
+                } catch( Exception $e ) {
+                    $error_names[] = $arrangement->getNavn();
+                }
+            }
+        }
+
+        // Det var noe som gikk galt
         if( sizeof($error_names) > 0 ) {
             throw new Exception(
                 'Kunne ikke legge til '. $admin->getNavn() .' som administrator for '. join(', ', $error_names),
