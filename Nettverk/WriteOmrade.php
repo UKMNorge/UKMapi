@@ -84,6 +84,7 @@ class WriteOmrade {
      * @throws Exception inkludert liste med hvilke arrangementer som feilet
      */
     private static function leggTilAdminIAlleArrangementerKommune(Fylke $fylke, Administrator $admin) {
+        $error_names = [];
         foreach ($fylke->getKommuner()->getAll() as $kommune) {
             $alle_arrangementer = Load::forKommune($kommune);
             foreach($alle_arrangementer->getAll() as $arrangement) {
