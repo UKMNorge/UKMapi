@@ -4,12 +4,16 @@
  * Symfony overloader twig hvis lib/autoload.php brukes, 
  * med det fine resultatet at hele dritten kræsjer.
  * Oh happy day.
+ * 
+ * 2.mai 2021: oppdatert fra require_once('lib/...') til 'UKM/vendor/...')
+ * Dette for å begynne å flytte oss bort fra 2 composer-configs
+ * (UKM/composer.json og [...]/php-libraries/composer.json)
 */
-require_once('lib/phpmailer/phpmailer/src/PHPMailer.php');
-require_once('lib/phpmailer/phpmailer/src/SMTP.php');
-require_once('lib/phpmailer/phpmailer/src/Exception.php');
-require_once('lib/misd/linkify/src/Misd/Linkify/LinkifyInterface.php');
-require_once('lib/misd/linkify/src/Misd/Linkify/Linkify.php');
+require_once('UKM/vendor/phpmailer/phpmailer/src/PHPMailer.php');
+require_once('UKM/vendor/phpmailer/phpmailer/src/SMTP.php');
+require_once('UKM/vendor/phpmailer/phpmailer/src/Exception.php');
+require_once('UKM/vendor/misd/linkify/src/Misd/Linkify/LinkifyInterface.php');
+require_once('UKM/vendor/misd/linkify/src/Misd/Linkify/Linkify.php');
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
