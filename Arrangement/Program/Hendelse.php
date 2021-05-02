@@ -323,7 +323,13 @@ class Hendelse
     /**
      * Hent nummer i rekken
      *
+     * Denne funksjonen vil fungere, men har sub-optimal ytelse.
+     * Hvis du bruker UKMNorge\Innslag::getNummer() vil du få samme
+     * resultat, men med en helt annen (teoretisk) ytelse.
+     * 
      * @param object innslag
+     * @deprecated 2021-05-02
+     * @see UKMNorge\Innslag::getNummer()
      **/
     public function getNummer($searchfor)
     {

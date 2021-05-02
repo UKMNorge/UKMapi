@@ -1152,4 +1152,20 @@ class Innslag
         }
         return $this->log;
     }
+
+    /**
+     * Hent hvilket nummer i rekkefølgen innslaget er
+     *
+     * @throws Exception
+     * @return int
+     */
+    public function getNummer(): int {
+        if( !$this->getContext()->getType() == 'forestilling' ) {
+            throw new Exception(
+                'Kan ikke kjøre getNummer() på et innslag når det ikke er i forestilling-kontekst',
+                105010
+            );
+        }
+        return intval( $this->getAttr('rekkefolge') );
+    }
 }
