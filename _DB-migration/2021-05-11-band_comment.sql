@@ -11,5 +11,5 @@ CREATE TABLE `ukm_band_comment` (
 
 INSERT INTO `log_actions` (`log_action_id`, `log_action_verb`, `log_action_element`, `log_action_datatype`, `log_action_identifier`, `log_action_printobject`)
 VALUES
-	(329, 'endret', 'innslagets kommentar', 'text', 'smartukm_band_comment|comment', 1);
+	(329, 'endret', 'innslagets kommentar', 'text', 'smartukm_band_comment|comment', 1),
 	(330, 'slettet', 'innslagets kommentar', 'text', 'smartukm_band_comment|comment_delete', 1);
