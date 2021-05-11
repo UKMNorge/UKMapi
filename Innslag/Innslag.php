@@ -15,6 +15,7 @@ use UKMNorge\Geografi\Kommune;
 use UKMNorge\Innslag\Advarsler\Advarsel;
 use UKMNorge\Innslag\Advarsler\Advarsler;
 use UKMNorge\Innslag\Context\Context;
+use UKMNorge\Innslag\Kommentarer\Kommentar;
 use UKMNorge\Innslag\Mangler\Mangler;
 use UKMNorge\Innslag\Media\Artikler\Samling as ArtiklerSamling;
 use UKMNorge\Innslag\Media\Bilder\Samling as BilderSamling;
@@ -24,6 +25,7 @@ use UKMNorge\Innslag\Nominasjon\Konferansier;
 use UKMNorge\Innslag\Nominasjon\Media;
 use UKMNorge\Innslag\Nominasjon\Nominasjoner;
 use UKMNorge\Innslag\Nominasjon\Placeholder;
+use UKMNorge\Innslag\Kommentarer\Kommentar;
 use UKMNorge\Innslag\Personer\Kontaktperson;
 use UKMNorge\Innslag\Personer\Person;
 use UKMNorge\Innslag\Personer\Personer;
@@ -487,6 +489,15 @@ class Innslag
         return $this->beskrivelse;
     }
 
+    /**
+     * Hent arrangør-kommentar
+     *
+     * @throws Exception
+     * @return Kommentar
+     */
+    public function getArrangorKommentar(): Kommentar {
+        return Kommentar::getByInnslagId( $this->getId() );
+    }
 
     /**
      * Sett kommune
