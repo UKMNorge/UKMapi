@@ -62,7 +62,9 @@ class WriteOmrade {
                     'editor'
                 );
             } catch( Exception $e ) {
-                $error_names[] = $arrangement->getNavn();
+                if($e->getCode() != 172007) {
+                    $error_names[] = $arrangement->getNavn();
+                }
             }
         }
 
@@ -95,7 +97,9 @@ class WriteOmrade {
                         'editor'
                     );
                 } catch( Exception $e ) {
-                    $error_names[] = $arrangement->getNavn();
+                    if($e->getCode() != 172007) {
+                        $error_names[] = $arrangement->getNavn();
+                    }
                 }
             }
         }
