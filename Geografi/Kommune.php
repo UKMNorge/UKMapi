@@ -208,6 +208,8 @@ class Kommune {
     /**
      * Er kommunen aktiv?
      * 
+     * @deprecated 
+     * @see erAktiv()
      * @alias erAktiv
      * @return Bool $aktiv
      */
