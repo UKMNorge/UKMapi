@@ -116,7 +116,7 @@ class Nominasjon extends Placeholder
      * @param Int $til_arrangement_id
      * @return Nominasjon
      */
-    public function getByInnslagData(Int $innslag_id, Type $innslag_type, Int $fra_arrangement_id, Int $til_arrangement_id)
+    public static function getByInnslagData(Int $innslag_id, Type $innslag_type, Int $fra_arrangement_id, Int $til_arrangement_id)
     {
         return new static(
             new Query(
