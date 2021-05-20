@@ -2,10 +2,18 @@
 
 namespace UKMNorge\File;
 
-use PhpOffice\PhpWord\Element\AbstractElement;
-use PhpOffice\PhpWord\Element\Row;
-use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\IOFactory;
+use PhpOffice\PhpWord\PhpWord;
+use PhpOffice\PhpWord\Element\AbstractElement;
+use PhpOffice\PhpWord\Element\Cell;
+use PhpOffice\PhpWord\Element\Image;
+use PhpOffice\PhpWord\Element\PageBreak;
+use PhpOffice\PhpWord\Element\Row;
+use PhpOffice\PhpWord\Element\Section;
+use PhpOffice\PhpWord\Element\Table;
+use PhpOffice\PhpWord\Element\Title;
+use PhpOffice\PhpWord\Element\Text;
+use PhpOffice\PhpWord\Style\Paragraph\TextRun;
 
 require_once('UKM/Autoloader.php');
 require_once('UKM/vendor/autoload.php');
@@ -107,7 +115,7 @@ class Word extends OfficeDok
     /**
      * Opprett en ny section (f.eks annerledes topp-/bunn-tekst, orientation osv)
      *
-     * @param String orientation. Default = doc default
+     * @param String|null orientation. Default = doc default
      * @return Int Section ID
      */
     public function addSection($orientation = null)
@@ -131,7 +139,7 @@ class Word extends OfficeDok
      * Hent gitt section (default==current_section)
      *
      * @param Int $id
-     * @return void
+     * @return Section
      */
     public function getSection(Int $id = null)
     {
@@ -186,7 +194,7 @@ class Word extends OfficeDok
     /**
      * Sett inn sideskift
      *
-     * @return void
+     * @return PageBreak
      */
     public function sideskift()
     {
@@ -196,13 +204,21 @@ class Word extends OfficeDok
     /**
      * Sett inn en tabell
      *
-     * @return \PhpOffice\PhpWord\Element\Table
+     * @return Table
      */
     public function tabell()
     {
         return $this->getSection()->addTable();
     }
 
+    /**
+     * Legg til en celle
+     *
+     * @param Float twips $width
+     * @param Row $row
+     * @param array $style
+     * @return Cell
+     */
     public function celle(Float $width, Row $row, array $style = [])
     {
         $style['valign'] = \PhpOffice\PhpWord\SimpleType\VerticalJc::BOTTOM;
@@ -216,8 +232,8 @@ class Word extends OfficeDok
      * Sett inn en overskrift (H1)
      *
      * @param String $tekst
-     * @param \PhpOffice\PhpWord\Element\AbstractElement|null $target
-     * @return \PhpOffice\PhpWord\Element\AbstractElement $target
+     * @param AbstractElement|null $target
+     * @return Title
      */
     public function h1(String $tekst, $target = null)
     {
@@ -227,8 +243,8 @@ class Word extends OfficeDok
      * Sett inn en overskrift (H2)
      *
      * @param String $tekst
-     * @param \PhpOffice\PhpWord\Element\AbstractElement|null $target
-     * @return \PhpOffice\PhpWord\Element\AbstractElement $target
+     * @param AbstractElement|null $target
+     * @return Title
      */
     public function h2(String $tekst, $target = null)
     {
@@ -238,8 +254,8 @@ class Word extends OfficeDok
      * Sett inn en overskrift (H3)
      *
      * @param String $tekst
-     * @param \PhpOffice\PhpWord\Element\AbstractElement|null $target
-     * @return \PhpOffice\PhpWord\Element\AbstractElement $target
+     * @param AbstractElement|null $target
+     * @return Title
      */
     public function h3(String $tekst, $target = null)
     {
@@ -249,8 +265,8 @@ class Word extends OfficeDok
      * Sett inn en overskrift (H4)
      *
      * @param String $tekst
-     * @param \PhpOffice\PhpWord\Element\AbstractElement|null $target
-     * @return \PhpOffice\PhpWord\Element\AbstractElement $target
+     * @param AbstractElement|null $target
+     * @return Title
      */
     public function h4(String $tekst, $target = null)
     {
@@ -262,8 +278,8 @@ class Word extends OfficeDok
      *
      * @param String $tekst
      * @param Int størrelse (ref H1,H2,H3,H4)
-     * @param \PhpOffice\PhpWord\Element\AbstractElement|null $target
-     * @return \PhpOffice\PhpWord\Element\AbstractElement $target
+     * @param AbstractElement|null $target
+     * @return Title
      */
     public function overskrift(String $tekst, Int $storrelse, $target = null)
     {
@@ -273,8 +289,8 @@ class Word extends OfficeDok
     /**
      * Legg til et ekstra linjeskift
      *
-     * @param \PhpOffice\PhpWord\Element\AbstractElement|null $target
-     * @return \PhpOffice\PhpWord\Element\AbstractElement $target
+     * @param AbstractElement|null $target
+     * @return void
      */
     public function avsnittSkift($target = null)
     {
@@ -283,8 +299,8 @@ class Word extends OfficeDok
     /**
      * Legg til ekstra linjeskift
      *
-     * @param \PhpOffice\PhpWord\Element\AbstractElement|null $target
-     * @return \PhpOffice\PhpWord\Element\AbstractElement $target
+     * @param AbstractElement|null $target
+     * @return void
      */
     public function linjeSkift($target = null)
     {
@@ -296,7 +312,7 @@ class Word extends OfficeDok
      *
      * @param String $url
      * @param String $text
-     * @return \PhpOffice\PhpWord\Element\AbstractElement $target
+     * @return AbstractElement $target
      */
     public function link( String $url, String $text, $target = null ) {
         return $this->getTarget($target)->addLink(
@@ -310,8 +326,8 @@ class Word extends OfficeDok
      *
      * @param String $path
      * @param array $format
-     * @param \PhpOffice\PhpWord\Element\AbstractElement|null $target
-     * @return \PhpOffice\PhpWord\Element\AbstractElement $target
+     * @param AbstractElement|null $target
+     * @return Image
      */
     public function bilde( String $path, array $format = [], $target = null ) {
         return $this->getTarget( $target )->addImage($path, $format);
@@ -320,8 +336,8 @@ class Word extends OfficeDok
     /**
      * Sett inn en tekst løpende
      *
-     * @param \PhpOffice\PhpWord\Element\AbstractElement|null $target
-     * @return \PhpOffice\PhpWord\Style\Paragraph\TextRun
+     * @param AbstractElement|null $target
+     * @return TextRun
     **/
     public function tekstRun($target = null) {
         return $this->getTarget($target)->addTextRun();
@@ -331,9 +347,9 @@ class Word extends OfficeDok
      * Sett inn en tekst
      *
      * @param String $tekst
-     * @param \PhpOffice\PhpWord\Element\AbstractElement|null $target
+     * @param AbstractElement|null $target
      * @param Array paragraph style
-     * @return \PhpOffice\PhpWord\Element\AbstractElement $target
+     * @return Text
      */
     public function tekst(String $tekst, $target = null, array $paragraph_style = null, array $font_style = null)
     {
@@ -361,9 +377,9 @@ class Word extends OfficeDok
      * Sett inn en fare-tekst
      *
      * @param String $tekst
-     * @param \PhpOffice\PhpWord\Element\AbstractElement|null $target
+     * @param AbstractElement|null $target
      * @param Array paragraph style
-     * @return \PhpOffice\PhpWord\Element\AbstractElement $target
+     * @return Text
      */
     public function tekstFare(String $tekst, $target = null, array $paragraph_style = null, array $font_style = null)
     {
@@ -388,9 +404,9 @@ class Word extends OfficeDok
      * Sett inn en liten tekst
      *
      * @param String $tekst
-     * @param \PhpOffice\PhpWord\Element\AbstractElement|null $target
+     * @param AbstractElement|null $target
      * @param Array $paragraph_style
-     * @return \PhpOffice\PhpWord\Element\AbstractElement $target
+     * @return Text
      */
     public function tekstLiten(String $tekst, $target = null, array $paragraph_style = null, array $font_style = null)
     {
@@ -416,9 +432,9 @@ class Word extends OfficeDok
      * Sett inn en muted tekst
      *
      * @param String $tekst
-     * @param \PhpOffice\PhpWord\Element\AbstractElement|null $target
+     * @param AbstractElement|null $target
      * @param Array $paragraph_style
-     * @return \PhpOffice\PhpWord\Element\AbstractElement $target
+     * @return Text
      */
     public function tekstMuted(String $tekst, $target = null, array $paragraph_style = null, array $font_style = null)
     {
@@ -444,9 +460,9 @@ class Word extends OfficeDok
      * Sett inn en fettekst
      *
      * @param String $tekst
-     * @param \PhpOffice\PhpWord\Element\AbstractElement|null $target
+     * @param AbstractElement|null $target
      * @param Array $paragraph_style
-     * @return \PhpOffice\PhpWord\Element\AbstractElement $target
+     * @return Text
      */
     public function tekstFet(String $tekst, $target = null, array $paragraph_style = null, array $font_style = null)
     {
@@ -470,8 +486,8 @@ class Word extends OfficeDok
     /**
      * Beregn hvilken target-container som skal benyttes
      *
-     * @param \PhpOffice\PhpWord\Element\AbstractElement|null $target
-     * @return \PhpOffice\PhpWord\Element\AbstractElement $target
+     * @param AbstractElement|null $target
+     * @return Section $target
      */
     public function getTarget($target = null)
     {
