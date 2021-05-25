@@ -33,19 +33,27 @@ class Write
 
     /**
      * Lagre en kommentar
+     * 
+     * Auto-oppretter hvis kommentaren ikke finnes fra før.
      *
      * @param Kommentar $kommentar
      * @throws Exception
      * @return boolean
      */
-    public function save(Kommentar $kommentar)
+    public static function save(Kommentar $kommentar)
     {
         static::validerLogger();
 
         $db_kommentar = Kommentar::getByInnslagId($kommentar->getInnslagId());
         if ($db_kommentar->getKommentar() != $kommentar->getKommentar()) {
             Logger::log(329, $kommentar->getInnslagId(), $kommentar->getKommentar());
-            static::update($kommentar);
+
+
+            if( $kommentar->eksisterer() ) {
+                static::update($kommentar);
+            } else {
+                Write::save( $kommentar );
+            }
         }
 
         return true;
@@ -58,7 +66,7 @@ class Write
      * @throws Exception
      * @return boolean
      */
-    public function delete(Kommentar $kommentar): bool
+    public static function delete(Kommentar $kommentar): bool
     {
         Logger::log(330, $kommentar->getInnslagId(), '');
 
