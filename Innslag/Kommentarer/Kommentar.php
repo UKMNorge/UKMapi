@@ -9,6 +9,7 @@ class Kommentar
 
     const TABLE = 'ukm_band_comment';
 
+    private $id;
     private $innslag_id;
     private $arrangement_id;
     private $kommentar;
@@ -24,13 +25,35 @@ class Kommentar
      * @param Int $innslag_id
      * @param Int $arrangement_id
      * @param String $kommentar
+     * @param Int|null $id 
      * @return Kommentar
      */
-    public function __construct(Int $innslag_id, Int $arrangement_id, String $kommentar)
+    public function __construct(Int $innslag_id, Int $arrangement_id, String $kommentar, $id = null)
     {
         $this->innslag_id = $innslag_id;
         $this->arrangement_id = $arrangement_id;
         $this->kommentar = $kommentar;
+        $this->id = $id;
+    }
+
+    /**
+     * Er dette faktisk objekt eller placeholder?
+     *
+     * @return bool
+     */
+    public function eksisterer(): bool {
+        return $this->id > 0;
+    }
+
+    /**
+     * Er dette et placeholder-objekt?
+     * 
+     * Viktig for lagringen
+     *
+     * @return bool
+     */
+    public function erPlaceholder() {
+        return !$this->eksisterer();
     }
 
     /**
@@ -106,7 +129,8 @@ class Kommentar
         return new static(
             (int) $innslag_id,
             (int) $data['arrangement_id'],
-            $data['kommentar']
+            $data['kommentar'],
+            (int) $data['id']
         );
     }
 }
