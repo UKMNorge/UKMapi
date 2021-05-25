@@ -25,7 +25,6 @@ use UKMNorge\Innslag\Nominasjon\Konferansier;
 use UKMNorge\Innslag\Nominasjon\Media;
 use UKMNorge\Innslag\Nominasjon\Nominasjoner;
 use UKMNorge\Innslag\Nominasjon\Placeholder;
-use UKMNorge\Innslag\Kommentarer\Kommentar;
 use UKMNorge\Innslag\Personer\Kontaktperson;
 use UKMNorge\Innslag\Personer\Person;
 use UKMNorge\Innslag\Personer\Personer;
