@@ -7,7 +7,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception as PHPMailerException;
 use Misd\Linkify\Linkify;
 
-require_once('UKM/Autoloader.php');
+require_once('UKM/vendor/autoload.php');
 
 class Epost
 {
