@@ -205,7 +205,19 @@ class Write {
 			#echo $smartukm_technical->debug();
 			$smartukm_technical->run();
 		}
-		
+
+		# ARRANGØR-KOMMENTARER
+		if( $innslag_save->getArrangorKommentar()->getKommentar() != $innslag_db->getArrangorKommentar()->getKommentar() ) {
+			# Har tomt kommentarobjekt som eksisterer i databasen (slett)
+			if( empty($innslag_save->getArrangorKommentar()->getKommentar() ) && $innslag_save->getArrangorKommentar()->eksisterer() ) {
+				WriteKommentarer::delete($innslag_save->getArrangorKommentar());
+			}
+			# Har kommentar som kanskje eksisterer i databasen (opprett/oppdater)
+			elseif( !empty($innslag_save->getArrangorKommentar()->getKommentar() ) ) {
+				WriteKommentarer::save( $innslag_save->getArrangorKommentar() );
+			}
+		}
+
 		require_once('UKM/statistikk.class.php');
         statistikk::oppdater_innslag( $innslag_save );
         
