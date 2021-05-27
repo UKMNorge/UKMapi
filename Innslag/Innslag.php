@@ -78,6 +78,8 @@ class Innslag
 
     var $videresendt_til = null;
     var $log = null;
+    
+    var $arrangor_kommentar = null;
 
     /**
      * Finn et innslag uten å gå veien via arrangement
@@ -495,7 +497,10 @@ class Innslag
      * @return Kommentar
      */
     public function getArrangorKommentar(): Kommentar {
-        return Kommentar::getByInnslagId( $this->getId() );
+        if( is_null( $this->arrangor_kommentar ) ) {
+            $this->arrangor_kommentar = Kommentar::getByInnslagId( $this->getId() );
+        }
+        return $this->arrangor_kommentar;
     }
 
     /**
