@@ -10,6 +10,7 @@ use UKMNorge\Innslag\Context\Context;
 use UKMNorge\Innslag\Typer\Typer;
 use UKMNorge\Sensitivt\Person as PersonSensitivt;
 use UKMNorge\Wordpress\User;
+use UKMNorge\Tools\Sanitizer;
 
 require_once('UKM/Autoloader.php');
 
@@ -303,7 +304,7 @@ class Person
      **/
     public function setFornavn(String $fornavn)
     {
-        $this->fornavn = stripslashes(mb_convert_case($fornavn, MB_CASE_TITLE, "UTF-8"));
+        $this->fornavn = Sanitizer::sanitizeNavn(stripslashes(mb_convert_case($fornavn, MB_CASE_TITLE, "UTF-8")));
         return $this;
     }
     /**
@@ -324,9 +325,10 @@ class Person
      **/
     public function setEtternavn(String $etternavn)
     {
-        $this->etternavn = stripslashes(mb_convert_case($etternavn, MB_CASE_TITLE, "UTF-8"));
+        $this->etternavn = Sanitizer::sanitizeEtternavn(stripslashes(mb_convert_case($etternavn, MB_CASE_TITLE, "UTF-8")));
         return $this;
     }
+
     /**
      * Hent etternavn
      *

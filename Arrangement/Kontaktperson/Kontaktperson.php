@@ -5,6 +5,8 @@ namespace UKMNorge\Arrangement\Kontaktperson;
 use Exception;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Geografi\Kommune;
+use UKMNorge\Tools\Sanitizer;
+
 
 class Kontaktperson implements KontaktInterface
 {
@@ -135,7 +137,7 @@ class Kontaktperson implements KontaktInterface
     }
     public function setFornavn($fornavn)
     {
-        $this->fornavn = $fornavn;
+        $this->fornavn = Sanitizer::sanitizeNavn($fornavn);
         return $this;
     }
 
@@ -145,7 +147,7 @@ class Kontaktperson implements KontaktInterface
     }
     public function setEtternavn($etternavn)
     {
-        $this->etternavn = $etternavn;
+        $this->etternavn = Sanitizer::sanitizeEtternavn($etternavn);
         return $this;
     }
 

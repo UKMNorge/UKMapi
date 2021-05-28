@@ -7,6 +7,7 @@ use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Database\SQL\Update;
 use UKMNorge\Log\Logger;
+use UKMNorge\Tools\Sanitizer;
 
 class Write {
     
@@ -30,8 +31,8 @@ class Write {
 		}
         
         $sql = new Insert('smartukm_contacts');
-        $sql->add('firstname', $fornavn);
-        $sql->add('lastname', $etternavn);
+        $sql->add('firstname', Sanitizer::sanitizeNavn($fornavn));
+        $sql->add('lastname', Sanitizer::sanitizeEtternavn($etternavn));
         $sql->add('tlf', $telefon);
         
         try {
