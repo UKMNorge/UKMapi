@@ -19,6 +19,8 @@ use UKMNorge\Innslag\Titler\Write as WriteTittel;
 use UKMNorge\Innslag\Typer\Type;
 use UKMNorge\Log\Logger;
 use UKMNorge\Samtykke\Person as PersonSamtykke;
+use UKMNorge\Tools\Sanitizer;
+
 
 require_once('UKM/Autoloader.php');
 
@@ -56,7 +58,7 @@ class Write {
 		$band = new Insert('smartukm_band');
 		$band->add('b_season', $arrangement->getSesong() );
 		$band->add('b_status', 0); ## Hvorfor får innslaget b_status 8 her???
-		$band->add('b_name', $navn);
+		$band->add('b_name', Sanitizer::sanitizeNavn($navn));
 		$band->add('b_kommune', $kommune->getId());
 		$band->add('b_year', date('Y'));
 		$band->add('b_subscr_time', time());
@@ -99,10 +101,7 @@ class Write {
         // TODO: Oppdater statistikk
 		#$innslag = new innslag( $b_id, false );
 		#$innslag->statistikk_oppdater();
-	}	
-
-
-
+	}
 
 	/********************************************************************************
 	 *

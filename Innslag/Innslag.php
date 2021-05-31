@@ -34,6 +34,7 @@ use UKMNorge\Innslag\Typer\Typer;
 use UKMNorge\Log\Samling as LogSamling;
 use UKMNorge\Samtykke\Innslag as InnslagSamtykke;
 use UKMNorge\Tid;
+use UKMNorge\Tools\Sanitizer;
 
 class Innslag
 {
@@ -381,7 +382,7 @@ class Innslag
      **/
     public function setNavn($navn)
     {
-        $this->navn = stripslashes($navn);
+        $this->navn = Sanitizer::sanitizeNavn($navn);
         return $this;
     }
     /**

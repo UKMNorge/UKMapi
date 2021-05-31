@@ -10,6 +10,8 @@ use UKMNorge\Database\SQL\Query;
 use UKMNorge\Database\SQL\Update;
 use UKMNorge\Geografi\Kommune;
 use UKMNorge\Log\Logger;
+use UKMNorge\Tools\Sanitizer;
+
 
 use UKMNorge\Samtykke\Person as PersonSamtykke;
 
@@ -88,8 +90,8 @@ class Write {
         // Personen finnes ikke
 		if(false == $p_id) {
 			$sql = new Insert("smartukm_participant");
-			$sql->add('p_firstname', $fornavn);
-			$sql->add('p_lastname', $etternavn);
+			$sql->add('p_firstname', Sanitizer::sanitizeNavn($fornavn));
+			$sql->add('p_lastname', Sanitizer::sanitizeEtternavn($etternavn));
 			$sql->add('p_phone', $mobil);
 			$sql->add('p_kommune', $kommune->getId());
 			$insert_id = $sql->run(); 
