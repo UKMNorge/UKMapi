@@ -2,6 +2,7 @@
 
 namespace UKMNorge\Innslag\Kommentarer;
 
+use Exception;
 use UKMNorge\Database\SQL\Query;
 
 class Kommentar
@@ -125,6 +126,13 @@ class Kommentar
         );
 
         $data = $query->getArray();
+
+        if(!$data ) {
+            throw new Exception(
+                'Innslaget har ikke kommentar',
+                135001
+            );
+        }
 
         return new static(
             (int) $innslag_id,
