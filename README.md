@@ -51,6 +51,7 @@ prefix | objekt | les | skriv
 32 | Media/Bilde | 132yyy | -
 33 | Innslag/Playback | 133yyy | 533yyy
 34 | Kommunikasjon/Reservasjon | 134yyy | - 
+35 | Innslag/Kommentar | 135yyy | 535yyy
 41 | Fil/Excel | 141yyy | - 
 42 | Kommunikasjon/Epost | 142yyy | - 
 43 | Filmer/UKMTV | 143yyy | 543yyy

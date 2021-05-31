@@ -15,6 +15,7 @@ use UKMNorge\Geografi\Kommune;
 use UKMNorge\Innslag\Advarsler\Advarsel;
 use UKMNorge\Innslag\Advarsler\Advarsler;
 use UKMNorge\Innslag\Context\Context;
+use UKMNorge\Innslag\Kommentarer\Kommentar;
 use UKMNorge\Innslag\Mangler\Mangler;
 use UKMNorge\Innslag\Media\Artikler\Samling as ArtiklerSamling;
 use UKMNorge\Innslag\Media\Bilder\Samling as BilderSamling;
@@ -77,6 +78,8 @@ class Innslag
 
     var $videresendt_til = null;
     var $log = null;
+    
+    var $arrangor_kommentar = null;
 
     /**
      * Finn et innslag uten å gå veien via arrangement
@@ -487,6 +490,18 @@ class Innslag
         return $this->beskrivelse;
     }
 
+    /**
+     * Hent arrangør-kommentar
+     *
+     * @throws Exception
+     * @return Kommentar
+     */
+    public function getArrangorKommentar(): Kommentar {
+        if( is_null( $this->arrangor_kommentar ) ) {
+            $this->arrangor_kommentar = Kommentar::getByInnslagId( $this->getId() );
+        }
+        return $this->arrangor_kommentar;
+    }
 
     /**
      * Sett kommune
