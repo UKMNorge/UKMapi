@@ -18,7 +18,9 @@ use UKMNorge\Innslag\Personer\Write as WritePerson;
 use UKMNorge\Innslag\Titler\Write as WriteTittel;
 use UKMNorge\Innslag\Typer\Type;
 use UKMNorge\Log\Logger;
+use UKMNorge\Meta\Write as WriteMeta;
 use UKMNorge\Samtykke\Person as PersonSamtykke;
+
 
 require_once('UKM/Autoloader.php');
 
@@ -205,6 +207,13 @@ class Write {
 			#echo $smartukm_technical->debug();
 			$smartukm_technical->run();
 		}
+
+		// Lagre meta-data
+        if( is_array($innslag_save->getMetaCollection()->getAll())) {
+            foreach ($innslag_save->getMetaCollection()->getAll() as $meta) {
+                WriteMeta::set($meta);
+            }
+        }
 		
 		require_once('UKM/statistikk.class.php');
         statistikk::oppdater_innslag( $innslag_save );

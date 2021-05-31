@@ -32,6 +32,8 @@ use UKMNorge\Innslag\Titler\Titler;
 use UKMNorge\Innslag\Typer\Type;
 use UKMNorge\Innslag\Typer\Typer;
 use UKMNorge\Log\Samling as LogSamling;
+use UKMNorge\Meta\Value as MetaValue;
+use UKMNorge\Meta\Collection as MetaCollection;
 use UKMNorge\Samtykke\Innslag as InnslagSamtykke;
 use UKMNorge\Tid;
 
@@ -1167,5 +1169,78 @@ class Innslag
             );
         }
         return intval( $this->getAttr('rekkefolge') );
+    }
+
+
+    /**
+     * Hent arrangør-kommentar
+     *
+     * @return String|bool
+     */
+    public function getArrangorKommentar(): String {
+        $kommentar = $this->getMetaValue('arrangorkommentar');
+        if(!$kommentar) {
+            return '';
+        }
+        return $kommentar;
+    }
+
+    /**
+     * Har innslaget en arrangørkommentar?
+     *
+     * @return bool
+     */
+    public function harArrangorKommentar() : bool {
+        return !!$this->getArrangorKommentar();
+    }
+
+    /**
+     * Angi arrangør-kommentar
+     *
+     * @param String $kommentar
+     * @return self
+     */
+    public function setArrangorKommentar( String $kommentar ) {
+        $this->getMeta('arrangorkommentar')->setValue($kommentar);
+        return $this;
+    }
+
+    /**
+     * Hent metadata
+     * 
+     * @param String $key
+     * @return MetaValue $metadata
+     */
+    public function getMeta($key)
+    {
+        return $this->getMetaCollection()->get($key);
+    }
+
+    /**
+     * Hent metadata-samlingen
+     * 
+     * Nyttig for lagring, for eksempel.
+     *
+     * @return MetaCollection
+     */
+    public function getMetaCollection() {
+        if ( is_null($this->meta) ) {
+            $this->meta = MetaCollection::createByParentInfo(
+                'innslag',
+                $this->getId()
+            );
+        }
+        return $this->meta;
+    }
+
+    /**
+     * Hent verdi av metadata
+     *
+     * @param String $key
+     * @return Any $metadata
+     */
+    public function getMetaValue($key)
+    {
+        return $this->getMeta($key)->getValue();
     }
 }
