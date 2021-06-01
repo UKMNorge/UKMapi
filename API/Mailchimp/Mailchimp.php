@@ -20,7 +20,7 @@ class Mailchimp
     private static $api_url;
     private static $api_key;
     private static $audiences = null;
-    private static $pageSize = 1000;
+    private static $pageSize = 1; // set den til 100 og bruk pagination (sjekk pagination lenke fra MailChimp)
 
     public static function init()
     {
@@ -57,21 +57,41 @@ class Mailchimp
      * @param String $page pagination: page number
      * @return Result
      */
-    public static function sendGetRequest(String $resource, Int $page = null)
+    public static function sendGetRequest(String $resource, Int $pp = null)
     {
+        $offset = 0;
+        $totalResults = 1;
         static::init();
-        $url = static::_getUrl($resource);
-        if ($page != null) {
-            $url .= "?offset" . $page . "&count" . static::$pageSize * ($page + 1);
-        } else {
-            $url .= '?count='. static::$pageSize;
+        
+        // echo '<pre>';
+        // debug_print_backtrace();
+        // echo '<pre>';
+        
+        while($offset < $totalResults) {
+            $url = static::_getUrl($resource);
+            $url .= "?count=" . static::$pageSize . "&offset=" . $offset;
+            
+            $curl = new UKMCURL();
+            $curl->requestType("GET");
+            $curl->user('userpwd:' . static::$api_key);
+            
+            $result = $curl->request($url);
+            
+            
+            $totalResults = $result->total_items;
+            $offset += static::$pageSize;
+            
+            echo $url;
+            echo '<pre>';
+            var_dump($result);
+            echo '</pre>';
+            
         }
 
-        $curl = new UKMCURL();
-        $curl->requestType("GET");
-        $curl->user('userpwd:' . static::$api_key);
+        /* while totalage fra resultatet er mindre enn page
 
-        return new Result($curl->request($url), $page);
+        */
+        return new Result($result, $page);
     }
 
     /**
