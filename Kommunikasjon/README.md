@@ -6,6 +6,10 @@ Kommunikasjon
 For å sende SMS, kan du bruke følgende kode.
 
 ```php
+
+    use UKMNorge\Kommunikasjon\SMS;
+    use UKMNorge\Kommunikasjon\Mottaker;
+
     $engangskode = 'A8X';
     $mobilnummer = '+4799999999';
     $melding = 'Hei! Din engangskode er '. $engangskode;
