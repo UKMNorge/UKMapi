@@ -16,10 +16,10 @@ use Exception;
 
 class DB {	
 
-	var $connection;
-	var $database;
-	var $charset;
-	var $hasError = false;
+	static $connection;
+	static $database;
+	static $charset;
+	static $hasError = false;
 
 	/**
 	 * Establish mysqli connection
