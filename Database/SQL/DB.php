@@ -15,6 +15,12 @@ use Exception;
 
 
 class DB {	
+
+	var $connection;
+	var $database;
+	var $charset;
+	var $hasError = false;
+
 	/**
 	 * Establish mysqli connection
 	 *
@@ -35,6 +41,9 @@ class DB {
 				break;
 			case 'wordpress':
 				static::_connectWordpress();
+				break;
+			case 'videoconverter':
+				static::_connectVideoconverter();
 				break;
 			default:
                 static::_connectUKM();
@@ -176,7 +185,7 @@ class DB {
     }
 
     /**
-     * Connect to UKMd database (old ss3)
+     * Connect to UKM database (old ss3)
      * Selects read / write access by parent class constant
      */
     private static function _connectUKM() {
@@ -195,6 +204,20 @@ class DB {
 		}
         // Initiate with read access (SQL)
 		return static::_init( UKM_WP_DB_HOST, UKM_WP_DB_NAME, UKM_WP_DB_USER, UKM_WP_DB_PASSWORD );
+	}
+
+	/**
+	 * Connect to Videoconverter database
+	 *
+	 * @return void
+	 */
+	private static function _connectVideoconverter() {
+		// Initiate with write access (SQLins, SQLdel, SQLwrite)
+		if( static::_hasWriteAccess() ) {
+			return static::_init( UKM_VIDEOCONVERTER_DB_HOST, UKM_VIDEOCONVERTER_DB_NAME, UKM_VIDEOCONVERTER_DB_USER, UKM_VIDEOCONVERTER_DB_PASS );
+		}
+        // Initiate with read access (SQL)
+		return static::_init( UKM_VIDEOCONVERTER_DB_HOST, UKM_VIDEOCONVERTER_DB_NAME, UKM_VIDEOCONVERTER_DB_USER, UKM_VIDEOCONVERTER_DB_PASS );
 	}
 
 
