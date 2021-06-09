@@ -15,12 +15,6 @@ use Exception;
 
 
 class DB {	
-
-	var $connection;
-	var $database;
-	var $charset;
-	var $hasError = false;
-
 	/**
 	 * Establish mysqli connection
 	 *
