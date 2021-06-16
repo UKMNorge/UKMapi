@@ -40,6 +40,7 @@ class Curl
     public function post($postdata)
     {
         $this->postdata = $postdata;
+        $this->requestType('POST');
         return $this;
     }
 
@@ -179,7 +180,7 @@ class Curl
     private function _init()
     {
         $this->curl = curl_init();
-        curl_setopt($this->curl, CURLOPT_URL, $this->url);
+            curl_setopt($this->curl, CURLOPT_URL, $this->url);
         curl_setopt($this->curl, CURLOPT_REFERER, $_SERVER['PHP_SELF']);
         curl_setopt($this->curl, CURLOPT_USERAGENT, "UKMNorge API");
         curl_setopt($this->curl, CURLOPT_HEADER, $this->headers);

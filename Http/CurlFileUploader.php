@@ -2,6 +2,8 @@
 
 namespace UKMNorge\Http;
 
+use CURLFile;
+
 class CurlFileUploader extends Curl
 {
     /**
@@ -13,16 +15,8 @@ class CurlFileUploader extends Curl
      */
     public function __construct(String $filePath, String $formFileVariableName, array $parameters = null)
     {
-        if (is_array($parameters)) {
-            foreach ($parameters as $post_name => $value) {
-                $post_values[$post_name] = $value;
-            }
-        } else {
-            $post_values = [];
-        }
-        $post_values[$formFileVariableName] = "@" . $filePath;
-
+        $post_values = is_array($parameters) ? $parameters : [];
+        $post_values[$formFileVariableName] = new CURLFile(realpath($filePath));
         $this->post($post_values);
-        $this->addHeader('Expect:');
     }
 }

@@ -43,9 +43,9 @@ Først nå vet UKM.no at det er en film på vei, og at den skal konverteres før
     - _720p
     - _mobile
     - .jpg
-2. Videoconverteren markerer databaseraden med `storage` (klar til overføring).
+2. Videoconverteren markerer databaseraden med `store` (klar til overføring).
 3. `Storage-cron` flytter de 3 filene til `video.ukm.no` (her lever også wowza et lykkelig liv, btw).
-4. Når filene er flyttet, curler videoconverteren tilbake til `api.ukm.no/registrer_video`
+4. Når filene er flyttet, curler videoconverteren tilbake til `api.ukm.no/video:registrer/`
 5. Så fort videoconverteren har tid (ingen filmer som ikke er konvertert i kø), starter den å re-konvertere filmene. Alle filmer konverteres flere ganger:
     - hurtig (rett etter opplasting): hastighet over komprimering. Gir relativt stor fil.
     - skikkelig (når ingen hurtig-opplastinger er i kø): komprimering over hastighet. Gir liten fil med høy kvalitet.

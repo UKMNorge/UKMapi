@@ -363,11 +363,15 @@ class Film implements FilmInterface
                 . '&path=' . urlencode($this->getServerFilepath())
         );
 
-        $this->setFile($curl->data->filepath);
+        if( !isset( $data->filepath )) {
+            return true;
+        }
+
+        $this->setFile($data->filepath);
 
         // Returnert fil inneholdt 720p, som betyr at den finnes. 
         // Lagre så vi vet det til senere (score!)
-        if (strpos($curl->data->filepath, '720p') !== false) {
+        if (strpos($data->filepath, '720p') !== false) {
             $SQL = new Update(
                 'ukm_tv_files',
                 [
