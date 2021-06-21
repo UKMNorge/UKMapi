@@ -299,6 +299,8 @@ class Arrangement
     /**
      * Hent type
      *
+     * @deprecated 
+     * @see erMonstring()
      * @return String $type
      **/
     public function getType()
@@ -1402,7 +1404,7 @@ class Arrangement
     }
 
     /**
-     * Hvilken type påmelding har mønstringen
+     * Tar mønstringen i mot påmelding fra deltakere
      * 
      * @return Bool
      */
