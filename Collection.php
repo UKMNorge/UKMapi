@@ -11,6 +11,12 @@ abstract class Collection implements Iterator
     public $id = null;
     private $loaded = false;
 
+    /**
+     * Legg til et element i collection
+     *
+     * @param any $item
+     * @return self
+     */
     public function add($item)
     {
         // Denne må bruke find, og ikke har,
@@ -22,15 +28,36 @@ abstract class Collection implements Iterator
         return $this;
     }
 
+    /**
+     * Legg til et element i collection
+     *
+     * @see add()
+     * @return self
+     */
     public function leggTil($item)
     {
-        $this->add($item);
-    }
-    public function fjern($item)
-    {
-        $this->remove($item);
+        return $this->add($item);
     }
 
+    /**
+     * Fjern et element fra collection
+     *
+     * @see remove()
+     * @param mixed|string $object|$id
+     * @throws Exception
+     * @return bool
+     */
+    public function fjern($item)
+    {
+        return $this->remove($item);
+    }
+
+    /**
+     * Er dette objektet i collection?
+     *
+     * @param mixed|string $object|$id
+     * @return bool
+     */
     public function har($object)
     {
         $this->_doLoad();
@@ -42,9 +69,11 @@ abstract class Collection implements Iterator
 
     /**
      * Hent ett gitt objekt
+     * 
+     * Laster inn collection data hvis ikke dette allerede er gjort.
      *
-     * @param mixed $id
-     * @return mixed item
+     * @param mixed|string $object|$id
+     * @return any item
      */
     public function get($id)
     {
@@ -73,6 +102,8 @@ abstract class Collection implements Iterator
 
     /**
      * Hent alle
+     * 
+     * Laster inn collection data hvis ikke dette allerede er gjort.
      *
      * @return Array
      */
@@ -87,10 +118,11 @@ abstract class Collection implements Iterator
      *
      * @return Array<Int>
      */
-    public function getIdArray() {
+    public function getIdArray()
+    {
         $array = [];
 
-        foreach( $this->getAll() as $item ) {
+        foreach ($this->getAll() as $item) {
             $array[] = $item->getId();
         }
 
@@ -102,15 +134,23 @@ abstract class Collection implements Iterator
      *
      * @return Array
      */
-    public function __toArray() {
+    public function __toArray()
+    {
         $array = [];
 
-        foreach( $this->getAll() as $item ) {
+        foreach ($this->getAll() as $item) {
             $array[] = $item->__toArray();
         }
         return $array;
     }
 
+    /**
+     * Hjelpefunksjon for å trigge innlasting av objekter
+     * 
+     * Hvis extending class har _load-funksjon, kjøres denne. Ellers ingenting.
+     *
+     * @return bool
+     */
     private function _doLoad()
     {
         if ($this->loaded) {
@@ -133,6 +173,13 @@ abstract class Collection implements Iterator
         return sizeof($this->getAll());
     }
 
+    /**
+     * Fjern et element fra collection
+     *
+     * @param mixed|string $object|$id
+     * @throws Exception
+     * @return bool
+     */
     public function remove($id)
     {
         if (is_object($id)) {
@@ -148,18 +195,45 @@ abstract class Collection implements Iterator
         throw new Exception('Could not find and remove ' . $id, 110001);
     }
 
+    /**
+     * Hent Collection ID
+     * 
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Sett collection ID
+     *
+     * @return  self
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
+
+    /**
+     * STUFF KREVD AV Iterable
+     */
+
     public function first()
     {
         if (isset(array_values($this->var)[0])) {
             return array_values($this->var)[0];
         }
     }
+    
     public function last()
     {
         // TODO: Untested!!!!
         return array_slice($this->var, -1)[0];
     }
-
 
     public function count()
     {
@@ -203,27 +277,6 @@ abstract class Collection implements Iterator
     }
 
     public function __construct()
-    { }
-
-    /**
-     * Hent Collection ID
-     * 
-     * @return mixed
-     */
-    public function getId()
     {
-        return $this->id;
-    }
-
-    /**
-     * Sett collection ID
-     *
-     * @return  self
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
-
-        return $this;
     }
 }
