@@ -287,10 +287,6 @@ class Innslag
         }
         return $this->artikler_collection;
     }
-    private function _getNewOrOld($new, $old)
-    {
-        return null == $this->$new ? $this->info[$old] : $this->$new;
-    }
 
     public function getSamtykke()
     {
