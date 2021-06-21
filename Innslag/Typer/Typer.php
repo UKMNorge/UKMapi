@@ -120,7 +120,7 @@ class Typer implements \Iterator
      */
     public function harViseFrem() {
         foreach( $this->getAll() as $type ) {
-            if( $type->harTitler() ) {
+            if( $type->erViseFrem() ) {
                 return true;
             }
         }
