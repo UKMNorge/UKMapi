@@ -327,56 +327,6 @@ class Typer implements \Iterator
     }
 
     /**
-     * Finn numerisk id fra gitt key
-     *
-     * @param String $key
-     * @return Int $numeric_id
-     */
-    private static function _translate_key_to_id(String $key)
-    {
-        switch ($key) {
-            case 'musikk':
-            case 'dans':
-            case 'teater':
-            case 'litteratur':
-            case 'scene':
-                $bt_id = 1;
-                break;
-            case 'film':
-            case 'video':
-                $bt_id = 2;
-                break;
-            case 'utstilling':
-                $bt_id = 3;
-                break;
-            case 'konferansier':
-                $bt_id = 4;
-                break;
-            case 'nettredaksjon':
-                $bt_id = 5;
-                break;
-            case 'matkultur':
-                $bt_id = 6;
-                break;
-            case 'arrangor':
-                $bt_id = 8;
-                break;
-            case 'sceneteknikk':
-                $bt_id = 9;
-                break;
-            case 'annet':
-                $bt_id = 1;
-                break;
-            case 'ressurs':
-                $bt_id = 10;
-                break;
-            default:
-                $bt_id = false;
-        }
-        return $bt_id;
-    }
-
-    /**
      * Oversett numerisk ID til reell ID
      * 
      * Støtter ikke ID:1, da den kan ha flere
