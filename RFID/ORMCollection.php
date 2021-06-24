@@ -4,13 +4,13 @@ namespace UKMNorge\RFID;
 
 require_once('UKM/Autoloader.php');
 
-use UKMNorge\Database\Postgres\Postgres;
+use UKMNorge\RFID\POSTGRES;
 
 abstract class ORMCollection {
 
 	public static function getById( $id ) {
 		$child = get_called_class();
-		$row = Postgres::getRow("SELECT * FROM ". $child::TABLE_NAME ." WHERE id=$1", [$id]);
+		$row = POSTGRES::getRow("SELECT * FROM ". $child::TABLE_NAME ." WHERE id=$1", [$id]);
 		
 		$object_class = str_replace('Coll', '', $child);
 		return new $object_class( $row );
@@ -19,7 +19,7 @@ abstract class ORMCollection {
 
 	public static function getByKey( $key, $value ) {
 		$child = get_called_class();
-		$row = Postgres::getRow("SELECT * FROM ". $child::TABLE_NAME .' WHERE '.$key.'=$1', [$value]);
+		$row = POSTGRES::getRow("SELECT * FROM ". $child::TABLE_NAME .' WHERE '.$key.'=$1', [$value]);
 		
 		$object_class = str_replace('Coll', '', $child);
 		return new $object_class( $row );
@@ -27,7 +27,7 @@ abstract class ORMCollection {
 
 	public static function getMatching( $key, $value ) {
 		$child = get_called_class();
-		$rows = Postgres::getResults("SELECT * FROM ". $child::TABLE_NAME.
+		$rows = POSTGRES::getResults("SELECT * FROM ". $child::TABLE_NAME.
 			' WHERE '. $key .'=$1', [ $value ]);
 		$object_class = str_replace('Coll', '', $child);
 		$returns = [];
@@ -66,7 +66,7 @@ abstract class ORMCollection {
 		$child = get_called_class();
 		$child::$models = [];
 		
-		$rows = Postgres::getResults("SELECT * FROM ". $child::TABLE_NAME);
+		$rows = POSTGRES::getResults("SELECT * FROM ". $child::TABLE_NAME);
 		
 		if( is_array( $rows ) ) {
 			foreach( $rows as $row ) {
@@ -79,7 +79,7 @@ abstract class ORMCollection {
 	public static function loadByKey( $whereKey, $where ) {
 		$child = get_called_class();
 		$child::$models = [];
-		$rows = Postgres::getResults("SELECT * FROM ". $child::TABLE_NAME .' WHERE '. $whereKey .'=$1', [ $where ]);		
+		$rows = POSTGRES::getResults("SELECT * FROM ". $child::TABLE_NAME .' WHERE '. $whereKey .'=$1', [ $where ]);		
 		if( is_array( $rows ) ) {
 			foreach( $rows as $row ) {
 				$object_class = str_replace('Coll', '', $child);
