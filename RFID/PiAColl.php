@@ -5,7 +5,6 @@ namespace UKMNorge\RFID;
 require_once('UKM/Autoloader.php');
 
 use Exception;
-use UKMNorge\Database\Postgres\Postgres;
 
 class PiAColl extends ORMCollection {
 	const TABLE_NAME = PiA::TABLE_NAME;
@@ -17,12 +16,12 @@ class PiAColl extends ORMCollection {
 	}
 	
 	public static function getAreaCount( $area ) {
-		return Postgres::getValue("SELECT COUNT(id) AS id FROM ". self::TABLE_NAME .' WHERE area_id=$1', [$area]);
+		return POSTGRES::getValue("SELECT COUNT(id) AS id FROM ". self::TABLE_NAME .' WHERE area_id=$1', [$area]);
 	}
 	
 	public static function getAreaHerd( $area, $herd ) {
 		try {
-			$result = Postgres::getResults(
+			$result = POSTGRES::getResults(
 				'SELECT '. Person::TABLE_NAME .'.*, '. self::TABLE_NAME .'.entryTime '. self::_getAreaHerdQuery(), 
 				[
 					$area,
@@ -49,7 +48,7 @@ class PiAColl extends ORMCollection {
 		
 	public static function getAreaHerdCount( $area, $herd ) {
 		try {
-			return Postgres::getValue(
+			return POSTGRES::getValue(
 				'SELECT COUNT('. self::TABLE_NAME .'.id) AS count '. self::_getAreaHerdQuery(), 
 				[
 					$area,
