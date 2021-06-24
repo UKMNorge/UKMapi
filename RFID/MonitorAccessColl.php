@@ -4,7 +4,7 @@ namespace UKMNorge\RFID;
 
 require_once('UKM/Autoloader.php');
 
-class MonitorAccessColl extends ORMColl {
+class MonitorAccessColl extends RFIDColl {
 	const TABLE_NAME = MonitorAccess::TABLE_NAME;
 	public static $models = null;
 

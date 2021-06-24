@@ -7,11 +7,11 @@ require_once('UKM/Autoloader.php');
 use Exception;
 use UKMNorge\Database\Postgres\Postgres;
 
-class PiAColl extends ORMColl {
+class PiAColl extends RFIDColl {
 	const TABLE_NAME = PiA::TABLE_NAME;
 	public static $models = null;
 		
-	public function getAllByArea( $id ) {
+	public static function getAllByArea( $id ) {
 		self::loadByKey('area_id', $id);
 		return self::$models;
 	}

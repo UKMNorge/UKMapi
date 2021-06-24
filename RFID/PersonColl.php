@@ -6,7 +6,7 @@ require_once('UKM/Autoloader.php');
 
 use UKMNorge\Database\Postgres\Postgres;
 	
-class PersonColl extends ORMColl {
+class PersonColl extends RFIDColl {
 	const TABLE_NAME = Person::TABLE_NAME;
 	public static $models = null;
 	
