@@ -2,7 +2,7 @@
 
 namespace UKMNorge\RFID;
 	
-class ScannerColl extends RFIDColl {
+class ScannerColl extends ORMCollection {
 	const TABLE_NAME = Scanner::TABLE_NAME;
 	public static $models = null;
 

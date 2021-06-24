@@ -6,7 +6,7 @@ require_once('UKM/Autoloader.php');
 
 use UKMNorge\Database\Postgres\Postgres;
 
-abstract class RFIDColl {
+abstract class ORMCollection {
 
 	public static function getById( $id ) {
 		$child = get_called_class();

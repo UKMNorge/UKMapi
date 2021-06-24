@@ -7,7 +7,7 @@ require_once('UKM/Autoloader.php');
 use Exception;
 use UKMNorge\Database\Postgres\Postgres;
 
-class PiAColl extends RFIDColl {
+class PiAColl extends ORMCollection {
 	const TABLE_NAME = PiA::TABLE_NAME;
 	public static $models = null;
 		

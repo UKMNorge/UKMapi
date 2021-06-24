@@ -4,7 +4,7 @@ namespace UKMNorge\RFID;
 
 require_once('UKM/Autoloader.php');
 
-class ScanColl extends RFIDColl {
+class ScanColl extends ORMCollection {
 	const TABLE_NAME = Scan::TABLE_NAME;
 	public static $models = null;
 	
