@@ -39,8 +39,6 @@ class Scan extends ORM {
 	}
 
 	public function getArea() {
-		require_once('area.collection.php');
-
 		if( $this->area == null ) {
 			$this->area = AreaColl::getById( $this->getAreaId() );
 		}

@@ -4,6 +4,7 @@ namespace UKMNorge\RFID;
 
 require_once('UKM/Autoloader.php');
 
+use Exception;
 use UKMNorge\Database\Postgres\Postgres;
 	
 class PersonColl extends ORMCollection {

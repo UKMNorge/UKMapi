@@ -2,6 +2,8 @@
 
 namespace UKMNorge\RFID;
 
+use Exception;
+
 require_once('UKM/Autoloader.php');
 	
 class Herd extends ORM {

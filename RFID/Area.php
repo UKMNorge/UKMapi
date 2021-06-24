@@ -2,6 +2,8 @@
 
 namespace UKMNorge\RFID;
 
+use Exception;
+
 require_once('UKM/Autoloader.php');
 	
 class Area extends ORM {
@@ -46,7 +48,6 @@ class Area extends ORM {
 	}
 	
 	public function getScanners() {
-		require_once('scanner.collection.php');
 		return ScannerColl::getAllByArea( $this->getId() );
 	}
 	
@@ -54,7 +55,6 @@ class Area extends ORM {
 		return $this->getPersonsInAreaCount();
 	}
 	public function getPersonsInAreaCount() {
-		require_once('pia.collection.php');
 		return PiAColl::getAreaCount( $this->getId() );
 	}
 	

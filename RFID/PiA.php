@@ -25,7 +25,6 @@ class PiA extends ORM {
 	
 	public function getPerson() {
 		if( null == $this->person ) {
-			require_once('person.collection.php');
 			$this->person = PersonColl::getById( $this->getPersonId() );
 		}
 		return $this->person;
@@ -37,7 +36,6 @@ class PiA extends ORM {
 
 	public function getArea() {
 		if( $this->area == null ) {
-			require_once('area.collection.php');
 			$this->area = AreaColl::getById( $this->getAreaId() );
 		}
 		return $this->area;
