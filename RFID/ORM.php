@@ -4,8 +4,6 @@ namespace UKMNorge\RFID;
 
 require_once('UKM/Autoloader.php');
 
-use UKMNorge\Database\Postgres\Postgres;
-
 abstract class ORM {
 	var $attr = null;
 	var $id = null;
@@ -42,7 +40,7 @@ abstract class ORM {
 	}
 	
 	public static function getRowFromDb( $id ) {
-		return Postgres::getRow("SELECT * FROM ". self::getTableName()." WHERE id=". $id);
+		return POSTGRES::getRow("SELECT * FROM ". self::getTableName()." WHERE id=". $id);
 	}
 	
 	
@@ -82,7 +80,7 @@ abstract class ORM {
 		}
 		$query .= ')';
 		
-		$object_id = Postgres::insert( $query, $values );
+		$object_id = POSTGRES::insert( $query, $values );
 		
 		$called_class = get_called_class();
 		return new $called_class( $object_id );
@@ -117,7 +115,7 @@ abstract class ORM {
 		$query .= ')
 		WHERE id = $1';
 		
-		$result = Postgres::update( $query, $values );
+		$result = POSTGRES::update( $query, $values );
 	}
 
 }
