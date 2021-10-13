@@ -176,6 +176,8 @@ class Write
                         'Tittel'                 => ['t_e_title', 515],
                         'Type'                    => ['t_e_type', 516],
                         'Beskrivelse'            => ['t_e_comments', 517],
+                        'PlaybackId'             => ['pb_id', 520],
+                        'BildeId'                => ['t_e_bilde_kunstverk', 521]
                     ];
                     break;
             case 'Film':

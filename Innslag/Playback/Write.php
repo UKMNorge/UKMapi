@@ -73,7 +73,8 @@ class Write {
         
         $database = [
             'pb_name' => 'getNavn',
-            'pb_description' => 'getBeskrivelse'
+            'pb_description' => 'getBeskrivelse',
+            'pb_godkjent' => 'erGodkjentDB'
         ];
 
         foreach( $database as $felt => $funksjon ) {
