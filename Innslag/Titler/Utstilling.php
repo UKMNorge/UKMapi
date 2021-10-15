@@ -127,7 +127,7 @@ class Utstilling extends Tittel
      *
      * @return Playback $playback
      **/
-    public function getPlayback() : Playback
+    public function getPlayback()
     {   
         if(!$this->playbackId) {
             return null;
@@ -148,7 +148,7 @@ class Utstilling extends Tittel
      *
      * @return Bilde $bilde
      **/
-    public function getBilde() : Bilde
+    public function getBilde()
     {
         if(!$this->bildeId) {
             return null;
