@@ -129,7 +129,7 @@ class Utstilling extends Tittel
      **/
     public function getPlayback()
     {   
-        if(!$this->playbackId) {
+        if(!$this->playbackId || $this->playbackId == -1) {
             return null;
         }
 
@@ -150,7 +150,7 @@ class Utstilling extends Tittel
      **/
     public function getBilde()
     {
-        if(!$this->bildeId) {
+        if(!$this->bildeId || $this->bildeId == -1) {
             return null;
         }
 
@@ -172,10 +172,10 @@ class Utstilling extends Tittel
      **/
     public function getBildeId()
     {
-        if($this->bildeId) {
+        if($this->bildeId && $this->bildeId != -1) {
             return $this->bildeId;
         }
-        return "NULL";
+        return -1;
     }
 
     /**
@@ -194,10 +194,10 @@ class Utstilling extends Tittel
      **/
     public function getPlaybackId()
     {
-        if($this->playbackId) {
+        if($this->playbackId && $this->playbackId != -1) {
             return $this->playbackId;
         }
-        return 'NULL';
+        return -1;
     }
 
     /**
