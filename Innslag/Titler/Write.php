@@ -8,9 +8,12 @@ use UKMNorge\Log\Logger;
 
 use Exception;
 use UKMNorge\Arrangement\Arrangement;
+use UKMNorge\Innslag\Titler\Utstilling;
 use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Database\SQL\Update;
+
+use UKMNorge\Innslag\Playback\Write as WritePlayback;
 
 require_once('UKM/Autoloader.php');
 
@@ -278,6 +281,19 @@ class Write
      */
     public static function fjern(Tittel $tittel_save)
     {
+
+        $arrangement = new Arrangement($tittel_save->getContext()->getMonstring()->getId());
+
+        // Hvis arrangement er kunstgalleri, så slett Plyaback
+        if($arrangement->erKunstgalleri()) {
+            if($tittel_save instanceof Utstilling) {
+                $playback = $tittel_save->getPlayback();
+                if($playback) {
+                    WritePlayback::slett($arrangement, $playback);
+                }
+            }
+        }
+        
         // Valider inputs
         Write::_validerLeggtil($tittel_save);
 
