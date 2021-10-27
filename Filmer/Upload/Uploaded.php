@@ -48,7 +48,7 @@ class Uploaded
             );
         }
 
-        static::pullRegistrerData($cronId);
+        //static::pullRegistrerData($cronId);
         return true;
     }
 
@@ -79,7 +79,7 @@ class Uploaded
             );
         }
         
-        static::pullRegistrerData($cronId);
+        //static::pullRegistrerData($cronId);
         return true;
     }
 
