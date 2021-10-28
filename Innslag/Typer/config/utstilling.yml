@@ -23,22 +23,22 @@ personer_autofollow: false
 tekst:
   rolle:
     navn: Skriv inn hvilken rolle %person har, eller hva %person gjør
-    placeholder: F.eks maler, tegner, illustratør, skulptør osv...
+    placeholder: F.eks maler, tegner, illustratør, skulptør osv.
     hjelp: ''
     ukjent: Ukjent rolle
   titler:
-    pronomen: et
+    pronomen: en
     entall: kunst
-    flertall: verk
-    bestemt: verket/utstillingsobjektet
-    placeholder: Eks. Elg i Solnedgang, Vakker bru osv...
+    flertall: kunstverk
+    bestemt: kunstverket/utstillingsobjektet
+    placeholder: F.eks. Elg i Solnedgang, Vakker bru osv.
   sjanger:
     navn: Type og teknikk
-    placeholder: Eks. portrettfoto, akvarellmaling, acryl osv.
+    placeholder: F.eks. portrettfoto, akvarellmaling, acryl osv.
   artistnavn:
       alene:
           navn: Navn / kunstnernavn / navn på gruppe
-          placeholder: Eks. Kunst-%fornavn, Kunstgjengen fra %etternavn, %fornavn %etternavn...
+          placeholder: F.eks. Kunst-%fornavn, Kunstgjengen fra %etternavn, %fornavn %etternavn...
       sammen:
           navn: Kunstnernavn / navn på gruppe
-          placeholder: Eks. Kunstlinja, painting cowboys, %etternavn-gjengen...
+          placeholder: F.eks. Kunstlinja, painting cowboys, %etternavn-gjengen...
