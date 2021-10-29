@@ -28,6 +28,7 @@ tekst:
     ukjent: Ukjent rolle
   titler:
     pronomen: et
+    pronomen_adjektiv: nytt
     entall: verk/utstillingsobjekt
     flertall: verk/utstillingsobjekt
     bestemt: kunstverket/utstillingsobjektet

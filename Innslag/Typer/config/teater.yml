@@ -28,6 +28,7 @@ tekst:
     ukjent: Ukjent rolle
   titler:
     pronomen: en
+    pronomen_adjektiv: ny
     entall: sketsj/stykke
     flertall: sketsjer/stykker
     bestemt: sketsjen/stykket
