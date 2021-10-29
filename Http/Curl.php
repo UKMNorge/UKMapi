@@ -5,7 +5,7 @@ namespace UKMNorge\Http;
 class Curl
 {
 
-    var $timeout = 15;
+    var $timeout = 150;
     var $headers = false;
     var $content = true;
     var $postdata = false;
