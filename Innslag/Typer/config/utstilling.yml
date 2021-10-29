@@ -27,9 +27,9 @@ tekst:
     hjelp: ''
     ukjent: Ukjent rolle
   titler:
-    pronomen: en
-    entall: kunst
-    flertall: kunstverk
+    pronomen: et
+    entall: verk/utstillingsobjekt
+    flertall: verk/utstillingsobjekt
     bestemt: kunstverket/utstillingsobjektet
     placeholder: F.eks. Elg i Solnedgang, Vakker bru osv.
   sjanger:
