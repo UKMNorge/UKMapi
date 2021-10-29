@@ -2,6 +2,10 @@
 
 namespace UKMNorge\Innslag\Titler;
 
+use Exception;
+use UKMNorge\Innslag\Media\Bilder\Bilde;
+use UKMNorge\Innslag\Playback\Playback;
+
 class Utstilling extends Tittel
 {
     public const TABLE = 'smartukm_titles_exhibition';
@@ -9,7 +13,11 @@ class Utstilling extends Tittel
     public $type;
     public $teknikk = null;
     public $beskrivelse = null;
+    public $bilde = null; // Bilde
+    public $playback = null; // Kunstverk som er lastet opp på playbackserver og venter for godkjenning
 
+    public $bildeId;
+    public $playbackId;
 
     /**
      * Returner data som typisk står i parentes
@@ -43,6 +51,8 @@ class Utstilling extends Tittel
         $this->setTittel(stripslashes($row['t_e_title']));
         $this->setType($row['t_e_type']);
         $this->setTeknikk($row['t_e_technique']);
+        $this->setBildeId($row['t_e_bilde_kunstverk']);
+        $this->setPlaybackId($row['pb_id']);
         #$this->setFormat($row['t_e_format']);
         $this->setBeskrivelse($row['t_e_comments']);
         $this->setVarighet(0);
@@ -110,5 +120,92 @@ class Utstilling extends Tittel
     public function getTeknikk()
     {
         return $this->teknikk;
+    }
+
+    /**
+     * Hent Playback for bilde kunstverk
+     *
+     * @return Playback $playback
+     **/
+    public function getPlayback()
+    {   
+        if(!$this->playbackId || $this->playbackId == -1) {
+            return null;
+        }
+
+        try {
+            $this->playback = Playback::getById((int)$this->playbackId);
+        }
+        catch (Exception $e) {
+            return null;
+        }
+        
+        return $this->playback;
+    }
+
+    /**
+     * Hent bilde kunstverk
+     *
+     * @return Bilde $bilde
+     **/
+    public function getBilde()
+    {
+        if(!$this->bildeId || $this->bildeId == -1) {
+            return null;
+        }
+
+        try {
+            $this->bilde = Bilde::getById((int)$this->bildeId);
+        }
+        catch (Exception $e) {
+            return null;
+        }
+        
+        return $this->bilde;
+    }
+
+
+    /**
+     * Hent Bilde id
+     * Brukes for database
+     *
+     **/
+    public function getBildeId()
+    {
+        if($this->bildeId && $this->bildeId != -1) {
+            return $this->bildeId;
+        }
+        return -1;
+    }
+
+    /**
+     * set bilde id
+     *
+     * @return int
+     **/
+    public function setBildeId($bildeId) {
+        $this->bildeId = $bildeId;
+    }
+
+    /**
+     * Hent Playback id
+     * Brukes for database
+     *
+     **/
+    public function getPlaybackId()
+    {
+        if($this->playbackId && $this->playbackId != -1) {
+            return $this->playbackId;
+        }
+        return -1;
+    }
+
+    /**
+     * set bilde id
+     *
+     * @return int
+     **/
+    public function setPlaybackId($playbackId) {
+        $this->playbackId = $playbackId;
     }
 }

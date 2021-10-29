@@ -2,6 +2,10 @@
 
 namespace UKMNorge\Innslag\Playback;
 
+use Exception;
+use UKMNorge\Database\SQL\Query;
+
+
 class Playback
 {
     const TABLE = 'ukm_playback';
@@ -14,6 +18,8 @@ class Playback
     var $beskrivelse = null;
     var $fil = null;
     var $sesong = null;
+
+    private $godkjennt = false; // Playback fil (må være bilde) er godkjent av arrangører
 
     var $file_extension = null;
     var $file_path = null;
@@ -37,8 +43,27 @@ class Playback
         $this->fil = $data['pb_file'];
         $this->sesong = $data['pb_season'];
 
+        $this->godkjennt = $data['pb_godkjent'] ? $data['pb_godkjent'] : false;
+
         $this->file_path = 'upload/data/' . $this->sesong . '/' . $this->arrangement_id . '/';
         $this->url = $this->base_url . $this->arrangement_id . '/' . $this->id . '/';
+    }
+
+    public static function getById($playbackId) : Playback {
+        $sql = new Query(
+            Playback::getLoadQuery() . "
+                        WHERE `pb_id` = '#playbackId'",
+            [
+                'playbackId' => $playbackId
+            ]
+        );
+        
+        $data = $sql->getArray();
+
+        if($data) {
+            return new Playback($data);
+        }
+        throw new Exception('Could not find playback with id: '. $playbackId);
     }
 
     /**
@@ -238,6 +263,47 @@ class Playback
     {
         return static::sanitize( $this->getNavn() ) . '-'. $this->getFil();
     }
+
+    /**
+     * Er denne filen et bilde
+     * 
+     * @return bool 
+     */
+    public function erBilde() : bool {
+        $extension = pathinfo($this->getFil(), PATHINFO_EXTENSION);
+        return ($extension == 'jpg' || $extension == 'jpeg' || $extension == 'png') ? true : false;
+    }
+
+    /**
+     * Godkjen bilde
+     * 
+     * @return bool 
+     */
+    public function godkjenn() : bool {
+        if($this->erBilde()) {
+            $this->godkjennt = true;
+        }
+        return false;
+    }
+
+    /**
+     * Er bilde godkjent
+     * 
+     * @return bool 
+     */
+    public function erGodkjent() : bool {
+        return $this->godkjennt;
+    }
+
+    /**
+     * Er bilde godkjent
+     * 
+     * @return int 
+     */
+    public function erGodkjentDB() : int {
+        return $this->godkjennt ? 1 : 0;
+    }
+
 
     /**
      * Gjør et playback-navn trygt som filnavn

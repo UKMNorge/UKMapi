@@ -28,6 +28,7 @@ tekst:
     ukjent: Ukjent instrument
   titler:
     pronomen: en
+    pronomen_adjektiv: ny
     entall: låt
     flertall: låter
     bestemt: låten

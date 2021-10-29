@@ -1684,6 +1684,17 @@ class Arrangement
     {
         return $this->subtype == 'arrangement';
     }
+    
+    /**
+     * Er dette en mønstring som representerer et kunstgalleri?
+     * 
+     * Kunstgalleri er definert gjennom metavalue og arrangement type er monstring
+     * 
+     * @return Bool
+     */
+    public function erKunstgalleri() : bool {
+        return $this->getMetaValue('kunstgalleri') != null && $this->getMetaValue('kunstgalleri') == 'true';
+    }
 
     /**
      * Hent informasjon om videresending til og fra denne mønstringen

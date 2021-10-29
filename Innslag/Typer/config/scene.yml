@@ -28,6 +28,7 @@ tekst:
     ukjent: Ukjent rolle
   titler:
     pronomen: en
+    pronomen_adjektiv: ny
     entall: tittel/navn på det som skal fremføres
     flertall: titler/navn på det som skal fremføres
     bestemt: tittelen/navnet på det som skal fremføres
