@@ -220,37 +220,46 @@ class Kommune {
     /**
      * Har kommunen overtatt for andre?
      *
+     * @deprecated 
      * @return Bool $har_overtatt
      */
     public function harTidligere() {
-        return $this->tidligere !== false;
+        // Deprecated - i 2022 er det ikke releavnt lenger å ha tidligere navn for kommuner
+        return false;
+        // return $this->tidligere !== false;
     }
 
     /**
      * Hvis kommunen har overtatt for andre,
      * last inn og returner disse
-     * 
+     * @deprecated 
      * @return Array<Kommune> $inaktive kommuner
      */ 
     public function getTidligere()
     {
-        if( $this->tidligere === false ) {
-            return [];
-        }
+        // Deprecated - i 2022 er det ikke releavnt lenger å ha tidligere navn for kommuner
+        return [];
 
-        if( $this->tidligere === null ) {
-            $this->_loadTidligere();
-        }
-        return $this->tidligere;
+        // if( $this->tidligere === false ) {
+        //     return [];
+        // }
+
+        // if( $this->tidligere === null ) {
+        //     $this->_loadTidligere();
+        // }
+        // return $this->tidligere;
     }
 
     /**
      * Hent ID-listen for tidligere kommuner
      *
+     * @deprecated 
      * @return String CSV ID-liste
      */
     public function getTidligereIdList() {
-        return rtrim($this->tidligere_list,',');
+        // Deprecated - i 2022 er det ikke releavnt lenger å ha tidligere navn for kommuner
+        return '';
+        // return rtrim($this->tidligere_list,',');
     }
 
     /**
