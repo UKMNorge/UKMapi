@@ -30,6 +30,8 @@ use UKMNorge\Innslag\Typer\Type;
 use UKMNorge\Innslag\Typer\Typer;
 use UKMNorge\Log\Samling as LogSamling;
 use UKMNorge\Nettverk\Proxy\Kontaktperson as AdminKontaktProxy;
+use UKMNorge\Innslag\Venteliste\Venteliste;
+
 
 require_once 'UKM/statistikk.class.php';
 
@@ -77,6 +79,10 @@ class Arrangement
     var $innslagTyper = null;
     var $meta = null;
     var $synlig = true;
+    var $maksAntDeltagere = null;
+    
+    /** @var Venteliste */
+    var $venteliste = null;
     
     var $har_videresending = null;
     var $videresending_apner;
@@ -213,6 +219,7 @@ class Arrangement
         $this->setHarVideresending($row['pl_videresending'] == 'true');
         $this->setVideresendingApner( new DateTime($row['pl_forward_start']));
         $this->setVideresendingStenger( new DateTime($row['pl_forward_stop']));
+        $this->setMaksAntallDeltagere($row['maks_antall_deltagere']);
         $this->har_skjema = $row['pl_has_form'] == 'true';
         $this->synlig = $row['pl_visible'] == 'true';
         $this->deleted = $row['pl_deleted'] == 'true';
@@ -1671,6 +1678,59 @@ class Arrangement
     public function erMonstring()
     {
         return $this->subtype == 'monstring';
+    }
+
+    /**
+     * Angi hvor mange deltagere kan melde på dette arrangmenetet (gjelder bare for workshop)
+     * 
+     * NOTE: '?' before Int allows the method to accept null values
+     * 
+     * @param Int $maksAD maks antall deltagere
+     * @return self
+     */
+    public function setMaksAntallDeltagere(?Int $maksAD) {
+        $this->maksAntDeltagere = $maksAD;
+        return $this;
+    }
+
+    /**
+     * Er antall deltakere begrenset?
+     * 
+     * Det gjelder bare for workshop
+     *
+     * @return Bool
+     */
+    public function erMaksAntallAktivert() {
+        // Det er ikke workshop - return false
+        if(!$this->erArrangement()) {
+            return false;
+        }
+    
+        return !$this->maksAntDeltagere == null;
+    }
+
+    /**
+     * Hvor mange deltagere kan melde på (begrensing på maks antall deltagere)?
+     * 
+     * Det gjelder bare for workshop
+     *
+     * @return Int
+     */
+    public function getMaksAntallDeltagere() {
+        return $this->maksAntDeltagere;
+    }
+
+    /**
+     * Hent Venteliste klasse for dette Arrangementet
+     *
+     *
+     * @return Venteliste
+     */
+    public function getVenteliste() {
+        if (null == $this->venteliste) {
+            $this->venteliste = Venteliste::getByArrangement($this->getId());
+        }
+        return $this->venteliste;
     }
 
     /**
