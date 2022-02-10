@@ -8,7 +8,13 @@ use UKMNorge\Innslag\Venteliste\Write;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Innslag\Personer\Person;
 use UKMNorge\Geografi\Kommune;
+use UKMNorge\Innslag\Typer\Typer;
 use UKMNorge\Innslag\Venteliste\VentelistePerson;
+use UKMNorge\Innslag\Write as WriteInnslag;
+use UKMNorge\Innslag\Personer\Write as WritePerson;
+use UKMNorge\Kommunikasjon\Mottaker;
+use UKMNorge\Kommunikasjon\SMS;
+
 
 
 class Venteliste
@@ -80,7 +86,7 @@ class Venteliste
     /**
      * Hent alle personer som array
      *
-     * @return array
+     * @return VentelistePerson[]
      */
     public function getAllPersoner() {
         return $this->personer;
@@ -95,7 +101,6 @@ class Venteliste
      * @return VentelistePerson
      */
     public static function staarIVenteliste(Int $personId, Int $arrangementId) {
-        echo $personId;
         $sql = new Query(
             Venteliste::getLoadQuery() . "
 						WHERE `p_id` = '#personId' 
@@ -213,6 +218,140 @@ class Venteliste
             $count++;
         }
         return null;
+    }
+    
+    /**
+     * Oppdater alle deltakere hvis maks antall påmeldte er endret
+     * Denne metoden kan brukes hvis maksAntall er endret på arrangement og da blir flere ledige plasser og deltakere må ikke vente i venteliste dersom det er ledige plasser
+     * 
+     * @return void
+     */
+    public function updatePersoner() {
+        $arrangement = new Arrangement($this->arrangementId);
+        $maksAntall = $arrangement->getMaksAntallDeltagere();
+        $antPersoner = $arrangement->getAntallPersoner();
+        $added = 0;
+
+        while(($antPersoner + $added) <  $maksAntall){
+            // Det er ikke flere personer i venteliste
+            if($this->meldPaaNeste() == false) {
+                break;
+            }
+            $added++;
+        }
+    }
+
+    /**
+     * Send sms til en VentelistePerson
+     * 
+     * @return bool
+     */
+    private function sendSMS(VentelistePerson $vePerson) {
+        $arrangement = new Arrangement($this->arrangementId);
+        
+        $avsender = 'UKM';
+        $mobilnummer = $vePerson->getPerson()->getMobil();
+        $melding = 'Hei, du har fått plass på arrangement ' .$arrangement->getNavn();
+        
+        SMS::setSystemId('wordpress', get_current_user());
+        SMS::setArrangementId($this->arrangementId);
+        
+        $sms = new SMS($avsender); // (avsender) 
+        
+        try {
+            $result = $sms->setMelding( $melding )->setMottaker( Mottaker::fraMobil( $mobilnummer ) )->send();
+        } catch(Exception $e) {
+            // bare for ukm.dev
+            if($e->getCode() == 148005) {
+                $result = true;
+            }
+            else {
+                $result = false;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Meld på deltaker i venteliste som står på første posisjon
+     *
+     * @param Ventelisteperson $vePerson
+     * @return bool
+     */
+    public function meldPaaNeste() {
+        $vePerson = $this->hentFirstPerson();
+
+        if($vePerson == null) { 
+            return false; 
+        }
+
+        try{
+            if($this->meldPaa($vePerson)) {
+                $this->removePerson($vePerson);
+                $this->sendSMS($vePerson);
+                return true;
+            }
+        }catch(Exception $e) {
+            return false;
+        }
+        return false;
+    }
+
+    /**
+     * Meld på en person i venteliste
+     *
+     * @param Ventelisteperson $vePerson
+     * @return Int
+     */
+    public function meldPaa(Ventelisteperson $vePerson) {
+        $kontaktperson = $vePerson->getPerson();
+
+        // Hvilken kommune er innslaget fra
+        $kommune = $vePerson->getKommune();
+        $arrangement = new Arrangement($this->arrangementId);
+        $type = Typer::getByKey('enkeltperson');
+        $navn = $kontaktperson->getNavn();
+
+        // Opprett innslaget
+        $innslag = WriteInnslag::create($kommune, $arrangement, $type, $navn, $kontaktperson );
+        $innslag->setSjanger('');
+        $innslag->setStatus(8);
+        $innslag->getPersoner()->leggTil( $kontaktperson );
+        WriteInnslag::savePersoner( $innslag );
+        $kontaktperson->setRolle( $type->getNavn() );
+
+        WriteInnslag::save( $innslag );
+
+        return true;
+    }
+
+    /**
+     * Hent alle arrangementer personen står i venteliste
+     *
+     * @param Int $p_id
+     * @return Arrangementer[]
+     */
+    public static function getArrangementerByPersonId($p_id) {
+        $sql = new Query(
+            "SELECT `pl_id` 
+			FROM `venteliste` 
+			WHERE `p_id` = '#personId'",
+            [
+                'personId' => $p_id,
+            ]
+        );
+
+        $res = $sql->getArray();
+       
+        if ($res) {
+            $arrangementer = [];
+            foreach($res as $pl_id) {
+                $arrangementer[] = new Arrangement($pl_id);
+            }  
+            return $arrangementer;
+        }
+
+        return [];
     }
 
 }
