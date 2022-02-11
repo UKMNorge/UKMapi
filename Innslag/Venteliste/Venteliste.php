@@ -333,25 +333,23 @@ class Venteliste
      */
     public static function getArrangementerByPersonId($p_id) {
         $sql = new Query(
-            "SELECT `pl_id` 
-			FROM `venteliste` 
+            "SELECT `pl_id`
+            FROM `". static::TABLE ."`
 			WHERE `p_id` = '#personId'",
             [
                 'personId' => $p_id,
             ]
         );
 
-        $res = $sql->getArray();
-       
-        if ($res) {
-            $arrangementer = [];
-            foreach($res as $pl_id) {
-                $arrangementer[] = new Arrangement($pl_id);
-            }  
-            return $arrangementer;
-        }
+        
+        $res = $sql->run();
+        $arrangementer = [];
 
-        return [];
+        while( $row = Query::fetch( $res ) ) {
+            $arrangementer[] = new Arrangement($row['pl_id']);
+		}
+        
+        return $arrangementer;
     }
 
 }
