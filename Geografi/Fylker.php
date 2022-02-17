@@ -69,7 +69,7 @@ class Fylker {
 		
 		if('throw' == self::$logMethod) {
 			throw new Exception(
-                'Prøvde å aksessere et fylke som ikke finnes (ID: '. $id .')',
+                'Fra metode getById(), prøvde å aksessere et fylke som ikke finnes (ID: '. $id .')',
                 103001
             );
         }
