@@ -111,3 +111,13 @@ For å opprette en ny innslagstype som fungerer både i admin og i Delta, må du
 	- tekniske_behov
 	- titler
 	- funksjon
+
+
+# Ny festival side
+### Husk: Festival siden opprettes hvert år
+For å opprette en ny festival side må du:
+1. Opprette en ny rad i database i tabellen `smartukm_place`. Arrangement type i databasen må være `land`
+2. På https://ukm.no/wp-admin/network/sites.php let etter "festivalen" eller "ukm.no/festivalen" og åpne det
+3. Trykk Innstillinger
+4. Endre `Pl Id` til nytt arrangement id (pl_id) (fra 1. punkt)
+5. Endre `Season` til nåværende år
