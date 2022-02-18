@@ -65,7 +65,7 @@ class Fylker {
             echo '</pre>';
         }
 
-        echo '<script>console.log("' . $id . '")</script>';
+        echo '<script>console.log("I am ID: ' . $id . '")</script>';
 
 		if( null == self::$fylker ) {
 			self::initialize();
