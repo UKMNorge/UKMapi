@@ -76,6 +76,8 @@ class Fylker {
 		}
 		
 		if('throw' == self::$logMethod) {
+            echo '<script>console.error("From throw: ' . $id . '")</script>';
+
 			throw new Exception(
                 'Fra metode getById(), prøvde å aksessere et fylke som ikke finnes (ID: '. $id .')',
                 103001
