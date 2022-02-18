@@ -75,14 +75,12 @@ class Fylker {
 			return self::$fylker[ (int) $id ];
 		}
 		
-		if('throw' == self::$logMethod) {
-            echo '<script>console.log("From throw: ' . $id . '")</script>';
-
-			throw new Exception(
-                'Fra metode getById(), prøvde å aksessere et fylke som ikke finnes (ID: '. $id .')',
-                103001
-            );
-        }
+		// if('throw' == self::$logMethod) {
+		// 	throw new Exception(
+        //         'Fra metode getById(), prøvde å aksessere et fylke som ikke finnes (ID: '. $id .')',
+        //         103001
+        //     );
+        // }
 	}
     
     /**
@@ -129,8 +127,6 @@ class Fylker {
             case 'trondelag':       return self::getById(50);
             case 'tromsogfinnmark': return self::getById(54);
 		}
-
-        echo '<script>console.log("From getByLink(): ' . $id . '")</script>';
 
 		throw new Exception(
             'Prøvde å aksessere et fylke som ikke finnes (ID: '. $id .')',
