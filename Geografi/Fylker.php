@@ -59,6 +59,12 @@ class Fylker {
      * @return Fylke
      */
 	public static function getById( Int $id ) {
+        if($id == 0) {
+            echo '<pre>';
+            debug_print_backtrace();
+            echo '</pre>';
+        }
+
 		if( null == self::$fylker ) {
 			self::initialize();
 		}
