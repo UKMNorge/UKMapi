@@ -71,7 +71,7 @@ class Server extends BandwidthMode
      */
     public static function getWowzaUrl($skipProtocol=false)
     {
-        return 'https://5745d0ab31aad.streamlock.net:443/' . static::getWowzaAppName() .'/_definst_/';
+        return 'https://5745d0ab31aad.streamlock.net:8443/' . static::getWowzaAppName() .'/_definst_/';
         //return static::getCacheUrl($skipProtocol) . static::getWowzaAppName() . '/_definst_/';
     }
 
