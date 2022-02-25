@@ -1601,6 +1601,9 @@ class Arrangement
         if ($this->getEierType() == 'kommune') {
             return Omrade::getByKommune($this->getEierKommune()->getId());
         }
+        else if($this->getEierType() == 'land') {
+            return Omrade::getByLand();
+        }
         return Omrade::getByFylke($this->getEierFylke()->getId());
     }
 
