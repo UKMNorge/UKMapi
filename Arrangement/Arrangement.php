@@ -800,8 +800,12 @@ class Arrangement
      * @return Fylke
      **/
     public function getFylke()
-    {
-        if (null == $this->fylke) {
+    {   
+        // Hvis festival returner Internasjonalt fylke
+        if($this->getEierType() == 'land') {
+            $this->fylke = Fylker::getById(31);
+        }
+        else if (null == $this->fylke) {
             if (null == $this->fylke_id && 'kommune' == $this->getType()) {
                 $first_kommune = $this->getKommuner()->first();
                 if (null == $first_kommune || !is_object($first_kommune)) {
