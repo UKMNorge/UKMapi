@@ -13,12 +13,28 @@ class OvernattingRom {
     public function __construct(Int $id) {
         $this->id = $id;
 
+        // Hent data fra database for dette romet
         $this->_load_from_db();
     }
 
+    /**
+     * Database-spørring
+     *
+     * @return void
+     */
+    public function getLoadQuery()
+    {
+        return "SELECT * FROM " . $this->tableName;
+    }
+
+    /**
+     * Kjøre database kall
+     *
+     * @return void
+     */
     private function _load_from_db() {
         $sql = new Query(
-            "SELECT * FROM " . $this->tableName . "
+            $this->getLoadQuery() . "
             WHERE `id` = '#id'",
             [
                 'id' => $this->id
@@ -26,10 +42,6 @@ class OvernattingRom {
         );
         $res = $sql->run('array');
 
-        
-        echo ' --- ';
-        var_dump($this->id);
-        echo ' --- ';
         $this->_load_from_array($res);
     }
 
@@ -47,7 +59,7 @@ class OvernattingRom {
     /**
      * Hent id
      *
-     * @return void
+     * @return Int
      */
     public function getId() {
         return $this->id;
@@ -59,7 +71,7 @@ class OvernattingRom {
      * @return String
      */
     public function getType() {
-        return $this->navn;
+        return $this->type;
     }
 
     /**
