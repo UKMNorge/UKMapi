@@ -56,7 +56,7 @@ class OvernattingPerson {
      *
      * @return OvernattingRom
      */
-    public function getRom(): OvernattingRom {
+    public function getRom() {
         return $this->rom;
     }
 
