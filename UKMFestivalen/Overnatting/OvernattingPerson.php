@@ -11,7 +11,7 @@ class OvernattingPerson {
     private $epost;
     private $ankomst;
     private $avreise;
-    private $rom;
+    private $rom = null;
     private $tableName = 'ukm_festival_overnatting_rel_person_rom';
 
 
@@ -23,9 +23,15 @@ class OvernattingPerson {
         $this->ankomst = $ankomst;
         $this->avreise = $avreise;
         
+        // Hent rom (OvernattingRom) som personen er i (skal sove i)
         $this->_load_rom_from_db();
     }
 
+    /**
+     * Kjøre database kall
+     *
+     * @return void
+     */
     private function _load_rom_from_db() {
         $sql = new Query(
             "SELECT `rom_id` FROM " . $this->tableName . "
@@ -37,24 +43,34 @@ class OvernattingPerson {
 
         $res = $sql->run('array');
 
-        if($res) {
+        // Opprett OvernattingRom bare hvis det finnes en relasjon
+        if($res != null) {
             $this->rom = new OvernattingRom((int) $res['rom_id']);
+        } 
+    }
 
-        }
-            
+    /**
+     * Hent rom
+     * 
+     * OBS: Den kan returnere null hvis det ikke er et rom assosiert med personen
+     *
+     * @return OvernattingRom
+     */
+    public function getRom(): OvernattingRom {
+        return $this->rom;
     }
 
     /**
      * Hent id
      *
-     * @return void
+     * @return Int
      */
     public function getId() {
         return $this->id;
     }
 
     /**
-     * hent mobil nummer
+     * Hent mobil nummer
      *
      * @return String
      */
@@ -63,7 +79,7 @@ class OvernattingPerson {
     }
 
     /**
-     * hent epost
+     * Hent epost
      *
      * @return String
      */
@@ -72,7 +88,7 @@ class OvernattingPerson {
     }
 
     /**
-     * hent ankomst
+     * Hent ankomst
      *
      * @return String
      */
@@ -80,22 +96,13 @@ class OvernattingPerson {
         return $this->ankomst;
     }
 
-        /**
-     * hent avreise
+    /**
+     * Hent avreise
      *
      * @return String
      */
     public function getAvreise() {
         return $this->avreise;
-    }
-
-    /**
-     * Set navn
-     *
-     * @return void
-     */
-    public function setNavn($navn) {
-        $this->navn = $navn;
     }
 
     /**
@@ -106,5 +113,4 @@ class OvernattingPerson {
     public function getNavn() {
         return $this->navn;
     }
-   
 }
