@@ -2,7 +2,6 @@
 
 namespace UKMNorge\UKMFestivalen\Overnatting;
 
-use UKMCURL;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Collection;
 
@@ -15,7 +14,7 @@ class OvernattingGruppe extends Collection {
         $this->gruppeId = $gruppeId;
         $this->navn = $navn;
 
-        // Hent alle personer i denne OvernattingGruppen
+        // Hent alle personer
         $this->_load_from_db();
     }
 
@@ -29,15 +28,6 @@ class OvernattingGruppe extends Collection {
     }
 
     /**
-     * Set navn
-     *
-     * @return void
-     */
-    public function setNavn($navn) {
-        $this->navn = $navn;
-    }
-
-    /**
      * Hent navn
      *
      * @return String
@@ -47,7 +37,7 @@ class OvernattingGruppe extends Collection {
     }
 
     /**
-     * Standardisering av database-spørring for uthenting av personer
+     * Database-spørring
      *
      * @return void
      */
@@ -57,7 +47,7 @@ class OvernattingGruppe extends Collection {
     }
 
     /**
-     * Last inn info fra databasen for en OvernattingGruppe
+     * Last inn info fra databasen for denne OvernattingGruppen
      *
      * @return Person
      */
@@ -72,19 +62,9 @@ class OvernattingGruppe extends Collection {
         );
         $res = $sql->run();
 
-
         while( $row = Query::fetch( $res ) ) {
             $this->_load_from_array($row);   
         }
-    }
-
-    /**
-     * Get alle personer som er i denne gruppen
-     *
-     * @return OvernattingPerson[]
-     */
-    public function getAllePersoner() {
-        return $this->getAll();
     }
 
     /**
@@ -95,6 +75,15 @@ class OvernattingGruppe extends Collection {
      */
     private function _load_from_array(array $res) {
         $this->add(new OvernattingPerson((int) $res['id'], $res['navn'], $res['mobil'], $res['epost'], $res['ankomst'], $res['avreise']));
+    }
+
+    /**
+     * Get alle personer som er i denne gruppen
+     *
+     * @return OvernattingPerson[]
+     */
+    public function getAllePersoner() {
+        return $this->getAll();
     }
    
 }
