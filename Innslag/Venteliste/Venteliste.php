@@ -251,7 +251,9 @@ class Venteliste
         
         $avsender = 'UKM';
         $mobilnummer = $vePerson->getPerson()->getMobil();
-        $melding = 'Hei, du har fått plass på arrangement ' .$arrangement->getNavn();
+        $melding = 'Hei, du har fått plass på arrangement ' .$arrangement->getNavn() . ' 
+        
+        - Med vennlig hilsen UKM Norge';
         
         SMS::setSystemId('wordpress', get_current_user());
         SMS::setArrangementId($this->arrangementId);
