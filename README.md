@@ -80,6 +80,7 @@ prefix | objekt | les | skriv
 81 | Slack | 181yyy | 581yyy
 82 | Mailchimp | - | 582yyy
 83 | OAuth2 | 183yyy | 583yyy
+84 | Venteliste | 184yyy | 584yyy
 
 
 # Wordpress-options

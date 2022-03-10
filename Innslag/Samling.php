@@ -215,6 +215,35 @@ class Samling {
         return $this->simple_count_personer;
     }
 
+    /**
+     * Spør databasen om personen er i samlingen.
+     *
+     * @return bool
+     */
+	public function erPersonISamling($p_id) {
+		if( $this->getContext()->getSesong() < 2020 ) {
+			throw new Exception(
+				'Kan ikke kjøre det for innslag påmeldt før 2019',
+				104002
+			);
+		}
+
+		$query = new Query(
+			"SELECT `person_id`
+			FROM `ukm_rel_arrangement_person`
+			JOIN `smartukm_band` AS `innslag`
+				ON `innslag`.`b_id` = `ukm_rel_arrangement_person`.`innslag_id`
+			WHERE `arrangement_id` = '#arrangement'
+			AND `b_status` = 8
+			AND `person_id` = '#p_id'",
+			[
+				'arrangement' => $this->getContext()->getMonstring()->getId(),
+				'p_id' => $p_id
+			]
+		);
+		return $query->getField() != null;
+		
+	}
 
     
 

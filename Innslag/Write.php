@@ -520,6 +520,20 @@ class Write {
         // Avbryt samtykkeforespørsel
         static::requestSamtykkeCancel( $innslag );
 
+		// Updater brukere i ventelisten fordi en bruker er meld av i denne metoden
+		// Venteliste - brukes for å ha personer i venteliste når maks antall deltakere i ett arrangement er begrenset.
+		try {
+			$arrangement = $innslag->getHome();
+
+			// Hvis arrangement har venteliste, oppdater personer som står i venteliste
+			if($arrangement->erMaksAntallAktivert()) {
+				$arrangement->getVenteliste()->updatePersoner();
+			}
+		}catch(Exception $e) {
+			// Hvis det skjer noe med venteliste, er det ikke nødvendigvis en stor bug som må stoppe kjøringen
+			// Dette kan logges
+		}
+
 		return $innslag;
 
     }
