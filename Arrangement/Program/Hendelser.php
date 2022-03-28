@@ -39,7 +39,7 @@ class Hendelser {
     {
         $sortert = [];
         foreach ($forestillinger as $forestilling) {
-            $key = $forestilling->getStart()->format('d_m');
+            $key = $forestilling->getStart()->getTimestamp();
             if (!isset($sortert[$key])) {
                 $dag = new stdClass();
                 $dag->key    = $key;
