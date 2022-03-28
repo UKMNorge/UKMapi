@@ -43,13 +43,17 @@ class Hendelser {
             if (!isset($sortert[$key])) {
                 $dag = new stdClass();
                 $dag->key    = $key;
+                $dag->sortKey  = $forestilling->getStart()->getTimestamp();
                 $dag->date     = $forestilling->getStart();
                 $dag->forestillinger = [];
                 $sortert[$key] = $dag;
             }
             $sortert[$key]->forestillinger[] = $forestilling;
         }
-        ksort($sortert);
+        usort($sortert, function($a, $b) {
+            return $a->sortKey > $b->sortKey ? 1 : ($a->sortKey < $b->sortKey ? -1 : 0);
+        });
+
         return $sortert;
     }
 
