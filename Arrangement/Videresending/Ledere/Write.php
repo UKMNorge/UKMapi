@@ -141,15 +141,18 @@ class Write
             return true;
         }
 
-        $query = new Delete(
-            Natt::TABLE,
-            [
+        $deleteNatt = new Query(
+            "DELETE
+                FROM `ukm_videresending_leder_natt`
+                WHERE `dato` = '#dato'
+                AND `l_id` = '#l_id'",
+            array(
                 'dato' => $natt->getDato(),
-                'l_id' => $natt->getLederId()
-            ]
+                'l_id' => $natt->getLederId(),
+            )
         );
-        $res = $query->run();
 
+        $res = $deleteNatt->run();
         return !!$res;
     }
 

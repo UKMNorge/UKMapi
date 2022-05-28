@@ -229,6 +229,8 @@ class Leder
                 return 'Ledsager';
             case 'turist':
                 return 'Turist';
+            case 'sykerom':
+                return 'Sykerom';
         }
         throw new Exception(
             'Ukjent leder-type ' . $this->getType(),
