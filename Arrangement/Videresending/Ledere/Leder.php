@@ -230,12 +230,21 @@ class Leder
             case 'turist':
                 return 'Turist';
             case 'sykerom':
-                return 'Sykerom';
+                return 'Sykerom - andre hotell behov';
         }
         throw new Exception(
             'Ukjent leder-type ' . $this->getType(),
             160001
         );
+    }
+
+    /**
+     * Return true if the type is available outside hotel
+     *
+     * @return Bool
+     */
+    public function isAvailableOutsideHotel() {
+        return $this->getType() != 'sykerom' || $this->getType() != 'turist';
     }
 
     /**
