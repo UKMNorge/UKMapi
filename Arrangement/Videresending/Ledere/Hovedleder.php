@@ -136,6 +136,18 @@ class Hovedleder
     }
 
     /**
+     * Hent lederens mobilnummer
+     * 
+     * @see Leder::getMobil()
+     *
+     * @return String
+     */
+    public function getMobil()
+    {
+        return $this->getLeder()->getMobil();
+    }
+
+    /**
      * Hent hvilken dato lederen er hovedleder
      *
      * @return String $dato
