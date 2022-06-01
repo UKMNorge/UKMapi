@@ -93,6 +93,13 @@ class Write
         );
         $res = $query->run();
 
+        // Delete hovedleder
+        try{
+            Write::deleteHovedLeder($leder->getId());
+        } catch(Exception $e) {
+            // Gjør ingengting, ikke nødvendigvis feil hvis hovedleder finnes ikke eller det skjedde noe.
+        }
+
         return !!$res;
     }
 
@@ -193,6 +200,22 @@ class Write
         $save->add('l_id', $hovedleder->getLederId());
 
         $res = $save->run();
+
+        return !!$res;
+    }
+
+    /**
+     * Slett hovedleder
+     *
+     * @param int $hovedleder_l_id
+     * @return Bool
+     */
+    public static function deleteHovedLeder($hovedleder_l_id) {
+        $query = new Delete(
+            Hovedleder::TABLE,
+            ['l_id' => $hovedleder_l_id]
+        );
+        $res = $query->run();
 
         return !!$res;
     }
