@@ -1318,7 +1318,7 @@ class Arrangement
     /**
      * Hvor mange dager varer mønstringen?
      *
-     * @return int $dager
+     * @return array $dager
      **/
     public function getDager()
     {
@@ -1330,6 +1330,13 @@ class Arrangement
             );
             $this->dager = iterator_to_array($period);
         }
+        
+        // Sort etter dato
+        usort($this->dager, function($firstDate, $secondDate) {        
+            if ($firstDate == $secondDate) return 0;
+            return $firstDate < $secondDate ? -1 : 1;
+        });
+        
         return $this->dager;
     }
 
