@@ -35,6 +35,15 @@ class VentelistePerson
         $this->kommune = $kommune;
     }
 
+    /**
+     * ID for en venteliste person
+     * Det defineres av arrangement id og person id
+     *
+     * @return int
+     */
+    public function getId() {
+        return $this->arrangement->getId() . $this->person->getId();
+    }
 
     /**
      * Hent person

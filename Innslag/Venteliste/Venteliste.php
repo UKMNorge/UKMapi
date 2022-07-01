@@ -14,14 +14,11 @@ use UKMNorge\Innslag\Write as WriteInnslag;
 use UKMNorge\Innslag\Personer\Write as WritePerson;
 use UKMNorge\Kommunikasjon\Mottaker;
 use UKMNorge\Kommunikasjon\SMS;
+use UKMNorge\Collection;
 
 
 
-class Venteliste
-{
-    /** @var VentelistePerson[] */
-    private $personer = [];
-
+class Venteliste extends Collection {
     private $arrangementId = null;
 
     const TABLE = 'venteliste';
@@ -62,15 +59,15 @@ class Venteliste
 		$res = $qry->run();
 
         // Empty personer
-		$this->personer = array();
 
 		while ($row = Query::fetch($res)) {
             $person = Person::loadFromId( $row['p_id'] );
             $arrangement = Arrangement::getById($row['pl_id']);
             $arrangement = Arrangement::getById($row['pl_id']);
             $kommune = new Kommune($row['k_id']);
-
-            $this->personer[] = new VentelistePerson($person, $arrangement, $kommune);
+            
+            $vePerson = new VentelistePerson($person, $arrangement, $kommune);
+            $this->add($vePerson);
 		}
     }
 
@@ -89,7 +86,7 @@ class Venteliste
      * @return VentelistePerson[]
      */
     public function getAllPersoner() {
-        return $this->personer;
+        return $this->getAll();
     }
 
     /**
@@ -123,14 +120,6 @@ class Venteliste
         return null;
     }
     
-    /**
-     * hent antall personer som er i venteliste
-     *
-     * @return int
-     */
-    public function getAntall() {
-        return count($this->personer);
-    }
 
     /**
      * Legg til ny person i Venteliste
@@ -180,7 +169,7 @@ class Venteliste
             return false;
         }
         
-        foreach($this->personer as $p) {
+        foreach($this->getAll() as $p) {
             if($p->getPerson()->getId() == $personId) {
                 return true;
             }
@@ -195,23 +184,24 @@ class Venteliste
      * @return VentelistePerson
      */
     public function hentFirstPerson() {
-        if(count($this->personer) < 1) {
-            return null;
-        }
+        $firstPerson = $this->first();
+
         // Remove from the array but not from the database
         // Call to removePerson() must be called afterwards to remove the person from the waiting list
-        return array_shift($this->personer);
+        $this->remove($firstPerson->getId());
+        return $firstPerson;
     }
     
     /**
      * Hent posisjon i venteliste for en person etter person id
-     *
+     * OBS: Person posisjon starter fra 1 (det er ment å være lesbart i grensesnittet)
+     * 
      * @param Int $id
      * @return Int
      */
     public function hentPersonPosisjon(Int $personId) {
         $count = 1;
-        foreach($this->personer as $p) {
+        foreach($this->getAll() as $p) {
             if($p->getPerson()->getId() == $personId) {
                 return $count;
             }
