@@ -1771,6 +1771,28 @@ class Arrangement
     }
 
     /**
+     * Set deltakere synlighet. Det kan gjelde for nettsiden
+     *
+     * @param Bool $state
+     * @return self
+     */
+    public function setDeltakereSynlig( Bool $state ) {
+        $this->getMeta('deltakeresynlig')->set($state);
+        return $this;
+    }
+
+    /**
+     * Er deltakere synlig?
+     * Dette kan brukes for å vise eller skjule antall deltakere på nettsiden
+     * 
+     * @return Bool
+     */
+    public function erDeltakereSynlig() {
+        $ret = $this->getMetaValue('deltakeresynlig');
+        return $ret == null ? false : $ret;
+    }
+
+    /**
      * Hent informasjon om videresending til og fra denne mønstringen
      * Alle mønstringer kan ta i mot videresendinger
      * 
