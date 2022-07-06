@@ -1789,7 +1789,7 @@ class Arrangement
      */
     public function erDeltakereSynlig() {
         $ret = $this->getMetaValue('deltakeresynlig');
-        return $ret == null ? false : $ret;
+        return $ret == null ? true : $ret;
     }
 
     /**
