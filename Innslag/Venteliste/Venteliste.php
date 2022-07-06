@@ -184,6 +184,10 @@ class Venteliste extends Collection {
      * @return VentelistePerson
      */
     public function hentFirstPerson() {
+        if($this->getAntall() < 1) {
+            return null;
+        }
+        
         $firstPerson = $this->first();
 
         // Remove from the array but not from the database
