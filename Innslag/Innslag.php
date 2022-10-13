@@ -896,6 +896,44 @@ class Innslag
         return $this->er_videresendt;
     }
 
+    public function erAktiv() : bool {
+        // Home er ikke ferdig, innslaget er aktivt
+        if(!$this->getHome()->erFerdig()) {
+            return true;
+        }
+
+        // Alle innslag før 2020 er ikke aktive
+        if ($this->getSesong() < 2020) {
+            return false;
+        }
+
+        // Sjekker alle arrangementer hvor dette innslaget ble sendt videre (inkludering home arrangement)
+        $query = new Query(
+            "SELECT `arrangement_id`
+            FROM `ukm_rel_arrangement_innslag`
+            WHERE `innslag_id` = '#innslag'",
+            [
+                'innslag' => $this->getId()
+            ]
+        );
+
+        $res = $query->run();
+        // Det må finnes mer enn 1 arrangement (nummer 1 er home arrangement) 
+        if($res->num_rows > 1) {
+            while ($arrangementId = Query::fetch($res)) {
+                $arrangement = new Arrangement($arrangementId['arrangement_id']);
+                
+                // Arrangementet er ikke ferdig derfor dette innslaget er aktivt.
+                if(!$arrangement->erFerdig()) {
+                    return true;
+                }
+            }
+        }
+
+        // Det ble ikke funnet at innslaget er aktivt
+        return false;
+    }
+
     public function erVideresendtTil($monstring)
     {
         if (Arrangement::validateClass($monstring)) {
