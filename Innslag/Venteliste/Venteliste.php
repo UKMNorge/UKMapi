@@ -342,7 +342,16 @@ class Venteliste extends Collection {
         $arrangementer = [];
 
         while( $row = Query::fetch( $res ) ) {
-            $arrangementer[] = new Arrangement($row['pl_id']);
+            // Try fordi det kan hende at arrangementet er slettet men står i ventelisten
+            try{
+                $arrangementer[] = new Arrangement($row['pl_id']);
+            }
+            catch(Exception $e) {
+                // Hvis det er 101004 gjør ingenting. Arrangementet eksisterer ikke lenger derfor blir ikke arrangementet i listen av arrangementer i ventelisten
+                if(!$e->getCode() == 101004) {
+                    throw $e;
+                }
+            }
 		}
         
         return $arrangementer;

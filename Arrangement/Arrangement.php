@@ -176,7 +176,7 @@ class Arrangement
     private function _load_by_row($row)
     {
         if (!is_array($row)) {
-            throw new Exception('MONSTRING_V2: _load_by_row krever dataarray!');
+            throw new Exception('MONSTRING_V2: _load_by_row krever dataarray!', 101004);
         }
 
         if ($row['pl_type'] == 'ukjent') {
