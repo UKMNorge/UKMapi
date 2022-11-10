@@ -38,7 +38,7 @@ class Fylker {
         
         // UKM-fylker
         # Tilgang til Testfylke hvis kallet kommer fra UKM IT-TEAMET
-        if(isset($_SERVER) && isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] == '81.0.146.162') {
+        if(isset($_SERVER) && isset($_SERVER['HTTP_CF_CONNECTING_IP']) && $_SERVER['HTTP_CF_CONNECTING_IP'] == '81.0.146.162') {
             self::$fylker[21]	= new Fylke(21, 'testfylke', 'Testfylke', true, false);
         }
         else {
