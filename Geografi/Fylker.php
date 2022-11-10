@@ -37,7 +37,13 @@ class Fylker {
         self::$fylker[11]	= new Fylke(11, 'rogaland', 'Rogaland', true);
         
         // UKM-fylker
-		self::$fylker[21]	= new Fylke(21, 'testfylke', 'Testfylke', true, true);
+        # Tilgang til Testfylke hvis kallet kommer fra UKM IT-TEAMET
+        if(isset($_SERVER) && isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] == '81.0.146.162') {
+            self::$fylker[21]	= new Fylke(21, 'testfylke', 'Testfylke', true, false);
+        }
+        else {
+            self::$fylker[21]	= new Fylke(21, 'testfylke', 'Testfylke', true, true);
+        }
 		self::$fylker[31]	= new Fylke(31, 'internasjonalt', 'Internasjonalt', true, true);
 		self::$fylker[32]	= new Fylke(32, 'gjester', 'Gjester', true, true);
 		self::$fylker[33]	= new Fylke(33, 'digital', 'Digital', true, true);
