@@ -43,6 +43,24 @@ abstract class Feedback {
     }
 
     /**
+     * Lagre Feedback-en
+     *
+     * @return Int
+     */
+    public function save() {
+        return Write::saveFeedback($this);
+    }
+
+    /**
+     * Legg til response
+     * @param FeedbackResponse $feedbackResponse
+     * @return void
+     */
+    public function leggTilResponse(FeedbackResponse $feedbackResponse) {
+        $this->responses[] = $feedbackResponse;
+    }
+
+    /**
      * Returner plattformen
      * Alle subklasser skal implementere det og returnere plattform id
      * 

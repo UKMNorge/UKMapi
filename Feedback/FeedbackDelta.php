@@ -24,4 +24,14 @@ class FeedbackDelta extends Feedback {
     function getPlatform() {
         return $this->platform;
     }
+
+    /**
+     * Lagre feedback i et innslag
+     * @param Int $innslag_id
+     * 
+     * @return Int
+     */
+    public function saveMedInnslag(Int $innslag_id) {
+        Write::saveFeedbackWithInnslag($this, $innslag_id);
+    }
 }
