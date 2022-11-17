@@ -28,11 +28,38 @@ class Feedbacks extends Collection
      * Get alle for user
      * 
      * @param String $userId
+     * @param Int $innslag_id
      * 
-     * @return void
+     * @return array
      **/
-    function getAllForUser(String $userId) {
-        return -1;
+    function getAllForUserOnInnslag(Int $userId, Int $innslag_id) {
+        $feedbacks = [];
+        
+        $SQL = new Query(
+            "SELECT *
+            FROM feedback
+            INNER JOIN rel_innslag_feedback ON rel_innslag_feedback.b_id = '#b_id'
+            WHERE feedback.user_id = '#feedback_id'",
+            [
+                'b_id' => $innslag_id,
+                'feedback_id' => $userId
+            ]
+        );
+
+        $res = $SQL->run();
+
+        if ($res === false) {
+            throw new Exception("Feedback_collection: Klarte ikke hente feedbacks");
+        }
+
+        // Legg til Feedback liste
+        while ($r = Query::fetch($res)) {
+            $id = $r['id'];
+            $feedback = Feedback::opprettRiktigInstanse($id, $this->loadResponses($id), $r['user_id'], $r['platform']);
+            $feedbacks[] = $feedback;
+        }
+
+        return $feedbacks;
     }
 
     /**
@@ -43,19 +70,19 @@ class Feedbacks extends Collection
     public function _load()
     {
         $SQL = new Query(
-            "SELECT * from Feedback"
+            "SELECT * from feedback"
         );
 
         $res = $SQL->run();
 
         if ($res === false) {
-            throw new Exception("Feedback_collection: Klarte ikke hente feedbacks" . $SQL->debug());
+            throw new Exception("Feedback_collection: Klarte ikke hente feedbacks");
         }
 
         // Legg til Feedback liste
         while ($r = Query::fetch($res)) {
             $id = $r['id'];
-            $feedback = new Feedback($id, $this->loadResponses($id), $r['user_id']);
+            $feedback = Feedback::opprettRiktigInstanse($id, $this->loadResponses($id), $r['user_id'], $r['platform']);
             $this->add($feedback);
         }
     }
@@ -68,7 +95,7 @@ class Feedbacks extends Collection
     private function loadResponses($feedbackId) : array {
         $responses = array();
         $SQL = new Query(
-            "SELECT * from FeedbackResponse WHERE `feedback_id` = '#feedback_id'",
+            "SELECT * from feedback_response WHERE `feedback_id` = '#feedback_id'",
             [
                 'feedback_id' => $feedbackId
             ]

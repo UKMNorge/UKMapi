@@ -4,7 +4,7 @@ namespace UKMNorge\Feedback;
 
 
 class FeedbackDelta extends Feedback {
-    private Int $deltaUserId;
+    private Int $platform = 1;
 
     /**
      * Opprett FeedbackDelta-objekt
@@ -13,17 +13,15 @@ class FeedbackDelta extends Feedback {
      * @param FeedbackResponse[] $responses
      */
     public function __construct( Int $id, array $responses, Int $deltaUserId) {
-		parent::__construct($id, $responses);
-        $this->deltaUserId = $deltaUserId;
+		parent::__construct($id, $responses, $deltaUserId);
     }
 
-
     /**
-     * Hent delta deltaker id
-     *
-     * @return String
+     * Returner plattformen
+     * 
+     * @return Int
      */
-    public function hentDeltaUserId() {
-        return $this->deltaUserId;
+    function getPlatform() {
+        return $this->platform;
     }
 }

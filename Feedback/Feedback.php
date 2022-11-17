@@ -1,9 +1,10 @@
 <?php
 
 namespace UKMNorge\Feedback;
+use Exception;
 
 
-class Feedback {
+abstract class Feedback {
     protected Int $id;
     protected array $responses; // Array
     protected Int $userId;
@@ -23,12 +24,48 @@ class Feedback {
     }
 
     /**
+     * Opprett og returner rikit instanse basert på platform
+     *
+     * @param Int $id
+     * @param FeedbackResponse[] $responses
+     * @param Int $userId
+     * @param Int $platform
+     * @return FeedbackDelta|FeedbackArrangor
+     */
+    public static function opprettRiktigInstanse(Int $id, array $responses, Int $userId, Int $platform) {
+        // Delta (påmeldingssystemet) er platform 1
+        if($platform == 1) {
+            return new FeedbackDelta($id, $responses, $userId);
+        }
+
+        // Platformen er ikke definert i systemet.
+        throw new Exception('Feedback platform ' . $platform . ' er ikke definert i systemet enda!.');
+    }
+
+    /**
+     * Returner plattformen
+     * Alle subklasser skal implementere det og returnere plattform id
+     * 
+     * @return Int
+     */
+    abstract function getPlatform();
+
+    /**
      * Hent id
      *
      * @return Int
      */
     public function getId() : Int {
         return $this->id;
+    }
+
+    /**
+     * Hent user id
+     *
+     * @return Int
+     */
+    public function getUserId() : Int {
+        return $this->userId;
     }
 
     /**
