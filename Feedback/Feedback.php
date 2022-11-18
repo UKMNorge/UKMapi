@@ -17,7 +17,7 @@ abstract class Feedback {
      * @param FeedbackResponse[] $responses
      * @param Int $userId
      */
-    public function __construct( Int $id, array $responses, Int $userId) {
+    public function __construct(Int $id, array $responses, Int $userId) {
         $this->id = $id;
         $this->responses = $responses;
         $this->userId = $userId;
@@ -87,12 +87,12 @@ abstract class Feedback {
     }
 
     /**
-     * Hent value
+     * Hent responses
      *
-     * @return FeedbackResponse
+     * @return FeedbackResponse[]
      */
     public function getResponses() : array {
-        return $this->value;
+        return $this->responses;
     }
 
     /**
