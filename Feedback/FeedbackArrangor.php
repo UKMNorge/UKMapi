@@ -13,7 +13,7 @@ class FeedbackArrangor extends Feedback {
      */
     public function __construct( Int $id, array $responses ) {
 		die('Feedback for arrangører er ikke implementert ennå.');
-        parent::__construct($id, $responses);
+        parent::__construct($id, $responses, -1);
 
     }
     
