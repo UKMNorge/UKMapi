@@ -31,7 +31,7 @@ class FeedbackResponse {
     }
 
     /**
-     * Hent id
+     * Hent spørsmål
      *
      * @return String
      */
@@ -40,7 +40,16 @@ class FeedbackResponse {
     }
 
     /**
-     * Hent id
+     * Set spørsmål
+     *
+     * @return void
+     */
+    public function setSporsmaal(String $sporsmaal) {
+        $this->sporsmaal = $sporsmaal;
+    }
+
+    /**
+     * Hent svar
      *
      * @return String
      */
@@ -49,12 +58,12 @@ class FeedbackResponse {
     }
 
     /**
-     * Hent id
+     * Set svar
      *
-     * @return String
+     * @return void
      */
-    public function setSvar(String $svar) : String {
-        return $this->svar = $svar;
+    public function setSvar(String $svar) {
+        $this->svar = $svar;
     }
 
     
