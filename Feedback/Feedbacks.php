@@ -25,6 +25,36 @@ class Feedbacks extends Collection
     }
 
     /**
+     * Get single Feedback on innslag for user
+     * 
+     * @param String $userId
+     * @param Int $innslag_id
+     * 
+     * @return array
+     **/
+    static function getSingleForUserOnInnslag(Int $userId, Int $innslag_id) {
+        $feedbacks = [];
+        
+        $SQL = new Query(
+            "SELECT feedback.*
+            FROM feedback
+            INNER JOIN rel_innslag_feedback ON rel_innslag_feedback.b_id = '#b_id'
+            WHERE feedback.user_id = '#feedback_id'
+            LIMIT 1",
+            [
+                'b_id' => $innslag_id,
+                'feedback_id' => $userId
+            ]
+        );
+
+        $res = Query::fetch($SQL->run());
+        if(!$res) return null;
+        
+        $id = $res['id'];
+        return Feedback::opprettRiktigInstanse($id, static::loadResponses($id), $res['user_id'], $res['platform']);
+    }
+
+    /**
      * Get alle for user
      * 
      * @param String $userId
@@ -32,16 +62,14 @@ class Feedbacks extends Collection
      * 
      * @return array
      **/
-    function getAllForUserOnInnslag(Int $userId, Int $innslag_id) {
+    function getAllForUser(Int $userId) {
         $feedbacks = [];
         
         $SQL = new Query(
             "SELECT *
             FROM feedback
-            INNER JOIN rel_innslag_feedback ON rel_innslag_feedback.b_id = '#b_id'
             WHERE feedback.user_id = '#feedback_id'",
             [
-                'b_id' => $innslag_id,
                 'feedback_id' => $userId
             ]
         );
