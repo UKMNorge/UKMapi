@@ -16,5 +16,9 @@ class FeedbackArrangor extends Feedback {
         parent::__construct($id, $responses, -1);
 
     }
+
+    public function getPlatform() {
+        return -1; #plarform er ikke implementert.
+    }
     
 }
