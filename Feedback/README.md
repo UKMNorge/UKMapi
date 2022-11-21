@@ -11,7 +11,7 @@ Feedback har disse klassene:
 * Write - brukes for å skrive (lagre, updatere) Feedback og FeedbackResponse
 
 ## Klass diagram
-![klassdiagram](documentation/klassdiagram.png?raw=true)
+![klassdiagram](documentation/Klassdiagram.png?raw=true)
 
 ## Database
 Feedback bruker 3 tabeller i databasen SS3:
