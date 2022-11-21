@@ -12,7 +12,7 @@ class FeedbackDelta extends Feedback {
      * @param Int $id
      * @param FeedbackResponse[] $responses
      */
-    public function __construct( Int $id, array $responses, Int $deltaUserId) {
+    public function __construct(Int $id, array $responses, Int $deltaUserId) {
 		parent::__construct($id, $responses, $deltaUserId);
     }
 

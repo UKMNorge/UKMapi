@@ -10,7 +10,7 @@ require_once('UKM/Autoloader.php');
 class Write {
 		
 	/**
-     * Lagre Feedback og FeedbackResponses inn i Feedback-en
+     * Lagre Feedback og FeedbackResponses i Feedback-en
      *
      * Hvis Feedback har id -1, lagres det, ellers hvis feedback id finnes da oppdateres det
      * 
@@ -20,9 +20,11 @@ class Write {
 	public static function saveFeedback(Feedback $feedback ) {		
         // Sjekker om det er ny Feedback (-1) eller som finnes fra før (har en id fra før);
         if($feedback->getId() > -1) {
+            // oppdater
             $feedback_id = static::updateFeedback($feedback);
         }
         else {
+            // opprett
             $sql = new Insert('feedback');
             $sql->add('user_id', $feedback->getUserId() );
             $sql->add('platform', $feedback->getPlatform());		
@@ -31,12 +33,19 @@ class Write {
         
         if(!$feedback_id) return false;
 
-
+        // Lagre responses på Feedback
         $responses = static::saveResponses($feedback, $feedback_id);
-        // Save FeedbackResponses
+
+        // Hvis responses er lagret, returner feedback_id, ellers false
         return $responses ? $feedback_id : false;
 	}
 
+    /**
+     * Oppdater feedback
+     * 
+     * @param Feedback $feedback
+     * @return Int feedback id
+     **/
     private static function updateFeedback(Feedback $feedback) {
         $sql = new Update('feedback', ['id' => $feedback->getId(), 'user_id' => $feedback->getUserId(), 'platform' => $feedback->getPlatform()]);
         $res = $sql->run();
@@ -44,7 +53,14 @@ class Write {
         return $feedback->getId();
     }
 
-    // Lagre response (FeedbackResponse) for et Feedback
+    /**
+     * Opprette eller oppdatere response (FeedbackResponse) på en Feedback
+     * 
+     * @param Feedback $feedback
+     * @param Int $feedback_id
+     * 
+     * @return Bool
+     **/
     public static function saveResponses(Feedback $feedback, $feedback_id) {
         foreach($feedback->getResponses() as $response) {
             if($response->getId() > -1) {
@@ -64,8 +80,16 @@ class Write {
         return true;
     }
 	
+    /**
+     * Lagre Feedback på et innslag
+     * 
+     * @param Feedback $feedback
+     * @param Int $b_id
+     * 
+     * @return Bool
+     **/
     public static function saveFeedbackWithInnslag(Feedback $feedback, Int $b_id) {
-        // Lagre feedback
+        // Lagre feedback og alle responses
         $feedbackId = static::saveFeedback($feedback);
         if(!$feedbackId) return false;
 

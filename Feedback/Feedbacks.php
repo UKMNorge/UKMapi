@@ -27,14 +27,12 @@ class Feedbacks extends Collection
     /**
      * Get single Feedback on innslag for user
      * 
-     * @param String $userId
+     * @param Int $userId
      * @param Int $innslag_id
      * 
      * @return array
      **/
-    static function getSingleForUserOnInnslag(Int $userId, Int $innslag_id) {
-        $feedbacks = [];
-        
+    static function getSingleForUserOnInnslag(Int $userId, Int $innslag_id) {        
         $SQL = new Query(
             "SELECT feedback.*
             FROM feedback
@@ -55,12 +53,12 @@ class Feedbacks extends Collection
     }
 
     /**
-     * Get alle for user
+     * Get alle Feedback for user
      * 
      * @param String $userId
      * @param Int $innslag_id
      * 
-     * @return array
+     * @return Array[Feedback]
      **/
     function getAllForUser(Int $userId) {
         $feedbacks = [];
@@ -91,7 +89,7 @@ class Feedbacks extends Collection
     }
 
     /**
-     * Last inn alle personer tilhørende innslaget
+     * Last inn alle Feedback
      * 
      * @return void
      **/
@@ -118,7 +116,7 @@ class Feedbacks extends Collection
     /**
      * Last inn alle FeedbackResponse
      * 
-     * @return array FeedbackResponse
+     * @return Array[FeedbackResponse]
      **/
     private function loadResponses($feedbackId) : array {
         $responses = array();

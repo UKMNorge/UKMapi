@@ -6,7 +6,7 @@ use Exception;
 
 abstract class Feedback {
     protected Int $id;
-    protected array $responses; // Array
+    protected array $responses; // FeedbackResponse
     protected Int $userId;
 
 
@@ -38,7 +38,7 @@ abstract class Feedback {
             return new FeedbackDelta($id, $responses, $userId);
         }
 
-        // Platformen er ikke definert i systemet.
+        // Platformen er ikke definert i systemetet.
         throw new Exception('Feedback platform ' . $platform . ' er ikke definert i systemet enda!.');
     }
 
