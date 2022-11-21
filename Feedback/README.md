@@ -12,3 +12,9 @@ Feedback har disse klassene:
 
 ## Klass diagram
 ![klassdiagram](documentation/klassdiagram.png?raw=true)
+
+## Database
+Feedback bruker 3 tabeller i databasen SS3:
+* feedback - representerer Feedback
+* feedback_response - representerer FeedbackResponse
+* rel_innslag_feedback - relasjonen mellom et Innslag og en Feedback. F.eks. en tilbakemelding er gitt på et innslag
