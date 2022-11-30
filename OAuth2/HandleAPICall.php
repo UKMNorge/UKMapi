@@ -2,9 +2,14 @@
 
 namespace UKMNorge\OAuth2;
 
+
 use UKMNorge\OAuth2\ID\UserManager;
 use UKMNorge\OAuth2\Request;
 use Exception;
+
+require_once('/etc/php-includes/UKM/vendor/bshaffer/oauth2-server-php/src/OAuth2/Autoloader.php');
+\OAuth2\Autoloader::register();
+
 
 class HandleAPICall {
     private $request;
