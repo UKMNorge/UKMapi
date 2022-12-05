@@ -45,7 +45,7 @@ class FeedbackDelta extends Feedback {
      * 
      * @return Innslag|null
      **/
-    public function getInnslag() : Innslag {   
+    public function getInnslag() {   
         $SQL = new Query(
             "SELECT rel_innslag_feedback.b_id
             FROM rel_innslag_feedback
