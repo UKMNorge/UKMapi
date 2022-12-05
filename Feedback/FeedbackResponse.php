@@ -4,9 +4,9 @@ namespace UKMNorge\Feedback;
 
 
 class FeedbackResponse {
-    private Int $id;
-    private String $sporsmaal;
-    private String $svar;
+    private $id;
+    private $sporsmaal;
+    private $svar;
 
     /**
      * Opprett FeedbackResponse-objekt

@@ -5,9 +5,9 @@ use Exception;
 
 
 abstract class Feedback {
-    protected Int $id;
-    protected array $responses; // FeedbackResponse
-    protected Int $userId;
+    protected $id;
+    protected $responses; // FeedbackResponse
+    protected $userId;
 
 
     /**

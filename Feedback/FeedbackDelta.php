@@ -6,7 +6,7 @@ use UKMNorge\Innslag\Innslag;
 use Exception;
 
 class FeedbackDelta extends Feedback {
-    private Int $platform = 1;
+    private $platform = 1;
 
     /**
      * Opprett FeedbackDelta-objekt
