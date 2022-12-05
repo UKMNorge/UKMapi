@@ -130,7 +130,7 @@ class Feedbacks extends Collection
         $res = $SQL->run();
 
         while ($r = Query::fetch($res)) {
-            $id = $r['id'];
+            $id = (int)$r['id'];
             $sporsmaal = $r['sporsmaal'];
             $svar = $r['svar'];
             $responses[] = new FeedbackResponse($id, $sporsmaal, $svar);
