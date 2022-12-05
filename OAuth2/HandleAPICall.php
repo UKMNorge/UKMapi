@@ -17,10 +17,18 @@ class HandleAPICall {
     private $clientArguments = [];
     private $optionalArguments = [];
     
-    function __construct(array $requiredArguments, array $optionalArguments, array $acceptedMethods, bool $loginRequired) {
+    function __construct(array $requiredArguments, array $optionalArguments, array $acceptedMethods, bool $loginRequired, bool $wordpressLogin = false) {
         if($loginRequired && !UserManager::isUserLoggedin()){
             $this->sendErrorToClient('Du er ikke innlogget!', 401); // UNAUTHORIZED
         }
+
+        // Wordpress login
+        if($wordpressLogin != false) {
+            if(is_user_logged_in() !== true) {
+                $this->sendErrorToClient('Du er ikke innlogget!', 401); // UNAUTHORIZED
+            }
+        }
+
 
         $this->request = Request::createFromGlobals();
     
