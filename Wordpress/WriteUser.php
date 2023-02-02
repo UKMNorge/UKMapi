@@ -7,6 +7,8 @@ use UKMNorge\Kommunikasjon\Epost;
 use UKMNorge\Kommunikasjon\Mottaker;
 use UKMNorge\Twig\Twig;
 use UKMNorge\Database\SQL\Insert;
+use UKMNorge\Database\SQL\Update;
+use UKMNorge\Database\SQL\Query;
 use UKMNorge\Innslag\Personer\Person;
 
 class WriteUser
@@ -274,4 +276,46 @@ class WriteUser
         
         return $epost->send();
     }
+
+
+    /**
+     * Send velkommen-epost til brukeren
+     *
+     * @param User $user
+     */
+    public static function InsertOrUpdateBilde( User $user ) {
+        $sql = new Query(
+            "SELECT `bilde_url`
+            FROM `wp_user_bilde`
+            WHERE `wp_user` = '#userid'",
+            [
+                'userid' => $user->getId()
+            ]
+        );
+
+        $row = $sql->run('array');
+        $res = null;
+        
+        // Update
+        if($row) {
+            $sql = new Update(
+                'wp_user_bilde',
+                [
+                    'wp_user' => $user->getId()
+                ]
+            );
+            $sql->add('bilde_url', $user->getBilde());
+            $res = $sql->run();
+        }
+        // Add new
+        else {
+            $sql = new Insert('wp_user_bilde');
+            $sql->add('wp_user', $user->getId());
+            $sql->add('bilde_url', $user->getBilde());
+            $res = $sql->run();
+        }
+
+        return $res;
+    }
+    
 }
