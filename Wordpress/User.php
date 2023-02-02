@@ -56,6 +56,13 @@ class User
     private $meta = null;
 
     /**
+     * Bilde av User. Kommer fra tabel 'wp_user_bilde' utenfor Wordpress verden
+     *
+     * @var String
+     */
+    private $bilde = null;
+
+    /**
      * Er brukeren aktiv (eller deaktivert)
      *
      * @param Int $wp_user_id
@@ -404,6 +411,8 @@ class User
             $this->setFirstName((string) get_user_meta($data->ID, 'first_name', true));
             $this->setLastName((string) get_user_meta($data->ID, 'last_name', true));
             $this->setPhone((int) get_user_meta($data->ID, 'user_phone', true));
+
+            $this->loadBilde();
         }
     }
 
@@ -528,6 +537,49 @@ class User
     public function getFornavn()
     {
         return $this->getFirstName();
+    }
+
+    /**
+     * Hent bilde url fra database
+     *
+     * @return void
+     */
+    private function loadBilde() {
+        if(!$this->bilde) {
+            $sql = new Query(
+                "SELECT `bilde_url`
+                FROM `wp_user_bilde`
+                WHERE `wp_user` = '#userid'",
+                [
+                    'userid' => $this->getId()
+                ]
+            );
+
+            $row = $sql->run('array');
+            if($row) {
+                $this->bilde = $row['bilde_url'];
+            }
+        }
+    }
+
+    /**
+     * Hent bilde
+     *
+     * @return String
+     */
+    public function getBilde() {
+        return $this->bilde;
+    }
+
+    /**
+     * Set bilde
+     *
+     * @param String $bildeUrl
+     * 
+     * @return void
+     */
+    public function setBilde($bildeUrl) {
+        $this->bilde = $bildeUrl;
     }
 
     /**
