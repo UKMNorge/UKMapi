@@ -217,11 +217,12 @@ class Kontaktperson implements KontaktInterface
             return $this->bilde;
         }
         // Hvis det ikke finnes bilde på Kontaktperson, sjekk User for bilde
-        else {
+        else if($this->getAdminId() != null) {
             $admin = new Administrator($this->getAdminId());
             $user = $admin->getUser();
             return $user->getBilde(); 
         }
+        return $this->bilde;
     }
     public function setBilde($bilde)
     {
