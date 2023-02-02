@@ -5,6 +5,7 @@ namespace UKMNorge\Arrangement\Kontaktperson;
 use Exception;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Geografi\Kommune;
+use UKMNorge\Nettverk\Administrator;
 use UKMNorge\Tools\Sanitizer;
 
 
@@ -211,7 +212,16 @@ class Kontaktperson implements KontaktInterface
 
     public function getBilde()
     {
-        return $this->bilde;
+        // Hvis det finnes bilde koblet til Kontaktperson, hent det
+        if($this->bilde) {
+            return $this->bilde;
+        }
+        // Hvis det ikke finnes bilde på Kontaktperson, sjekk User for bilde
+        else {
+            $admin = new Administrator($this->getAdminId());
+            $user = $admin->getUser();
+            return $user->getBilde(); 
+        }
     }
     public function setBilde($bilde)
     {
