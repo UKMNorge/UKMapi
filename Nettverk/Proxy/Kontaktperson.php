@@ -87,11 +87,11 @@ class Kontaktperson implements KontaktInterface {
 
     /**
      * Hent brukerens bilde
-     * (vil alltid returnere null)
+     * På Proxy Kontaktperson hentes bilde fra User
      *
      * @return null
      */
     public function getBilde() {
-        return null;
+        return $this->_getUser()->getBilde();
     }
 }
