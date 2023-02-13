@@ -5,6 +5,7 @@ use UKMNorge\Wordpress\User;
 use UKMNorge\Nettverk\Administratorer;
 
 use UKMNorge\Geografi\Fylke;
+use UKMNorge\Geografi\Kommune;
 use UKMNorge\Arrangement\Load;
 
 
@@ -54,7 +55,20 @@ class WriteOmrade {
     public static function leggTilAdminIAlleArrangementer( Omrade $omrade, Administrator $admin, Int $sesong ) {
         $error_names = [];
         foreach( $omrade->getArrangementer()->getAll() as $arrangement ) {
-            static::leggTilAdminIAlleArrangementerKommune($omrade->getFylke(), $admin);
+
+            // Kommune
+            try {
+                $kommune = $omrade->getKommune();
+                static::leggTilAdminKommune($kommune, $admin);
+            } catch(Exception $e) {
+                // Område har ikke kommune, prøv å hente fylke
+                if($e->getCode() == 162002) {
+                    $fylke = $omrade->getFylke();
+                    static::leggTilAdminFylke($omrade->getFylke(), $admin);
+                } else {
+                    throw $e;
+                }
+            }
             try {
                 Blog::leggTilBruker(
                     Blog::getIdByPath( $arrangement->getPath() ),
@@ -78,17 +92,56 @@ class WriteOmrade {
     }
 
     /**
-     * Legg til admin i alle arrangmeneter for kommuner i en fylke
+     * Legg til admin i alle arrangmeneter i en kommune
+     *
+     * @param Kommune $kommune
+     * @param Administrator $admin
+     * @return Bool
+     * @throws Exception inkludert liste med hvilke arrangementer som feilet
+     */
+    private static function leggTilAdminKommune(Kommune $kommune, Administrator $admin) {
+        $error_names = [];
+        // For alle arrangementer i kommune
+        foreach(Load::forKommune($kommune)->getAll() as $arrangement) {
+            // Legg til bruker i blog
+            try {
+                Blog::leggTilBruker(
+                    Blog::getIdByPath( $arrangement->getPath() ),
+                    $admin->getUser()->getId(),
+                    'editor'
+                );
+            } catch( Exception $e ) {
+                if($e->getCode() != 172007) {
+                    $error_names[] = $arrangement->getNavn();
+                }
+            }
+        }
+
+        // Det var noe som gikk galt
+        if( sizeof($error_names) > 0 ) {
+            throw new Exception(
+                'Kunne ikke legge til '. $admin->getNavn() .' som administrator for '. join(', ', $error_names),
+                562003
+            );
+        }
+        return true;
+    }
+
+    /**
+     * Legg til admin i alle arrangmeneter for alle kommuner i et fylke
      *
      * @param Fylke $fylke
      * @param Administrator $admin
      * @return Bool
      * @throws Exception inkludert liste med hvilke arrangementer som feilet
      */
-    private static function leggTilAdminIAlleArrangementerKommune(Fylke $fylke, Administrator $admin) {
+    private static function leggTilAdminFylke(Fylke $fylke, Administrator $admin) {
         $error_names = [];
+
+        // For alle kommuner i fylke
         foreach ($fylke->getKommuner()->getAll() as $kommune) {
             $alle_arrangementer = Load::forKommune($kommune);
+            // For alle arrangementer i kommune
             foreach($alle_arrangementer->getAll() as $arrangement) {
                 try {
                     Blog::leggTilBruker(
