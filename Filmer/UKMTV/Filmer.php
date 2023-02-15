@@ -224,7 +224,7 @@ class Filmer extends Collection
             static::_getTagQueryReplacement($tags)
         );
         #echo $query->debug();
-        return !!$query->getField(); # (dobbel nekting er riktig)        
+        return !!$query->getField() || !!static::getQueryTagsCF($tags, 1)->getField(); # (dobbel nekting er riktig)        
     }
 
     /**
@@ -250,7 +250,7 @@ class Filmer extends Collection
      * @param Tags[]
      * @return Query
      */
-    private function getQueryTagsCF(array $tags) {
+    private function getQueryTagsCF(array $tags, $limit=null) {
         if(sizeof($tags) < 1) {
             throw new Exception("Det må komme minst en tag for å generere query");
         }
@@ -289,9 +289,11 @@ class Filmer extends Collection
 
         }
 
+        $limitStr = $limit ? ' LIMIT ' . $limit : '';
+
         $cloudFlareQuery = new Query(
             "SELECT * from `cloudflare_videos`
-            " . $tagsQuery,
+            " . $tagsQuery . $limitStr,
             $tagsArr
         );
 
