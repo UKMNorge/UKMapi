@@ -10,7 +10,7 @@ use UKMNorge\Filmer\UKMTV\Tags\Personer;
 use UKMNorge\Http\Curl;
 use Exception;
 
-class CloudflareFilm {
+class CloudflareFilm implements FilmInterface {
     private $id = null;
     private $title = null;
     private $description = null;
@@ -19,9 +19,29 @@ class CloudflareFilm {
     private $cloudflareThumbnail = null;
     private $arrangementId = null;
     private $innslagId = null;
-    private $season = null;
+    private $sesong = null;
+    private $arrangementType = null;
+    private $fylkeId = null;
+    private $kommuneId = null;
+    private $personId = null;
+    private $erSlettet = null;
 
-    public function __construct(Int $id, String $title, String $description, String $cloudflareId, String $cloudflareLenke, String $cloudflareThumbnail, Int $arrangementId, String $innslagId, String $season) {
+    public function __construct(
+            Int $id, 
+            String $title, 
+            String $description, 
+            String $cloudflareId, 
+            String $cloudflareLenke, 
+            String $cloudflareThumbnail, 
+            Int $arrangementId, 
+            String $innslagId, 
+            String $sesong,
+            String $arrangementType,
+            Int $fylkeId,
+            Int $kommuneId,
+            Int $personId,
+            Bool $erSlettet = false) 
+        {
         $this->id = $id;
         $this->title = $title;
         $this->description = $description;
@@ -30,7 +50,12 @@ class CloudflareFilm {
         $this->cloudflareThumbnail = $cloudflareThumbnail;
         $this->arrangementId = $arrangementId;
         $this->innslagId = $innslagId;
-        $this->season = $season;
+        $this->sesong = $sesong;
+        $this->erSlettet = $erSlettet;
+        $this->$arrangementType = $arrangementType;
+        $this->$fylkeId = $fylkeId;
+        $this->$kommuneId = $kommuneId;
+        $this->$personId = $personId;
     }
 
     /**
@@ -74,12 +99,45 @@ class CloudflareFilm {
     }
 
     /**
+     * Er filmen slettet
+     *
+     * @return bool $erSlettet
+     */
+    public function erSlettet() {
+        return $this->erSlettet;
+    }
+
+    /**
+     * Hent hvilken cronId converteren ga filmen
+     * 
+     * Brukes kun av filmer som har vært gjennom videoconverter.ukm.no
+     *
+     * @return Int|null
+     */
+    public function getCronId() {
+        return null;
+    }
+
+    /**
      * Hent filmens id
      *
      * @return Int id
      */
+    public function getTvId() {
+        return $this->getId();
+    }
+
     public function getId() {
         return $this->id;
+    }
+
+    /**
+     * Hent filmens tags
+     *
+     * @return Tags
+     */
+    public function getTags() {
+        return null;
     }
 
     /**
@@ -131,6 +189,19 @@ class CloudflareFilm {
         return $this->cloudflareLenke;
     }
 
+    public function getTvUrl() {
+        return $this->getUrl();
+    }
+
+    /**
+     * Hent filmens path (inkl filnavn) på videostorage (path, ikke URL)
+     *
+     * @return String
+     */
+    public function getFilePath() {
+        return $this->getUrl();
+    }
+
     /**
      * Hent preview-bildets (thumbnail)
      *
@@ -138,6 +209,19 @@ class CloudflareFilm {
      */
     public function getThumbnail() {
         return $this->cloudflareThumbnail;
+    }
+
+    /**
+     * Hent preview-bildets path på videostorage (path, ikke URL)
+     *
+     * @return String
+     */
+    public function getImagePath() {
+        return $this->getThumbnail();
+    }
+
+    public function getBildeUrl() {
+        return $this->getThumbnail();
     }
 
     /**
@@ -152,9 +236,54 @@ class CloudflareFilm {
     /**
      * Hent filmens sesong
      *
-     * @return void
+     * @return String
+     */
+    public function getSesong() {
+        return $this->sesong;
+    }
+
+    /**
+     * Hent filmens sesong
+     *
+     * @return String
      */
     public function getSeason() {
-        return $this->season;
+        return $this->getSesong();
+    }
+
+    /**
+     * Hent filmens arrangement type
+     *
+     * @return String
+     */
+    public function arrangementType() {
+        return $this->arrangementType;
+    }
+
+    /**
+     * Hent filmens fylke id
+     *
+     * @return Int
+     */
+    public function getFylkeId() {
+        return $this->fylkeId;
+    }
+
+    /**
+     * Hent filmens kommune id
+     *
+     * @return Int
+     */
+    public function getKommuneId() {
+        return $this->kommuneId;
+    }
+   
+    /**
+     * Hent filmens kommune id
+     *
+     * @return Int
+     */
+    public function getPersonId() {
+        return $this->personId;
     }
 }
