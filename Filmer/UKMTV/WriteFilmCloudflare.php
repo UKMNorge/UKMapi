@@ -90,9 +90,14 @@ class WriteFilmCloudflare {
         $query->add('cloudflare_thumbnail', $film->getThumbnail());
         $query->add('title', $film->getTitle());
         $query->add('description', $film->getDescription());
-        $query->add('arrangement_id', $film->getArrangementId());
-        $query->add('innslag_id', $film->getInnslagId());
-        $query->add('season', $film->getSeason());
+        $query->add('arrangement', $film->getArrangementId());
+        $query->add('innslag', $film->getInnslagId());
+        $query->add('sesong', $film->getSesong());
+        $query->add('arrangement_type', $film->arrangementType());
+        $query->add('fylke', $film->getFylkeId());
+        $query->add('kommune', $film->getKommuneId());
+        $query->add('person', $film->getPersonId());
+        $query->add('deleted', $film->erSlettet());
         
         return $query;
     }
