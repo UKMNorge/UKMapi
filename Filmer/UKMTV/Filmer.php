@@ -223,7 +223,7 @@ class Filmer extends Collection
             static::_getTagQuery(sizeof($tags)) . " LIMIT 1",
             static::_getTagQueryReplacement($tags)
         );
-        #echo $query->debug();
+
         return !!$query->getField() || !!static::getQueryTagsCF($tags, 1)->getField(); # (dobbel nekting er riktig)        
     }
 
