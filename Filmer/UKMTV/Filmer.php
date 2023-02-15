@@ -12,6 +12,9 @@ class Filmer extends Collection
     var $is_empty = false;
 
     public $query;
+    // Query used after migration to CloudFlare Stream
+    public $cfQuery;
+
     /**
      * Henter inn filmer basert på gitt spørring (via constructor)
      *
@@ -39,6 +42,40 @@ class Filmer extends Collection
             $this->add($film);
         }
 
+        // Legg til filmer fra CloudFlare Stream. 2023 migrerte vi filmene våre til CloudFlare Stream
+        if($this->cfQuery) {
+            $res2 = $this->cfQuery->run();
+            if (!$res2) {
+                throw new Exception(
+                    'Kunne ikke laste inn CF filmer, grunnet databasefeil',
+                    115008
+                );
+            }
+            while ($cfFilmData = Query::fetch($res2)) {
+                $film = new CloudflareFilm(
+                    $cfFilmData['id'],
+                    $cfFilmData['title'],
+                    $cfFilmData['description'],
+                    $cfFilmData['cloudflare_id'],
+                    $cfFilmData['cloudflare_lenke'],
+                    $cfFilmData['cloudflare_thumbnail'],
+                    $cfFilmData['arrangement'],
+                    $cfFilmData['innslag'],
+                    $cfFilmData['sesong'],
+                    $cfFilmData['arrangement_type'],
+                    $cfFilmData['fylke'],
+                    $cfFilmData['kommune'],
+                    $cfFilmData['person'],
+                    $cfFilmData['deleted'] ? $cfFilmData['deleted'] : false 
+                );
+
+                if ($film->erSlettet()) {
+                    continue;
+                }
+                $this->add($film);
+            }
+        }
+
         return true;
     }
 
@@ -46,10 +83,14 @@ class Filmer extends Collection
      * Opprett en ny samling filmer
      *
      * @param Query Spørring for å hente ut filmer
+     * @param Query Spørring for å hente ut filmer fra CloudFlare Stream database
      */
-    public function __construct(Query $query)
+    public function __construct(Query $query, Query $cfQuery=null)
     {
+        // var_dump($query->debug());
+        // die('awa');
         $this->query = $query;
+        $this->cfQuery = $cfQuery;
     }
 
     /**
@@ -193,13 +234,68 @@ class Filmer extends Collection
      * @return Filmer
      */
     public static function getByTags(array $tags)
-    {
+    {       
         return new Filmer(
             new Query(
                 static::_getTagQuery(sizeof($tags)),
                 static::_getTagQueryReplacement($tags)
-            )
+            ),
+            static::getQueryTagsCF($tags)
         );
+    }
+
+    /**
+     * Hent query som passer for cloudflare tags
+     *
+     * @param Tags[]
+     * @return Query
+     */
+    private function getQueryTagsCF(array $tags) {
+        if(sizeof($tags) < 1) {
+            throw new Exception("Det må komme minst en tag for å generere query");
+        }
+
+        $tagsArr = [];
+        $tagsQuery = "WHERE ";
+
+        foreach($tags as $i => $tag) {
+            if($i > 0 && $i < sizeof($tags)) {
+                $tagsQuery .= ' AND ';
+            }
+
+            // Disse tagene støttes av CloudFlare Filmer
+            if(!in_array($tag->getId(), ["arrangement", "arrangement_type", "fylke", "innslag", "kommune", "person", "sesong"])) {
+                throw new Exception('Tag støttes ikke av CF Filmer');
+            }
+
+            // Det er liste av tags
+            if(is_array($tag->getValue())) {
+                $innerTags = $tag->getValue();
+                $tagsQuery .= '(';
+                
+                foreach($innerTags as $j => $valInTag) {
+                    $tagsQuery .= $tag->getId() . "='#" . $tag->getId() . $j  . "'";
+                    $tagsQuery .= $j+1 < sizeof($innerTags) ? ' OR ' : '';
+                    $tagsArr[$tag->getId().$j] = $valInTag;
+                }
+
+                $tagsQuery .= ')';
+            }
+            // Det er single tag
+            else {
+                $tagsQuery .= $tag->getId() . "='#" . $tag->getId() . "'";
+                $tagsArr[$tag->getId()] = $tag->getValue();
+            }
+
+        }
+
+        $cloudFlareQuery = new Query(
+            "SELECT * from `cloudflare_videos`
+            " . $tagsQuery,
+            $tagsArr
+        );
+
+        return $cloudFlareQuery;
     }
 
     /**
