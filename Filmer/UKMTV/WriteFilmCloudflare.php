@@ -33,7 +33,6 @@ class WriteFilmCloudflare {
         $query = WriteFilmCloudflare::addValuesToQuery($query, $film);
         
         $res = $query->run();
-        die($res);
 
         return $res; // return id
     }
@@ -82,7 +81,7 @@ class WriteFilmCloudflare {
      * Kan brukes for å opprette ny film eller oppdatere det
      *
      * @param Film $film
-     * @return Bool
+     * @return Query
      */
     private static function addValuesToQuery($query, CloudflareFilm $film) {
         $query->add('cloudflare_id', $film->getCloudflareId());
@@ -97,7 +96,7 @@ class WriteFilmCloudflare {
         $query->add('fylke', $film->getFylkeId());
         $query->add('kommune', $film->getKommuneId());
         $query->add('person', $film->getPersonId());
-        $query->add('deleted', $film->erSlettet());
+        $query->add('deleted', $film->erSlettet() ? 1 : 0);
         
         return $query;
     }
