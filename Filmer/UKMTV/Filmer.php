@@ -272,8 +272,8 @@ class Filmer extends Collection
                 $tagsQuery .= ' AND ';
             }
 
-            // Disse tagene støttes av CloudFlare Filmer
-            if(!in_array($tag->getId(), ["arrangement", "arrangement_type", "fylke", "innslag", "kommune", "person", "sesong"])) {
+            // Sjekk om tagen støttes av Cloudflare
+            if(static::erTagGyldigICF($tag)) {
                 throw new Exception('Tag støttes ikke av CF Filmer');
             }
 
@@ -307,6 +307,16 @@ class Filmer extends Collection
         );
 
         return $cloudFlareQuery;
+    }
+
+    /**
+     * Sjekk om Tag er gyldig for Cloudflare Database
+     *
+     * @param String $search_string
+     * @return Filmer
+     */
+    private static function erTagGyldigICF($tag) {
+        return !in_array($tag->getId(), ["arrangement", "arrangement_type", "fylke", "innslag", "kommune", "person", "sesong"]);
     }
 
     /**
