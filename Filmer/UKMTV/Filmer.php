@@ -324,7 +324,7 @@ class Filmer extends Collection
             }
 
             // Sjekk om tagen støttes av Cloudflare
-            if(static::erTagGyldigICF($tag->getId())) {
+            if(!static::erTagGyldigICF($tag->getId())) {
                 throw new Exception('Tag støttes ikke av CF Filmer');
             }
 
