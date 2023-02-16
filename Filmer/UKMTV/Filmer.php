@@ -183,7 +183,22 @@ class Filmer extends Collection
                 'foreignid' => $id
             ]
         );
-        return new Filmer($query);
+
+        // Cloudflare
+        if(!static::erTagGyldigICF($tag)) {
+            throw new Exception('Tag støttes ikke av CF Filmer');
+        }
+
+        $cfQuery = new Query(
+            CloudflareFilm::getLoadQuery() . "
+            WHERE #tag=#id AND `deleted` = 'false'",
+            [
+                'tag' => $tag,
+                'id' => $id
+            ]
+        );
+
+        return new Filmer($query, $cfQuery);
     }
 
     /**
