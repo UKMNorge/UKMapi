@@ -26,36 +26,21 @@ class CloudflareFilm implements FilmInterface {
     private $personId = null;
     private $erSlettet = null;
 
-    public function __construct(
-            Int $id, 
-            String $title, 
-            String $description, 
-            String $cloudflareId, 
-            String $cloudflareLenke, 
-            String $cloudflareThumbnail, 
-            Int $arrangementId, 
-            String $innslagId, 
-            String $sesong,
-            String $arrangementType,
-            Int $fylkeId,
-            Int $kommuneId,
-            Int $personId,
-            Bool $erSlettet = false) 
-        {
-        $this->id = $id;
-        $this->title = $title;
-        $this->description = $description;
-        $this->cloudflareId = $cloudflareId;
-        $this->cloudflareLenke = $cloudflareLenke;
-        $this->cloudflareThumbnail = $cloudflareThumbnail;
-        $this->arrangementId = $arrangementId;
-        $this->innslagId = $innslagId;
-        $this->sesong = $sesong;
-        $this->erSlettet = $erSlettet;
-        $this->$arrangementType = $arrangementType;
-        $this->$fylkeId = $fylkeId;
-        $this->$kommuneId = $kommuneId;
-        $this->$personId = $personId;
+    public function __construct(array $data) {
+        $this->id = (int)$data['id'];
+        $this->title = (string)$data['title'];
+        $this->description = (string)$data['description'];
+        $this->cloudflareId = (string)$data['cloudflare_id'];
+        $this->cloudflareLenke = (string)$data['cloudflare_lenke'];
+        $this->cloudflareThumbnail = (string)$data['cloudflare_thumbnail'];
+        $this->arrangementId = (int)$data['arrangement'];
+        $this->innslagId = (string)$data['innslag'];
+        $this->sesong = (string)$data['sesong'];
+        $this->arrangementType = (string)$data['arrangement_type'];
+        $this->fylkeId = (int)$data['fylke'];
+        $this->kommuneId = (int)$data['kommune'];
+        $this->personId = (int)$data['person'];
+        $this->erSlettet = $data['deleted'] ? $data['deleted'] : false;
     }
 
     /**
@@ -77,14 +62,7 @@ class CloudflareFilm implements FilmInterface {
      * @return String SQL query
      */
     public static function getLoadQuery() {
-        return
-            "SELECT *,
-            (
-                SELECT GROUP_CONCAT( CONCAT(`ukm_tv_tags`.`type`,':',`ukm_tv_tags`.`foreign_id` ) SEPARATOR '|')
-                FROM `ukm_tv_tags`
-                WHERE `ukm_tv_tags`.`tv_id` = `ukm_tv_files`.`tv_id`
-            ) AS `tags`
-            FROM `ukm_tv_files`";
+        return "SELECT * from `cloudflare_videos`";
     }
 
     /**

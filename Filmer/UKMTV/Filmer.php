@@ -5,6 +5,8 @@ namespace UKMNorge\Filmer\UKMTV;
 use UKMNorge\Collection;
 use Exception;
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Filmer\UKMTV\FilmInterface;
+
 
 class Filmer extends Collection
 {
@@ -52,22 +54,7 @@ class Filmer extends Collection
                 );
             }
             while ($cfFilmData = Query::fetch($res2)) {
-                $film = new CloudflareFilm(
-                    (int)$cfFilmData['id'],
-                    (string)$cfFilmData['title'],
-                    (string)$cfFilmData['description'],
-                    (string)$cfFilmData['cloudflare_id'],
-                    (string)$cfFilmData['cloudflare_lenke'],
-                    (string)$cfFilmData['cloudflare_thumbnail'],
-                    (int)$cfFilmData['arrangement'],
-                    (string)$cfFilmData['innslag'],
-                    (string)$cfFilmData['sesong'],
-                    (string)$cfFilmData['arrangement_type'],
-                    (int)$cfFilmData['fylke'],
-                    (int)$cfFilmData['kommune'],
-                    (int)$cfFilmData['person'],
-                    $cfFilmData['deleted'] ? $cfFilmData['deleted'] : false
-                );
+                $film = new CloudflareFilm($cfFilmData);
 
                 if ($film->erSlettet()) {
                     continue;
@@ -94,8 +81,8 @@ class Filmer extends Collection
     /**
      * Hent gitt film fra ID
      *
-     * @param Int $tv_id
-     * @return Film
+     * @param Int $tv_id - id som representerer en film. Kan være id på Film eller CloudflareFilm
+     * @return FilmInterface
      */
     public static function getById(Int $tv_id)
     {
@@ -108,13 +95,27 @@ class Filmer extends Collection
             ]
         );
         $data = $query->getArray();
-        if (!$data) {
+        
+        // Hvis det ikke finnes film på gamle database, sjekk på Cloudflare DB
+        if(!$data) {
+            $query2 = new Query(
+                CloudflareFilm::getLoadQuery() . "
+                WHERE `id` = '#tvid'
+                AND `deleted` = 'false'",
+                [
+                    'tvid' => $tv_id
+                ]
+            );
+            $data2 = $query2->getArray();
+        }
+
+        if (!$data && !$data2) {
             throw new Exception(
                 'Beklager! Klarte ikke å finne film ' . intval($tv_id),
                 115007
             );
         }
-        return new Film($data);
+        return $data ? new Film($data) : new CloudflareFilm($data2);
     }
 
     /**
@@ -290,8 +291,8 @@ class Filmer extends Collection
         $limitStr = $limit ? ' LIMIT ' . $limit : '';
 
         $cloudFlareQuery = new Query(
-            "SELECT * from `cloudflare_videos`
-            " . $tagsQuery . $limitStr,
+            CloudflareFilm::getLoadQuery() .
+            $tagsQuery . $limitStr,
             $tagsArr
         );
 
