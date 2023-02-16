@@ -214,6 +214,8 @@ class Filmer extends Collection
     /**
      * Har gitt arrangement (ferdig-konverterte) filmer i UKM-TV?
      *
+     * STØTTER CLOUDFLARE - kaller harTagFilmer() som støtter Cloudflare
+     * 
      * @param Int $arrangementId
      * @return bool
      */
@@ -225,6 +227,8 @@ class Filmer extends Collection
     /**
      * Finnes det filmer for denne tag'en?
      *
+     * STØTTER CLOUDFLARE
+     * 
      * @param String $tag
      * @param Int $tagId
      * @return void
@@ -242,7 +246,23 @@ class Filmer extends Collection
                 'tagid' => $tagId
             ]
         );
-        return !!$query->getField(); # (dobbel nekting er riktig)
+
+        // Cloudflare
+        if(!static::erTagGyldigICF($tag)) {
+            throw new Exception('Tag støttes ikke av CF Filmer');
+        }
+        
+        $cfQuery = new Query(
+            "SELECT `id`
+            FROM `cloudflare_videos` 
+            WHERE #tag=#id AND `deleted` = 'false'",
+            [
+                'tag' => $tag,
+                'id' => $tagId
+            ]
+        );
+        
+        return !!$query->getField() || !!$cfQuery->getField(); # (dobbel nekting er riktig)
     }
 
     /**
