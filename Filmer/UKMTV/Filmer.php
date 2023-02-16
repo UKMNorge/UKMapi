@@ -87,8 +87,6 @@ class Filmer extends Collection
      */
     public function __construct(Query $query, Query $cfQuery=null)
     {
-        // var_dump($query->debug());
-        // die('awa');
         $this->query = $query;
         $this->cfQuery = $cfQuery;
     }
