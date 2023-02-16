@@ -53,20 +53,20 @@ class Filmer extends Collection
             }
             while ($cfFilmData = Query::fetch($res2)) {
                 $film = new CloudflareFilm(
-                    $cfFilmData['id'],
-                    $cfFilmData['title'],
-                    $cfFilmData['description'],
-                    $cfFilmData['cloudflare_id'],
-                    $cfFilmData['cloudflare_lenke'],
-                    $cfFilmData['cloudflare_thumbnail'],
-                    $cfFilmData['arrangement'],
-                    $cfFilmData['innslag'],
-                    $cfFilmData['sesong'],
-                    $cfFilmData['arrangement_type'],
-                    $cfFilmData['fylke'],
-                    $cfFilmData['kommune'],
-                    $cfFilmData['person'],
-                    $cfFilmData['deleted'] ? $cfFilmData['deleted'] : false 
+                    (int)$cfFilmData['id'],
+                    (string)$cfFilmData['title'],
+                    (string)$cfFilmData['description'],
+                    (string)$cfFilmData['cloudflare_id'],
+                    (string)$cfFilmData['cloudflare_lenke'],
+                    (string)$cfFilmData['cloudflare_thumbnail'],
+                    (int)$cfFilmData['arrangement'],
+                    (string)$cfFilmData['innslag'],
+                    (string)$cfFilmData['sesong'],
+                    (string)$cfFilmData['arrangement_type'],
+                    (int)$cfFilmData['fylke'],
+                    (int)$cfFilmData['kommune'],
+                    (int)$cfFilmData['person'],
+                    $cfFilmData['deleted'] ? $cfFilmData['deleted'] : false
                 );
 
                 if ($film->erSlettet()) {
