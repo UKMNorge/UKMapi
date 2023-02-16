@@ -316,7 +316,7 @@ class Filmer extends Collection
      * @return Filmer
      */
     private static function erTagGyldigICF(String $tag) {
-        return !in_array($tag, ["arrangement", "arrangement_type", "fylke", "innslag", "kommune", "person", "sesong"]);
+        return in_array($tag, ["arrangement", "arrangement_type", "fylke", "innslag", "kommune", "person", "sesong"]);
     }
 
     /**
