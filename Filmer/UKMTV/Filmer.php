@@ -273,7 +273,7 @@ class Filmer extends Collection
             }
 
             // Sjekk om tagen støttes av Cloudflare
-            if(static::erTagGyldigICF($tag)) {
+            if(static::erTagGyldigICF($tag->getId())) {
                 throw new Exception('Tag støttes ikke av CF Filmer');
             }
 
@@ -315,8 +315,8 @@ class Filmer extends Collection
      * @param String $search_string
      * @return Filmer
      */
-    private static function erTagGyldigICF($tag) {
-        return !in_array($tag->getId(), ["arrangement", "arrangement_type", "fylke", "innslag", "kommune", "person", "sesong"]);
+    private static function erTagGyldigICF(String $tag) {
+        return !in_array($tag, ["arrangement", "arrangement_type", "fylke", "innslag", "kommune", "person", "sesong"]);
     }
 
     /**
