@@ -20,6 +20,8 @@ class Filmer extends Collection
     /**
      * Henter inn filmer basert på gitt spørring (via constructor)
      *
+     * STØTTER CLOUDFLARE
+     * 
      * @return bool true
      * @throws Exception
      */
@@ -81,6 +83,8 @@ class Filmer extends Collection
     /**
      * Hent gitt film fra ID
      *
+     * STØTTER CLOUDFLARE
+     * 
      * @param Int $tv_id - id som representerer en film. Kan være id på Film eller CloudflareFilm
      * @return FilmInterface
      */
@@ -121,6 +125,8 @@ class Filmer extends Collection
     /**
      * Opprett en filmerCollection for gitt innslagId
      *
+     * STØTTER CLOUDFLARE
+     * 
      * @param Int $innslagId
      * @return Filmer
      */
@@ -150,6 +156,8 @@ class Filmer extends Collection
     /**
      * Hent alle filmer fra ett arrangement
      *
+     * STØTTER CLOUDFLARE - kaller getByTag() som støtter Cloudflare
+     * 
      * @param Int $arrangementId
      * @return Filmer
      */
@@ -161,6 +169,8 @@ class Filmer extends Collection
     /**
      * Hent alle filmer for en gitt tag
      *
+     * STØTTER CLOUDFLARE
+     * 
      * @param String $tag
      * @param Int $id
      * @return Filmer
@@ -238,6 +248,8 @@ class Filmer extends Collection
     /**
      * Finnes det filmer med disse tag'ene?
      *
+     * STØTTER CLOUDFLARE
+     * 
      * @param Array<Tag>
      * @return Bool
      */
@@ -254,6 +266,8 @@ class Filmer extends Collection
     /**
      * Hent alle filmer som har alle disse tag'ene
      *
+     * STØTTER CLOUDFLARE
+     * 
      * @param Array<Tag> tags
      * @return Filmer
      */
@@ -271,6 +285,8 @@ class Filmer extends Collection
     /**
      * Hent query som passer for cloudflare tags
      *
+     * STØTTER CLOUDFLARE - laget spesielt for Cloudflare
+     * 
      * @param Tags[]
      * @return Query
      */
@@ -327,6 +343,8 @@ class Filmer extends Collection
     /**
      * Sjekk om Tag er gyldig for Cloudflare Database
      *
+     * STØTTER CLOUDFLARE - laget spesielt for Cloudflare
+     * 
      * @param String $search_string
      * @return Filmer
      */
