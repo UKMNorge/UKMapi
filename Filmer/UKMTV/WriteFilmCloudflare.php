@@ -7,11 +7,12 @@ use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Database\SQL\Update;
 use UKMNorge\Filmer\UKMTV\CloudflareFilm;
-
+use UKMNorge\Geografi\Kommune;
 
 class WriteFilmCloudflare {
 
     public static $db = 'cloudflare_videos';
+    public static $db_kommune = 'cloudflare_videos_kommune';
 
     /**
      * Opprett filmen i database eller oppdater det
@@ -83,6 +84,23 @@ class WriteFilmCloudflare {
 
 
     /**
+     * Slett en film fra UKM-TV
+     *
+     * @param Film $film
+     * @return Bool
+     */
+    public static function saveKommune(CloudflareFilm $film, Kommune $kommune) {
+        $query = new Insert(WriteFilmCloudflare::$db_kommune);
+
+        $query->add('cloudflarefilm_id', $film->getId());
+        $query->add('kommune_id', $kommune->getId());
+
+        $res = $query->run();
+
+        return $res;
+    }
+
+    /**
      * Legg til alle verdier fra film til query
      * Kan brukes for å opprette ny film eller oppdatere det
      *
@@ -100,8 +118,6 @@ class WriteFilmCloudflare {
         $query->add('sesong', $film->getSesong());
         $query->add('arrangement_type', $film->arrangementType());
         $query->add('fylke', $film->getFylkeId());
-        $query->add('kommune', $film->getKommuneId());
-        $query->add('person', $film->getPersonId());
         $query->add('deleted', $film->erSlettet() ? 1 : 0);
         
         return $query;

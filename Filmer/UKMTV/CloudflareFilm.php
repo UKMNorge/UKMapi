@@ -9,6 +9,8 @@ use UKMNorge\Filmer\UKMTV\Tags\Tags;
 use UKMNorge\Filmer\UKMTV\Tags\Personer;
 use UKMNorge\Http\Curl;
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Geografi\Kommuner;
+use UKMNorge\Geografi\Kommune;
 use Exception;
 
 class CloudflareFilm implements FilmInterface {
@@ -23,10 +25,9 @@ class CloudflareFilm implements FilmInterface {
     private $sesong = null;
     private $arrangementType = null;
     private $fylkeId = null;
-    private $kommuneId = null;
-    private $personId = null;
     private $erSlettet = null;
     private $tags = null;
+    private $kommuner = null;
 
     public function __construct(array $data) {
         $this->id = (int)$data['id'];
@@ -40,10 +41,7 @@ class CloudflareFilm implements FilmInterface {
         $this->sesong = (string)$data['sesong'];
         $this->arrangementType = (string)$data['arrangement_type'];
         $this->fylkeId = (int)$data['fylke'];
-        $this->kommuneId = (int)$data['kommune'];
-        $this->personId = (int)$data['person'];
         $this->erSlettet = $data['deleted'] ? $data['deleted'] : false;
-        // $this->tags = new Tags();
     }
 
     /**
@@ -89,6 +87,43 @@ class CloudflareFilm implements FilmInterface {
         while ($r = Query::fetch($res)) {
             $this->tags->opprett($r['type'], $r['foreign_id']);
         }
+    }
+    
+    /**
+     * Hent alle personer i filmen
+     *
+     * @return Kommuner
+     */
+    public function getKommuner() {
+        if($this->kommuner == null) {
+            $this->fetchKommuner();
+        }
+        return $this->kommuner;
+    }
+
+    /**
+     * Fetch alle kommuner i filmen
+     *
+     * @return Kommuner
+     */
+    private function fetchKommuner() {
+        $this->kommuner = new Kommuner;
+        
+        $query = new Query(
+            "SELECT *
+            FROM `cloudflare_videos_kommune` 
+            WHERE cloudflarefilm_id=#id",
+            [
+                'id' => $this->id,
+            ]
+        );
+    
+        $res = $query->run();
+        while ($r = Query::fetch($res)) {
+            $this->kommuner->add(new Kommune($r['kommune_id']));
+        }
+        
+        return $this->kommuner;
     }
 
     /**
@@ -293,23 +328,5 @@ class CloudflareFilm implements FilmInterface {
      */
     public function getFylkeId() {
         return $this->fylkeId;
-    }
-
-    /**
-     * Hent filmens kommune id
-     *
-     * @return Int
-     */
-    public function getKommuneId() {
-        return $this->kommuneId;
-    }
-   
-    /**
-     * Hent filmens kommune id
-     *
-     * @return Int
-     */
-    public function getPersonId() {
-        return $this->personId;
     }
 }
