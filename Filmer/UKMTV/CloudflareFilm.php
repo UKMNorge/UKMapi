@@ -153,6 +153,15 @@ class CloudflareFilm implements FilmInterface {
         return $this->getId();
     }
 
+    public function setId(Int $id) {
+        if($this->id == -1) {
+            $this->id = $id;
+        }
+        else {
+            throw new Exception("id kan ikke settes til ekte CloudflareFilmer");
+        }
+    }
+
     public function getId() {
         return $this->id;
     }
