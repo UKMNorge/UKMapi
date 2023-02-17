@@ -198,15 +198,23 @@ class Filmer extends Collection
         if(!static::erTagGyldigICF($tag)) {
             throw new Exception('Tag støttes ikke av CF Filmer');
         }
-
-        $cfQuery = new Query(
-            CloudflareFilm::getLoadQuery() . "
-            WHERE #tag=#id AND `deleted` = 'false'",
-            [
-                'tag' => $tag,
-                'id' => $id
-            ]
-        );
+        
+        if($tag == 'kommune' || $tag == 'person') {
+            $cfQuery = new Query(
+                CloudflareFilm::getLoadQuery() . "
+                JOIN cloudflare_videos_kommune ON cloudflare_videos.id=cloudflarefilm_id"
+            );
+        }
+        else {
+            $cfQuery = new Query(
+                CloudflareFilm::getLoadQuery() . "
+                WHERE #tag=#id AND `deleted` = 'false'",
+                [
+                    'tag' => $tag,
+                    'id' => $id
+                ]
+            );
+        }
 
         return new Filmer($query, $cfQuery);
     }
@@ -319,6 +327,11 @@ class Filmer extends Collection
         $tagsQuery = "WHERE ";
 
         foreach($tags as $i => $tag) {
+            // Tags kommune og person håndteres av separat tabel i DB
+            if($tag->getId() == 'kommune' || $tag->getId() == 'person') {
+                continue;
+            }
+
             if($i > 0 && $i < sizeof($tags)) {
                 $tagsQuery .= ' AND ';
             }
@@ -352,6 +365,12 @@ class Filmer extends Collection
         $limitStr = $limit ? ' LIMIT ' . $limit : '';
 
         $cloudFlareQuery = new Query(
+            // Første del av union er join i kommune
+            CloudflareFilm::getLoadQuery() .
+            'JOIN cloudflare_videos_kommune ON cloudflare_videos.id=cloudflarefilm_id'. 
+
+            ' UNION '.
+            
             CloudflareFilm::getLoadQuery() .
             $tagsQuery . $limitStr,
             $tagsArr
