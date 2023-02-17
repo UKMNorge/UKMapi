@@ -8,6 +8,7 @@ use UKMNorge\Filmer\UKMTV\Server\Server;
 use UKMNorge\Filmer\UKMTV\Tags\Tags;
 use UKMNorge\Filmer\UKMTV\Tags\Personer;
 use UKMNorge\Http\Curl;
+use UKMNorge\Database\SQL\Query;
 use Exception;
 
 class CloudflareFilm implements FilmInterface {
@@ -25,6 +26,7 @@ class CloudflareFilm implements FilmInterface {
     private $kommuneId = null;
     private $personId = null;
     private $erSlettet = null;
+    private $tags = null;
 
     public function __construct(array $data) {
         $this->id = (int)$data['id'];
@@ -41,6 +43,53 @@ class CloudflareFilm implements FilmInterface {
         $this->kommuneId = (int)$data['kommune'];
         $this->personId = (int)$data['person'];
         $this->erSlettet = $data['deleted'] ? $data['deleted'] : false;
+        $this->tags = new Tags();
+    }
+
+    /**
+     * Hent alle tags i filmen
+     *
+     * @return Tags
+     */
+    public function getTags() {
+        $this->fetchTags();
+        if($this->tags == null) {
+        }
+        return $this->tags;
+    }
+
+    /**
+     * Add tag
+     * Legger til tag men lagrer ikke det i DB
+     * 
+     * @return void
+     */
+    public function addTag(String $type, String $foreignKey) {
+        $this->getTags()->opprett($type, $foreignKey);
+    }
+
+    /**
+     * Fetch all the tags from database
+     *
+     * @return Tags
+     */
+    private function fetchTags() {
+        $this->tags = new Tags();
+        $query = new Query(
+            "SELECT *
+            FROM `ukm_tv_tags` 
+            WHERE is_cloudflare=true AND tv_id=#tv_id",
+            [
+                'tv_id' => $this->id,
+            ]
+        );
+
+        $res = $query->run();
+        while ($r = Query::fetch($res)) {
+            $this->tags->opprett($r['type'], $r['foreign_id']);
+        }
+
+        return $this->tags;
     }
 
     /**
@@ -48,9 +97,9 @@ class CloudflareFilm implements FilmInterface {
      *
      * @return Personer
      */
-    public function getPersoner() {
-        throw new Exception('må implementeres');
-        return null;
+    public function getPersoner()
+    {
+        return $this->getTags()->getPersoner();
     }
 
     /**
@@ -107,15 +156,6 @@ class CloudflareFilm implements FilmInterface {
 
     public function getId() {
         return $this->id;
-    }
-
-    /**
-     * Hent filmens tags
-     *
-     * @return Tags
-     */
-    public function getTags() {
-        return null;
     }
 
     /**
