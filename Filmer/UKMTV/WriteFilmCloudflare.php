@@ -16,7 +16,9 @@ class WriteFilmCloudflare {
     /**
      * Opprett filmen i database eller oppdater det
      *
-     * @param Film $film
+     * @param CloudflareFilm $film
+     * 
+     * @return CloudflareFilm
      */
     public static function createOrUpdate(CloudflareFilm $film) {
         if($film->getId() > -1 && WriteFilmCloudflare::exist($film)) {
@@ -34,7 +36,11 @@ class WriteFilmCloudflare {
         
         $res = $query->run();
 
-        return $res; // return id
+        if($res && $film->getId() == -1) {
+            $film->setId($res);
+        }
+
+        return $film;
     }
 
     /**
