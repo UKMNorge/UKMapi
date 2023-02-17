@@ -43,7 +43,7 @@ class CloudflareFilm implements FilmInterface {
         $this->kommuneId = (int)$data['kommune'];
         $this->personId = (int)$data['person'];
         $this->erSlettet = $data['deleted'] ? $data['deleted'] : false;
-        $this->tags = new Tags();
+        // $this->tags = new Tags();
     }
 
     /**
@@ -52,8 +52,8 @@ class CloudflareFilm implements FilmInterface {
      * @return Tags
      */
     public function getTags() {
-        $this->fetchTags();
         if($this->tags == null) {
+            $this->fetchTags();
         }
         return $this->tags;
     }
@@ -71,10 +71,11 @@ class CloudflareFilm implements FilmInterface {
     /**
      * Fetch all the tags from database
      *
-     * @return Tags
+     * @return void
      */
     private function fetchTags() {
         $this->tags = new Tags();
+
         $query = new Query(
             "SELECT *
             FROM `ukm_tv_tags` 
@@ -88,8 +89,6 @@ class CloudflareFilm implements FilmInterface {
         while ($r = Query::fetch($res)) {
             $this->tags->opprett($r['type'], $r['foreign_id']);
         }
-
-        return $this->tags;
     }
 
     /**
