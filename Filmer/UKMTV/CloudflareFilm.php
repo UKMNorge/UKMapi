@@ -145,7 +145,7 @@ class CloudflareFilm implements FilmInterface {
      * @return String SQL query
      */
     public static function getLoadQuery() {
-        return "SELECT * from `cloudflare_videos`";
+        return "SELECT cloudflare_videos.id, cloudflare_videos.cloudflare_id, cloudflare_lenke, cloudflare_thumbnail, title, description, arrangement, innslag, sesong, arrangement_type, fylke, deleted from `cloudflare_videos`";
     }
 
     /**
