@@ -29,6 +29,7 @@ class CloudflareFilm implements FilmInterface {
     private $tags = null;
     private $kommuner = null;
     private $tag_string = '';
+    private $erReportasje = null;
 
     public function __construct(array $data, $id=null) {
         if($id == null) {
@@ -62,6 +63,7 @@ class CloudflareFilm implements FilmInterface {
         $this->arrangementType = (string)$data['arrangement_type'];
         $this->fylkeId = (int)$data['fylke'];
         $this->erSlettet = $data['deleted'] ? $data['deleted'] : false;
+        $this->erReportasje = $data['erReportasje'] ? $data['erReportasje'] : false;
         return $this;
     }
 
@@ -295,5 +297,14 @@ class CloudflareFilm implements FilmInterface {
      */
     public function getFylkeId() {
         return $this->fylkeId;
+    }
+
+    /**
+     * Hent true hvis filmen er reportasje
+     *
+     * @return Boolean
+     */
+    public function erReportasje() {
+        return $this->erReportasje;
     }
 }

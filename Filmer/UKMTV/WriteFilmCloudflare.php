@@ -100,6 +100,7 @@ class WriteFilmCloudflare {
         $query->add('arrangement_type', $film->arrangementType());
         $query->add('fylke', $film->getFylkeId());
         $query->add('deleted', $film->erSlettet() ? 1 : 0);
+        $query->add('erReportasje', $film->erReportasje() ? 1 : 0);
         
         return $query;
     }
