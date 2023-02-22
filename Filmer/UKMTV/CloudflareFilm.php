@@ -68,6 +68,18 @@ class CloudflareFilm implements FilmInterface {
     }
 
     /**
+     * Hent SQL-spørringen som brukes for å hente ut relevante felt
+     * 
+     * For å begrense treff, kan du gjerne slenge på 
+     * WHERE / AND `tv_deleted` = 'false'
+     *
+     * @return String SQL query
+     */
+    public static function getLoadQuery() {
+        return "SELECT * from `cloudflare_videos`";
+    }
+
+    /**
      * Hent tag-verdi for gitt tag
      *
      * @param String $tag
@@ -103,18 +115,6 @@ class CloudflareFilm implements FilmInterface {
     public function getPersoner()
     {
         return $this->getTags()->getPersoner();
-    }
-
-    /**
-     * Hent SQL-spørringen som brukes for å hente ut relevante felt
-     * 
-     * For å begrense treff, kan du gjerne slenge på 
-     * WHERE / AND `tv_deleted` = 'false'
-     *
-     * @return String SQL query
-     */
-    public static function getLoadQuery() {
-        return "SELECT cloudflare_videos.id, cloudflare_videos.cloudflare_id, cloudflare_lenke, cloudflare_thumbnail, title, description, arrangement, innslag, sesong, arrangement_type, fylke, deleted from `cloudflare_videos`";
     }
 
     /**
