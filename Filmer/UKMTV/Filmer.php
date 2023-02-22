@@ -12,6 +12,7 @@ class Filmer extends Collection
     var $is_empty = false;
 
     public $query;
+    public $cfQuery;
     /**
      * Henter inn filmer basert på gitt spørring (via constructor)
      *
@@ -32,17 +33,30 @@ class Filmer extends Collection
             );
         }
         while ($filmData = Query::fetch($res)) {
-            // Hvis det er cloudflare, legg til CloudflareFilm
-            if($filmData['cloudflare'] == 1) {
-                $film = new CloudflareFilm($filmData, $filmData['tv_id']);
-            }
-            else{
-                $film = new Film($filmData);
-            }
+            $film = new Film($filmData);
             if ($film->erSlettet()) {
                 continue;
             }
             $this->add($film);
+        }
+
+        // Legg til filmer fra CloudFlare Stream. Februar-mars 2023 migrerte vi nye filmene våre til CloudFlare Stream
+        if($this->cfQuery) {
+            $res2 = $this->cfQuery->run();
+            if (!$res2) {
+                throw new Exception(
+                    'Kunne ikke laste inn CF filmer, grunnet databasefeil',
+                    115008
+                );
+            }
+            while ($cfFilmData = Query::fetch($res2)) {
+                $film = new CloudflareFilm($cfFilmData);
+
+                if ($film->erSlettet()) {
+                    continue;
+                }
+                $this->add($film);
+            }
         }
 
         return true;
@@ -53,9 +67,10 @@ class Filmer extends Collection
      *
      * @param Query Spørring for å hente ut filmer
      */
-    public function __construct(Query $query)
+    public function __construct(Query $query, Query $cfQuery=null)
     {
         $this->query = $query;
+        $this->cfQuery = $cfQuery;
     }
 
     /**
@@ -224,6 +239,7 @@ class Filmer extends Collection
             $where = "MATCH (`tv_title`) AGAINST('+#title' IN BOOLEAN MODE)";
         }
         $titles = [];
+        $videos = [];
         $qry = new Query(
             "SELECT `tv_id`,
                     MATCH (`tv_title`) AGAINST('#title') AS `score`
@@ -243,6 +259,25 @@ class Filmer extends Collection
             }
         }
 
+        // Search by name at Cloudflare
+        $cfNameSearch = static::searchNameCF($search_string);
+        $cfVideos = $cfNameSearch['videos'];
+        $cfTitles = $cfNameSearch['titles'];
+
+        // Legger til videos på riktig indeks
+        if(is_array($cfVideos)) {
+            foreach($cfVideos as $key=>$value ) {
+                $videos[$key] = $value;
+            }
+        }
+
+        // Legger til titles på riktig indeks
+        if(is_array($cfTitles)) {
+            foreach($cfTitles as $key=>$value ) {
+                $titles[$key] = $value;
+            }
+        }
+        
         // SEARCH FOR PERSONS NAME
         $qry = new Query(
             "SELECT `p`.`tv_id`, `p_name`,
@@ -266,7 +301,6 @@ class Filmer extends Collection
                     $videos[$r['tv_id']] = $r['score'];
             }
         }
-
         @arsort($videos);
 
 
@@ -284,6 +318,44 @@ class Filmer extends Collection
         }
 
         return Filmer::getByIdList($filmer);
+    }
+
+
+    /**
+     * Søk etter navn på Cloudflare Stream filmer
+     *
+     * @param String $search_string
+     * @return Filmer
+     */
+    private static function searchNameCF(String $search_string) {
+        $search_for = str_replace(',', ' ', $search_string);
+        if (substr_count($search_for, ' ') == 0) {
+            $where = " `title` LIKE '%#title%'";
+        } else {
+            $where = "MATCH (`title`) AGAINST('+#title' IN BOOLEAN MODE)";
+        }
+        $titles = [];
+        $videos = [];
+        $qry = new Query(
+            "SELECT `id` as `tv_id`,
+                    MATCH (`title`) AGAINST('#title') AS `score`
+                    FROM `cloudflare_videos`
+                    WHERE $where
+                    AND `deleted` = 'false'",
+            [
+                'title' => $search_string
+            ]
+        );
+        $res = $qry->run();
+        $i = 0;
+        if ($res) {
+            while ($r = Query::fetch($res)) {
+                var_dump($r);
+                $videos[$r['tv_id']] = $r['score'];
+                $titles[] = $r['tv_id'];
+            }
+        }
+        return ['videos' => $videos, 'titles' => $titles];
     }
 
     /**
@@ -318,6 +390,15 @@ class Filmer extends Collection
                 Film::getLoadQuery() . "
                 WHERE `tv_id` IN (#list)
                 AND `tv_deleted` = 'false'",
+                [
+                    'list' => join(',', $idList)
+                ]
+            ),
+            // Hent filmer fra Cloudflare   
+            new Query(
+                CloudflareFilm::getLoadQuery() . "
+                WHERE `id` IN (#list)
+                AND `deleted` = 'false'",
                 [
                     'list' => join(',', $idList)
                 ]
