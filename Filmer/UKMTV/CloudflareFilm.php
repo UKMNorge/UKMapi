@@ -28,7 +28,7 @@ class CloudflareFilm implements FilmInterface {
     private $erSlettet = null;
     private $tags = null;
     private $kommuner = null;
-    private $tag_string = null;
+    private $tag_string = '';
 
     public function __construct(array $data, $id=null) {
         if($id == null) {
@@ -82,7 +82,7 @@ class CloudflareFilm implements FilmInterface {
     /**
      * Hent alle tags
      *
-     * @return Array<Any>
+     * @return Tags
      */
     public function getTags()
     {
@@ -91,43 +91,6 @@ class CloudflareFilm implements FilmInterface {
         }
 
         return $this->tags;
-    }
-    
-    /**
-     * Hent alle personer i filmen
-     *
-     * @return Kommuner
-     */
-    public function getKommuner() {
-        if($this->kommuner == null) {
-            $this->fetchKommuner();
-        }
-        return $this->kommuner;
-    }
-
-    /**
-     * Fetch alle kommuner i filmen
-     *
-     * @return Kommuner
-     */
-    private function fetchKommuner() {
-        $this->kommuner = new Kommuner;
-        
-        $query = new Query(
-            "SELECT *
-            FROM `cloudflare_videos_kommune` 
-            WHERE cloudflarefilm_id=#id",
-            [
-                'id' => $this->id,
-            ]
-        );
-    
-        $res = $query->run();
-        while ($r = Query::fetch($res)) {
-            $this->kommuner->add(new Kommune($r['kommune_id']));
-        }
-        
-        return $this->kommuner;
     }
 
     /**
