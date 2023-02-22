@@ -5,8 +5,6 @@ namespace UKMNorge\Filmer\UKMTV;
 use UKMNorge\Collection;
 use Exception;
 use UKMNorge\Database\SQL\Query;
-use UKMNorge\Filmer\UKMTV\FilmInterface;
-
 
 class Filmer extends Collection
 {
@@ -14,14 +12,9 @@ class Filmer extends Collection
     var $is_empty = false;
 
     public $query;
-    // Query used after migration to CloudFlare Stream
-    public $cfQuery;
-
     /**
      * Henter inn filmer basert på gitt spørring (via constructor)
      *
-     * STØTTER CLOUDFLARE
-     * 
      * @return bool true
      * @throws Exception
      */
@@ -39,30 +32,17 @@ class Filmer extends Collection
             );
         }
         while ($filmData = Query::fetch($res)) {
-            $film = new Film($filmData);
+            // Hvis det er cloudflare, legg til CloudflareFilm
+            if($filmData['cloudflare'] == 1) {
+                $film = new CloudflareFilm([], $filmData['tv_id']);
+            }
+            else{
+                $film = new Film($filmData);
+            }
             if ($film->erSlettet()) {
                 continue;
             }
             $this->add($film);
-        }
-
-        // Legg til filmer fra CloudFlare Stream. 2023 migrerte vi filmene våre til CloudFlare Stream
-        if($this->cfQuery) {
-            $res2 = $this->cfQuery->run();
-            if (!$res2) {
-                throw new Exception(
-                    'Kunne ikke laste inn CF filmer, grunnet databasefeil',
-                    115008
-                );
-            }
-            while ($cfFilmData = Query::fetch($res2)) {
-                $film = new CloudflareFilm($cfFilmData);
-
-                if ($film->erSlettet()) {
-                    continue;
-                }
-                $this->add($film);
-            }
         }
 
         return true;
@@ -72,21 +52,17 @@ class Filmer extends Collection
      * Opprett en ny samling filmer
      *
      * @param Query Spørring for å hente ut filmer
-     * @param Query Spørring for å hente ut filmer fra CloudFlare Stream database
      */
-    public function __construct(Query $query, Query $cfQuery=null)
+    public function __construct(Query $query)
     {
         $this->query = $query;
-        $this->cfQuery = $cfQuery;
     }
 
     /**
      * Hent gitt film fra ID
      *
-     * STØTTER CLOUDFLARE
-     * 
-     * @param Int $tv_id - id som representerer en film. Kan være id på Film eller CloudflareFilm
-     * @return FilmInterface
+     * @param Int $tv_id
+     * @return Film
      */
     public static function getById(Int $tv_id)
     {
@@ -99,34 +75,18 @@ class Filmer extends Collection
             ]
         );
         $data = $query->getArray();
-        
-        // Hvis det ikke finnes film på gamle database, sjekk på Cloudflare DB
-        if(!$data) {
-            $query2 = new Query(
-                CloudflareFilm::getLoadQuery() . "
-                WHERE `id` = '#tvid'
-                AND `deleted` = 'false'",
-                [
-                    'tvid' => $tv_id
-                ]
-            );
-            $data2 = $query2->getArray();
-        }
-
-        if (!$data && !$data2) {
+        if (!$data) {
             throw new Exception(
                 'Beklager! Klarte ikke å finne film ' . intval($tv_id),
                 115007
             );
         }
-        return $data ? new Film($data) : new CloudflareFilm($data2);
+        return new Film($data);
     }
 
     /**
      * Opprett en filmerCollection for gitt innslagId
      *
-     * STØTTER CLOUDFLARE
-     * 
      * @param Int $innslagId
      * @return Filmer
      */
@@ -140,24 +100,12 @@ class Filmer extends Collection
                 'innslagId' => $innslagId
             ]
         );
-
-        $queryCF = new Query(
-            CloudflareFilm::getLoadQuery() . "
-            WHERE `innslag` = '#innslagId'
-            AND `deleted` = 'false'", // deleted ikke nødvendig, men gjør lasting marginalt raskere
-            [
-                'innslagId' => $innslagId
-            ]
-        );
-
-        return new Filmer($query, $queryCF);
+        return new Filmer($query);
     }
 
     /**
      * Hent alle filmer fra ett arrangement
      *
-     * STØTTER CLOUDFLARE - kaller getByTag() som støtter Cloudflare
-     * 
      * @param Int $arrangementId
      * @return Filmer
      */
@@ -169,8 +117,6 @@ class Filmer extends Collection
     /**
      * Hent alle filmer for en gitt tag
      *
-     * STØTTER CLOUDFLARE
-     * 
      * @param String $tag
      * @param Int $id
      * @return Filmer
@@ -193,37 +139,12 @@ class Filmer extends Collection
                 'foreignid' => $id
             ]
         );
-
-        // Cloudflare
-        if(!static::erTagGyldigICF($tag)) {
-            throw new Exception('Tag støttes ikke av CF Filmer');
-        }
-        
-        if($tag == 'kommune' || $tag == 'person') {
-            $cfQuery = new Query(
-                CloudflareFilm::getLoadQuery() . "
-                JOIN cloudflare_videos_kommune ON cloudflare_videos.id=cloudflarefilm_id"
-            );
-        }
-        else {
-            $cfQuery = new Query(
-                CloudflareFilm::getLoadQuery() . "
-                WHERE #tag=#id AND `deleted` = 'false'",
-                [
-                    'tag' => $tag,
-                    'id' => $id
-                ]
-            );
-        }
-
-        return new Filmer($query, $cfQuery);
+        return new Filmer($query);
     }
 
     /**
      * Har gitt arrangement (ferdig-konverterte) filmer i UKM-TV?
      *
-     * STØTTER CLOUDFLARE - kaller harTagFilmer() som støtter Cloudflare
-     * 
      * @param Int $arrangementId
      * @return bool
      */
@@ -235,8 +156,6 @@ class Filmer extends Collection
     /**
      * Finnes det filmer for denne tag'en?
      *
-     * STØTTER CLOUDFLARE
-     * 
      * @param String $tag
      * @param Int $tagId
      * @return void
@@ -254,30 +173,12 @@ class Filmer extends Collection
                 'tagid' => $tagId
             ]
         );
-
-        // Cloudflare
-        if(!static::erTagGyldigICF($tag)) {
-            throw new Exception('Tag støttes ikke av CF Filmer');
-        }
-        
-        $cfQuery = new Query(
-            "SELECT `id`
-            FROM `cloudflare_videos` 
-            WHERE #tag=#id AND `deleted` = 'false'",
-            [
-                'tag' => $tag,
-                'id' => $tagId
-            ]
-        );
-        
-        return !!$query->getField() || !!$cfQuery->getField(); # (dobbel nekting er riktig)
+        return !!$query->getField(); # (dobbel nekting er riktig)
     }
 
     /**
      * Finnes det filmer med disse tag'ene?
      *
-     * STØTTER CLOUDFLARE
-     * 
      * @param Array<Tag>
      * @return Bool
      */
@@ -287,108 +188,24 @@ class Filmer extends Collection
             static::_getTagQuery(sizeof($tags)) . " LIMIT 1",
             static::_getTagQueryReplacement($tags)
         );
-
-        return !!$query->getField() || !!static::getQueryTagsCF($tags, 1)->getField(); # (dobbel nekting er riktig)        
+        #echo $query->debug();
+        return !!$query->getField(); # (dobbel nekting er riktig)        
     }
 
     /**
      * Hent alle filmer som har alle disse tag'ene
      *
-     * STØTTER CLOUDFLARE
-     * 
      * @param Array<Tag> tags
      * @return Filmer
      */
     public static function getByTags(array $tags)
-    {       
+    {
         return new Filmer(
             new Query(
                 static::_getTagQuery(sizeof($tags)),
                 static::_getTagQueryReplacement($tags)
-            ),
-            static::getQueryTagsCF($tags)
+            )
         );
-    }
-
-    /**
-     * Hent query som passer for cloudflare tags
-     *
-     * STØTTER CLOUDFLARE - laget spesielt for Cloudflare
-     * 
-     * @param Tags[]
-     * @return Query
-     */
-    private function getQueryTagsCF(array $tags, $limit=null) {
-        if(sizeof($tags) < 1) {
-            throw new Exception("Det må komme minst en tag for å generere query");
-        }
-
-        $tagsArr = [];
-        $tagsQuery = "WHERE ";
-
-        foreach($tags as $i => $tag) {
-            // Tags kommune og person håndteres av separat tabel i DB
-            if($tag->getId() == 'kommune' || $tag->getId() == 'person') {
-                continue;
-            }
-
-            if($i > 0 && $i < sizeof($tags)) {
-                $tagsQuery .= ' AND ';
-            }
-
-            // Sjekk om tagen støttes av Cloudflare
-            if(!static::erTagGyldigICF($tag->getId())) {
-                throw new Exception('Tag støttes ikke av CF Filmer');
-            }
-
-            // Det er liste av tags
-            if(is_array($tag->getValue())) {
-                $innerTags = $tag->getValue();
-                $tagsQuery .= '(';
-                
-                foreach($innerTags as $j => $valInTag) {
-                    $tagsQuery .= $tag->getId() . "='#" . $tag->getId() . $j  . "'";
-                    $tagsQuery .= $j+1 < sizeof($innerTags) ? ' OR ' : '';
-                    $tagsArr[$tag->getId().$j] = $valInTag;
-                }
-
-                $tagsQuery .= ')';
-            }
-            // Det er single tag
-            else {
-                $tagsQuery .= $tag->getId() . "='#" . $tag->getId() . "'";
-                $tagsArr[$tag->getId()] = $tag->getValue();
-            }
-
-        }
-
-        $limitStr = $limit ? ' LIMIT ' . $limit : '';
-
-        $cloudFlareQuery = new Query(
-            // Første del av union er join i kommune
-            CloudflareFilm::getLoadQuery() .
-            'JOIN cloudflare_videos_kommune ON cloudflare_videos.id=cloudflarefilm_id'. 
-
-            ' UNION '.
-            
-            CloudflareFilm::getLoadQuery() .
-            $tagsQuery . $limitStr,
-            $tagsArr
-        );
-
-        return $cloudFlareQuery;
-    }
-
-    /**
-     * Sjekk om Tag er gyldig for Cloudflare Database
-     *
-     * STØTTER CLOUDFLARE - laget spesielt for Cloudflare
-     * 
-     * @param String $search_string
-     * @return Filmer
-     */
-    private static function erTagGyldigICF(String $tag) {
-        return in_array($tag, ["arrangement", "arrangement_type", "fylke", "innslag", "kommune", "person", "sesong"]);
     }
 
     /**
