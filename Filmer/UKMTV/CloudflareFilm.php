@@ -29,7 +29,24 @@ class CloudflareFilm implements FilmInterface {
     private $tags = null;
     private $kommuner = null;
 
-    public function __construct(array $data) {
+    public function __construct(array $data, $id=null) {
+        if($id == null) {
+            $this->constructFromData($data);
+        }
+        else {
+            $cfQuery = new Query(
+                "SELECT *
+                FROM `cloudflare_videos` 
+                WHERE id=#id AND `deleted` = 'false'",
+                [
+                    'id' => $id
+                ]
+            );
+            $this->constructFromData($cfQuery->getArray());
+        }
+    }
+
+    private function constructFromData($data) {
         $this->id = (int)$data['id'];
         $this->title = (string)$data['title'];
         $this->description = (string)$data['description'];
@@ -42,6 +59,7 @@ class CloudflareFilm implements FilmInterface {
         $this->arrangementType = (string)$data['arrangement_type'];
         $this->fylkeId = (int)$data['fylke'];
         $this->erSlettet = $data['deleted'] ? $data['deleted'] : false;
+        return $this;
     }
 
     /**
