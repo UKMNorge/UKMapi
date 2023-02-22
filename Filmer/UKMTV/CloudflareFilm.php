@@ -28,12 +28,15 @@ class CloudflareFilm implements FilmInterface {
     private $erSlettet = null;
     private $tags = null;
     private $kommuner = null;
+    private $tag_string = null;
 
     public function __construct(array $data, $id=null) {
         if($id == null) {
             $this->constructFromData($data);
         }
         else {
+            $this->tag_string = !empty($data['tags']) ? $data['tags'] : '';
+
             $cfQuery = new Query(
                 "SELECT *
                 FROM `cloudflare_videos` 
@@ -63,48 +66,31 @@ class CloudflareFilm implements FilmInterface {
     }
 
     /**
-     * Hent alle tags i filmen
+     * Hent tag-verdi for gitt tag
      *
-     * @return Tags
+     * @param String $tag
+     * @return Any verdi av tag
      */
-    public function getTags() {
-        if($this->tags == null) {
-            $this->fetchTags();
+    public function getTag(String $tag)
+    {
+        if ($this->getTags()->har($tag)) {
+            return $this->getTags()->get($tag);
         }
+        return false;
+    }
+
+    /**
+     * Hent alle tags
+     *
+     * @return Array<Any>
+     */
+    public function getTags()
+    {
+        if (null == $this->tags) {
+            $this->tags = Tags::createFromString($this->tag_string);
+        }
+
         return $this->tags;
-    }
-
-    /**
-     * Add tag
-     * Legger til tag men lagrer ikke det i DB
-     * 
-     * @return void
-     */
-    public function addTag(String $type, String $foreignKey) {
-        $this->getTags()->opprett($type, $foreignKey);
-    }
-
-    /**
-     * Fetch all the tags from database
-     *
-     * @return void
-     */
-    private function fetchTags() {
-        $this->tags = new Tags();
-
-        $query = new Query(
-            "SELECT *
-            FROM `ukm_tv_tags` 
-            WHERE is_cloudflare=true AND tv_id=#tv_id",
-            [
-                'tv_id' => $this->id,
-            ]
-        );
-
-        $res = $query->run();
-        while ($r = Query::fetch($res)) {
-            $this->tags->opprett($r['type'], $r['foreign_id']);
-        }
     }
     
     /**
