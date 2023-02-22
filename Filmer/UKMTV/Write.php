@@ -59,7 +59,7 @@ class Write
             $insert->add('type', $tag->getId());
             $insert->add('foreign_id', $tag->getValue());
             if($film instanceof CloudflareFilm) {
-                $insert->add('is_cloudflare', 1);
+                $insert->add('cloudflare', 1);
             }
             $insert->run();
         }
