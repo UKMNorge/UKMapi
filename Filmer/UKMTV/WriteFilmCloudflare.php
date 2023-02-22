@@ -12,7 +12,6 @@ use UKMNorge\Geografi\Kommune;
 class WriteFilmCloudflare {
 
     public static $db = 'cloudflare_videos';
-    public static $db_kommune = 'cloudflare_videos_kommune';
 
     /**
      * Opprett filmen i database eller oppdater det
@@ -80,24 +79,6 @@ class WriteFilmCloudflare {
         );
         $sql->add('deleted', 'true');
         return $sql->run();
-    }
-
-
-    /**
-     * Slett en film fra UKM-TV
-     *
-     * @param Film $film
-     * @return Bool
-     */
-    public static function saveKommune(CloudflareFilm $film, Kommune $kommune) {
-        $query = new Insert(WriteFilmCloudflare::$db_kommune);
-
-        $query->add('cloudflarefilm_id', $film->getId());
-        $query->add('kommune_id', $kommune->getId());
-
-        $res = $query->run();
-
-        return $res;
     }
 
     /**
