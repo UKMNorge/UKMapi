@@ -121,7 +121,17 @@ class Filmer extends Collection
                 'innslagId' => $innslagId
             ]
         );
-        return new Filmer($query);
+
+        $queryCF = new Query(
+            CloudflareFilm::getLoadQuery() . "
+            WHERE `innslag` = '#innslagId'
+            AND `deleted` = 'false'", // deleted ikke nødvendig, men gjør lasting marginalt raskere
+            [
+                'innslagId' => $innslagId
+            ]
+        );
+
+        return new Filmer($query, $queryCF);
     }
 
     /**
