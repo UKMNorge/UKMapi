@@ -376,7 +376,6 @@ class Filmer extends Collection
         $i = 0;
         if ($res) {
             while ($r = Query::fetch($res)) {
-                var_dump($r);
                 $videos[$r['tv_id']] = $r['score'];
                 $titles[] = $r['tv_id'];
             }
