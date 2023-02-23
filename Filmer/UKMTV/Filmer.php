@@ -33,7 +33,13 @@ class Filmer extends Collection
             );
         }
         while ($filmData = Query::fetch($res)) {
-            $film = new Film($filmData);
+            // Hvis det er cloudflare, legg til CloudflareFilm
+            if($filmData['cloudflare'] == 1) {
+                $film = new CloudflareFilm($filmData, $filmData['tv_id']);
+            }
+            else{
+                $film = new Film($filmData);
+            }
             if ($film->erSlettet()) {
                 continue;
             }
@@ -203,8 +209,13 @@ class Filmer extends Collection
             static::_getTagQuery(sizeof($tags)) . " LIMIT 1",
             static::_getTagQueryReplacement($tags)
         );
-        #echo $query->debug();
-        return !!$query->getField(); # (dobbel nekting er riktig)        
+        
+        $queryCF = new Query(
+            static::_getTagQueryCF(sizeof($tags)) . " LIMIT 1",
+            static::_getTagQueryReplacement($tags)
+        );
+        
+        return !!$query->getField() || !!$queryCF->getField(); # (dobbel nekting er riktig)        
     }
 
     /**
@@ -218,6 +229,10 @@ class Filmer extends Collection
         return new Filmer(
             new Query(
                 static::_getTagQuery(sizeof($tags)),
+                static::_getTagQueryReplacement($tags)
+            ),
+            new Query(
+                static::_getTagQueryCF(sizeof($tags)),
                 static::_getTagQueryReplacement($tags)
             )
         );
@@ -280,7 +295,17 @@ class Filmer extends Collection
         
         // SEARCH FOR PERSONS NAME
         $qry = new Query(
-            "SELECT `p`.`tv_id`, `p_name`,
+            "SELECT tv_id, p_firstname, score 
+                FROM 
+                (SELECT tv_id, p_firstname, p_id, MATCH (smartukm_participant.p_firstname) AGAINST('#title') as `score`
+                    FROM smartukm_participant 
+                    JOIN ukm_tv_tags ON smartukm_participant.p_id=ukm_tv_tags.foreign_id 
+                    WHERE type='person'
+                ) as derivedTable WHERE score<>0
+
+            UNION
+            
+            SELECT `p`.`tv_id`, `p_name`,
                     MATCH (`p`.`p_name`) AGAINST('#title') AS `score`
                     FROM `ukm_tv_persons` AS `p`
                     LEFT JOIN `ukm_tv_files` AS `tv` ON (`tv`.`tv_id` = `p`.`tv_id`)
@@ -301,6 +326,7 @@ class Filmer extends Collection
                     $videos[$r['tv_id']] = $r['score'];
             }
         }
+
         @arsort($videos);
 
 
@@ -325,7 +351,7 @@ class Filmer extends Collection
      * Søk etter navn på Cloudflare Stream filmer
      *
      * @param String $search_string
-     * @return Filmer
+     * @return Array
      */
     private static function searchNameCF(String $search_string) {
         $search_for = str_replace(',', ' ', $search_string);
@@ -404,6 +430,23 @@ class Filmer extends Collection
                 ]
             )
         );
+    }
+
+    private static function _getTagQueryCF(Int $number_of_tags) {
+        $query = "SELECT *
+            FROM `cloudflare_videos`";
+
+        for ($i = 1; $i <= $number_of_tags; $i++) {
+            $query .= "
+            JOIN `ukm_tv_tags` AS `tag" . $i . "`
+                ON (`cloudflare_videos`.`id` = `tag" . $i . "`.`tv_id` AND `tag" . $i . "`.`type`='#tagName" . $i . "' AND `tag" . $i . "`.`foreign_id` #tagOperand" . $i . " #tagValue" . $i . ")";
+        }
+
+        $query .= "    
+            WHERE `cloudflare_videos`.`deleted` = 'false'
+            ORDER BY `title` ASC";
+
+        return $query;
     }
 
 
