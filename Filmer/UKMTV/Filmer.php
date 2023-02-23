@@ -83,7 +83,7 @@ class Filmer extends Collection
      * Hent gitt film fra ID
      *
      * @param Int $tv_id
-     * @return Film
+     * @return FilmInterface
      */
     public static function getById(Int $tv_id)
     {
@@ -96,13 +96,27 @@ class Filmer extends Collection
             ]
         );
         $data = $query->getArray();
-        if (!$data) {
+        
+        // Cloudflare filmer
+        $queryCF = new Query(
+            CloudflareFilm::getLoadQuery() . "
+            WHERE `id` = '#tvid'
+            AND `deleted` = 'false'",
+            [
+                'tvid' => $tv_id
+            ]
+        );
+
+        $dataCF = $queryCF->getArray();
+        
+        if (!$data && !$dataCF) {
             throw new Exception(
                 'Beklager! Klarte ikke å finne film ' . intval($tv_id),
                 115007
             );
         }
-        return new Film($data);
+
+        return $data ? new Film($data) : new CloudflareFilm($dataCF);
     }
 
     /**
