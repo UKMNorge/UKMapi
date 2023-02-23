@@ -34,7 +34,7 @@ class Filmer extends Collection
         }
         while ($filmData = Query::fetch($res)) {
             // Hvis det er cloudflare, legg til CloudflareFilm
-            if($filmData['cloudflare'] == 1) {
+            if(array_key_exists('cloudflare', $filmData) && $filmData['cloudflare'] == 1) {
                 $film = new CloudflareFilm($filmData, $filmData['tv_id']);
             }
             else{
