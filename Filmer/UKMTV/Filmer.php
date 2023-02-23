@@ -297,7 +297,7 @@ class Filmer extends Collection
         $qry = new Query(
             "SELECT tv_id, p_firstname, score 
                 FROM 
-                (SELECT tv_id, p_firstname, p_id, MATCH (smartukm_participant.p_firstname) AGAINST('#title') as `score`
+                (SELECT tv_id, p_firstname, p_id, MATCH (smartukm_participant.p_firstname, smartukm_participant.p_lastname) AGAINST('#title') as `score`
                     FROM smartukm_participant 
                     JOIN ukm_tv_tags ON smartukm_participant.p_id=ukm_tv_tags.foreign_id 
                     WHERE type='person'
