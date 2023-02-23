@@ -184,7 +184,24 @@ class Filmer extends Collection
                 'foreignid' => $id
             ]
         );
-        return new Filmer($query);
+
+        // Cloudflare filmer
+        $queryCF = new Query(
+            CloudflareFilm::getLoadQuery() . "
+            JOIN `ukm_tv_tags` 
+            ON (
+                `cloudflare_videos`.`id` = `ukm_tv_tags`.`tv_id` 
+                AND `ukm_tv_tags`.`type` = '#tagtype' 
+                AND `ukm_tv_tags`.`foreign_id` = '#foreignid'
+            )
+            WHERE `deleted` = 'false'",
+            [
+                'tagtype' => $tag,
+                'foreignid' => $id
+            ]
+        );
+
+        return new Filmer($query, $queryCF);
     }
 
     /**
