@@ -251,6 +251,7 @@ class Filmer extends Collection
             static::_getTagQueryReplacement($tags)
         );
         
+        // Cloudflare filmer
         $queryCF = new Query(
             static::_getTagQueryCF(sizeof($tags)) . " LIMIT 1",
             static::_getTagQueryReplacement($tags)
@@ -272,6 +273,8 @@ class Filmer extends Collection
                 static::_getTagQuery(sizeof($tags)),
                 static::_getTagQueryReplacement($tags)
             ),
+            
+            // Cloudflare filmer
             new Query(
                 static::_getTagQueryCF(sizeof($tags)),
                 static::_getTagQueryReplacement($tags)
@@ -336,6 +339,7 @@ class Filmer extends Collection
         
         // SEARCH FOR PERSONS NAME
         $qry = new Query(
+            // Første del av union er Cloudflare filmer
             "SELECT tv_id, p_firstname, score 
                 FROM 
                 (SELECT tv_id, p_firstname, p_id, MATCH (smartukm_participant.p_firstname, smartukm_participant.p_lastname) AGAINST('#title') as `score`
@@ -460,6 +464,7 @@ class Filmer extends Collection
                     'list' => join(',', $idList)
                 ]
             ),
+            
             // Hent filmer fra Cloudflare   
             new Query(
                 CloudflareFilm::getLoadQuery() . "
