@@ -58,6 +58,9 @@ class Write
             $insert->add('tv_id', $film->getTvId());
             $insert->add('type', $tag->getId());
             $insert->add('foreign_id', $tag->getValue());
+            if($film instanceof CloudflareFilm) {
+                $insert->add('cloudflare', 1);
+            }
             $insert->run();
         }
         
