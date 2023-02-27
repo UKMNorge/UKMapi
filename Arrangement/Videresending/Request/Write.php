@@ -17,8 +17,10 @@ class Write {
      * @param RequestVideresending $reqVideresending
      * @return RequestVideresending $reqVideresending
      */
-    public static function createOrUpdate(RequestVideresending $reqVideresending)
-    {
+    public static function createOrUpdate(RequestVideresending $reqVideresending) {
+        // Sjekker om kombinasjonen arrangement fra til eksisterer
+        $reqVideresending = static::eksisterer($reqVideresending);
+
         if ($reqVideresending->getId() != -1) {
             $query = new Update(
                 RequestVideresending::TABLE,
@@ -40,6 +42,34 @@ class Write {
         
         $reqVideresending->setId($id);
         
+        return $reqVideresending;
+    }
+
+    /**
+     * Sjekk om kombinasjonen arrangement fra - arrangement til eksisterer
+     * Hvis 
+     *
+     * @param RequestVideresending $reqVideresending
+     * @return RequestVideresending $reqVideresending
+     */
+    public static function eksisterer(RequestVideresending $reqVideresending) {
+        $query = new Query(
+            "SELECT * 
+            FROM `". RequestVideresending::TABLE ."`
+            WHERE 
+            `arrangement_fra` = '#fra' AND `arrangement_til` = '#til'",
+            [
+                'fra' => $reqVideresending->getArrangementFraId(),
+                'til' => $reqVideresending->getArrangementTilId()
+            ]
+        );
+        
+        $res = $query->run('array');
+        // Hvis kombinasjonen ble funnet, da settes id på RequestVideresending
+        if($res) {
+            $reqVideresending->setId($res['id']);
+        }
+
         return $reqVideresending;
     }
 }
