@@ -4,8 +4,7 @@ namespace UKMNorge\Arrangement\Videresending\Request;
 use UKMNorge\Arrangement\Arrangement;
 
 
-class RequestVideresending
-{
+class RequestVideresending {
     const TABLE = 'ukm_request_videresending';
 
     var $id;
@@ -23,14 +22,29 @@ class RequestVideresending
      * @param String $dato
      * @return void
      */
-    public function __construct(Int $id, Int $arrangement_fra, Int $arrangement_til, $dato, Bool $completed) {
+    public function __construct(Int $id, Int $arrangement_fra, Int $arrangement_til, $dato=null, Bool $completed=false) {
         $this->id = $id;
         $this->arrangement_fra = $arrangement_fra;
         $this->arrangement_til = $arrangement_til;
         $this->dato = $dato;
         $this->completed = $completed;
+
+        // Hvis kombinasjonen fra til eksisterer, da får RequestVideresending riktig id
+        Write::eksisterer($this);
     }
 
+
+    /**
+     * Sjekker om kobinasjonen arrangement fra - arrangement til finnes. Returnerer boolean
+     *
+     * @return Bool
+     */
+    public static function finnesKombinasjonen(Int $arrangement_fra, Int $arrangement_til) {
+        $reqVideresending = new RequestVideresending(-1, $arrangement_fra, $arrangement_til);
+        Write::eksisterer($reqVideresending);
+        
+        return $reqVideresending->getId() != -1 ? true : false;
+    }
 
     /**
      * Hent id
@@ -42,12 +56,14 @@ class RequestVideresending
     }
 
     /**
-     * Set id
+     * Set id (bare hvis id er udefinert -1)
      *
      * @return void
      */
     public function setId(Int $id) {
-        $this->id = $id;
+        if($this->id == -1) {
+            $this->id = $id;
+        }
     }
 
     /**
