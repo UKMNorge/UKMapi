@@ -1,6 +1,8 @@
 <?php
 
 namespace UKMNorge\Arrangement\Videresending\Request;
+use UKMNorge\Arrangement\Arrangement;
+
 
 class RequestVideresending
 {
@@ -21,7 +23,7 @@ class RequestVideresending
      * @param String $dato
      * @return void
      */
-    public function __construct(Int $id, Int $arrangement_fra, Int $arrangement_til, String $dato, Bool $completed) {
+    public function __construct(Int $id, Int $arrangement_fra, Int $arrangement_til, $dato, Bool $completed) {
         $this->id = $id;
         $this->arrangement_fra = $arrangement_fra;
         $this->arrangement_til = $arrangement_til;
@@ -64,6 +66,24 @@ class RequestVideresending
      */
     public function getArrangementTilId() {
         return $this->arrangement_til;
+    }
+
+    /**
+     * Hent Arrangement fra
+     * 
+     * @return Arrangement
+     */
+    public function getArrangementFra() {
+        return new Arrangement($this->arrangement_fra);
+    }
+
+    /**
+     * Hent Arrangement til
+     * 
+     * @return Arrangement
+     */
+    public function getArrangementTil() {
+        return new Arrangement($this->arrangement_til);
     }
 
     /**
