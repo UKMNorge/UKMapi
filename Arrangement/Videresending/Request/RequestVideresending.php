@@ -72,7 +72,7 @@ class RequestVideresending
      * @return Date
      */
     public function getDato() {
-        return $this->dato;
+        return $this->dato ? $this->dato : null;
     }
 
 
