@@ -31,6 +31,7 @@ use UKMNorge\Innslag\Typer\Typer;
 use UKMNorge\Log\Samling as LogSamling;
 use UKMNorge\Nettverk\Proxy\Kontaktperson as AdminKontaktProxy;
 use UKMNorge\Innslag\Venteliste\Venteliste;
+use UKMNorge\Arrangement\Videresending\Request\RequestVideresendinger;
 
 
 require_once 'UKM/statistikk.class.php';
@@ -2064,5 +2065,24 @@ class Arrangement
             $this->sendinger = Sendinger::getAllByArrangement($this->getId());
         }
         return $this->sendinger;
+    }
+
+    /**
+     * Hent alle request om videresendinger fra dette arrangementet til andre arrangementer
+     *
+     * @return RequestVideresendinger
+     */
+    public function getRequestVideresendingerFra() {
+        return RequestVideresendinger::getAllFraArrangement($this->id);
+    }
+
+    /**
+     * Hent alle request om videresendinger som peker til dette arrangementet
+     * DVS. andre arrangementer har send forespørsel om videresending til dette arrangementet
+     * 
+     * @return RequestVideresendinger
+     */
+    public function getRequestVideresendingerTil() {
+        return RequestVideresendinger::getAllTilArrangement($this->id);
     }
 }
