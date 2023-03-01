@@ -1,0 +1,35 @@
+id: datakulturarrangor
+numeric_id: 11
+navn: Datakultur-Arrangør
+type: person
+kategori: jobbe
+frist: 2
+har:
+  beskrivelse: true
+  varighet: false
+  sjanger: false
+  tekniske_behov: false
+  titler: false
+  funksjon: true
+  nominasjon: true
+  media:
+    filmer: true
+    bilder: true
+er_scene: false
+funksjoner:
+  - lyd
+  - lys
+  - artistvert
+  - scenearbeider
+  - info
+  - koordinator
+tekst:
+  rolle:
+    navn: Hva vil du aller helst jobbe med?
+  funksjon: 
+    lyd: Lyd
+    lys: Lys
+    artistvert: Artistvert
+    scenearbeider: Scenearbeider
+    info: Info / sekretariat
+    koordinator: Koordinator / produsent
