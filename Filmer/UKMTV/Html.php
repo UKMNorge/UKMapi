@@ -28,10 +28,13 @@ class Html {
     /**
      * Hent filmens embedkode (iframe)
      *
-     * @param Film $film
+     * @param FilmInterface $film
      * @return String html
      */
-    public static function getEmbed( Film $film, String $class = null, String $style = null ) {
+    public static function getEmbed( FilmInterface $film, String $class = null, String $style = null ) {
+        if($film instanceof CloudflareFilm) {
+            return '<iframe src="'. $film->getEmbedUrl() .'" allowfullscreen="true" allow="autoplay; picture-in-picture" style="height: 100%; width: 100%; position: absolute; top: 0px; left: 0px; border: none;" data-dashlane-frameid="14127"></iframe>';
+        }
         return '<div class="embed-responsive embed-responsive-16by9 '. ( !is_null($class) ? $class :'' ) .' ">'
         .  '<iframe src="'. $film->getEmbedUrl() .'" '
         .  ' style="width: 100vw; height: Calc( (100vw/16)*9); max-height: 85vh; '. ( !is_null($style) ? $style :'' ) .'" '
