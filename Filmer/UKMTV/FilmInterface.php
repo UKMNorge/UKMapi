@@ -87,4 +87,11 @@ interface FilmInterface
      * @return Int|null
      */
     public function getInnslagId();
+
+    /**
+     * Hent filmens Embed-URL (brukes av embedkoder)
+     *
+     * @return String Url
+     */
+    public function getEmbedUrl();
 }
