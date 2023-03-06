@@ -1702,7 +1702,6 @@ $pass_words = array(
 "biord",
 "bioteknologisk",
 "Biscayabukta",
-"biseksuell",
 "bisetning",
 "bisettelse",
 "biskop",
