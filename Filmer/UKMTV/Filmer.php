@@ -100,7 +100,7 @@ class Filmer extends Collection
         
         if(!$dataCF) {
             throw new Exception(
-                'Beklager! Klarte ikke å finne film ' . intval($cfId),
+                'Beklager! Klarte ikke å finne film ' . $cfId,
                 115007
             );
         }
