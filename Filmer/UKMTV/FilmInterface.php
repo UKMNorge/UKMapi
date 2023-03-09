@@ -22,6 +22,13 @@ interface FilmInterface
     public function getTvId();
 
     /**
+     * Hent filmens id
+     *
+     * @return Int|null
+     */
+    public function getId();
+
+    /**
      * Hent hvilken cronId converteren ga filmen
      * 
      * Brukes kun av filmer som har vært gjennom videoconverter.ukm.no
