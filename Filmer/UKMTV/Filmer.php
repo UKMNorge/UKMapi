@@ -80,6 +80,35 @@ class Filmer extends Collection
     }
 
     /**
+     * Hent film gjennom cloudflare_id
+     *
+     * @param string $cfId
+     * @return CloudflareFilm
+     */
+    public static function getByCFId(string $cfId) {
+        // Cloudflare filmer
+        $query = new Query(
+            CloudflareFilm::getLoadQuery() . "
+            WHERE `cloudflare_id` = '#cfId'
+            AND `deleted` = 'false'",
+            [
+                'cfId' => $cfId
+            ]
+        );
+
+        $dataCF = $query->getArray();
+        
+        if(!$dataCF) {
+            throw new Exception(
+                'Beklager! Klarte ikke å finne film ' . intval($cfId),
+                115007
+            );
+        }
+
+        return new CloudflareFilm($dataCF);
+    }
+
+    /**
      * Hent gitt film fra ID
      *
      * @param Int $tv_id
@@ -464,7 +493,7 @@ class Filmer extends Collection
                     'list' => join(',', $idList)
                 ]
             ),
-            
+
             // Hent filmer fra Cloudflare   
             new Query(
                 CloudflareFilm::getLoadQuery() . "
