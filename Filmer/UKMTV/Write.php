@@ -16,18 +16,30 @@ class Write
     /**
      * Slett en film fra UKM-TV
      *
-     * @param Film $film
+     * @param FilmInterface $film
      * @return Bool
      */
-    public static function slett(Film $film)
+    public static function slett(FilmInterface $film)
     {
-        $sql = new Update(
-            'ukm_tv_files',
-            [
-                'tv_id' => $film->getId()
-            ]
-        );
-        $sql->add('tv_deleted', 'true');
+        if($film instanceof CloudflareFilm) {
+            $sql = new Update(
+                'cloudflare_videos',
+                [
+                    'id' => $film->getId()
+                ]
+            );
+            $sql->add('deleted', 1);
+        }
+        else {
+            $sql = new Update(
+                'ukm_tv_files',
+                [
+                    'tv_id' => $film->getId()
+                ]
+            );
+            $sql->add('tv_deleted', 'true');
+        }
+
         return $sql->run();
     }
 
