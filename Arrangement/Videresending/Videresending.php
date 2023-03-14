@@ -158,6 +158,17 @@ class Videresending
         return $this;
     }
 
+     /**
+     * Tømme avsendere
+     * Brukes når det er ingen avsender
+     *
+     * @return this
+     */
+    public function nullstillAvsendere() {
+        $this->avsendere = [];
+        return $this;
+    }
+
     /**
      * Faktisk load
      *

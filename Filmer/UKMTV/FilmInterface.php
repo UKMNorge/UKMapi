@@ -22,6 +22,13 @@ interface FilmInterface
     public function getTvId();
 
     /**
+     * Hent filmens id
+     *
+     * @return Int|null
+     */
+    public function getId();
+
+    /**
      * Hent hvilken cronId converteren ga filmen
      * 
      * Brukes kun av filmer som har vært gjennom videoconverter.ukm.no
@@ -87,4 +94,11 @@ interface FilmInterface
      * @return Int|null
      */
     public function getInnslagId();
+
+    /**
+     * Hent filmens Embed-URL (brukes av embedkoder)
+     *
+     * @return String Url
+     */
+    public function getEmbedUrl();
 }

@@ -307,4 +307,23 @@ class CloudflareFilm implements FilmInterface {
     public function erReportasje() {
         return $this->erReportasje;
     }
+    
+    /**
+     * Hent HTML-kode for embedding av UKM-TV
+     *
+     * @return String html iframe
+     */
+    public function getEmbedHtml(String $class = null, String $style = null) {
+        return Html::getEmbed($this, $class, $style);
+    }
+    
+    /**
+     * Hent filmens Embed-URL (brukes av embedkoder)
+     *
+     * @return String Url
+     */
+    public function getEmbedUrl() {
+        return $this->getUrl();
+    }
+
 }
