@@ -45,7 +45,7 @@ class Nominasjoner extends Collection {
                     $this->add( Arrangor::getById( intval($row['id']), $this->innslag_type ));
                     break;
                 case 'datakulturarrangor':
-                    $this->add( Datakultur::getById( intval($row['id']), $this->innslag_type ));
+                    $this->add( Datakulturarrangor::getById( intval($row['id']), $this->innslag_type ));
                     break;
                 default:
                     $this->add( new Placeholder() );
@@ -117,7 +117,7 @@ class Nominasjoner extends Collection {
                 $nominasjon = Arrangor::getByInnslagData( $this->innslag_id, $this->innslag_type, $fra_arrangement_id, $til_arrangement_id);
                 break;
             case 'datakulturarrangor':
-                $nominasjon = Datakultur::getByInnslagData( $this->innslag_id, $this->innslag_type, $fra_arrangement_id, $til_arrangement_id);
+                $nominasjon = Datakulturarrangor::getByInnslagData( $this->innslag_id, $this->innslag_type, $fra_arrangement_id, $til_arrangement_id);
                 break;
             default:
                 $nominasjon = new Placeholder();
