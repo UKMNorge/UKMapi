@@ -60,6 +60,7 @@ class Nominasjon extends Placeholder
                 return 'ukm_nominasjon_media';
             case 'media':
             case 'arrangor';
+            case 'datakulturarrangor';
             case 'konferansier';
                 return 'ukm_nominasjon_' . $innslag_type;
             default:
