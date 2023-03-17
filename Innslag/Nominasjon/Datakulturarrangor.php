@@ -39,9 +39,6 @@ class Datakulturarrangor extends Nominasjon {
      * @return self
      */
     public function calcHarSkjemaStatus() {
-        if( !empty( $this->getSamarbeid() ) ) {
-			$this->setHarDeltakerskjema( true );
-		}
 		if( !empty( $this->getVoksenSamarbeid() ) && !empty( $this->getVoksenErfaring() )) {
 			$this->setHarVoksenskjema( true );
         }
