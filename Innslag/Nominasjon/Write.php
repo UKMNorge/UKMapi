@@ -251,6 +251,41 @@ class Write
 
         $res = $sql->run();
 
+
+        self::log($sql->debug());
+    }
+
+    /**
+     * Lagre endringer i arrangør-skjema
+     *
+     * @param Datakulturarrangor $nominasjon
+     * @return void
+     */
+    public static function saveDatakulturarrangor(Datakulturarrangor $nominasjon) {
+        static::requireNominasjon($nominasjon);
+
+        $sql = new Update(
+            'ukm_nominasjon_arrangor',
+            [
+                'nominasjon' => $nominasjon->getId()
+            ]
+        );
+
+        $sql->add('lansupport', $nominasjon->getLansupport() ? 'true' : 'false');
+        $sql->add('streamingtekniker', $nominasjon->getStreamingtekniker() ? 'true' : 'false');
+        $sql->add('moderator', $nominasjon->getModerator() ? 'true' : 'false');
+        $sql->add('utver', $nominasjon->getUtover() ? 'true' : 'false');
+
+        $sql->add('voksensamarbeid', $nominasjon->getVoksenSamarbeid());
+        $sql->add('voksenerfaring', $nominasjon->getVoksenErfaring());
+        $sql->add('voksenannet', $nominasjon->getVoksenAnnet());
+
+        var_dump($sql->debug());
+
+        $res = $sql->run();
+
+
+
         self::log($sql->debug());
     }
 
