@@ -265,7 +265,7 @@ class Write
         static::requireNominasjon($nominasjon);
 
         $sql = new Update(
-            'ukm_nominasjon_arrangor',
+            'ukm_nominasjon_datakulturarrangor',
             [
                 'nominasjon' => $nominasjon->getId()
             ]
