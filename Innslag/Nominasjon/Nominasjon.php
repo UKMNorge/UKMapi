@@ -424,4 +424,27 @@ class Nominasjon extends Placeholder
     {
         return $this->voksen;
     }
+
+    /**
+     * Set godkjent verdi
+     * @param Bool $godkjent
+     * 
+     * @return self
+     */
+    public function setGodkjent(Bool $godkjent)
+    {
+        $this->godkjent = $godkjent;
+        return $this;
+    }
+
+    /**
+     * Er nominasjonen godkjent?
+     *
+     * @return Bool
+     */
+    public function erGodkjent()
+    {
+        return $this->godkjent;
+    }
+
 }
