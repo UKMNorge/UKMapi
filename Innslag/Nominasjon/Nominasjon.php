@@ -28,6 +28,8 @@ class Nominasjon extends Placeholder
     private $voksen;
 
     private $godkjent = false;
+    // Er nominasjon svart av til_arrangement
+    private $answered;
 
 
     public function __construct(Query $query)
@@ -160,6 +162,7 @@ class Nominasjon extends Placeholder
         $this->fra_id = intval($row['arrangement_fra']);
         $this->til_id = intval($row['arrangement_til']);
         $this->godkjent = $row['godkjent'] == 'true';
+        $this->answered = !($row['godkjent'] == null);
         $this->setHarNominasjon(true);
 
         try {
@@ -445,6 +448,29 @@ class Nominasjon extends Placeholder
     public function erGodkjent()
     {
         return $this->godkjent;
+    }
+
+    /**
+     * Set nominasjonen besvart?
+     * 
+     * @param Bool $answered
+     * 
+     * @return self
+     */
+    public function setAnswered(Bool $answered)
+    {
+        $this->answered = $answered;
+        return $this;
+    }
+
+    /**
+     * Er nominasjonen besvart?
+     *
+     * @return Bool
+     */
+    public function erAnswered()
+    {
+        return $this->answered;
     }
 
 }
