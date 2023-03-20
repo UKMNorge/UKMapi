@@ -314,6 +314,29 @@ class Write
     }
 
     /**
+     * Lagre godkjent
+     *
+     * @param Nominasjon $nominasjon
+     * @return Nominasjon
+     */
+    public static function saveGodkjent(Nominasjon $nominasjon)
+    {
+        $sql = new Update(
+            'ukm_nominasjon',
+            [
+                'id' => $nominasjon->getId(),
+            ]
+        );
+    
+        $sql->add('godkjent', $nominasjon->erGodkjent());
+        $sql->run();
+        
+        return $nominasjon;
+    }
+
+
+
+    /**
      * Lagre en hvilken som helst nominasjon
      *
      * @param Nominasjon $nominasjon
