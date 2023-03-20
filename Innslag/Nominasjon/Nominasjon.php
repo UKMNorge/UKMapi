@@ -27,6 +27,9 @@ class Nominasjon extends Placeholder
 
     private $voksen;
 
+    private $godkjent = false;
+
+
     public function __construct(Query $query)
     {
         $data = $query->getArray();
@@ -156,6 +159,7 @@ class Nominasjon extends Placeholder
         $this->er_nominert = $row['nominert'] == 'true';
         $this->fra_id = intval($row['arrangement_fra']);
         $this->til_id = intval($row['arrangement_til']);
+        $this->godkjent = $row['godkjent'] == 'true';
         $this->setHarNominasjon(true);
 
         try {
