@@ -1009,7 +1009,7 @@ class Arrangement
             }
         }
 
-        if ($inkluder_ressurs && !$this->innslagTyper->har(Typer::getByKey('ressurs'))) {
+        if ($this->getEierType() != 'kommune' && $inkluder_ressurs && !$this->innslagTyper->har(Typer::getByKey('ressurs'))) {
             $this->innslagTyper->add(Typer::getByName('ressurs'));
         }
         return $this->innslagTyper;
