@@ -71,7 +71,22 @@ class OvernattingRom {
      * @return String
      */
     public function getType() {
-        return $this->type;
+        switch ($this->getKapasitet()) {
+            case 1:
+                return 'enkeltrom';
+                break;
+            case 2:
+                return 'dobbeltrom';
+                break;
+            case 3:
+                return 'trippeltrom';
+                break;
+            case 4:
+                return 'kvadrupeltrom';
+                break;
+            default:
+                return $this->type;
+        }
     }
 
     /**
