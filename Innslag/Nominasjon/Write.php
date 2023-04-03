@@ -280,7 +280,6 @@ class Write
         $sql->add('voksenerfaring', $nominasjon->getVoksenErfaring());
         $sql->add('voksenannet', $nominasjon->getVoksenAnnet());
 
-        var_dump($sql->debug());
 
         $res = $sql->run();
 
