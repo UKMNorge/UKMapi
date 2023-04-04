@@ -49,6 +49,11 @@ class Datakulturarrangor extends Nominasjon {
 		return $this->sorry;
 	}
 	
+	// Har ikke deltakerskjema derfor returneres true
+	public function harDeltakerskjema() {
+		return true;
+	}
+
 	public function setLansupport( $bool ) {
 		$this->lansupport = $bool;
 		return $this;

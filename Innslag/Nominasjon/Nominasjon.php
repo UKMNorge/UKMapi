@@ -369,6 +369,11 @@ class Nominasjon extends Placeholder
      */
     public function harDeltakerskjema()
     {
+        $arrangement = new Arrangement($this->til_id);
+        // Return true på har deltakerskjema fordi når det videresendes til arrangement av type land trengs ikke deltakerskjema
+        if($arrangement && $arrangement->getEierType() == 'land') {
+            return true;
+        }
         return $this->har_deltakerskjema;
     }
 
