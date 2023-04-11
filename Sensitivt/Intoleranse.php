@@ -171,7 +171,7 @@ class Intoleranse extends Sensitivt {
 	 * @return Array<Intoleranse>
 	 */
 	public function getIntoleranser(Bool $skipWarning=false) {
-		if( null == $this->intoleranser ) {
+		if( null == $this->intoleranser && $this->getListe()) {
 			$intoleranser = [];
 			$human = '';
 
