@@ -214,7 +214,8 @@ class Typer implements \Iterator
                 'utstilling',
                 #'dataspill',
                 'dataspillgruppe',
-                'cosplay'
+                'cosplay',
+                'datakulturarrangor'
             ];
             
             foreach( $alle as $id) {
@@ -353,6 +354,9 @@ class Typer implements \Iterator
                 return 'arrangor';
             case 10:
                 return 'ressurs';
+            case 11:
+                return 'datakulturarrangor';
+
             ## GENERISKE TYPER
             case 20:
                 return 'dataspill';

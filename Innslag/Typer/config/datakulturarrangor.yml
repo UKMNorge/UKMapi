@@ -1,0 +1,31 @@
+id: datakulturarrangor
+numeric_id: 11
+navn: Datakultur
+type: person
+kategori: jobbe
+frist: 2
+har:
+  beskrivelse: true
+  varighet: false
+  sjanger: false
+  tekniske_behov: false
+  titler: false
+  funksjon: true
+  nominasjon: true
+  media:
+    filmer: true
+    bilder: true
+er_scene: false
+funksjoner:
+  - lan
+  - streamingtekniker
+  - moderator
+  - utover
+tekst:
+  rolle:
+    navn: Hva vil du aller helst jobbe med?
+  funksjon: 
+    lan: LAN support
+    streamingtekniker: Streamingtekniker
+    moderator: Moderator / mods
+    utover: Utøver

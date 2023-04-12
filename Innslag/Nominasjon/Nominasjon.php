@@ -27,6 +27,11 @@ class Nominasjon extends Placeholder
 
     private $voksen;
 
+    private $godkjent = false;
+    // Er nominasjon svart av til_arrangement
+    private $answered;
+
+
     public function __construct(Query $query)
     {
         $data = $query->getArray();
@@ -60,6 +65,7 @@ class Nominasjon extends Placeholder
                 return 'ukm_nominasjon_media';
             case 'media':
             case 'arrangor';
+            case 'datakulturarrangor';
             case 'konferansier';
                 return 'ukm_nominasjon_' . $innslag_type;
             default:
@@ -155,6 +161,8 @@ class Nominasjon extends Placeholder
         $this->er_nominert = $row['nominert'] == 'true';
         $this->fra_id = intval($row['arrangement_fra']);
         $this->til_id = intval($row['arrangement_til']);
+        $this->godkjent = $row['godkjent'] == 'true';
+        $this->answered = !($row['godkjent'] == null);
         $this->setHarNominasjon(true);
 
         try {
@@ -361,6 +369,11 @@ class Nominasjon extends Placeholder
      */
     public function harDeltakerskjema()
     {
+        $arrangement = new Arrangement($this->til_id);
+        // Return true på har deltakerskjema fordi når det videresendes til arrangement av type land trengs ikke deltakerskjema
+        if($arrangement && $arrangement->getEierType() == 'land') {
+            return true;
+        }
         return $this->har_deltakerskjema;
     }
 
@@ -419,4 +432,50 @@ class Nominasjon extends Placeholder
     {
         return $this->voksen;
     }
+
+    /**
+     * Set godkjent verdi
+     * @param Bool $godkjent
+     * 
+     * @return self
+     */
+    public function setGodkjent(Bool $godkjent)
+    {
+        $this->godkjent = $godkjent;
+        return $this;
+    }
+
+    /**
+     * Er nominasjonen godkjent?
+     *
+     * @return Bool
+     */
+    public function erGodkjent()
+    {
+        return $this->godkjent;
+    }
+
+    /**
+     * Set nominasjonen besvart?
+     * 
+     * @param Bool $answered
+     * 
+     * @return self
+     */
+    public function setAnswered(Bool $answered)
+    {
+        $this->answered = $answered;
+        return $this;
+    }
+
+    /**
+     * Er nominasjonen besvart?
+     *
+     * @return Bool
+     */
+    public function erAnswered()
+    {
+        return $this->answered;
+    }
+
 }

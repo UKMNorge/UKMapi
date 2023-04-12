@@ -16,10 +16,10 @@ class Intoleranse extends Sensitivt {
     const DB_TABLE = 'ukm_sensitivt_intoleranse';
     const DB_ID = 'p_id';
 
-    private $har = null;
-    private $tekst = null;
-	private $_liste = null;
-	private $intoleranser = null;
+    protected $har = null;
+    protected $tekst = null;
+	protected $_liste = null;
+	protected $intoleranser = null;
 
     /**
      * Hent inn en intoleranse
@@ -37,11 +37,11 @@ class Intoleranse extends Sensitivt {
 	 * @param Int $id
 	 * @return void
 	 */
-    private function _load( $id ) {
+    protected function _load( $id ) {
         $res = self::query("
             SELECT * 
             FROM `#db_table`
-            WHERE `#db_id` = '#id'",
+            WHERE `#db_id` = '#id' and leder_id is NULL",
             [
                 'id' => $id,
                 'db_id' => static::DB_ID,
@@ -66,7 +66,7 @@ class Intoleranse extends Sensitivt {
 	 * @param [type] $data
 	 * @return void
 	 */
-    private function _populate( $data ) {
+    protected function _populate( $data ) {
         if( null == $data ) {
             $this->har = false;
             return false;
@@ -171,7 +171,7 @@ class Intoleranse extends Sensitivt {
 	 * @return Array<Intoleranse>
 	 */
 	public function getIntoleranser(Bool $skipWarning=false) {
-		if( null == $this->intoleranser ) {
+		if( null == $this->intoleranser && $this->getListe()) {
 			$intoleranser = [];
 			$human = '';
 

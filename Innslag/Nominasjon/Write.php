@@ -251,6 +251,40 @@ class Write
 
         $res = $sql->run();
 
+
+        self::log($sql->debug());
+    }
+
+    /**
+     * Lagre endringer i arrangør-skjema
+     *
+     * @param Datakulturarrangor $nominasjon
+     * @return void
+     */
+    public static function saveDatakulturarrangor(Datakulturarrangor $nominasjon) {
+        static::requireNominasjon($nominasjon);
+
+        $sql = new Update(
+            'ukm_nominasjon_datakulturarrangor',
+            [
+                'nominasjon' => $nominasjon->getId()
+            ]
+        );
+
+        $sql->add('lansupport', $nominasjon->getLansupport() ? 'true' : 'false');
+        $sql->add('streamingtekniker', $nominasjon->getStreamingtekniker() ? 'true' : 'false');
+        $sql->add('moderator', $nominasjon->getModerator() ? 'true' : 'false');
+        $sql->add('utver', $nominasjon->getUtover() ? 'true' : 'false');
+
+        $sql->add('voksensamarbeid', $nominasjon->getVoksenSamarbeid());
+        $sql->add('voksenerfaring', $nominasjon->getVoksenErfaring());
+        $sql->add('voksenannet', $nominasjon->getVoksenAnnet());
+
+
+        $res = $sql->run();
+
+
+
         self::log($sql->debug());
     }
 
@@ -277,6 +311,29 @@ class Write
         self::log($sql->debug());
         return true;
     }
+
+    /**
+     * Lagre godkjent
+     *
+     * @param Nominasjon $nominasjon
+     * @return Nominasjon
+     */
+    public static function saveGodkjent(Nominasjon $nominasjon)
+    {
+        $sql = new Update(
+            'ukm_nominasjon',
+            [
+                'id' => $nominasjon->getId(),
+            ]
+        );
+    
+        $sql->add('godkjent', $nominasjon->erGodkjent());
+        $sql->run();
+        
+        return $nominasjon;
+    }
+
+
 
     /**
      * Lagre en hvilken som helst nominasjon

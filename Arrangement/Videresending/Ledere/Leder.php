@@ -5,6 +5,8 @@ namespace UKMNorge\Arrangement\Videresending\Ledere;
 use stdClass;
 use Exception;
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Sensitivt\Leder as LederSensitivt;
+
 
 class Leder
 {
@@ -17,6 +19,8 @@ class Leder
     var $arrangement_fra;
     var $arrangement_til;
     var $netter;
+
+    private $sensitivt = null;
 
     /**
      * Opprett nytt lederobjekt
@@ -352,5 +356,18 @@ class Leder
         $this->arrangement_til = $arrangement_til;
 
         return $this;
+    }
+
+    /**
+     * Hent samling for sensitive data for Leder
+     * OBS: HEAVY LOGGING
+     *
+     * @return LederSensitivt
+     */
+    public function getSensitivt() {
+        if (null == $this->sensitivt) {
+            $this->sensitivt = new LederSensitivt($this->getId());
+        }
+        return $this->sensitivt;
     }
 }
