@@ -98,7 +98,7 @@ class WriteFilmCloudflare {
         $query->add('title', $film->getTitle());
         $query->add('description', $film->getDescription());
         $query->add('arrangement', $film->getArrangementId());
-        $query->add('innslag', $film->getInnslagId());
+        $query->add('innslag', $film->getInnslagId() ? $film->getInnslagId() : null);
         $query->add('sesong', $film->getSesong());
         $query->add('arrangement_type', $film->arrangementType());
         $query->add('fylke', $film->getFylkeId());
