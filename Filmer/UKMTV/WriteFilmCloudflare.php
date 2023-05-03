@@ -21,11 +21,13 @@ class WriteFilmCloudflare {
      * @return CloudflareFilm
      */
     public static function createOrUpdate(CloudflareFilm $film) {
-        if($film->getId() > -1 && WriteFilmCloudflare::exist($film)) {
+        $filmId = WriteFilmCloudflare::exist($film);
+        
+        if($filmId > 0) {
             $query = new Update(
                 WriteFilmCloudflare::$db,
                 [
-                    'id' => $film->getId()
+                    'id' => $filmId
                 ]
             );
         }
@@ -46,22 +48,23 @@ class WriteFilmCloudflare {
     /**
      * Sjekk om filmen eksisterer
      *
-     * @param Film $film
-     * @return Bool
+     * @param CloudflareFilm $film
+     * @return Int
      */
     public static function exist(CloudflareFilm $film) {
         $try = new Query(
             "SELECT `id`
             FROM `cloudflare_videos`
-            WHERE `id` = '#id'",
+            WHERE `id` = '#id' or `cloudflare_id` = '#cfId'",
             [
-                'id' => $film->getId()
+                'id' => $film->getId(),
+                'cfId' => $film->getCloudflareId()
             ]
         );
 
         $id = $try->getField();
 
-        return $id ? true : false;
+        return $id ? $id : -1;
     }
 
     /**
