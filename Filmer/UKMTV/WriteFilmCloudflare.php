@@ -22,7 +22,7 @@ class WriteFilmCloudflare {
      */
     public static function createOrUpdate(CloudflareFilm $film) {
         $filmId = WriteFilmCloudflare::exist($film);
-        
+
         if($filmId > 0) {
             $query = new Update(
                 WriteFilmCloudflare::$db,
@@ -98,7 +98,7 @@ class WriteFilmCloudflare {
         $query->add('title', $film->getTitle());
         $query->add('description', $film->getDescription());
         $query->add('arrangement', $film->getArrangementId());
-        $query->add('innslag', $film->getInnslagId() ? $film->getInnslagId() : null);
+        $query->add('innslag', $film->getInnslagId() ? $film->getInnslagId() : 0);
         $query->add('sesong', $film->getSesong());
         $query->add('arrangement_type', $film->arrangementType());
         $query->add('fylke', $film->getFylkeId());
