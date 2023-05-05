@@ -727,12 +727,13 @@ class Samling {
                             AND 
                             `ukm_rel_arrangement_innslag`.`arrangement_id` = '#til'
                         )
-                    WHERE `b_season` = '#sesong'
+						WHERE `b_season` = '#sesong' OR `b_season` = '#arrangtilsesong'
                     AND `b_status` = 8",
                     [
                         'fra' => $this->getContext()->getFra()->getId(),
                         'til' => $this->getContext()->getTil()->getId(),
-                        'sesong' => $this->getContext()->getSesong()
+                        'sesong' => $this->getContext()->getSesong(),
+						'arrangtilsesong' => $this->getContext()->getTil()->getSesong()
                     ]
                 );
             case 'sesong':
