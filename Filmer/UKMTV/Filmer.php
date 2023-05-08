@@ -150,11 +150,13 @@ class Filmer extends Collection
 
     /**
      * Opprett en filmerCollection for gitt innslagId
+     * Hvis argumentet arrangementId sendes så kan filmene hentes på et innslag i arrangement
+     * Uten argumentet arrangementID blir alle filmer fra innslag forkjellige arrangementer
      *
      * @param Int $innslagId
      * @return Filmer
      */
-    public static function getByInnslag(Int $innslagId)
+    public static function getByInnslag(Int $innslagId, Int $arrangementId=null)
     {
         $query = new Query(
             Film::getLoadQuery() . "
@@ -165,14 +167,28 @@ class Filmer extends Collection
             ]
         );
 
-        $queryCF = new Query(
-            CloudflareFilm::getLoadQuery() . "
-            WHERE `innslag` = '#innslagId'
-            AND `deleted` = 'false'", // deleted ikke nødvendig, men gjør lasting marginalt raskere
-            [
-                'innslagId' => $innslagId
-            ]
-        );
+        if($arrangementId == null) {
+            $queryCF = new Query(
+                CloudflareFilm::getLoadQuery() . "
+                WHERE `innslag` = '#innslagId'
+                AND `deleted` = 'false'", // deleted ikke nødvendig, men gjør lasting marginalt raskere
+                [
+                    'innslagId' => $innslagId
+                ]
+            );
+        }
+        else {
+            $queryCF = new Query(
+                CloudflareFilm::getLoadQuery() . "
+                WHERE `innslag` = '#innslagId' AND `arrangement` = '#arrangementId'
+                AND `deleted` = 'false'", // deleted ikke nødvendig, men gjør lasting marginalt raskere
+                [
+                    'innslagId' => $innslagId,
+                    'arrangementId' => $arrangementId
+                ]
+            );
+        }
+
 
         return new Filmer($query, $queryCF);
     }
