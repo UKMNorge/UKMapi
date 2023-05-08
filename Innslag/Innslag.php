@@ -265,12 +265,14 @@ class Innslag
     /**
      * Hent alle filmer fra UKM-TV (tilknyttet innslaget)
      *
-     * @return array UKM-TV
+     *  @param int arrangementId - hent filmer for et innslag i et arrangement
+     *
+     * @return Filmer
      **/
-    public function getFilmer()
+    public function getFilmer(Int $arrangementId=null)
     {
         if (null == $this->filmer) {
-            $this->filmer = Filmer::getByInnslag($this->getId());
+            $this->filmer = Filmer::getByInnslag($this->getId(), $arrangementId);
         }
         return $this->filmer;
     }
