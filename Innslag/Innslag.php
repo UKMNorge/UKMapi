@@ -271,9 +271,7 @@ class Innslag
      **/
     public function getFilmer(Int $arrangementId=null)
     {
-        if (null == $this->filmer) {
-            $this->filmer = Filmer::getByInnslag($this->getId(), $arrangementId);
-        }
+        $this->filmer = Filmer::getByInnslag($this->getId(), $arrangementId);
         return $this->filmer;
     }
 
