@@ -346,12 +346,12 @@ class Word extends OfficeDok
     /**
      * Sett inn en tekst
      *
-     * @param String $tekst
+     * @param String|null $tekst
      * @param AbstractElement|null $target
      * @param Array paragraph style
      * @return Text
      */
-    public function tekst(String $tekst, $target = null, array $paragraph_style = null, array $font_style = null)
+    public function tekst($tekst, $target = null, array $paragraph_style = null, array $font_style = null)
     {
         if (is_null($font_style)) {
             $font_style = [];
