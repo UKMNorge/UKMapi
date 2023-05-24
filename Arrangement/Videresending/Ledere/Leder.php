@@ -6,6 +6,8 @@ use stdClass;
 use Exception;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Sensitivt\Leder as LederSensitivt;
+use UKMNorge\Arrangement\Arrangement;
+
 
 
 class Leder
@@ -260,11 +262,29 @@ class Leder
     }
 
     /**
+     * Get Arrangement fra
+     * @return Arrangement
+     */
+    public function getArrangementFra()
+    {
+        return new Arrangement($this->arrangement_fra);
+    }
+
+    /**
      * Get the value of arrangement_til
      */
     public function getArrangementTilId()
     {
         return $this->arrangement_til;
+    }
+
+    /**
+     * Get Arrangement til
+     * @return Arrangement
+     */
+    public function getArrangementTil()
+    {
+        return new Arrangement($this->arrangement_til);
     }
 
     /**
