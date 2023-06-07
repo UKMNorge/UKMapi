@@ -5,6 +5,10 @@ namespace UKMNorge\Arrangement\Program;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Innslag\Samling;
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\DesignWordpress\Environment\Posts;
+use UKMNorge\DesignWordpress\Environment\Post;
+
+
 
 use Exception;
 use DateTime, DateInterval;
@@ -150,6 +154,22 @@ class Hendelse
     {
         $this->type_category_id = $category_id;
         return $this;
+    }
+
+    /**
+     * Hent alle workshops. Innslegg (WP post) behandles som workshop
+     *
+     * @return Array<Post>
+     */
+    public function getWorkshops() {
+        $posts = null;
+        if($this->getType() == 'category') {
+            $posts = Posts::getByCategory($this->getTypeCategoryId());
+            $posts->setPostsPerPage(200);
+            $posts->loadPosts();
+        }
+
+        return $posts != null && $posts->posts ? $posts->posts : [];
     }
 
     public function setContext($context)
