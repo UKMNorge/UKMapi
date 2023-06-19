@@ -1821,6 +1821,25 @@ class Arrangement
     }
 
     /**
+     * Hent arrangement hvor innslaget ble videresendt fra
+     *
+     * @param Int $arrangement_id
+     * @return Arrangement|null
+     */
+    public function getVideresendingArrangement(Int $innslagId) {
+        foreach($this->getVideresending()->getAvsendere() as $avsender) {
+            $fra = $avsender->getArrangement();
+            foreach($avsender->getVideresendte()->getAll() as $innslag) {
+                if($innslag->getId() == $innslagId) {
+                    return $fra;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Er det noen sjangre som har nominasjon på dette arrangementet?
      *
      * @return Bool
