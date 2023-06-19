@@ -1823,7 +1823,7 @@ class Arrangement
     /**
      * Hent arrangement hvor innslaget ble videresendt fra
      *
-     * @param Int $arrangement_id
+     * @param Int $innslag_id
      * @return Arrangement|null
      */
     public function getVideresendingArrangement(Int $innslagId) {
