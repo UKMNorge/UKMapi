@@ -617,6 +617,12 @@ class Hendelse
 
         // Andre hendelser kan vi anta varer en halvtime 
         // (bare tull egentlig, men da har vi noe i alle fall..)
+
+        // Det blir mer for workshops
+        if($this->getType() == 'category') {
+            return time() > ($this->getStart()->getTimestamp() + (3 * 3600));
+        }
+
         return time() > ($this->getStart()->getTimestamp() + 3600);
     }
 }
