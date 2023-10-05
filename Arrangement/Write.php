@@ -224,12 +224,12 @@ class Write
 
         // Eierfylke lagres for kommuner og fylker, men ikke land
         if (in_array($monstring_save->getEierType(), ['kommune', 'fylke'])) {
-            $properties['EierFylke'] = ['smartukm_place', 'pl_owner_fylke', 120];
+            $properties['EierFylkeId'] = ['smartukm_place', 'pl_owner_fylke', 120];
         }
 
         // Eierkommune lagres kun for kommuner
         if ($monstring_save->getEierType() == 'kommune') {
-            $properties['EierKommune'] = ['smartukm_place', 'pl_owner_kommune', 121];
+            $properties['EierKommuneId'] = ['smartukm_place', 'pl_owner_kommune', 121];
         }
 
         // LOOP ALLE VERDIER, OG EVT LEGG TIL I SQL

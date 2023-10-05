@@ -1503,6 +1503,15 @@ class Arrangement
     }
 
     /**
+     * Hent ID av fylket tilhører eieren av arrangementet
+     *
+     * @return Int
+     */
+    public function getEierFylkeId() {
+        return $this->eier_fylke_id;
+    }
+
+    /**
      * Sett hvilket fylke eieren av arrangementet tilhører
      *
      * @param (Int|Fylke) $fylke
@@ -1537,6 +1546,15 @@ class Arrangement
             $this->eier_kommune = new Kommune($this->eier_kommune_id);
         }
         return $this->eier_kommune;
+    }
+
+    /**
+     * Hent ID av kommune tilhører eieren av arrangementet
+     *
+     * @return Int
+     */
+    public function getEierKommuneId() {
+        return $this->eier_kommune_id;
     }
 
     /**
