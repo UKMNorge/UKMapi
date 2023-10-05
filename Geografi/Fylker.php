@@ -48,14 +48,35 @@ class Fylker {
 		self::$fylker[32]	= new Fylke(32, 'gjester', 'Gjester', true, true);
 		self::$fylker[33]	= new Fylke(33, 'digital', 'Digital', true, true);
 
-        // 2020-fylker 🎉
-		self::$fylker[30]	= new Fylke(30, 'viken', 'Viken', true);
+        
+        /* 2024 OPPDATERING */
+        // 2020-fylker continues 2024 🎉
 		self::$fylker[34]	= new Fylke(34, 'innlandet', 'Innlandet', true);
-        self::$fylker[38]	= new Fylke(38, 'vestfoldogtelemark', 'Vestfold og Telemark', true);
         self::$fylker[42]	= new Fylke(42, 'agder', 'Agder', true);
 		self::$fylker[46]	= new Fylke(46, 'vestland', 'Vestland', true);
-		self::$fylker[50]	= new Fylke(50, 'trondelag', 'Trøndelag', true);
-		self::$fylker[54]	= new Fylke(54, 'tromsogfinnmark', 'Troms og Finnmark', true);
+		self::$fylker[50]	= new Fylke(50, 'trondelag', 'Trøndelag - Trööndelage', true);
+        
+        // Deactivated from 2024
+		self::$fylker[54]	= new Fylke(54, 'tromsogfinnmark', 'Troms og Finnmark', false);
+        self::$fylker[38]	= new Fylke(38, 'vestfoldogtelemark', 'Vestfold og Telemark', false);
+		self::$fylker[30]	= new Fylke(30, 'viken', 'Viken', false);
+
+
+        // Tidligere - Troms og Finnmark
+		self::$fylker[55]	= new Fylke(55, 'troms', 'Troms - Romsa - Tromssa', true);
+		self::$fylker[56]	= new Fylke(56, 'finnmark', 'Finnmark - Finnmárku - Finmarkku', true);
+
+        // Tiligere - Vestfold og Telemark
+		self::$fylker[39]	= new Fylke(39, 'vestfold', 'Vestfold', true);
+		self::$fylker[40]	= new Fylke(40, 'telemark', 'Telemark', true);
+
+        // Tiligere - Viken
+		self::$fylker[31]	= new Fylke(31, 'ostfold', 'Østfold', true);
+        self::$fylker[32]	= new Fylke(32, 'akershus', 'Akershus', true);
+		self::$fylker[33]	= new Fylke(33, 'buskerud', 'Buskerud', true);
+
+
+
     }
     
     /**
@@ -93,10 +114,13 @@ class Fylker {
 		}
 		
 		switch( $id ) {
-			case 'akershus':		return self::getById( 2 );
+			// case 'akershus':		return self::getById( 2 ); // Gammelt fylke
+			case 'akershus':		return self::getById( 32 ); // Ny id fra 2024
 			case 'aust-agder':		return self::getById( 9 );
-			case 'buskerud':		return self::getById( 6 );
-			case 'finnmark':		return self::getById( 20 );
+			// case 'buskerud':		return self::getById( 6 ); // Gammelt fylke
+			case 'buskerud':		return self::getById( 33 ); // Ny id fra 2024
+			// case 'finnmark':		return self::getById( 20 ); // Gammelt fylke
+			case 'finnmark':		return self::getById( 56 ); // Ny id fra 2024
 			case 'hedmark':			return self::getById( 4 );
 			case 'hordaland':		return self::getById( 12 );
 			case 'moreogromsdal':	return self::getById( 15 );
@@ -107,23 +131,27 @@ class Fylker {
 			case 'rogaland':		return self::getById( 11 );
 			case 'sognogfjordane':	return self::getById( 14 );
 			case 'sor-trondelag':	return self::getById( 16 );
-			case 'telemark':		return self::getById( 8 );
-			case 'troms':			return self::getById( 19 );
+			// case 'telemark':		return self::getById( 8 );  // Gammelt fylke
+			case 'telemark':		return self::getById( 40 ); // Ny id fra 2024
+			// case 'troms':		return self::getById( 19 ); // Gammelt fylke
+			case 'troms':			return self::getById( 55 ); // Ny id fra 2024
 			case 'vest-agder':		return self::getById( 10 );
-			case 'vestfold':		return self::getById( 7 );
-			case 'ostfold':			return self::getById( 1 );
+			// case 'vestfold':		return self::getById( 7 );  // Gammelt fylke
+			case 'vestfold':		return self::getById( 39 ); // Ny id fra 2024
+			// case 'ostfold':		return self::getById( 1 );  // Gammelt fylke
+			case 'ostfold':			return self::getById( 31 ); // Ny id fra 2024
 			
 			case 'testfylke':		return self::getById( 21 );
 			case 'gjester':			return self::getById( 32 );
             case 'internasjonalt':	return self::getById( 31 );
             
-            case 'viken':           return self::getById(30);
+            case 'viken':           return self::getById(30); // Deaktiveres fra 2024
             case 'innlandet':       return self::getById(34);
-            case 'vestfoldogtelemark': return self::getById(38);
+            case 'vestfoldogtelemark': return self::getById(38); // Deaktiveres fra 2024
             case 'agder':           return self::getById(42);
             case 'vestland':        return self::getById(46);
             case 'trondelag':       return self::getById(50);
-            case 'tromsogfinnmark': return self::getById(54);
+            case 'tromsogfinnmark': return self::getById(54); // Deaktiveres fra 2024
 		}
 
 		throw new Exception(
@@ -261,31 +289,48 @@ class Fylker {
             case 9:
             case 10:
                 return Fylker::getById(42);
-                // Viken
+            // Østfold (nytt fylke 2024)
             case 1:
+                return Fylker::getById(31);
+            // Akershus (nytt fylke 2024)
             case 2:
+                return Fylker::getById(32);
+            // Buskerud (nytt fylke 2024)
             case 6:
-                return Fylker::getById(30);
-                // Troms og Finnmark
+                return Fylker::getById(33);    
+            // Viken overas av Akershus 2024 (ikke helt riktig)
+            case 30:
+                return Fylker::getById(32);
+            // Troms (nytt fylke 2024 - Troms - Romsa - Tromssa)
             case 19:
+                return Fylker::getById(55);
+            // Finnmark (nytt fylke 2024 - Finnmark - Finnmárku - Finmarkku)
             case 20:
-                return Fylker::getById(54);
-                // Innlandet
+                return Fylker::getById(56);
+            // Troms og Finnmark overas av Troms 2024 (ikke helt riktig)
+            case 54:
+                return Fylker::getById(55);
+            // Innlandet
             case 4:
             case 5:
                 return Fylker::getById(34);
-                // Vestland
+            // Vestland
             case 12:
             case 14:
                 return Fylker::getById(46);
-                // Trøndelag
+            // Trøndelag
             case 16:
             case 17:
                 return Fylker::getById(50);
-                // Vestfold og Telemark
+            // Vestfold (nytt fylke 2024)
             case 7:
+                return Fylker::getById(39);
+            // Telemark (nytt fylke 2024)
             case 8:
-                return Fylker::getById(38);
+                return Fylker::getById(40);
+            // Vestfold og Telemark overas av Vestfold 2024 (ikke helt riktig)
+            case 38:
+                return Fylker::getById(39);
         }
         throw new Exception(
             'Dette fylket har ikke blitt overtatt av et annet',
@@ -302,6 +347,37 @@ class Fylker {
      */
     public static function getOvertattFor( Int $fylke_id ) {
         switch( $fylke_id ) {
+            case 31: // Østfold overtar Viken
+                return [
+                    30 => Fylker::getById(30)
+                ];
+            case 32: // Akershus overtar Viken
+                return [
+                    30 => Fylker::getById(30)
+                ];
+            case 33: // Buskerud overtar Viken
+                return [
+                    30 => Fylker::getById(30)
+                ];
+                
+            case 55: // Troms - Romsa - Tromssa overtar Troms og Finnmark
+                return [
+                    54 => Fylker::getById(54)
+                ];
+            case 56: // Finnmark - Finnmárku - Finmarkku overtar Troms og Finnmark
+                return [
+                    54 => Fylker::getById(54)
+                ];
+            
+            case 39: // Vestfold overtar Vestfold og Telemark
+                return [
+                    38 => Fylker::getById(38)
+                ];
+            case 40: // Telemark overtar Troms og Vestfold og Telemark
+                return [
+                    38 => Fylker::getById(38)
+                ];
+
             case 30:
                 return [
                     1 => Fylker::getById(1),
