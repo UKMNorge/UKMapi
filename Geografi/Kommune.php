@@ -20,6 +20,7 @@ class Kommune {
     private $overtatt_av;
     private $omrade = null;
     private $path = null;
+    private $modifiedPath = null;
 
 	public function __construct( $kid_or_row ) {
 		if( is_numeric( $kid_or_row ) ) {
@@ -175,6 +176,12 @@ class Kommune {
      * @return String $path
      */
     public function getPath() {
+        $modifiedPath = $this->hasModifiedPath();
+        if($modifiedPath != null) {
+            $this->modifiedPath = $modifiedPath;
+            return $this->modifiedPath;
+        }
+
         if( null == $this->path ) {
             $this->path = '/' . static::sanitizePath(
                 explode(
@@ -184,6 +191,68 @@ class Kommune {
             ) .'/';
         }
         return $this->path;
+    }
+
+
+    /**
+     * Hent kommune modifisert path.
+     * Modifisert path brukes når kommune skal ha en annen path enn det som genereres fra kommunes navn.
+     * I tillegg brukes modifiserte path for å gjøre mulig å ha felles nettside for flere kommuner
+     *
+     * @return String|null $path
+     */
+    private function hasModifiedPath() {
+        $path = null;
+        
+        $sql = new Query(
+            "SELECT path from `ukm_kommune_path`
+            WHERE `kommune_id` = '#k_id'",
+            [
+                'k_id' => $this->id,
+            ]
+        );
+		$res = $sql->run('array');
+        $path = $res['path'];
+
+        return $path ? $path : null;
+    }
+
+    /**
+     * Hent modifisert path for kommune
+     *
+     * @return String $modifiedPath
+     */
+    public function getModifiedPath() {
+        if(!$this->modifiedPath) {
+            $this->modifiedPath = $this->hasModifiedPath();
+        }
+        return $this->modifiedPath;
+    }
+
+    /**
+     * Hent kommuner som bruker same path (modifisert path)
+     *
+     * @return Array<Kommune> kommuner som bruker modifisert path sammen med denne kommunen
+     */
+    public function getKommunerOnSamePath() {
+        $kommuner = [];
+
+        $sql = new Query(
+            "SELECT kommune_id from `ukm_kommune_path`
+            WHERE `path` = '#path'",
+            [
+                'path' => $this->getModifiedPath(),
+            ]
+        );
+		$res = $sql->run();
+        while($row = Query::fetch($res)) {
+            $k_id = $row['kommune_id'];
+            if($k_id != $this->id) {
+                $kommuner[] = new Kommune($k_id);
+            }
+        }
+
+        return $kommuner;
     }
 
     /**
