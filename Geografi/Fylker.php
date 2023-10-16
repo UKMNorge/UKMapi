@@ -44,9 +44,9 @@ class Fylker {
         else {
             self::$fylker[21]	= new Fylke(21, 'testfylke', 'Testfylke', true, true);
         }
-		self::$fylker[31]	= new Fylke(31, 'internasjonalt', 'Internasjonalt', true, true);
-		self::$fylker[32]	= new Fylke(32, 'gjester', 'Gjester', true, true);
-		self::$fylker[33]	= new Fylke(33, 'digital', 'Digital', true, true);
+		self::$fylker[90]	= new Fylke(90, 'internasjonalt', 'Internasjonalt', true, true); // tiligere 31
+		self::$fylker[91]	= new Fylke(91, 'gjester', 'Gjester', true, true); // tidligere 32
+		self::$fylker[92]	= new Fylke(92, 'digital', 'Digital', true, true); // tidligere 33
 
         // 2020-fylker 🎉
 		self::$fylker[30]	= new Fylke(30, 'viken', 'Viken', true);
@@ -114,8 +114,8 @@ class Fylker {
 			case 'ostfold':			return self::getById( 1 );
 			
 			case 'testfylke':		return self::getById( 21 );
-			case 'gjester':			return self::getById( 32 );
-            case 'internasjonalt':	return self::getById( 31 );
+            case 'gjester':			return self::getById( 91 );
+            case 'internasjonalt':	return self::getById( 90 );
             
             case 'viken':           return self::getById(30);
             case 'innlandet':       return self::getById(34);
