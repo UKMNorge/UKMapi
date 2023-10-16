@@ -811,7 +811,7 @@ class Arrangement
     {   
         // Hvis festival returner Internasjonalt fylke
         if($this->getEierType() == 'land') {
-            $this->fylke = Fylker::getById(31);
+            $this->fylke = Fylker::getById(90);
         }
         else if (null == $this->fylke) {
             if (null == $this->fylke_id && 'kommune' == $this->getType()) {
