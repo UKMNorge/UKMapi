@@ -32,7 +32,7 @@ class Fylker {
 
         // PRE 2020 Still going strong
         self::$fylker[15]	= new Fylke(15, 'moreogromsdal', 'Møre og Romsdal', true);
-        self::$fylker[18]	= new Fylke(18, 'nordland', 'Nordland', true);
+        self::$fylker[18]	= new Fylke(18, 'nordland', 'Nordland - Nordlánnda', true);
 		self::$fylker[3]	= new Fylke(3, 'oslo', 'Oslo', true);
         self::$fylker[11]	= new Fylke(11, 'rogaland', 'Rogaland', true);
         
