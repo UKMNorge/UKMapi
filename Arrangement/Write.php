@@ -64,7 +64,7 @@ class Write
         if ($type == 'kommune') {
             if (!is_array($geografi)) {
                 throw new Exception(
-                    'Arrangement::create: Geografiobjekt må være array kommuner, ikke' . (is_object($geografi) ? get_class($geografi) : is_array($geografi) ? 'array' : is_integer($geografi) ? 'integer' : is_string($geografi) ? 'string' : 'ukjent datatype'),
+                    'Arrangement::create: Geografiobjekt må være array kommuner, ikke' . (is_object($geografi) ? get_class($geografi) : (is_array($geografi) ? 'array' : (is_integer($geografi) ? 'integer' : (is_string($geografi) ? 'string' : 'ukjent datatype')))),
                     501005
                 );
             }
