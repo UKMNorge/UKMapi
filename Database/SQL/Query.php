@@ -49,7 +49,7 @@ class Query extends Common {
         if( self::_isMysqliResult($result) ) {
             return mysqli_fetch_assoc( $result );
         }
-        return mysql_fetch_assoc( $result );
+        return mysqli_fetch_assoc( $result );
     }
 
     public static function numRows( $result ) {
