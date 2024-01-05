@@ -196,7 +196,7 @@ class Videresending
 
         $res = $sql->run();
 
-        $this->$type = [];
+        $avsenderEllerMotaker = [];
         while( $row = Query::fetch( $res ) ) {
 
             if( $row['pl_owner_fylke'] > 0 ) {
@@ -219,7 +219,14 @@ class Videresending
                 $eier
             );
             
-            $this->$type[ $class->getId() ] = $class;
+            $avsenderEllerMotaker[ $class->getId() ] = $class;
+        }
+
+        if($type == 'avsendere') {
+            $this->avsendere = $avsenderEllerMotaker;
+        }
+        else {
+            $this->mottakere = $avsenderEllerMotaker;
         }
     }
 
