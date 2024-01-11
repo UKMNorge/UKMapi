@@ -1,7 +1,7 @@
 <?php
 
 namespace UKMNorge\API\Cloudflare;
-
+use UKMNorge\Http\Curl;
 # Denne klassen er et interface mot CloudFlare, ferdig konfigurert for UKMs systemer.
 class Cloudflare {
 	private $URL = UKM_CLOUDFLARE_URL;
@@ -31,7 +31,7 @@ class Cloudflare {
 			$data['files'][] = $file;
 
 		// Konfigurer CURL
-		$curl = new UKMCURL();
+		$curl = new CURL();
 		$curl->port(443);
 		#$curl->
 		$curl->requestType('DELETE');
@@ -62,7 +62,7 @@ class Cloudflare {
 		$data['purge_everything'] = true;
 
 		// Konfigurer CURL
-		$curl = new UKMCURL();
+		$curl = new CURL();
 		$curl->port(443);
 		#$curl->
 		$curl->requestType('DELETE');
