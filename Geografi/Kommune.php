@@ -212,9 +212,12 @@ class Kommune {
             ]
         );
 		$res = $sql->run('array');
-        $path = $res['path'];
-
-        return $path ? $path : null;
+        if( $res ) {
+            $path = $res['path'];
+    
+            return $path ? $path : null;
+        }
+        return null;
     }
 
     /**
