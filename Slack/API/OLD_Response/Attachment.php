@@ -52,7 +52,7 @@ class Attachment {
 		return $this->fields;
 	}
 	public function hasFields() {
-		return sizeof( $this->getFields() ) > 0;
+		return sizeof( $this->getFields() ?? [] ) > 0;
 	}
 	
 	public function addAction( $action ) {
@@ -64,7 +64,7 @@ class Attachment {
 	}
 	
 	public function hasActions() {
-		return sizeof( $this->getActions() ) > 0;
+		return sizeof( $this->getActions() ?? [] ) > 0;
 	}
 	
 	public function setFallback( $fallback ) {

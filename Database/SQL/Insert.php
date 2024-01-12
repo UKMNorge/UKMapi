@@ -116,7 +116,7 @@ class Insert extends Common {
         $this->real_query = 'UPDATE `'.$this->table.'` SET ';
         
         // Add the new values to be set
-        for( $i=0; $i < sizeof( $this->insert_keys ); $i++) {
+        for( $i=0; $i < sizeof( $this->insert_keys ?? [] ); $i++) {
             if( $this->insert_values[$i] === null ) {
                 $this->real_query .= 
                 "`". $this->sanitize( $this->insert_keys[$i] ) .
@@ -160,8 +160,8 @@ class Insert extends Common {
         
         // Temp-store keys and values in separate strings since
         // we cannot concatenate directly to query
-        if ( sizeof( $this->insert_keys ) > 0 && sizeof( $this->insert_values ) > 0 ) {
-            for( $i=0; $i < sizeof( $this->insert_keys ); $i++ ) {
+        if ( sizeof( $this->insert_keys ?? [] ) > 0 && sizeof( $this->insert_values ?? [] ) > 0 ) {
+            for( $i=0; $i < sizeof( $this->insert_keys ?? [] ); $i++ ) {
                 $keys .= '`'. $this->sanitize( $this->insert_keys[$i] ) .'`, ';
                 if( $this->insert_values[$i] === null ) {
                     $values .= "NULL, ";

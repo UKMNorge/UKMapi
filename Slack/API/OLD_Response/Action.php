@@ -58,7 +58,7 @@ class Action {
 		return $this->optionGroups;
 	}
 	public function hasOptionGroups() {
-		return sizeof( $this->getOptionGroups() ) > 0;
+		return sizeof( $this->getOptionGroups() ?? [] ) > 0;
 	}
 	
 	
@@ -70,7 +70,7 @@ class Action {
 		return $this->options;
 	}
 	public function hasOptions() {
-		return sizeof( $this->getOptions() ) > 0;
+		return sizeof( $this->getOptions() ?? [] ) > 0;
 	}
 	
 	public function setText( $text ) {

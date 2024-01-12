@@ -109,7 +109,7 @@ class Hendelser {
 
     public function getAntallSkjulte()
     {
-        return sizeof($this->getAllSkjulte());
+        return sizeof($this->getAllSkjulte() ?? []);
     }
 
     public function getAll()

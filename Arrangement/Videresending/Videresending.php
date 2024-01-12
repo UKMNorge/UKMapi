@@ -91,7 +91,7 @@ class Videresending
      * @return Bool $har_avsendere
      */
     public function harAvsendere() {
-        return sizeof( $this->getAvsendere() ) > 0;
+        return sizeof( $this->getAvsendere() ?? [] ) > 0;
     }
     /**
      * Er det lagt til noen mottakere?
@@ -99,7 +99,7 @@ class Videresending
      * @return Bool $har_mottakere
      */
     public function harMottakere() {
-        return sizeof( $this->getMottakere() ) > 0;
+        return sizeof( $this->getMottakere() ?? [] ) > 0;
     }
     /**
      * Hvem kan denne mønstringen sende innslag til?
