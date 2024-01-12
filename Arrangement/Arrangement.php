@@ -1343,7 +1343,7 @@ class Arrangement
 
     public function getAntallDager()
     {
-        return sizeof($this->getDager());
+        return sizeof($this->getDager() ?? []);
     }
 
     /**
