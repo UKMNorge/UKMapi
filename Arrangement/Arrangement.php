@@ -576,7 +576,7 @@ class Arrangement
      **/
     public function erSingelmonstring()
     {
-        return 1 == sizeof($this->kommuner_id);
+        return 1 == sizeof($this->kommuner_id ?? []);
     }
     /**
      * Er dette en fellesmønstring 
@@ -587,7 +587,7 @@ class Arrangement
         if ($this->getType() != 'kommune') {
             return false;
         }
-        return 1 < sizeof($this->kommuner_id);
+        return 1 < sizeof($this->kommuner_id ?? []);
     }
 
     /**
@@ -601,7 +601,7 @@ class Arrangement
         if ($this->getType() !== 'kommune') {
             throw new Exception('MONSTRING_V2: getAntallKommuner kan kun kjøres på lokalmønstringer!');
         }
-        return sizeof($this->kommuner_id);
+        return sizeof($this->kommuner_id ?? []);
     }
 
     /**
