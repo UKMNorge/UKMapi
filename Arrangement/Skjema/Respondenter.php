@@ -64,7 +64,7 @@ class Respondenter
      */
     public function getAntall()
     {
-        return sizeof($this->respondenter);
+        return sizeof($this->respondenter ?? []);
     }
 
     /**

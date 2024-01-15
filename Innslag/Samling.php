@@ -152,7 +152,7 @@ class Samling {
 	 * @return int sizeof( $this->innslag )
 	**/
 	public function getAntall() {
-		return sizeof( $this->getAll() );
+		return sizeof( $this->getAll() ?? [] );
     }
 
     /**

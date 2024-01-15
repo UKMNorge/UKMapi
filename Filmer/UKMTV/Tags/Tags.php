@@ -40,7 +40,8 @@ class Tags extends Collection {
                 * inntil videre bruker vi dog bare linja under for å 
                 * støtte personer-tags 👇🏼
                 */
-                $this->getPersoner()->add(new Person($tag[1]));
+
+                $collection->getPersoner()->add(new Person($tag[1]));
             } else {
                 $collection->add(new Tag($tag[0], $tag[1]));
             }

@@ -91,7 +91,7 @@ class Videresending
      * @return Bool $har_avsendere
      */
     public function harAvsendere() {
-        return sizeof( $this->getAvsendere() ) > 0;
+        return sizeof( $this->getAvsendere() ?? [] ) > 0;
     }
     /**
      * Er det lagt til noen mottakere?
@@ -99,7 +99,7 @@ class Videresending
      * @return Bool $har_mottakere
      */
     public function harMottakere() {
-        return sizeof( $this->getMottakere() ) > 0;
+        return sizeof( $this->getMottakere() ?? [] ) > 0;
     }
     /**
      * Hvem kan denne mønstringen sende innslag til?
@@ -196,7 +196,7 @@ class Videresending
 
         $res = $sql->run();
 
-        $this->$type = [];
+        $avsenderEllerMotaker = [];
         while( $row = Query::fetch( $res ) ) {
 
             if( $row['pl_owner_fylke'] > 0 ) {
@@ -219,7 +219,14 @@ class Videresending
                 $eier
             );
             
-            $this->$type[ $class->getId() ] = $class;
+            $avsenderEllerMotaker[ $class->getId() ] = $class;
+        }
+
+        if($type == 'avsendere') {
+            $this->avsendere = $avsenderEllerMotaker;
+        }
+        else {
+            $this->mottakere = $avsenderEllerMotaker;
         }
     }
 

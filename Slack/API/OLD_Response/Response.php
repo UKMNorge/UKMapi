@@ -44,7 +44,7 @@ class Response
 	}
 	public function hasAttachments()
 	{
-		return sizeof($this->getAttachments()) > 0;
+		return sizeof($this->getAttachments() ?? []) > 0;
 	}
 	public function getAttachment($id)
 	{
@@ -70,7 +70,7 @@ class Response
 	}
 	public function hasActions()
 	{
-		return sizeof($this->getActions()) > 0;
+		return sizeof($this->getActions() ?? []) > 0;
 	}
 
 	public function setResponseType($response_type)

@@ -53,7 +53,7 @@ class Delete extends Common {
 
         $wheres = '';
 
-        $num_conditions = sizeof( $this->key_value_map );
+        $num_conditions = sizeof( $this->key_value_map ?? [] );
         $loop_index = 0;
 
         foreach( $this->key_value_map as $column => $val ) {
