@@ -12,6 +12,7 @@ use UKMNorge\Arrangement\Kommende;
 use UKMNorge\Arrangement\Kontaktperson\Kontaktperson;
 use UKMNorge\Arrangement\Load;
 use UKMNorge\Arrangement\Tidligere;
+use UKMNorge\Geografi\Fylke;
 use UKMNorge\Geografi\Fylker;
 use UKMNorge\Geografi\Kommune;
 use UKMNorge\Nettverk\Administratorer;
