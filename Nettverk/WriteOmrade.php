@@ -206,7 +206,7 @@ class WriteOmrade {
      * @return Bool
      * 
      */
-    public function fjernAdmin( Omrade $omrade, Administrator $admin ) {
+    public static function fjernAdmin( Omrade $omrade, Administrator $admin ) {
         $sql = new Delete(
             'ukm_nettverk_admins',
             [
