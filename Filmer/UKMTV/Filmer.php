@@ -25,25 +25,32 @@ class Filmer extends Collection
             return true;
         }
         
-        $res = $this->query->run();
-        if (!$res) {
-            throw new Exception(
-                'Kunne ikke laste inn filmer, grunnet databasefeil',
-                115001
-            );
-        }
-        while ($filmData = Query::fetch($res)) {
-            // Hvis det er cloudflare, legg til CloudflareFilm
-            if(array_key_exists('cloudflare', $filmData) && $filmData['cloudflare'] == 1) {
-                $film = new CloudflareFilm($filmData, $filmData['tv_id']);
+        $res = null;
+        
+        // If there is no query. If there is no $query it means that just CloudFlare query ($cfQuery) may be used
+        if($this->query != null) {
+            $res = $this->query->run();
+            
+            if (!$res) {
+                throw new Exception(
+                    'Kunne ikke laste inn filmer, grunnet databasefeil',
+                    115001
+                );
             }
-            else{
-                $film = new Film($filmData);
+
+            while ($filmData = Query::fetch($res)) {
+                // Hvis det er cloudflare, legg til CloudflareFilm
+                if(array_key_exists('cloudflare', $filmData) && $filmData['cloudflare'] == 1) {
+                    $film = new CloudflareFilm($filmData, $filmData['tv_id']);
+                }
+                else{
+                    $film = new Film($filmData);
+                }
+                if ($film->erSlettet()) {
+                    continue;
+                }
+                $this->add($film);
             }
-            if ($film->erSlettet()) {
-                continue;
-            }
-            $this->add($film);
         }
 
         // Legg til filmer fra CloudFlare Stream. Februar-mars 2023 migrerte vi nye filmene våre til CloudFlare Stream
@@ -73,7 +80,7 @@ class Filmer extends Collection
      *
      * @param Query Spørring for å hente ut filmer
      */
-    public function __construct(Query $query, Query $cfQuery=null)
+    public function __construct(Query|null $query, Query $cfQuery=null)
     {
         $this->query = $query;
         $this->cfQuery = $cfQuery;
@@ -107,6 +114,29 @@ class Filmer extends Collection
 
         return new CloudflareFilm($dataCF);
     }
+
+    /**
+     * Hent gitt film fra ID
+     *
+     * @param Int $tv_id
+     * @return FilmInterface
+     */
+    public static function getLatest(Int $limit)
+    {
+        
+        // Cloudflare filmer
+        $queryCF = new Query(
+            CloudflareFilm::getLoadQuery() . "
+            ORDER BY id DESC LIMIT #limit",
+            [
+                'limit' => $limit
+            ]
+        );
+
+        
+        return new Filmer(null, $queryCF);
+    }
+
 
     /**
      * Hent gitt film fra ID
