@@ -73,7 +73,7 @@ class Natt
      * @param Array $data
      * @return Natt
      */
-    public function getByDatabaseRow( Array $data ) {
+    public static function getByDatabaseRow( Array $data ) {
         return new Natt(
             intval($data['l_id']),
             intval($data['n_id']),
@@ -89,7 +89,7 @@ class Natt
      * @param String $dato
      * @return Natt
      */
-    public function getEmptyByDato( Int $leder_id, String $dato ) {
+    public static function getEmptyByDato( Int $leder_id, String $dato ) {
         return new Natt(
             $leder_id,
             0,
