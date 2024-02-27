@@ -772,7 +772,6 @@ class Blog
             'bilder',
             'pameldte',
             'program',
-            'kontaktpersoner',
             'lokalmonstringer',
             'info' // TODO: sjekk om dette er slug for standard infoside
         ];
