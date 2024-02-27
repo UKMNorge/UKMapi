@@ -772,7 +772,7 @@ class Blog
             'bilder',
             'pameldte',
             'program',
-            'kontaktpersoner',
+            // 'kontaktpersoner', // kontaktpersoner skal ikke slettes fordi det brukes på kommune/fylke sider
             'lokalmonstringer',
             'info' // TODO: sjekk om dette er slug for standard infoside
         ];
