@@ -66,7 +66,7 @@ class Write {
 	 * @param Kommune $kommune_id
 	 * @return Person
 	 */
-	public static function create( String $fornavn, String $etternavn, Int $mobil, Kommune $kommune) {
+	public static function create( String $fornavn, String $etternavn, Int $mobil, Kommune $kommune, String $epost = null) {
 		// Valider logger
 		if( !Logger::ready() ) {
 			throw new Exception(
@@ -94,6 +94,10 @@ class Write {
 			$sql->add('p_lastname', Sanitizer::sanitizeEtternavn($etternavn));
 			$sql->add('p_phone', $mobil);
 			$sql->add('p_kommune', $kommune->getId());
+			// Epost er valgfritt
+			if( !is_null($epost) && filter_var($epost, FILTER_VALIDATE_EMAIL) ) {
+				$sql->add('p_email', $epost);
+			}
 			$insert_id = $sql->run(); 
 			
 			// Database-oppdatering feilet
