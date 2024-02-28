@@ -27,6 +27,20 @@ class related {
 				
 	}
 
+	public function getPostMeta($post_id, $post_type) {
+		$get = new Query("SELECT `post_meta` FROM `#table`
+						WHERE `post_id` = '#pid'
+						AND `post_type` = '#ptype'
+						AND `b_id` = '#bid'",
+						array('table'=>$this->table,
+							  'pid'=>$post_id,
+							  'ptype'=>$post_type,
+							  'bid'=>$this->b_id)
+						);
+		$get = $get->run('field','post_meta');
+		return unserialize($get);
+	}
+
 	###
 	public function set($post_id, $post_type, $post_meta=array()) {
 		$this->delete($post_id, $post_type);
