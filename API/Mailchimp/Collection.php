@@ -23,7 +23,7 @@ abstract class Collection extends UKMNorgeCollection {
      * @return void
      */
     public function loadAll() {
-        $result = Mailchimp::sendGetRequest($this->resource);
+        $result = Mailchimp::sendGetRequest($this->resource, $this->result_key);
         foreach( $result->getData()->{$this->result_key} as $row ) {
             $this->add( $this->createFromAPIData( $row ) );
         }
