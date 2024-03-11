@@ -304,6 +304,29 @@ class Film implements FilmInterface
     }
 
     /**
+     * Hent filename tilpasset Mist server
+     *
+     * @return String $navn
+     */
+    public function getPathMistsServer()
+    {
+        $originalString = $this->getFilename();
+        $insertString = "_720p"; // The string you want to insert
+        $target = ".mp4";
+        // Find the position of ".mp4" in the original string
+        $position = strpos($originalString, $target);
+        // Check if ".mp4" is found to prevent errors
+        if ($position !== false) {
+            // Insert the string using substr_replace
+            $newString = substr_replace($originalString, $insertString, $position, 0);
+        } else {
+            // If ".mp4" is not found, use the original string
+            $newString = $originalString;
+        }
+        return $newString; // This will output 'library+2018_4950_innslag_144244_cron_17461_720p.mp4'
+    }
+
+    /**
      * Hent filens path (uten navn)
      *
      * @return String $path
