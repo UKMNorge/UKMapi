@@ -81,6 +81,7 @@ class Arrangement
     var $meta = null;
     var $synlig = true;
     var $maksAntDeltagere = null;
+    var $videresending_stenger = null;
     
     /** @var Venteliste */
     var $venteliste = null;
