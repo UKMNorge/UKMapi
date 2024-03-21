@@ -494,7 +494,9 @@ class Bilde
         $data['path_ext'] = 'http://' . UKM_HOSTNAME . '/' . $basefolder;
 
         // Opprett bilde
-        $this->sizes[$id] = new Storrelse($data);
+        if(isset($data['file'])) {
+            $this->sizes[$id] = new Storrelse($data);
+        }
 
         return $this;
     }
