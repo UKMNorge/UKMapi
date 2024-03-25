@@ -113,7 +113,7 @@ class Server extends BandwidthMode
      */
     public static function getStorageUrl($skipProtocol = false)
     {
-        return str_replace('ukm.dev', 'ukm.no', static::_getServer('video', $skipProtocol));
+        return str_replace('ukm.dev', 'ukm.no', static::_getServer('videoserver', $skipProtocol));
     }
 
     /**
