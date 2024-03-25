@@ -586,7 +586,7 @@ class Blog
      * @param Array $users [id, role]
      * @return Array $rapport
      */
-    public function fjernBrukere(Int $blog_id, array $users)
+    public static function fjernBrukere(Int $blog_id, array $users)
     {
         static::_requiresWordpressFunctions();
         static::controlBlogId($blog_id);
