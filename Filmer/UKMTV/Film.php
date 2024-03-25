@@ -310,22 +310,20 @@ class Film implements FilmInterface
      */
     public function getPathMistsServer()
     {
-        $originalString = $this->getFilename();
-        $insertString = "_720p"; // The string you want to insert
-        $target = ".mp4";
-        // Find the position of ".mp4" in the original string
-        $position = strpos($originalString, $target);
-        // Check if ".mp4" is found to prevent errors
-        if ($position !== false) {
-            // Insert the string using substr_replace
-            $newString = substr_replace($originalString, $insertString, $position, 0);
+        if($this->har720p()) {
+            $filnavn = $this->getFile720();
         } else {
-            // If ".mp4" is not found, use the original string
-            $newString = $originalString;
+            $filnavn = $this->getFilename();
         }
-        return $newString; // This will output 'library+2018_4950_innslag_144244_cron_17461_720p.mp4'
-    }
+        $pathinfo = pathinfo($filnavn);
 
+        if ($pathinfo['extension'] == 'flv') {
+            $pathinfo['extension'] = 'mp4';
+        }
+        $filnavn = $pathinfo['filename'] . "." . $pathinfo['extension'];
+    
+        return $filnavn;
+    }
     /**
      * Hent filens path (uten navn)
      *
