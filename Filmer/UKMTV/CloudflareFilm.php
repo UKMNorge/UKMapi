@@ -238,7 +238,7 @@ class CloudflareFilm implements FilmInterface {
      * @return String
      */
     public function getThumbnail() {
-        return $this->cloudflareThumbnail;
+        return $this->cloudflareThumbnail. '?time=3s';
     }
 
     /**
