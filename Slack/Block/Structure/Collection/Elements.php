@@ -14,7 +14,7 @@ class Elements extends Collection {
      * @param ElementInterface $element
      * @return self
      */
-    public function add( ElementInterface $text ) {
+    public function add( $text ) {
         return parent::add($text);
     }
 
