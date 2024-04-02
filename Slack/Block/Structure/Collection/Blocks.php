@@ -12,10 +12,10 @@ class Blocks extends Collection {
     /**
      * {@inheritDoc}
      *
-     * @param ElementInterface $element
+     * @param $element
      * @return self
      */
-    public function add( BlockInterface $text ) {
+    public function add( $text ) {
         return parent::add($text);
     }
 
