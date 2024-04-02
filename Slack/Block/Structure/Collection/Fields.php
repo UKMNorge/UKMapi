@@ -14,7 +14,7 @@ class Fields extends Collection {
      * @param Text $text
      * @return self
      */
-    public function add( Text $text ) {
+    public function add( $text ) {
         return parent::add($text);
     }
 
