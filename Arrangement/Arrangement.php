@@ -1356,6 +1356,7 @@ class Arrangement
     {
         if (!isset($this->netter)) {
             $netter = $this->getDager();
+            array_pop($netter);
             $this->netter = $netter;
         }
         return $this->netter;
