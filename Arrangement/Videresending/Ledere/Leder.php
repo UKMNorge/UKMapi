@@ -228,7 +228,7 @@ class Leder
             case 'hoved':
                 return 'Hovedleder';
             case 'utstilling':
-                return 'Utstillingsleder';
+                return 'Reiseleder 2';
             case 'reise':
                 return 'Reiseleder';
             case 'ledsager':
