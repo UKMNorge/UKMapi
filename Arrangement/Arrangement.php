@@ -1342,6 +1342,31 @@ class Arrangement
         return $this->dager;
     }
 
+    public function getDagerUansettKlokke() {
+        $start = $this->getStart();
+        $stop = $this->getStop();
+        $dager = [];
+
+        $start->setTime(0, 0, 0);
+        $stop->setTime(0, 0, 0);
+        
+
+        $period = new DatePeriod(
+            $start,
+            new DateInterval('P1D'),
+            $stop
+        );
+        $dager = iterator_to_array($period);
+
+        // Sort etter dato
+        usort($dager, function($firstDate, $secondDate) {        
+            if ($firstDate == $secondDate) return 0;
+            return $firstDate < $secondDate ? -1 : 1;
+        });
+
+        return $dager;
+    }
+
     public function getAntallDager()
     {
         return sizeof($this->getDager() ?? []);
@@ -1355,8 +1380,7 @@ class Arrangement
     public function getNetter()
     {
         if (!isset($this->netter)) {
-            $netter = $this->getDager();
-            array_pop($netter);
+            $netter = $this->getDagerUansettKlokke();
             $this->netter = $netter;
         }
         return $this->netter;
