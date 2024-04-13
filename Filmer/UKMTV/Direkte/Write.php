@@ -18,7 +18,7 @@ class Write
      * @param Int $varighet
      * @return Sending
      */
-    public function opprett(Int $hendelse_id, Int $start_offset, Int $varighet)
+    public static function opprett(Int $hendelse_id, Int $start_offset, Int $varighet)
     {
         $insert = new Insert('ukm_direkte');
         $insert->add('hendelse_id', $hendelse_id);
@@ -44,8 +44,9 @@ class Write
      * @return Bool
      * @throws Exception
      */
-    public function lagre(Sending $sending)
+    public static function lagre(Sending $sending)
     {
+        var_dump('lagre()');
         $db_sending = Sendinger::getById($sending->getId());
 
         $update = new Update(
@@ -87,7 +88,7 @@ class Write
      * @return Bool
      * @throws Exception
      */
-    public function slett(Hendelse $hendelse, Sending $sending)
+    public static function slett(Hendelse $hendelse, Sending $sending)
     {
         $delete = new Delete('ukm_direkte', ['id' => $sending->getId()]);
 
