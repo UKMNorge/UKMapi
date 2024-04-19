@@ -1341,14 +1341,20 @@ class Arrangement
         
         return $this->dager;
     }
-
-    public function getDagerUansettKlokke() {
+    
+    public function getDagerUansettKlokke($ekskluderSisteDag = false) {
         $start = $this->getStart();
         $stop = $this->getStop();
         $dager = [];
 
         $start->setTime(0, 0, 0);
-        $stop->setTime(0, 0, 0);
+
+        if($ekskluderSisteDag) {
+            $stop->setTime(0, 0, 0);
+        }
+        else {
+            $stop->setTime(23, 59, 59);
+        }
         
 
         $period = new DatePeriod(
@@ -1380,7 +1386,7 @@ class Arrangement
     public function getNetter()
     {
         if (!isset($this->netter)) {
-            $netter = $this->getDagerUansettKlokke();
+            $netter = $this->getDagerUansettKlokke(true);
             $this->netter = $netter;
         }
         return $this->netter;
