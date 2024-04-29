@@ -1,8 +1,8 @@
 <?php
 
 namespace UKMNorge\SearchArrangorsystemet;
+use UKMNorge\SearchArrangorsystemet\ContentIndex;
 
-// Show all php errors
 
 use UKMNorge\Database\SQL\Query;
 
