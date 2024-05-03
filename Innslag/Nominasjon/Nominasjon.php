@@ -486,7 +486,7 @@ class Nominasjon extends Placeholder
      * @return Innslag
      */
 	public function getInnslag() {
-		return new Innslag::getById($this->innslag_id);
+		return Innslag::getById($this->innslag_id);
 	}
 
 }
