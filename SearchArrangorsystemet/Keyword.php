@@ -29,6 +29,10 @@ class Keyword {
         return $this->name;
     }
 
+    public function setWeight(int $weight) {
+        $this->weight = $weight;
+    }
+
     public static function _load(string $id) {
         $sql = new Query(
             "SELECT * FROM ukm_search_as_keyword WHERE keyword_id = '#id'",

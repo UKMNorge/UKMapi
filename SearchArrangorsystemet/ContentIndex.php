@@ -1,6 +1,8 @@
 <?php
 
 namespace UKMNorge\SearchArrangorsystemet;
+
+use Exception;
 use UKMNorge\SearchArrangorsystemet\Keyword;
 
 use UKMNorge\Database\SQL\Query;
@@ -14,12 +16,12 @@ class ContentIndex {
     private string $title;
     private string $description;
     private string|null $contentType;
-    private string|null $context;
+    private string $context;
     private array $keywords = [];
 
     private static string $tableName = 'ukm_search_as_content_index';
 
-    public function __construct(string $id, string $siteUrl, string $title, string $description, string|null $contentType, string|null $context) {
+    public function __construct(string $id, string $siteUrl, string $title, string $description, string|null $contentType, string $context) {
         $this->id = $id;
         $this->siteUrl = $siteUrl;
         $this->title = $title;
@@ -40,6 +42,7 @@ class ContentIndex {
                 ci.title,
                 ci.description,
                 ci.content_type,
+                ci.context_id,
                 GROUP_CONCAT(kw.keyword_id ORDER BY ck.weight DESC SEPARATOR ',') AS keywords
             FROM 
                 ukm_search_as_content_index ci
@@ -55,13 +58,14 @@ class ContentIndex {
         foreach($res as $value) {
             $contentIndex = new ContentIndex($value['index_id'], $value['site_url'], $value['title'], $value['description'], $value['content_type'], $value['context_id']);
             $retArr[] = $contentIndex;
-    
+            
             // Generate keywords
-            foreach(explode(',', $value['keywords']) as $kwId) {
-                $contentIndex->addKeyword(Keyword::getById($kwId));
+            if($value['keywords']) {
+                foreach(explode(',', $value['keywords']) as $kwId) {
+                    $contentIndex->addKeyword(Keyword::getById($kwId));
+                }
             }
         }
-
         return $retArr;
     }
 
@@ -85,7 +89,7 @@ class ContentIndex {
         return $this->contentType;
     }
 
-    public function getContext(): string {
+    public function getContextId(): string {
         return $this->context;
     }
 
