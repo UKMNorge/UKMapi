@@ -42,14 +42,15 @@ class Write{
 
         // Insert connection
         $sqlConnection = new Query(
-            "INSERT IGNORE INTO ukm_search_as_content_keyword (index_id, keyword_id, weight) VALUES ('#indexId', '#keywordId', '#weight')",
+            "INSERT IGNORE INTO ukm_search_as_content_keyword (index_id, keyword_id, weight, timestamp) VALUES ('#indexId', '#keywordId', '#weight' , FROM_UNIXTIME('#timestamp'))",
             [
                 'indexId' => $contentIndexId,
                 'keywordId' => $keywordId,
-                'weight' => ($weight/100)
+                'weight' => ($weight/100),
+                'timestamp' => time()
             ]
         );
-            
+
         $sqlConnection->run();
 
         $kw = new Keyword($keywordId, $keyword->getName(), $weight);

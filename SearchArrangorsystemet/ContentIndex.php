@@ -43,7 +43,7 @@ class ContentIndex {
                 ci.description,
                 ci.content_type,
                 ci.context_id,
-                GROUP_CONCAT(kw.keyword_id ORDER BY ck.weight DESC SEPARATOR ',') AS keywords
+                GROUP_CONCAT(kw.keyword_id ORDER BY ck.timestamp ASC SEPARATOR ',') AS keywords
             FROM 
                 ukm_search_as_content_index ci
             LEFT JOIN 
@@ -51,7 +51,7 @@ class ContentIndex {
             LEFT JOIN 
                 ukm_search_as_keyword kw ON ck.keyword_id = kw.keyword_id
             GROUP BY 
-                ci.index_id   
+                ci.index_id
         ");
         $res = $sql->run();
         $retArr = [];
