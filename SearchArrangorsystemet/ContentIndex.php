@@ -62,7 +62,7 @@ class ContentIndex {
             // Generate keywords
             if($value['keywords']) {
                 foreach(explode(',', $value['keywords']) as $kwId) {
-                    $contentIndex->addKeyword(Keyword::getById($kwId));
+                    $contentIndex->addKeyword(Keyword::getById($kwId, $contentIndex->getId()));
                 }
             }
         }

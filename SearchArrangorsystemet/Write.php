@@ -3,6 +3,10 @@
 namespace UKMNorge\SearchArrangorsystemet;
 use UKMNorge\SearchArrangorsystemet\Keyword;
 use UKMNorge\Database\SQL\Insert;
+use UKMNorge\Database\SQL\Update;
+use UKMNorge\Database\SQL\Delete;
+
+
 
 
 use UKMNorge\Database\SQL\Query;
@@ -42,13 +46,13 @@ class Write{
             [
                 'indexId' => $contentIndexId,
                 'keywordId' => $keywordId,
-                'weight' => $weight
+                'weight' => ($weight/100)
             ]
         );
             
         $sqlConnection->run();
 
-        $kw = new Keyword($keywordId, $keyword->getName());
+        $kw = new Keyword($keywordId, $keyword->getName(), $weight);
         $kw->setWeight($weight);
 
         return $kw;
@@ -68,6 +72,8 @@ class Write{
         return true;
     }
 
+    // Content Index
+
     public static function createContentIndex(string $title, string $siteUrl, string $description, int $contextId) {
         $sql = new Insert("ukm_search_as_content_index");
         $sql->add('title', $title);
@@ -79,4 +85,46 @@ class Write{
 
         return new ContentIndex($insert_id, $siteUrl, $title, $description, null, $contextId);
     }
+
+    public static function updateContentIndex(ContentIndex $contentIndex) {
+        $query = new Update(
+            'ukm_search_as_content_index',
+            [
+                'index_id' => $contentIndex->getId()
+            ]  
+        );
+        $query->add('title', $contentIndex->getTitle());
+        $query->add('site_url', $contentIndex->getSiteUrl());
+        $query->add('description', $contentIndex->getDescription());
+        $query->add('context_id', $contentIndex->getContextId());
+
+        $res = $query->run();
+
+        return $res;
+    }
+
+    public static function deleteContentIndex(ContentIndex $contentIndex) {
+        // Delete all keyword connections
+        $sqlConnections = new Delete(
+            'ukm_search_as_content_keyword',
+            [
+                'index_id' => $contentIndex->getId()
+            ]
+        );
+
+        $resConnections = $sqlConnections->run();
+
+        // Delete content index
+        $sql = new Delete(
+            'ukm_search_as_content_index',
+            [
+                'index_id' => $contentIndex->getId()
+            ]
+        );
+
+        $res = $sql->run();
+
+        return $res && $resConnections;
+    }
+
 }
