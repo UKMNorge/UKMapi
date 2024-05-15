@@ -118,10 +118,16 @@ class Allergener {
 				'kategori' => 'kulturell',
 			],
 			[
-				'id' => 'storfe',
-				'navn' => 'Storfe',
+				'id' => 'Storfe',
+				'navn' => 'Spiser ikke Storfe',
 				'beskrivelse' => '',
-				'kategori' => 'standard',
+				'kategori' => 'kulturell',
+			],
+			[
+				'id' => 'Svin',
+				'navn' => 'Spiser ikke svin',
+				'beskrivelse' => '',
+				'kategori' => 'kulturell',
 			],
 			[
 				'id' => 'gluten',
