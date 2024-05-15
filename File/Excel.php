@@ -106,7 +106,9 @@ class Excel extends OfficeDok {
      * @param Int $rad=null
      * @return String $kolonne
      */
-    public function celle( String $kolonne, String $data, Int $rad=null) {
+    public function celle( String|null $kolonne, String|null $data, Int $rad=null) {
+        $kolonne = $kolonne != null ? $kolonne : '';
+        $data = $data != null ? $data : '';
         if( $rad == null ) {
             $rad = $this->getRad();
         }
