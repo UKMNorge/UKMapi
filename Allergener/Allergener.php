@@ -119,7 +119,7 @@ class Allergener {
 			],
 			[
 				'id' => 'Storfe',
-				'navn' => 'Spiser ikke Storfe',
+				'navn' => 'Spiser ikke storfe',
 				'beskrivelse' => '',
 				'kategori' => 'kulturell',
 			],
