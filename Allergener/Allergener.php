@@ -121,7 +121,7 @@ class Allergener {
 				'id' => 'storfe',
 				'navn' => 'Storfe',
 				'beskrivelse' => '',
-				'kategori' => 'kulturell',
+				'kategori' => 'standard',
 			],
 			[
 				'id' => 'gluten',
