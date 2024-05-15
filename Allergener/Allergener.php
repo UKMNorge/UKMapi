@@ -196,6 +196,12 @@ class Allergener {
 				'kategori' => 'standard',
 			],
 			[
+				'id' => 'sitrus',
+				'navn' => 'Sitrus',
+				'beskrivelse' => '',
+				'kategori' => 'standard',
+			],
+			[
 				'id' => 'svoveldioksid_og_sulfitter',
 				'navn' => 'Svoveldioksid og sulfitter',
 				'beskrivelse' => 'Sulfitt brukes ofte til konservering av frukt og grønnsaker (inklusive tomat), og i noen kjøttprodukter, så vel som i brus, juice, vin og øl.',
