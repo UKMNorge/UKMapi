@@ -17,15 +17,20 @@ class Search {
             if(static::searchText($blog->blogname, $searchInput)) {
                 $blog_id = $blog->userblog_id; // Get the blog ID
                 switch_to_blog($blog_id); // Switch to the context of the current blog
-                $retBlogs[] = [
-                    'site_id' => $blog->site_id,
-                    'userblog_id' => $blog->userblog_id,
-                    'title' => $blog->blogname,
-                    'siteUrl' => $blog->siteurl,
-                    'site_type' => get_option('site_type'),
-                    'pl_id' => get_option('pl_id'),
-                    'kommune' => get_option('kommune'),
-                ];
+                
+                // Henter kun arrangementer herfra
+                if(get_option('site_type') == 'arrangement') {
+                    $retBlogs[] = [
+                        'site_id' => $blog->site_id,
+                        'userblog_id' => $blog->userblog_id,
+                        'title' => $blog->blogname,
+                        'siteUrl' => $blog->siteurl,
+                        'site_type' => get_option('site_type'),
+                        'pl_id' => get_option('pl_id'),
+                        'kommune' => get_option('kommune'),
+                    ];
+                }
+
                 restore_current_blog();
             }
         }   
@@ -41,7 +46,7 @@ class Search {
         foreach($omrader as $omrade) {
             if(static::searchText($omrade->getNavn(), $searchInput)) {
                 $retOmrader[] = [
-                    'id' => $omrade->getId(),
+                    'id' => $omrade->getForeignId(),
                     'navn' => $omrade->getNavn(),
                     'type' => $omrade->getType(),
                     'siteUrl' => $omrade->getLink(),
@@ -58,9 +63,14 @@ class Search {
 
     private static function searchText($entitytext, $searchInput) : bool {
         $searchThreshold = 3;
-        $distance = levenshtein($searchInput, $entitytext);
+        $distance = levenshtein($entitytext, $searchInput);
 
-        return $distance < $searchThreshold;
+        if($distance < $searchThreshold) {
+            return true;
+        }
+
+        // Check for exact string position
+        return strpos(strtolower($entitytext), strtolower($searchInput)) !== false;
     }
 }
 
