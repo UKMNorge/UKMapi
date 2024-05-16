@@ -28,6 +28,7 @@ class Search {
                         'site_type' => get_option('site_type'),
                         'pl_id' => get_option('pl_id'),
                         'kommune' => get_option('kommune'),
+                        'season' => get_option('season'),
                     ];
                 }
 
