@@ -14,7 +14,7 @@ class Search {
         $retBlogs = [];
         // Search for blogname
         foreach ($blogs as $blog) {
-            if(static::searchText($blog->blogname, $searchInput)) {
+            if(static::searchBasedOnText($blog->blogname, $searchInput)) {
                 $blog_id = $blog->userblog_id; // Get the blog ID
                 switch_to_blog($blog_id); // Switch to the context of the current blog
                 
@@ -45,7 +45,20 @@ class Search {
         $current_admin = new Administrator(get_current_user_id());
         $omrader = $current_admin->getOmrader();
         foreach($omrader as $omrade) {
-            if(static::searchText($omrade->getNavn(), $searchInput)) {
+            // Alle kommuner i fylket
+            if($omrade->getType() == 'fylke') {
+                foreach($omrade->getFylke()->getKommuner() as $kommune) {
+                    if(static::searchBasedOnText($kommune->getNavn(), $searchInput)) {
+                        $retOmrader[] = [
+                            'id' => $kommune->getId(),
+                            'navn' => $kommune->getNavn(),
+                            'type' => 'kommune',
+                            'siteUrl' => $kommune->getLink(),
+                        ];
+                    }
+                }
+            }
+            if(static::searchBasedOnText($omrade->getNavn(), $searchInput)) {
                 $retOmrader[] = [
                     'id' => $omrade->getForeignId(),
                     'navn' => $omrade->getNavn(),
@@ -62,7 +75,7 @@ class Search {
     
     }
 
-    private static function searchText($entitytext, $searchInput) : bool {
+    private static function searchBasedOnText($entitytext, $searchInput) : bool {
         $searchThreshold = 3;
         $distance = levenshtein($entitytext, $searchInput);
 
