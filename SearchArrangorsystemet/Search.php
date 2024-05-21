@@ -2,6 +2,8 @@
 
 namespace UKMNorge\SearchArrangorsystemet;
 use UKMNorge\Nettverk\Administrator;
+use UKMNorge\Arrangement\Arrangement;
+use UKMNorge\SearchArrangorsystemet\ClientObject;
 
 use UKMNorge\Database\SQL\Query;
 
@@ -9,7 +11,7 @@ require_once('UKM/Autoloader.php');
 
 class Search {
     // Brukere kan søke på arrangementer, innslag, blogginnlegg, og brukere
-    public static function sokBlogs(String $searchInput) {
+    public static function sokBlogs(string $searchInput) {
         $blogs = get_blogs_of_user(get_current_user_id());
         $retBlogs = [];
         // Search for blogname
@@ -39,40 +41,57 @@ class Search {
         return $retBlogs;
     }
     
-    public static function searchOmraader($searchInput) {
+    public static function searchOmraader($searchInput) : array {
         $retOmrader = [];
 
         $current_admin = new Administrator(get_current_user_id());
         $omrader = $current_admin->getOmrader();
         foreach($omrader as $omrade) {
-            // Alle kommuner i fylket
+            // Søk alle kommuner hvis område er fylket
             if($omrade->getType() == 'fylke') {
                 foreach($omrade->getFylke()->getKommuner() as $kommune) {
                     if(static::searchBasedOnText($kommune->getNavn(), $searchInput)) {
-                        $retOmrader[] = [
-                            'id' => $kommune->getId(),
-                            'navn' => $kommune->getNavn(),
-                            'type' => 'kommune',
-                            'siteUrl' => $kommune->getLink(),
-                        ];
+                        $cObject = new ClientObject($kommune->getId(), $kommune->getNavn(), 'kommune', $kommune->getLink());
+                        $retOmrader[] = $cObject->toArray();
                     }
                 }
             }
             if(static::searchBasedOnText($omrade->getNavn(), $searchInput)) {
-                $retOmrader[] = [
-                    'id' => $omrade->getForeignId(),
-                    'navn' => $omrade->getNavn(),
-                    'type' => $omrade->getType(),
-                    'siteUrl' => $omrade->getLink(),
-                ];
+                $cObject = new ClientObject($omrade->getId(), $omrade->getNavn(), $omrade->getType(), $omrade->getLink());
+                $retOmrader[] = $cObject->toArray();
             }
         }
 
         return $retOmrader;
     }
 
-    public function sokDeltakere() {
-    
+    public static function sokDeltakere(Arrangement $arrangement, string $searchInput) : array{
+        $retObjs = [];
+
+        foreach($arrangement->getInnslag()->getAll() as $innslag) {
+            foreach($innslag->getPersoner()->getAll() as $person) {
+                if( $person->getMobil() == $searchInput ||
+                    $person->getEpost() == $searchInput ||
+                    $person->getRolle() == $searchInput ||
+                    static::searchBasedOnText($person->getNavn(), $searchInput)) {
+                        $cObject = new ClientObject($person->getId(), $person->getNavn(), 'person', $arrangement->getLink().'/wp-admin/admin.php?page=UKMdeltakere&openInnslag='.$innslag->getId(), 'Innslag: '.$innslag->getNavn());
+                        $retObjs[] = $cObject->toArray();
+                }
+            }
+        }
+        return $retObjs;
+    }
+
+    public static function sokInnslag(Arrangement $arrangement, string $searchInput) : array {
+        $retObjs = [];
+        foreach($arrangement->getInnslag()->getAll() as $innslag) {
+            if(static::searchBasedOnText($innslag->getNavn(), $searchInput)) {
+                $cObject = new ClientObject($innslag->getId(), $innslag->getNavn(), 'innslag', $arrangement->getLink().'/wp-admin/admin.php?page=UKMdeltakere&openInnslag='.$innslag->getId());
+                $retObjs[] = $cObject->toArray();
+            }
+        }
+
+        return $retObjs;
     }
 
     private static function searchBasedOnText($entitytext, $searchInput) : bool {
