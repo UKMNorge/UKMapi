@@ -27,12 +27,8 @@ class Write{
             $keywordId = $res['keyword_id'];
         // If keyword does not exist, create it
         } else {
-            $sql = new Query(
-                "INSERT INTO ukm_search_as_keyword (keyword_name) VALUES ('#name');",
-                [
-                    'name' => $keyword->getName()
-                ]
-            );
+            $sql = new Insert('ukm_search_as_keyword');
+            $sql->add('keyword_name', $keyword->getName());
             $res = $sql->run();
 
             // Assigning id to keyword
@@ -41,15 +37,22 @@ class Write{
         }
 
         // Insert connection
-        $sqlConnection = new Query(
-            "INSERT IGNORE INTO ukm_search_as_content_keyword (index_id, keyword_id, weight, timestamp) VALUES ('#indexId', '#keywordId', '#weight' , FROM_UNIXTIME('#timestamp'))",
-            [
-                'indexId' => $contentIndexId,
-                'keywordId' => $keywordId,
-                'weight' => ($weight/100),
-                'timestamp' => time()
-            ]
-        );
+        $sqlConnection = new Insert('ukm_search_as_content_keyword');
+        $sqlConnection->add('index_id', $contentIndexId);
+        $sqlConnection->add('keyword_id', $keywordId);
+        $sqlConnection->add('weight', $weight/100);
+        $sqlConnection->add('timestamp', date('Y-m-d H:i:s', time()));
+
+
+        // $sqlConnection = new Query(
+        //     "INSERT IGNORE INTO ukm_search_as_content_keyword (index_id, keyword_id, weight, timestamp) VALUES ('#indexId', '#keywordId', '#weight' , FROM_UNIXTIME('#timestamp'))",
+        //     [
+        //         'indexId' => $contentIndexId,
+        //         'keywordId' => $keywordId,
+        //         'weight' => ($weight/100),
+        //         'timestamp' => time()
+        //     ]
+        // );
 
         $sqlConnection->run();
 
