@@ -8,7 +8,6 @@ use UKMNorge\Database\SQL\Delete;
 
 
 
-
 use UKMNorge\Database\SQL\Query;
 
 class Write{
@@ -131,4 +130,53 @@ class Write{
         return $res && $resConnections;
     }
 
+    public static function createSearchLog(string $searchText, string $contextId, int $userId) : int {
+        $sql = new Insert('ukm_search_as_searched_query');
+        $sql->add('query_text', $searchText);
+        $sql->add('user_id', $userId);
+        $sql->add('context_id', $contextId);
+        $sql->add('created_at', date('Y-m-d H:i:s', time()));
+        
+        $res = $sql->run();
+
+        return $res;
+    }
+
+    public static function clickedResult($queryId, $indexId, $text = null) {
+        // Check if the userId is the same
+        $sql = new Query(
+            "SELECT user_id, clicked_index_id FROM ukm_search_as_searched_query WHERE query_id = '#id'",
+            [
+                'id' => $queryId
+            ]
+        );
+        
+        $res = $sql->run('array');
+
+        // Result is not found or the index has already been clicked
+        if(!$res || $res['clicked_index_id'] != null) {
+            return false;
+        }
+        // User is not the same
+        if(!$res['user_id'] || $res['user_id'] != get_current_user_id()) {
+            return false;
+        }
+        
+        // Update the clicked index
+        $updateQuery = new Update(
+            'ukm_search_as_searched_query',
+            [
+                'query_id' => $queryId
+            ]
+        );
+        
+        // If it has text, use text, else use indexId
+        if($text != null) {
+            $updateQuery->add('clicked_text', $text);
+        } else {
+            $updateQuery->add('clicked_index_id', $indexId);
+        }
+
+        $res = $updateQuery->run();
+    }
 }

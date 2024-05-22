@@ -40,6 +40,17 @@ class Search {
 
         return $retBlogs;
     }
+
+    public static function searchLog(string $searchInput, string $contextId) : int {
+        return Write::createSearchLog($searchInput, $contextId, get_current_user_id());
+    }
+
+    public static function clickedResult($logId, $resultId, $text=null) : void {
+        if($logId == null || $logId == -1) {
+            return;
+        }
+        Write::clickedResult($logId, $resultId, $text);
+    }
     
     public static function searchOmraader($searchInput) : array {
         $retOmrader = [];
