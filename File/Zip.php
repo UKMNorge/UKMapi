@@ -13,9 +13,12 @@ class Zip {
 	var $debug = false;
 	var $tryCatch = false;
 	
+	//var $maxNumFiles = 1000;
+	//var $maxSizeFile = 104857600; // 100MB
+	//var $maxSizeTotal = 1572864000; // 1500MB
 	var $maxNumFiles = 1000;
-	var $maxSizeFile = 104857600; // 100MB
-	var $maxSizeTotal = 1572864000; // 1500MB
+	var $maxSizeFile = 1048576000; // 1000MB
+	var $maxSizeTotal = 2000000000; // 2500MB
 	
 	var $countFiles = 0;
 	var $countSize = 0;
