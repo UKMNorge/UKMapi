@@ -86,7 +86,7 @@ class HandleAPICall {
      * @return void
      */
     public function sendErrorToClient($message, int $statusCode) : void {
-        $this->sendToClient(is_array($message) ? $message : array('details' => $message), $statusCode);
+        $this->sendToClient(is_array($message) ? $message : $message, $statusCode);
     }
 
     /**
