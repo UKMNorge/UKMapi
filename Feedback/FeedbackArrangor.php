@@ -4,6 +4,8 @@ namespace UKMNorge\Feedback;
 
 
 class FeedbackArrangor extends Feedback {
+    private $platform = 2;
+    private $campaignId;
 
     /**
      * Opprett FeedbackArrangor-objekt
@@ -11,14 +13,32 @@ class FeedbackArrangor extends Feedback {
      * @param Int $id
      * @param FeedbackResponse[] $responses
      */
-    public function __construct( Int $id, array $responses ) {
-		die('Feedback for arrangører er ikke implementert ennå.');
-        parent::__construct($id, $responses, -1);
+    public function __construct( Int $id, array $responses, Int $userId, Int $campaignId) {
+        parent::__construct($id, $responses, $userId);
+        $this->campaignId = $campaignId;
 
     }
 
+    /**
+     * Hent kampanje ID
+     *
+     * @return Int
+     */
+    public function getCampaignId() {
+        return $this->campaignId;
+    }
+
+    public function save() {
+        Write::saveFeedback($this);
+    }
+
+    /**
+     * Hent platform
+     *
+     * @return Int
+     */
     public function getPlatform() {
-        return -1; #plarform er ikke implementert.
+        return $this->platform;
     }
     
 }

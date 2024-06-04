@@ -17,7 +17,7 @@ class Write {
      * @param Feedback $feedback
      * @return int|false feedback_id eller false hvis det ikke gikk bra
      */
-	public static function saveFeedback(Feedback $feedback ) {		
+	public static function saveFeedback(Feedback $feedback ) {
         // Sjekker om det er ny Feedback (-1) eller som finnes fra før (har en id fra før);
         if($feedback->getId() > -1) {
             // oppdater
@@ -27,7 +27,13 @@ class Write {
             // opprett
             $sql = new Insert('feedback');
             $sql->add('user_id', $feedback->getUserId() );
-            $sql->add('platform', $feedback->getPlatform());		
+            $sql->add('platform', $feedback->getPlatform());
+            
+            // Add campaign_id if feedback is FeedbackArrangor
+            if($feedback instanceof FeedbackArrangor) {
+                $sql->add('campaign_id', $feedback->getCampaignId());
+            }	
+            
             $feedback_id = $sql->run();
         }
         

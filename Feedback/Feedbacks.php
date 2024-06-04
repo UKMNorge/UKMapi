@@ -53,6 +53,37 @@ class Feedbacks extends Collection
     }
 
     /**
+     * Get single Feedback for campaign
+     * 
+     * @param Int $userId
+     * @param Int $campaignId
+     * 
+    * @return Array[FeedbackArrangor]
+     **/
+    static function getAllFeedbacksUserCampaign(Int $userId, Int $campaignId) {
+        $SQL = new Query(
+            "SELECT feedback.*
+            FROM feedback
+            WHERE feedback.user_id = '#feedback_id'
+            AND feedback.campaign_id = '#campaign_id'",
+            [
+                'feedback_id' => $userId,
+                'campaign_id' => $campaignId
+            ]
+        );
+        
+        $retArr = [];
+
+        $res = $SQL->run();
+		while($r = Query::fetch($res)) {
+            $id = $r['id'];
+            $retArr[] = new FeedbackArrangor($id, static::loadResponses($id), $r['user_id'], $r['campaign_id']);
+        }
+        
+        return $retArr;
+    }
+
+    /**
      * Get alle Feedback for user
      * 
      * @param String $userId
@@ -81,7 +112,7 @@ class Feedbacks extends Collection
         // Legg til Feedback liste
         while ($r = Query::fetch($res)) {
             $id = $r['id'];
-            $feedback = Feedback::opprettRiktigInstanse($id, $this->loadResponses($id), $r['user_id'], $r['platform']);
+            $feedback = Feedback::opprettRiktigInstanse($id, static::loadResponses($id), $r['user_id'], $r['platform']);
             $feedbacks[] = $feedback;
         }
 
@@ -108,7 +139,7 @@ class Feedbacks extends Collection
         // Legg til Feedback liste
         while ($r = Query::fetch($res)) {
             $id = $r['id'];
-            $feedback = Feedback::opprettRiktigInstanse($id, $this->loadResponses($id), $r['user_id'], $r['platform']);
+            $feedback = Feedback::opprettRiktigInstanse($id, static::loadResponses($id), $r['user_id'], $r['platform']);
             $this->add($feedback);
         }
     }
@@ -118,7 +149,7 @@ class Feedbacks extends Collection
      * 
      * @return Array[FeedbackResponse]
      **/
-    private function loadResponses($feedbackId) : array {
+    private static function loadResponses($feedbackId) : array {
         $responses = array();
         $SQL = new Query(
             "SELECT * from feedback_response WHERE `feedback_id` = '#feedback_id'",
