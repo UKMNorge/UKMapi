@@ -32,10 +32,15 @@ abstract class Feedback {
      * @param Int $platform
      * @return FeedbackDelta|FeedbackArrangor
      */
-    public static function opprettRiktigInstanse(Int $id, array $responses, Int $userId, Int $platform) {
+    public static function opprettRiktigInstanse(Int $id, array $responses, Int $userId, Int $platform, Int $campaignId = null) {
         // Delta (påmeldingssystemet) er platform 1
         if($platform == 1) {
             return new FeedbackDelta($id, $responses, $userId);
+        }
+
+        // Arrangørsystemet er platform 2
+        if($platform == 2) {
+            return new FeedbackArrangor($id, $responses, $userId, $campaignId);
         }
 
         // Platformen er ikke definert i systemetet.

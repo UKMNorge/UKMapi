@@ -49,7 +49,7 @@ class Feedbacks extends Collection
         if(!$res) return null;
         
         $id = $res['id'];
-        return Feedback::opprettRiktigInstanse($id, static::loadResponses($id), $res['user_id'], $res['platform']);
+        return Feedback::opprettRiktigInstanse($id, static::loadResponses($id), $res['user_id'], $res['platform'], $res['campaign_id']);
     }
 
     /**
@@ -112,7 +112,7 @@ class Feedbacks extends Collection
         // Legg til Feedback liste
         while ($r = Query::fetch($res)) {
             $id = $r['id'];
-            $feedback = Feedback::opprettRiktigInstanse($id, static::loadResponses($id), $r['user_id'], $r['platform']);
+            $feedback = Feedback::opprettRiktigInstanse($id, static::loadResponses($id), $r['user_id'], $r['platform'], $r['campaign_id']);
             $feedbacks[] = $feedback;
         }
 
@@ -139,7 +139,7 @@ class Feedbacks extends Collection
         // Legg til Feedback liste
         while ($r = Query::fetch($res)) {
             $id = $r['id'];
-            $feedback = Feedback::opprettRiktigInstanse($id, static::loadResponses($id), $r['user_id'], $r['platform']);
+            $feedback = Feedback::opprettRiktigInstanse($id, static::loadResponses($id), $r['user_id'], $r['platform'], $r['campaign_id']);
             $this->add($feedback);
         }
     }
