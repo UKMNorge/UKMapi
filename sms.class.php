@@ -290,7 +290,7 @@ class SMS {
 			return false;
 		}
 		
-		if($this->id_system == 'wordpress' && (int)$this->id_place == 0) {
+		if(!is_super_admin() && $this->id_system == 'wordpress' && (int)$this->id_place == 0) {
 			$this->_error('Mangler mønstrings-ID (pl_id)');
 			return false;
 		}
