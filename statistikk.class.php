@@ -323,6 +323,13 @@ class statistikk {
 		$delete->run();
 
 		$videresending = $isHomeArrangement ? 0 : 1;
+		if($currentArrangement->erSingelmonstring()) {
+			$kommune = $currentArrangement->getKommune()->getId();
+		}else {
+			$kommune = $innslag->getKommune()->getId();
+		}
+
+		$fylke = $isHomeArrangement ? $homeArrangement->getFylke()->getId() : $currentArrangement->getFylke()->getId();
 
 		if( $innslag->getStatus() == 8 ) {
 			foreach( $innslag->getPersoner()->getAll() as $person ) { // behandle hver person
@@ -334,15 +341,15 @@ class statistikk {
 				$stats_info = array(
 					"b_id" => $innslag->getId(), // innslag-id
 					"p_id" => $person->getId(), // person-id
-					"k_id" => $innslag->getKommune()->getId(), // kommune-id
-					"f_id" => $innslag->getFylke()->getId(), // fylke-id
+					"k_id" => $kommune, // kommune-id
+					"f_id" => $fylke, // fylke-id
 					"bt_id" => $innslag->getType()->getId(), // innslagstype-id
-					"subcat" => $innslag->getKategori(), // underkategori
+					"subcat" => $innslag->getType()->getNavn(), // underkategori
 					"age" => $person->getAlder('') == '25+' ? 0 : $person->getAlder(''), // alder
 					"sex" => $person->getKjonn(), // kjonn
 					"time" =>  $time, // tid ved registrering
-					"fylke" => false, // dratt pa fylkesmonstring?
-					"land" => false, // dratt pa festivalen?
+					"fylke" => $currentArrangement->getType() == 'fylke', // fylkesmonstring?
+					"land" => $currentArrangement->getType() == 'land', // festivalen?
 					"season" => $innslag->getSesong(), // sesong
 					"pl_id_home" => $homeArrangement->getId(), // home pl_id
 					"pl_id" => $currentArrangement->getId(), // current pl_id
