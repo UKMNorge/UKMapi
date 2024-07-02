@@ -321,6 +321,7 @@ class Write {
 		$smartukm_band->add('b_status', $innslag_save->getStatus() );
 		$res = $smartukm_band->run();
 
+		// Oppdater statistikk
 		require_once('UKM/statistikk.class.php');
 		statistikk::oppdater_innslag( $innslag_save );
 		
@@ -379,6 +380,9 @@ class Write {
 				WritePerson::fjern( $person );
 			}
 		}
+
+		require_once('UKM/statistikk.class.php');
+		statistikk::oppdater_innslag( $innslag_save );
 	}
 
 
