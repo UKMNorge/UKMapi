@@ -5,6 +5,8 @@ use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Database\SQL\Update;
 use UKMNorge\Innslag\Innslag;
+use UKMNorge\Arrangement\Arrangement;
+
 
 require_once 'UKM/Autoloader.php';
 
@@ -272,11 +274,55 @@ class statistikk {
 	 * @param (Innslag) $innslag
 	 * @return void
 	**/
-	public static function oppdater_innslag( Innslag $innslag ) {
-		$delete = new Delete('ukm_statistics',
-							 array('season' => $innslag->getSesong(),
-							 	   'b_id' => $innslag->getId()));
+	public static function oppdater_innslag(Innslag $innslag, Arrangement $tilArrangement = null) {
+		/*
+			Oppdater innslag bare hvis arrangementet ikke er ferdig
+			Statistikk må ikke påvirkes av endringer som skjer etter at arrangementet ble utført. For eksempel, fjerning av deltakere senere skal ikke gjenspeilses i statistikk.
+		*/
+		$homeArrangement = $innslag->getHome();
+		$currentArrangement = null;
+
+		if($tilArrangement) {
+			$currentArrangement = $tilArrangement;
+		}
+		else if($innslag->getContext() && $innslag->getContext()->getMonstring()) {
+			try{
+				$currentArrangement = new Arrangement($innslag->getContext()->getMonstring()->getId());
+			}catch(Exception $e) {
+
+			}
+		}
+		
+		// Innslag is being edited in another arrangement (videresending) or home arrangement
+		$isHomeArrangement = null;
+		if($currentArrangement == null) {
+			$isHomeArrangement = true;
+		} else {
+			$isHomeArrangement = $homeArrangement->getId() == $currentArrangement->getId();
+		}
+
+		// Hvis arrangementet er ferdig og det redigeres fra home arrangement, ikke oppdater statistikk
+		if($isHomeArrangement && $homeArrangement->erFerdig()) {
+			return;
+		}
+		// Hvis arrangementet er ferdig og det redigeres fra et annet arrangement (videresending), ikke oppdater statistikk
+		if(!$isHomeArrangement && $currentArrangement->erFerdig()) {
+			return;
+		}
+
+		$dbArray = array(
+			'season' => $innslag->getSesong(),
+			'b_id' => $innslag->getId(),
+	   		'pl_id_home' => $homeArrangement->getId(),
+		);
+
+		if(!$isHomeArrangement) {
+			$dbArray['pl_id'] = $currentArrangement->getId();
+		}
+		$delete = new Delete('ukm_statistics', $dbArray);
 		$delete->run();
+
+		$videresending = $isHomeArrangement ? 0 : 1;
 
 		if( $innslag->getStatus() == 8 ) {
 			foreach( $innslag->getPersoner()->getAll() as $person ) { // behandle hver person
@@ -297,7 +343,11 @@ class statistikk {
 					"time" =>  $time, // tid ved registrering
 					"fylke" => false, // dratt pa fylkesmonstring?
 					"land" => false, // dratt pa festivalen?
-					"season" => $innslag->getSesong() // sesong
+					"season" => $innslag->getSesong(), // sesong
+					"pl_id_home" => $homeArrangement->getId(), // home pl_id
+					"pl_id" => $currentArrangement->getId(), // current pl_id
+					"videresending" => $videresending
+
 				);
 				
 				// faktisk lagre det 
@@ -305,6 +355,9 @@ class statistikk {
 						" WHERE `b_id` = '" . $stats_info["b_id"] . "'" .
 						" AND `p_id` = '" . $stats_info["p_id"] . "'" .
 						" AND `k_id` = '" . $stats_info["k_id"] . "'"  .
+						" AND `pl_id_home` = '" . $stats_info["pl_id_home"] . "'"  .
+						" AND `pl_id` = '" . $stats_info["pl_id"] . "'"  .
+						" AND `videresending` = '" . $stats_info["videresending"] . "'"  .
 						" AND `season` = '" . $stats_info["season"] . "'";
 				$sql = new Query($qry);
 				// Sjekke om ting skal settes inn eller oppdateres
@@ -313,6 +366,9 @@ class statistikk {
 						"b_id" => $stats_info["b_id"], // innslag-id
 						"p_id" => $stats_info["p_id"], // person-id
 						"k_id" => $stats_info["k_id"], // kommune-id
+						"pl_id_home" => $stats_info["pl_id_home"], // home pl_id
+						"pl_id" => $stats_info["pl_id"], // current pl_id
+						"videresending" => $stats_info["videresending"], // er innslaget videresendt?
 						"season" => $stats_info["season"], // kommune-id
 					) );
 				} else {
@@ -328,6 +384,24 @@ class statistikk {
 		}
 	}
 
+	/**
+	 * 
+	 *
+	 * @param Arrangement $arrangement
+	 * @param Innslag $innslag
+	 * @return void
+	 */
+	public static function avmeldVideresending(Arrangement $tilArrangement, Innslag $innslag) {
+		$dbArray = array(
+			'season' => $innslag->getSesong(),
+			'b_id' => $innslag->getId(),
+	   		'pl_id' => $tilArrangement->getId(),
+			'videresending' => '1'
+		);
+
+		$delete = new Delete('ukm_statistics', $dbArray);
+		$delete->run();
+	}
 	
 	
 	private function _load($season) {
