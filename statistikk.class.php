@@ -39,12 +39,12 @@ class statistikk {
          */
 	public function getTotal($season) {
            $missing = 0;
-           $query_persons = "SELECT count(`stat_id`) as `persons` FROM `ukm_statistics`
+           $query_persons = "SELECT count(`stat_id`) as `persons` FROM `ukm_statistics_from_2024`
                                 WHERE `season`='#season'
                                 AND `f_id` < 21
                                 AND `time` NOT LIKE '#season-11-%'
                                 AND `time` NOT LIKE '#season-10-%'";
-            $query_bands = "SELECT COUNT(DISTINCT `b_id`) as `bands` FROM `ukm_statistics` 
+            $query_bands = "SELECT COUNT(DISTINCT `b_id`) as `bands` FROM `ukm_statistics_from_2024` 
                             WHERE `season`='#season'
                             AND `f_id` < 21
                             AND `time` NOT LIKE '#season-11-%'
@@ -123,11 +123,11 @@ class statistikk {
 		if (!$this->type) return array();
 		
 		// Finner telling for hver bandtype (kategori)
-		$qry = "SELECT `bt_id`, COUNT(*) as `count` FROM `ukm_statistics`".
+		$qry = "SELECT `bt_id`, COUNT(*) as `count` FROM `ukm_statistics_from_2024`".
 				" WHERE `season` =#season AND `bt_id`>0";
 				
 		// finner telling for subkategorier i Scene
-		$subcat_qry = "SELECT `subcat`,COUNT(*) AS `count` FROM `ukm_statistics`".
+		$subcat_qry = "SELECT `subcat`,COUNT(*) AS `count` FROM `ukm_statistics_from_2024`".
 				" WHERE `season` =#season AND `bt_id` = 1";
 		
 		
@@ -190,8 +190,8 @@ class statistikk {
 		return $array;
 
 //test-queries
-// select COUNT(*),`bt_id` from `ukm_statistics` where `season` = 2009 AND `f_id` = 2 AND `bt_id` > 0 GROUP BY `bt_id` ORDER BY `bt_id` asc;
-// test-spørring: select * from `ukm_statistics` where `f_id` = 2 and `season` = 2009 and `bt_id` = 1;
+// select COUNT(*),`bt_id` from `ukm_statistics_from_2024` where `season` = 2009 AND `f_id` = 2 AND `bt_id` > 0 GROUP BY `bt_id` ORDER BY `bt_id` asc;
+// test-spørring: select * from `ukm_statistics_from_2024` where `f_id` = 2 and `season` = 2009 and `bt_id` = 1;
 
 		// 1377		
 		
@@ -202,12 +202,12 @@ class statistikk {
 			
 			// Finner telling for hver person (kategori)
 			$qry = "SELECT `bt_id`, COUNT(*) AS count FROM".
-						" (SELECT `bt_id` FROM `ukm_statistics`".
+						" (SELECT `bt_id` FROM `ukm_statistics_from_2024`".
 						" WHERE `season` =#season AND `bt_id`>0";
 					
 			// finner telling for subkategorier i Scene
 			$subcat_qry =	"SELECT `subcat`, COUNT(*) AS count FROM".
-								" (select `subcat` from `ukm_statistics`".
+								" (select `subcat` from `ukm_statistics_from_2024`".
 								" WHERE `season` =#season AND `bt_id`=1";
 			
 			if ($this->type == 'kommune') {
@@ -319,7 +319,7 @@ class statistikk {
 		if(!$isHomeArrangement) {
 			$dbArray['pl_id'] = $currentArrangement->getId();
 		}
-		$delete = new Delete('ukm_statistics', $dbArray);
+		$delete = new Delete('ukm_statistics_from_2024', $dbArray);
 		$delete->run();
 
 		$videresending = $isHomeArrangement ? 0 : 1;
@@ -358,7 +358,7 @@ class statistikk {
 				);
 				
 				// faktisk lagre det 
-				$qry = "SELECT * FROM `ukm_statistics`" .
+				$qry = "SELECT * FROM `ukm_statistics_from_2024`" .
 						" WHERE `b_id` = '" . $stats_info["b_id"] . "'" .
 						" AND `p_id` = '" . $stats_info["p_id"] . "'" .
 						" AND `k_id` = '" . $stats_info["k_id"] . "'"  .
@@ -369,7 +369,7 @@ class statistikk {
 				$sql = new Query($qry);
 				// Sjekke om ting skal settes inn eller oppdateres
 				if (Query::numRows($sql->run()) > 0) {
-					$sql_ins = new Update('ukm_statistics', array(
+					$sql_ins = new Update('ukm_statistics_from_2024', array(
 						"b_id" => $stats_info["b_id"], // innslag-id
 						"p_id" => $stats_info["p_id"], // person-id
 						"k_id" => $stats_info["k_id"], // kommune-id
@@ -379,7 +379,7 @@ class statistikk {
 						"season" => $stats_info["season"], // kommune-id
 					) );
 				} else {
-					$sql_ins = new Insert("ukm_statistics");
+					$sql_ins = new Insert("ukm_statistics_from_2024");
 				}
 				
 				// Legge til info i insert-sporringen
@@ -406,7 +406,7 @@ class statistikk {
 			'videresending' => '1'
 		);
 
-		$delete = new Delete('ukm_statistics', $dbArray);
+		$delete = new Delete('ukm_statistics_from_2024', $dbArray);
 		$delete->run();
 	}
 	
@@ -414,7 +414,7 @@ class statistikk {
 	private function _load($season) {
                 $kommuneList = implode(', ', $this->kommuner);
 		
-		$sql = new Query("SELECT * FROM `ukm_statistics`
+		$sql = new Query("SELECT * FROM `ukm_statistics_from_2024`
 						WHERE `k_id` IN (#kommuneList)
 						AND `season` = '#season'",
 						array('kommuneList' => $kommuneList, 'season' => $season));
