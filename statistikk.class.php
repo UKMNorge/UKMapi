@@ -402,7 +402,14 @@ class statistikk {
 	 * @param Innslag $innslag
 	 * @return void
 	 */
-	public static function avmeldVideresending(Arrangement $tilArrangement, Innslag $innslag) {
+	public static function avmeldVideresending(Innslag $innslag, Arrangement $tilArrangement) {
+		foreach(Innslag::getById($innslag->getId())->getTitler()->getAll() as $tittel) {
+			// Hvis det finnes en tittel som er videresend, da skal personene ikke fjernes fra statistikken
+			if($tittel->erPameldt($tilArrangement->getId())) {
+				return;
+			}
+		}
+		
 		$dbArray = array(
 			'season' => $innslag->getSesong(),
 			'b_id' => $innslag->getId(),
