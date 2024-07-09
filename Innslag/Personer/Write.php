@@ -12,6 +12,9 @@ use UKMNorge\Geografi\Kommune;
 use UKMNorge\Log\Logger;
 use UKMNorge\Tools\Sanitizer;
 
+require_once('UKM/statistikk.class.php');
+use statistikk;
+
 
 use UKMNorge\Samtykke\Person as PersonSamtykke;
 
@@ -321,6 +324,9 @@ class Write {
 			static::saveRolle( $person_save );
 		}
 
+		// Oppdater statistikk
+        statistikk::oppdater_innslag($innslag_db);
+
         /**
          * SAMTYKKE:
          * Legger til samtykke-forespørsel for denne personen.
@@ -368,7 +374,7 @@ class Write {
 		$monstring = new Arrangement( $person_save->getContext()->getMonstring()->getId() );
 		// Hent innslaget fra gitt mønstring
 		$innslag_db = $monstring->getInnslag()->get( $person_save->getContext()->getInnslag()->getId(), true );
-
+		
         // Pre-2020-relasjon
         if( $innslag_db->getSesong() < 2020 ) {
             if( $monstring->getType() == 'kommune' || $person_save->getContext()->getInnslag()->getType()->getId() == 1 ) {
@@ -396,8 +402,11 @@ class Write {
                 $res = static::_fjernArrangement( $person_save );
             }
         }
+
 		
 		if( $res ) {
+			// Oppdater statistikk
+			statistikk::oppdater_innslag($innslag_db);
 			return true;
 		}
 		

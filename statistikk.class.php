@@ -5,6 +5,8 @@ use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Database\SQL\Update;
 use UKMNorge\Innslag\Innslag;
+use UKMNorge\Arrangement\Arrangement;
+
 
 require_once 'UKM/Autoloader.php';
 
@@ -37,12 +39,12 @@ class statistikk {
          */
 	public function getTotal($season) {
            $missing = 0;
-           $query_persons = "SELECT count(`stat_id`) as `persons` FROM `ukm_statistics`
+           $query_persons = "SELECT count(`stat_id`) as `persons` FROM `ukm_statistics_from_2024`
                                 WHERE `season`='#season'
                                 AND `f_id` < 21
                                 AND `time` NOT LIKE '#season-11-%'
                                 AND `time` NOT LIKE '#season-10-%'";
-            $query_bands = "SELECT COUNT(DISTINCT `b_id`) as `bands` FROM `ukm_statistics` 
+            $query_bands = "SELECT COUNT(DISTINCT `b_id`) as `bands` FROM `ukm_statistics_from_2024` 
                             WHERE `season`='#season'
                             AND `f_id` < 21
                             AND `time` NOT LIKE '#season-11-%'
@@ -121,11 +123,11 @@ class statistikk {
 		if (!$this->type) return array();
 		
 		// Finner telling for hver bandtype (kategori)
-		$qry = "SELECT `bt_id`, COUNT(*) as `count` FROM `ukm_statistics`".
+		$qry = "SELECT `bt_id`, COUNT(*) as `count` FROM `ukm_statistics_from_2024`".
 				" WHERE `season` =#season AND `bt_id`>0";
 				
 		// finner telling for subkategorier i Scene
-		$subcat_qry = "SELECT `subcat`,COUNT(*) AS `count` FROM `ukm_statistics`".
+		$subcat_qry = "SELECT `subcat`,COUNT(*) AS `count` FROM `ukm_statistics_from_2024`".
 				" WHERE `season` =#season AND `bt_id` = 1";
 		
 		
@@ -188,8 +190,8 @@ class statistikk {
 		return $array;
 
 //test-queries
-// select COUNT(*),`bt_id` from `ukm_statistics` where `season` = 2009 AND `f_id` = 2 AND `bt_id` > 0 GROUP BY `bt_id` ORDER BY `bt_id` asc;
-// test-spørring: select * from `ukm_statistics` where `f_id` = 2 and `season` = 2009 and `bt_id` = 1;
+// select COUNT(*),`bt_id` from `ukm_statistics_from_2024` where `season` = 2009 AND `f_id` = 2 AND `bt_id` > 0 GROUP BY `bt_id` ORDER BY `bt_id` asc;
+// test-spørring: select * from `ukm_statistics_from_2024` where `f_id` = 2 and `season` = 2009 and `bt_id` = 1;
 
 		// 1377		
 		
@@ -200,12 +202,12 @@ class statistikk {
 			
 			// Finner telling for hver person (kategori)
 			$qry = "SELECT `bt_id`, COUNT(*) AS count FROM".
-						" (SELECT `bt_id` FROM `ukm_statistics`".
+						" (SELECT `bt_id` FROM `ukm_statistics_from_2024`".
 						" WHERE `season` =#season AND `bt_id`>0";
 					
 			// finner telling for subkategorier i Scene
 			$subcat_qry =	"SELECT `subcat`, COUNT(*) AS count FROM".
-								" (select `subcat` from `ukm_statistics`".
+								" (select `subcat` from `ukm_statistics_from_2024`".
 								" WHERE `season` =#season AND `bt_id`=1";
 			
 			if ($this->type == 'kommune') {
@@ -272,14 +274,69 @@ class statistikk {
 	 * @param (Innslag) $innslag
 	 * @return void
 	**/
-	public static function oppdater_innslag( Innslag $innslag ) {
-		$delete = new Delete('ukm_statistics',
-							 array('season' => $innslag->getSesong(),
-							 	   'b_id' => $innslag->getId()));
+	public static function oppdater_innslag(Innslag $innslag, Arrangement $tilArrangement = null) {
+		/*
+			Oppdater innslag bare hvis arrangementet ikke er ferdig
+			Statistikk må ikke påvirkes av endringer som skjer etter at arrangementet ble utført. For eksempel, fjerning av deltakere senere skal ikke gjenspeilses i statistikk.
+		*/
+		$homeArrangement = $innslag->getHome();
+		$currentArrangement = null;
+
+		if($tilArrangement) {
+			$currentArrangement = $tilArrangement;
+		}
+		else if($innslag->getContext() && $innslag->getContext()->getMonstring()) {
+			try{
+				$currentArrangement = new Arrangement($innslag->getContext()->getMonstring()->getId());
+			}catch(Exception $e) {
+
+			}
+		}
+		
+		// Innslag is being edited in another arrangement (videresending) or home arrangement
+		$isHomeArrangement = null;
+		if($currentArrangement == null) {
+			$isHomeArrangement = true;
+		} else {
+			$isHomeArrangement = $homeArrangement->getId() == $currentArrangement->getId();
+		}
+
+		// Hvis arrangementet er ferdig og det redigeres fra home arrangement, ikke oppdater statistikk
+		if($isHomeArrangement && $homeArrangement->erFerdig()) {
+			return;
+		}
+		// Hvis arrangementet er ferdig og det redigeres fra et annet arrangement (videresending), ikke oppdater statistikk
+		if(!$isHomeArrangement && $currentArrangement->erFerdig()) {
+			return;
+		}
+
+		$dbArray = array(
+			'season' => $innslag->getSesong(),
+			'b_id' => $innslag->getId(),
+	   		'pl_id_home' => $homeArrangement->getId(),
+		);
+
+		if(!$isHomeArrangement) {
+			$dbArray['pl_id'] = $currentArrangement->getId();
+		}
+		$delete = new Delete('ukm_statistics_from_2024', $dbArray);
 		$delete->run();
+
+		$videresending = $isHomeArrangement ? 0 : 1;
+		if($currentArrangement->erSingelmonstring()) {
+			$kommune = $currentArrangement->getKommune()->getId();
+		}else {
+			$kommune = $innslag->getKommune()->getId();
+		}
+
+		$fylke = $isHomeArrangement ? $homeArrangement->getFylke()->getId() : $currentArrangement->getFylke()->getId();
 
 		if( $innslag->getStatus() == 8 ) {
 			foreach( $innslag->getPersoner()->getAll() as $person ) { // behandle hver person
+				if($videresending && !$person->erPameldt($currentArrangement->getId())) {
+					continue;
+				}
+				
 				if( $innslag->getSubscriptionTime()->format('Y') == 1970) {
 					$time = new DateTime( $innslag->getSesong() .'-01-01T00:00:01Z' );
 				}
@@ -288,35 +345,45 @@ class statistikk {
 				$stats_info = array(
 					"b_id" => $innslag->getId(), // innslag-id
 					"p_id" => $person->getId(), // person-id
-					"k_id" => $innslag->getKommune()->getId(), // kommune-id
-					"f_id" => $innslag->getFylke()->getId(), // fylke-id
+					"k_id" => $kommune, // kommune-id
+					"f_id" => $fylke, // fylke-id
 					"bt_id" => $innslag->getType()->getId(), // innslagstype-id
-					"subcat" => $innslag->getKategori(), // underkategori
+					"subcat" => $innslag->getType()->getNavn(), // underkategori
 					"age" => $person->getAlder('') == '25+' ? 0 : $person->getAlder(''), // alder
 					"sex" => $person->getKjonn(), // kjonn
 					"time" =>  $time, // tid ved registrering
-					"fylke" => false, // dratt pa fylkesmonstring?
-					"land" => false, // dratt pa festivalen?
-					"season" => $innslag->getSesong() // sesong
+					"fylke" => $currentArrangement->getType() == 'fylke', // fylkesmonstring?
+					"land" => $currentArrangement->getType() == 'land', // festivalen?
+					"season" => $innslag->getSesong(), // sesong
+					"pl_id_home" => $homeArrangement->getId(), // home pl_id
+					"pl_id" => $currentArrangement->getId(), // current pl_id
+					"videresending" => $videresending
+
 				);
 				
 				// faktisk lagre det 
-				$qry = "SELECT * FROM `ukm_statistics`" .
+				$qry = "SELECT * FROM `ukm_statistics_from_2024`" .
 						" WHERE `b_id` = '" . $stats_info["b_id"] . "'" .
 						" AND `p_id` = '" . $stats_info["p_id"] . "'" .
 						" AND `k_id` = '" . $stats_info["k_id"] . "'"  .
+						" AND `pl_id_home` = '" . $stats_info["pl_id_home"] . "'"  .
+						" AND `pl_id` = '" . $stats_info["pl_id"] . "'"  .
+						" AND `videresending` = '" . $stats_info["videresending"] . "'"  .
 						" AND `season` = '" . $stats_info["season"] . "'";
 				$sql = new Query($qry);
 				// Sjekke om ting skal settes inn eller oppdateres
 				if (Query::numRows($sql->run()) > 0) {
-					$sql_ins = new Update('ukm_statistics', array(
+					$sql_ins = new Update('ukm_statistics_from_2024', array(
 						"b_id" => $stats_info["b_id"], // innslag-id
 						"p_id" => $stats_info["p_id"], // person-id
 						"k_id" => $stats_info["k_id"], // kommune-id
+						"pl_id_home" => $stats_info["pl_id_home"], // home pl_id
+						"pl_id" => $stats_info["pl_id"], // current pl_id
+						"videresending" => $stats_info["videresending"], // er innslaget videresendt?
 						"season" => $stats_info["season"], // kommune-id
 					) );
 				} else {
-					$sql_ins = new Insert("ukm_statistics");
+					$sql_ins = new Insert("ukm_statistics_from_2024");
 				}
 				
 				// Legge til info i insert-sporringen
@@ -328,12 +395,37 @@ class statistikk {
 		}
 	}
 
+	/**
+	 * 
+	 *
+	 * @param Arrangement $arrangement
+	 * @param Innslag $innslag
+	 * @return void
+	 */
+	public static function avmeldVideresending(Innslag $innslag, Arrangement $tilArrangement) {
+		foreach(Innslag::getById($innslag->getId())->getTitler()->getAll() as $tittel) {
+			// Hvis det finnes en tittel som er videresend, da skal personene ikke fjernes fra statistikken
+			if($tittel->erPameldt($tilArrangement->getId())) {
+				return;
+			}
+		}
+		
+		$dbArray = array(
+			'season' => $innslag->getSesong(),
+			'b_id' => $innslag->getId(),
+	   		'pl_id' => $tilArrangement->getId(),
+			'videresending' => '1'
+		);
+
+		$delete = new Delete('ukm_statistics_from_2024', $dbArray);
+		$delete->run();
+	}
 	
 	
 	private function _load($season) {
                 $kommuneList = implode(', ', $this->kommuner);
 		
-		$sql = new Query("SELECT * FROM `ukm_statistics`
+		$sql = new Query("SELECT * FROM `ukm_statistics_from_2024`
 						WHERE `k_id` IN (#kommuneList)
 						AND `season` = '#season'",
 						array('kommuneList' => $kommuneList, 'season' => $season));

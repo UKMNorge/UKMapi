@@ -9,6 +9,10 @@ use UKMNorge\Geografi\Kommune;
 
 use Exception;
 use DateTime;
+use statistikk;
+require_once('UKM/statistikk.class.php');
+
+
 use UKMNorge\Arrangement\Kontaktperson\Kontaktperson;
 use UKMNorge\Arrangement\Program\Write as WriteHendelse;
 use UKMNorge\Arrangement\Skjema\Write as UKMNorgeWrite;
@@ -1088,7 +1092,7 @@ class Write
      **/
     public static function leggTilInnslag(Arrangement $arrangement, Innslag $innslag, Arrangement $fra_arrangement)
     {
-
+        
         Logger::log(318, $innslag->getId(), $innslag->getContext()->getMonstring()->getId());
 
         // Når innslaget opprettes, inputter vi samme arrangement både som 
@@ -1184,6 +1188,11 @@ class Write
                 WritePerson::leggTil($person); # aka persist
             }
         }
+
+        // Oppdater statistikk
+        statistikk::oppdater_innslag($innslag);
+
+
     }
 
     /**
