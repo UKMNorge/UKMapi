@@ -333,6 +333,10 @@ class statistikk {
 
 		if( $innslag->getStatus() == 8 ) {
 			foreach( $innslag->getPersoner()->getAll() as $person ) { // behandle hver person
+				if($videresending && !$person->erPameldt($currentArrangement->getId())) {
+					continue;
+				}
+				
 				if( $innslag->getSubscriptionTime()->format('Y') == 1970) {
 					$time = new DateTime( $innslag->getSesong() .'-01-01T00:00:01Z' );
 				}
