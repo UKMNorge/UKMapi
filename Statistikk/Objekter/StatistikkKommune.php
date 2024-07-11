@@ -44,7 +44,7 @@ class StatistikkKommune extends StatistikkSuper {
         $sql = new Query(
             "SELECT " . $select . " as antall
             FROM (
-                " . $this->getQueryKommune($this->kommune, $this->season) . "
+                " . $this->getQueryKommune($this->season) . "
             ) AS subquery;",
             [
                 'k_id' => $this->kommune->getId(),
