@@ -6,7 +6,10 @@ use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Statistikk\Objekter\StatistikkSuper;
 use UKMNorge\Statistikk\StatistikkManager;
+
 use Exception;
+use DateTime;
+
 
 class StatistikkArrangement extends StatistikkSuper {
     private Arrangement $arrangement;
@@ -55,6 +58,58 @@ class StatistikkArrangement extends StatistikkSuper {
         $res = $sql->run('array');
         return (int) intval($res['antall']);
 
+    }
+
+    /**
+     * Returnerer antall deltakere i arrangementet fordelt på alder
+     * 
+     * OBS: det brukes sesong år og 31. desember som dato når deltakere deltok i arrangementet.
+     * 
+    * @return array[] An array of arrays with keys 'age' and 'antall'.
+    */
+    public function getAldersfordeling() : array {
+        $arrangementDate = new DateTime($this->arrangement->getSesong().'-12-31');
+        
+        $sql = new Query(
+            "SELECT 
+                age, 
+                COUNT(*) AS participant_count 
+            FROM (SELECT 
+                DISTINCT participant.p_id, 
+                participant.p_dob,
+                TIMESTAMPDIFF(YEAR, 
+                    FROM_UNIXTIME(participant.p_dob),
+                    FROM_UNIXTIME(#arrangementDate))
+                AS age
+            FROM (
+                " . $this->getQueryArrangement($this->arrangement) . "
+            ) AS subquery
+                JOIN statistics_before_2024_smartukm_participant AS participant
+                ON subquery.p_id = participant.p_id
+                ) AS age_subquery
+                GROUP BY 
+                    age
+                ORDER BY 
+                    age;
+                ",
+                [
+                    'plId' => $this->arrangement->getId(),
+                    'arrangementDate' => $arrangementDate->getTimestamp()
+                ]
+        );
+
+        $retArr = [];
+        $res = $sql->run();
+
+
+        while($row = Query::fetch($res)) {
+            $retArr[] = [
+                'age' => $row['age'],
+                'antall' => $row['participant_count']
+            ];
+        }
+
+        return $retArr;
     }
 
 }
