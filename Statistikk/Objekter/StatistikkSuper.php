@@ -45,7 +45,7 @@ class StatistikkSuper {
         return $retQuery;
     }
     
-    protected function getQueryKommune(Kommune $kommune, int $season) : String {
+    protected function getQueryKommune(int $season) : String {
         $retQuery = '';
         if($season > 2019) {
             $retQuery = "SELECT 
@@ -98,7 +98,7 @@ class StatistikkSuper {
 
 
     // FYLKE
-    protected function getQueryFylke(int $fylke, int $season) : String {
+    protected function getQueryFylke(int $season) : String {
         $retQuery = '';
         // >2019
         if($season > 2019) {
