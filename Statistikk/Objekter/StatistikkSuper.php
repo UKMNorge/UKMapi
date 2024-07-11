@@ -100,6 +100,7 @@ class StatistikkSuper {
     // FYLKE
     protected function getQueryFylke(int $fylke, int $season) : String {
         $retQuery = '';
+        // >2019
         if($season > 2019) {
             $retQuery = "SELECT 
                 arrang_person.person_id as p_id, 
@@ -125,7 +126,7 @@ class StatistikkSuper {
             GROUP BY 
                 p_id, b_id;";
         }
-
+        // <= 2019
         else {
             $retQuery = "SELECT p_id, arr_innslag.b_id as b_id
             FROM statistics_before_2024_smartukm_rel_pl_k AS arr_kommune
@@ -136,7 +137,7 @@ class StatistikkSuper {
             JOIN 
                 smartukm_kommune AS kommune 
                 ON kommune.id = arr_kommune.k_id
-            WHERE smartukm_kommune.idfylke='#fylke_id' AND arrangement.season='#season' AND (innslag.b_status = 8 OR innslag.b_status = 99)
+            WHERE kommune.idfylke='#fylke_id' AND arrangement.season='#season' AND (innslag.b_status = 8 OR innslag.b_status = 99)
             GROUP BY arr_innslag.b_id, p_id";
         }
 
