@@ -8,6 +8,8 @@ use UKMNorge\Statistikk\StatistikkManager;
 use UKMNorge\Geografi\Fylke;
 
 use Exception;
+use DateTime;
+
 
 class StatistikkFylke extends StatistikkSuper {
     private Fylke $fylke;
@@ -95,6 +97,60 @@ class StatistikkFylke extends StatistikkSuper {
 
         $res = $sql->run('array');
         return (int) intval($res['average_p']);
+    }
+
+
+    /**
+     * Returnerer antall UNIKE deltakere fordelt på alder i fylke
+     * Det velges alle participant fra alle arrangement i fylke i en sesong.
+     * 
+     * OBS: det brukes sesong år og 31. desember som dato når deltakere deltok i arrangementet.
+     * 
+    * @return array[] An array of arrays with keys 'age' and 'antall'.
+    */
+    public function getAldersfordeling() : array {
+        $seasonDate = new DateTime($this->season.'-12-31');
+
+        $sql = new Query(
+            "SELECT 
+                age, 
+                COUNT(*) AS participant_count 
+            FROM (SELECT 
+                DISTINCT participant.p_id, 
+                participant.p_dob,
+                TIMESTAMPDIFF(YEAR, 
+                    FROM_UNIXTIME(participant.p_dob),
+                    FROM_UNIXTIME(#dateSeas))
+                AS age
+            FROM (
+                " . $this->getQueryFylke($this->season) . "
+            ) AS subquery
+                JOIN smartukm_participant AS participant
+                ON subquery.p_id = participant.p_id
+                ) AS age_subquery
+                GROUP BY 
+                    age
+                ORDER BY 
+                    age;
+                ",
+                [
+                    'fylke_id' => $this->fylke->getId(),
+                    'season' => $this->season,
+                    'dateSeas' => $seasonDate->getTimestamp()
+                ]
+        );
+
+        $retArr = [];
+        $res = $sql->run();
+
+        while($row = Query::fetch($res)) {
+            $retArr[] = [
+                'age' => $row['age'],
+                'antall' => $row['participant_count']
+            ];
+        }
+
+        return $retArr;
     }
 
 }
