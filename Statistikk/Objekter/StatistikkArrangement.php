@@ -6,10 +6,10 @@ use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Statistikk\Objekter\StatistikkSuper;
 use UKMNorge\Statistikk\StatistikkManager;
+use UKMNorge\Innslag\Typer\Typer;
 
 use Exception;
 use DateTime;
-
 
 class StatistikkArrangement extends StatistikkSuper {
     private Arrangement $arrangement;
@@ -112,4 +112,49 @@ class StatistikkArrangement extends StatistikkSuper {
         return $retArr;
     }
 
+    /**
+     * Returnerer antall deltakere i arrangementet fordelt på kjønn
+     * 
+     * OBS: det brukes sesong år og 31. desember som dato når deltakere deltok i arrangementet.
+     *
+     * @return array[] An array with keys of arrays with antall and type_navn
+    */
+    public function getSjangerfordeling() : array {
+
+        // > 2019
+        $sql = new Query("SELECT
+                DISTINCT innslag.b_id,
+                innslag.bt_id,
+                innslag.b_kategori,
+                rel_pl_b.pl_id
+                FROM 
+                    smartukm_band AS innslag
+                JOIN smartukm_rel_pl_b AS rel_pl_b ON rel_pl_b.b_id = innslag.b_id
+                WHERE 
+                rel_pl_b.pl_id='#plId'
+                    AND `b_status` = 8
+            ",
+            [
+                'plId' => $this->arrangement->getId(),
+            ]
+        );
+
+        $retArr = [];
+        $innslagArr = [];
+        $typeArr = [];
+        $res = $sql->run();
+
+        while($row = Query::fetch($res)) {
+            $type = Typer::getById($row['bt_id'], $row['b_kategori']);
+            $innslagArr[$type->getKey()][] = $row['b_id'];
+            $typeArr[$type->getKey()][] = $type->getNavn();
+        }
+
+        foreach($innslagArr as $key => $value) {
+            $retArr[$key]['antall'] = count($value);
+            $retArr[$key]['type_navn'] = $typeArr[$key][0];
+        }
+
+        return $retArr;
+    }
 }
