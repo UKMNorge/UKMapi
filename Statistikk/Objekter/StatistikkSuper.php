@@ -71,7 +71,7 @@ class StatistikkSuper {
                 arrangement.season='#season' AND
                 innslag.b_status = 8
             GROUP BY 
-                p_id, b_id;";
+                p_id, b_id";
         }
         // <= 2019
         else {
@@ -124,7 +124,7 @@ class StatistikkSuper {
                 arrangement.season='#season' AND
                 innslag.b_status = 8
             GROUP BY 
-                p_id, b_id;";
+                p_id, b_id";
         }
         // <= 2019
         else {
