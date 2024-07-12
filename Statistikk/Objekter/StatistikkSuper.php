@@ -145,7 +145,7 @@ class StatistikkSuper {
         if($season > 2023) {
             $retQuery .= " UNION SELECT p_id, b_id
             FROM ukm_statistics_from_2024
-            WHERE f_id='#f_id' AND season='#season'";
+            WHERE f_id='#fylke_id' AND season='#season'";
         }
 
         return $retQuery;

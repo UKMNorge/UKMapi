@@ -125,7 +125,7 @@ class StatistikkFylke extends StatistikkSuper {
             FROM (
                 " . $this->getQueryFylke($this->season) . "
             ) AS subquery
-                JOIN smartukm_participant AS participant
+                JOIN statistics_before_2024_smartukm_participant AS participant
                 ON subquery.p_id = participant.p_id
                 ) AS age_subquery
                 GROUP BY 
