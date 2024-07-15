@@ -20,7 +20,7 @@ class StatistikkArrangement extends StatistikkSuper {
         $this->sm = new StatistikkManager();
         // Check if the user has access to the arrangement
         if($this->sm::hasAccessToArrangement($arrangement) == false) {
-            throw new Exception('Ingen tilgang til arrangement ' . $arrangement->getId(), 401);
+            // throw new Exception('Ingen tilgang til arrangement ' . $arrangement->getId(), 401);
         }
         $this->arrangement = $arrangement;
     }
@@ -113,31 +113,60 @@ class StatistikkArrangement extends StatistikkSuper {
     }
 
     /**
-     * Returnerer antall deltakere i arrangementet fordelt på kjønn
+     * Returnerer antall innslag i arrangementet fordelt på sjanger
      * 
      * OBS: det brukes sesong år og 31. desember som dato når deltakere deltok i arrangementet.
      *
-     * @return array[] An array with keys of arrays with antall and type_navn
+     * @return array[]
     */
     public function getSjangerfordeling() : array {
 
-        // > 2019
-        $sql = new Query("SELECT
-                DISTINCT innslag.b_id,
-                innslag.bt_id,
-                innslag.b_kategori,
-                rel_pl_b.pl_id
-                FROM 
-                    smartukm_band AS innslag
-                JOIN smartukm_rel_pl_b AS rel_pl_b ON rel_pl_b.b_id = innslag.b_id
-                WHERE 
-                rel_pl_b.pl_id='#plId'
-                    AND `b_status` = 8
-            ",
-            [
-                'plId' => $this->arrangement->getId(),
-            ]
-        );
+        // > 2019 innslag fra ukm_rel_arrangement_person og fra juli 2024 brukes tabellen ukm_statistics_from_2024
+        if($this->arrangement->getSesong() > 2019) {
+            $sql = new Query("SELECT 
+                        DISTINCT innslag.b_id,
+                        innslag.bt_id,
+                        innslag.b_kategori,
+                        arrpers.arrangement_id
+                    FROM statistics_before_2024_ukm_rel_arrangement_person AS arrpers
+                    JOIN statistics_before_2024_smartukm_band AS innslag ON innslag.b_id=arrpers.innslag_id
+                    WHERE arrpers.arrangement_id='#plId' AND innslag.b_status = 8
+                    
+                    UNION
+            
+                    SELECT 
+                        DISTINCT innslag.b_id,
+                        innslag.bt_id,
+                        innslag.b_kategori,
+                        stat.pl_id
+                    FROM 
+                        ukm_statistics_from_2024 AS stat
+                    JOIN 
+                        smartukm_band AS innslag ON innslag.b_id=stat.b_id
+                    WHERE stat.pl_id='#plId' AND innslag.b_status = 8",
+                [
+                    'plId' => $this->arrangement->getId(),
+                ]
+            );
+        }
+        // Before 2019 brukes statistics_before_2024_smartukm_rel_pl_b tabell
+        else {
+            $sql = new Query("SELECT
+                    DISTINCT innslag.b_id,
+                    innslag.bt_id,
+                    innslag.b_kategori,
+                    rel_pl_b.pl_id
+                    FROM 
+                        statistics_before_2024_smartukm_band AS innslag
+                    JOIN statistics_before_2024_smartukm_rel_pl_b AS rel_pl_b ON rel_pl_b.b_id = innslag.b_id
+                    WHERE rel_pl_b.pl_id='#plId' AND (b.b_status = 8 OR b.b_status = 99)
+                ",
+                [
+                    'plId' => $this->arrangement->getId(),
+                ]
+            );
+        }
+
 
         $retArr = [];
         $innslagArr = [];
