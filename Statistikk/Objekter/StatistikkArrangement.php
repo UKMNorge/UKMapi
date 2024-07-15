@@ -20,7 +20,7 @@ class StatistikkArrangement extends StatistikkSuper {
         $this->sm = new StatistikkManager();
         // Check if the user has access to the arrangement
         if($this->sm::hasAccessToArrangement($arrangement) == false) {
-            // throw new Exception('Ingen tilgang til arrangement ' . $arrangement->getId(), 401);
+            throw new Exception('Ingen tilgang til arrangement ' . $arrangement->getId(), 401);
         }
         $this->arrangement = $arrangement;
     }
