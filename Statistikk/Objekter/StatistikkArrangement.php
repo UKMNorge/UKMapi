@@ -159,7 +159,7 @@ class StatistikkArrangement extends StatistikkSuper {
                     FROM 
                         statistics_before_2024_smartukm_band AS innslag
                     JOIN statistics_before_2024_smartukm_rel_pl_b AS rel_pl_b ON rel_pl_b.b_id = innslag.b_id
-                    WHERE rel_pl_b.pl_id='#plId' AND (b.b_status = 8 OR b.b_status = 99)
+                    WHERE rel_pl_b.pl_id='#plId' AND (innslag.b_status = 8 OR innslag.b_status = 99)
                 ",
                 [
                     'plId' => $this->arrangement->getId(),
@@ -168,15 +168,24 @@ class StatistikkArrangement extends StatistikkSuper {
         }
 
 
+
         $retArr = [];
         $innslagArr = [];
         $typeArr = [];
         $res = $sql->run();
 
         while($row = Query::fetch($res)) {
-            $type = Typer::getById($row['bt_id'], $row['b_kategori']);
-            $innslagArr[$type->getKey()][] = $row['b_id'];
-            $typeArr[$type->getKey()][] = $type->getNavn();
+            try{
+                $type = Typer::getById($row['bt_id'], $row['b_kategori']);
+                $innslagArr[$type->getKey()][] = $row['b_id'];
+                $typeArr[$type->getKey()][] = $type->getNavn();
+            }catch(Exception $e) {
+                // The type is not found
+                if($e->getCode() == 110002) {
+                    $innslagArr['ukjent'][] = $row['b_id'];
+                    $typeArr['ukjent'][] = 'Ukjent';
+                }
+            }
         }
 
         foreach($innslagArr as $key => $value) {
