@@ -151,4 +151,18 @@ class StatistikkSuper {
         return $retQuery;
     }
 
+    protected function getKjonnByName(string $fornavn) : string {
+        $first_name = explode(" ", str_replace("-", " ", $fornavn));
+        $first_name = $first_name[0];
+
+        $qry = "SELECT `kjonn`
+				FROM `ukm_navn`
+				WHERE `navn` = '" . $first_name . "' ";
+
+        $qry = new Query($qry);
+        $res = $qry->run('field', 'kjonn');
+
+        return ($res == null) ? 'unknown' : $res;
+    }
+
 }
