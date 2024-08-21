@@ -195,4 +195,34 @@ class StatistikkArrangement extends StatistikkSuper {
 
         return $retArr;
     }
+
+    public function getKjonnsfordeling() {
+
+        $sql = new Query(
+            "SELECT p_id, firstname  
+            FROM (
+                SELECT participant.p_id, participant.p_firstname as firstname
+                FROM (
+                    " . $this->getQueryArrangement($this->arrangement) . "
+                    ) AS subquery
+                JOIN statistics_before_2024_smartukm_participant AS participant ON participant.p_id=subquery.p_id
+            ) AS subqueryOut GROUP BY p_id;
+            ",
+            [
+                'plId' => $this->arrangement->getId(),
+            ]
+        );
+
+        $retArr = [];
+        $res = $sql->run();
+        // For each result from $sql call getKjonn()
+        while($row = Query::fetch($res)) {
+            $kjonn = $this->getKjonnByName($row['firstname']);
+            $retArr[$kjonn] = 1 + ($retArr[$kjonn] ?? 0);
+        }
+
+
+        return $retArr;
+
+    }
 }
