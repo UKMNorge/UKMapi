@@ -6,6 +6,8 @@ use UKMNorge\Database\SQL\Query;
 use UKMNorge\Statistikk\Objekter\StatistikkSuper;
 use UKMNorge\Statistikk\StatistikkManager;
 use UKMNorge\Geografi\Fylke;
+use UKMNorge\Innslag\Typer\Typer;
+
 
 use Exception;
 use DateTime;
@@ -148,6 +150,107 @@ class StatistikkFylke extends StatistikkSuper {
                 'age' => $row['age'],
                 'antall' => $row['participant_count']
             ];
+        }
+
+        return $retArr;
+    }
+
+    /**
+     * Returnerer antall innslag i fylke fordelt på sjanger
+     * 
+     * OBS: Det hentes innslag kun fra arrangementer på kommunenivå i et fylke
+     * 
+     * @param int $excludePlId - arrangementet som skal ekskluderes fra statistikken. Vanligvis kan pl_id brukes av arrangementet hvor statistikk hentes fra
+     * @return array[] An array of arrays with keys 'antall' and 'type_navn'.
+    */
+    public function getSjangerFordeling(int $excludePlId=-1) : array {
+        if($excludePlId == null) {
+            $excludePlId = -1;
+        }
+
+        // > 2019 innslag fra ukm_rel_arrangement_person og fra juli 2024 brukes tabellen ukm_statistics_from_2024
+        if($this->season > 2019) {
+            $sql = new Query("SELECT 
+                DISTINCT innslag.b_id, 
+                innslag.bt_id, 
+                innslag.b_kategori, 
+                arrpers.arrangement_id,
+            FROM statistics_before_2024_ukm_rel_arrangement_person AS arrpers 
+            JOIN statistics_before_2024_smartukm_band AS innslag ON innslag.b_id=arrpers.innslag_id 
+            JOIN statistics_before_2024_smartukm_place AS place ON place.pl_id=arrpers.arrangement_id
+            JOIN statistics_before_2024_smartukm_rel_pl_k AS rel_kommune ON rel_kommune.pl_id=place.pl_id
+            JOIN smartukm_kommune AS kommune ON kommune.id=rel_kommune.k_id
+            WHERE kommune.idfylke='#fylkeId' 
+                AND place.season='#season' 
+                AND innslag.b_status = 8 
+                AND arrpers.arrangement_id!='#plId'
+
+            UNION 
+
+            SELECT DISTINCT innslag.b_id, innslag.bt_id, innslag.b_kategori, stat.pl_id 
+            FROM ukm_statistics_from_2024 AS stat 
+            JOIN statistics_before_2024_smartukm_band AS innslag ON innslag.b_id=stat.b_id
+            JOIN statistics_before_2024_smartukm_place AS place ON place.pl_id=stat.pl_id 
+            WHERE stat.f_id='#fylkeId' 
+                AND stat.fylke='false'
+                AND place.season='#season' 
+                AND innslag.b_status = 8 
+                AND stat.pl_id!='#plId'",
+                [
+                    'fylkeId' => $this->fylke->getId(),
+                    'plId' => $excludePlId, // exclude arrangementet if needed
+                    'season' => $this->season
+                ]
+            );
+        }
+        // Before 2019 brukes statistics_before_2024_smartukm_rel_pl_b tabell
+        else {
+            $sql = new Query("SELECT
+                    DISTINCT innslag.b_id,
+                    innslag.bt_id,
+                    innslag.b_kategori,
+                    rel_pl_b.pl_id
+                FROM 
+                    statistics_before_2024_smartukm_band AS innslag
+                JOIN statistics_before_2024_smartukm_rel_pl_b AS rel_pl_b ON rel_pl_b.b_id = innslag.b_id
+                JOIN statistics_before_2024_smartukm_place as place on place.pl_id=rel_pl_b.pl_id
+                JOIN statistics_before_2024_smartukm_rel_pl_k AS rel_kommune ON rel_kommune.pl_id=place.pl_id
+                JOIN smartukm_kommune AS kommune ON kommune.id=rel_kommune.k_id
+                WHERE kommune.idfylke='#fylkeId' 
+                AND (innslag.b_status = 8 OR innslag.b_status = 99)
+                AND place.season='#season'
+                AND place.pl_id!='#plId'", // excluded arrangementet
+                [
+                    'fylkeId' => $this->fylke->getId(),
+                    'plId' => $excludePlId, // exclude arrangementet if needed
+                    'season' => $this->season
+                ]
+            );
+        }
+
+
+        $retArr = [];
+        $innslagArr = [];
+        $typeArr = [];
+        $res = $sql->run();
+
+        while($row = Query::fetch($res)) {
+            try{
+                $type = Typer::getById($row['bt_id'], $row['b_kategori']);
+                $innslagArr[$type->getKey()][] = $row['b_id'];
+                $typeArr[$type->getKey()][] = $type->getNavn();
+            }catch(Exception $e) {
+                // The type is not found
+                if($e->getCode() == 110002) {
+                    $innslagArr['ukjent'][] = $row['b_id'];
+                    $typeArr['ukjent'][] = 'Ukjent';
+                }
+            }
+        }
+
+        foreach($innslagArr as $key => $value) {
+            $retArr[$key]['antall'] = count($value);
+            $retArr[$key]['type_navn'] = $typeArr[$key][0];
         }
 
         return $retArr;
