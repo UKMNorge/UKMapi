@@ -196,6 +196,13 @@ class StatistikkArrangement extends StatistikkSuper {
         return $retArr;
     }
 
+    /**
+     * Returnerer antall deltakere i arrangementet fordelt på kjønn
+     *
+     * Det brukes navn for å identifisere kjønn
+     * 
+     * @return array[]
+    */
     public function getKjonnsfordeling() {
 
         $sql = new Query(
@@ -215,7 +222,7 @@ class StatistikkArrangement extends StatistikkSuper {
 
         $retArr = [];
         $res = $sql->run();
-        // For each result from $sql call getKjonn()
+        // For each result from $sql call getKjonnByName()
         while($row = Query::fetch($res)) {
             $kjonn = $this->getKjonnByName($row['firstname']);
             $retArr[$kjonn] = 1 + ($retArr[$kjonn] ?? 0);
