@@ -98,6 +98,7 @@ class StatistikkSuper {
 
 
     // FYLKE
+    // OBS: Det hentes innslag fra kommuner i fylke og ikke fylke arrangerte arrangementer
     protected function getQueryFylke(int $season) : String {
         $retQuery = '';
         // >2019
@@ -142,10 +143,14 @@ class StatistikkSuper {
         }
 
         // If season er fra 2024
+        // OBS: Det hentes innslag fra kommuner i fylke og ikke fylke arrangerte arrangementer
         if($season > 2023) {
             $retQuery .= " UNION SELECT p_id, b_id
             FROM ukm_statistics_from_2024
-            WHERE f_id='#fylke_id' AND season='#season'";
+            WHERE f_id='#fylke_id' 
+            AND fylke='false'
+            AND land='false'
+            AND season='#season'";
         }
 
         return $retQuery;
