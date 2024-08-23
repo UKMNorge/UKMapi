@@ -65,6 +65,7 @@ class StatistikkFylke extends StatistikkSuper {
     * Dette går gjennom alle kommuner og beregner gjennomsnittet
     *
     * OBS: Det tas ikke i beregning fylkesarrangementer
+    * OBS: Arrangementer som har 0 deltakere blir ikke tatt med i beregningen
     *
     * @return int antall unike deltakere.
     */
@@ -87,11 +88,27 @@ class StatistikkFylke extends StatistikkSuper {
                     AND (innslag.b_status = 8 OR innslag.b_status = 99)
                 GROUP BY 
                     arrangement.pl_id
+                
+                UNION ALL
+                
+                SELECT 
+                    usf.pl_id,
+                    COUNT(DISTINCT usf.p_id) AS participant_count
+                FROM
+                    ukm_statistics_from_2024 AS usf
+                    JOIN smartukm_kommune AS kommune ON kommune.id = usf.k_id
+                WHERE 
+                    kommune.idfylke = '#fylke_id' 
+                    AND usf.season = '#season'
+                GROUP BY 
+                    usf.pl_id
             )
             SELECT 
                 AVG(participant_count) AS average_p
             FROM 
                 ParticipantCount
+            WHERE 
+                pl_id IS NOT NULL;
         ", [
             'fylke_id' => $this->fylke->getId(),
             'season' => $season
