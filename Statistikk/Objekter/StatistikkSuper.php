@@ -50,8 +50,7 @@ class StatistikkSuper {
         if($season > 2019) {
             $retQuery = "SELECT 
                 arrang_person.person_id as p_id, 
-                innslag.b_id as b_id, 
-                arrang_person.arrangement_id
+                innslag.b_id as b_id
             FROM 
                 statistics_before_2024_ukm_rel_arrangement_person AS arrang_person
             JOIN 
@@ -89,7 +88,7 @@ class StatistikkSuper {
         if($season > 2023) {
             $retQuery .= " UNION SELECT p_id, b_id
             FROM ukm_statistics_from_2024
-            WHERE k_id='#k_id' AND season='#season
+            WHERE k_id='#k_id' AND season='#season'
             GROUP BY p_id, b_id";
         }
 
@@ -98,7 +97,7 @@ class StatistikkSuper {
 
 
     // FYLKE
-    // OBS: Det hentes innslag fra kommuner i fylke og ikke fylke arrangerte arrangementer
+    // OBS: Det hentes innslag fra kommuner i fylke og ikke fylke arrangerte arrangementer. Dette gjøres fordi kommuner videresender innslag til fylke, derfor representerer kommuner best hvilke innslag som er fra fylket.
     protected function getQueryFylke(int $season) : String {
         $retQuery = '';
         // >2019
