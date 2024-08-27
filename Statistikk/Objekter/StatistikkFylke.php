@@ -365,4 +365,36 @@ class StatistikkFylke extends StatistikkSuper {
 
         return $retArr;
     }
+
+    /**
+     * Returnerer antall arrangementer i fylke (ikke i kommuner som tilhører fylket)
+     *
+     * @return int antall arrangementer.
+     */
+    public function antallArrangementerIFylke() : int {
+        $sql = new Query("
+            SELECT COUNT(DISTINCT pl_id) AS antall FROM (
+                SELECT pl_k.pl_id AS pl_id
+                FROM smartukm_kommune AS kommune
+                JOIN statistics_before_2024_smartukm_rel_pl_k AS pl_k ON pl_k.k_id = kommune.id
+                WHERE kommune.idfylke='#fylke_id' AND pl_k.season='#season'
+
+               UNION
+                -- sommer 2024 and later
+                SELECT stat.pl_id AS pl_id
+                FROM ukm_statistics_from_2024 AS stat
+                JOIN smartukm_kommune AS kommune ON kommune.id=stat.k_id
+                WHERE f_id='#fylke_id' AND season='#season'
+	        ) AS combinedUnion
+        ",
+        [
+            'fylke_id' => $this->fylke->getId(),
+            'season' => $this->season
+        ]);
+
+
+        $res = $sql->run('array');
+        return (int) intval($res['antall']);
+        
+    }
 }
