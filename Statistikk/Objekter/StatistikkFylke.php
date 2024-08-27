@@ -347,7 +347,7 @@ class StatistikkFylke extends StatistikkSuper {
                 SELECT stat.k_id AS kommune_id, kommune.name AS kommune_navn
                 FROM ukm_statistics_from_2024 AS stat
                 JOIN smartukm_kommune AS kommune ON kommune.id=stat.k_id
-                WHERE f_id='#fylke_id' AND season='#season'
+                WHERE f_id='#fylke_id' AND season='#season' AND fylke='false' AND land='false'
             ) AS combined_results
             GROUP BY kommune_id",
             [
@@ -367,7 +367,7 @@ class StatistikkFylke extends StatistikkSuper {
     }
 
     /**
-     * Returnerer antall arrangementer i fylke (ikke i kommuner som tilhører fylket)
+     * Returnerer antall arrangementer i kommuner i fylke i en sesong 
      *
      * @return int antall arrangementer.
      */
@@ -384,7 +384,7 @@ class StatistikkFylke extends StatistikkSuper {
                 SELECT stat.pl_id AS pl_id
                 FROM ukm_statistics_from_2024 AS stat
                 JOIN smartukm_kommune AS kommune ON kommune.id=stat.k_id
-                WHERE f_id='#fylke_id' AND season='#season'
+                WHERE f_id='#fylke_id' AND season='#season' AND fylke='false' AND land='false'
 	        ) AS combinedUnion
         ",
         [
