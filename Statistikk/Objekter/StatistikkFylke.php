@@ -8,6 +8,8 @@ use UKMNorge\Statistikk\Objekter\StatistikkKommune;
 use UKMNorge\Statistikk\StatistikkManager;
 use UKMNorge\Geografi\Fylke;
 use UKMNorge\Innslag\Typer\Typer;
+use UKMNorge\API\SSB\Klass;
+
 
 
 
@@ -366,12 +368,16 @@ class StatistikkFylke extends StatistikkSuper {
         return $retArr;
     }
 
+    public function getAntallArrangementer() : int {
+        return static::antallArrangementerIFylke($this->fylke->getId(), $this->season);
+    }
+
     /**
      * Returnerer antall arrangementer i kommuner i fylke i en sesong 
      *
      * @return int antall arrangementer.
      */
-    public function antallArrangementerIFylke() : int {
+    static function antallArrangementerIFylke(string $fylkeId, int $season) : int {
         $sql = new Query("
             SELECT COUNT(DISTINCT pl_id) AS antall FROM (
                 SELECT pl_k.pl_id AS pl_id
@@ -388,13 +394,38 @@ class StatistikkFylke extends StatistikkSuper {
 	        ) AS combinedUnion
         ",
         [
-            'fylke_id' => $this->fylke->getId(),
-            'season' => $this->season
+            'fylke_id' => $fylkeId,
+            'season' => $season
         ]);
 
 
         $res = $sql->run('array');
         return (int) intval($res['antall']);
         
+    }
+
+    /**
+     * Returnerer id av alle fylker hentet fra SSB i en sesong
+     *
+     * @return array[] An array of arrays with key 'id' and value 'navn'.
+     */
+    public static function getAlleFylkeIdFraSSB(int $season) : array {
+        // Hent alle kommuner fra SSB
+        $dataset = new Klass();
+        // 104 er "Standard for fylkesinndeling"
+        $dataset->setClassificationId("104");
+        $startDato = new DateTime($season."-01-01");
+        $sluttDato = new DateTime($season."-12-31");
+
+        $dataset->setRange($startDato, $sluttDato);
+        $dataset->includeFutureChanges(true);
+        $fylker = $dataset->getCodes();
+
+        $SSBFylker = [];
+        foreach($fylker->codes as $fylke) {
+            $SSBFylker[$fylke->code] = $fylke->name;
+        }
+
+        return $SSBFylker;
     }
 }
