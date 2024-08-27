@@ -4,9 +4,11 @@ namespace UKMNorge\Statistikk\Objekter;
 
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Statistikk\Objekter\StatistikkSuper;
+use UKMNorge\Statistikk\Objekter\StatistikkKommune;
 use UKMNorge\Statistikk\StatistikkManager;
 use UKMNorge\Geografi\Fylke;
 use UKMNorge\Innslag\Typer\Typer;
+
 
 
 use Exception;
@@ -323,6 +325,14 @@ class StatistikkFylke extends StatistikkSuper {
      */
 
     public function getKommunerAktivitet() {
+        $retArr = [];
+        $retArr['season'] = $this->season;
+        $alleKommunerIFylke = StatistikkKommune::getAlleKommunerFraSSB($this->season, $this->fylke);
+        
+        foreach($alleKommunerIFylke as $kommune) {
+            $retArr['kommuner'][$kommune->getId()] = ['navn' => $kommune->getNavn(), 'aktivitet' => false];
+        }
+
         $sql = new Query(
             "SELECT DISTINCT kommune_id, kommune_navn
             FROM (
@@ -346,15 +356,12 @@ class StatistikkFylke extends StatistikkSuper {
             ]
         );
 
-        $retArr = [];
         $res = $sql->run();
-        $retArr['season'] = $this->season;
+        
 
-        // For each result from $sql call getKjonnByName()
         while($row = Query::fetch($res)) {
-            $retArr['kommuner_aktivitet'][$row['kommune_id']] = $row['kommune_navn'];
+            $retArr['kommuner'][$row['kommune_id']] = ['navn' => $row['kommune_navn'], 'aktivitet' => true];
         }
-
 
         return $retArr;
     }
