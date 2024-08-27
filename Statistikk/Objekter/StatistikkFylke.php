@@ -314,6 +314,48 @@ class StatistikkFylke extends StatistikkSuper {
 
 
         return $retArr;
-        
+    }
+
+    /**
+     * Returnerer alle kommuner i fylke inkludering aktivitet for hver
+     * 
+     * @return string SQL spørring
+     */
+
+    public function getKommunerAktivitet() {
+        $sql = new Query(
+            "SELECT DISTINCT kommune_id, kommune_navn
+            FROM (
+                -- Before sommer 2024
+                SELECT kommune.id AS kommune_id, kommune.name AS kommune_navn
+                FROM smartukm_kommune AS kommune
+                JOIN statistics_before_2024_smartukm_rel_pl_k AS pl_k ON pl_k.k_id = kommune.id
+                WHERE kommune.idfylke='#fylke_id' AND pl_k.season='#season'
+
+                UNION
+                -- sommer 2024 and later
+                SELECT stat.k_id AS kommune_id, kommune.name AS kommune_navn
+                FROM ukm_statistics_from_2024 AS stat
+                JOIN smartukm_kommune AS kommune ON kommune.id=stat.k_id
+                WHERE f_id='#fylke_id' AND season='#season'
+            ) AS combined_results
+            GROUP BY kommune_id",
+            [
+                'fylke_id' => $this->fylke->getId(),
+                'season' => $this->season
+            ]
+        );
+
+        $retArr = [];
+        $res = $sql->run();
+        $retArr['season'] = $this->season;
+
+        // For each result from $sql call getKjonnByName()
+        while($row = Query::fetch($res)) {
+            $retArr['kommuner_aktivitet'][$row['kommune_id']] = $row['kommune_navn'];
+        }
+
+
+        return $retArr;
     }
 }
