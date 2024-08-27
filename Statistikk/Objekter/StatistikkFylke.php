@@ -319,7 +319,7 @@ class StatistikkFylke extends StatistikkSuper {
     }
 
     /**
-     * Returnerer alle kommuner i fylke inkludering aktivitet for hver
+     * Returnerer alle kommuner i fylke som har aktivitet (har minst 1 arrangement)
      * 
      * @return string SQL spørring
      */
