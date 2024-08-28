@@ -122,7 +122,7 @@ class StatistikkFylke extends StatistikkSuper {
         return (int) intval($res['average_p']);
     }
 
-
+    
     /**
      * Returnerer antall UNIKE deltakere fordelt på alder i fylke
      * Det velges alle participant fra alle arrangement i fylke i en sesong.
@@ -375,6 +375,8 @@ class StatistikkFylke extends StatistikkSuper {
     /**
      * Returnerer antall arrangementer i kommuner i fylke i en sesong 
      *
+     * Static metode ble brukt for å ha tilgang til gamle fylker uten å sende som Fylke objekt til denne klassen. Gamle fylker finnes ikke lenger i systemet men de er lagret i databasen.
+     * 
      * @return int antall arrangementer.
      */
     static function antallArrangementerIFylke(string $fylkeId, int $season) : int {
