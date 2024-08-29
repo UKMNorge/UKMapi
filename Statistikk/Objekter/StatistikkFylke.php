@@ -195,7 +195,7 @@ class StatistikkFylke extends StatistikkSuper {
                 DISTINCT innslag.b_id, 
                 innslag.bt_id, 
                 innslag.b_kategori, 
-                arrpers.arrangement_id,
+                arrpers.arrangement_id
             FROM statistics_before_2024_ukm_rel_arrangement_person AS arrpers 
             JOIN statistics_before_2024_smartukm_band AS innslag ON innslag.b_id=arrpers.innslag_id 
             JOIN statistics_before_2024_smartukm_place AS place ON place.pl_id=arrpers.arrangement_id
@@ -422,9 +422,28 @@ class StatistikkFylke extends StatistikkSuper {
         $dataset->setRange($startDato, $sluttDato);
         $dataset->includeFutureChanges(true);
         $fylker = $dataset->getCodes();
-
+        
         $SSBFylker = [];
         foreach($fylker->codes as $fylke) {
+            // Viken before 2024 - i vår database er lagret som Akershus, Buskerud og Østfold
+            if($fylke->code == '30') {
+                $SSBFylker['21'] = $fylke->name . ' Østfold';
+                $SSBFylker['32'] = $fylke->name . ' Akershus';
+                $SSBFylker['33'] = $fylke->name . ' Buskerud';
+            }
+
+            // Vestfold og Telemark before 2024 - i vår database er lagret som Vestfold og Telemark
+            if($fylke->code == '34') {
+                $SSBFylker['39'] = $fylke->name . ' Vesfold';
+                $SSBFylker['40'] = $fylke->name . ' Telemark';
+            }
+
+            // Troms og Finnmark before 2024 - i vår database er lagret som Troms og Finnmark
+            if($fylke->code == '54') {
+                $SSBFylker['55'] = $fylke->name . ' Troms - Romsa - Tromssa';
+                $SSBFylker['56'] = $fylke->name . ' Finnmark - Finnmárku - Finmarkku';
+            }
+
             $SSBFylker[$fylke->code] = $fylke->name;
         }
 
