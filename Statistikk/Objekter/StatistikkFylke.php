@@ -430,4 +430,42 @@ class StatistikkFylke extends StatistikkSuper {
 
         return $SSBFylker;
     }
+
+    /**
+     * Hent alle arrangementer arrangert i fylke i en sesong
+     *
+     * @return array[] An array with pl_id
+     */
+    public function getFylkesarrangementerIds() {
+        $sql = new Query("
+            SELECT pl_id
+            FROM statistics_before_2024_smartukm_place AS place
+            WHERE place.pl_type='fylke' 
+            AND season='#season'
+            AND (place.old_pl_fylke='#fylke_id' OR place.pl_owner_fylke='#fylke_id')
+
+            UNION
+
+            SELECT pl_id
+            FROM ukm_statistics_from_2024
+            WHERE fylke=true
+            AND season='#season'
+            AND f_id='#fylke_id'
+            ",
+            [
+                'fylke_id' => $this->fylke->getId(),
+                'season' => $this->season
+            ]
+        );
+
+        $retArr = [];
+        $res = $sql->run();
+
+        // For each result from $sql call getKjonnByName()
+        while($row = Query::fetch($res)) {
+            $retArr[$row['pl_id']] = $row['pl_id'];
+        }
+
+        return $retArr;
+    }
 }
