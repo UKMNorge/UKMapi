@@ -433,7 +433,7 @@ class StatistikkFylke extends StatistikkSuper {
             }
 
             // Vestfold og Telemark before 2024 - i vår database er lagret som Vestfold og Telemark
-            if($fylke->code == '34') {
+            if($fylke->code == '38') {
                 $SSBFylker['39'] = $fylke->name . ' Vesfold';
                 $SSBFylker['40'] = $fylke->name . ' Telemark';
             }
