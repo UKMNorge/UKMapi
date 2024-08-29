@@ -468,4 +468,42 @@ class StatistikkFylke extends StatistikkSuper {
 
         return $retArr;
     }
+
+    /**
+     * Hent antall innslag i fylke i en sesong
+     *
+     * @return int antall innslag
+     */
+    public function getAntallInnslag() : int {
+        $sql = new Query("
+            SELECT COUNT(DISTINCT b_id) AS antall
+            FROM (
+                SELECT innslag.b_id AS b_id
+                FROM smartukm_band AS innslag
+                JOIN smartukm_rel_pl_b AS pl_b ON pl_b.b_id = innslag.b_id
+                JOIN statistics_before_2024_smartukm_rel_pl_k AS pl_k ON pl_k.pl_id = pl_b.pl_id
+                JOIN smartukm_place AS arrangement ON arrangement.pl_id = pl_k.pl_id
+                JOIN smartukm_kommune AS kommune ON kommune.id = pl_k.k_id
+                WHERE arrangement.season='#season'
+                AND (innslag.b_status = 8 OR innslag.b_status = 99)
+                AND kommune.idfylke='#fylke_id'
+
+                UNION 
+
+                SELECT b_id AS b_id
+                FROM ukm_statistics_from_2024
+                WHERE fylke=false AND land=false
+                AND f_id='#fylke_id'
+                AND season='#season'
+                GROUP BY p_id, b_id
+            ) AS combined_query",
+            [
+                'fylke_id' => $this->fylke->getId(),
+                'season' => $this->season
+            ]
+        );
+
+        $res = $sql->run('array');
+        return (int) intval($res['antall']);
+    }
 }
