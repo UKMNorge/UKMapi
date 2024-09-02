@@ -444,6 +444,14 @@ class StatistikkFylke extends StatistikkSuper {
                 $SSBFylker['56'] = $fylke->name . ' Finnmark - Finnmárku - Finmarkku';
             }
 
+            // I 2018 ble Sør og Nord Trøndelag delt i Trøndelag men i systemet ble de lagret som Sør og Nord Trøndelag
+            if($season == 2018 || $season == 2019) {
+                if($fylke->code == '50') {
+                    $SSBFylker['16'] = $fylke->name . ' Sør-Trøndelag';
+                    $SSBFylker['17'] = $fylke->name . ' Nord-Trøndelag';
+                }
+            }
+
             $SSBFylker[$fylke->code] = $fylke->name;
         }
 
