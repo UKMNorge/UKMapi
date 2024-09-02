@@ -427,7 +427,7 @@ class StatistikkFylke extends StatistikkSuper {
         foreach($fylker->codes as $fylke) {
             // Viken before 2024 - i vår database er lagret som Akershus, Buskerud og Østfold
             if($fylke->code == '30') {
-                $SSBFylker['21'] = $fylke->name . ' Østfold';
+                $SSBFylker['31'] = $fylke->name . ' Østfold';
                 $SSBFylker['32'] = $fylke->name . ' Akershus';
                 $SSBFylker['33'] = $fylke->name . ' Buskerud';
             }
