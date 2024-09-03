@@ -14,7 +14,7 @@ class StatistikkManager
 
     }
 
-    public static function hasAccessToArrangement(Arrangement $arrangement) : bool {
+    public static function hasAccessToArrangement(int $arrangementId) : bool {
         // Check if user has access to arrangement
         $blogs = get_blogs_of_user(get_current_user_id());
 
@@ -26,7 +26,7 @@ class StatistikkManager
                 // Check if blog has pl_id
                 $pl_id = get_option('pl_id');
 
-                if ($pl_id && $pl_id == $arrangement->getId()) {
+                if ($pl_id && $pl_id == $arrangementId) {
                     return true;
                 }
             }

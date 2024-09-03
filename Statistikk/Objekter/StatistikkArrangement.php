@@ -12,17 +12,19 @@ use Exception;
 use DateTime;
 
 class StatistikkArrangement extends StatistikkSuper {
-    private Arrangement $arrangement;
+    private int $arrangementId;
+    private int $season;
     private StatistikkManager $sm;
 
 
-    public function __construct(Arrangement $arrangement) {
+    public function __construct(int $arrangementId, int $season) {
         $this->sm = new StatistikkManager();
         // Check if the user has access to the arrangement
-        if($this->sm::hasAccessToArrangement($arrangement) == false) {
+        if($this->sm::hasAccessToArrangement($arrangementId) == false) {
             // throw new Exception('Ingen tilgang til arrangement ' . $arrangement->getId(), 401);
         }
-        $this->arrangement = $arrangement;
+        $this->arrangementId = $arrangementId;
+        $this->season = $season;
     }
 
     /**
@@ -48,10 +50,10 @@ class StatistikkArrangement extends StatistikkSuper {
         $sql = new Query(
             "SELECT " . $select . " as antall
             FROM (
-                " . $this->getQueryArrangement($this->arrangement) . "
+                " . $this->getQueryArrangement($this->season) . "
             ) AS subquery;",
             [
-                'plId' => $this->arrangement->getId()
+                'plId' => $this->arrangementId
             ]
         );
 
@@ -68,7 +70,7 @@ class StatistikkArrangement extends StatistikkSuper {
     * @return array[] An array of arrays with keys 'age' and 'antall'.
     */
     public function getAldersfordeling() : array {
-        $arrangementDate = new DateTime($this->arrangement->getSesong().'-12-31');
+        $arrangementDate = new DateTime($this->season.'-12-31');
         
         $sql = new Query(
             "SELECT 
@@ -82,7 +84,7 @@ class StatistikkArrangement extends StatistikkSuper {
                     FROM_UNIXTIME(#arrangementDate))
                 AS age
             FROM (
-                " . $this->getQueryArrangement($this->arrangement) . "
+                " . $this->getQueryArrangement($this->season) . "
             ) AS subquery
                 JOIN statistics_before_2024_smartukm_participant AS participant
                 ON subquery.p_id = participant.p_id
@@ -93,7 +95,7 @@ class StatistikkArrangement extends StatistikkSuper {
                     age;
                 ",
                 [
-                    'plId' => $this->arrangement->getId(),
+                    'plId' => $this->arrangementId,
                     'arrangementDate' => $arrangementDate->getTimestamp()
                 ]
         );
@@ -122,7 +124,7 @@ class StatistikkArrangement extends StatistikkSuper {
     public function getSjangerfordeling() : array {
 
         // > 2019 innslag fra ukm_rel_arrangement_person og fra juli 2024 brukes tabellen ukm_statistics_from_2024
-        if($this->arrangement->getSesong() > 2019) {
+        if($this->season > 2019) {
             $sql = new Query("SELECT 
                         DISTINCT innslag.b_id,
                         innslag.bt_id,
@@ -145,7 +147,7 @@ class StatistikkArrangement extends StatistikkSuper {
                         smartukm_band AS innslag ON innslag.b_id=stat.b_id
                     WHERE stat.pl_id='#plId' AND innslag.b_status = 8",
                 [
-                    'plId' => $this->arrangement->getId(),
+                    'plId' => $this->arrangementId,
                 ]
             );
         }
@@ -162,7 +164,7 @@ class StatistikkArrangement extends StatistikkSuper {
                     WHERE rel_pl_b.pl_id='#plId' AND (innslag.b_status = 8 OR innslag.b_status = 99)
                 ",
                 [
-                    'plId' => $this->arrangement->getId(),
+                    'plId' => $this->arrangementId,
                 ]
             );
         }
@@ -210,13 +212,13 @@ class StatistikkArrangement extends StatistikkSuper {
             FROM (
                 SELECT participant.p_id, participant.p_firstname as firstname
                 FROM (
-                    " . $this->getQueryArrangement($this->arrangement) . "
+                    " . $this->getQueryArrangement($this->season) . "
                     ) AS subquery
                 JOIN statistics_before_2024_smartukm_participant AS participant ON participant.p_id=subquery.p_id
             ) AS subqueryOut GROUP BY p_id;
             ",
             [
-                'plId' => $this->arrangement->getId(),
+                'plId' => $this->arrangementId,
             ]
         );
 

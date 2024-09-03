@@ -11,9 +11,9 @@ class StatistikkSuper {
 
     }
 
-    protected function getQueryArrangement(Arrangement $arrangement) : String {
+    protected function getQueryArrangement(int $season) : String {
         $retQuery = '';
-        if($arrangement->getSesong() > 2019) {
+        if($season > 2019) {
             $retQuery = "SELECT person_id as p_id, innslag_id as b_id
                 FROM `statistics_before_2024_ukm_rel_arrangement_person`
                 JOIN `statistics_before_2024_smartukm_band` AS `innslag`
@@ -35,7 +35,7 @@ class StatistikkSuper {
         }
 
         // If arrangementet er fra 2024
-        if($arrangement->getSesong() > 2023) {
+        if($season > 2023) {
             $retQuery .= " UNION SELECT p_id, b_id
             FROM ukm_statistics_from_2024
             WHERE pl_id='#plId'
