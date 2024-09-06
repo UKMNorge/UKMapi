@@ -95,4 +95,52 @@ class StatistikkKommune extends StatistikkSuper {
 
         return $retKommuner;
     }
+
+    /**
+     * Returnerer alle aktivitet i alle kommuner i en sesong 
+     * Aktive kommuner regnes de som har minst 1 arrangement i sesongen
+     * 
+     * @return string SQL spørring
+     */
+
+     public static function getAlleKommunerAktivitet($season) {
+        $retArr = [];
+        $retArr['season'] = $season;
+        $alleKommunerIFylke = StatistikkKommune::getAlleKommunerFraSSB($season);
+        
+        foreach($alleKommunerIFylke as $kommune) {
+            $retArr['kommuner'][$kommune->getId()] = ['navn' => $kommune->getNavn(), 'aktivitet' => false];
+        }
+
+        $sql = new Query(
+            "SELECT DISTINCT kommune_id, kommune_navn
+            FROM (
+                -- Before sommer 2024
+                SELECT kommune.id AS kommune_id, kommune.name AS kommune_navn
+                FROM smartukm_kommune AS kommune
+                JOIN statistics_before_2024_smartukm_rel_pl_k AS pl_k ON pl_k.k_id = kommune.id
+                WHERE pl_k.season='#season'
+
+                UNION
+                -- sommer 2024 and later
+                SELECT stat.k_id AS kommune_id, kommune.name AS kommune_navn
+                FROM ukm_statistics_from_2024 AS stat
+                JOIN smartukm_kommune AS kommune ON kommune.id=stat.k_id
+                WHERE season='#season' AND fylke='false' AND land='false'
+            ) AS combined_results
+            GROUP BY kommune_id",
+            [
+                'season' => $season
+            ]
+        );
+
+        $res = $sql->run();
+        
+
+        while($row = Query::fetch($res)) {
+            $retArr['kommuner'][$row['kommune_id']] = ['navn' => $row['kommune_navn'], 'aktivitet' => true];
+        }
+
+        return $retArr;
+    }
 }
