@@ -232,6 +232,31 @@ class StatistikkArrangement extends StatistikkSuper {
 
 
         return $retArr;
+    }
 
+    /**
+     * Returnerer alle arrangementer, uansett sesong
+     * 
+     * 
+     * @return int antall arrangementer.
+    */
+    public static function getAntallArrangementer() {
+        $sql = new Query("
+            SELECT COUNT(DISTINCT pl_id) AS antall
+            FROM (
+                SELECT DISTINCT pl_id
+                FROM smartukm_place
+                WHERE pl_deleted='false'
+
+                UNION
+
+                SELECT DISTINCT pl_id
+                FROM statistics_before_2024_smartukm_place
+                WHERE pl_deleted='false'
+            ) AS combined_results
+        ");
+
+        $res = $sql->run('array');
+        return (int) intval($res['antall']);
     }
 }
