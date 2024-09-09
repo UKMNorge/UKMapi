@@ -259,4 +259,39 @@ class StatistikkArrangement extends StatistikkSuper {
         $res = $sql->run('array');
         return (int) intval($res['antall']);
     }
+
+    /**
+     * Returnerer antall arrangementtyper. Typene kan være arrangement (workshop) eller møsntring (festival).
+     * 
+     * 
+     * @return [] monstring=>int, workshop=>int
+    */
+public static function getAntallArrangementTyper() {
+        $sql = new Query("
+            SELECT pl_subtype, COUNT(*) AS count
+            FROM (
+                SELECT DISTINCT pl_id, pl_subtype
+                FROM smartukm_place
+                WHERE pl_subtype IN ('monstring', 'arrangement')
+                AND pl_deleted='false'
+                
+                UNION
+                
+                SELECT DISTINCT pl_id, pl_subtype
+                FROM statistics_before_2024_smartukm_place
+                WHERE pl_subtype IN ('monstring', 'arrangement')
+                AND pl_deleted='false'
+            ) AS combined
+            GROUP BY pl_subtype;
+        ");
+
+        $res = $sql->run();
+        $retArr = [];
+
+        while($row = Query::fetch($res)) {
+            $retArr[$row['pl_subtype']] = intval($row['count']);
+        }
+
+        return $retArr;
+    }
 }
