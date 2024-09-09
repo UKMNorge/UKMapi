@@ -262,11 +262,11 @@ class StatistikkArrangement extends StatistikkSuper {
 
     /**
      * Returnerer antall arrangementtyper. Typene kan være arrangement (workshop) eller møsntring (festival).
-     * 
+     * OBS: Det blir kun arrangementer lokalt (uten fylke og land) som blir telt.
      * 
      * @return [] monstring=>int, workshop=>int
     */
-public static function getAntallArrangementTyper() {
+public static function getAntallArrangementTyperLokalt() {
         $sql = new Query("
             SELECT pl_subtype, COUNT(*) AS count
             FROM (
@@ -274,6 +274,7 @@ public static function getAntallArrangementTyper() {
                 FROM smartukm_place
                 WHERE pl_subtype IN ('monstring', 'arrangement')
                 AND pl_deleted='false'
+                AND pl_type!='fylke'
                 
                 UNION
                 
@@ -281,6 +282,7 @@ public static function getAntallArrangementTyper() {
                 FROM statistics_before_2024_smartukm_place
                 WHERE pl_subtype IN ('monstring', 'arrangement')
                 AND pl_deleted='false'
+                AND pl_type!='fylke'
             ) AS combined
             GROUP BY pl_subtype;
         ");
