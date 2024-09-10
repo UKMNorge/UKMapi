@@ -8,5 +8,5 @@ class Aktuelle extends Kommende
     /**
      * @var MONTHS_THRESHOLD Int antall måneder før ikke lenger aktuelt
      */
-    const MONTHS_THRESHOLD = 12;
+    const MONTHS_THRESHOLD = 11;
 }
