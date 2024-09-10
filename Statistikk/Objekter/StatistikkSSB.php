@@ -15,7 +15,7 @@ class StatistikkSSB {
      * @param int $season
      * @return void
      */
-    public static function getAldersfordeling($kommuneId, int $season) : array {
+    public static function getAldersfordelingKommune($kommuneId, int $season) : array {
         // URL til SSB API for Statistikkbanken
         $url = "https://data.ssb.no/api/v0/no/table/07459";
 
