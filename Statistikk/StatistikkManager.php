@@ -3,6 +3,8 @@
 namespace UKMNorge\Statistikk;
 
 use UKMNorge\Arrangement\Arrangement;
+use UKMNorge\Nettverk\Administrator;
+
 
 // Create class StatisikkManager
 class StatistikkManager
@@ -52,4 +54,39 @@ class StatistikkManager
 
         return false;
     }
+
+    /**
+     * Check if user has access to minimum 1 kommune
+     *
+     * @return boolean
+     */
+    public static function hasKommuneAccess() {
+        $user = new Administrator( get_current_user_id() );
+
+        foreach($user->getOmrader() as $omrade) {
+            if($omrade->getType() == 'kommune') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if user has access to minimum 1 fylke
+     *
+     * @return boolean
+     */
+    public static function hasFylkeAccess() {
+        $user = new Administrator( get_current_user_id() );
+
+        foreach($user->getOmrader() as $omrade) {
+            if($omrade->getType() == 'fylke') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }
