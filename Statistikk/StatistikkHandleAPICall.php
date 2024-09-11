@@ -31,14 +31,14 @@ class StatistikkHandleAPICall extends HandleAPICall {
      * @param string|null $accessValue Additional values required for access verification (e.g., fylke ID). The values are just the names of the values, not the actual values. Actual values are stored at requiredArguments.
      */
     function __construct(array $requiredArguments, array $optionalArguments, array $acceptedMethods, bool $loginRequired, bool $wordpressLogin = false, string $accessType = null, string $accessValue = null) {
+        parent::__construct($requiredArguments, $optionalArguments, $acceptedMethods, $loginRequired, $wordpressLogin);
+        
         // VIKTIG: Sjekk at bruker har tilgang til å se statistikken
         try{
             $this->verifyAccess($accessType, $accessValue);
         }catch(Exception $e) {
             $this->sendErrorToClient($e->getMessage(), 401);
         }
-
-        parent::__construct($requiredArguments, $optionalArguments, $acceptedMethods, $loginRequired, $wordpressLogin);
     }
 
 
@@ -56,7 +56,7 @@ class StatistikkHandleAPICall extends HandleAPICall {
      * @return bool Returns true if the user has the required access, otherwise throws an exception.
      * @throws Exception If the user does not have the required access level.
      */
-    public function verifyAccess(string $accessType, $accessValue) {
+    private function verifyAccess(string $accessType, $accessValue) {
         if(is_user_logged_in() !== true) {
             throw new Exception("Du er ikke innlogget!", 401);
         }
