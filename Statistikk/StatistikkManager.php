@@ -23,7 +23,7 @@ class StatistikkManager
      */
     public static function hasArrangementAccess() {
         // Check if user has access to arrangement
-    $blogs = get_blogs_of_user(get_current_user_id());
+        $blogs = get_blogs_of_user(get_current_user_id());
 
         foreach($blogs as $blog) {
             $blog_id = $blog->userblog_id; // Get the blog ID
@@ -99,7 +99,7 @@ class StatistikkManager
         $user = new Administrator( get_current_user_id() );
         
         foreach($user->getOmrader() as $omrade) {
-            if($omrade->getType() == 'kommune' && $omrade->getId() == $kommuneId) {
+            if($omrade->getType() == 'kommune' && $omrade->getForeignId() == $kommuneId) {
                 return true;
             }
         }
@@ -133,7 +133,7 @@ class StatistikkManager
         $user = new Administrator( get_current_user_id() );
         
         foreach($user->getOmrader() as $omrade) {
-            if($omrade->getType() == 'fylke' && $omrade->getId() == $fylkeId) {
+            if($omrade->getType() == 'fylke' && $omrade->getForeignId() == $fylkeId) {
                 return true;
             }
         }
