@@ -4,6 +4,7 @@ namespace UKMNorge\Statistikk;
 
 use UKMNorge\OAuth2\HandleAPICall;
 use UKMNorge\Statistikk\StatistikkManager;
+use UKMNorge\OAuth2\Request;
 use Exception;
 
 class StatistikkHandleAPICall extends HandleAPICall {
@@ -11,7 +12,6 @@ class StatistikkHandleAPICall extends HandleAPICall {
     private $accessValues;
 
 
-    
     /**
      * Constructs a new instance of the API call handler for statistics.
      *
@@ -28,7 +28,7 @@ class StatistikkHandleAPICall extends HandleAPICall {
      * @param bool $loginRequired Indicates whether login is required to access the API.
      * @param bool $wordpressLogin Indicates whether WordPress login is required.
      * @param string|null $accessType The type of access required (e.g., 'fylke' for regional, 'kommune' for local).
-     * @param string|null $accessValue Additional values required for access verification (e.g., fylke ID). The values are just the names of the values, not the actual values. Actual values are stored at requiredArguments.
+     * @param string|null $accessValue Additional values required for access verification (e.g., fylke ID).
      */
     function __construct(array $requiredArguments, array $optionalArguments, array $acceptedMethods, bool $loginRequired, bool $wordpressLogin = false, string $accessType = null, string $accessValue = null) {
         parent::__construct($requiredArguments, $optionalArguments, $acceptedMethods, $loginRequired, $wordpressLogin);
@@ -60,7 +60,14 @@ class StatistikkHandleAPICall extends HandleAPICall {
         if(is_user_logged_in() !== true) {
             throw new Exception("Du er ikke innlogget!", 401);
         }
+
+        // Superadmin har alltid tilgang
         if(is_super_admin()) {
+            return true;
+        }
+
+        // Det kreves å være superadmin men brukeren er ikke superadmin
+        if($accessType == 'superadmin') {
             return true;
         }
 
@@ -68,7 +75,7 @@ class StatistikkHandleAPICall extends HandleAPICall {
         if($accessType == null) {
             return true;
         }
-
+        
         // FYLKE TILGANG
         if($accessType == 'fylke') {
             // Tilgang til minst 1 fylke generelt
@@ -80,7 +87,7 @@ class StatistikkHandleAPICall extends HandleAPICall {
             }
             // Tilgang til spesifikt fylke
             else {
-                if(StatistikkManager::hasAccessToFylke($this->getArgument($accessValue)) === true) {
+                if(StatistikkManager::hasAccessToFylke($accessValue) === true) {
                     return true;
                 }
                 throw new Exception("Du har ikke tilgang til fylket for å se denne statistikken");
@@ -96,7 +103,7 @@ class StatistikkHandleAPICall extends HandleAPICall {
                 throw new Exception("Du har ikke tilgang til kommuner for å se denne statistikken", 401);
             }
             else {
-                if(StatistikkManager::hasAccessToKommune($this->getArgument($accessValue)) === true) {
+                if(StatistikkManager::hasAccessToKommune($accessValue) === true) {
                     return true;
                 }
                 throw new Exception("Du har ikke tilgang til kommunen for å se denne statistikken");
@@ -112,7 +119,7 @@ class StatistikkHandleAPICall extends HandleAPICall {
                 throw new Exception("Du har ikke tilgang til arrangementer for å se denne statistikken", 401);
             }
             else {
-                if(StatistikkManager::hasAccessToArrangement($this->getArgument($accessValue)) === true) {
+                if(StatistikkManager::hasAccessToArrangement($accessValue) === true) {
                     return true;
                 }
                 throw new Exception("Du har ikke tilgang til arrangement for å se denne statistikken");
@@ -121,6 +128,21 @@ class StatistikkHandleAPICall extends HandleAPICall {
 
         throw new Exception("Ukjent tilgangstype: $accessType");
         
+    }
+
+    
+    /**
+     * Retrieves a specific argument from a global request based on the provided key and method.
+     * This method is intended to be used before the initialization process of the application context.
+     *
+     * @param string $key The name of the argument to retrieve.
+     * @param string $method The HTTP method (e.g., GET, POST) through which the argument should be accessed.
+     * @return mixed The value of the requested argument if found, or null if not found or if the request fails.
+     */
+    public static function getArgumentBeforeInit(string $key, string $method) {
+        $request = Request::createFromGlobals();
+
+        return $request->requestRequired($key, $method) ?? null;
     }
 
 }
