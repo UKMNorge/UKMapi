@@ -145,4 +145,9 @@ class StatistikkHandleAPICall extends HandleAPICall {
         return $request->requestRequired($key, $method) ?? null;
     }
 
+    public static function sendError(string $message, int $code) {
+        $thisClass = new StatistikkHandleAPICall([], [], [], false, false);
+        $thisClass->sendErrorToClient($message, $code);
+    }
+
 }
