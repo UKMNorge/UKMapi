@@ -35,7 +35,10 @@ class StatistikkHandleAPICall extends HandleAPICall {
         
         // VIKTIG: Sjekk at bruker har tilgang til å se statistikken
         try{
-            $this->verifyAccess($accessType, $accessValue);
+            if($this->verifyAccess($accessType, $accessValue) !== true) {
+                $this->sendErrorToClient('Tilgangen er ikke gitt', 401);
+
+            }
         }catch(Exception $e) {
             $this->sendErrorToClient($e->getMessage(), 401);
         }
@@ -66,9 +69,10 @@ class StatistikkHandleAPICall extends HandleAPICall {
             return true;
         }
 
+
         // Det kreves å være superadmin men brukeren er ikke superadmin
         if($accessType == 'superadmin') {
-            return false;
+            throw new Exception("Du er ikke rettigheter som superadmin!", 401);
         }
 
         // Access is not defined, therefore access is granted
