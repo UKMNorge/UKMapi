@@ -68,7 +68,7 @@ class StatistikkHandleAPICall extends HandleAPICall {
 
         // Det kreves å være superadmin men brukeren er ikke superadmin
         if($accessType == 'superadmin') {
-            return true;
+            return false;
         }
 
         // Access is not defined, therefore access is granted
