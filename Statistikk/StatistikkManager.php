@@ -46,7 +46,7 @@ class StatistikkManager
      *
      * 
      * @param int $arrangementId
-     * @return bool
+     * @return boolean
      */
     public static function hasAccessToArrangement(int $arrangementId) : bool {
         // Check if user has access to arrangement
@@ -93,13 +93,30 @@ class StatistikkManager
     /**
      * Security check to make sure the user has access minimum 1 kommune (kommune level)
      *
-     * @return void
+     * @return boolean
      */
     public static function hasAccessToKommune(int $kommuneId) {
         $user = new Administrator( get_current_user_id() );
         
         foreach($user->getOmrader() as $omrade) {
             if($omrade->getType() == 'kommune' && $omrade->getForeignId() == $kommuneId) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+     /**
+     * Security check to make sure the user is administrator in a kommune that is part of the fylke
+     *
+     * @return boolean
+     */
+    public static function hasAccessToFylkeFromKommune(int $fylkeId) {
+        $user = new Administrator( get_current_user_id() );
+        
+        foreach($user->getOmrader() as $omrade) {
+            if($omrade->getType() == 'kommune' && $omrade->getFylke() && $omrade->getFylke()->getId() == $fylkeId) {
                 return true;
             }
         }
