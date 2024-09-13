@@ -72,7 +72,7 @@ class StatistikkHandleAPICall extends HandleAPICall {
 
         // Det kreves å være superadmin men brukeren er ikke superadmin
         if($accessType == 'superadmin') {
-            throw new Exception("Du er ikke rettigheter som superadmin!", 401);
+            throw new Exception("Du har ikke rettigheter som superadmin!", 401);
         }
 
         // Access is not defined, therefore access is granted
