@@ -110,8 +110,22 @@ class StatistikkHandleAPICall extends HandleAPICall {
                 if(StatistikkManager::hasAccessToKommune($accessValue) === true) {
                     return true;
                 }
-                throw new Exception("Du har ikke tilgang til kommunen for å se denne statistikken");
+                throw new Exception("Du har ikke tilgang til kommune $accessValue for å se denne statistikken");
             }
+        }
+
+        // Har tilgang i en kommune som er del av dette ($accessValue) fylke
+        // Hvis brukerne har tilgang direkte til fylke, så har de tilgang til alle kommuner i fylket
+        if($accessType == 'fylke_fra_kommune') {
+            // Har tilgang direkt til fylke
+            if(StatistikkManager::hasAccessToFylke($accessValue) === true) {
+                return true;
+            }
+            // Har tilgang til fylke fra kommune
+            if(StatistikkManager::hasAccessToFylkeFromKommune($accessValue) === true) {
+                return true;
+            }
+            throw new Exception("Du har ikke tilgang til fylke $accessValue for å se denne statistikken");
         }
 
         // ARRANGEMENT TILGANG
