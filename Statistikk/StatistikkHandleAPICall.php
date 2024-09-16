@@ -6,6 +6,7 @@ use UKMNorge\OAuth2\HandleAPICall;
 use UKMNorge\Statistikk\StatistikkManager;
 use UKMNorge\OAuth2\Request;
 use Exception;
+use UKMNorge\Arrangement\Arrangement;
 
 class StatistikkHandleAPICall extends HandleAPICall {
     private $accessType;
@@ -128,7 +129,7 @@ class StatistikkHandleAPICall extends HandleAPICall {
             throw new Exception("Du har ikke tilgang til fylke $accessValue for å se denne statistikken");
         }
 
-        // ARRANGEMENT TILGANG
+        // ARRANGEMENT TILGANG ELLER KOMMUNE
         if($accessType == 'arrangement') {
             if($accessValue == null) {
                 if(StatistikkManager::hasArrangementAccess() === true) {
@@ -142,6 +143,42 @@ class StatistikkHandleAPICall extends HandleAPICall {
                 }
                 throw new Exception("Du har ikke tilgang til arrangement for å se denne statistikken");
             }
+        }
+
+        // Tilgang til arrangement eller kommune/fylke arrangementet tilhører
+        // Gjelder for arrangementer som tilhører en kommune eller fylke. Fylkesadministratorer har tilgang til alle arrangementer i fylket, inkludering kommuner.
+        if($accessType == 'arrangement_i_kommune_fylke') {
+            if($accessValue == null) {
+                throw new Exception("Mangler arrangement ID", 400);
+            }
+            else {
+                $arrangement = null;
+
+                try {
+                    $arrangement = new Arrangement($accessValue);
+                } catch(Exception $e) {
+                    throw new Exception("Kunne ikke hente arrangementet med id $accessValue", 401);
+                }
+
+                if(StatistikkManager::hasAccessToArrangement($accessValue) === true) {
+                    return true;
+                }
+
+                // Sjekk kommuner
+                $kommuner = $arrangement->getKommuner();
+                foreach($kommuner as $kommune) {
+                    if(StatistikkManager::hasAccessToKommune($kommune->getId()) === true) {
+                        return true;
+                    }
+                }
+
+                // Sjekk fylke
+                $fylke = $arrangement->getFylke();
+                if(StatistikkManager::hasAccessToFylke($fylke->getId()) === true) {
+                    return true;
+                }
+            }
+            throw new Exception("Du har ikke tilgang til arrangementet $accessValue. Du må være administrator i kommunen eller fylket som dette arrangementet tilhører", 401);
         }
 
         throw new Exception("Ukjent tilgangstype: $accessType");
