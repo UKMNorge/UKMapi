@@ -6,7 +6,7 @@ use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Nettverk\Administrator;
 
 
-class AccessControll {
+class AccessControlArrSys {
 
     // Constructor
     public function __construct() {
