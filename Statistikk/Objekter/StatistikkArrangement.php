@@ -5,7 +5,6 @@ namespace UKMNorge\Statistikk\Objekter;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Statistikk\Objekter\StatistikkSuper;
-use UKMNorge\Statistikk\StatistikkManager;
 use UKMNorge\Innslag\Typer\Typer;
 
 use Exception;
@@ -14,15 +13,10 @@ use DateTime;
 class StatistikkArrangement extends StatistikkSuper {
     private int $arrangementId;
     private int $season;
-    private StatistikkManager $sm;
 
 
     public function __construct(int $arrangementId, int $season) {
-        $this->sm = new StatistikkManager();
         // Check if the user has access to the arrangement
-        if($this->sm::hasAccessToArrangement($arrangementId) == false) {
-            // throw new Exception('Ingen tilgang til arrangement ' . $arrangement->getId(), 401);
-        }
         $this->arrangementId = $arrangementId;
         $this->season = $season;
     }
