@@ -1,24 +1,27 @@
 <?php
 
-namespace UKMNorge\Statistikk;
+namespace UKMNorge\OAuth2\ArrSys;
 
 use UKMNorge\OAuth2\HandleAPICall;
-use UKMNorge\Statistikk\StatistikkManager;
+use UKMNorge\OAuth2\ArrSys\AccessControlArrSys;
 use UKMNorge\OAuth2\Request;
-use Exception;
 use UKMNorge\Arrangement\Arrangement;
 
-class StatistikkHandleAPICall extends HandleAPICall {
+use Exception;
+
+class HandleAPICallWithAuthorization extends HandleAPICall {
     private $accessType;
     private $accessValues;
 
 
     /**
-     * Constructs a new instance of the API call handler for statistics.
+     * Constructs a new instance of the API call handler with authorization.
+     * 
+     * IMPORTANT: The initialization fails if the user does not have the required access level, so you don't have to take of infoming the client about the error.
      *
      * This constructor initializes the API call handler with required and optional arguments,
      * accepted HTTP methods, and login requirements. It also performs an access check to ensure
-     * the user has the necessary permissions to view the requested statistics. If the user does
+     * the user has the necessary permissions. If the user does
      * not have the required access, an error is sent to the client.
      *
      * IMPORTANT: If the user does not have the required access level, the error is sent to the client and exection is stopped via sendErrorToClient().
@@ -34,7 +37,6 @@ class StatistikkHandleAPICall extends HandleAPICall {
     function __construct(array $requiredArguments, array $optionalArguments, array $acceptedMethods, bool $loginRequired, bool $wordpressLogin = false, string $accessType = null, string $accessValue = null) {
         parent::__construct($requiredArguments, $optionalArguments, $acceptedMethods, $loginRequired, $wordpressLogin);
         
-        // VIKTIG: Sjekk at bruker har tilgang til å se statistikken
         try{
             if($this->verifyAccess($accessType, $accessValue) !== true) {
                 $this->sendErrorToClient('Tilgangen er ikke gitt', 401);
@@ -47,16 +49,17 @@ class StatistikkHandleAPICall extends HandleAPICall {
 
 
     /**
-     * Verifies if the current user has access to the requested statistical data.
+     * Verifies if the current user has access to the requested access level.
      * 
-     * IMPORTANT: This method should be called before any other code in the API call.
-     * IMPORTANT2: If the access type is not defined, access is granted.
+     * IMPORTANT: If the access type is not defined, access is granted. It means that there is no access control.
+     * 
+     * IMPORTANT: Superuser has always access.
+     * 
      * 
      * This method checks if the user is a super admin or has the required access level
-     * (fylke, kommune or arrangement) to view specific statistical data. If the user does not
-     * have the necessary permissions, an exception is thrown.
+     * If the user does not have the necessary permissions, an exception is thrown.
      * 
-     * @param string $accessType The type of access required ('fylke', 'kommune' or 'arrangement').
+     * @param string $accessType The type of access required (E.g. 'fylke', 'kommune').
      * @return bool Returns true if the user has the required access, otherwise throws an exception.
      * @throws Exception If the user does not have the required access level.
      */
@@ -85,33 +88,33 @@ class StatistikkHandleAPICall extends HandleAPICall {
         if($accessType == 'fylke') {
             // Tilgang til minst 1 fylke generelt
             if($accessValue == null) {
-                if(StatistikkManager::hasFylkeAccess() === true) {
+                if(AccessControlArrSys::hasFylkeAccess() === true) {
                     return true;
                 }
-                throw new Exception("Du har ikke tilgang til fylker for å se denne statistikken");
+                throw new Exception("Du har ikke tilgang til fylker");
             }
             // Tilgang til spesifikt fylke
             else {
-                if(StatistikkManager::hasAccessToFylke($accessValue) === true) {
+                if(AccessControlArrSys::hasAccessToFylke($accessValue) === true) {
                     return true;
                 }
-                throw new Exception("Du har ikke tilgang til fylket for å se denne statistikken");
+                throw new Exception("Du har ikke tilgang til fylket $accessValue");
             }
         }
 
         // KOMMUNE TILGANG
         if($accessType == 'kommune') {
             if($accessValue == null) {
-                if(StatistikkManager::hasKommuneAccess() === true) {
+                if(AccessControlArrSys::hasKommuneAccess() === true) {
                     return true;
                 }
-                throw new Exception("Du har ikke tilgang til kommuner for å se denne statistikken", 401);
+                throw new Exception("Du har ikke tilgang til kommuner");
             }
             else {
-                if(StatistikkManager::hasAccessToKommune($accessValue) === true) {
+                if(AccessControlArrSys::hasAccessToKommune($accessValue) === true) {
                     return true;
                 }
-                throw new Exception("Du har ikke tilgang til kommune $accessValue for å se denne statistikken");
+                throw new Exception("Du har ikke tilgang til kommune $accessValue");
             }
         }
 
@@ -119,29 +122,29 @@ class StatistikkHandleAPICall extends HandleAPICall {
         // Hvis brukerne har tilgang direkte til fylke, så har de tilgang til alle kommuner i fylket
         if($accessType == 'fylke_fra_kommune') {
             // Har tilgang direkt til fylke
-            if(StatistikkManager::hasAccessToFylke($accessValue) === true) {
+            if(AccessControlArrSys::hasAccessToFylke($accessValue) === true) {
                 return true;
             }
             // Har tilgang til fylke fra kommune
-            if(StatistikkManager::hasAccessToFylkeFromKommune($accessValue) === true) {
+            if(AccessControlArrSys::hasAccessToFylkeFromKommune($accessValue) === true) {
                 return true;
             }
-            throw new Exception("Du har ikke tilgang til fylke $accessValue for å se denne statistikken");
+            throw new Exception("Du har ikke tilgang til fylke $accessValue");
         }
 
         // ARRANGEMENT TILGANG ELLER KOMMUNE
         if($accessType == 'arrangement') {
             if($accessValue == null) {
-                if(StatistikkManager::hasArrangementAccess() === true) {
+                if(AccessControlArrSys::hasArrangementAccess() === true) {
                     return true;
                 }
-                throw new Exception("Du har ikke tilgang til arrangementer for å se denne statistikken", 401);
+                throw new Exception("Du har ikke tilgang til arrangementer", 401);
             }
             else {
-                if(StatistikkManager::hasAccessToArrangement($accessValue) === true) {
+                if(AccessControlArrSys::hasAccessToArrangement($accessValue) === true) {
                     return true;
                 }
-                throw new Exception("Du har ikke tilgang til arrangement for å se denne statistikken");
+                throw new Exception("Du har ikke tilgang til arrangementet $accessValue");
             }
         }
 
@@ -160,21 +163,21 @@ class StatistikkHandleAPICall extends HandleAPICall {
                     throw new Exception("Kunne ikke hente arrangementet med id $accessValue", 401);
                 }
 
-                if(StatistikkManager::hasAccessToArrangement($accessValue) === true) {
+                if(AccessControlArrSys::hasAccessToArrangement($accessValue) === true) {
                     return true;
                 }
 
                 // Sjekk kommuner
                 $kommuner = $arrangement->getKommuner();
                 foreach($kommuner as $kommune) {
-                    if(StatistikkManager::hasAccessToKommune($kommune->getId()) === true) {
+                    if(AccessControlArrSys::hasAccessToKommune($kommune->getId()) === true) {
                         return true;
                     }
                 }
 
                 // Sjekk fylke
                 $fylke = $arrangement->getFylke();
-                if(StatistikkManager::hasAccessToFylke($fylke->getId()) === true) {
+                if(AccessControlArrSys::hasAccessToFylke($fylke->getId()) === true) {
                     return true;
                 }
             }
@@ -200,8 +203,17 @@ class StatistikkHandleAPICall extends HandleAPICall {
         return $request->requestRequired($key, $method) ?? null;
     }
 
+    /**
+     * Sends an error message to the client.
+     * 
+     * This method sends an error message to the client with the specified message and HTTP status code.
+     * This method can be used when the error occurs before the instance initialization of this class. 
+     * 
+     * @param string $message The error message to send to the client.
+     * @param int $code The HTTP status code to send to the client.
+     */
     public static function sendError(string $message, int $code) {
-        $thisClass = new StatistikkHandleAPICall([], [], [], false, false);
+        $thisClass = new HandleAPICallWithAuthorization([], [], [], false, false);
         $thisClass->sendErrorToClient($message, $code);
     }
 

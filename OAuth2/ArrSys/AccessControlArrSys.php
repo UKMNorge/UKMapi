@@ -1,15 +1,12 @@
 <?php
 
-namespace UKMNorge\Statistikk;
+namespace UKMNorge\OAuth2\ArrSys;
 
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Nettverk\Administrator;
 
 
-// Create class StatisikkManager
-class StatistikkManager
-{
-    // Properties
+class AccessControll {
 
     // Constructor
     public function __construct() {
