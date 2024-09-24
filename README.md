@@ -122,3 +122,5 @@ For å opprette en ny festival side må du:
 3. Trykk Innstillinger
 4. Endre `Pl Id` til nytt arrangement id (pl_id) (fra 1. punkt)
 5. Endre `Season` til nåværende år
+
+Se på https://github.com/UKMNorge/UKMfestivalen for mer informasjon om opprettelse av UKM-festivalen
