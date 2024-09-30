@@ -6,7 +6,7 @@ use DateTime;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Statistikk\Objekter\StatistikkSuper;
-use UKMNorge\Statistikk\StatistikkManager;
+// use UKMNorge\Statistikk\StatistikkManager;
 use UKMNorge\Geografi\Kommune;
 use UKMNorge\API\SSB\Klass;
 use UKMNorge\Geografi\Fylke;
@@ -16,10 +16,10 @@ use Exception;
 class StatistikkKommune extends StatistikkSuper {
     private Kommune $kommune;
     private int $season;
-    private StatistikkManager $sm;
+    // private StatistikkManager $sm;
 
     public function __construct(Kommune $kommune, $season) {
-        $this->sm = new StatistikkManager();
+        // $this->sm = new StatistikkManager();
         $this->kommune = $kommune;
         $this->season = $season;
     }
