@@ -142,7 +142,7 @@ class StatistikkSSB {
 
         $retArr = [];
         foreach ($ageCounts as $ageCode => $count) {
-            $retArr[intval($ageCode)] = ['tekst' => $ageLabels[$ageCode], 'antall' => $count];
+            $retArr[intval($ageCode)] = ['age' => intval($ageCode), 'antall' => $count];
         }
 
         // Lukker cURL-sessionen
