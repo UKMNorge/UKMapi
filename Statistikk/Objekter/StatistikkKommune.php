@@ -59,6 +59,51 @@ class StatistikkKommune extends StatistikkSuper {
         return (int) intval($res['antall']);
     }
 
+    public function getAldersfordeling() : array {
+        $seasonDate = new DateTime($this->season.'-12-31');
+
+        $sql = new Query(
+            "SELECT 
+                age, 
+                COUNT(*) AS participant_count 
+            FROM (SELECT 
+                DISTINCT participant.p_id, 
+                participant.p_dob,
+                TIMESTAMPDIFF(YEAR, 
+                    FROM_UNIXTIME(participant.p_dob),
+                    FROM_UNIXTIME(#dateSeas))
+                AS age
+            FROM (
+                " . $this->getQueryKommune($this->season) . "
+            ) AS subquery
+                JOIN statistics_before_2024_smartukm_participant AS participant
+                ON subquery.p_id = participant.p_id
+                ) AS age_subquery
+                GROUP BY 
+                    age
+                ORDER BY 
+                    age;
+                ",
+                [
+                    'k_id' => $this->kommune->getId(),
+                    'season' => $this->season,
+                    'dateSeas' => $seasonDate->getTimestamp()
+                ]
+        );
+
+        $retArr = [];
+        $res = $sql->run();
+
+        while($row = Query::fetch($res)) {
+            $retArr[] = [
+                'age' => $row['age'],
+                'antall' => $row['participant_count']
+            ];
+        }
+
+        return $retArr;
+    }
+
     /**
      * Returnerer alle kommuner hentet fra SSB
      * 
