@@ -10,6 +10,7 @@ use UKMNorge\Statistikk\Objekter\StatistikkSuper;
 use UKMNorge\Geografi\Kommune;
 use UKMNorge\API\SSB\Klass;
 use UKMNorge\Geografi\Fylke;
+use UKMNorge\Innslag\Typer\Typer;
 
 use Exception;
 
@@ -190,7 +191,7 @@ class StatistikkKommune extends StatistikkSuper {
     }
 
     /**
-     * Returnerer SQL spørring for å hente deltakere i en kommune
+     * Returnerer kjønnsfordeling i kommune
      * 
      * @param int $season
      * @return string SQL spørring
@@ -220,6 +221,99 @@ class StatistikkKommune extends StatistikkSuper {
             $retArr[$kjonn] = 1 + ($retArr[$kjonn] ?? 0);
         }
 
+
+        return $retArr;
+    }
+
+    
+
+    /**
+     * Returnerer antall innslag i kommune fordelt på sjanger
+     * 
+     * OBS: Det hentes innslag kun fra arrangementer på kommuner
+     * 
+     * @return array[] An array of arrays with keys 'antall' and 'type_navn'.
+    */
+    public function getSjangerFordeling() : array {
+        // > 2019 innslag fra ukm_rel_arrangement_person og fra juli 2024 brukes tabellen ukm_statistics_from_2024
+        if($this->season > 2019) {
+            $sql = new Query("SELECT 
+                DISTINCT innslag.b_id, 
+                innslag.bt_id, 
+                innslag.b_kategori, 
+                arrpers.arrangement_id
+            FROM statistics_before_2024_ukm_rel_arrangement_person AS arrpers 
+            JOIN statistics_before_2024_smartukm_band AS innslag ON innslag.b_id=arrpers.innslag_id 
+            JOIN statistics_before_2024_smartukm_place AS place ON place.pl_id=arrpers.arrangement_id
+            JOIN statistics_before_2024_smartukm_rel_pl_k AS rel_kommune ON rel_kommune.pl_id=place.pl_id
+            JOIN smartukm_kommune AS kommune ON kommune.id=rel_kommune.k_id
+            WHERE kommune.id='#kommuneId' 
+                AND place.season='#season' 
+                AND innslag.b_status = 8 
+
+            UNION 
+
+            SELECT DISTINCT innslag.b_id, innslag.bt_id, innslag.b_kategori, stat.pl_id 
+            FROM ukm_statistics_from_2024 AS stat 
+            JOIN statistics_before_2024_smartukm_band AS innslag ON innslag.b_id=stat.b_id
+            JOIN statistics_before_2024_smartukm_place AS place ON place.pl_id=stat.pl_id 
+            WHERE stat.k_id='#kommuneId' 
+                AND stat.fylke='false'
+                AND place.season='#season' 
+                AND innslag.b_status = 8",
+                [
+                    'kommuneId' => $this->kommune->getId(),
+                    'season' => $this->season
+                ]
+            );
+        }
+        // Before 2019 brukes statistics_before_2024_smartukm_rel_pl_b tabell
+        else {
+            $sql = new Query("SELECT
+                    DISTINCT innslag.b_id,
+                    innslag.bt_id,
+                    innslag.b_kategori,
+                    rel_pl_b.pl_id
+                FROM 
+                    statistics_before_2024_smartukm_band AS innslag
+                JOIN statistics_before_2024_smartukm_rel_pl_b AS rel_pl_b ON rel_pl_b.b_id = innslag.b_id
+                JOIN statistics_before_2024_smartukm_place as place on place.pl_id=rel_pl_b.pl_id
+                JOIN statistics_before_2024_smartukm_rel_pl_k AS rel_kommune ON rel_kommune.pl_id=place.pl_id
+                JOIN smartukm_kommune AS kommune ON kommune.id=rel_kommune.k_id
+                WHERE kommune.id='#kommuneId' 
+                AND (innslag.b_status = 8 OR innslag.b_status = 99)
+                AND place.season='#season'",
+                [
+                    'kommuneId' => $this->kommune->getId(),
+                    'season' => $this->season
+                ]
+            );
+        }
+
+
+        $retArr = [];
+        $innslagArr = [];
+        $typeArr = [];
+        $res = $sql->run();
+
+        while($row = Query::fetch($res)) {
+            try{
+                $type = Typer::getById($row['bt_id'], $row['b_kategori']);
+                $innslagArr[$type->getKey()][] = $row['b_id'];
+                $typeArr[$type->getKey()][] = $type->getNavn();
+            }catch(Exception $e) {
+                // The type is not found
+                if($e->getCode() == 110002) {
+                    $innslagArr['ukjent'][] = $row['b_id'];
+                    $typeArr['ukjent'][] = 'Ukjent';
+                }
+            }
+        }
+
+        foreach($innslagArr as $key => $value) {
+            $retArr[$key]['antall'] = count($value);
+            $retArr[$key]['type_navn'] = $typeArr[$key][0];
+        }
 
         return $retArr;
     }
