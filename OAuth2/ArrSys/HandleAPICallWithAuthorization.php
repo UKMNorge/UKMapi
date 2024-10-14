@@ -8,6 +8,7 @@ use UKMNorge\OAuth2\Request;
 use UKMNorge\Arrangement\Arrangement;
 
 use Exception;
+use UKMNorge\Geografi\Kommune;
 
 class HandleAPICallWithAuthorization extends HandleAPICall {
     private $accessType;
@@ -116,6 +117,27 @@ class HandleAPICallWithAuthorization extends HandleAPICall {
                 }
                 throw new Exception("Du har ikke tilgang til kommune $accessValue");
             }
+        }
+
+        // Har tilgang i en kommune eller i et fylke som kommunen er del av
+        // Eksempel: Er admin i Bergen eller Vestland
+        if($accessType == 'kommune_eller_fylke') {
+            if($accessValue == null) {
+                throw new Exception("Mangler tilgangsverdi", 400);
+            }
+
+            $kommune = null;
+            try{
+                $kommune = new Kommune($accessValue);
+            } catch(Exception $e) {
+                throw new Exception("Kunne ikke hente kommune med id $accessValue", 401);
+            }
+            // Er admin i kommune eller er admin i fylke som kommunen er del av
+            if(AccessControlArrSys::hasAccessToKommune($accessValue) === true || AccessControlArrSys::hasAccessToFylke($kommune->getFylke()->getId()) === true) {
+                return true;
+            }
+            throw new Exception("Du har ikke tilgang til kommune ". $kommune->getNavn() ." eller fylke " . $kommune->getFylke()->getNavn());
+        
         }
 
         // Har tilgang i en kommune som er del av dette ($accessValue) fylke
