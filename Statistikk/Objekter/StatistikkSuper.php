@@ -98,7 +98,7 @@ class StatistikkSuper {
 
     // FYLKE
     // OBS: Det hentes innslag fra kommuner i fylke og ikke fylke arrangerte arrangementer. Dette gjøres fordi kommuner videresender innslag til fylke, derfor representerer kommuner best hvilke innslag som er fra fylket.
-    protected function getQueryFylke(int $season) : String {
+    protected function getQueryFylke(int $season, bool $fylkeArrangementer = false) : String {
         $retQuery = '';
         // >2019
         if($season > 2019) {
@@ -121,8 +121,9 @@ class StatistikkSuper {
                 ON arrangement.pl_id = arrang_person.arrangement_id
             WHERE 
                 kommune.idfylke = '#fylke_id' AND 
-                arrangement.season='#season' AND
-                innslag.b_status = 8
+                arrangement.season='#season' AND "
+                . ($fylkeArrangementer ? "arrangement.pl_type='fylke'" : "arrangement.pl_type='kommune'") .
+                " AND innslag.b_status = 8
             GROUP BY 
                 p_id, b_id";
         }
@@ -137,18 +138,20 @@ class StatistikkSuper {
             JOIN 
                 smartukm_kommune AS kommune 
                 ON kommune.id = arr_kommune.k_id
-            WHERE kommune.idfylke='#fylke_id' AND arrangement.season='#season' AND (innslag.b_status = 8 OR innslag.b_status = 99)
+            WHERE kommune.idfylke='#fylke_id' 
+            AND arrangement.season='#season' AND "
+            . ($fylkeArrangementer ? "arrangement.pl_type='fylke'" : "arrangement.pl_type='kommune'") .
+            " AND (innslag.b_status = 8 OR innslag.b_status = 99)
             GROUP BY arr_innslag.b_id, p_id";
         }
 
-        // If season er fra 2024
-        // OBS: Det hentes innslag fra kommuner i fylke og ikke fylke arrangerte arrangementer
+        // If season er fra 2024, union it with the main query
         if($season > 2023) {
             $retQuery .= " UNION SELECT p_id, b_id
             FROM ukm_statistics_from_2024
-            WHERE f_id='#fylke_id' 
-            AND fylke='false'
-            AND land='false'
+            WHERE f_id='#fylke_id'"
+            . ($fylkeArrangementer ? " AND fylke='true'" : " AND fylke='false'") .
+            " AND land='false'
             AND season='#season'";
         }
 
@@ -168,5 +171,4 @@ class StatistikkSuper {
 
         return ($res == null) ? 'unknown' : $res;
     }
-
 }
