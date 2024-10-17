@@ -43,7 +43,7 @@ class StatistikkFylke extends StatistikkSuper {
     * @return int antall deltakere.
     */
     public function getAntallDeltakere() : int {
-        return $this->runAntall(false);
+        return $this->runAntall();
     }
 
     /**
@@ -52,7 +52,7 @@ class StatistikkFylke extends StatistikkSuper {
     * @return int antall unike deltakere.
     */
     public function getAntallUnikeDeltakereFylke() : int {
-        return $this->runAntall(true, true);
+        return $this->runAntall(false, true);
     }
 
     /**
@@ -65,12 +65,12 @@ class StatistikkFylke extends StatistikkSuper {
     }
 
 
-    private function runAntall(bool $unique, bool $fylkeArrangementer = false) : int {
+    private function runAntall($unique = false, bool $fylkeArrangementer = false) : int {
         $select = $unique ? "COUNT(DISTINCT p_id)" : "COUNT(p_id)";
         $sql = new Query(
             "SELECT " . $select . " as antall
             FROM (
-                " . $this->getQueryFylke($this->season, $fylkeArrangementer) . "
+                " . ($fylkeArrangementer == true ? $this->getQueryFylkeFylkesarrangementer($this->season) : $this->getQueryFylke($this->season)) . "
             ) AS subquery;",
             [
                 'fylke_id' => $this->fylke->getId(),

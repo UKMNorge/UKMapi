@@ -98,7 +98,7 @@ class StatistikkSuper {
 
     // FYLKE
     // OBS: Det hentes innslag fra kommuner i fylke og ikke fylke arrangerte arrangementer. Dette gjøres fordi kommuner videresender innslag til fylke, derfor representerer kommuner best hvilke innslag som er fra fylket.
-    protected function getQueryFylke(int $season, bool $fylkeArrangementer = false) : String {
+    protected function getQueryFylke(int $season) : String {
         $retQuery = '';
         // >2019
         if($season > 2019) {
@@ -121,9 +121,8 @@ class StatistikkSuper {
                 ON arrangement.pl_id = arrang_person.arrangement_id
             WHERE 
                 kommune.idfylke = '#fylke_id' AND 
-                arrangement.season='#season' AND "
-                . ($fylkeArrangementer ? "arrangement.pl_type='fylke'" : "arrangement.pl_type='kommune'") .
-                " AND innslag.b_status = 8
+                arrangement.season='#season' AND
+                innslag.b_status = 8
             GROUP BY 
                 p_id, b_id";
         }
@@ -138,26 +137,80 @@ class StatistikkSuper {
             JOIN 
                 smartukm_kommune AS kommune 
                 ON kommune.id = arr_kommune.k_id
-            WHERE kommune.idfylke='#fylke_id' 
-            AND arrangement.season='#season' AND "
-            . ($fylkeArrangementer ? "arrangement.pl_type='fylke'" : "arrangement.pl_type='kommune'") .
-            " AND (innslag.b_status = 8 OR innslag.b_status = 99)
+            WHERE kommune.idfylke='#fylke_id' AND arrangement.season='#season' AND (innslag.b_status = 8 OR innslag.b_status = 99)
             GROUP BY arr_innslag.b_id, p_id";
         }
 
-        // If season er fra 2024, union it with the main query
+        // If season er fra 2024
+        // OBS: Det hentes innslag fra kommuner i fylke og ikke fylke arrangerte arrangementer
         if($season > 2023) {
             $retQuery .= " UNION SELECT p_id, b_id
             FROM ukm_statistics_from_2024
-            WHERE f_id='#fylke_id'"
-            . ($fylkeArrangementer ? " AND fylke='true'" : " AND fylke='false'") .
-            " AND land='false'
+            WHERE f_id='#fylke_id' 
+            AND fylke='false'
+            AND land='false'
             AND season='#season'";
         }
 
         return $retQuery;
     }
 
+    protected function getQueryFylkeFylkesarrangementer(int $season) : String {
+        $retQuery = '';
+        // >2019
+        if($season > 2019) {
+            $retQuery = "SELECT 
+                arrang_person.person_id as p_id, 
+                innslag.b_id as b_id
+            FROM 
+                statistics_before_2024_ukm_rel_arrangement_person AS arrang_person
+            JOIN 
+                statistics_before_2024_smartukm_place AS arrangement 
+                ON arrangement.pl_id = arrang_person.arrangement_id
+            JOIN 
+                statistics_before_2024_smartukm_band AS innslag 
+                ON innslag.b_id = arrang_person.innslag_id
+            WHERE 
+                arrangement.pl_type = 'fylke' AND
+                arrangement.pl_owner_fylke = '#fylke_id' AND 
+                arrangement.season='#season' AND
+                innslag.b_status = 8
+            GROUP BY 
+                p_id, b_id";
+        }
+        else {
+            $retQuery = "SELECT p_id, arr_innslag.b_id as b_id
+            FROM statistics_before_2024_smartukm_place AS arrangement
+            JOIN 
+                statistics_before_2024_smartukm_rel_pl_b AS arr_innslag 
+                ON arr_innslag.pl_id=arrangement.pl_id
+            JOIN 
+                statistics_before_2024_smartukm_rel_b_p AS innslag_person 
+                ON innslag_person.b_id = arr_innslag.b_id
+            JOIN 
+                statistics_before_2024_smartukm_band AS innslag 
+                ON innslag.b_id=arr_innslag.b_id
+            WHERE 
+                arrangement.pl_type = 'fylke' AND
+                arrangement.pl_owner_fylke='#fylke_id' AND
+                arrangement.season='#season' AND 
+                (innslag.b_status = 8 OR innslag.b_status = 99)
+            GROUP BY arr_innslag.b_id, p_id";
+        }
+
+        // If season er fra 2024, brukes ukm_statistics_from_2024
+        if($season > 2023) {
+            $retQuery .= " UNION SELECT p_id, b_id
+            FROM ukm_statistics_from_2024
+            WHERE f_id='#fylke_id' 
+            AND fylke='true'
+            AND land='false'
+            AND season='#season'";
+        }
+
+        return $retQuery;
+    }
+    
     protected function getKjonnByName(string $fornavn) : string {
         $first_name = explode(" ", str_replace("-", " ", $fornavn));
         $first_name = $first_name[0];
@@ -171,4 +224,5 @@ class StatistikkSuper {
 
         return ($res == null) ? 'unknown' : $res;
     }
+
 }
