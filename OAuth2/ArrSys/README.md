@@ -36,7 +36,7 @@ To use the `HandleAPICallWithAuthorization` class, instantiate it by passing in 
 | `arrangement` | `null or arrangementId` | If the argument is null, the user must be admin at minimum 1 arrangement. When argument is provided, the user must be admin at arrangement with arrangementId |
 | `fylke_fra_kommune` | `fylkeId` | Checks if the user has access to minimum 1 kommune in this fylke (fylkeId). It is also true if the user has direct access to the fylke
 | `arrangement_i_kommune_fylke` | `arrangementId` | Checks if the user has access to kommune the arrangement is registered in or fylke the kommune belongs to
-| `kommune_eller_fylke ` | `kommuneId` | Checks if the user as access to kommune or has access to the fylke that kommune is part of 
+| `kommune_eller_fylke ` | `null or kommuneId` | Checks if the user as access to kommune or has access to the fylke that kommune is part of. If the argument is null, the user must be admin i minimum 1 kommune or 1 fylke | 
 IMPORTANT: The name of access level above is `accessType` argument of the constructor and argument above is `accessValue` argument on the constructor.
 
 #### Parameters:
