@@ -317,4 +317,72 @@ class StatistikkKommune extends StatistikkSuper {
 
         return $retArr;
     }
+
+    /**
+     * Gjennomsnitt deltakere per kommune
+     * 
+     * OBS: Det tas IKKE MED i beregningen kommuner som har 0 deltakere
+     * 
+     * @return int gjennomsnitt deltakere per kommune
+     */
+    public static function gjennomsnittDeltakereIKommuner(int $season) : int {
+        $sql = new Query(" WITH total_persons_per_kommune AS (
+            SELECT 
+                k_id,
+                SUM(total_persons) AS total_persons
+            FROM (
+                SELECT 
+                    kommune.id AS k_id,
+                    COUNT(DISTINCT innslag_person.p_id) AS total_persons
+                FROM 
+                    statistics_before_2024_smartukm_rel_pl_k AS arr_kommune
+                JOIN 
+                    statistics_before_2024_smartukm_place AS arrangement 
+                    ON arrangement.pl_id = arr_kommune.pl_id
+                JOIN 
+                    statistics_before_2024_smartukm_rel_pl_b AS arr_innslag 
+                    ON arr_innslag.pl_id = arrangement.pl_id
+                JOIN 
+                    statistics_before_2024_smartukm_rel_b_p AS innslag_person 
+                    ON innslag_person.b_id = arr_innslag.b_id
+                JOIN 
+                    statistics_before_2024_smartukm_band AS innslag 
+                    ON innslag.b_id = arr_innslag.b_id
+                JOIN 
+                    smartukm_kommune AS kommune 
+                    ON kommune.id = arr_kommune.k_id
+                WHERE 
+                    arrangement.season = '#season' 
+                    AND (innslag.b_status = 8 OR innslag.b_status = 99)
+                GROUP BY 
+                    kommune.id
+        
+                UNION ALL
+        
+                SELECT 
+                    k_id AS k_id,
+                    COUNT(DISTINCT p_id) AS total_persons
+                FROM 
+                    ukm_statistics_from_2024
+                WHERE 
+                    season = '#season'
+                GROUP BY 
+                    k_id
+            ) AS data
+            GROUP BY 
+                k_id
+            )
+        
+            SELECT 
+                SUM(total_persons) / COUNT(DISTINCT k_id) AS average_total_persons_per_kommune
+            FROM 
+                total_persons_per_kommune;",
+                [
+                    'season' => $season
+                ]
+        );
+        
+        $res = $sql->run('array');
+        return (int) intval($res['average_total_persons_per_kommune']);
+    }
 }
