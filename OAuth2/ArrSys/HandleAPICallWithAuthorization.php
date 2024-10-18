@@ -120,10 +120,17 @@ class HandleAPICallWithAuthorization extends HandleAPICall {
         }
 
         // Har tilgang i en kommune eller i et fylke som kommunen er del av
-        // Eksempel: Er admin i Bergen eller Vestland
+        // Hvis $accessValue er null, så sjekkes om brukeren har tilgang til minst 1 kommune eller 1 fylke
+        // Eksempel: Er admin i Bergen eller Vestland. Hvis accessValue er null, så sjekkes om brukeren er admin i minst 1 kommune eller 1 fylke
         if($accessType == 'kommune_eller_fylke') {
             if($accessValue == null) {
-                throw new Exception("Mangler tilgangsverdi", 400);
+                if(AccessControlArrSys::hasKommuneAccess() === true) {
+                    return true;
+                }
+                if(AccessControlArrSys::hasFylkeAccess() === true) {
+                    return true;
+                }
+                throw new Exception("Du har ikke tilgang til kommuner eller fylker", 401);
             }
 
             $kommune = null;
