@@ -69,7 +69,7 @@ class StatistikkSuper {
                 statistics_before_2024_smartukm_participant AS participant
                 ON participant.p_id = arrang_person.person_id
             WHERE
-                participant.p_kommune = '#k_id' AND
+                (participant.p_kommune='0' OR participant.p_kommune = '#k_id') AND 
                 kommune.id = '#k_id' AND 
                 arrangement.season='#season' AND
                 innslag.b_status = 8
@@ -88,7 +88,7 @@ class StatistikkSuper {
                 statistics_before_2024_smartukm_participant AS participant
                 ON participant.p_id = innslag_person.p_id
             WHERE 
-                participant.p_kommune='#k_id' AND
+                (participant.p_kommune='0' OR participant.p_kommune='#k_id') AND
                 arr_kommune.`k_id`='#k_id' AND 
                 arrangement.season='#season' AND 
                 (innslag.b_status = 8 OR innslag.b_status = 99)
