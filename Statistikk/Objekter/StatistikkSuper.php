@@ -65,7 +65,11 @@ class StatistikkSuper {
             JOIN 
                 statistics_before_2024_smartukm_place AS arrangement 
                 ON arrangement.pl_id = arrang_person.arrangement_id
-            WHERE 
+            JOIN 
+                statistics_before_2024_smartukm_participant AS participant
+                ON participant.p_id = arrang_person.person_id
+            WHERE
+                participant.p_kommune = '#k_id' AND
                 kommune.id = '#k_id' AND 
                 arrangement.season='#season' AND
                 innslag.b_status = 8
@@ -74,13 +78,20 @@ class StatistikkSuper {
         }
         // <= 2019
         else {
-            $retQuery = "SELECT p_id, arr_innslag.b_id as b_id
+            $retQuery = "SELECT participant.p_id, arr_innslag.b_id as b_id
             FROM statistics_before_2024_smartukm_rel_pl_k AS arr_kommune
             JOIN statistics_before_2024_smartukm_place AS arrangement ON arrangement.pl_id=arr_kommune.pl_id
             JOIN statistics_before_2024_smartukm_rel_pl_b AS arr_innslag ON arr_innslag.pl_id=arrangement.pl_id
             JOIN statistics_before_2024_smartukm_rel_b_p AS innslag_person ON innslag_person.b_id = arr_innslag.b_id
             JOIN statistics_before_2024_smartukm_band AS innslag ON innslag.b_id=arr_innslag.b_id
-            WHERE arr_kommune.`k_id`='#k_id' AND arrangement.season='#season' AND (innslag.b_status = 8 OR innslag.b_status = 99)
+            JOIN 
+                statistics_before_2024_smartukm_participant AS participant
+                ON participant.p_id = innslag_person.p_id
+            WHERE 
+                participant.p_kommune='#k_id' AND
+                arr_kommune.`k_id`='#k_id' AND 
+                arrangement.season='#season' AND 
+                (innslag.b_status = 8 OR innslag.b_status = 99)
             GROUP BY arr_innslag.b_id, p_id";
         }
 
