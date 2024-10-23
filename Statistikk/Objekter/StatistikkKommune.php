@@ -247,9 +247,10 @@ class StatistikkKommune extends StatistikkSuper {
             JOIN statistics_before_2024_smartukm_place AS place ON place.pl_id=arrpers.arrangement_id
             JOIN statistics_before_2024_smartukm_rel_pl_k AS rel_kommune ON rel_kommune.pl_id=place.pl_id
             JOIN smartukm_kommune AS kommune ON kommune.id=rel_kommune.k_id
-            WHERE kommune.id='#kommuneId' 
-                AND place.season='#season' 
-                AND innslag.b_status = 8 
+            WHERE kommune.id='#kommuneId' AND 
+                innslag.b_kommune = '#kommuneId'
+                place.season='#season' AND 
+                innslag.b_status = 8 AND
 
             UNION 
 
@@ -257,7 +258,8 @@ class StatistikkKommune extends StatistikkSuper {
             FROM ukm_statistics_from_2024 AS stat 
             JOIN statistics_before_2024_smartukm_band AS innslag ON innslag.b_id=stat.b_id
             JOIN statistics_before_2024_smartukm_place AS place ON place.pl_id=stat.pl_id 
-            WHERE stat.k_id='#kommuneId' 
+            WHERE stat.k_id='#kommuneId'
+                AND innslag.b_kommune='#kommuneId'
                 AND stat.fylke='false'
                 AND place.season='#season' 
                 AND innslag.b_status = 8",
