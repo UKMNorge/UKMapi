@@ -248,9 +248,9 @@ class StatistikkKommune extends StatistikkSuper {
             JOIN statistics_before_2024_smartukm_rel_pl_k AS rel_kommune ON rel_kommune.pl_id=place.pl_id
             JOIN smartukm_kommune AS kommune ON kommune.id=rel_kommune.k_id
             WHERE kommune.id='#kommuneId' AND 
-                innslag.b_kommune = '#kommuneId'
+                innslag.b_kommune = '#kommuneId' AND
                 place.season='#season' AND 
-                innslag.b_status = 8 AND
+                innslag.b_status = 8
 
             UNION 
 
