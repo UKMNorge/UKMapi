@@ -334,6 +334,47 @@ class Kommune {
         // return rtrim($this->tidligere_list,',');
     }
 
+
+    /**
+     * Hent tidligere kommuner
+     * 
+     * @return Array av Kommune-objekter
+     */
+    public function getTidligereKommuner() : array {
+        $retKommuner = [];
+        $alleKommuner = [];
+        $tidligereKommuner = [$this->getId() => $this];
+
+        while (!empty(array_filter($tidligereKommuner))) {
+            foreach($tidligereKommuner as $kommune) {
+                if($kommune == null) {
+                    continue;
+                }
+
+                $alleKommuner[$kommune->getId()] = new Kommune($kommune->getId());
+                
+                // Hent tidligere kommuner
+                $tidligereIdListArray = explode(',', rtrim($this->tidligere_list,','));
+                
+                foreach($tidligereIdListArray as $tidligereKommune) {
+                    $alleKommuner[$tidligereKommune] = new Kommune($tidligereKommune);
+                    $tidligereKommuner[$tidligereKommune] = $alleKommuner[$tidligereKommune];
+                }
+
+                $tidligereKommuner[$kommune->getId()] = null;
+            }
+        }
+
+        foreach($alleKommuner as $kommune) {
+            if($kommune == null || $kommune->getId() == null || $kommune->getId() == 0) {
+                continue;
+            }
+            $retKommuner[] = $kommune;
+        }
+
+        return $retKommuner;
+    }
+
     /**
      * Hent en navne-liste over tidligere kommunenavn
      * 
