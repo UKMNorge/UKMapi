@@ -51,7 +51,7 @@ class StatistikkKommune extends StatistikkSuper {
                 " . $this->getQueryKommune($this->season) . "
             ) AS subquery;",
             [
-                'k_id' => $this->kommune->getId(),
+                'k_ids' => $this->getAlleKommuneIds(),
                 'season' => $this->season
             ]
         );   
@@ -86,7 +86,7 @@ class StatistikkKommune extends StatistikkSuper {
                     age;
                 ",
                 [
-                    'k_id' => $this->kommune->getId(),
+                    'k_ids' => $this->getAlleKommuneIds(),
                     'season' => $this->season,
                     'dateSeas' => $seasonDate->getTimestamp()
                 ]
@@ -208,7 +208,7 @@ class StatistikkKommune extends StatistikkSuper {
             ) AS subqueryOut GROUP BY p_id;
             ",
             [
-                'k_id' => $this->kommune->getId(),
+                'k_ids' => $this->getAlleKommuneIds(),
                 'season' => $this->season
             ]
         );
@@ -247,8 +247,8 @@ class StatistikkKommune extends StatistikkSuper {
             JOIN statistics_before_2024_smartukm_place AS place ON place.pl_id=arrpers.arrangement_id
             JOIN statistics_before_2024_smartukm_rel_pl_k AS rel_kommune ON rel_kommune.pl_id=place.pl_id
             JOIN smartukm_kommune AS kommune ON kommune.id=rel_kommune.k_id
-            WHERE kommune.id='#kommuneId' AND 
-                innslag.b_kommune = '#kommuneId' AND
+            WHERE kommune.id IN (#k_ids) AND 
+                innslag.b_kommune = IN (#k_ids) AND
                 place.season='#season' AND 
                 innslag.b_status = 8
 
@@ -258,13 +258,13 @@ class StatistikkKommune extends StatistikkSuper {
             FROM ukm_statistics_from_2024 AS stat 
             JOIN statistics_before_2024_smartukm_band AS innslag ON innslag.b_id=stat.b_id
             JOIN statistics_before_2024_smartukm_place AS place ON place.pl_id=stat.pl_id 
-            WHERE stat.k_id='#kommuneId'
-                AND innslag.b_kommune='#kommuneId'
+            WHERE stat.k_id IN (#k_ids)
+                AND innslag.b_kommune IN (#k_ids)
                 AND stat.fylke='false'
                 AND place.season='#season' 
                 AND innslag.b_status = 8",
                 [
-                    'kommuneId' => $this->kommune->getId(),
+                    'k_ids' => $this->getAlleKommuneIds(),
                     'season' => $this->season
                 ]
             );
@@ -282,11 +282,12 @@ class StatistikkKommune extends StatistikkSuper {
                 JOIN statistics_before_2024_smartukm_place as place on place.pl_id=rel_pl_b.pl_id
                 JOIN statistics_before_2024_smartukm_rel_pl_k AS rel_kommune ON rel_kommune.pl_id=place.pl_id
                 JOIN smartukm_kommune AS kommune ON kommune.id=rel_kommune.k_id
-                WHERE kommune.id='#kommuneId' 
-                AND (innslag.b_status = 8 OR innslag.b_status = 99)
-                AND place.season='#season'",
+                WHERE kommune.id IN (#k_ids) AND 
+                    innslag.b_kommune IN (#k_ids) AND 
+                    (innslag.b_status = 8 OR innslag.b_status = 99) AND 
+                    place.season='#season'",
                 [
-                    'kommuneId' => $this->kommune->getId(),
+                    'k_ids' => $this->getAlleKommuneIds(),
                     'season' => $this->season
                 ]
             );
@@ -386,5 +387,22 @@ class StatistikkKommune extends StatistikkSuper {
         
         $res = $sql->run('array');
         return (int) intval($res['average_total_persons_per_kommune']);
+    }
+
+    /**
+     * Returnerer alle id'er som kommunen har hatt tidligere inkludering nåværende
+     * 
+     * OBS: Noen kommuner har blitt splittet eller slått sammen gjennom år og derfor har de flere id'er
+     * 
+    * @return string liste av kommune_id separert med komma
+     */
+    private function getAlleKommuneIds() : string {
+        $kommuneIds = array_map(function($kommune) {
+            return $kommune->getId();
+        }, $this->kommune->getTidligereKommuner());
+
+        $alleKommunerIds = implode(',', $kommuneIds);
+
+        return $alleKommunerIds;
     }
 }

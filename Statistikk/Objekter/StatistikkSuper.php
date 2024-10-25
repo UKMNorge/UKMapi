@@ -69,8 +69,8 @@ class StatistikkSuper {
                 statistics_before_2024_smartukm_participant AS participant
                 ON participant.p_id = arrang_person.person_id
             WHERE
-                (innslag.b_kommune='#k_id' OR participant.p_kommune = '#k_id') AND 
-                kommune.id = '#k_id' AND 
+                (innslag.b_kommune IN (#k_ids) OR participant.p_kommune IN (#k_ids)) AND 
+                kommune.id IN (#k_ids) AND 
                 arrangement.season='#season' AND
                 innslag.b_status = 8
             GROUP BY 
@@ -88,8 +88,8 @@ class StatistikkSuper {
                 statistics_before_2024_smartukm_participant AS participant
                 ON participant.p_id = innslag_person.p_id
             WHERE 
-                (innslag.b_kommune='#k_id' OR participant.p_kommune='#k_id') AND
-                arr_kommune.`k_id`='#k_id' AND 
+                (innslag.b_kommune IN (#k_ids) OR participant.p_kommune IN (#k_ids)) AND
+                arr_kommune.`k_id` IN (#k_ids) AND 
                 arrangement.season='#season' AND 
                 (innslag.b_status = 8 OR innslag.b_status = 99)
             GROUP BY arr_innslag.b_id, p_id";
@@ -99,7 +99,7 @@ class StatistikkSuper {
         if($season > 2023) {
             $retQuery .= " UNION SELECT p_id, b_id
             FROM ukm_statistics_from_2024
-            WHERE k_id='#k_id' AND season='#season'
+            WHERE k_id IN (#k_ids) AND season='#season'
             GROUP BY p_id, b_id";
         }
 
