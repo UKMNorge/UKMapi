@@ -399,7 +399,12 @@ class StatistikkKommune extends StatistikkSuper {
     private function getAlleKommuneIds() : string {
         $kommuneIds = array_map(function($kommune) {
             return $kommune->getId();
-        }, $this->kommune->getTidligereKommuner());
+        }, array_filter($this->kommune->getTidligereKommuner(), function($kommune) {
+            return $kommune !== null;
+        }));
+
+        // Remove any empty values and duplicates
+        $kommuneIds = array_unique(array_filter($kommuneIds));
 
         $alleKommunerIds = implode(',', $kommuneIds);
 
