@@ -334,6 +334,20 @@ class Kommune {
         // return rtrim($this->tidligere_list,',');
     }
 
+    /**
+     * Hent tidligere kommuner for en gitt kommune
+     * 
+     * @param Kommune $kommune
+     * @return Array<Kommune> $tidligereKommuner
+     */
+    private function getTidligereKommunerForKommune(Kommune $kommune ) {
+        $tidligereKommuner = [];
+        $tidligereIdListArray = explode(',', rtrim($kommune->tidligere_list,','));
+        foreach($tidligereIdListArray as $tidligereKommune) {
+            $tidligereKommuner[] = new Kommune($tidligereKommune);
+        }
+        return $tidligereKommuner;
+    }
 
     /**
      * Hent tidligere kommuner
@@ -341,38 +355,23 @@ class Kommune {
      * @return Array av Kommune-objekter
      */
     public function getTidligereKommuner() : array {
-        $retKommuner = [];
-        $alleKommuner = [];
-        $tidligereKommuner = [$this->getId() => $this];
+        $tidligereKommuner = [];        
+        $kommuneQueue = [$this];
 
-        while (!empty(array_filter($tidligereKommuner))) {
-            foreach($tidligereKommuner as $kommune) {
-                if($kommune == null) {
-                    continue;
+        while(count($kommuneQueue) > 0) {
+            var_dump(count($kommuneQueue));
+            $kommune = array_shift($kommuneQueue);
+            $tidligereKommuner[$kommune->getId()] = $kommune;
+            foreach($this->getTidligereKommunerForKommune($kommune) as $kommune) {
+                // If kommune does not exist in tidligereKommuner, add it to the queue
+                if(!isset($tidligereKommuner[$kommune->getId()])) {
+                    $kommuneQueue[] = $kommune;
                 }
-
-                $alleKommuner[$kommune->getId()] = new Kommune($kommune->getId());
-                
-                // Hent tidligere kommuner
-                $tidligereIdListArray = explode(',', rtrim($this->tidligere_list,','));
-                
-                foreach($tidligereIdListArray as $tidligereKommune) {
-                    $alleKommuner[$tidligereKommune] = new Kommune($tidligereKommune);
-                    $tidligereKommuner[$tidligereKommune] = $alleKommuner[$tidligereKommune];
-                }
-
-                $tidligereKommuner[$kommune->getId()] = null;
             }
         }
 
-        foreach($alleKommuner as $kommune) {
-            if($kommune == null || $kommune->getId() == null || $kommune->getId() == 0) {
-                continue;
-            }
-            $retKommuner[] = $kommune;
-        }
+        return $tidligereKommuner;
 
-        return $retKommuner;
     }
 
     /**
