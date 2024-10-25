@@ -359,7 +359,6 @@ class Kommune {
         $kommuneQueue = [$this];
 
         while(count($kommuneQueue) > 0) {
-            var_dump(count($kommuneQueue));
             $kommune = array_shift($kommuneQueue);
             $tidligereKommuner[$kommune->getId()] = $kommune;
             foreach($this->getTidligereKommunerForKommune($kommune) as $kommune) {
