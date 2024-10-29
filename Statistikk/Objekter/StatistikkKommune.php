@@ -248,7 +248,7 @@ class StatistikkKommune extends StatistikkSuper {
             JOIN statistics_before_2024_smartukm_rel_pl_k AS rel_kommune ON rel_kommune.pl_id=place.pl_id
             JOIN smartukm_kommune AS kommune ON kommune.id=rel_kommune.k_id
             WHERE kommune.id IN (#k_ids) AND 
-                innslag.b_kommune = IN (#k_ids) AND
+                innslag.b_kommune IN (#k_ids) AND
                 place.season='#season' AND 
                 innslag.b_status = 8
 
@@ -286,13 +286,12 @@ class StatistikkKommune extends StatistikkSuper {
                     innslag.b_kommune IN (#k_ids) AND 
                     (innslag.b_status = 8 OR innslag.b_status = 99) AND 
                     place.season='#season'",
-                [
+                    [
                     'k_ids' => $this->getAlleKommuneIds(),
                     'season' => $this->season
                 ]
             );
         }
-
 
         $retArr = [];
         $innslagArr = [];
