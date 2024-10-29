@@ -9,13 +9,11 @@ use UKMNorge\Statistikk\Objekter\StatistikkKommune;
 use UKMNorge\Geografi\Fylke;
 use UKMNorge\Innslag\Typer\Typer;
 use UKMNorge\API\SSB\Klass;
-
-
+use UKMNorge\Geografi\Kommune;
 
 
 use Exception;
 use DateTime;
-
 
 class StatistikkFylke extends StatistikkSuper {
     private Fylke $fylke;
@@ -596,5 +594,35 @@ class StatistikkFylke extends StatistikkSuper {
 
         $res = $sql->run('array');
         return (int) intval($res['antall']);
+    }
+
+
+    /**
+     * Hent alle kommuner id inkludering gamle kommuner i fylke
+     *
+     * @return array[string] kommune id
+     */
+    public function getAlleKommunerIFylke() : array {
+        $sql = new Query("
+            SELECT id
+            FROM smartukm_kommune
+            WHERE idfylke='#fylkeId'
+            ",
+            ['fylkeId' => $this->fylke->getId()]
+        );
+
+        $res = $sql->run();
+
+        while($row = Query::fetch($res)) {
+            $kommune = new Kommune($row['id']);
+            $kommunerIds[$kommune->getId()] = $kommune->getId();
+            
+            foreach($kommune->getTidligereKommuner() as $oldKommune) {
+                $kommunerIds[$oldKommune->getId()] = $oldKommune->getId();
+            }
+        }
+
+        return $kommunerIds;
+
     }
 }
