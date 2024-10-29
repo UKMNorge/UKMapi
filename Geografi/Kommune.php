@@ -354,23 +354,27 @@ class Kommune {
      * 
      * @return Array av Kommune-objekter
      */
-    public function getTidligereKommuner() : array {
+    public function getTidligereKommuner(int $year = null) : array {
         $tidligereKommuner = [];        
         $kommuneQueue = [$this];
 
         while(count($kommuneQueue) > 0) {
             $kommune = array_shift($kommuneQueue);
             $tidligereKommuner[$kommune->getId()] = $kommune;
-            foreach($this->getTidligereKommunerForKommune($kommune) as $kommune) {
+            foreach($this->getTidligereKommunerForKommune($kommune) as $tdKommune) {
                 // If kommune does not exist in tidligereKommuner, add it to the queue
-                if(!isset($tidligereKommuner[$kommune->getId()])) {
-                    $kommuneQueue[] = $kommune;
+                if($tdKommune->getId() != null && !isset($tidligereKommuner[$tdKommune->getId()])) {
+                    if($year != null && $tdKommune->isActiveForYear($year)) {
+                        $kommuneQueue[] = $tdKommune;
+                    }
+                    else if($year == null) {
+                        $kommuneQueue[] = $tdKommune;
+                    }
                 }
             }
         }
 
         return $tidligereKommuner;
-
     }
 
     /**
@@ -523,6 +527,34 @@ class Kommune {
                     'kommune'
                 ]
             );
+    }
+
+    public function isActiveForYear(int $year) : bool {
+        foreach($this->getActiveYears() as $activeYear) {
+            if($activeYear == $year) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private function getActiveYears() : array {
+        $sql = new Query(
+            "SELECT `year` FROM `ukm_kommune_year`
+            WHERE `k_id` = '#kommune_id'",
+            [
+                'kommune_id' => $this->getId()
+            ]
+        );
+
+        $res = $sql->run();
+        $years = [];
+        while($row = Query::fetch($res)) {
+            $years[] = $row['year'];
+        }
+
+        return $years;
+
     }
 
     /**
