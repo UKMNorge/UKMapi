@@ -9,11 +9,13 @@ use UKMNorge\Statistikk\Objekter\StatistikkKommune;
 use UKMNorge\Geografi\Fylke;
 use UKMNorge\Innslag\Typer\Typer;
 use UKMNorge\API\SSB\Klass;
-use UKMNorge\Geografi\Kommune;
+
+
 
 
 use Exception;
 use DateTime;
+
 
 class StatistikkFylke extends StatistikkSuper {
     private Fylke $fylke;
@@ -72,7 +74,8 @@ class StatistikkFylke extends StatistikkSuper {
             ) AS subquery;",
             [
                 'fylke_id' => $this->fylke->getId(),
-                'season' => $this->season
+                'season' => $this->season,
+                'kommuner_ids' => implode(',', $this->getKommunerIds())
             ]
         );   
 
@@ -221,7 +224,8 @@ class StatistikkFylke extends StatistikkSuper {
                 [
                     'fylke_id' => $this->fylke->getId(),
                     'season' => $this->season,
-                    'dateSeas' => $seasonDate->getTimestamp()
+                    'dateSeas' => $seasonDate->getTimestamp(),
+                    'kommuner_ids' => implode(',', $this->getKommunerIds())
                 ]
         );
 
@@ -363,7 +367,8 @@ class StatistikkFylke extends StatistikkSuper {
             GROUP BY p_id;",
             [
                 'fylke_id' => $this->fylke->getId(),
-                'season' => $this->season
+                'season' => $this->season,
+                'kommuner_ids' => implode(',', $this->getKommunerIds())
             ]
         );
 
@@ -596,33 +601,29 @@ class StatistikkFylke extends StatistikkSuper {
         return (int) intval($res['antall']);
     }
 
-
     /**
-     * Hent alle kommuner id inkludering gamle kommuner i fylke
+     * Hent alle kommuner som er i fylke og tiligerere fylke versjoner
      *
-     * @return array[string] kommune id
+     * @return array[string] kommune id-er
      */
-    public function getAlleKommunerIFylke() : array {
+    private function getKommunerIds() : array {
         $sql = new Query("
-            SELECT id
-            FROM smartukm_kommune
-            WHERE idfylke='#fylkeId'
+            SELECT k_id
+            FROM ukm_kommune_fylke_fusjonering
+            WHERE ny_fylke_id='#fylke_id'
             ",
-            ['fylkeId' => $this->fylke->getId()]
+            [
+                'fylke_id' => $this->fylke->getId()
+            ]
         );
 
         $res = $sql->run();
-
+        
+        $retArr = [];
         while($row = Query::fetch($res)) {
-            $kommune = new Kommune($row['id']);
-            $kommunerIds[$kommune->getId()] = $kommune->getId();
-            
-            foreach($kommune->getTidligereKommuner() as $oldKommune) {
-                $kommunerIds[$oldKommune->getId()] = $oldKommune->getId();
-            }
+            $retArr[] = $row['k_id'];
         }
 
-        return $kommunerIds;
-
+        return $retArr;
     }
 }

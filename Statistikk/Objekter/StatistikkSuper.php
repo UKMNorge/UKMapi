@@ -131,7 +131,7 @@ class StatistikkSuper {
                 statistics_before_2024_smartukm_place AS arrangement 
                 ON arrangement.pl_id = arrang_person.arrangement_id
             WHERE 
-                kommune.idfylke = '#fylke_id' AND 
+                kommune.id IN (#kommuner_ids) AND 
                 arrangement.season='#season' AND
                 innslag.b_status = 8
             GROUP BY 
@@ -148,7 +148,9 @@ class StatistikkSuper {
             JOIN 
                 smartukm_kommune AS kommune 
                 ON kommune.id = arr_kommune.k_id
-            WHERE kommune.idfylke='#fylke_id' AND arrangement.season='#season' AND (innslag.b_status = 8 OR innslag.b_status = 99)
+            WHERE kommune.id IN (#kommuner_ids) AND 
+            arrangement.season='#season' AND 
+            (innslag.b_status = 8 OR innslag.b_status = 99)
             GROUP BY arr_innslag.b_id, p_id";
         }
 
