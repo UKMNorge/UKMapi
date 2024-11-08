@@ -601,6 +601,28 @@ class StatistikkFylke extends StatistikkSuper {
         return (int) intval($res['antall']);
     }
 
+    public static function getGjennomsnittAldersfordelingIAlleFylker(int $fra, int $til) : array {
+        $retArr = [];
+        $sql = new Query("
+            SELECT year, AVG(gjennomsnitt) AS avg_gjennomsnitt
+            FROM ukm_statistikk_static_aldersfordeling
+            WHERE year >= '#fra' AND year <= '#til'
+            GROUP BY year
+            ORDER BY year",
+            [
+                'fra' => $fra,
+                'til' => $til
+            ]
+        );
+
+        $res = $sql->run();
+        while($row = Query::fetch($res)) {
+            $retArr[$row['year']] = number_format($row['avg_gjennomsnitt'], 1);
+        }
+
+        return $retArr;
+    }
+
     /**
      * Hent alle kommuner som er i fylke og tiligerere fylke versjoner
      *
