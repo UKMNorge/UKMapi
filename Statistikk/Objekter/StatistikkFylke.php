@@ -267,7 +267,7 @@ class StatistikkFylke extends StatistikkSuper {
             JOIN statistics_before_2024_smartukm_place AS place ON place.pl_id=arrpers.arrangement_id
             JOIN statistics_before_2024_smartukm_rel_pl_k AS rel_kommune ON rel_kommune.pl_id=place.pl_id
             JOIN smartukm_kommune AS kommune ON kommune.id=rel_kommune.k_id
-            WHERE kommune.idfylke='#fylkeId' 
+            WHERE kommune.id IN (#kommuner_ids) 
                 AND place.season='#season' 
                 AND innslag.b_status = 8 
                 AND arrpers.arrangement_id!='#plId'
@@ -286,7 +286,8 @@ class StatistikkFylke extends StatistikkSuper {
                 [
                     'fylkeId' => $this->fylke->getId(),
                     'plId' => $excludePlId, // exclude arrangementet if needed
-                    'season' => $this->season
+                    'season' => $this->season,
+                    'kommuner_ids' => implode(',', $this->getKommunerIds())
                 ]
             );
         }
@@ -303,23 +304,24 @@ class StatistikkFylke extends StatistikkSuper {
                 JOIN statistics_before_2024_smartukm_place as place on place.pl_id=rel_pl_b.pl_id
                 JOIN statistics_before_2024_smartukm_rel_pl_k AS rel_kommune ON rel_kommune.pl_id=place.pl_id
                 JOIN smartukm_kommune AS kommune ON kommune.id=rel_kommune.k_id
-                WHERE kommune.idfylke='#fylkeId' 
+                WHERE kommune.id IN (#kommuner_ids)
                 AND (innslag.b_status = 8 OR innslag.b_status = 99)
                 AND place.season='#season'
                 AND place.pl_id!='#plId'", // excluded arrangementet
                 [
                     'fylkeId' => $this->fylke->getId(),
                     'plId' => $excludePlId, // exclude arrangementet if needed
-                    'season' => $this->season
+                    'season' => $this->season,
+                    'kommuner_ids' => implode(',', $this->getKommunerIds())
                 ]
             );
         }
-
 
         $retArr = [];
         $innslagArr = [];
         $typeArr = [];
         $res = $sql->run();
+
 
         while($row = Query::fetch($res)) {
             try{
