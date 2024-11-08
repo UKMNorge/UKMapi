@@ -247,8 +247,8 @@ class SMS
             .  '&to=' . $this->getMottaker()->getMobil()
             .  '&from=' . $this->getAvsender()
             .  '&msg=' . urlencode($this->getMelding())
-            .  '&user=' . UKM_SVEVE_ACCOUNT
-            .  '&passwd=' . UKM_SVEVE_PASSWORD;
+            .  '&user=' . urlencode(UKM_SVEVE_ACCOUNT)
+            .  '&passwd=' . urlencode(UKM_SVEVE_PASSWORD);
 
         // I dev-miljø kaster vi en Exception uten å sende sms, 
         // da prod-miljøet MÅ håndtere alle exceptions
