@@ -101,4 +101,11 @@ interface FilmInterface
      * @return String Url
      */
     public function getEmbedUrl();
+
+    /**
+     *Sjekk film base (hvor den er lagret)
+     * @return String 'cloudflare' eller 'videoserver' 
+     */ 
+    public function getStorageBase();
+
 }

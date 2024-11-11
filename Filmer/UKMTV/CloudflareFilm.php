@@ -220,6 +220,7 @@ class CloudflareFilm implements FilmInterface {
     }
 
     public function getTvUrl() {
+        return Server::getTvUrl() .'watch/film/'. $this->getCloudflareId();// . $this->getSanitizedTitle() . '/' . $this->getId();
         return $this->getUrl();
     }
 
@@ -326,4 +327,12 @@ class CloudflareFilm implements FilmInterface {
         return $this->getUrl();
     }
 
+    /**
+     * Returnerer storage base for filmen
+     *
+     * @return String 'videoserver' eller 'cloudflare'
+     */
+    public function getStorageBase() {
+        return 'cloudflare';
+    }
 }

@@ -640,4 +640,13 @@ class Film implements FilmInterface
     {
         return $this->season;
     }
+
+    /**
+     * Returnerer storage base for filmen
+     *
+     * @return String 'videoserver' eller 'cloudflare'
+     */
+    public function getStorageBase() {
+        return 'videoserver';
+    }
 }
