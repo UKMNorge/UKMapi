@@ -54,6 +54,9 @@ class Write
         $query->add('l_epost', $leder->getEpost());
         $query->add('l_mobilnummer', $leder->getMobil());
         $query->add('l_type', $leder->getType());
+        $query->add('l_beskrivelse', $leder->getBeskrivelse());
+        $query->add('l_godkjent', $leder->getGodkjent());
+        
         return $query;
     }
 

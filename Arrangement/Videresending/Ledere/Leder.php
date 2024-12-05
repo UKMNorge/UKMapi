@@ -21,6 +21,8 @@ class Leder
     var $arrangement_fra;
     var $arrangement_til;
     var $netter;
+    var $beskrivelse;
+    var $godkjent; // null = ikke besvart, true = godkjent, false = avvist
 
     private $sensitivt = null;
 
@@ -42,6 +44,8 @@ class Leder
             $this->epost = $data['l_epost'];
             $this->mobil = intval($data['l_mobilnummer']);
             $this->type = $data['l_type'];
+            $this->beskrivelse = $data['l_beskrivelse'];
+            $this->godkjent = $data['l_godkjent'];
         }
     }
 
@@ -150,6 +154,8 @@ class Leder
         $data->mobilnummer = $this->getMobil();
         $data->type = $this->getType();
         $data->typeNavn = $this->getTypeNavn();
+        $data->beskrivelse = $this->getBeskrivelse();
+        $data->godkjent = $this->getGodkjent();
 
         $data->netter = [];
         foreach ($this->getNetter()->getAll() as $natt) {
@@ -376,6 +382,48 @@ class Leder
         $this->arrangement_til = $arrangement_til;
 
         return $this;
+    }
+
+    /**
+     * Set the value of beskrivelse
+     *
+     * @param String $beskrivelse
+     * @return self
+     */
+    public function setBeskrivelse(String $beskrivelse) {
+        $this->beskrivelse = $beskrivelse;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of beskrivelse
+     * 
+     * @return String
+     */
+    public function getBeskrivelse() {
+        return $this->beskrivelse;
+    }
+
+    /**
+     * Set the value of godkjent
+     *
+     * @param Bool $godkjent
+     * @return self
+     */
+    public function setGodkjent(Bool $godkjent) {
+        $this->godkjent = $godkjent;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of godkjent
+     * 
+     * @return bool|null
+     */
+    public function getGodkjent() {
+        return $this->godkjent;
     }
 
     /**
