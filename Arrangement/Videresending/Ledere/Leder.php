@@ -408,10 +408,10 @@ class Leder
     /**
      * Set the value of godkjent
      *
-     * @param Bool $godkjent
+     * @param bool $godkjent
      * @return self
      */
-    public function setGodkjent(Bool $godkjent) {
+    public function setGodkjent(bool $godkjent) {
         $this->godkjent = $godkjent;
 
         return $this;
