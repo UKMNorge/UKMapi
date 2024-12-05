@@ -55,7 +55,7 @@ class Write
         $query->add('l_mobilnummer', $leder->getMobil());
         $query->add('l_type', $leder->getType());
         $query->add('l_beskrivelse', $leder->getBeskrivelse());
-        $query->add('l_godkjent', $leder->getGodkjent());
+        $query->add('l_godkjent', $leder->getGodkjent() == true ? 1 : 0);
         
         return $query;
     }
@@ -78,6 +78,7 @@ class Write
             $leder
         );
 
+        var_dump($query->debug());
         $res = $query->run();
 
         return true;
