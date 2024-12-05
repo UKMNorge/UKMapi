@@ -387,11 +387,11 @@ class Leder
     /**
      * Set the value of beskrivelse
      *
-     * @param String $beskrivelse
+     * @param String|null $beskrivelse
      * @return self
      */
-    public function setBeskrivelse(String $beskrivelse) {
-        $this->beskrivelse = $beskrivelse;
+    public function setBeskrivelse(String|null $beskrivelse) {
+        $this->beskrivelse = $beskrivelse ? $beskrivelse : '';
 
         return $this;
     }
