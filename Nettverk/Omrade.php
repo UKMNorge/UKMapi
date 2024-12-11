@@ -18,6 +18,8 @@ use UKMNorge\Geografi\Kommune;
 use UKMNorge\Nettverk\Administratorer;
 use UKMNorge\Nettverk\Proxy\Kontaktperson as KontaktpersonProxy;
 use UKMNorge\Nettverk\Proxy\KontaktpersonSamling as KontaktpersonSamlingProxy;
+use UKMNorge\Nettverk\OmradeKontaktpersoner;
+
 
 class Omrade
 {
@@ -179,6 +181,15 @@ class Omrade
             $this->administratorer = new Administratorer($this->getType(), $this->getForeignId());
         }
         return $this->administratorer;
+    }
+
+    /**
+     * Hent kontaktpersoner for området
+     *
+     * @return OmradeKontaktpersoner
+     */
+    public function getOmradeKontaktpersoner() {
+        return new OmradeKontaktpersoner($this->id, $this->type);
     }
 
     /**
