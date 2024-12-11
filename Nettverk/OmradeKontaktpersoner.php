@@ -6,7 +6,8 @@ use UKMNorge\Collection;
 use UKMNorge\Database\SQL\Query;
 
 class OmradeKontaktpersoner extends Collection {
-    private const TABLE = 'ukm_nettverk_kontaktperson';
+    public const TABLE = 'ukm_nettverk_kontaktperson';
+    public const OMRADE_RELATION_TABLE = 'ukm_rel_nettverk_kontaktperson_omrade';
 
     private int $omradeId;
     private string $omradeType;
