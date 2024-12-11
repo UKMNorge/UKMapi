@@ -21,10 +21,14 @@ class OmradeKontaktperson {
         $this->fornavn = $row['fornavn'];
         $this->etternavn = $row['etternavn'];
         $this->mobil = $row['mobil'];
-        $this->beskrivelse = $row['beskrivelse'];
+        $this->beskrivelse = $row['beskrivelse'] == null ? '' : $row['beskrivelse'];
         $this->epost = $row['epost'];
-        $this->created_date = new DateTime( $row['created_date'] );
-        $this->modified_date = new DateTime( $row['modified_date'] );
+        if( !empty($row['created_date']) ) {
+            $this->created_date = new DateTime( $row['created_date'] );
+        }
+        if( !empty($row['modified_date']) ) {
+            $this->modified_date = new DateTime( $row['modified_date'] );
+        }
     }
 
     public function getId() {
