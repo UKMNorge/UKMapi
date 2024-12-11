@@ -3,21 +3,77 @@
 namespace UKMNorge\Nettverk;
 use UKMNorge\Wordpress\User;
 use UKMNorge\Nettverk\Administratorer;
+use UKMNorge\Nettverk\OmradeKontaktperson;
+use UKMNorge\Nettverk\OmradeKontaktpersoner;
 
 use UKMNorge\Geografi\Fylke;
 use UKMNorge\Geografi\Kommune;
 use UKMNorge\Arrangement\Load;
 
 
+
 use Exception;
 use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Insert;
+use UKMNorge\Database\SQL\Query;
 use UKMNorge\Kommunikasjon\Epost;
 use UKMNorge\Kommunikasjon\Mottaker;
 use UKMNorge\Twig\Twig;
 use UKMNorge\Wordpress\Blog;
 
 class WriteOmrade {
+
+    public static function leggTilOmradeKontaktperson( Omrade $omrade, OmradeKontaktperson $omradeKontaktperson ) {
+        if( $omradeKontaktperson->getMobil() == null && $omradeKontaktperson->getEpost() == null ) {
+            throw new Exception(
+                'Kontaktpersonen må ha mobilnummer eller epostadresse',
+                562004
+            );
+        }
+
+        // OmradeKontaktpersoner::OMRADE_RELATION_TABLE
+
+        // Sjekk om kontaktpersonen allerede er opprettet fra tidligere
+        $query = new Query(
+            "SELECT id 
+            FROM `". OmradeKontaktpersoner::TABLE ."`
+            WHERE 
+            `mobil` = '#mobil' or `epost` = '#epost'",
+            [
+                'mobil' => $omradeKontaktperson->getMobil(),
+                'epost' => $omradeKontaktperson->getEpost()
+            ]
+        );
+        
+        $kontaktperson_id = null;
+        $res = $query->run();
+        if( Query::numRows( $res ) > 0 ) {
+            // Kontaktpersonen finnes fra før
+            $kontaktperson_id = Query::fetch($res)['id'];
+        } else {
+            // Kontaktpersonen finnes ikke fra før, må opprettes
+            $sql = new Insert(OmradeKontaktpersoner::TABLE);
+            $sql->add('fornavn', $omradeKontaktperson->getFornavn());
+            $sql->add('etternavn', $omradeKontaktperson->getEtternavn());
+            $sql->add('mobil', $omradeKontaktperson->getMobil());
+            $sql->add('beskrivelse', $omradeKontaktperson->getBeskrivelse());
+            $sql->add('epost', $omradeKontaktperson->getEpost());
+            $kontaktperson_id = $sql->run();
+        }
+
+        $sqlRel = new Insert(OmradeKontaktpersoner::OMRADE_RELATION_TABLE);
+        $sqlRel->add('kontaktperson_id', $kontaktperson_id);
+        $sqlRel->add('omrade_id', $omrade->getForeignId());
+        $sqlRel->add('omrade_type', $omrade->getType());
+
+        try {
+            $resRel = $sqlRel->run();
+        } catch( Exception $e ) {
+            if($e->getCode() != 901001) {
+                throw 'Klarte ikke å lagre relasjonen. Feilmelding: ' . $e;
+            }
+        }
+    }
 
     /**
      * Legg til en administrator i et område
