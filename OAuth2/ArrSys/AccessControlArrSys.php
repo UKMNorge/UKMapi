@@ -19,6 +19,10 @@ class AccessControlArrSys {
      * @return boolean
      */
     public static function hasArrangementAccess() {
+        if(is_super_admin()) {
+            return true;
+        }
+        
         // Check if user has access to arrangement
         $blogs = get_blogs_of_user(get_current_user_id());
 
@@ -46,6 +50,10 @@ class AccessControlArrSys {
      * @return boolean
      */
     public static function hasAccessToArrangement(int $arrangementId) : bool {
+        if(is_super_admin()) {
+            return true;
+        }
+
         // Check if user has access to arrangement
         $blogs = get_blogs_of_user(get_current_user_id());
 
@@ -75,6 +83,10 @@ class AccessControlArrSys {
      * @return boolean
      */
     public static function hasKommuneAccess() {
+        if(is_super_admin()) {
+            return true;
+        }
+
         $user = new Administrator( get_current_user_id() );
 
         foreach($user->getOmrader() as $omrade) {
@@ -93,6 +105,10 @@ class AccessControlArrSys {
      * @return boolean
      */
     public static function hasAccessToKommune(int $kommuneId) {
+        if(is_super_admin()) {
+            return true;
+        }
+
         $user = new Administrator( get_current_user_id() );
         
         foreach($user->getOmrader() as $omrade) {
@@ -110,6 +126,10 @@ class AccessControlArrSys {
      * @return boolean
      */
     public static function hasAccessToFylkeFromKommune(int $fylkeId) {
+        if(is_super_admin()) {
+            return true;
+        }
+
         $user = new Administrator( get_current_user_id() );
         
         foreach($user->getOmrader() as $omrade) {
@@ -127,6 +147,10 @@ class AccessControlArrSys {
      * @return boolean
      */
     public static function hasFylkeAccess() {
+        if(is_super_admin()) {
+            return true;
+        }
+
         $user = new Administrator( get_current_user_id() );
 
         foreach($user->getOmrader() as $omrade) {
@@ -144,6 +168,10 @@ class AccessControlArrSys {
      * @return void
      */
     public static function hasAccessToFylke(int $fylkeId) {
+        if(is_super_admin()) {
+            return true;
+        }
+
         $user = new Administrator( get_current_user_id() );
         
         foreach($user->getOmrader() as $omrade) {
