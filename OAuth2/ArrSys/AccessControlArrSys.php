@@ -4,6 +4,8 @@ namespace UKMNorge\OAuth2\ArrSys;
 
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Nettverk\Administrator;
+use UKMNorge\Nettverk\Omrade;
+
 
 
 class AccessControlArrSys {
@@ -12,6 +14,35 @@ class AccessControlArrSys {
     public function __construct() {
 
     }
+
+    /**
+     * Security check to make sure the user has access to a specific område 
+     *
+     * @return boolean
+     */
+    public static function hasOmradeAccess(Omrade $omrade) {
+        if(is_super_admin()) {
+            return true;
+        }
+
+        if($omrade == null) {
+            return false;
+        }
+
+        if($omrade->getType() == 'fylke') {
+            return self::hasFylkeAccess($omrade->getForeignId());
+        }
+        else if($omrade->getType() == 'kommune') {
+            return self::hasAccessToKommune($omrade->getForeignId());
+        }
+        // arrangement, monstring og land er alle Arrangement (klasse) type
+        else if($omrade->getType() == 'arrangement' || $omrade->getType() == 'monstring' || $omrade->getType() == 'land') {
+            return self::hasAccessToArrangement($omrade->getForeignId());
+        }
+
+        return false;
+    }
+
 
     /**
      * Security check to make sure the user has access minimum 1 arrangement (arrangement level)
