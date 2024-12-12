@@ -5,6 +5,8 @@ namespace UKMNorge\Nettverk;
 use UKMNorge\Collection;
 use UKMNorge\Database\SQL\Query;
 
+use Exception;
+
 class OmradeKontaktpersoner extends Collection {
     public const TABLE = 'ukm_nettverk_kontaktperson';
     public const OMRADE_RELATION_TABLE = 'ukm_rel_nettverk_kontaktperson_omrade';
@@ -46,6 +48,26 @@ class OmradeKontaktpersoner extends Collection {
         while( $row = Query::fetch($res) ) {
             $this->add(new OmradeKontaktperson($row));
         }
+    }
+
+    public static function getByMobil($mobil) {
+        $query = new Query(
+            "SELECT * FROM `". OmradeKontaktpersoner::TABLE ."` WHERE `mobil` = '#mobil'",
+            [
+                'mobil' => $mobil
+            ]
+        );
+
+        $res = $query->run('array');
+
+        if( $res == null ) {
+            throw new Exception(
+                'Kontaktpersonen finnes ikke',
+                562008
+            );
+        }
+
+        return new OmradeKontaktperson($res);
     }
 
 }
