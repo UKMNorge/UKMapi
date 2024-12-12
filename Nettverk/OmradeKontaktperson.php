@@ -15,6 +15,8 @@ class OmradeKontaktperson {
     private string $epost;
     private DateTime $created_date; // Read only - set by database
     private DateTime $modified_date; // Read only - edited by database
+    private int $eier_omrade_id;
+    private int $eier_omrade_type;
 
     public function __construct(array $row) {
         $this->id = $row['id'];
@@ -23,6 +25,9 @@ class OmradeKontaktperson {
         $this->mobil = $row['mobil'];
         $this->beskrivelse = $row['beskrivelse'] == null ? '' : $row['beskrivelse'];
         $this->epost = $row['epost'];
+        $this->eier_omrade_id = $row['eier_omrade_id'];
+        $this->eier_omrade_type = $row['eier_omrade_type'];
+
         if( !empty($row['created_date']) ) {
             $this->created_date = new DateTime( $row['created_date'] );
         }
@@ -91,5 +96,15 @@ class OmradeKontaktperson {
     // Read only
     public function getModifiedDate() {
         return $this->modified_date;
+    }
+
+    // Read only
+    public function getEierOmradeId() {
+        return $this->eier_omrade_id;
+    }
+
+    // Read only
+    public function getEierOmradeType() {
+        return $this->eier_omrade_type;
     }
 }
