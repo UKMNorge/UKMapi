@@ -50,6 +50,7 @@ class OmradeKontaktperson {
             'beskrivelse' => '',
             'eier_omrade_id' => -1,
             'eier_omrade_type' => '',
+            'profile_image_url' => null,
         ]);
     }
 
@@ -65,6 +66,7 @@ class OmradeKontaktperson {
             'modified_date' => $this->modified_date->format('Y-m-d H:i:s'),
             'eier_omrade_id' => $this->eier_omrade_id,
             'eier_omrade_type' => $this->eier_omrade_type,
+            'profile_image_url' => $this->profile_image_url,
             'wp_user_id' => $this->wp_user_id,
         ];
     }

@@ -182,6 +182,7 @@ class WriteOmradeKontaktperson {
         $query->add('etternavn', $okp->getEtternavn());
         $query->add('beskrivelse', $okp->getBeskrivelse());
         $query->add('epost', $okp->getEpost());
+        $query->add('profile_image_url', $okp->getProfileImageUrl());
 
         $query->run();
 
