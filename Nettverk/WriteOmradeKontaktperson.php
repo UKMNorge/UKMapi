@@ -26,6 +26,63 @@ use UKMNorge\OAuth2\ArrSys\AccessControlArrSys;
 class WriteOmradeKontaktperson {
    
     /**
+     * Last opp bildet til kontaktpersonen (uten kobling til kontaktperson)
+     *
+     * @param OmradeKontaktperson $okp
+     * @param bool $deletedProfileImage is the profile image deleted (no profile image)
+     * @throws Exception
+     * @return void
+     */
+    public static function uploadProfileImage($file, OmradeKontaktperson $okp, bool $deletedProfileImage) : void {    
+        // Profilbildet er fjernet (ingen profilbilde)
+        if($deletedProfileImage && $file['size'] == 0) {
+            $okp->setProfileImageUrl(null);
+            return;
+        }
+
+        $file_name = $file['name'];
+        $file_temp = $file['tmp_name'];
+        
+        // Check if the file is an image
+        $check = getimagesize($file_temp);
+        if($check === false) {
+            throw new Exception('Filen er ikke et bilde', 400);
+        }
+
+        $upload_dir = wp_upload_dir();
+        $image_data = file_get_contents( $file_temp );
+        $filename = basename( $file_name );
+        $filetype = wp_check_filetype($file_name);
+        $filename = time().'.'.$filetype['ext'];
+
+        if ( wp_mkdir_p( $upload_dir['path'] ) ) {
+            $file = $upload_dir['path'] . '/' . $filename;
+        }
+        else {
+            $file = $upload_dir['basedir'] . '/' . $filename;
+        }
+
+        file_put_contents( $file, $image_data );
+        $wp_filetype = wp_check_filetype( $filename, null );
+        $attachment = array(
+            'post_mime_type' => $wp_filetype['type'],
+            'post_title' => sanitize_file_name( $filename ),
+            'post_content' => '',
+            'post_status' => 'inherit'
+        );
+
+        $attach_id = wp_insert_attachment( $attachment, $file );
+        require_once( ABSPATH . 'wp-admin/includes/image.php' );
+        $attach_data = wp_generate_attachment_metadata( $attach_id, $file );
+        wp_update_attachment_metadata( $attach_id, $attach_data );
+
+        $url = wp_get_attachment_url($attach_id);
+
+        // Lagrer bilde på kontaktperson
+        $okp->setProfileImageUrl($url);
+    }
+
+    /**
      * Opprett en ny områdekontaktperson
      *
      * @param OmradeKontaktperson $okp
@@ -61,6 +118,7 @@ class WriteOmradeKontaktperson {
         $sql->add('epost', $okp->getEpost());
         $sql->add('eier_omrade_id', $okp->getEierOmradeId());
         $sql->add('eier_omrade_type', $okp->getEierOmradeType());
+        $sql->add('profile_image_url', $okp->getProfileImageUrl());
         
         $res = $sql->run();
 
@@ -72,7 +130,8 @@ class WriteOmradeKontaktperson {
             'beskrivelse' => $okp->getBeskrivelse(),
             'epost' => $okp->getEpost(),
             'eier_omrade_id' => $okp->getEierOmradeId(),
-            'eier_omrade_type' => $okp->getEierOmradeType()
+            'eier_omrade_type' => $okp->getEierOmradeType(),
+            'profile_image_url' => $okp->getProfileImageUrl()
         ]);
 
         return $retOkp;
