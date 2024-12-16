@@ -18,6 +18,7 @@ class OmradeKontaktperson {
     private int $eier_omrade_id;
     private string $eier_omrade_type;
     private int|null $wp_user_id;
+    private string|null $profile_image_url;
 
     public function __construct(array $row) {
         $this->id = $row['id'];
@@ -29,6 +30,7 @@ class OmradeKontaktperson {
         $this->eier_omrade_id = $row['eier_omrade_id'];
         $this->eier_omrade_type = $row['eier_omrade_type'];
         $this->wp_user_id = $row['wp_user_id'] ?? null;
+        $this->profile_image_url = $row['profile_image_url'];
 
         if( !empty($row['created_date']) ) {
             $this->created_date = new DateTime( $row['created_date'] );
@@ -125,6 +127,18 @@ class OmradeKontaktperson {
     
     public function setWpUserId(int $wp_user_id) {
         $this->wp_user_id = $wp_user_id;
+    }
+
+    public function getProfileImageUrl() {
+        return $this->profile_image_url;
+    }
+
+    public function hasProfileImage() {
+        return !is_null($this->profile_image_url) && $this->profile_image_url != '';
+    }
+
+    public function setProfileImageUrl(string|null $url) {
+        $this->profile_image_url = $url;
     }
 
     // Read only
