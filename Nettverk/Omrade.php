@@ -362,6 +362,12 @@ class Omrade
                 }
                 $this->kontaktpersoner->add($kontakt);
             }
+
+            // Hent Omradekontaktpersoner
+            $okps = new OmradeKontaktpersoner($this->id, $this->type);
+            foreach($okps->getAll() as $okp) {
+                $this->kontaktpersoner->add($okp);
+            }
             return;
         }
 

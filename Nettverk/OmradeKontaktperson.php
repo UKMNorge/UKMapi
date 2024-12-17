@@ -2,11 +2,14 @@
 
 namespace UKMNorge\Nettverk;
 
+use UKMNorge\Arrangement\Kontaktperson\KontaktInterface;
+
+
 use DateTime;
 
 require_once('UKM/Autoloader.php');
 
-class OmradeKontaktperson {
+class OmradeKontaktperson implements KontaktInterface {
     private int $id;
     private string $fornavn;
     private string $etternavn;
@@ -69,10 +72,6 @@ class OmradeKontaktperson {
             'profile_image_url' => $this->profile_image_url,
             'wp_user_id' => $this->wp_user_id,
         ];
-    }
-
-    public function getId() {
-        return $this->id;
     }
 
     public function setId(int $id) {
@@ -161,5 +160,26 @@ class OmradeKontaktperson {
     // Read only
     public function getEierOmradeType() {
         return $this->eier_omrade_type;
+    }
+
+    // Interfacing 
+    public function getTittel() {
+        return 'Kontaktperson';
+    }
+
+    public function getTelefon() {
+        return $this->getMobil();
+    }
+
+    public function getFacebook() {
+        return '';
+    }
+
+    public function getId() {
+        return $this->id;
+    }
+
+    public function getBilde() {
+        return $this->getProfileImageUrl();
     }
 }
