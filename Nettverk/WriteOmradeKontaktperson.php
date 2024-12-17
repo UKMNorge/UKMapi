@@ -5,23 +5,13 @@ namespace UKMNorge\Nettverk;
 use UKMNorge\Nettverk\OmradeKontaktperson;
 use UKMNorge\Nettverk\OmradeKontaktpersoner;
 
-use UKMNorge\Geografi\Fylke;
-use UKMNorge\Geografi\Kommune;
-use UKMNorge\Arrangement\Load;
-
-
-
-use Exception;
 use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Database\SQL\Update;
-use UKMNorge\Kommunikasjon\Epost;
-use UKMNorge\Kommunikasjon\Mottaker;
-use UKMNorge\Twig\Twig;
-use UKMNorge\Wordpress\Blog;
 use UKMNorge\OAuth2\ArrSys\AccessControlArrSys;
 
+use Exception;
 
 class WriteOmradeKontaktperson {
    
@@ -40,9 +30,13 @@ class WriteOmradeKontaktperson {
             return;
         }
 
+        // Bilder er ikke lastet opp (ikke endringer)
+        if($file['size'] == 0) {
+            return;
+        }
+
         $file_name = $file['name'];
         $file_temp = $file['tmp_name'];
-        
         // Check if the file is an image
         $check = getimagesize($file_temp);
         if($check === false) {
@@ -80,6 +74,44 @@ class WriteOmradeKontaktperson {
 
         // Lagrer bilde på kontaktperson
         $okp->setProfileImageUrl($url);
+    }
+
+    /**
+     * Fjern en områdekontaktperson fra et område
+     *
+     * Brukeren sjekkes for tilgang til området for å fjerne kontaktpersonen
+     * 
+     * @param OmradeKontaktperson $okp
+     * @param Omrade $omrade
+     * @throws Exception
+     * @return Bool
+     */
+    public static function removeFromOmrade(OmradeKontaktperson $okp, Omrade $omrade) {
+        // Sjekk tilgang
+        try{
+            self::checkAccessToOmrade($omrade);
+        } catch( Exception $e ) {
+            throw $e;
+        }
+
+        try {
+            $query = new Update(
+                OmradeKontaktpersoner::OMRADE_RELATION_TABLE,
+                [
+                    'kontaktperson_id' => $okp->getId(),
+                    'omrade_type' => $omrade->getType(),
+                    'omrade_id' => $omrade->getForeignId()
+                ]
+            );
+            $query->add('is_active', 0);
+    
+            $query->run();
+        } catch( Exception $e ) {
+            throw new Exception(
+                'Klarte ikke å fjerne kontaktpersonen fra området',
+                562009
+            );
+        }
     }
 
     /**
@@ -198,12 +230,41 @@ class WriteOmradeKontaktperson {
             throw $e;
         }
 
-        $sqlRel = new Insert(OmradeKontaktpersoner::OMRADE_RELATION_TABLE);
-        $sqlRel->add('kontaktperson_id', $okp->getId());
-        $sqlRel->add('omrade_id', $omrade->getForeignId());
-        $sqlRel->add('omrade_type', $omrade->getType());
+        // TODO: Sjekk om kontaktpersonen allerede er lagt til området, aktiver is_active
+        $sqlCheck = new Query(
+            "SELECT id FROM `". OmradeKontaktpersoner::OMRADE_RELATION_TABLE ."`
+            WHERE `kontaktperson_id` = '#kontaktperson_id' AND
+            `omrade_id` = '#omrade_id' AND
+            `omrade_type` = '#omrade_type'",
+            [
+                'kontaktperson_id' => $okp->getId(),
+                'omrade_id' => $omrade->getForeignId(),
+                'omrade_type' => $omrade->getType()
+            ]
+        );
 
-        $resRel = null;
+        $resCheck = $sqlCheck->run('array');
+        if($resCheck != null) {
+            // Kontaktpersonen er allerede lagt til området fra før, aktiver is_active
+            $sqlRel = new Update(
+                OmradeKontaktpersoner::OMRADE_RELATION_TABLE,
+                [
+                    'kontaktperson_id' => $okp->getId(),
+                    'omrade_id' => $omrade->getForeignId(),
+                    'omrade_type' => $omrade->getType()
+                ]
+            );
+            $sqlRel->add('is_active', 1);
+        }
+        else {
+            $sqlRel = new Insert(OmradeKontaktpersoner::OMRADE_RELATION_TABLE);
+            $sqlRel->add('kontaktperson_id', $okp->getId());
+            $sqlRel->add('omrade_id', $omrade->getForeignId());
+            $sqlRel->add('omrade_type', $omrade->getType());       
+        }
+
+
+
         try {
             $resRel = $sqlRel->run();
         } catch( Exception $e ) {
