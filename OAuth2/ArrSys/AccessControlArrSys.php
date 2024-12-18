@@ -16,7 +16,9 @@ class AccessControlArrSys {
     }
 
     /**
-     * Security check to make sure the user has access to a specific område 
+     * Security check to make sure the user has access to a specific område
+     * 
+     * Fylke admin har tilgang til alle kommuner i fylket
      *
      * @return boolean
      */
@@ -33,6 +35,10 @@ class AccessControlArrSys {
             return self::hasFylkeAccess($omrade->getForeignId());
         }
         else if($omrade->getType() == 'kommune') {
+            // Fylke admin har tilgang til alle kommuner i fylket
+            if($omrade->getFylke()) {
+                return self::hasAccessToFylkeFromKommune($omrade->getFylke()->getId());
+            }
             return self::hasAccessToKommune($omrade->getForeignId());
         }
         // arrangement, monstring og land er alle Arrangement (klasse) type
