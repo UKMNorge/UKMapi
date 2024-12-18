@@ -164,7 +164,7 @@ class OmradeKontaktperson implements KontaktInterface {
 
     // Interfacing 
     public function getTittel() {
-        return 'Kontaktperson';
+        return '';
     }
 
     public function getTelefon() {
