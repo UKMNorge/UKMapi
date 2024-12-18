@@ -374,14 +374,8 @@ class WriteOmradeKontaktperson {
         
 
         $access = false;
-        // Sjekk om brukeren har tilgang til området (fylke eller kommune)
-        if($omradeType == 'fylke') {
-            // Fylke
-            $access = AccessControlArrSys::hasAccessToFylke($omradeId);
-        } else {
-            // Kommune
-            $access = AccessControlArrSys::hasAccessToKommune($omradeId);
-        }
+        $access = self::checkAccessToOmrade(Omrade::getByType($omradeType, $omradeId));
+
         // Legg til flere access typer når det støttes flere områder
 
         if($access == false) {
@@ -393,7 +387,7 @@ class WriteOmradeKontaktperson {
         return true;
     }
 
-    private static function checkAccessToOmrade(Omrade $omrade) {
+    private static function checkAccessToOmrade(Omrade $omrade) : bool{
         return AccessControlArrSys::hasOmradeAccess($omrade);
     }
 }

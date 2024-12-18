@@ -18,7 +18,7 @@ class AccessControlArrSys {
     /**
      * Security check to make sure the user has access to a specific område
      * 
-     * Fylke admin har tilgang til alle kommuner i fylket
+     * HUSK: Fylke admin har tilgang til alle kommuner i fylket
      *
      * @return boolean
      */
