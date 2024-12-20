@@ -4,7 +4,7 @@ namespace UKMNorge\Nettverk;
 
 use UKMNorge\Arrangement\Kontaktperson\KontaktInterface;
 
-
+use Exception;
 use DateTime;
 
 require_once('UKM/Autoloader.php');
@@ -13,9 +13,9 @@ class OmradeKontaktperson implements KontaktInterface {
     private int $id;
     private string $fornavn;
     private string $etternavn;
-    private string $mobil; // Unique to OmradeKontakperson
+    private string|null $mobil; // Unique to OmradeKontakperson
     private string $beskrivelse;
-    private string $epost;
+    private string|null $epost; // Unique to OmradeKontaktperson
     private DateTime $created_date; // Read only - set by database
     private DateTime $modified_date; // Read only - edited by database
     private int $eier_omrade_id;
@@ -24,12 +24,25 @@ class OmradeKontaktperson implements KontaktInterface {
     private string|null $profile_image_url;
 
     public function __construct(array $row) {
+        // Når vi oppretter en kontaktperson, må vi ha en identifikator. Når id er -1, er det en ny kontaktperson som skal opprettes
+        if( $row['id'] != -1 && $row['mobil'] == null && $row['epost'] == null ) {
+            throw new Exception('Mobilnummer eller epost brukes som identifikator er påkrevd for å opprette en kontaktperson');
+        }
+
         $this->id = $row['id'];
         $this->fornavn = $row['fornavn'];
         $this->etternavn = $row['etternavn'];
         $this->mobil = $row['mobil'];
         $this->beskrivelse = $row['beskrivelse'] == null ? '' : $row['beskrivelse'];
-        $this->epost = $row['epost'];
+        
+        // Validate epost
+        if( !filter_var($row['epost'], FILTER_VALIDATE_EMAIL) ) {
+            $this->epost = null;
+        }
+        else {
+            $this->epost = $row['epost'];
+        }
+
         $this->eier_omrade_id = $row['eier_omrade_id'];
         $this->eier_omrade_type = $row['eier_omrade_type'];
         $this->wp_user_id = $row['wp_user_id'] ?? null;
