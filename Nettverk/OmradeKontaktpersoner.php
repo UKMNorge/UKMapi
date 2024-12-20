@@ -53,6 +53,26 @@ class OmradeKontaktpersoner extends Collection {
         }
     }
 
+    public static function getById($id) {
+        $query = new Query(
+            "SELECT * FROM `". OmradeKontaktpersoner::TABLE ."` WHERE `id` = '#id'",
+            [
+                'id' => $id
+            ]
+        );
+
+        $res = $query->run('array');
+
+        if( $res == null ) {
+            throw new Exception(
+                'Kontaktpersonen finnes ikke',
+                562008
+            );
+        }
+
+        return new OmradeKontaktperson($res);
+    }
+
     public static function getByMobil($mobil) {
         $query = new Query(
             "SELECT * FROM `". OmradeKontaktpersoner::TABLE ."` WHERE `mobil` = '#mobil'",
