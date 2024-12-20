@@ -131,7 +131,7 @@ class WriteOmradeKontaktperson {
 
         // Sjekk om kontaktpersonen allerede finnes
         try {
-            $existedOkp = static::getOmrodeKontakpterson($okp->getId(), $okp->getMobil());
+            $existedOkp = static::getOmrodeKontakpterson($okp->getId(), $okp->getMobil(), $okp->getEpost());
             return $existedOkp;
         } catch( Exception $e ) {
             if($e->getCode() != 562007) {
@@ -151,7 +151,7 @@ class WriteOmradeKontaktperson {
         $sql->add('eier_omrade_id', $okp->getEierOmradeId());
         $sql->add('eier_omrade_type', $okp->getEierOmradeType());
         $sql->add('profile_image_url', $okp->getProfileImageUrl());
-        
+
         $res = $sql->run();
 
         $retOkp = new OmradeKontaktperson([
@@ -173,17 +173,21 @@ class WriteOmradeKontaktperson {
      * Hent en områdekontaktperson
      *
      * @param Int $id
+     * @param String|null $mobil
+     * @param String|null $epost
      * @throws Exception
      * @return OmradeKontaktperson
      */
-    private static function getOmrodeKontakpterson(int $id, $mobil = null) {
-        $where = $mobil != null ? " WHERE `mobil` = '#mobil'" : "` WHERE `id` = '#id'";
-        
+    private static function getOmrodeKontakpterson(int $id, $mobil = null, $epost = null) {
+        $where = $mobil != null && preg_match('/^\d{8}$/', $mobil) ? " WHERE `mobil` = '#mobil'" : " WHERE `id` = '#id'";
+        $where .= $epost != null ? " OR `epost` = '#epost'" : '';
+
         $query = new Query(
             "SELECT * FROM `". OmradeKontaktpersoner::TABLE ."`" . $where,
             [
                 'id' => $id,
-                'mobil' => $mobil
+                'mobil' => $mobil,
+                'epost' => $epost
             ]
         );
 
@@ -222,7 +226,6 @@ class WriteOmradeKontaktperson {
             $okp = $omradeKontaktperson;
         }
 
-        
         // Sjekk tilgang kun til området men ikke eier området. Man kan legge til kontaktpersoner til andre områder
         try{
             self::checkAccessToOmrade($omrade);
@@ -301,7 +304,7 @@ class WriteOmradeKontaktperson {
         $query->add('fornavn', $okp->getFornavn());
         $query->add('etternavn', $okp->getEtternavn());
         $query->add('beskrivelse', $okp->getBeskrivelse());
-        $query->add('epost', $okp->getEpost());
+        // $query->add('epost', $okp->getEpost()); // Epost kan ikke redigeres, brukes som identifikator
         $query->add('profile_image_url', $okp->getProfileImageUrl());
 
         $query->run();
@@ -353,10 +356,11 @@ class WriteOmradeKontaktperson {
                 "SELECT id, eier_omrade_id, eier_omrade_type
                 FROM `". OmradeKontaktpersoner::TABLE ."`
                 WHERE 
-                `id`= '#id' OR `mobil` = '#mobil'",
+                `id`= '#id' OR `mobil` = '#mobil' OR `epost` = '#epost'",
                 [
                     'id' => $okp->getId(),
-                    'mobil' => $okp->getMobil() ?? -1
+                    'mobil' => $okp->getMobil() ?? -1,
+                    'epost' => $okp->getEpost() ?? -1
                 ]
             );
     
