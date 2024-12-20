@@ -73,4 +73,24 @@ class OmradeKontaktpersoner extends Collection {
         return new OmradeKontaktperson($res);
     }
 
+    public static function getByEpost($epost) {
+        $query = new Query(
+            "SELECT * FROM `". OmradeKontaktpersoner::TABLE ."` WHERE `epost` = '#epost'",
+            [
+                'epost' => $epost
+            ]
+        );
+
+        $res = $query->run('array');
+
+        if( $res == null ) {
+            throw new Exception(
+                'Kontaktpersonen finnes ikke',
+                562008
+            );
+        }
+
+        return new OmradeKontaktperson($res);
+    }
+
 }
