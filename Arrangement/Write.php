@@ -25,7 +25,10 @@ use UKMNorge\Innslag\Write as WriteInnslag;
 use UKMNorge\Innslag\Titler\Write as WriteTitler;
 use UKMNorge\Innslag\Personer\Write as WritePerson;
 use UKMNorge\Meta\Write as WriteMeta;
+use UKMNorge\Nettverk\Omrade;
 use UKMNorge\Wordpress\Blog;
+use UKMNorge\Nettverk\OmradeKontaktperson;
+use UKMNorge\Nettverk\WriteOmradeKontaktperson;
 
 require_once('UKM/Autoloader.php');
 
@@ -754,35 +757,25 @@ class Write
      * @param kontakt_v2 $kontakt
      * @return void
      **/
-    private static function _fjernKontaktperson($monstring_save, $kontakt)
+    private static function _fjernKontaktperson($monstring_save, $okp)
     {
-        try {
-            self::_controlMonstring($monstring_save);
-            self::_controlKontaktperson($kontakt);
-        } catch (Exception $e) {
-            throw new Exception(
-                'Kan ikke fjerne kontaktperson da ' . $e->getMessage(),
-                501018
-            );
+        if($okp instanceof OmradeKontaktperson) {
+            try {
+                $arrangementOmrade = new Omrade('monstring', $monstring_save->getId());
+                WriteOmradeKontaktperson::removeFromOmrade($okp, $arrangementOmrade);
+            } catch(Exception $e) {
+                throw new Exception(
+                    'Kan ikke fjerne kontaktperson da ' . $e->getMessage(),
+                    501018
+                );
+            }
+            return true;
         }
-
-        $rel_pl_ab = new Delete(
-            'smartukm_rel_pl_ab',
-            [
-                'pl_id' => $monstring_save->getId(),
-                'ab_id' => $kontakt->getId()
-            ]
-        );
-        $res = $rel_pl_ab->run();
-
-        if (!$res) {
-            return false;
-        }
-
+        
         Logger::log(
             116,
             $monstring_save->getId(),
-            $kontakt->getId() . ': ' . $kontakt->getNavn()
+            $okp->getId() . ': ' . $okp->getNavn()
         );
 
         return true;
