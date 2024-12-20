@@ -43,11 +43,19 @@ class WriteOmradeKontaktperson {
             throw new Exception('Filen er ikke et bilde', 400);
         }
 
-        $upload_dir = wp_upload_dir();
         $image_data = file_get_contents( $file_temp );
         $filename = basename( $file_name );
         $filetype = wp_check_filetype($file_name);
-        $filename = time().'.'.$filetype['ext'];
+        $randomFilename = bin2hex(random_bytes(8)); // 16 characters of randomness
+        $filename =  $randomFilename.time().'.'.$filetype['ext'];
+        
+        $upload_dir = [
+            "path" => "/var/www/wordpress/wp-content/uploads/kontaktpersoner_bilder",
+            "url" => "http://". UKM_HOSTNAME ."/wp-content/uploads/kontaktpersoner_bilder",
+            "subdir" => "/kontaktpersoner_bilder",
+            "basedir" => "/var/www/wordpress/wp-content/uploads",
+            "baseurl" => "http://". UKM_HOSTNAME ."/wp-content/uploads"
+        ];
 
         if ( wp_mkdir_p( $upload_dir['path'] ) ) {
             $file = $upload_dir['path'] . '/' . $filename;
@@ -73,7 +81,7 @@ class WriteOmradeKontaktperson {
         $url = wp_get_attachment_url($attach_id);
 
         // Lagrer bilde på kontaktperson
-        $okp->setProfileImageUrl($url);
+        $okp->setProfileImageUrl($upload_dir['url'] . '/' . $filename);
     }
 
     /**
