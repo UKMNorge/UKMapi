@@ -111,6 +111,10 @@ class OmradeKontaktperson implements KontaktInterface {
         return $this->fornavn . ' ' . $this->etternavn;
     }
 
+    public function hasValidMobil() : bool {
+        return preg_match('/^\d{8}$/', $this->mobil) == 1;
+    }
+
     public function getMobil() {
         return $this->mobil;
     }
