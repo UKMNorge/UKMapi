@@ -5,6 +5,7 @@ namespace UKMNorge\Arrangement\Kontaktperson;
 use Exception;
 use UKMNorge\Collection;
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Nettverk\OmradeKontaktpersoner;
 
 class Samling extends Collection {
     public $pl_id = null;
@@ -21,17 +22,25 @@ class Samling extends Collection {
 	}
 	
 	public function _load() {
-		$sql = new Query( Kontaktperson::getLoadQry() 
-						. " JOIN `smartukm_rel_pl_ab` AS `rel` ON (`rel`.`ab_id` = `kontakt`.`id`) "
-                        . " WHERE `rel`.`pl_id` = '#id'"
-                        . " ORDER BY `rel`.`order` ASC, "
-                        . " `kontakt`.`firstname` ASC",
-					array('id' => $this->pl_id )
-					);
-		$res = $sql->run();
-		while( $rad = Query::fetch( $res ) ) {
-			$this->add( new Kontaktperson( $rad ) );
-		}
+		// Activate this on MIGRATION
+        // $sql = new Query( Kontaktperson::getLoadQry() 
+		// 				. " JOIN `smartukm_rel_pl_ab` AS `rel` ON (`rel`.`ab_id` = `kontakt`.`id`) "
+        //                 . " WHERE `rel`.`pl_id` = '#id'"
+        //                 . " ORDER BY `rel`.`order` ASC, "
+        //                 . " `kontakt`.`firstname` ASC",
+		// 			array('id' => $this->pl_id )
+		// 			);
+		// $res = $sql->run();
+		// while( $rad = Query::fetch( $res ) ) {
+		// 	$this->add( new Kontaktperson( $rad ) );
+		// }
+        
+        // Get område kontaktpersoner (Se klassen UKMNorge\Nettverk\OmradeKontaktperson)
+        // OmradeKontaktperson implementerer interface KontaktInterface
+        $omrade_kontaktpersoner = new OmradeKontaktpersoner($this->pl_id, 'monstring');
+        foreach( $omrade_kontaktpersoner->getAll() as $okp ) {
+            $this->add( $okp );
+        }
     }
     
     /**
