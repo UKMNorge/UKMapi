@@ -151,7 +151,7 @@ class WriteOmradeKontaktperson {
 
         // Opprett kontaktpersonen
         $sql = new Insert(OmradeKontaktpersoner::TABLE);
-        $sql->add('mobil', $okp->getMobil());
+        $sql->add('mobil', $okp->hasValidMobil() ? $okp->getMobil() : null);
         $sql->add('fornavn', $okp->getFornavn());
         $sql->add('etternavn', $okp->getEtternavn());
         $sql->add('beskrivelse', $okp->getBeskrivelse());
@@ -217,7 +217,7 @@ class WriteOmradeKontaktperson {
      * @param Omrade $omrade
      * @param OmradeKontaktperson $omradeKontaktperson
      * @throws Exception
-     * @return Bool
+     * @return OmradeKontaktperson
      */
     public static function leggTilOmradeKontaktperson( Omrade $omrade, OmradeKontaktperson $omradeKontaktperson ) {
         $okp = null;
@@ -271,10 +271,9 @@ class WriteOmradeKontaktperson {
             $sqlRel = new Insert(OmradeKontaktpersoner::OMRADE_RELATION_TABLE);
             $sqlRel->add('kontaktperson_id', $okp->getId());
             $sqlRel->add('omrade_id', $omrade->getForeignId());
-            $sqlRel->add('omrade_type', $omrade->getType());       
+            $sqlRel->add('omrade_type', $omrade->getType());   
+            $sqlRel->add('is_active', 1);
         }
-
-
 
         try {
             $resRel = $sqlRel->run();
@@ -284,7 +283,10 @@ class WriteOmradeKontaktperson {
             }
         }
 
-        return $resRel != null;
+        if($resRel != null) {
+            return $okp;
+        }
+        throw new Exception("Relasjonen ble ikke opprettet");
     }
 
     /**
