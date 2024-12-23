@@ -22,25 +22,26 @@ class Samling extends Collection {
 	}
 	
 	public function _load() {
-		// Activate this on MIGRATION
-        // $sql = new Query( Kontaktperson::getLoadQry() 
-		// 				. " JOIN `smartukm_rel_pl_ab` AS `rel` ON (`rel`.`ab_id` = `kontakt`.`id`) "
-        //                 . " WHERE `rel`.`pl_id` = '#id'"
-        //                 . " ORDER BY `rel`.`order` ASC, "
-        //                 . " `kontakt`.`firstname` ASC",
-		// 			array('id' => $this->pl_id )
-		// 			);
-		// $res = $sql->run();
-		// while( $rad = Query::fetch( $res ) ) {
-		// 	$this->add( new Kontaktperson( $rad ) );
-		// }
+		// Activate this on MIGRATIONDES24
+        $sql = new Query( Kontaktperson::getLoadQry() 
+						. " JOIN `smartukm_rel_pl_ab` AS `rel` ON (`rel`.`ab_id` = `kontakt`.`id`) "
+                        . " WHERE `rel`.`pl_id` = '#id'"
+                        . " ORDER BY `rel`.`order` ASC, "
+                        . " `kontakt`.`firstname` ASC",
+					array('id' => $this->pl_id )
+					);
+		$res = $sql->run();
+		while( $rad = Query::fetch( $res ) ) {
+			$this->add( new Kontaktperson( $rad ) );
+		}
         
+        // Deactivate this on MIGRATIONDES24
         // Get område kontaktpersoner (Se klassen UKMNorge\Nettverk\OmradeKontaktperson)
         // OmradeKontaktperson implementerer interface KontaktInterface
-        $omrade_kontaktpersoner = new OmradeKontaktpersoner($this->pl_id, 'monstring');
-        foreach( $omrade_kontaktpersoner->getAll() as $okp ) {
-            $this->add( $okp );
-        }
+        // $omrade_kontaktpersoner = new OmradeKontaktpersoner($this->pl_id, 'monstring');
+        // foreach( $omrade_kontaktpersoner->getAll() as $okp ) {
+        //     $this->add( $okp );
+        // }
     }
     
     /**
