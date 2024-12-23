@@ -300,6 +300,12 @@ class WriteOmradeKontaktperson {
         } catch( Exception $e ) {
             throw $e;
         }
+        
+        try {
+            $hentetOkp = self::getOmrodeKontakpterson($okp->getId());
+        } catch( Exception $e ) {
+            throw $e;
+        }
 
         // Brukeren har tilgang til område, oppdater kontaktpersonen
         $query = new Update(
@@ -311,7 +317,12 @@ class WriteOmradeKontaktperson {
         $query->add('fornavn', $okp->getFornavn());
         $query->add('etternavn', $okp->getEtternavn());
         $query->add('beskrivelse', $okp->getBeskrivelse());
-        // $query->add('epost', $okp->getEpost()); // Epost kan ikke redigeres, brukes som identifikator
+
+        // Epost kan redigere kun hvis brukeren har mobilnummer registrert.
+        // Det finnes noen tilfeller hvor brukeren bruker epost som identifikator og ikke har mobilnummer.
+        if($hentetOkp->hasValidMobil()) {
+            $query->add('epost', $okp->getEpost());
+        }
         $query->add('profile_image_url', $okp->getProfileImageUrl());
 
         $query->run();
@@ -349,7 +360,7 @@ class WriteOmradeKontaktperson {
      */
     private static function checkAccess(OmradeKontaktperson $okp) {
         $omradeId = null;
-        $omradeType = null;    
+        $omradeType = null;
         
         // Ny kontaktperson
         if($okp->getId() == -1) {
