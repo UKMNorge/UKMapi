@@ -283,10 +283,7 @@ class WriteOmradeKontaktperson {
             }
         }
 
-        if($resRel != null) {
-            return $okp;
-        }
-        throw new Exception("Relasjonen ble ikke opprettet");
+        return $okp;
     }
 
     /**
