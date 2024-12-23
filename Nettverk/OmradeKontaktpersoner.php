@@ -35,7 +35,7 @@ class OmradeKontaktpersoner extends Collection {
         $query = new Query(
             "SELECT *
                 FROM `" . OmradeKontaktpersoner::TABLE . "` AS kontaktperson
-                JOIN `ukm_rel_nettverk_kontaktperson_omrade` AS rel 
+                JOIN `" . OmradeKontaktpersoner::OMRADE_RELATION_TABLE . "` AS rel 
                     ON rel.kontaktperson_id = kontaktperson.id
                 WHERE rel.omrade_id = '#omrade_id' AND 
                 rel.omrade_type='#omrade_type' AND
