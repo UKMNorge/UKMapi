@@ -35,9 +35,9 @@ class AccessControlArrSys {
             return self::hasAccessToFylke($omrade->getForeignId());
         }
         else if($omrade->getType() == 'kommune') {
-            // Fylke admin har tilgang til alle kommuner i fylket
+            // Fylke admin har tilgang til alle kommuner i fylket. Hvis området er en kommune, sjekk om brukeren har tilgang til fylket
             if($omrade->getFylke()) {
-                return self::hasAccessToFylkeFromKommune($omrade->getFylke()->getId());
+                return self::hasAccessToFylke($omrade->getFylke()->getId());
             }
             return self::hasAccessToKommune($omrade->getForeignId());
         }
