@@ -243,7 +243,7 @@ class WriteOmradeKontaktperson {
 
         // TODO: Sjekk om kontaktpersonen allerede er lagt til området, aktiver is_active
         $sqlCheck = new Query(
-            "SELECT id FROM `". OmradeKontaktpersoner::OMRADE_RELATION_TABLE ."`
+            "SELECT okp_rel_id FROM `". OmradeKontaktpersoner::OMRADE_RELATION_TABLE ."`
             WHERE `kontaktperson_id` = '#kontaktperson_id' AND
             `omrade_id` = '#omrade_id' AND
             `omrade_type` = '#omrade_type'",
