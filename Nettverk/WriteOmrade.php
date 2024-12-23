@@ -3,19 +3,25 @@
 namespace UKMNorge\Nettverk;
 use UKMNorge\Wordpress\User;
 use UKMNorge\Nettverk\Administratorer;
+use UKMNorge\Nettverk\OmradeKontaktperson;
+use UKMNorge\Nettverk\OmradeKontaktpersoner;
 
 use UKMNorge\Geografi\Fylke;
 use UKMNorge\Geografi\Kommune;
 use UKMNorge\Arrangement\Load;
 
+use UKMNorge\Nettverk\WriteOmradeKontaktperson;
+
 
 use Exception;
 use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Insert;
+use UKMNorge\Database\SQL\Query;
 use UKMNorge\Kommunikasjon\Epost;
 use UKMNorge\Kommunikasjon\Mottaker;
 use UKMNorge\Twig\Twig;
 use UKMNorge\Wordpress\Blog;
+
 
 class WriteOmrade {
 

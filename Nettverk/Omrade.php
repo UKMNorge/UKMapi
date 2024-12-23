@@ -18,6 +18,8 @@ use UKMNorge\Geografi\Kommune;
 use UKMNorge\Nettverk\Administratorer;
 use UKMNorge\Nettverk\Proxy\Kontaktperson as KontaktpersonProxy;
 use UKMNorge\Nettverk\Proxy\KontaktpersonSamling as KontaktpersonSamlingProxy;
+use UKMNorge\Nettverk\OmradeKontaktpersoner;
+
 
 class Omrade
 {
@@ -179,6 +181,15 @@ class Omrade
             $this->administratorer = new Administratorer($this->getType(), $this->getForeignId());
         }
         return $this->administratorer;
+    }
+
+    /**
+     * Hent kontaktpersoner for området
+     *
+     * @return OmradeKontaktpersoner
+     */
+    public function getOmradeKontaktpersoner() {
+        return new OmradeKontaktpersoner($this->id, $this->type);
     }
 
     /**
@@ -351,15 +362,18 @@ class Omrade
                 }
                 $this->kontaktpersoner->add($kontakt);
             }
-            return;
         }
 
-        // Hvis det er en kommune uten admins, hent fylkets kontaktpersoner
-        if ($this->getType() == 'kommune') {
-            $omrade = Omrade::getByFylke($this->getFylke()->getId());
-            foreach ($omrade->getAdministratorer()->getAll() as $admin) {
-                $this->kontaktpersoner->add(new KontaktpersonProxy($admin));
-            }
+        // Hent Omradekontaktpersoner
+        $okps = new OmradeKontaktpersoner($this->id, $this->type);
+        foreach($okps->getAll() as $okp) {
+            $this->kontaktpersoner->add($okp);
+        }
+
+        // Hvis det er en kommune uten lokalkontakter, hent fylkets kontaktpersoner
+        if ($this->getType() == 'kommune' && $this->kontaktpersoner->getAntall() == 0) {
+            $fylkeOmrade = Omrade::getByFylke($this->getFylke()->getId());
+            $this->kontaktpersoner = $fylkeOmrade->getKontaktpersoner();
         }
     }
 }
