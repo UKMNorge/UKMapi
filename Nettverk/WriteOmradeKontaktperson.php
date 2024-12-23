@@ -49,13 +49,25 @@ class WriteOmradeKontaktperson {
         $randomFilename = bin2hex(random_bytes(8)); // 16 characters of randomness
         $filename =  $randomFilename.time().'.'.$filetype['ext'];
         
-        $upload_dir = [
-            "path" => "/var/www/wordpress/wp-content/uploads/kontaktpersoner_bilder",
-            "url" => "http://". UKM_HOSTNAME ."/wp-content/uploads/kontaktpersoner_bilder",
-            "subdir" => "/kontaktpersoner_bilder",
-            "basedir" => "/var/www/wordpress/wp-content/uploads",
-            "baseurl" => "http://". UKM_HOSTNAME ."/wp-content/uploads"
-        ];
+        if(UKM_HOSTNAME == 'ukm.dev') {
+            $upload_dir = [
+                "path" => "/var/www/wordpress/wp-content/uploads/kontaktpersoner_bilder",
+                "url" => "http://". UKM_HOSTNAME ."/wp-content/uploads/kontaktpersoner_bilder",
+                "subdir" => "/kontaktpersoner_bilder",
+                "basedir" => "/var/www/wordpress/wp-content/uploads",
+                "baseurl" => "http://". UKM_HOSTNAME ."/wp-content/uploads"
+            ];
+        }
+        else {
+            $upload_dir = [
+                "path" => "/home/ukmno/public_html/wp-content/uploads/kontaktpersoner_bilder",
+                "url" => "http://". UKM_HOSTNAME ."/wp-content/uploads/kontaktpersoner_bilder",
+                "subdir" => "/kontaktpersoner_bilder",
+                "basedir" => "/home/ukmno/public_html/wp-content/uploads",
+                "baseurl" => "http://". UKM_HOSTNAME ."/wp-content/uploads"
+            ];
+        }
+
 
         if ( wp_mkdir_p( $upload_dir['path'] ) ) {
             $file = $upload_dir['path'] . '/' . $filename;
