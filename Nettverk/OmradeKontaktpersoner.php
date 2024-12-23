@@ -8,8 +8,8 @@ use UKMNorge\Database\SQL\Query;
 use Exception;
 
 class OmradeKontaktpersoner extends Collection {
-    public const TABLE = 'ukm_nettverk_kontaktperson';
-    public const OMRADE_RELATION_TABLE = 'ukm_rel_nettverk_kontaktperson_omrade';
+    public const TABLE = 'ukm_omrade_kontaktperson';
+    public const OMRADE_RELATION_TABLE = 'ukm_rel_omrade_kontaktperson_omrade';
 
     private int $omradeId;
     private string $omradeType;
