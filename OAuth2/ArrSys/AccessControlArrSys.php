@@ -151,6 +151,7 @@ class AccessControlArrSys {
         }
 
         // Sjekk om brukeren har tilgang til fylket arrangementet er opprettet i
+        // OBS: $arrangement->getFylke() returnerer fylke (hvis arrangementet er på fylke nivå) eller fylke tilhørende kommunen (hvis arrangementet er på kommune nivå)
         $fylke = $arrangement->getFylke();
         if(AccessControlArrSys::hasAccessToFylke($fylke->getId()) === true) {
             return true;
