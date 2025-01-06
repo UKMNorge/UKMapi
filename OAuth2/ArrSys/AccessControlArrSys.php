@@ -140,7 +140,7 @@ class AccessControlArrSys {
         }
 
         // Sjekk om brukeren har tilgang til arrangementet
-        if(self::hasArrangementAccess()) {
+        if(self::hasAccessToArrangement($arrangementId)) {
             return true;
         }
 
@@ -153,7 +153,7 @@ class AccessControlArrSys {
         }
 
         // Sjekk om brukeren har tilgang til fylket arrangementet er opprettet i
-        // OBS: $arrangement->getFylke() returnerer fylke (hvis arrangementet er på fylke nivå) eller fylke
+        // OBS: $arrangement->getFylke() returnerer fylke (hvis arrangementet er på fylke nivå) eller fylke hvis arrangementet er på kommune nivå
         $fylke = $arrangement->getFylke();
         if(AccessControlArrSys::hasAccessToFylke($fylke->getId()) === true) {
             return true;
