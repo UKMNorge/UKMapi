@@ -115,6 +115,10 @@ class OmradeKontaktperson implements KontaktInterface {
         return preg_match('/^\d{8}$/', $this->mobil) == 1;
     }
 
+    public function hasValidEpost() : bool {
+        return filter_var($this->epost, FILTER_VALIDATE_EMAIL);
+    }
+
     public function getMobil() {
         return $this->mobil;
     }

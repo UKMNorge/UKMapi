@@ -384,9 +384,6 @@ class WriteOmradeKontaktperson {
             // Hent område fra kontaktpersonen
             $omradeId = $okp->getEierOmradeId();
             $omradeType = $okp->getEierOmradeType();
-            var_dump($okp->getEierOmradeId());
-            var_dump($okp->getEierOmradeType());
-            die('----111');
         }
         else {
             // Hent brukeren fra database og eierområde
@@ -394,14 +391,15 @@ class WriteOmradeKontaktperson {
                 "SELECT id, eier_omrade_id, eier_omrade_type
                 FROM `". OmradeKontaktpersoner::TABLE ."`
                 WHERE 
-                `id`= '#id' OR `mobil` = '#mobil' OR `epost` = '#epost'",
+                `id`= '#id'" . ($okp->hasValidMobil() ? " OR `mobil` = '#mobil'" : "") . ($okp->hasValidEpost() ? " OR `epost` = '#epost'" : ""),
                 [
                     'id' => $okp->getId(),
-                    'mobil' => $okp->getMobil() ?? -1,
-                    'epost' => $okp->getEpost() ?? -1
+                    'mobil' => $okp->hasValidMobil() ? $okp->getMobil() : -1,
+                    'epost' => $okp->hasValidEpost() ? $okp->getEpost() : -1,
                 ]
             );
-    
+
+
             $res = $query->run('array');
             if( $res == null ) {
                 throw new Exception(
