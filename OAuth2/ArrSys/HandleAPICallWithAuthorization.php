@@ -177,8 +177,8 @@ class HandleAPICallWithAuthorization extends HandleAPICall {
             }
         }
 
-        // Tilgang til arrangement eller kommune/fylke arrangementet tilhører
-        // Gjelder for arrangementer som tilhører en kommune eller fylke. Fylkesadministratorer har tilgang til alle arrangementer i fylket, inkludering kommuner.
+        // Tilgang til arrangement eller kommuner/fylke arrangementet tilhører
+        // Gjelder for arrangementer som tilhører en eller flere kommuner og 1 fylke. Fylkesadministratorer har tilgang til alle arrangementer i fylket, inkludering kommuner.
         if($accessType == 'arrangement_i_kommune_fylke') {
             if($accessValue == null) {
                 throw new Exception("Mangler arrangement ID", 400);
@@ -192,21 +192,7 @@ class HandleAPICallWithAuthorization extends HandleAPICall {
                     throw new Exception("Kunne ikke hente arrangementet med id $accessValue", 401);
                 }
 
-                if(AccessControlArrSys::hasAccessToArrangement($accessValue) === true) {
-                    return true;
-                }
-
-                // Sjekk kommuner
-                $kommuner = $arrangement->getKommuner();
-                foreach($kommuner as $kommune) {
-                    if(AccessControlArrSys::hasAccessToKommune($kommune->getId()) === true) {
-                        return true;
-                    }
-                }
-
-                // Sjekk fylke
-                $fylke = $arrangement->getFylke();
-                if(AccessControlArrSys::hasAccessToFylke($fylke->getId()) === true) {
+                if(AccessControlArrSys::hasAccessToArrangementOrKommmunerFylke($accessValue) === true) {
                     return true;
                 }
             }
