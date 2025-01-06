@@ -141,10 +141,15 @@ class WriteOmradeKontaktperson {
      * @throws Exception
      * @return OmradeKontaktperson
      */
-    public static function createOmradekontaktperson(OmradeKontaktperson $okp) {
+    public static function createOmradekontaktperson(OmradeKontaktperson $okp, $accessOmrade = null) {
         // Sjekk tilgang
         try{
-            self::checkAccess($okp);
+            if($accessOmrade != null) {
+                self::checkAccessToOmrade($accessOmrade);
+            }
+            else {
+                self::checkAccess($okp);
+            }
         } catch( Exception $e ) {
             throw $e;
         }
@@ -237,7 +242,7 @@ class WriteOmradeKontaktperson {
         // Ny kontaktperson, må opprettes først
         if($omradeKontaktperson->getId() == -1) {
             try{
-                $okp = self::createOmradekontaktperson($omradeKontaktperson);
+                $okp = self::createOmradekontaktperson($omradeKontaktperson, $omrade);
             } catch( Exception $e ) {
                 throw $e;
             }
@@ -379,6 +384,9 @@ class WriteOmradeKontaktperson {
             // Hent område fra kontaktpersonen
             $omradeId = $okp->getEierOmradeId();
             $omradeType = $okp->getEierOmradeType();
+            var_dump($okp->getEierOmradeId());
+            var_dump($okp->getEierOmradeType());
+            die('----111');
         }
         else {
             // Hent brukeren fra database og eierområde
