@@ -6,6 +6,7 @@ use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Nettverk\Administrator;
 use UKMNorge\Nettverk\Omrade;
 
+use Exception;
 
 
 class AccessControlArrSys {
@@ -43,7 +44,7 @@ class AccessControlArrSys {
         }
         // arrangement, monstring og land er alle Arrangement (klasse) type
         else if($omrade->getType() == 'arrangement' || $omrade->getType() == 'monstring' || $omrade->getType() == 'land') {
-            return self::hasAccessToArrangement($omrade->getForeignId());
+            return self::hasAccessToArrangementOrKommmunerFylke($omrade->getForeignId());
         }
 
         return false;
@@ -112,6 +113,48 @@ class AccessControlArrSys {
         }
 
         return false;
+    }
+    
+    /**
+     * Security check to make sure the user has access to a specific arrangement or kommuner/fylke
+     * 
+     * HUSK: Arrangement som er fellesmønstring, sjekkes om brukeren har tilgang til minst en kommune i arrangementet
+     * HUSK: Fylke admin har tilgang til alle arrangementer i fylket or kommuner (som tilhører fylket).
+     *
+     * @param int $arrangementId
+     * @return boolean
+     */
+    public static function hasAccessToArrangementOrKommmunerFylke($arrangementId) {
+        if(is_super_admin()) {
+            return true;
+        }
+
+        $arrangement = null;
+        try {
+            $arrangement = new Arrangement($arrangementId);
+        } catch(Exception $e) {
+            // Arrangementet finnes ikke, brukeren har ikke tilgang
+            return false;
+        }
+
+        // Sjekk om brukeren har tilgang til arrangementet
+        if(self::hasArrangementAccess()) {
+            return true;
+        }
+
+        // Sjekk om brukeren har tilgang til en kommune i arrangementet
+        $kommuner = $arrangement->getKommuner();
+        foreach($kommuner as $kommune) {
+            if(AccessControlArrSys::hasAccessToKommune($kommune->getId()) === true) {
+                return true;
+            }
+        }
+
+        // Sjekk om brukeren har tilgang til fylket arrangementet er opprettet i
+        $fylke = $arrangement->getFylke();
+        if(AccessControlArrSys::hasAccessToFylke($fylke->getId()) === true) {
+            return true;
+        }
     }
 
     /**
