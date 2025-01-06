@@ -38,7 +38,9 @@ class AccessControlArrSys {
         else if($omrade->getType() == 'kommune') {
             // Fylke admin har tilgang til alle kommuner i fylket. Hvis området er en kommune, sjekk om brukeren har tilgang til fylket
             if($omrade->getFylke()) {
-                return self::hasAccessToFylke($omrade->getFylke()->getId());
+                if(self::hasAccessToFylke($omrade->getFylke()->getId()) == true) {
+                    return true;
+                }
             }
             return self::hasAccessToKommune($omrade->getForeignId());
         }
@@ -151,7 +153,7 @@ class AccessControlArrSys {
         }
 
         // Sjekk om brukeren har tilgang til fylket arrangementet er opprettet i
-        // OBS: $arrangement->getFylke() returnerer fylke (hvis arrangementet er på fylke nivå) eller fylke tilhørende kommunen (hvis arrangementet er på kommune nivå)
+        // OBS: $arrangement->getFylke() returnerer fylke (hvis arrangementet er på fylke nivå) eller fylke
         $fylke = $arrangement->getFylke();
         if(AccessControlArrSys::hasAccessToFylke($fylke->getId()) === true) {
             return true;
