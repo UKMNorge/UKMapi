@@ -46,7 +46,7 @@ class AccessControlArrSys {
         }
         // arrangement, monstring og land er alle Arrangement (klasse) type
         else if($omrade->getType() == 'arrangement' || $omrade->getType() == 'monstring' || $omrade->getType() == 'land') {
-            return self::hasAccessToArrangementOrKommmunerFylke($omrade->getForeignId());
+            return self::hasAccessToArrangementOrKommmunerFylker($omrade->getForeignId());
         }
 
         return false;
@@ -118,7 +118,9 @@ class AccessControlArrSys {
     }
     
     /**
-     * Security check to make sure the user has access to a specific arrangement or kommuner/fylke
+     * Security check to make sure the user has access to a specific arrangement or kommuner/fylker
+     * 
+     * HUSK: Arrangement som er fellesmønstring, sjekkes om brukeren har tilgang til minst 1 kommune eller 1 fylke fra kommunene i arrangementet
      * 
      * HUSK: Arrangement som er fellesmønstring, sjekkes om brukeren har tilgang til minst en kommune i arrangementet
      * HUSK: Fylke admin har tilgang til alle arrangementer i fylket or kommuner (som tilhører fylket).
@@ -126,7 +128,7 @@ class AccessControlArrSys {
      * @param int $arrangementId
      * @return boolean
      */
-    public static function hasAccessToArrangementOrKommmunerFylke($arrangementId) {
+    public static function hasAccessToArrangementOrKommmunerFylker($arrangementId) : bool {
         if(is_super_admin()) {
             return true;
         }
@@ -144,20 +146,28 @@ class AccessControlArrSys {
             return true;
         }
 
+        $fylker = [];
+
         // Sjekk om brukeren har tilgang til en kommune i arrangementet
         $kommuner = $arrangement->getKommuner();
         foreach($kommuner as $kommune) {
+            $fylker[] = $kommune->getFylke();
             if(AccessControlArrSys::hasAccessToKommune($kommune->getId()) === true) {
                 return true;
             }
         }
 
+        $fylker[] = $arrangement->getFylke();
+
         // Sjekk om brukeren har tilgang til fylket arrangementet er opprettet i
         // OBS: $arrangement->getFylke() returnerer fylke (hvis arrangementet er på fylke nivå) eller fylke hvis arrangementet er på kommune nivå
-        $fylke = $arrangement->getFylke();
-        if(AccessControlArrSys::hasAccessToFylke($fylke->getId()) === true) {
-            return true;
+        foreach($fylker as $fylke) {
+            if(AccessControlArrSys::hasAccessToFylke($fylke->getId()) === true) {
+                return true;
+            }
         }
+
+        return false;
     }
 
     /**

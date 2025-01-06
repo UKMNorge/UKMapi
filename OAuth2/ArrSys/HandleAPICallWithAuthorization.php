@@ -192,7 +192,7 @@ class HandleAPICallWithAuthorization extends HandleAPICall {
                     throw new Exception("Kunne ikke hente arrangementet med id $accessValue", 401);
                 }
 
-                if(AccessControlArrSys::hasAccessToArrangementOrKommmunerFylke($accessValue) === true) {
+                if(AccessControlArrSys::hasAccessToArrangementOrKommmunerFylker($accessValue) === true) {
                     return true;
                 }
             }
