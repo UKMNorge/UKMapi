@@ -374,10 +374,10 @@ class Person
     /**
      * Sett e-post
      *
-     * @param String $epost
+     * @param String|null $epost
      * @return self
      **/
-    public function setEpost(String $epost)
+    public function setEpost(String|null $epost)
     {
         $this->epost = $epost;
         return $this;
