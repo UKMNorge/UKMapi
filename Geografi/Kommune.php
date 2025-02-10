@@ -35,7 +35,7 @@ class Kommune {
             (
                 SELECT `id` 
                 FROM `smartukm_kommune` AS `overtatt` 
-                WHERE FIND_IN_SET(`smartukm_kommune`.`id`, `overtatt`.`superseed`)
+                WHERE FIND_IN_SET(`smartukm_kommune`.`id`, `overtatt`.`superseed`) LIMIT 1
             ) AS `overtatt_av`
             FROM `smartukm_kommune`";
     }
