@@ -12,6 +12,8 @@ use UKMNorge\Database\SQL\Update;
 use UKMNorge\OAuth2\ArrSys\AccessControlArrSys;
 
 use Exception;
+use UKMNorge\Arrangement\Arrangement;
+use UKMNorge\Log\Logger;
 
 class WriteOmradeKontaktperson {
    
@@ -94,6 +96,50 @@ class WriteOmradeKontaktperson {
 
         // Lagrer bilde på kontaktperson
         $okp->setProfileImageUrl($upload_dir['url'] . '/' . $filename);
+    }
+
+    /**
+     * ENDRE EIER AV KONTAKTPERSON
+     * En WP bruker kan utføre eierskifte av en områdekontaktperson. Det betyr at områdekontaktpersonen blir knyttet til et annet område.
+     * Dette gjøres for å få mulighet til å redigere kontaktpersonen og logge handlingen.
+     *  
+     * Brukeren sjekkes for tilgang til område hvor kontaktpersonen skal flyttes til.
+     * 
+     * @param OmradeKontaktperson $okp
+     * @param Omrade $omrade
+     * @throws Exception
+     * @return OmradeKontaktperson
+     */
+    public static function overtaOmradekontaktperson(OmradeKontaktperson $okp, Omrade $omrade) {
+        // Sjekk tilgang
+        try{
+            self::checkAccessToOmrade($omrade);
+        } catch( Exception $e ) {
+            throw $e;
+        }
+
+        // Brukeren har tilgang til område, ta over kontaktpersonen
+        $query = new Update(
+            OmradeKontaktpersoner::TABLE,
+            [
+                'id' => $okp->getId()
+            ]
+        );
+
+        $query->add('eier_omrade_id', $omrade->getForeignId());
+        $query->add('eier_omrade_type', $omrade->getType());
+
+        $res = $query->run();
+
+        if ($res != false) {
+            Logger::log(
+                202501,
+                'overtaOmradekontaktperson', 
+                'WP bruker med id ' . get_current_user_id() . ' har endret eierskap av omradekontaktperson med id: ' . $okp->getId() . '. Ny eier er: type ' . $omrade->getType() . ' med id ' . $omrade->getForeignId()
+            );
+        }
+
+        return $okp;
     }
 
     /**
