@@ -113,11 +113,15 @@ class WriteOmradeKontaktperson {
     public static function overtaOmradekontaktperson(OmradeKontaktperson $okp, Omrade $omrade) {
         // Sjekk tilgang
         try{
-            self::checkAccessToOmrade($omrade);
+            if(self::checkAccessToOmrade($omrade) != true) {
+                throw new Exception(
+                    'Du har ikke tilgang til området og kan derfor ikke overta kontaktpersonen',
+                    562006
+                );
+            }
         } catch( Exception $e ) {
             throw $e;
         }
-
         // Brukeren har tilgang til område, ta over kontaktpersonen
         $query = new Update(
             OmradeKontaktpersoner::TABLE,
@@ -132,6 +136,10 @@ class WriteOmradeKontaktperson {
         $res = $query->run();
 
         if ($res != false) {
+            Logger::setUser(get_current_user_id());
+            Logger::setPlId('-1');
+            Logger::setSystem('wordpress');
+
             Logger::log(
                 202501,
                 'overtaOmradekontaktperson', 
@@ -155,7 +163,12 @@ class WriteOmradeKontaktperson {
     public static function removeFromOmrade(OmradeKontaktperson $okp, Omrade $omrade) {
         // Sjekk tilgang
         try{
-            self::checkAccessToOmrade($omrade);
+            if(self::checkAccessToOmrade($omrade) != true) {
+                throw new Exception(
+                    'Du har ikke tilgang til området og kan derfor ikke fjerne kontaktpersonen',
+                    562006
+                );
+            }
         } catch( Exception $e ) {
             throw $e;
         }
@@ -191,7 +204,12 @@ class WriteOmradeKontaktperson {
         // Sjekk tilgang
         try{
             if($accessOmrade != null) {
-                self::checkAccessToOmrade($accessOmrade);
+                if(self::checkAccessToOmrade($accessOmrade) != true) {
+                    throw new Exception(
+                        'Du har ikke tilgang til området og kan derfor ikke opprette kontaktpersonen',
+                        562006
+                    );
+                }
             }
             else {
                 self::checkAccess($okp);
@@ -299,7 +317,12 @@ class WriteOmradeKontaktperson {
 
         // Sjekk tilgang kun til området men ikke eier området. Man kan legge til kontaktpersoner til andre områder
         try{
-            self::checkAccessToOmrade($omrade);
+            if(self::checkAccessToOmrade($omrade) == false) {
+                throw new Exception(
+                    'Du har ikke tilgang til området og kan derfor ikke legge til kontaktpersonen',
+                    562006
+                );
+            }
         } catch( Exception $e ) {
             throw $e;
         }
