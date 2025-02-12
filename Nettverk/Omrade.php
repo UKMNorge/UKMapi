@@ -370,7 +370,7 @@ class Omrade
             // Sjekk telefon og hvis kontaktpersonen allerede er lagt til, hopp over
             foreach($this->kontaktpersoner->getAll() as $kontaktPerson) {
                 if($kontaktPerson->getTelefon() == $okp->getTelefon()) {
-                    continue;
+                    continue 2; // Bruker 2 for å hoppe ut av begge løkkene
                 }
             }
             $this->kontaktpersoner->add($okp);
