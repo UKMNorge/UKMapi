@@ -367,6 +367,12 @@ class Omrade
         // Hent Omradekontaktpersoner
         $okps = new OmradeKontaktpersoner($this->id, $this->type);
         foreach($okps->getAll() as $okp) {
+            // Sjekk telefon og hvis kontaktpersonen allerede er lagt til, hopp over
+            foreach($this->kontaktpersoner->getAll() as $kontaktPerson) {
+                if($kontaktPerson->getTelefon() == $okp->getTelefon()) {
+                    continue;
+                }
+            }
             $this->kontaktpersoner->add($okp);
         }
 
