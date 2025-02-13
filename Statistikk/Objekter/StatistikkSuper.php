@@ -223,6 +223,51 @@ class StatistikkSuper {
 
         return $retQuery;
     }
+
+    protected function getQueryNasjonalt(int $season) : String {
+        $retQuery = '';
+        // >2019
+        if($season > 2019) {
+            $retQuery = "SELECT 
+                arrang_person.person_id as p_id, 
+                innslag.b_id as b_id
+            FROM 
+                statistics_before_2024_ukm_rel_arrangement_person AS arrang_person
+            JOIN 
+                statistics_before_2024_smartukm_band AS innslag 
+                ON innslag.b_id = arrang_person.innslag_id
+            JOIN 
+                statistics_before_2024_smartukm_place AS arrangement 
+                ON arrangement.pl_id = arrang_person.arrangement_id
+            WHERE
+                arrangement.season='#season' AND
+                innslag.b_status = 8
+            GROUP BY 
+                p_id, b_id";
+        }
+        // <= 2019
+        else {
+            $retQuery = "SELECT p_id, arr_innslag.b_id as b_id
+            FROM statistics_before_2024_smartukm_place AS arrangement
+            JOIN statistics_before_2024_smartukm_rel_pl_b AS arr_innslag ON arr_innslag.pl_id=arrangement.pl_id
+            JOIN statistics_before_2024_smartukm_rel_b_p AS innslag_person ON innslag_person.b_id = arr_innslag.b_id
+            JOIN statistics_before_2024_smartukm_band AS innslag ON innslag.b_id=arr_innslag.b_id
+            WHERE
+                arrangement.season='#season' AND 
+                (innslag.b_status = 8 OR innslag.b_status = 99)
+            GROUP BY 
+                arr_innslag.b_id, p_id";
+        }
+
+        // If season er fra 2024
+        if($season > 2023) {
+            $retQuery .= " UNION SELECT p_id, b_id
+            FROM ukm_statistics_from_2024
+            AND season='#season'";
+        }
+
+        return $retQuery;
+    }
     
     protected function getKjonnByName(string $fornavn) : string {
         $first_name = explode(" ", str_replace("-", " ", $fornavn));
