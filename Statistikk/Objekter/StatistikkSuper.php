@@ -260,10 +260,11 @@ class StatistikkSuper {
         }
 
         // If season er fra 2024
+        // OBS: Det hentes innslag fra kommuner i fylke og ikke fylke arrangerte arrangementer
         if($season > 2023) {
             $retQuery .= " UNION SELECT p_id, b_id
             FROM ukm_statistics_from_2024
-            AND season='#season'";
+            WHERE season='#season'";
         }
 
         return $retQuery;
