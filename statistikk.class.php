@@ -330,8 +330,8 @@ class statistikk {
 		}
 
 		$fylke = $isHomeArrangement ? $homeArrangement->getFylke()->getId() : $currentArrangement->getFylke()->getId();
-
-		if( $innslag->getStatus() == 8 ) {
+		
+		// if( $innslag->getStatus() == 8) {
 			foreach( $innslag->getPersoner()->getAll() as $person ) { // behandle hver person
 				if($videresending && !$person->erPameldt($currentArrangement->getId())) {
 					continue;
@@ -357,8 +357,8 @@ class statistikk {
 					"season" => $innslag->getSesong(), // sesong
 					"pl_id_home" => $homeArrangement->getId(), // home pl_id
 					"pl_id" => $currentArrangement->getId(), // current pl_id
-					"videresending" => $videresending
-
+					"videresending" => $videresending,
+					"innslag_status" => $innslag->getStatus(),
 				);
 				
 				// faktisk lagre det 
@@ -381,6 +381,7 @@ class statistikk {
 						"pl_id" => $stats_info["pl_id"], // current pl_id
 						"videresending" => $stats_info["videresending"], // er innslaget videresendt?
 						"season" => $stats_info["season"], // kommune-id
+						"innslag_status" => $stats_info["innslag_status"],
 					) );
 				} else {
 					$sql_ins = new Insert("ukm_statistics_from_2024");
@@ -392,7 +393,7 @@ class statistikk {
 				}
 				$sql_ins->run();
 			}
-		}
+		// }
 	}
 
 	/**
