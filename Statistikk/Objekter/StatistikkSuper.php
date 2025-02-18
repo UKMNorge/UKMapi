@@ -224,7 +224,7 @@ class StatistikkSuper {
         return $retQuery;
     }
 
-    protected function getQueryNasjonalt(int $season) : String {
+    protected function getQueryNasjonalt(int $season, bool $kunUfullforte = false) : String {          
         $retQuery = '';
         // >2019
         if($season > 2019) {
@@ -239,9 +239,10 @@ class StatistikkSuper {
             JOIN 
                 statistics_before_2024_smartukm_place AS arrangement 
                 ON arrangement.pl_id = arrang_person.arrangement_id
-            WHERE
-                arrangement.season='#season' AND
-                innslag.b_status = 8
+            WHERE ".
+                // Hvis kun ufullførte innslag skal hentes
+                ($kunUfullforte ? "innslag.b_status != 8 AND innslag.b_status != 77" : "innslag.b_status = 8")
+                ." AND arrangement.season='#season'
             GROUP BY 
                 p_id, b_id";
         }
@@ -253,18 +254,20 @@ class StatistikkSuper {
             JOIN statistics_before_2024_smartukm_rel_b_p AS innslag_person ON innslag_person.b_id = arr_innslag.b_id
             JOIN statistics_before_2024_smartukm_band AS innslag ON innslag.b_id=arr_innslag.b_id
             WHERE
-                arrangement.season='#season' AND 
-                (innslag.b_status = 8 OR innslag.b_status = 99)
-            GROUP BY 
+                arrangement.season='#season' AND ".
+                ($kunUfullforte ? "(innslag.b_status != 8 AND innslag.b_status != 99)" : "(innslag.b_status = 8 OR innslag.b_status = 99)")
+            ." GROUP BY 
                 arr_innslag.b_id, p_id";
         }
 
         // If season er fra 2024
-        // OBS: Det hentes innslag fra kommuner i fylke og ikke fylke arrangerte arrangementer
         if($season > 2023) {
-            $retQuery .= " UNION SELECT p_id, b_id
+            $retQuery .= " 
+            UNION 
+            SELECT p_id, b_id
             FROM ukm_statistics_from_2024
-            WHERE season='#season'";
+            WHERE season='#season' AND ".
+            ($kunUfullforte ? "innslag_status != 8 AND innslag_status != 77" : "innslag_status = 8");
         }
 
         return $retQuery;

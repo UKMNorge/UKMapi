@@ -25,7 +25,7 @@ class StatistikkNasjonalt extends StatistikkSuper {
     }
 
     /**
-    * Returnerer antall unike deltakere på kommune nivå i fylke
+    * Returnerer antall unike deltakere nasjonalt
     *
     * @return int antall unike deltakere.
     */
@@ -34,21 +34,34 @@ class StatistikkNasjonalt extends StatistikkSuper {
     }
 
     /**
-    * Returnerer antall IKKE UNIKE deltakere på kommune nivå i fylke
+    * Returnerer antall unike deltakere som er del av ufullførte innslag, nasjonalt!
+    *
+    * HUSK: slettede innslag tas ikke med i statistikken.
+    * 
+    * @return int antall unike deltakere.
+    */
+    public function getAntallUnikeUfullforteDeltakere() : int {
+        $kunUfullforte = true;
+        return $this->runAntall(true, $kunUfullforte);
+    }
+
+    /**
+    * Returnerer antall IKKE UNIKE deltakere 
     *
     * @return int antall deltakere.
     */
     public function getAntallDeltakere() : int {
-        return $this->runAntall();
+        $unique = false;
+        return $this->runAntall($unique);
     }
 
 
-    private function runAntall($unique = false) : int {
+    private function runAntall($unique, $kunUfullforte = false) : int {
         $select = $unique ? "COUNT(DISTINCT p_id)" : "COUNT(p_id)";
         $sql = new Query(
             "SELECT " . $select . " as antall
             FROM (
-                " . $this->getQueryNasjonalt($this->season) . "
+                " . $this->getQueryNasjonalt($this->season, $kunUfullforte) . "
             ) AS subquery;",
             [
                 'season' => $this->season
@@ -59,6 +72,21 @@ class StatistikkNasjonalt extends StatistikkSuper {
         return (int) intval($res['antall']);
     }
 
+    public function getAntallUfullfortePameldinger() {
+        $sql = new Query(
+            "SELECT COUNT(DISTINCT p_id) as antall
+            FROM (
+                " . $this->getQueryNasjonalt($this->season) . "
+            ) AS subquery
+            WHERE p_status = 0;",
+            [
+                'season' => $this->season
+            ]
+        );
+
+        $res = $sql->run('array');
+        return (int) intval($res['antall']);
+    }
 
     
     /**
