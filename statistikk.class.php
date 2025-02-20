@@ -351,7 +351,7 @@ class statistikk {
 					"subcat" => $innslag->getType()->getNavn(), // underkategori
 					"b_kategori" => $innslag->getKategori(), // innslag kategori
 					"age" => $person->getAlder('') == '25+' ? 0 : $person->getAlder(''), // alder
-					"sex" => $person->getKjonn(), // kjonn
+					"sex" => '', //$person->getKjonn(), // kjønn lagres ikke i statistikk pga personvern
 					"time" =>  $time, // tid ved registrering
 					"fylke" => $currentArrangement->getType() == 'fylke', // fylkesmonstring?
 					"land" => $currentArrangement->getType() == 'land', // festivalen?
