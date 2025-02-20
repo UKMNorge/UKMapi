@@ -254,15 +254,17 @@ class StatistikkKommune extends StatistikkSuper {
 
             UNION 
 
-            SELECT DISTINCT innslag.b_id, innslag.bt_id, innslag.b_kategori, stat.pl_id 
+            SELECT DISTINCT 
+                stat.b_id as b_id, 
+                stat.bt_id as bt_id, 
+                stat.b_kategori as b_kategori, 
+                stat.pl_id as arrangement_id
             FROM ukm_statistics_from_2024 AS stat 
-            JOIN statistics_before_2024_smartukm_band AS innslag ON innslag.b_id=stat.b_id
-            JOIN statistics_before_2024_smartukm_place AS place ON place.pl_id=stat.pl_id 
-            WHERE stat.k_id IN (#k_ids)
-                AND innslag.b_kommune IN (#k_ids)
+            WHERE 
+                stat.k_id IN (#k_ids)
                 AND stat.fylke='false'
-                AND place.season='#season' 
-                AND innslag.b_status = 8",
+                AND stat.season='#season' 
+                AND stat.innslag_status = 8",
                 [
                     'k_ids' => $this->getAlleKommuneIds(),
                     'season' => $this->season
