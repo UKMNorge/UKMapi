@@ -274,14 +274,12 @@ class StatistikkFylke extends StatistikkSuper {
 
             UNION 
 
-            SELECT DISTINCT innslag.b_id, innslag.bt_id, innslag.b_kategori, stat.pl_id 
+            SELECT DISTINCT stat.b_id, stat.bt_id, stat.subcat, stat.pl_id 
             FROM ukm_statistics_from_2024 AS stat 
-            JOIN statistics_before_2024_smartukm_band AS innslag ON innslag.b_id=stat.b_id
-            JOIN statistics_before_2024_smartukm_place AS place ON place.pl_id=stat.pl_id 
             WHERE stat.f_id='#fylkeId' 
                 AND stat.fylke='false'
-                AND place.season='#season' 
-                AND innslag.b_status = 8 
+                AND stat.season='#season' 
+                AND stat.innslag_status = 8 
                 AND stat.pl_id!='#plId'",
                 [
                     'fylkeId' => $this->fylke->getId(),
