@@ -277,7 +277,7 @@ class StatistikkFylke extends StatistikkSuper {
             SELECT DISTINCT 
                 stat.b_id as b_id, 
                 stat.bt_id as bt_id, 
-                stat.subcat as b_kategori, 
+                stat.b_kategori as b_kategori, 
                 stat.pl_id as arrangement_id
             FROM ukm_statistics_from_2024 AS stat 
             WHERE stat.f_id='#fylkeId' 
