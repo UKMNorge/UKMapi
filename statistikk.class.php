@@ -349,6 +349,7 @@ class statistikk {
 					"f_id" => $fylke, // fylke-id
 					"bt_id" => $innslag->getType()->getId(), // innslagstype-id
 					"subcat" => $innslag->getType()->getNavn(), // underkategori
+					"b_kategori" => $innslag->getKategori(), // innslag kategori
 					"age" => $person->getAlder('') == '25+' ? 0 : $person->getAlder(''), // alder
 					"sex" => $person->getKjonn(), // kjonn
 					"time" =>  $time, // tid ved registrering
