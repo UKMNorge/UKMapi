@@ -131,15 +131,15 @@ class StatistikkArrangement extends StatistikkSuper {
                     UNION
             
                     SELECT 
-                        DISTINCT innslag.b_id,
-                        innslag.bt_id,
-                        innslag.b_kategori,
-                        stat.pl_id
+                        DISTINCT b_id,
+                        bt_id,
+                        b_kategorib_kategori,
+                        pl_id
                     FROM 
                         ukm_statistics_from_2024 AS stat
-                    JOIN 
-                        smartukm_band AS innslag ON innslag.b_id=stat.b_id
-                    WHERE stat.pl_id='#plId' AND innslag.b_status = 8",
+                    WHERE 
+                        pl_id='#plId' 
+                        AND b_status = 8",
                 [
                     'plId' => $this->arrangementId,
                 ]
