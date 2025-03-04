@@ -420,7 +420,11 @@ class StatistikkFylke extends StatistikkSuper {
                 SELECT stat.k_id AS kommune_id, kommune.name AS kommune_navn
                 FROM ukm_statistics_from_2024 AS stat
                 JOIN smartukm_kommune AS kommune ON kommune.id=stat.k_id
-                WHERE f_id='#fylke_id' AND season='#season' AND fylke='false' AND land='false'
+                WHERE f_id='#fylke_id' 
+                    AND season='#season' 
+                    AND fylke='false' 
+                    AND land='false'
+                    AND innslag_status=8
             ) AS combined_results
             GROUP BY kommune_id",
             [
@@ -466,6 +470,7 @@ class StatistikkFylke extends StatistikkSuper {
                 WHERE f_id='#fylke_id' AND season='#season' AND fylke='false' AND land='false'
 	        ) AS combinedUnion
         ",
+        // OBS: Det sjekkes ikke om innslag har status 8 fordi det hentes kun arrangementer som er opprettet og som finnes i ukm_statistics_from_2024 tabellen
         [
             'fylke_id' => $fylkeId,
             'season' => $season
@@ -550,6 +555,7 @@ class StatistikkFylke extends StatistikkSuper {
             AND season='#season'
             AND f_id='#fylke_id'
             ",
+            // OBS: Det sjekkes ikke om innslag har status 8 fordi det hentes kun arrangementer som er opprettet og som finnes i ukm_statistics_from_2024 tabellen
             [
                 'fylke_id' => $this->fylke->getId(),
                 'season' => $this->season
@@ -593,6 +599,7 @@ class StatistikkFylke extends StatistikkSuper {
                 WHERE fylke=false AND land=false
                 AND f_id='#fylke_id'
                 AND season='#season'
+                AND innslag_status=8
                 GROUP BY p_id, b_id
             ) AS combined_query",
             [
