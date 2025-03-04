@@ -133,13 +133,13 @@ class StatistikkArrangement extends StatistikkSuper {
                     SELECT 
                         DISTINCT b_id,
                         bt_id,
-                        b_kategorib_kategori,
+                        b_kategori,
                         pl_id
                     FROM 
                         ukm_statistics_from_2024 AS stat
                     WHERE 
                         pl_id='#plId' 
-                        AND b_status = 8",
+                        AND innslag_status = 8",
                 [
                     'plId' => $this->arrangementId,
                 ]
