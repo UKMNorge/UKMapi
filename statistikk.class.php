@@ -42,11 +42,13 @@ class statistikk {
            $query_persons = "SELECT count(`stat_id`) as `persons` FROM `ukm_statistics_from_2024`
                                 WHERE `season`='#season'
                                 AND `f_id` < 21
+								AND `innslag_status` = 8
                                 AND `time` NOT LIKE '#season-11-%'
                                 AND `time` NOT LIKE '#season-10-%'";
             $query_bands = "SELECT COUNT(DISTINCT `b_id`) as `bands` FROM `ukm_statistics_from_2024` 
                             WHERE `season`='#season'
                             AND `f_id` < 21
+							AND `innslag_status` = 8
                             AND `time` NOT LIKE '#season-11-%'
                             AND `time` NOT LIKE '#season-10-%'";
             
@@ -124,11 +126,11 @@ class statistikk {
 		
 		// Finner telling for hver bandtype (kategori)
 		$qry = "SELECT `bt_id`, COUNT(*) as `count` FROM `ukm_statistics_from_2024`".
-				" WHERE `season` =#season AND `bt_id`>0";
+				" WHERE `season` =#season AND `bt_id`>0 AND `innslag_status` = 8";
 				
 		// finner telling for subkategorier i Scene
 		$subcat_qry = "SELECT `subcat`,COUNT(*) AS `count` FROM `ukm_statistics_from_2024`".
-				" WHERE `season` =#season AND `bt_id` = 1";
+				" WHERE `season` =#season AND `bt_id` = 1 AND `innslag_status` = 8";
 		
 		
 		if ($this->type == 'kommune') {
@@ -203,12 +205,12 @@ class statistikk {
 			// Finner telling for hver person (kategori)
 			$qry = "SELECT `bt_id`, COUNT(*) AS count FROM".
 						" (SELECT `bt_id` FROM `ukm_statistics_from_2024`".
-						" WHERE `season` =#season AND `bt_id`>0";
+						" WHERE `season` =#season AND `bt_id`>0 AND `innslag_status` = 8";
 					
 			// finner telling for subkategorier i Scene
 			$subcat_qry =	"SELECT `subcat`, COUNT(*) AS count FROM".
 								" (select `subcat` from `ukm_statistics_from_2024`".
-								" WHERE `season` =#season AND `bt_id`=1";
+								" WHERE `season` =#season AND `bt_id`=1 AND `innslag_status` = 8";
 			
 			if ($this->type == 'kommune') {
 				$qry .= " AND k_id IN #kommuner";
@@ -429,7 +431,7 @@ class statistikk {
 		
 		$sql = new Query("SELECT * FROM `ukm_statistics_from_2024`
 						WHERE `k_id` IN (#kommuneList)
-						AND `season` = '#season'",
+						AND `season` = '#season' AND `innslag_status` = 8",
 						array('kommuneList' => $kommuneList, 'season' => $season));
 		$res = $sql->run('array');
 		               
