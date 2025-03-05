@@ -251,42 +251,40 @@ class StatistikkNasjonalt extends StatistikkSuper {
     //  * 
     //  * @return array[]
     // */
-    // public function getKjonnsfordeling() {
-    //     $sql = new Query(
-    //         "SELECT 
-    //             p_id, 
-    //             firstname 
-    //         FROM(
-    //                 SELECT 
-    //                     participant.p_id, 
-    //                     participant.p_firstname AS firstname 
-    //                 FROM(
-    //                     " . $this->getQueryFylke($this->season) . "
-    //                 ) AS subquery 
-    //                 JOIN  `smartukm_participant` AS participant ON participant.p_id = subquery.p_id
-    //         ) AS subqueryOut 
-    //         GROUP BY p_id;",
-    //         [
-    //             'fylke_id' => $this->fylke->getId(),
-    //             'season' => $this->season,
-    //             'kommuner_ids' => implode(',', $this->getKommunerIds())
-    //         ]
-    //     );
+    public function getKjonnsfordeling() {
+        $sql = new Query(
+            "SELECT 
+                p_id, 
+                firstname 
+            FROM(
+                    SELECT 
+                        participant.p_id, 
+                        participant.p_firstname AS firstname 
+                    FROM(
+                        " . $this->getQueryNasjonalt($this->season) . "
+                    ) AS subquery 
+                    JOIN  `smartukm_participant` AS participant ON participant.p_id = subquery.p_id
+            ) AS subqueryOut 
+            GROUP BY p_id;",
+            [
+                'season' => $this->season,
+            ]
+        );
 
 
 
-    //     $retArr = [];
-    //     $res = $sql->run();
+        $retArr = [];
+        $res = $sql->run();
 
-    //     // For each result from $sql call getKjonnByName()
-    //     while($row = Query::fetch($res)) {
-    //         $kjonn = $this->getKjonnByName($row['firstname']);
-    //         $retArr[$kjonn] = 1 + ($retArr[$kjonn] ?? 0);
-    //     }
+        // For each result from $sql call getKjonnByName()
+        while($row = Query::fetch($res)) {
+            $kjonn = $this->getKjonnByName($row['firstname']);
+            $retArr[$kjonn] = 1 + ($retArr[$kjonn] ?? 0);
+        }
 
 
-    //     return $retArr;
-    // }
+        return $retArr;
+    }
 
     // /**
     //  * Returnerer alle kommuner i fylke som har aktivitet (har minst 1 arrangement)
