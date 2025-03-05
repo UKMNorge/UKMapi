@@ -167,8 +167,7 @@ class StatistikkNasjonalt extends StatistikkSuper {
 
             SELECT DISTINCT b_id, bt_id, b_kategori, pl_id 
             FROM ukm_statistics_from_2024
-            WHERE
-                AND season='#season' 
+            WHERE season='#season' 
                 AND innslag_status=8",
                 [
                     'season' => $this->season,
