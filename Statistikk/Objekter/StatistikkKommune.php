@@ -370,6 +370,9 @@ class StatistikkKommune extends StatistikkSuper {
                     ukm_statistics_from_2024
                 WHERE 
                     season = '#season'
+                    AND fylke = 'false'
+                    AND land = 'false'
+                    AND innslag_status = 8
                 GROUP BY 
                     k_id
             ) AS data
