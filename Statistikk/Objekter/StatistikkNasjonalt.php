@@ -244,13 +244,13 @@ class StatistikkNasjonalt extends StatistikkSuper {
     //     return $retArr;
     // }
 
-    // /**
-    //  * Returnerer antall deltakere i fylke fordelt på kjønn
-    //  *
-    //  * Det brukes navn for å identifisere kjønn
-    //  * 
-    //  * @return array[]
-    // */
+    /**
+     * Returnerer antall deltakere i fylke fordelt på kjønn
+     *
+     * Det brukes navn for å identifisere kjønn
+     * 
+     * @return array[]
+    */
     public function getKjonnsfordeling() {
         $sql = new Query(
             "SELECT 
