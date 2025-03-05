@@ -39,6 +39,7 @@ class StatistikkSuper {
             $retQuery .= " UNION SELECT p_id, b_id
             FROM ukm_statistics_from_2024
             WHERE pl_id='#plId'
+            AND innslag_status = 8
             GROUP BY p_id, b_id";
         }
 
@@ -99,7 +100,11 @@ class StatistikkSuper {
         if($season > 2023) {
             $retQuery .= " UNION SELECT p_id, b_id
             FROM ukm_statistics_from_2024
-            WHERE k_id IN (#k_ids) AND season='#season'
+            WHERE k_id IN (#k_ids) 
+                AND season='#season'
+                AND fylke='false'
+                AND land='false' 
+                AND innslag_status=8
             GROUP BY p_id, b_id";
         }
 
@@ -162,6 +167,7 @@ class StatistikkSuper {
             WHERE f_id='#fylke_id' 
             AND fylke='false'
             AND land='false'
+            AND innslag_status=8
             AND season='#season'";
         }
 
@@ -218,6 +224,7 @@ class StatistikkSuper {
             WHERE f_id='#fylke_id' 
             AND fylke='true'
             AND land='false'
+            AND innslag_status=8
             AND season='#season'";
         }
 
