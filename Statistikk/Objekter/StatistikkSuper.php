@@ -115,15 +115,18 @@ class StatistikkSuper {
 
     // FYLKE
     // OBS: Det hentes innslag fra kommuner i fylke og ikke fylke arrangerte arrangementer. Dette gjøres fordi kommuner videresender innslag til fylke, derfor representerer kommuner best hvilke innslag som er fra fylket.
-    protected function getQueryFylke(int $season) : String {
+    protected function getQueryFylke(int $season, bool $withPDateOfBirth = false) : String {
         $retQuery = '';
         // >2019
         if($season > 2019) {
             $retQuery = "SELECT 
                 arrang_person.person_id as p_id, 
-                innslag.b_id as b_id
-            FROM 
+                innslag.b_id as b_id ". ($withPDateOfBirth ? ', participant.p_dob as p_dob ' : '') .
+            "FROM 
                 statistics_before_2024_ukm_rel_arrangement_person AS arrang_person
+            JOIN
+                statistics_before_2024_smartukm_participant AS participant
+                ON participant.p_id = arrang_person.person_id
             JOIN 
                 statistics_before_2024_smartukm_band AS innslag 
                 ON innslag.b_id = arrang_person.innslag_id
@@ -145,11 +148,12 @@ class StatistikkSuper {
         }
         // <= 2019
         else {
-            $retQuery = "SELECT p_id, arr_innslag.b_id as b_id
-            FROM statistics_before_2024_smartukm_rel_pl_k AS arr_kommune
+            $retQuery = "SELECT participant.p_id, arr_innslag.b_id as b_id ". ($withPDateOfBirth ? ', participant.p_dob as p_dob ' : '') .
+            "FROM statistics_before_2024_smartukm_rel_pl_k AS arr_kommune
             JOIN statistics_before_2024_smartukm_place AS arrangement ON arrangement.pl_id=arr_kommune.pl_id
             JOIN statistics_before_2024_smartukm_rel_pl_b AS arr_innslag ON arr_innslag.pl_id=arrangement.pl_id
             JOIN statistics_before_2024_smartukm_rel_b_p AS innslag_person ON innslag_person.b_id = arr_innslag.b_id
+            JOIN statistics_before_2024_smartukm_participant AS participant ON participant.p_id = innslag_person.p_id
             JOIN statistics_before_2024_smartukm_band AS innslag ON innslag.b_id=arr_innslag.b_id
             JOIN 
                 smartukm_kommune AS kommune 
@@ -163,8 +167,8 @@ class StatistikkSuper {
         // If season er fra 2024
         // OBS: Det hentes innslag fra kommuner i fylke og ikke fylke arrangerte arrangementer
         if($season > 2023) {
-            $retQuery .= " UNION SELECT p_id, b_id
-            FROM ukm_statistics_from_2024
+            $retQuery .= " UNION SELECT p_id, b_id ". ($withPDateOfBirth ? ', p_date_of_birth as p_dob ' : '') .
+            "FROM ukm_statistics_from_2024
             WHERE f_id='#fylke_id' 
             AND fylke='false'
             AND land='false'
