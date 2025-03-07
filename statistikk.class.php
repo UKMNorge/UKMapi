@@ -362,6 +362,7 @@ class statistikk {
 					"videresending" => $videresending,
 					"innslag_status" => $innslag->getStatus(),
 					"p_date_of_birth" => $person->getFodselsdato(),
+					"p_firstname" => $person->getFornavn(),
 				);
 				
 				// faktisk lagre det 
@@ -385,6 +386,7 @@ class statistikk {
 						"videresending" => $stats_info["videresending"], // er innslaget videresendt?
 						"season" => $stats_info["season"], // kommune-id
 						"innslag_status" => $stats_info["innslag_status"],
+						"date_of_birth" => $stats_info["p_date_of_birth"],
 					) );
 				} else {
 					$sql_ins = new Insert("ukm_statistics_from_2024");
