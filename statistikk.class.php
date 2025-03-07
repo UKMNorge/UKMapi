@@ -213,9 +213,8 @@ class statistikk {
 								" WHERE `season` =#season AND `bt_id`=1 AND `innslag_status` = 8";
 			
 			if ($this->type == 'kommune') {
-				$qry .= " AND k_id IN #kommuner";
-				$subcat_qry = " and k_id IN #kommuner";
-				
+				$qry .= " AND k_id IN (#kommuner)";
+				$subcat_qry = " and k_id IN (#kommuner)";				
 			} else if ($this->type == 'fylke') {
 				$qry .= " AND `f_id` =#fylkeID";
 				$subcat_qry .=" AND `f_id` =#fylkeID";
@@ -362,6 +361,7 @@ class statistikk {
 					"pl_id" => $currentArrangement->getId(), // current pl_id
 					"videresending" => $videresending,
 					"innslag_status" => $innslag->getStatus(),
+					"p_date_of_birth" => $person->getFodselsdato(),
 				);
 				
 				// faktisk lagre det 
