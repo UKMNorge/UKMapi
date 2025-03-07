@@ -71,17 +71,15 @@ class StatistikkArrangement extends StatistikkSuper {
                 age, 
                 COUNT(*) AS participant_count 
             FROM (SELECT 
-                DISTINCT participant.p_id, 
-                participant.p_dob,
+                DISTINCT p_id, 
+                p_dob,
                 TIMESTAMPDIFF(YEAR, 
-                    FROM_UNIXTIME(participant.p_dob),
+                    FROM_UNIXTIME(p_dob),
                     FROM_UNIXTIME(#arrangementDate))
                 AS age
             FROM (
-                " . $this->getQueryArrangement($this->season) . "
+                " . $this->getQueryArrangement($this->season, true) . "
             ) AS subquery
-                JOIN statistics_before_2024_smartukm_participant AS participant
-                ON subquery.p_id = participant.p_id
                 ) AS age_subquery
                 GROUP BY 
                     age
