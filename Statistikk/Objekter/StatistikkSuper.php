@@ -11,20 +11,21 @@ class StatistikkSuper {
 
     }
 
-    protected function getQueryArrangement(int $season) : String {
+    protected function getQueryArrangement(int $season, bool $withPDateOfBirth = false) : String {
         $retQuery = '';
         if($season > 2019) {
-            $retQuery = "SELECT person_id as p_id, innslag_id as b_id
-                FROM `statistics_before_2024_ukm_rel_arrangement_person`
+            $retQuery = "SELECT person_id as p_id, innslag_id as b_id ". ($withPDateOfBirth ? ', p.p_dob as p_dob ' : '') .
+                "FROM `statistics_before_2024_ukm_rel_arrangement_person`
                 JOIN `statistics_before_2024_smartukm_band` AS `innslag`
                 ON `innslag`.`b_id` = `statistics_before_2024_ukm_rel_arrangement_person`.`innslag_id`
+                JOIN `statistics_before_2024_smartukm_participant` AS p on p.p_id = `statistics_before_2024_ukm_rel_arrangement_person`.`person_id`
                 WHERE `arrangement_id` = '#plId'
                 AND `b_status` = 8
                 GROUP BY p_id, b_id"; // Fordi en person kan ikke delta 2 ganger i samme innslag (b_id)
         }
         else {
-            $retQuery = "SELECT b_p.p_id, b.b_id
-                FROM statistics_before_2024_smartukm_rel_pl_b AS pl_b
+            $retQuery = "SELECT b_p.p_id, b.b_id ". ($withPDateOfBirth ? ', p.p_dob as p_dob ' : '') .
+                "FROM statistics_before_2024_smartukm_rel_pl_b AS pl_b
                 JOIN statistics_before_2024_smartukm_rel_b_p AS b_p ON b_p.b_id = pl_b.b_id
                 JOIN statistics_before_2024_smartukm_band AS b ON b.b_id = b_p.b_id
                 JOIN statistics_before_2024_smartukm_place arrangement ON arrangement.pl_id = pl_b.pl_id
@@ -36,8 +37,8 @@ class StatistikkSuper {
 
         // If arrangementet er fra 2024
         if($season > 2023) {
-            $retQuery .= " UNION SELECT p_id, b_id
-            FROM ukm_statistics_from_2024
+            $retQuery .= " UNION SELECT p_id, b_id ". ($withPDateOfBirth ? ', p_date_of_birth as p_dob ' : '') .
+            "FROM ukm_statistics_from_2024
             WHERE pl_id='#plId'
             AND innslag_status = 8
             GROUP BY p_id, b_id";
