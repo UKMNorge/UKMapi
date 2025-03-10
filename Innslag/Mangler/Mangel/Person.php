@@ -55,7 +55,7 @@ class Person
             $mangler[] = new Mangel(
                 'person.mobil',
                 'Mobilnummer mangler',
-                empty($person->getNavn()) ? 'Deltakeren' : $person->getNavn() . ' har ikke oppgitt mobilnummer',
+                (empty($person->getNavn()) ? 'Deltakeren' : $person->getNavn()) . ' har ikke oppgitt mobilnummer',
                 'person',
                 $person->getId()
             );
