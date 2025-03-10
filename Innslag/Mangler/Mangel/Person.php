@@ -68,7 +68,7 @@ class Person
                 $mangler[] = new Mangel(
                     'person.rolle',
                     'Rolle/instrument mangler',
-                    'Det er ikke oppgitt hvilken rolle eller hvilket instrument ' . (empty($person->getNavn()) ? 'deltakeren' : $person->getNavn()) . ' har.',
+                    'Det er ikke oppgitt hvilken rolle eller hvilket instrument ' . (empty($person->getNavn()) ? 'deltakeren' : $person->getNavn()) . ' har eller spiller.',
                     'person',
                     $person->getId()
                 );
