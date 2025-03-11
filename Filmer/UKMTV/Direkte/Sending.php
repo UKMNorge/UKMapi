@@ -4,6 +4,7 @@ namespace UKMNorge\Filmer\UKMTV\Direkte;
 
 use DateTime;
 use UKMNorge\Arrangement\Arrangement;
+use UKMNorge\Arrangement\Program\Hendelse;
 use UKMNorge\Geografi\Fylker;
 use UKMNorge\Geografi\Kommune;
 
@@ -42,8 +43,18 @@ class Sending
 
         $this->navn = $data['navn'];
         $this->sted = $data['sted'];
-        $this->start = new DateTime($data['start']);
-        $this->stopp = new DateTime($data['stopp']);
+
+        $hendelse = new Hendelse($this->getHendelseId());
+        
+        $hendelseStart = new DateTime();
+        $hendelseStart->setTimestamp($hendelse->getStart()->getTimestamp());
+
+        $this->start = $hendelseStart->modify('-' . $this->getStartOffset() . ' minutes');
+        
+        $hendelseStartStop = new DateTime();
+        $hendelseStartStop->setTimestamp($this->start->getTimestamp());
+
+        $this->stopp = $hendelseStartStop->modify('+' . $this->getVarighet() . ' minutes');
 
         $this->arrangement_id = intval($data['arrangement_id']);
         $this->arrangement_navn = $data['arrangement_navn'];
