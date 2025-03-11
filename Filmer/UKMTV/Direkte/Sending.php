@@ -49,11 +49,12 @@ class Sending
         $hendelseStart = new DateTime();
         $hendelseStart->setTimestamp($hendelse->getStart()->getTimestamp());
 
-        $this->start = $hendelseStart->modify('-' . $this->getStartOffset() . ' minutes');
+        
+        $this->start = $hendelseStart->modify('+' . $this->getStartOffset() . ' minutes');
         
         $hendelseStartStop = new DateTime();
         $hendelseStartStop->setTimestamp($this->start->getTimestamp());
-
+        
         $this->stopp = $hendelseStartStop->modify('+' . $this->getVarighet() . ' minutes');
 
         $this->arrangement_id = intval($data['arrangement_id']);
