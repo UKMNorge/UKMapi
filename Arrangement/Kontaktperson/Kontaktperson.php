@@ -90,18 +90,20 @@ class Kontaktperson implements KontaktInterface
             throw new Exception('KONTAKT: _load_by_row krever dataarray!');
         }
         $this->id = $row['id'];
-        $this->fornavn =  $row['firstname'];
-        $this->etternavn = $row['lastname'];
-        $this->navn_backup = $row['name'];
-        $this->telefon = $row['tlf'];
-        $this->epost = $row['email'];
-        $this->tittel = $row['title'];
-        $this->facebook = $row['facebook'];
-        $this->bilde = $row['picture'];
-        $this->adresse = $row['adress'];
-        $this->postnummer = $row['postalcode'];
-        $this->kommune_id = $row['kommune'];
-        $this->last_updated = $row['last_updated'];
+        $this->fornavn =  $row['fornavn'];
+        $this->etternavn = $row['etternavn'];
+        $this->navn_backup = ''; //$row['name'];
+        $this->telefon = $row['mobil'];
+        $this->epost = $row['epost'];
+        $this->tittel = '';
+        $this->facebook = '';
+        $this->bilde = $row['profile_image_url'];
+        $this->adresse = ''; //$row['adress'];
+        $this->postnummer = ''; //$row['postalcode'];
+        $this->kommune_id = $row['eier_omrade_id'];
+        $this->eier_omrade_id = $row['eier_omrade_id'];
+        $this->eier_omrade_type = $row['eier_omrade_type'];
+        $this->last_updated = $row['modified_date'];
         $this->system_locked = $row['system_locked'];
         if (isset($row['beskrivelse'])) {
             $this->beskrivelse = $row['beskrivelse'];
@@ -111,7 +113,7 @@ class Kontaktperson implements KontaktInterface
 
     public static function getLoadQry()
     {
-        return "SELECT * FROM `smartukm_contacts` AS `kontakt` ";
+        return "SELECT * FROM `ukm_omrade_kontaktperson` AS `kontakt`";
     }
 
     public function setId($id)
