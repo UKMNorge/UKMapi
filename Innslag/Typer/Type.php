@@ -51,11 +51,19 @@ class Type
             if( empty( $filename ) ) {
                 throw new Exception('Ukjent innslag type '. $id );
             }
-            $config = Yaml::parse(
-                file_get_contents(
-                    $filename
-                )
-            );
+            if (extension_loaded('yaml')) {
+                // Read the YAML content
+                $yamlContent = file_get_contents($filename);
+            
+                // Parse the YAML content
+                $config = yaml_parse($yamlContent);
+            } else {
+                $config = Yaml::parse(
+                    file_get_contents(
+                        $filename
+                    )
+                );
+            }
         } catch (Exception $e) {
             throw new Exception(
                 'Kunne ikke laste inn innslag type ' . $id,
