@@ -5,7 +5,6 @@ namespace UKMNorge\Arrangement\Aktivitet;
 use Exception;
 use UKMNorge\Collection;
 use UKMNorge\Database\SQL\Query;
-use UKMNorge\Arrangement\Aktivitet\AktivitetTidspunkt;
 
 class SamlingTidspunkter extends Collection {
     private int $aktivitetTidspunktId = null;

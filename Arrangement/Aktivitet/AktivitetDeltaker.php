@@ -22,8 +22,20 @@ class AktivitetDeltaker {
         return $this->mobil;
     }
 
+    public function getAktivitetTidspunktId() {
+        return $this->aktivitetTidspunktId;
+    }
+
     public function getMobil() {
         return $this->mobil;
+    }
+    
+    public function erAktiv() {
+        return $this->aktiv;
+    }
+
+    public function getAktivitedTidspunkt() {
+        return new AktivitetTidspunkt($this->aktivitetTidspunktId);
     }
 
     public function _load_by_row($row) {
