@@ -7,16 +7,16 @@ use UKMNorge\Collection;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Arrangement\Aktivitet\AktivitetTidspunkt;
 
-class SamlingAktivitetTidspunkter extends Collection {
-    private int $aktivitetId = null;
+class SamlingTidspunkter extends Collection {
+    private int $aktivitetTidspunktId = null;
 
     /**
      * Opprett ny samling
      *
      * @param Int $aktivitetId
      */
-    public function __construct( Int $aktivitetId ) {
-        $this->aktivitetId = $aktivitetId;
+    public function __construct( Int $aktivitetTidspunktId ) {
+        $this->aktivitetTidspunktId = $aktivitetTidspunktId;
                 
         parent::__construct();
     }
@@ -24,20 +24,19 @@ class SamlingAktivitetTidspunkter extends Collection {
     public function _load() {
         $query = new Query(
             "SELECT * 
-            FROM `". AktivitetTidspunkt::$table ."` 
-            WHERE `l_id` = '#aktivitetId'",
+            FROM `aktivitet_deltakelse`
+            WHERE `tidspunkt_id` = '#aktivitetTidspunktId'",
             [
-                'id' => $this->aktivitetId            
+                'aktivitetTidspunktId' => $this->aktivitetTidspunktId            
             ]
         );
         $res = $query->run();
 
         while( $row = Query::fetch( $res ) ) {
             $this->add(
-                new AktivitetTidspunkt($row) 
+                new AktivitetDeltaker($row)
             );
         }
     }
-
 
 }

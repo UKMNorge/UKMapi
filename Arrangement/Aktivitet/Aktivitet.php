@@ -19,7 +19,7 @@ class Aktivitet implements AktivitetInterface {
     private string $beskrivelse;
     private int $plId;
 
-    private SamlingAktivitetTidspunkter $aktivitetTidspunkter = [];
+    private SamlingTidspunkter $tidspunkter = [];
 
     public function __construct(int $id_or_row) {
         if (is_numeric($id_or_row)) {
@@ -54,13 +54,13 @@ class Aktivitet implements AktivitetInterface {
     /**
      * Hent alle tidspunkter for denne aktiviteten
      *
-     * @return SamlingAktivitetTidspunkter
+     * @return SamlingTidspunkter
      */
     public function getTidspunkter() {
-        if($this->aktivitetTidspunkter == null) {
-            $this->aktivitetTidspunkter = new SamlingAktivitetTidspunkter( $this->getId() );
+        if($this->tidspunkter == null) {
+            $this->tidspunkter = new SamlingTidspunkter( $this->getId() );
         }
-        return $this->aktivitetTidspunkter;
+        return $this->tidspunkter;
     }
 
     public static function getLoadQry()
