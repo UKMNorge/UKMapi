@@ -18,6 +18,23 @@ class AktivitetDeltaker {
         $this->_load_by_row($row);
     }
 
+    
+    public static function getByPhone() : AktivitetDeltaker|null {
+        $query = new Query(
+            "SELECT * 
+            FROM `". AktivitetDeltaker::$table ."` 
+            WHERE `mobil` = '#mobil'",
+            [
+                'mobil' => $mobil            
+            ]
+        );
+        $res = $query->run();
+        if( Query::numRows($res) == 0 ) {
+            return null;
+        }
+        return new AktivitetDeltaker(Query::fetch($res));
+    }
+
     public function getId() {
         return $this->mobil;
     }
