@@ -6,7 +6,7 @@ use Exception;
 use UKMNorge\Collection;
 use UKMNorge\Database\SQL\Query;
 
-class SamlingTidspunkter extends Collection {
+class SamlingDeltakere extends Collection {
     private int $aktivitetTidspunktId = null;
 
     /**

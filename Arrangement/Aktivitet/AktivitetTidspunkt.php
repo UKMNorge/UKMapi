@@ -18,10 +18,11 @@ class AktivitetTidspunkt {
     
     private int $tidspunktId;
     private string $sted;
-    private Date $start;
+    private DateTime $start;
     private int $varighetMinutter;
     private int $maksAntall;
 
+    private SamlingDeltakere $deltakere;
 
     private int $aktivitetId; // Foreign key til Aktivitet
     private int $hendelseId; // Foreign key til Hendelse
@@ -61,8 +62,20 @@ class AktivitetTidspunkt {
         return new Aktivitet($this->aktivitetId);
     }
 
-    public function getHendelse() : Hendelse {)
+    public function getHendelse() : Hendelse {
         return new Hendelse($this->hendelseId);
+    }
+
+    /**
+     * Hent alle deltakere for dette tidspunktet
+     *
+     * @return SamlingDeltakere
+     */
+    public function getDeltakere() {
+        if($this->deltakere == null) {
+            $this->deltakere = new SamlingDeltakere( $this->getId() );
+        }
+        return $this->deltakere;
     }
 
     public static function getLoadQry()
