@@ -24,7 +24,7 @@ class SamlingTidspunkter extends Collection {
     public function _load() {
         $query = new Query(
             "SELECT * 
-            FROM `". AktivitetTidspunkt::$table ."` 
+            FROM `". AktivitetTidspunkt::TABLE ."` 
             WHERE `aktivitet_id` = '#aktivitetId'",
             [
                 'id' => $this->aktivitetId            

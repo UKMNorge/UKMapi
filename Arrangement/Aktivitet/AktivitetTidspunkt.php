@@ -14,7 +14,7 @@ use UKMNorge\Tools\Sanitizer;
 use DateTime;
 
 class AktivitetTidspunkt {
-    public final static $table = 'aktivitet_tidspunkt';
+    public const TABLE = 'aktivitet_tidspunkt';
     
     private int $tidspunktId;
     private string $sted;

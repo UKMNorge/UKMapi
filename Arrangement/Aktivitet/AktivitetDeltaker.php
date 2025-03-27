@@ -7,7 +7,7 @@ use UKMNorge\Database\SQL\Query;
 use Exception;
 
 class AktivitetDeltaker {
-    public final static $table = 'aktivitet_deltaker';
+    public const TABLE = 'aktivitet_deltaker';
 
     private int $mobil;
     private int $aktivitetTidspunktId;
@@ -19,10 +19,10 @@ class AktivitetDeltaker {
     }
 
     
-    public static function getByPhone() : AktivitetDeltaker|null {
+    public static function getByPhone(string $mobil) : AktivitetDeltaker|null {
         $query = new Query(
             "SELECT * 
-            FROM `". AktivitetDeltaker::$table ."` 
+            FROM `". AktivitetDeltaker::TABLE ."` 
             WHERE `mobil` = '#mobil'",
             [
                 'mobil' => $mobil            
