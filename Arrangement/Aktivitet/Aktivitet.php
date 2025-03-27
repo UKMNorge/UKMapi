@@ -5,13 +5,10 @@ namespace UKMNorge\Arrangement\Aktivitet;
 use Exception;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Database\SQL\Query;
-use UKMNorge\Geografi\Kommune;
-use UKMNorge\Nettverk\Administrator;
-use UKMNorge\Tools\Sanitizer;
 
 
 class Aktivitet implements AktivitetInterface {
-    public final static $table = 'aktivitet';
+    public const TABLE = 'aktivitet';
     
     private int $aktivitetId;
     private string $navn;
@@ -19,9 +16,9 @@ class Aktivitet implements AktivitetInterface {
     private string $beskrivelse;
     private int $plId;
 
-    private SamlingTidspunkter $tidspunkter = [];
+    private $tidspunkter = null;
 
-    public function __construct(int $id_or_row) {
+    public function __construct($id_or_row) {
         if (is_numeric($id_or_row)) {
             $this->_load_by_id($id_or_row);
         } elseif (is_array($id_or_row)) {
@@ -29,6 +26,24 @@ class Aktivitet implements AktivitetInterface {
         } else {
             throw new Exception('Aktivitet: Oppretting av objekt krever numerisk id eller databaserad');
         }
+    }
+
+    public static function getAllByArrangement(int $plId) : array {
+        $sql = new Query(
+            self::getLoadQry()
+                . " WHERE `pl_id` = '#plId'",
+            ['plId' => $plId]
+        );
+
+        $res = $sql->run();
+
+        $counter = 0;
+        $aktiviteter = [];
+        while ($row = Query::fetch($res)) {
+            $aktiviteter[] = new Aktivitet($row);
+            $counter++;
+        }
+        return $aktiviteter;
     }
 
     public function getId() {
@@ -45,6 +60,10 @@ class Aktivitet implements AktivitetInterface {
 
     public function getBeskrivelse() {
         return $this->beskrivelse;
+    }
+
+    public function getPlId() {
+        return $this->plId;
     }
 
     public function getArrangement() : Arrangement {
@@ -65,7 +84,7 @@ class Aktivitet implements AktivitetInterface {
 
     public static function getLoadQry()
     {
-        return "SELECT * FROM `aktivitet` AS `aktivitet`";
+        return "SELECT * FROM `". Aktivitet::TABLE ."` AS `aktivitet`";
     }
 
     private function _load_by_id($id) {
@@ -78,6 +97,7 @@ class Aktivitet implements AktivitetInterface {
         if ($res) {
             $this->_load_by_row($res);
         } else {
+            echo $qry->debug();
             throw new Exception('Aktivitet: Fant ikke aktivitet ' . $id);
         }
     }
