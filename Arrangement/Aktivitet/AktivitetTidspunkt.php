@@ -25,7 +25,7 @@ class AktivitetTidspunkt {
     private SamlingDeltakere $deltakere;
 
     private int $aktivitetId; // Foreign key til Aktivitet
-    private int $hendelseId; // Foreign key til Hendelse
+    private int|null $hendelseId; // Foreign key til Hendelse. Kan være null.
 
 
     public function __construct($id_or_row) {

@@ -45,7 +45,7 @@ class Write {
         return $aktivitet;
     }
 
-    public static function createAktivitetTidspunkt(string $sted, DateTime $start, int $varighetMinutter, int $maksAntall, int $aktivitetId, int $hendelseId) {
+    public static function createAktivitetTidspunkt(string $sted, DateTime $start, int $varighetMinutter, int $maksAntall, int $aktivitetId, int|null $hendelseId) {
 
         $sql = new Insert(AktivitetTidspunkt::TABLE);
         $sql->add('sted', $sted);
