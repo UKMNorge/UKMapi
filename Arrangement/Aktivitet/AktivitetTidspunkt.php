@@ -22,7 +22,7 @@ class AktivitetTidspunkt {
     private int $varighetMinutter;
     private int $maksAntall;
 
-    private SamlingDeltakere $deltakere;
+    private $deltakere = null;
 
     private int $aktivitetId; // Foreign key til Aktivitet
     private int|null $hendelseId; // Foreign key til Hendelse. Kan være null.
@@ -69,7 +69,6 @@ class AktivitetTidspunkt {
     /**
      * Hent alle deltakere for dette tidspunktet
      *
-     * @return SamlingDeltakere
      */
     public function getDeltakere() {
         if($this->deltakere == null) {

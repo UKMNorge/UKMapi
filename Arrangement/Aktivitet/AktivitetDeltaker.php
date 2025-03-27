@@ -48,7 +48,7 @@ class AktivitetDeltaker {
     }
     
     public function erAktiv() {
-        return $this->aktiv;
+        return $this->aktiv == true;
     }
 
     public function getAktivitedTidspunkt() {

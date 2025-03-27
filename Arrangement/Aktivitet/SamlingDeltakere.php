@@ -7,17 +7,15 @@ use UKMNorge\Collection;
 use UKMNorge\Database\SQL\Query;
 
 class SamlingDeltakere extends Collection {
-    private int $aktivitetTidspunktId = null;
+    private $aktivitetTidspunktId = null;
 
     /**
      * Opprett ny samling
      *
      * @param Int $aktivitetId
      */
-    public function __construct( Int $aktivitetTidspunktId ) {
+    public function __construct( $aktivitetTidspunktId) {
         $this->aktivitetTidspunktId = $aktivitetTidspunktId;
-                
-        parent::__construct();
     }
 
     public function _load() {

@@ -8,7 +8,7 @@ use UKMNorge\Database\SQL\Query;
 use UKMNorge\Arrangement\Aktivitet\AktivitetTidspunkt;
 
 class SamlingTidspunkter extends Collection {
-    private int $aktivitetId = null;
+    private $aktivitetId = null;
 
     /**
      * Opprett ny samling
@@ -17,8 +17,6 @@ class SamlingTidspunkter extends Collection {
      */
     public function __construct( Int $aktivitetId ) {
         $this->aktivitetId = $aktivitetId;
-                
-        parent::__construct();
     }
 
     public function _load() {
@@ -27,9 +25,10 @@ class SamlingTidspunkter extends Collection {
             FROM `". AktivitetTidspunkt::TABLE ."` 
             WHERE `aktivitet_id` = '#aktivitetId'",
             [
-                'id' => $this->aktivitetId            
+                'aktivitetId' => $this->aktivitetId            
             ]
         );
+
         $res = $query->run();
 
         while( $row = Query::fetch( $res ) ) {
