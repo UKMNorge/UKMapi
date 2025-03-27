@@ -62,6 +62,10 @@ class AktivitetTidspunkt {
         return new Aktivitet($this->aktivitetId);
     }
 
+    public function getHendelseId() {
+        return $this->hendelseId;
+    }
+
     public function getHendelse() : Hendelse {
         return new Hendelse($this->hendelseId);
     }
