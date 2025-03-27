@@ -72,7 +72,7 @@ class Write {
         return new AktivitetTidspunkt($aktivitetTidspunktId);
     }
 
-    public static function createAkrivitetDeltaker(int $mobil) {
+    public static function createAktivitetDeltaker(int $mobil) {
         $sql = new Insert(AktivitetDeltaker::TABLE);
         $sql->add('mobil', $mobil);
 
