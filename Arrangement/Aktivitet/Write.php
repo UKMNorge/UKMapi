@@ -4,6 +4,7 @@ namespace UKMNorge\Arrangement\Aktivitet;
 
 use UKMNorge\Database\SQL\Delete;
 use UKMNorge\Database\SQL\Insert;
+use UKMNorge\Database\SQL\Query;
 use UKMNorge\Database\SQL\Update;
 use UKMNorge\Log\Logger;
 use UKMNorge\Tools\Sanitizer;
@@ -110,18 +111,30 @@ class Write {
         }
 
         try {
-            $res = $sql->run(); 
+            $res = $sql->run();
         } catch( Exception $e ) {
-            throw new Exception($e->getMessage() .' ('. $e->getCode() .')');
+            if($e->getCode() != 901001) {
+                throw new Exception($e->getMessage() .' ('. $e->getCode() .')');
+            }
         }
 
-        // Database-oppdatering feilet
-        if( !$res ) {
-            throw new Exception(
-                "Klarte ikke å legge til deltaker til tidspunkt",
-                511001
-            );
+        // check if the query was successful
+        $selectSql = new Query(
+            "SELECT * 
+            FROM `aktivitet_deltakelse` 
+            WHERE `mobil` = '#mobil' 
+            AND `tidspunkt_id` = '#tidspunkt_id'",
+            [
+                'mobil' => $mobil,
+                'tidspunkt_id' => $tidspunktId
+            ]
+        );
+
+        $res = $selectSql->run();
+        if( Query::numRows($res) == 0 ) {
+            throw new Exception('Klarte ikke å legge til deltaker til tidspunkt');
         }
+
 
         return AktivitetDeltaker::getByPhone($mobil);
     }
