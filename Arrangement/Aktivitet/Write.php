@@ -79,18 +79,19 @@ class Write {
         try {
             $aktivitetDeltakerMobil = $sql->run(); 
         } catch( Exception $e ) {
-            throw new Exception($e->getMessage() .' ('. $e->getCode() .')');
+            if($e->getCode() != 901001) {
+                throw new Exception($e->getMessage() .' ('. $e->getCode() .')');
+            }
         }
 
-        // Database-oppdatering feilet
-        if( !$aktivitetDeltakerMobil ) {
-            throw new Exception(
-                "Klarte ikke å opprette aktivitetdeltaker",
-                511001
-            );
+        $aktivitetDeltaker = null;
+        try {
+            $aktivitetDeltaker = AktivitetDeltaker::getByPhone($mobil);
+        } catch( Exception $e ) {
+            throw new Exception('Klarte ikke å opprette deltaker');
         }
 
-        return AktivitetDeltaker::getByPhone($aktivitetDeltakerMobil);
+        return $aktivitetDeltaker;
     }
 
     public static function addDeltakerToTidspunkt(int $mobil, int $tidspunktId, string|null $sms_code) {

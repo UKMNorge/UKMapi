@@ -10,8 +10,8 @@ class AktivitetDeltaker {
     public const TABLE = 'aktivitet_deltaker';
 
     private int $mobil;
-    private int $aktivitetTidspunktId;
-    private bool $aktiv;
+    private int|null $aktivitetTidspunktId;
+    private bool|null $aktiv;
 
     // Pga avhengighet til tidspunkt kan kun hentes via aktivitet_deltakelse tabell og ikke ved bruk av ID.
     public function __construct($row) {
@@ -57,8 +57,8 @@ class AktivitetDeltaker {
 
     public function _load_by_row($row) {
         $this->mobil = $row['mobil'];
-        $this->aktivitetTidspunktId = $row['tidspunkt_id'];
-        $this->aktiv = $row['aktiv'];
+        $this->aktivitetTidspunktId = $row['tidspunkt_id'] ?? null;
+        $this->aktiv = $row['aktiv'] ?? null;
     }
 
 }
