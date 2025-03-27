@@ -14,26 +14,8 @@ use Exception;
 
 class Write {
     
-    /**
-	 * create()
-	 *
-	 * Oppretter et nytt kontakt og lagrer i databasen.
-	 *
-	 * @param string $fornavn
-	 * @param string $etternavn
-	 * @param string $mobil
-	 * @return Aktivitet
-	 */
 	public static function createAktivitet(string $navn, string $sted, string $beskrivelse, int $plId ) {
-		// Valider logger
-		if( !Logger::ready() ) {
-			throw new Exception(
-				'Logger is missing or incorrect set up.',
-				50701
-			);
-		}
-        
-        $sql = new Insert(Aktivitet::$table);
+        $sql = new Insert(Aktivitet::TABLE);
         $sql->add('navn', Sanitizer::sanitizeNavn($navn));
         $sql->add('sted', $sted);
         $sql->add('beskrivelse', $beskrivelse);
@@ -44,7 +26,7 @@ class Write {
         } catch( Exception $e ) {
             throw new Exception($e->getMessage() .' ('. $e->getCode() .')');
         }
-        
+
         // Database-oppdatering feilet
         if( !$aktivitedId ) {
             throw new Exception(
@@ -52,20 +34,20 @@ class Write {
                 511001
             );
         }
+        
+        $aktivitet = null;
+        try {
+            $aktivitet = new Aktivitet($aktivitedId);
+        } catch( Exception $e ) {
+            throw new Exception($e->getMessage() .' ('. $e->getCode() .')');
+        }
 
-        return new Aktivitet($aktivitedId);
+        return $aktivitet;
     }
 
     public static function createAktivitetTidspunkt(string $sted, DateTime $start, int $varighetMinutter, int $maksAntall, int $aktivitetId, int $hendelseId) {
-        // Valider logger
-        if( !Logger::ready() ) {
-            throw new Exception(
-                'Logger is missing or incorrect set up.',
-                50701
-            );
-        }
 
-        $sql = new Insert(AktivitetTidspunkt::$table);
+        $sql = new Insert(AktivitetTidspunkt::TABLE);
         $sql->add('sted', $sted);
         $sql->add('start', $start->format('Y-m-d H:i:s'));
         $sql->add('varighet_min', $varighetMinutter);
@@ -91,15 +73,7 @@ class Write {
     }
 
     public static function createAkrivitetDeltaker(int $mobil) {
-        // Valider logger
-        if( !Logger::ready() ) {
-            throw new Exception(
-                'Logger is missing or incorrect set up.',
-                50701
-            );
-        }
-
-        $sql = new Insert(AktivitetDeltaker::$table);
+        $sql = new Insert(AktivitetDeltaker::TABLE);
         $sql->add('mobil', $mobil);
 
         try {
@@ -120,13 +94,6 @@ class Write {
     }
 
     public static function addDeltakerToTidspunkt(int $mobil, int $tidspunktId, string|null $sms_code) {
-        // Valider logger
-        if( !Logger::ready() ) {
-            throw new Exception(
-                'Logger is missing or incorrect set up.',
-                50701
-            );
-        }
 
         $sql = new Insert('aktivitet_deltakelse');
         $sql->add('mobil', $mobil);
