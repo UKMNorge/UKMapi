@@ -55,6 +55,27 @@ class StatistikkNasjonalt extends StatistikkSuper {
         return $this->runAntall($unique);
     }
 
+    /**
+    * Returnerer antall uregistrerte deltakere, nasjonalt!
+    *
+    * @return int antall uregistrerte deltakere.
+    */
+    public function getAntallUregistrerteDeltakere() : int {
+        $sql = new Query(
+            "SELECT 
+                SUM(pl_missing) AS antall 
+            FROM
+                smartukm_place
+            WHERE season='#season'",
+            [
+                'season' => $this->season,
+            ]
+        );
+
+        $res = $sql->run('array');
+        return (int) intval($res['antall']);
+    }
+
 
     private function runAntall($unique, $kunUfullforte = false) : int {
         $select = $unique ? "COUNT(DISTINCT p_id)" : "COUNT(p_id)";
@@ -262,6 +283,8 @@ class StatistikkNasjonalt extends StatistikkSuper {
 
         return $retArr;
     }
+
+
 
     // /**
     //  * Returnerer alle kommuner i fylke som har aktivitet (har minst 1 arrangement)
