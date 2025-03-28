@@ -19,8 +19,11 @@ class AktivitetTidspunkt {
     private int $tidspunktId;
     private string $sted;
     private DateTime $start;
+    private DateTime $slutt;
     private int $varighetMinutter;
     private int $maksAntall;
+    private bool $harPaamelding;
+    private bool $erSammeStedSomAktivitet;
 
     private $deltakere = null;
 
@@ -70,6 +73,14 @@ class AktivitetTidspunkt {
         return new Hendelse($this->hendelseId);
     }
 
+    public function getHarPaamelding() {
+        return $this->harPaamelding;
+    }
+
+    public function getErSammeStedSomAktivitet() {
+        return $this->erSammeStedSomAktivitet;
+    }
+
     /**
      * Hent alle deltakere for dette tidspunktet
      *
@@ -105,12 +116,39 @@ class AktivitetTidspunkt {
         $this->tidspunktId = $row['tidspunkt_id'];
         $this->sted =  $row['sted'];
         $this->start = new DateTime($row['start']);
+        $this->slutt = new DateTime($row['slutt']);
         $this->varighetMinutter = $row['varighet_min'];
         $this->maksAntall = $row['maksAntall'];
+        $this->harPaamelding = $row['harPaamelding'] == 0 ? false : true;
+        $this->erSammeStedSomAktivitet = $row['erSammeStedSomAktivitet'] == 0 ? false : true;
 
         $this->aktivitetId = $row['aktivitet_id'];
         $this->hendelseId = $row['c_id'];
     }
 
+    public function getArrObj() {
+        $deltakere = [];
+
+        foreach($this->getDeltakere()->getAll() as $deltaker) {
+            if($deltaker->erAktiv()) {
+                $deltakere[] = array(
+                    'mobil' => $deltaker->getMobil(),
+                    'aktiv' => $deltaker->erAktiv(),
+                );
+            }
+        }
+
+        return [
+            'id' => $this->getId(),
+            'start' => $this->getStart()->format('Y-m-d H:i:s'),
+            'sted' => $this->getSted(),
+            'varighet' => $this->getVarighetMinutter(),
+            'maksAntall' => $this->getMaksAntall(),
+            'deltakere' => $deltakere,
+            'hendelseId' => $this->getHendelseId(),
+            'harPaamelding' => $this->getHarPaamelding(),
+            'erSammeStedSomAktivitet' => $this->getErSammeStedSomAktivitet(),
+        ];
+    }
 
 }

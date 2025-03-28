@@ -46,15 +46,64 @@ class Write {
         return $aktivitet;
     }
 
-    public static function createAktivitetTidspunkt(string $sted, DateTime $start, int $varighetMinutter, int $maksAntall, int $aktivitetId, int|null $hendelseId) {
+    public static function updateAktivitet(
+        int $aktivitetId,
+        string $navn, 
+        string $sted, 
+        string $beskrivelse, 
+    ) {
+
+        $sql = new Update(
+            Aktivitet::TABLE, 
+            [
+                'aktivitet_id' => $aktivitetId
+            ]
+        );
+        $sql->add('navn', $navn);
+        $sql->add('sted', $sted);
+        $sql->add('beskrivelse', $beskrivelse);
+
+        var_dump($sql->debug());
+
+        try {
+            $res = $sql->run(); 
+        } catch( Exception $e ) {
+            throw new Exception($e->getMessage() .' ('. $e->getCode() .')');
+        }
+
+        // Database-oppdatering feilet
+        if( !$res ) {
+            throw new Exception(
+                "Klarte ikke å oppdatere aktivitet",
+                511001
+            );
+        }
+
+        return new Aktivitet($aktivitetId);
+    }
+
+    public static function createAktivitetTidspunkt(
+        string $sted, 
+        DateTime $start, 
+        DateTime $slutt, 
+        int $varighetMinutter, 
+        int $maksAntall, 
+        int $aktivitetId, 
+        int|null $hendelseId, 
+        bool $harPaamelding,
+        bool $erSammeStedSomAktivitet
+    ) {
 
         $sql = new Insert(AktivitetTidspunkt::TABLE);
         $sql->add('sted', $sted);
         $sql->add('start', $start->format('Y-m-d H:i:s'));
+        $sql->add('slutt', $slutt->format('Y-m-d H:i:s'));
         $sql->add('varighet_min', $varighetMinutter);
         $sql->add('maksAntall', $maksAntall);
         $sql->add('aktivitet_id', $aktivitetId);
         $sql->add('c_id', $hendelseId);
+        $sql->add('harPaamelding', $harPaamelding ? 1 : 0);
+        $sql->add('erSammeStedSomAktivitet', $erSammeStedSomAktivitet ? 1 : 0);
 
         try {
             $aktivitetTidspunktId = $sql->run(); 
@@ -71,6 +120,51 @@ class Write {
         }
 
         return new AktivitetTidspunkt($aktivitetTidspunktId);
+    }
+
+    public static function updateAktivitetTidspunkt(
+        int $tidspunktId,
+        string $sted, 
+        DateTime $start, 
+        DateTime $slutt, 
+        int $varighetMinutter, 
+        int $maksAntall, 
+        int|null $hendelseId, 
+        bool $harPaamelding,
+        bool $erSammeStedSomAktivitet
+    ) {
+
+        $sql = new Update(
+            AktivitetTidspunkt::TABLE, 
+            [
+                'tidspunkt_id' => $tidspunktId
+            ]
+        );
+        $sql->add('sted', $sted);
+        $sql->add('start', $start->format('Y-m-d H:i:s'));
+        $sql->add('slutt', $slutt->format('Y-m-d H:i:s'));
+        $sql->add('varighet_min', $varighetMinutter);
+        $sql->add('maksAntall', $maksAntall);
+        $sql->add('c_id', $hendelseId);
+        $sql->add('harPaamelding', $harPaamelding ? 1 : 0);
+        $sql->add('erSammeStedSomAktivitet', $erSammeStedSomAktivitet ? 1 : 0);
+        $sql->add('tidspunkt_id', $tidspunktId);
+
+        try {
+            $res = $sql->run(); 
+        } catch( Exception $e ) {
+            throw new Exception($e->getMessage() .' ('. $e->getCode() .')');
+        }
+
+        // Database-oppdatering feilet
+        if( !$res ) {
+            throw new Exception(
+                "Klarte ikke å oppdatere aktivitetstidspunkt",
+                511001
+            );
+        }
+
+        return new AktivitetTidspunkt($tidspunktId);
     }
 
     public static function createAktivitetDeltaker(int $mobil) {

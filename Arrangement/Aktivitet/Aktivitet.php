@@ -114,4 +114,21 @@ class Aktivitet implements AktivitetInterface {
         $this->plId = $row['pl_id'];
     }
 
+    public function getArrObj() {
+        $tidspunkter = [];
+
+        foreach($this->getTidspunkter()->getAll() as $tidspunkt) {
+            $tidspunkter[] = $tidspunkt->getArrObj();
+        }
+    
+        return [
+            'id' => $this->getId(),
+            'navn' => $this->getNavn(),
+            'sted' => $this->getSted(),
+            'beskrivelse' => $this->getBeskrivelse(),
+            'plId' => $this->getPlId(),
+            'tidspunkter' => $tidspunkter,
+        ];
+    }
+
 }
