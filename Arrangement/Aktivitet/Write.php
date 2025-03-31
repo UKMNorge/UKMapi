@@ -165,6 +165,23 @@ class Write {
         return new AktivitetTidspunkt($tidspunktId);
     }
 
+    public static function deleteAktivitetTidspunkt(AktivitetTidspunkt $tidspunkt) : bool {
+        $delete = new Delete(
+            AktivitetTidspunkt::TABLE,
+            [
+                'tidspunkt_id' => $tidspunkt->getId()
+            ]
+        );
+        
+        $res = $delete->run();
+
+        if( !$res ) {
+            throw new Exception('Kunne ikke slette kontakt fra databasen', 511005);
+        }
+
+        return true;
+    }
+
     public static function createAktivitetDeltaker(int $mobil) {
         $sql = new Insert(AktivitetDeltaker::TABLE);
         $sql->add('mobil', $mobil);
