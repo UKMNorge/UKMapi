@@ -15,7 +15,7 @@ use Exception;
 
 class Write {
     
-	public static function createAktivitet(string $navn, string $sted, string $beskrivelse, int $plId ) {
+	public static function createAktivitet(string $navn, string $sted, string $beskrivelse, int $plId ) : Aktivitet {
         $sql = new Insert(Aktivitet::TABLE);
         $sql->add('navn', Sanitizer::sanitizeNavn($navn));
         $sql->add('sted', $sted);
@@ -63,8 +63,6 @@ class Write {
         $sql->add('sted', $sted);
         $sql->add('beskrivelse', $beskrivelse);
 
-        var_dump($sql->debug());
-
         try {
             $res = $sql->run(); 
         } catch( Exception $e ) {
@@ -99,7 +97,7 @@ class Write {
         $sql->add('start', $start->format('Y-m-d H:i:s'));
         $sql->add('slutt', $slutt->format('Y-m-d H:i:s'));
         $sql->add('varighet_min', $varighetMinutter);
-        $sql->add('maksAntall', $maksAntall);
+        $sql->add('maksAntall', ($maksAntall < 1 ? 100 : $maksAntall));
         $sql->add('aktivitet_id', $aktivitetId);
         $sql->add('c_id', $hendelseId);
         $sql->add('harPaamelding', $harPaamelding ? 1 : 0);
@@ -127,7 +125,7 @@ class Write {
         string $sted, 
         DateTime $start, 
         DateTime $slutt, 
-        int $varighetMinutter, 
+        int|null $varighetMinutter, 
         int $maksAntall, 
         int|null $hendelseId, 
         bool $harPaamelding,
@@ -143,8 +141,8 @@ class Write {
         $sql->add('sted', $sted);
         $sql->add('start', $start->format('Y-m-d H:i:s'));
         $sql->add('slutt', $slutt->format('Y-m-d H:i:s'));
-        $sql->add('varighet_min', $varighetMinutter);
-        $sql->add('maksAntall', $maksAntall);
+        $sql->add('varighet_min', ($varighetMinutter ? $varighetMinutter : 0));
+        $sql->add('maksAntall', ($maksAntall < 1 ? $maksAntall : 100));
         $sql->add('c_id', $hendelseId);
         $sql->add('harPaamelding', $harPaamelding ? 1 : 0);
         $sql->add('erSammeStedSomAktivitet', $erSammeStedSomAktivitet ? 1 : 0);
