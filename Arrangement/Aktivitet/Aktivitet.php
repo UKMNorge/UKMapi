@@ -43,6 +43,11 @@ class Aktivitet implements AktivitetInterface {
             $aktiviteter[] = new Aktivitet($row);
             $counter++;
         }
+
+        // sort by id
+        usort($aktiviteter, function($a, $b) {
+            return $b->getId() <=> $a->getId();
+        });
         return $aktiviteter;
     }
 
