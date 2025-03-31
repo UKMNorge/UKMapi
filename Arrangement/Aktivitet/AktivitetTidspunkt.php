@@ -53,6 +53,10 @@ class AktivitetTidspunkt {
         return $this->start;
     }
 
+    public function getSlutt() {
+        return $this->slutt;
+    }
+
     public function getVarighetMinutter() {
         return $this->varighetMinutter;
     }
@@ -141,6 +145,7 @@ class AktivitetTidspunkt {
         return [
             'id' => $this->getId(),
             'start' => $this->getStart()->format('Y-m-d H:i:s'),
+            'slutt' => $this->getSlutt()->format('Y-m-d H:i:s'),
             'sted' => $this->getSted(),
             'varighet' => $this->getVarighetMinutter(),
             'maksAntall' => $this->getMaksAntall(),
