@@ -76,7 +76,7 @@ class Write {
         string $sted, 
         DateTime $start, 
         DateTime $slutt, 
-        int $varighetMinutter, 
+        int|null $varighetMinutter, 
         int $maksAntall, 
         int $aktivitetId, 
         int|null $hendelseId, 
@@ -88,7 +88,7 @@ class Write {
         $sql->add('sted', $sted);
         $sql->add('start', $start->format('Y-m-d H:i:s'));
         $sql->add('slutt', $slutt->format('Y-m-d H:i:s'));
-        $sql->add('varighet_min', $varighetMinutter);
+        $sql->add('varighet_min', ($varighetMinutter ? $varighetMinutter : 0));
         $sql->add('maksAntall', ($maksAntall > 0 ? $maksAntall : 9999));
         $sql->add('aktivitet_id', $aktivitetId);
         $sql->add('c_id', $hendelseId);
