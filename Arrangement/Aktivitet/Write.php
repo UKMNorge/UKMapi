@@ -72,6 +72,23 @@ class Write {
         return new Aktivitet($aktivitetId);
     }
 
+    public static function deleteAktivitet(Aktivitet $aktivitet) : bool {
+        $delete = new Delete(
+            Aktivitet::TABLE,
+            [
+                'aktivitet_id' => $aktivitet->getId()
+            ]
+        );
+
+        $res = $delete->run();
+
+        if( !$res || $res < 1 ) {
+            throw new Exception('Kunne ikke slette aktiviteten fra databasen', 511005);
+        }
+
+        return true;
+    }
+
     public static function createAktivitetTidspunkt(
         string $sted, 
         DateTime $start, 
@@ -151,6 +168,11 @@ class Write {
     }
 
     public static function deleteAktivitetTidspunkt(AktivitetTidspunkt $tidspunkt) : bool {
+        if(count($tidspunkt->getDeltakere()->getAll()) > 1) {
+            
+            throw new Exception("Tidspunktet ". $tidspunkt  ." har deltakere og kan derfor ikke slettes!");
+        }
+        
         $delete = new Delete(
             AktivitetTidspunkt::TABLE,
             [
@@ -160,8 +182,8 @@ class Write {
         
         $res = $delete->run();
 
-        if( !$res ) {
-            throw new Exception('Kunne ikke slette kontakt fra databasen', 511005);
+        if( !$res || $res < 1 ) {
+            throw new Exception('Kunne ikke slette tidspunkt fra databasen', 511005);
         }
 
         return true;
