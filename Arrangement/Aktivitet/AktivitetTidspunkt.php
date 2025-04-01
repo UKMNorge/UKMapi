@@ -85,6 +85,18 @@ class AktivitetTidspunkt {
         return $this->erSammeStedSomAktivitet;
     }
 
+    public function __toString() {
+        $daysOfWeek = ['Søndag', 'Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lørdag'];
+        
+        // Get day of week (0-6)
+        $dayOfWeek = (int)$this->start->format('w');
+        
+        // Format times
+        $startTime = $this->start->format('H:i');
+        
+        return $daysOfWeek[$dayOfWeek] . ' ' . $startTime;
+    }
+
     /**
      * Hent alle deltakere for dette tidspunktet
      *
