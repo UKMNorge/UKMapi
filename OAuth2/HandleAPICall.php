@@ -74,7 +74,12 @@ class HandleAPICall {
      */
     public function sendToClient($data, int $statusCode = 200) : void {
         http_response_code($statusCode);
-        $data = is_array($data) ? $data : array('result' => $data);
+        if($statusCode >= 400) { // Codes That Represent Errors (4xx and 5xx)
+            $data = is_array($data) ? $data : array('errorMessage' => $data);
+        } else {
+            $data = is_array($data) ? $data : array('result' => $data);
+        }
+
         die(json_encode($data));
     }
 
