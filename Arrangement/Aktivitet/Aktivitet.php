@@ -16,7 +16,8 @@ class Aktivitet implements AktivitetInterface {
     private string $beskrivelse;
     private int $plId;
 
-    private $tidspunkter = null;
+    private $tidspunkter = null; // SamlingTidspunkter
+    private $tags = null; // SamlingTags
 
     public function __construct($id_or_row) {
         if (is_numeric($id_or_row)) {
@@ -85,6 +86,13 @@ class Aktivitet implements AktivitetInterface {
             $this->tidspunkter = new SamlingTidspunkter( $this->getId() );
         }
         return $this->tidspunkter;
+    }
+
+    public function getTags() {
+        if($this->tags == null) {
+            $this->tags = new SamlingTags( $this->getId() );
+        }
+        return $this->tags;
     }
 
     public static function getLoadQry()
