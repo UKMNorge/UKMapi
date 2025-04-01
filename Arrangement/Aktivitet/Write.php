@@ -69,14 +69,6 @@ class Write {
             throw new Exception($e->getMessage() .' ('. $e->getCode() .')');
         }
 
-        // Database-oppdatering feilet
-        if( !$res ) {
-            throw new Exception(
-                "Klarte ikke å oppdatere aktivitet",
-                511001
-            );
-        }
-
         return new Aktivitet($aktivitetId);
     }
 
@@ -97,7 +89,7 @@ class Write {
         $sql->add('start', $start->format('Y-m-d H:i:s'));
         $sql->add('slutt', $slutt->format('Y-m-d H:i:s'));
         $sql->add('varighet_min', $varighetMinutter);
-        $sql->add('maksAntall', ($maksAntall < 1 ? 100 : $maksAntall));
+        $sql->add('maksAntall', ($maksAntall > 0 ? $maksAntall : 9999));
         $sql->add('aktivitet_id', $aktivitetId);
         $sql->add('c_id', $hendelseId);
         $sql->add('harPaamelding', $harPaamelding ? 1 : 0);
@@ -138,11 +130,12 @@ class Write {
                 'tidspunkt_id' => $tidspunktId
             ]
         );
+        
         $sql->add('sted', $sted);
         $sql->add('start', $start->format('Y-m-d H:i:s'));
         $sql->add('slutt', $slutt->format('Y-m-d H:i:s'));
         $sql->add('varighet_min', ($varighetMinutter ? $varighetMinutter : 0));
-        $sql->add('maksAntall', ($maksAntall < 1 ? $maksAntall : 100));
+        $sql->add('maksAntall', ($maksAntall > 0 ? $maksAntall : 9999));
         $sql->add('c_id', $hendelseId);
         $sql->add('harPaamelding', $harPaamelding ? 1 : 0);
         $sql->add('erSammeStedSomAktivitet', $erSammeStedSomAktivitet ? 1 : 0);
@@ -152,14 +145,6 @@ class Write {
             $res = $sql->run(); 
         } catch( Exception $e ) {
             throw new Exception($e->getMessage() .' ('. $e->getCode() .')');
-        }
-
-        // Database-oppdatering feilet
-        if( !$res ) {
-            throw new Exception(
-                "Klarte ikke å oppdatere aktivitetstidspunkt",
-                511001
-            );
         }
 
         return new AktivitetTidspunkt($tidspunktId);
