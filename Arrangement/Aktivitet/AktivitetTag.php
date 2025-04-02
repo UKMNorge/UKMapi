@@ -20,14 +20,14 @@ class AktivitetTag {
     }
 
     
-    public static function getById(int $aktivitetId) : AktivitetTag|null {
+    public static function getById(int $tagId) : AktivitetTag|null {
         $retArr = [];
 
         $query = new Query(
             "SELECT DISTINCT * from ". AktivitetTag::TABLE ."
-            WHERE `aktivitet_id` = '#aktivitetId'",
+            WHERE `tag_id` = '#tagId'",
             [
-                'aktivitetId' => $aktivitetId            
+                'tagId' => $tagId            
             ]
         );
 
