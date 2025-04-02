@@ -255,6 +255,85 @@ class Write {
         return AktivitetDeltaker::getByPhone($mobil);
     }
 
+    // TAGS
+    public static function createTag(
+            string $navn, 
+            string $beskrivelse, 
+            int $plId 
+        ) : AktivitetTag {
+        $sql = new Insert(AktivitetTag::TABLE);
+        $sql->add('navn', Sanitizer::sanitizeNavn($navn));
+        $sql->add('beskrivelse', $beskrivelse);
+        $sql->add('pl_id', $plId);
+        
+        try {
+            $tagId = $sql->run(); 
+        } catch( Exception $e ) {
+            throw new Exception($e->getMessage() .' ('. $e->getCode() .')');
+        }
+
+        // Database-oppdatering feilet
+        if( !$tagId ) {
+            throw new Exception(
+                "Klarte ikke å opprette taggen",
+                511001
+            );
+        }
+        
+        $tag = null;
+        try {
+            $tag = AktivitetTag::getById($tagId);
+        } catch( Exception $e ) {
+            throw new Exception($e->getMessage() .' ('. $e->getCode() .')');
+        }
+
+        return $tag;
+    }
+
+    public static function updateAktivitetTag(
+        int $tagId,
+        string $navn, 
+        string $beskrivelse, 
+        int $plId
+    ) {
+
+        $sql = new Update(
+            AktivitetTag::TABLE, 
+            [
+                'tag_id' => $tagId
+            ]
+        );
+        $sql->add('navn', $navn);
+        $sql->add('beskrivelse', $beskrivelse);
+        $sql->add('pl_id', $plId);
+        
+        
+        try {
+            $res = $sql->run(); 
+        } catch( Exception $e ) {
+            throw new Exception($e->getMessage() .' ('. $e->getCode() .')');
+        }
+
+        return AktivitetTag::getById($tagId);
+    }
+
+    public static function deleteTag(AktivitetTag $tag) : bool {
+        $delete = new Delete(
+            AktivitetTag::TABLE,
+            [
+                'tag_id' => $tag->getId()
+            ]
+        );
+
+        $res = $delete->run();
+
+        if( !$res || $res < 1 ) {
+            throw new Exception('Kunne ikke slette taggen fra databasen', 511005);
+        }
+
+        return true;
+    }
+
  
 //     public static function save( $kontakt_save ) {
 // 		// DB-OBJEKT
