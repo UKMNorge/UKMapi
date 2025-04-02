@@ -19,10 +19,7 @@ class AktivitetTag {
         $this->_load_by_row($row);
     }
 
-    
     public static function getById(int $tagId) : AktivitetTag|null {
-        $retArr = [];
-
         $query = new Query(
             "SELECT DISTINCT * from ". AktivitetTag::TABLE ."
             WHERE `tag_id` = '#tagId'",
@@ -35,13 +32,11 @@ class AktivitetTag {
         if( Query::numRows($res) == 0 ) {
             return null;
         }
-        // foreach
+
         return new AktivitetTag(Query::fetch($res));
     }
 
     public static function getAllByArrangement(int $plId) : array {
-        $retArr = [];
-
         $query = new Query(
             "SELECT DISTINCT * from ". AktivitetTag::TABLE ."
             WHERE `pl_id` = '#plId'",
