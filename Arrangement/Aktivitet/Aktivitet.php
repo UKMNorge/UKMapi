@@ -129,9 +129,14 @@ class Aktivitet implements AktivitetInterface {
 
     public function getArrObj() {
         $tidspunkter = [];
+        $tags = [];
 
         foreach($this->getTidspunkter()->getAll() as $tidspunkt) {
             $tidspunkter[] = $tidspunkt->getArrObj();
+        }
+
+        foreach($this->getTags()->getAll() as $tag) {
+            $tags[] = $tag->getArrObj();
         }
     
         return [
@@ -141,6 +146,7 @@ class Aktivitet implements AktivitetInterface {
             'beskrivelse' => $this->getBeskrivelse(),
             'plId' => $this->getPlId(),
             'tidspunkter' => $tidspunkter,
+            'tags' => $tags,
         ];
     }
 

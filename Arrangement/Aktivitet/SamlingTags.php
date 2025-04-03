@@ -5,7 +5,6 @@ namespace UKMNorge\Arrangement\Aktivitet;
 use Exception;
 use UKMNorge\Collection;
 use UKMNorge\Database\SQL\Query;
-use UKMNorge\Arrangement\Aktivitet\AktivitetTidspunkt;
 
 class SamlingTags extends Collection {
     private $aktivitetId = null;
@@ -23,8 +22,9 @@ class SamlingTags extends Collection {
         $retArr = [];
 
         $query = new Query(
-            "SELECT DISTINCT aktivitet_tag.* from ". AktivitetTag::TABLE ."
-            JOIN `aktivitet_tag_relation` AS `relation` 
+            "SELECT DISTINCT tag.* FROM ". AktivitetTag::TABLE ." as tag
+            JOIN `aktivitet_tag_relation` AS `relation`
+            ON tag.tag_id=relation.tag_id 
             WHERE `aktivitet_id` = '#aktivitetId'",
             [
                 'aktivitetId' => $this->aktivitetId            
@@ -35,7 +35,7 @@ class SamlingTags extends Collection {
 
         while( $row = Query::fetch( $res ) ) {
             $this->add(
-                new AktivitetTidspunkt($row) 
+                new AktivitetTag($row) 
             );
         }
 

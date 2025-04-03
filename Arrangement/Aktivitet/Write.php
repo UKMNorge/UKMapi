@@ -334,6 +334,42 @@ class Write {
         return true;
     }
 
+    public static function addTagsToAktivitet(Aktivitet $aktivitet, array $tags) : bool {
+        // Fjern alle tags først
+        static::removeAllTagsFromAktivitet($aktivitet);
+
+        // Add all tags
+        foreach($tags as $tag) {
+            $sql = new Insert('aktivitet_tag_relation');
+            $sql->add('aktivitet_id', $aktivitet->getId());
+            $sql->add('tag_id', $tag->getId());
+
+            try {
+                $res = $sql->run(); 
+            } catch( Exception $e ) {
+                if($e->getCode() != 901001) {
+                    throw new Exception($e->getMessage() .' ('. $e->getCode() .')');
+                }
+            }
+        }
+
+
+
+        return true;
+    }
+
+    private static function removeAllTagsFromAktivitet(Aktivitet $aktivitet) : bool {
+        $delete = new Delete(
+            'aktivitet_tag_relation',
+            [
+                'aktivitet_id' => $aktivitet->getId(),
+            ]
+        );
+
+        $res = $delete->run();
+
+        return true;
+    }
  
 //     public static function save( $kontakt_save ) {
 // 		// DB-OBJEKT
