@@ -73,6 +73,9 @@ class Write {
     }
 
     public static function deleteAktivitet(Aktivitet $aktivitet) : bool {
+        // fjern tagger før sletting
+        static::removeAllTagsFromAktivitet($aktivitet);
+
         $delete = new Delete(
             Aktivitet::TABLE,
             [
@@ -138,7 +141,8 @@ class Write {
         int $maksAntall, 
         int|null $hendelseId, 
         bool $harPaamelding,
-        bool $erSammeStedSomAktivitet
+        bool $erSammeStedSomAktivitet,
+        bool $kunInterne
     ) {
 
         $sql = new Update(
@@ -156,7 +160,7 @@ class Write {
         $sql->add('c_id', $hendelseId);
         $sql->add('harPaamelding', $harPaamelding ? 1 : 0);
         $sql->add('erSammeStedSomAktivitet', $erSammeStedSomAktivitet ? 1 : 0);
-        $sql->add('tidspunkt_id', $tidspunktId);
+        $sql->add('kunInterne', $kunInterne ? 1 : 0);
 
         try {
             $res = $sql->run(); 

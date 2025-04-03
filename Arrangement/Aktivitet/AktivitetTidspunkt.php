@@ -24,6 +24,7 @@ class AktivitetTidspunkt {
     private int $maksAntall;
     private bool $harPaamelding;
     private bool $erSammeStedSomAktivitet;
+    private bool $kunInterne;
 
     private $deltakere = null;
 
@@ -85,6 +86,10 @@ class AktivitetTidspunkt {
         return $this->erSammeStedSomAktivitet;
     }
 
+    public function getErKunInterne() {
+        return $this->kunInterne;
+    }
+
     public function __toString() {
         $daysOfWeek = ['Søndag', 'Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lørdag'];
         
@@ -137,7 +142,8 @@ class AktivitetTidspunkt {
         $this->maksAntall = $row['maksAntall'];
         $this->harPaamelding = $row['harPaamelding'] == 0 ? false : true;
         $this->erSammeStedSomAktivitet = $row['erSammeStedSomAktivitet'] == 0 ? false : true;
-
+        $this->kunInterne = $row['kunInterne'];
+        
         $this->aktivitetId = $row['aktivitet_id'];
         $this->hendelseId = $row['c_id'];
     }
@@ -165,6 +171,7 @@ class AktivitetTidspunkt {
             'hendelseId' => $this->getHendelseId(),
             'harPaamelding' => $this->getHarPaamelding(),
             'erSammeStedSomAktivitet' => $this->getErSammeStedSomAktivitet(),
+            'erKunInterne' => $this->getErKunInterne(),
         ];
     }
 
