@@ -15,11 +15,12 @@ use Exception;
 
 class Write {
     
-	public static function createAktivitet(string $navn, string $sted, string $beskrivelse, int $plId ) : Aktivitet {
+	public static function createAktivitet(string $navn, string $sted, string $beskrivelse, string $beskrivelseLeder, int $plId ) : Aktivitet {
         $sql = new Insert(Aktivitet::TABLE);
         $sql->add('navn', Sanitizer::sanitizeNavn($navn));
         $sql->add('sted', $sted);
         $sql->add('beskrivelse', $beskrivelse);
+        $sql->add('beskrivelseLeder', $beskrivelseLeder);
         $sql->add('pl_id', $plId);
         
         try {
@@ -50,7 +51,8 @@ class Write {
         int $aktivitetId,
         string $navn, 
         string $sted, 
-        string $beskrivelse, 
+        string $beskrivelse,
+        string $beskrivelseLeder 
     ) {
 
         $sql = new Update(
@@ -62,6 +64,7 @@ class Write {
         $sql->add('navn', $navn);
         $sql->add('sted', $sted);
         $sql->add('beskrivelse', $beskrivelse);
+        $sql->add('beskrivelseLeder', $beskrivelseLeder);
 
         try {
             $res = $sql->run(); 

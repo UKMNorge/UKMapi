@@ -14,6 +14,7 @@ class Aktivitet implements AktivitetInterface {
     private string $navn;
     private string $sted;
     private string $beskrivelse;
+    private string|null $beskrivelseLeder;
     private int $plId;
     private string|null $image;
 
@@ -67,6 +68,10 @@ class Aktivitet implements AktivitetInterface {
 
     public function getBeskrivelse() {
         return $this->beskrivelse;
+    }
+
+    public function getBeskrivelseLeder() {
+        return $this->beskrivelseLeder;
     }
 
     public function getPlId() {
@@ -132,6 +137,7 @@ class Aktivitet implements AktivitetInterface {
         $this->navn =  $row['navn'];
         $this->sted = $row['sted'];
         $this->beskrivelse = $row['beskrivelse'];
+        $this->beskrivelseLeder = $row['beskrivelseLeder'];
         $this->plId = $row['pl_id'];
         $this->image = $row['image'];
     }
@@ -153,6 +159,7 @@ class Aktivitet implements AktivitetInterface {
             'navn' => $this->getNavn(),
             'sted' => $this->getSted(),
             'beskrivelse' => $this->getBeskrivelse(),
+            'beskrivelseLeder' => $this->getBeskrivelseLeder(),
             'image' => $this->getImage(),
             'plId' => $this->getPlId(),
             'tidspunkter' => $tidspunkter,
