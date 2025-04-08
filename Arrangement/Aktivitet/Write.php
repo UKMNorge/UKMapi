@@ -361,7 +361,6 @@ class Write {
         }
 
 
-
         return true;
     }
 
@@ -377,6 +376,87 @@ class Write {
 
         return true;
     }
+
+    // KLOKKESLETT
+    public static function createAktivitetKlokkeslett(
+        DateTime $start, 
+        DateTime $stop, 
+        int $plId 
+    ) : AktivitetKlokkeslett {
+
+        $sql = new Insert(AktivitetKlokkeslett::TABLE);
+        $sql->add('start', $start->format('Y-m-d H:i:s'));
+        $sql->add('stop', $stop->format('Y-m-d H:i:s'));
+        $sql->add('pl_id', $plId);
+        
+        try {
+            $kSlettId = $sql->run(); 
+        } catch( Exception $e ) {
+            throw new Exception($e->getMessage() .' ('. $e->getCode() .')');
+        }
+
+        // Database-oppdatering feilet
+        if( !$kSlettId ) {
+            throw new Exception(
+                "Klarte ikke å opprette klokkeslett",
+                511001
+            );
+        }
+        
+        $kSlett = null;
+        try {
+            $kSlett = AktivitetKlokkeslett::getById($kSlettId);
+        } catch( Exception $e ) {
+            throw new Exception($e->getMessage() .' ('. $e->getCode() .')');
+        }
+
+        return $kSlett;
+    }
+
+    public static function updateAktivitetKlokkeslett(
+        int $id,
+        DateTime $start, 
+        DateTime $stop, 
+        int $plId 
+    ) : AktivitetKlokkeslett{
+
+        $sql = new Update(
+            AktivitetKlokkeslett::TABLE, 
+            [
+                'id' => $id
+            ]
+        );
+        $sql->add('start', $start->format('Y-m-d H:i:s'));
+        $sql->add('stop', $stop->format('Y-m-d H:i:s'));
+        $sql->add('pl_id', $plId);
+        
+        
+        try {
+            $res = $sql->run(); 
+        } catch( Exception $e ) {
+            throw new Exception($e->getMessage() .' ('. $e->getCode() .')');
+        }
+
+        return AktivitetKlokkeslett::getById($id);
+    }
+
+    public static function deleteAktivitetKlokkeslett(AktivitetKlokkeslett $kSlett) : bool {
+        $delete = new Delete(
+            AktivitetKlokkeslett::TABLE,
+            [
+                'id' => $kSlett->getId()
+            ]
+        );
+
+        $res = $delete->run();
+
+        if( !$res || $res < 1 ) {
+            throw new Exception('Kunne ikke slette klokkeslett fra databasen', 511005);
+        }
+
+        return true;
+    }
+
 
     /**
      *
