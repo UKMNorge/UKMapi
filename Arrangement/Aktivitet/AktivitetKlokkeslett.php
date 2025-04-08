@@ -12,6 +12,7 @@ class AktivitetKlokkeslett {
     public const TABLE = 'aktivitet_klokkeslett';
 
     private int $id;
+    private string $navn;
     private DateTime $start;
     private DateTime $stop;
     private int $plId;
@@ -69,6 +70,10 @@ class AktivitetKlokkeslett {
         return $this->start;
     }
 
+    public function getNavn() {
+        return $this->navn;
+    }
+
     public function getStop() {
         return $this->stop;
     }
@@ -79,6 +84,7 @@ class AktivitetKlokkeslett {
 
     public function _load_by_row($row) {
         $this->id = (int)$row['id'];
+        $this->navn = $row['navn'];
         $this->start = new DateTime($row['start']);
         $this->stop = new DateTime($row['stop']);
         $this->plId = (int)$row['pl_id'];
@@ -87,6 +93,7 @@ class AktivitetKlokkeslett {
     public function getArrObj() {
         return [
             'id' => $this->getId(),
+            'navn' => $this->getNavn(),
             'start' => $this->getStart()->format('Y-m-d H:i:s'),
             'stop' => $this->getStop()->format('Y-m-d H:i:s'),
             'plId' => $this->getPlId(),

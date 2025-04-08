@@ -379,12 +379,14 @@ class Write {
 
     // KLOKKESLETT
     public static function createAktivitetKlokkeslett(
+        string $navn,
         DateTime $start, 
         DateTime $stop, 
         int $plId 
     ) : AktivitetKlokkeslett {
 
         $sql = new Insert(AktivitetKlokkeslett::TABLE);
+        $sql->add('navn', Sanitizer::sanitizeNavn($navn));
         $sql->add('start', $start->format('Y-m-d H:i:s'));
         $sql->add('stop', $stop->format('Y-m-d H:i:s'));
         $sql->add('pl_id', $plId);
@@ -415,6 +417,7 @@ class Write {
 
     public static function updateAktivitetKlokkeslett(
         int $id,
+        string $navn,
         DateTime $start, 
         DateTime $stop, 
         int $plId 
@@ -426,6 +429,7 @@ class Write {
                 'id' => $id
             ]
         );
+        $sql->add('navn', $navn);
         $sql->add('start', $start->format('Y-m-d H:i:s'));
         $sql->add('stop', $stop->format('Y-m-d H:i:s'));
         $sql->add('pl_id', $plId);
