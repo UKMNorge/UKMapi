@@ -374,7 +374,106 @@ class Write {
 
         return true;
     }
- 
+
+    /**
+     *
+     * @param Aktivitet $aktivitet
+     * @param bool $deletedImage is true when the image is deleted (no aktivitet image)
+     * @throws Exception
+     * @return void
+     */
+    public static function uploadAktivitetImage($file, Aktivitet $aktivitet, bool $deletedImage) : string|null {    
+        // Profilbildet er fjernet (ingen profilbilde)
+        if($deletedImage && $file['size'] == 0) {
+            $aktivitet->setImage(null);
+            static::updateAktivitetImage($aktivitet);
+            return null;
+        }
+
+        // Bilder er ikke lastet opp (ikke endringer)
+        if($file['size'] == 0) {
+            throw new Exception('Ingen bilder ble lastet opp. Sjekk filstørrelse', 400);
+            return null;
+        }
+
+        $file_name = $file['name'];
+        $file_temp = $file['tmp_name'];
+        // Check if the file is an image
+        $check = getimagesize($file_temp);
+        if($check === false) {
+            throw new Exception('Filen er ikke et bilde', 400);
+        }
+
+        $image_data = file_get_contents( $file_temp );
+        $filename = basename( $file_name );
+        $filetype = wp_check_filetype($file_name);
+        $randomFilename = bin2hex(random_bytes(8)); // 16 characters of randomness
+        $filename =  $randomFilename.time().'.'.$filetype['ext'];
+        
+        if(UKM_HOSTNAME == 'ukm.dev') {
+            $upload_dir = [
+                "path" => "/var/www/wordpress/wp-content/uploads/aktiviteter_bilder",
+                "url" => "http://". UKM_HOSTNAME ."/wp-content/uploads/aktiviteter_bilder",
+                "subdir" => "/aktiviteter_bilder",
+                "basedir" => "/var/www/wordpress/wp-content/uploads",
+                "baseurl" => "http://". UKM_HOSTNAME ."/wp-content/uploads"
+            ];
+        }
+        else {
+            $upload_dir = [
+                "path" => "/home/ukmno/public_html/wp-content/uploads/aktiviteter_bilder",
+                "url" => "http://". UKM_HOSTNAME ."/wp-content/uploads/aktiviteter_bilder",
+                "subdir" => "/aktiviteter_bilder",
+                "basedir" => "/home/ukmno/public_html/wp-content/uploads",
+                "baseurl" => "http://". UKM_HOSTNAME ."/wp-content/uploads"
+            ];
+        }
+
+
+        if ( wp_mkdir_p( $upload_dir['path'] ) ) {
+            $file = $upload_dir['path'] . '/' . $filename;
+        }
+        else {
+            $file = $upload_dir['basedir'] . '/' . $filename;
+        }
+
+        file_put_contents( $file, $image_data );
+        $wp_filetype = wp_check_filetype( $filename, null );
+        $attachment = array(
+            'post_mime_type' => $wp_filetype['type'],
+            'post_title' => sanitize_file_name( $filename ),
+            'post_content' => '',
+            'post_status' => 'inherit'
+        );
+
+        $attach_id = wp_insert_attachment( $attachment, $file );
+        require_once( ABSPATH . 'wp-admin/includes/image.php' );
+        $attach_data = wp_generate_attachment_metadata( $attach_id, $file );
+        wp_update_attachment_metadata( $attach_id, $attach_data );
+        
+        $url = $upload_dir['url'] . '/' . $filename;
+
+        $aktivitet->setImage($url);
+        $res = static::updateAktivitetImage($aktivitet);
+
+        return $url;
+    }
+
+    private static function updateAktivitetImage(Aktivitet $aktivitet) : bool {
+        // Update DB
+        $updateImageSql = new Update(
+            Aktivitet::TABLE, 
+            [
+                'aktivitet_id' => $aktivitet->getId()
+            ]
+        );
+        $updateImageSql->add('image', $aktivitet->getImage());
+        $res = $updateImageSql->run();
+
+        return $res;        
+    }
+
+
 //     public static function save( $kontakt_save ) {
 // 		// DB-OBJEKT
 // 		$kontakt_db = new Kontaktperson( $kontakt_save->getId() );
