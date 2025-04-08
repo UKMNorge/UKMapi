@@ -15,6 +15,7 @@ class Aktivitet implements AktivitetInterface {
     private string $sted;
     private string $beskrivelse;
     private int $plId;
+    private string|null $image;
 
     private $tidspunkter = null; // SamlingTidspunkter
     private $tags = null; // SamlingTags
@@ -72,6 +73,14 @@ class Aktivitet implements AktivitetInterface {
         return $this->plId;
     }
 
+    public function setImage(string|null $image) : void {
+        $this->image = $image;
+    }
+
+    public function getImage() : string|null {
+        return $this->image;
+    }
+
     public function getArrangement() : Arrangement {
         return new Arrangement($this->plId);
     }
@@ -110,7 +119,6 @@ class Aktivitet implements AktivitetInterface {
         if ($res) {
             $this->_load_by_row($res);
         } else {
-            echo $qry->debug();
             throw new Exception('Aktivitet: Fant ikke aktivitet ' . $id);
         }
     }
@@ -125,6 +133,7 @@ class Aktivitet implements AktivitetInterface {
         $this->sted = $row['sted'];
         $this->beskrivelse = $row['beskrivelse'];
         $this->plId = $row['pl_id'];
+        $this->image = $row['image'];
     }
 
     public function getArrObj() {
@@ -144,6 +153,7 @@ class Aktivitet implements AktivitetInterface {
             'navn' => $this->getNavn(),
             'sted' => $this->getSted(),
             'beskrivelse' => $this->getBeskrivelse(),
+            'image' => $this->getImage(),
             'plId' => $this->getPlId(),
             'tidspunkter' => $tidspunkter,
             'tags' => $tags,
