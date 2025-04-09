@@ -156,7 +156,7 @@ class AktivitetTidspunkt {
      * @throws Exception
      * @return string - returnerer SMS koden som skal brukes for verifisering
      */
-    public static function registrerBrukerPaamelding(int $tidspunktId, string $mobil) : string {
+    public static function registrerDeltakerPaamelding(int $tidspunktId, string $mobil) : string {
         $tidspunkt = new AktivitetTidspunkt($tidspunktId);
         $deltakere = $tidspunkt->getDeltakere()->getKunVerifiserte();
         $aktivitet = $tidspunkt->getAktivitet();
@@ -234,9 +234,16 @@ class AktivitetTidspunkt {
      * @throws Exception
      * @return bool - returnerer true hvis deltakeren er verifisert, false hvis ikke
      */
-    public static function verifyDeltaker(int $tidspunktId, string $mobil, string $smsCode) : bool {
+    public static function verifyDeltakerPaamelding(int $tidspunktId, string $mobil, string $smsCode) : bool {
         $tidspunkt = new AktivitetTidspunkt($tidspunktId);
-        return write::verifyDeltaker($tidspunkt, $mobil, $smsCode);
+        $res = false;
+        try {
+            $res = write::verifyDeltaker($tidspunkt, $mobil, $smsCode);
+        } catch(Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+
+        return $res;
     }
 
     private static function generateSmsCode($length = 6, $includeText = true) {
