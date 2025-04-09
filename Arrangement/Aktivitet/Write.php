@@ -198,7 +198,7 @@ class Write {
         return true;
     }
 
-    public static function createAktivitetDeltaker(int $mobil) {
+    public static function createAktivitetDeltaker(string $mobil) {
         $sql = new Insert(AktivitetDeltaker::TABLE);
         $sql->add('mobil', $mobil);
 
@@ -220,7 +220,7 @@ class Write {
         return $aktivitetDeltaker;
     }
 
-    public static function addDeltakerToTidspunkt(int $mobil, int $tidspunktId, string|null $sms_code) {
+    public static function addDeltakerToTidspunkt(string $mobil, int $tidspunktId, string|null $sms_code) : bool {
 
         $sql = new Insert('aktivitet_deltakelse');
         $sql->add('mobil', $mobil);
@@ -261,7 +261,51 @@ class Write {
         }
 
 
-        return AktivitetDeltaker::getByPhone($mobil);
+        return true;
+    }
+
+    public static function verifyDeltaker(AktivitetTidspunkt $tidspunkt, string $mobil, string $smsCode) : bool {
+        // check if the query was successful
+        $selectSql = new Query(
+            "SELECT * 
+            FROM `aktivitet_deltakelse` 
+            WHERE `mobil` = '#mobil' 
+            AND `tidspunkt_id` = '#tidspunkt_id'",
+            [
+                'mobil' => $mobil,
+                'tidspunkt_id' => $tidspunkt->getId()
+            ]
+        );
+        $res = $selectSql->run();
+        if( Query::numRows($res) == 0 ) {
+            throw new Exception('Klarte ikke å deltakelsen');
+        }
+
+        $resArr = $selectSql->run('array');
+        $savedSMSCode = $resArr['sms_code'];
+
+        if($savedSMSCode != $smsCode) {
+            throw new Exception('SMS-koden er feil');
+        }
+
+
+        $sql = new Update(
+            'aktivitet_deltakelse', 
+            [
+                'mobil' => $mobil,
+                'tidspunkt_id' => $tidspunkt->getId()
+            ]
+        );
+        $sql->add('aktiv', 1);
+        
+        $resUpdate = false;
+        try {
+            $resUpdate = $sql->run(); 
+        } catch( Exception $e ) {
+            throw new Exception($e->getMessage() .' ('. $e->getCode() .')');
+        }
+
+        return $resUpdate;
     }
 
     // TAGS
