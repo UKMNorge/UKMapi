@@ -176,9 +176,11 @@ class Write {
 
     public static function deleteAktivitetTidspunkt(AktivitetTidspunkt $tidspunkt) : bool {
         if(count($tidspunkt->getDeltakere()->getAll()) > 1) {
-            
             throw new Exception("Tidspunktet ". $tidspunkt  ." har deltakere og kan derfor ikke slettes!");
         }
+
+        static::removeAllKlokkeslettFromTidspunkt($tidspunkt);
+
         
         $delete = new Delete(
             AktivitetTidspunkt::TABLE,
@@ -377,7 +379,9 @@ class Write {
         return true;
     }
 
-    // KLOKKESLETT
+
+
+    // KLOKKESLETT ---------------------------------------------------------------------------------------------------
     public static function createAktivitetKlokkeslett(
         string $navn,
         DateTime $start, 
@@ -460,6 +464,47 @@ class Write {
 
         return true;
     }
+
+    private static function removeAllKlokkeslettFromTidspunkt(AktivitetTidspunkt $tidspunkt) : bool {
+        $delete = new Delete(
+            'aktivitet_tidspunkt_klokkeslett_relation',
+            [
+                'tidspunkt_id' => $tidspunkt->getId(),
+            ]
+        );
+
+        $res = $delete->run();
+
+        return true;
+    }
+
+    public static function addKlokkeslettToTidspunkt(AktivitetTidspunkt $tidspunkt, AktivitetKlokkeslett|null $kSlett) : bool {
+        static::removeAllKlokkeslettFromTidspunkt($tidspunkt);
+
+        // Ingen klokkeslett er valgt, derfor er det ikke noe å gjøre siden gammelt klokkeslett er fjernet
+        if($kSlett == null) {
+            return true;
+        }
+
+        $sql = new Insert('aktivitet_tidspunkt_klokkeslett_relation');
+        $sql->add('tidspunkt_id', $tidspunkt->getId());
+        $sql->add('klokkeslett_id', $kSlett->getId());
+
+        try {
+            $res = $sql->run(); 
+        } catch( Exception $e ) {
+            if($e->getCode() != 901001) {
+                throw new Exception($e->getMessage() .' ('. $e->getCode() .')');
+            }
+        }
+
+        return true;
+    }
+
+
+
+
+
 
 
     /**
