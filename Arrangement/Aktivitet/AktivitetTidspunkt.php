@@ -160,6 +160,8 @@ class AktivitetTidspunkt {
             }
         }
 
+        $klokkeslett = AktivitetKlokkeslett::getByTidspunkt($this);
+
         return [
             'id' => $this->getId(),
             'start' => $this->getStart()->format('Y-m-d H:i:s'),
@@ -172,6 +174,7 @@ class AktivitetTidspunkt {
             'harPaamelding' => $this->getHarPaamelding(),
             'erSammeStedSomAktivitet' => $this->getErSammeStedSomAktivitet(),
             'erKunInterne' => $this->getErKunInterne(),
+            'klokkeslett' => $klokkeslett != null ? $klokkeslett->getArrObj() : null,
         ];
     }
 

@@ -21,6 +21,24 @@ class AktivitetKlokkeslett {
         $this->_load_by_row($row);
     }
 
+    public static function getByTidspunkt(AktivitetTidspunkt $tidspunkt) {
+        $query = new Query(
+            "SELECT DISTINCT kslett.* FROM ". AktivitetKlokkeslett::TABLE ." AS kslett 
+            JOIN aktivitet_tidspunkt_klokkeslett_relation AS rel ON rel.klokkeslett_id=kslett.id
+            WHERE rel.tidspunkt_id='#tidspunktId'",
+            [
+                'tidspunktId' => $tidspunkt->getId()            
+            ]
+        );
+
+        $res = $query->run();
+        if( Query::numRows($res) == 0 ) {
+            return null;
+        }
+
+        return new AktivitetKlokkeslett(Query::fetch($res));
+    }
+
     public static function getById(int $id) : AktivitetKlokkeslett|null {
         $query = new Query(
             "SELECT DISTINCT * from ". AktivitetKlokkeslett::TABLE ."
