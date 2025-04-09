@@ -33,7 +33,8 @@ try {
 }
 ```
 
-
+---
+## Metoder for verifisering
 
 ### `verifyDeltakerPaamelding(int $tidspunktId, string $mobil, string $smsCode): bool`
 
@@ -51,7 +52,8 @@ Denne statiske metoden verifiserer en deltaker til et gitt tidspunkt, og returne
 Metoden kaster `Exception` i følgende tilfeller:
 - Klarte ikke å hente deltakelsen.
 - SMS-koden er feil.
-Eller andre unntak som kommer fra andre steder
+  
+- Eller andre unntak som kommer fra andre steder
 
 #### Eksempel
 ```php
