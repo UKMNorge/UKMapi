@@ -27,7 +27,7 @@ Metoden kaster `Exception` i følgende tilfeller:
 ```php
 try {
     $smsKode = AktivitetTidspunkt::registrerDeltakerPaamelding(42, '12345678');
-    echo "Verifiseringskode sendt: " . $smsKode;
+    echo "Verifiseringskode som skal sendes til deltakeren: " . $smsKode;
 } catch (Exception $e) {
     echo "Feil: " . $e->getMessage();
 }
