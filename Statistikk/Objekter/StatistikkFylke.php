@@ -70,6 +70,31 @@ class StatistikkFylke extends StatistikkSuper {
     }
 
     /**
+    * Returnerer antall uregistrerte deltakere i fylkesfestivaler
+    *
+    * @return int antall uregistrerte deltakere.
+    */
+	
+    public function getAntallUregistrerteDeltakereFylke() : int {
+        $sql = new Query(
+            "SELECT 
+                SUM(pl_missing) AS antall 
+            FROM
+                smartukm_place
+            WHERE season='#season'
+            AND pl_owner_fylke = '#fylke_id'
+            AND pl_type = 'fylke'",
+            [
+                'season' => $this->season,
+                'fylke_id' => $this->fylke->getId(),
+            ]
+        );
+
+        $res = $sql->run('array');
+        return (int) intval($res['antall']);
+    }
+
+    /**
     * Returnerer antall unike deltakere på fylkesarrangementer i fylke
     *
     * @return int antall unike deltakere.
