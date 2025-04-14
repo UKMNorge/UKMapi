@@ -238,7 +238,7 @@ class AktivitetTidspunkt {
         $tidspunkt = new AktivitetTidspunkt($tidspunktId);
         $res = false;
         try {
-            $res = write::verifyDeltaker($tidspunkt, $mobil, $smsCode);
+            $res = Write::verifyDeltaker($tidspunkt, $mobil, $smsCode);
         } catch(Exception $e) {
             throw new Exception($e->getMessage());
         }
