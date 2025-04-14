@@ -42,6 +42,25 @@ class AktivitetTidspunkt {
         }
     }
 
+    public static function getAllByHendelse($hendelseId) {
+        $query = new Query(
+            "SELECT DISTINCT * from ". AktivitetTidspunkt::TABLE ."
+            WHERE `c_id` = '#hendelseId'",
+            [
+                'hendelseId' => $hendelseId            
+            ]
+        );
+
+        $res = $query->run();
+
+        $tags = [];
+        while ($row = Query::fetch($res)) {
+            $tags[] = new AktivitetTidspunkt($row);
+        }
+
+        return $tags;
+    }
+
     public function getId() {
         return $this->tidspunktId;
     }
