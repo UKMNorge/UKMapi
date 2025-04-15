@@ -53,12 +53,12 @@ class AktivitetTidspunkt {
 
         $res = $query->run();
 
-        $tags = [];
+        $tidspunkter = [];
         while ($row = Query::fetch($res)) {
-            $tags[] = new AktivitetTidspunkt($row);
+            $tidspunkter[] = new AktivitetTidspunkt($row);
         }
 
-        return $tags;
+        return $tidspunkter;
     }
 
     public function getId() {
