@@ -103,8 +103,6 @@ class StatistikkSuper {
             FROM ukm_statistics_from_2024
             WHERE k_id IN (#k_ids) 
                 AND season='#season'
-                AND fylke='false'
-                AND land='false' 
                 AND innslag_status=8
             GROUP BY p_id, b_id";
         }
