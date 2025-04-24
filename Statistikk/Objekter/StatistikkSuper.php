@@ -39,7 +39,7 @@ class StatistikkSuper {
         if($season > 2023) {
             $retQuery .= " UNION SELECT p_id, b_id ". ($withPDateOfBirth ? ', p_date_of_birth as p_dob ' : '') .
             "FROM ukm_statistics_from_2024
-            WHERE pl_id='#plId'
+            WHERE pl_id='#plId' OR pl_id_home='#plId'
             AND innslag_status = 8
             GROUP BY p_id, b_id";
         }

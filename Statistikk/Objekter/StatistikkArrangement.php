@@ -136,7 +136,7 @@ class StatistikkArrangement extends StatistikkSuper {
                     FROM 
                         ukm_statistics_from_2024 AS stat
                     WHERE 
-                        pl_id='#plId' 
+                        pl_id='#plId' OR pl_id_home='#plId'
                         AND innslag_status = 8",
                 [
                     'plId' => $this->arrangementId,
