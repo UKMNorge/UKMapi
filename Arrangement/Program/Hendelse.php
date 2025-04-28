@@ -40,6 +40,8 @@ class Hendelse
     var $farge = null;
     var $fremhevet = null;
     var $innslag = null;
+    var $tag = null;
+    var $bilde = null;
 
     var $collection_innslag = null;
 
@@ -66,6 +68,8 @@ class Hendelse
         $this->setBeskrivelse($data['c_beskrivelse']);
         $this->setFarge($data['c_color']);
         $this->setFremhevet('true' == $data['c_fremhevet']);
+        $this->setTag($data['c_tag'] ?? null);
+        $this->setBilde($data['c_bilde'] ?? null);
     }
 
     public function erFremhevet()
@@ -79,6 +83,22 @@ class Hendelse
     public function setFremhevet($bool)
     {
         $this->fremhevet = $bool;
+        return $this;
+    }
+
+    public function getTag() {
+        return $this->tag;
+    }
+    public function setTag($tag) {
+        $this->tag = $tag;
+        return $this;
+    }
+
+    public function getBilde() {
+        return $this->bilde;
+    }
+    public function setBilde($bilde) {
+        $this->bilde = $bilde;
         return $this;
     }
 

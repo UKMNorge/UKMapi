@@ -236,7 +236,9 @@ class Write
             'Intern'                => ['c_intern', 'Bool', 225],
             'Beskrivelse'            => ['c_beskrivelse', 'String', 226],
             'Farge'                    => ['c_color', 'String', 227],
-            'Fremhevet'                => ['c_fremhevet', 'Bool', 228]
+            'Fremhevet'                => ['c_fremhevet', 'Bool', 228],
+            'Tag'                      => ['c_tag', 'String', 229],
+            'Bilde'                    => ['c_bilde', 'String', 230],
         ];
 
         // LOOP ALLE VERDIER, OG EVT LEGG TIL I SQL
