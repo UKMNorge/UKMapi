@@ -142,12 +142,12 @@ class Aktivitet implements AktivitetInterface {
         $this->image = $row['image'];
     }
 
-    public function getArrObj() {
+    public function getArrObj($tilPublikum = false) : array {
         $tidspunkter = [];
         $tags = [];
 
         foreach($this->getTidspunkter()->getAll() as $tidspunkt) {
-            $tidspunkter[] = $tidspunkt->getArrObj();
+            $tidspunkter[] = $tidspunkt->getArrObj($tilPublikum);
         }
 
         foreach($this->getTags()->getAll() as $tag) {

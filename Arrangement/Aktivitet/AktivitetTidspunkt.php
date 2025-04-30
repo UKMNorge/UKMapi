@@ -286,8 +286,11 @@ class AktivitetTidspunkt {
         return $smsCode;
     }
 
+    private function getAntallDeltakere() : int {
+        return $this->getDeltakere()->getAntall();
+    }
 
-    public function getArrObj() {
+    public function getArrObj($tilPublikum = false) : array {
         $deltakere = [];
 
         foreach($this->getDeltakere()->getAll() as $deltaker) {
@@ -308,13 +311,15 @@ class AktivitetTidspunkt {
             'sted' => $this->getSted(),
             'varighet' => $this->getVarighetMinutter(),
             'maksAntall' => $this->getMaksAntall(),
-            'deltakere' => $deltakere,
+            'antallDeltakere' => $this->getAntallDeltakere(),
+            'deltakere' => $tilPublikum ? [] : $deltakere, // Hvis det er til publikum, vis ikke deltakere info
             'hendelseId' => $this->getHendelseId(),
             'harPaamelding' => $this->getHarPaamelding(),
             'erSammeStedSomAktivitet' => $this->getErSammeStedSomAktivitet(),
             'erKunInterne' => $this->getErKunInterne(),
             'klokkeslett' => $klokkeslett != null ? $klokkeslett->getArrObj() : null,
         ];
+        
     }
 
 }
