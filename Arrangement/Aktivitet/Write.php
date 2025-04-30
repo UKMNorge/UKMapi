@@ -15,12 +15,13 @@ use Exception;
 
 class Write {
     
-	public static function createAktivitet(string $navn, string $sted, string $beskrivelse, string $beskrivelseLeder, int $plId ) : Aktivitet {
+	public static function createAktivitet(string $navn, string $sted, string $beskrivelse, string $beskrivelseLeder, int $plId, string $kursholder ) : Aktivitet {
         $sql = new Insert(Aktivitet::TABLE);
         $sql->add('navn', Sanitizer::sanitizeNavn($navn));
         $sql->add('sted', $sted);
         $sql->add('beskrivelse', $beskrivelse);
         $sql->add('beskrivelseLeder', $beskrivelseLeder);
+        $sql->add('kursholder', $kursholder);
         $sql->add('pl_id', $plId);
         
         try {
@@ -52,7 +53,8 @@ class Write {
         string $navn, 
         string $sted, 
         string $beskrivelse,
-        string $beskrivelseLeder 
+        string $beskrivelseLeder,
+        string $kursholder
     ) {
 
         $sql = new Update(
@@ -65,6 +67,7 @@ class Write {
         $sql->add('sted', $sted);
         $sql->add('beskrivelse', $beskrivelse);
         $sql->add('beskrivelseLeder', $beskrivelseLeder);
+        $sql->add('kursholder', $kursholder);
 
         try {
             $res = $sql->run(); 
@@ -278,7 +281,7 @@ class Write {
         );
         $res = $selectSql->run();
         if( Query::numRows($res) == 0 ) {
-            throw new Exception('Klarte ikke å deltakelsen');
+            throw new Exception('Klarte ikke å hente deltakelsen');
         }
 
         $resArr = $selectSql->run('array');

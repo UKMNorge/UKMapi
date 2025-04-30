@@ -17,6 +17,7 @@ class Aktivitet implements AktivitetInterface {
     private string|null $beskrivelseLeder;
     private int $plId;
     private string|null $image;
+    private string|null $kursholder;
 
     private $tidspunkter = null; // SamlingTidspunkter
     private $tags = null; // SamlingTags
@@ -86,6 +87,10 @@ class Aktivitet implements AktivitetInterface {
         return $this->image;
     }
 
+    public function getkursholder() : string|null {
+        return $this->kursholder;
+    }
+
     public function getArrangement() : Arrangement {
         return new Arrangement($this->plId);
     }
@@ -140,6 +145,7 @@ class Aktivitet implements AktivitetInterface {
         $this->beskrivelseLeder = $row['beskrivelseLeder'];
         $this->plId = $row['pl_id'];
         $this->image = $row['image'];
+        $this->kursholder = $row['kursholder'];
     }
 
     public function getArrObj($tilPublikum = false) : array {
@@ -160,6 +166,7 @@ class Aktivitet implements AktivitetInterface {
             'sted' => $this->getSted(),
             'beskrivelse' => $this->getBeskrivelse(),
             'beskrivelseLeder' => $this->getBeskrivelseLeder(),
+            'kursholder' => $this->getkursholder(),
             'image' => $this->getImage(),
             'plId' => $this->getPlId(),
             'tidspunkter' => $tidspunkter,
