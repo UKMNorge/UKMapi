@@ -8,9 +8,8 @@ use Exception;
 class Result {
     
 var $data;
-var $page;
 
-    public function __construct( stdClass $data, Int $page=null )
+    public function __construct( stdClass $data )
     {
 
         // TODO: If serious mailchimp error: throw it here
@@ -21,7 +20,6 @@ var $page;
         }
         
         $this->data = $data;
-        $this->page = $page;
     }
     
     /**
