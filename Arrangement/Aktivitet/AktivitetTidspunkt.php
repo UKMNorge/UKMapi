@@ -12,7 +12,6 @@ use UKMNorge\Nettverk\Administrator;
 use UKMNorge\Tools\Sanitizer;
 
 use DateTime;
-use UKMNorge\Innslag\Personer\Person;
 
 class AktivitetTidspunkt {
     public const TABLE = 'aktivitet_tidspunkt';
@@ -296,22 +295,10 @@ class AktivitetTidspunkt {
 
         foreach($this->getDeltakere()->getAll() as $deltaker) {
             if($deltaker->erAktiv()) {
-                try {
-                    $participant = Person::loadFromPhone($deltaker->getMobil());
-                    $deltakere[] = array(
-                        'mobil' => $deltaker->getMobil(),
-                        'navn' => $participant ? $participant->getNavn() : '',
-                        'fylke' => $participant ? $participant->getFylke()->getNavn() : '',
-                        'aktiv' => $deltaker->erAktiv(),
-                    );
-                } catch(Exception $e) {
-                    $deltakere[] = array(
-                        'mobil' => $deltaker->getMobil(),
-                        'navn' => '',
-                        'fylke' => '',
-                        'aktiv' => $deltaker->erAktiv(),
-                    );
-                }
+                $deltakere[] = array(
+                    'mobil' => $deltaker->getMobil(),
+                    'aktiv' => $deltaker->erAktiv(),
+                );
             }
         }
 
