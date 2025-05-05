@@ -55,6 +55,31 @@ class Person
     }
 
     /**
+     * Hent person fra telefonnummer
+     * 
+     * OBS: Kan returnere null
+     *
+     * @param String $phone
+     * @return Person|null
+     */
+    public static function loadFromPhone(String $phone)
+    {
+        $qry = new Query(
+            self::getLoadQuery() . "
+            WHERE `p_phone` = '#phone'",
+            [
+                'phone' => $phone
+            ]
+        );
+        $person_data = $qry->run('array');
+        if (!$person_data) {
+            return null;
+        }
+        return new static($person_data);
+    }
+
+
+    /**
      * Hent fødselsdato ut fra en gitt alder
      *
      * @param Int $alder
