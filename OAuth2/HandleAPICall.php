@@ -16,11 +16,15 @@ class HandleAPICall {
     private $method = null;
     private $clientArguments = [];
     private $optionalArguments = [];
+    protected $apiKeyRequired = false;
     
-    function __construct(array $requiredArguments, array $optionalArguments, array $acceptedMethods, bool $loginRequired, bool $wordpressLogin = false) {
+    function __construct(array $requiredArguments, array $optionalArguments, array $acceptedMethods, bool $loginRequired, bool $wordpressLogin = false, $apiKeyRequired = false) {
         if($loginRequired && !UserManager::isUserLoggedin()){
             $this->sendErrorToClient('Du er ikke innlogget!', 401); // UNAUTHORIZED
         }
+        $this->apiKeyRequired = $apiKeyRequired;
+        // Check if API key is required
+        $this->authorizeRequest();
 
         // Wordpress login
         if($wordpressLogin != false) {
@@ -134,6 +138,28 @@ class HandleAPICall {
     private function initOptionalArguments(array $optionalArguments) {
         foreach($optionalArguments as $arg) {
             $this->optionalArguments[$arg] = true;
+        }
+    }
+
+    // authorize.php
+    public function authorizeRequest() {
+        if(!$this->apiKeyRequired) { 
+            return;
+        }
+
+        $validKeys = [
+            '1234567890abcdef',
+            'abcdef1234567890',
+            '0987654321fedcba',
+            'fedcba0987654321'
+        ];
+
+        $providedKey = $_GET['api_key'] ?? $_SERVER['HTTP_X_API_KEY'] ?? null;
+
+        if (!$providedKey || !in_array($providedKey, $validKeys)) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Unauthorized']);
+            exit;
         }
     }
 
