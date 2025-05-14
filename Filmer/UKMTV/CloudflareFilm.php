@@ -93,6 +93,11 @@ class CloudflareFilm implements FilmInterface {
         return false;
     }
 
+    public function getTagsString()
+    {
+        return $this->tag_string;
+    }
+
     /**
      * Hent alle tags
      *
