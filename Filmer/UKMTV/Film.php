@@ -13,7 +13,7 @@ class Film implements FilmInterface
 {
     var $id = 0;
     var $cron_id = null;
-
+    var $file = null;
     var $title = null;
     var $sanitized_title = null;
     var $description = null;
@@ -59,6 +59,19 @@ class Film implements FilmInterface
 
         // De forskjellige fil-utgavene
         $this->setFile($data['tv_file']);
+    }
+
+    public static function convertFromCloudflare(CloudflareFilm $cfFilm) : Film {
+        $film = new Film([]);
+        $film->setTvId($cfFilm->getId());
+        $film->setFileAsItIs($cfFilm->getFilePath());
+        $film->setImageUrl($cfFilm->getImageUrl());
+        $film->setTitle($cfFilm->getTitle());
+        $film->setDescription($cfFilm->getDescription());
+        $film->setTagsString($cfFilm->getTagsString());
+
+        Write::save($film);
+        return $film;
     }
 
     /**
@@ -120,6 +133,18 @@ class Film implements FilmInterface
     }
 
     /**
+     * Sett filmens tittel
+     *
+     * @param String $title
+     * @return self
+     */
+    public function setTitle(String $title)
+    {
+        $this->title = $title;
+        return $this;
+    }
+
+    /**
      * Hent filmens beskrivelse
      *
      * @return String beskrivelse
@@ -128,6 +153,19 @@ class Film implements FilmInterface
     {
         return $this->description;
     }
+
+    /**
+     * Sett filmens beskrivelse
+     *
+     * @param String $description
+     * @return self
+     */
+    public function setDescription(String $description)
+    {
+        $this->description = $description;
+        return $this;
+    }
+    
 
     /**
      * Hent sanitized tittel
@@ -194,6 +232,16 @@ class Film implements FilmInterface
         }
 
         return $this->file;
+    }
+
+    /**
+     * Sett file bane uten å endre filnavn
+     *
+     * @param String $url
+     * @return void
+     */
+    public function setFileAsItIs(String $file) {
+        $this->file = $file;
     }
 
     /**
@@ -281,6 +329,18 @@ class Film implements FilmInterface
         }
 
         return $this->tags;
+    }
+
+    /**
+     * Sett filmens tags
+     *
+     * @param Tags $tags
+     * @return self
+     */
+    public function setTagsString(String $tagsString)
+    {
+        $this->tag_string = $tagsString;
+        return $this;
     }
 
     /**
@@ -619,6 +679,18 @@ class Film implements FilmInterface
     public function getImagePath()
     {
         return $this->image_url;
+    }
+
+    /**
+     * Sett preview-bildets path på videostorage
+     *
+     * @param String $image_path
+     * @return self
+     */
+    public function setImageUrl(String $url)
+    {
+        $this->image_url = $url;
+        return $this;
     }
 
     /**
