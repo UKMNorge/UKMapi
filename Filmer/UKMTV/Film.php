@@ -63,12 +63,12 @@ class Film implements FilmInterface
 
     public static function convertFromCloudflare(CloudflareFilm $cfFilm) : Film {
         $film = new Film([]);
-        $film->setTvId($cfFilm->getId());
         $film->setFileAsItIs($cfFilm->getFilePath());
         $film->setImageUrl($cfFilm->getImageUrl());
         $film->setTitle($cfFilm->getTitle());
         $film->setDescription($cfFilm->getDescription());
         $film->setTagsString($cfFilm->getTagsString());
+        $film->setSeason($cfFilm->getSeason());
 
         Write::save($film);
         return $film;
@@ -711,6 +711,15 @@ class Film implements FilmInterface
     public function getSeason()
     {
         return $this->season;
+    }
+
+    /**
+     * Set filmens sesong
+     *
+     */
+    public function setSeason(int $season) {
+        $this->season = $season;
+        return $this;
     }
 
     /**
