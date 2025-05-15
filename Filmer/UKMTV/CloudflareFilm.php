@@ -41,7 +41,7 @@ class CloudflareFilm implements FilmInterface {
             $cfQuery = new Query(
                 "SELECT *
                 FROM `cloudflare_videos` 
-                WHERE id=#id AND `deleted` = 'false'",
+                WHERE id='#id' OR cloudflare_id='#id' AND `deleted` = 'false'",
                 [
                     'id' => $id
                 ]
