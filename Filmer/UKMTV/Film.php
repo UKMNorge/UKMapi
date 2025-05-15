@@ -9,8 +9,6 @@ use UKMNorge\Filmer\UKMTV\Tags\Tags;
 use UKMNorge\Filmer\UKMTV\Tags\Personer;
 use UKMNorge\Http\Curl;
 
-use Exception;
-
 class Film implements FilmInterface
 {
     var $id = 0;
@@ -80,11 +78,12 @@ class Film implements FilmInterface
         $film->setArrangementId($cfFilm->getArrangementId());
         $film->setInnslagId($cfFilm->getInnslagId());
         $film->setSeason($cfFilm->getSeason());
+        $film->setCronId(999999);
 
         try{
             Write::save($film);
         } catch(Exception $e) {
-            throw new Exception('Kunne ikke lagre overført film til UKM-TV: ' . $e->getMessage());
+            var_dump($e);
         }
         return $film;
     }
@@ -639,6 +638,12 @@ class Film implements FilmInterface
     public function getCronId()
     {
         return $this->cron_id;
+    }
+
+    public function setCronId(Int $cron_id)
+    {
+        $this->cron_id = $cron_id;
+        return $this;
     }
 
     /**
