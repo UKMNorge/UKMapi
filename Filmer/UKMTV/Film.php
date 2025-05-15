@@ -9,6 +9,8 @@ use UKMNorge\Filmer\UKMTV\Tags\Tags;
 use UKMNorge\Filmer\UKMTV\Tags\Personer;
 use UKMNorge\Http\Curl;
 
+use Exception;
+
 class Film implements FilmInterface
 {
     var $id = 0;
@@ -36,8 +38,12 @@ class Film implements FilmInterface
     var $season;
     var $innslag_id;
 
-    public function __construct(array $data)
+    public function __construct(array $data, $createEmpty = false)
     {
+        if ($createEmpty) {
+            return;
+        }
+
         $this->id = intval($data['tv_id']);
         $this->cron_id = intval($data['cron_id']);
         $this->arrangement_id = intval($data['pl_id']);
@@ -62,15 +68,24 @@ class Film implements FilmInterface
     }
 
     public static function convertFromCloudflare(CloudflareFilm $cfFilm) : Film {
-        $film = new Film([]);
-        $film->setFileAsItIs($cfFilm->getFilePath());
-        $film->setImageUrl($cfFilm->getImageUrl());
+        $filePath = 'ukmno/videos/migrated/' . $cfFilm->getCloudflareId() . '.mp4';
+        $thumbnailPath = 'ukmno/videos/migrated/' . $cfFilm->getCloudflareId() . '.jpg';
+
+        $film = new Film([], true);
+        $film->setFileAsItIs($filePath);
+        $film->setImageUrl($thumbnailPath);
         $film->setTitle($cfFilm->getTitle());
         $film->setDescription($cfFilm->getDescription());
         $film->setTagsString($cfFilm->getTagsString());
+        $film->setArrangementId($cfFilm->getArrangementId());
+        $film->setInnslagId($cfFilm->getInnslagId());
         $film->setSeason($cfFilm->getSeason());
 
-        Write::save($film);
+        try{
+            Write::save($film);
+        } catch(Exception $e) {
+            throw new Exception('Kunne ikke lagre overført film til UKM-TV: ' . $e->getMessage());
+        }
         return $film;
     }
 
@@ -636,9 +651,21 @@ class Film implements FilmInterface
         return $this->arrangement_id;
     }
 
+    public function setArrangementId(Int $arrangement_id)
+    {
+        $this->arrangement_id = $arrangement_id;
+        return $this;
+    }
+
     public function getInnslagId()
     {
         return $this->innslag_id;
+    }
+
+    public function setInnslagId(Int $innslag_id)
+    {
+        $this->innslag_id = $innslag_id;
+        return $this;
     }
 
     /**
