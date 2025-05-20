@@ -7,6 +7,8 @@ use UKMNorge\OAuth2\ID\UserManager;
 use UKMNorge\OAuth2\Request;
 use Exception;
 
+require_once('UKMconfig.inc.php');
+
 require_once('/etc/php-includes/UKM/vendor/bshaffer/oauth2-server-php/src/OAuth2/Autoloader.php');
 \OAuth2\Autoloader::register();
 
@@ -18,6 +20,15 @@ class HandleAPICall {
     private $optionalArguments = [];
     protected $apiKeyRequired = false;
     
+    /**
+     * HandleAPICall constructor.
+     * @param array $requiredArguments - required arguments from the client
+     * @param array $optionalArguments - optional arguments from the client
+     * @param array $acceptedMethods - accepted methods from the client
+     * @param bool $loginRequired - If true, the user must be logged in to arr-sys
+     * @param bool $wordpressLogin - default false. Brukes for å sjekke om brukeren er logget inn i Wordpress.
+     * @param bool $apiKeyRequired - default false. Det brukes for å hente protected data fra et API kall.
+     */
     function __construct(array $requiredArguments, array $optionalArguments, array $acceptedMethods, bool $loginRequired, bool $wordpressLogin = false, $apiKeyRequired = false) {
         if($loginRequired && !UserManager::isUserLoggedin()){
             $this->sendErrorToClient('Du er ikke innlogget!', 401); // UNAUTHORIZED
@@ -141,17 +152,17 @@ class HandleAPICall {
         }
     }
 
-    // authorize.php
+    /**
+     * Check if the API key is valid
+     * @return void
+     */
     public function authorizeRequest() {
         if(!$this->apiKeyRequired) { 
             return;
         }
 
         $validKeys = [
-            '1234567890abcdef',
-            'abcdef1234567890',
-            '0987654321fedcba',
-            'fedcba0987654321'
+            ARRSYS_API_TOKEN,
         ];
 
         $providedKey = $_GET['api_key'] ?? $_SERVER['HTTP_X_API_KEY'] ?? null;
