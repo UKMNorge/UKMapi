@@ -112,6 +112,19 @@ class Filmer extends Collection
             );
         }
 
+        $queryTags = new Query(
+            "SELECT GROUP_CONCAT( CONCAT(`ukm_tv_tags`.`type`,':',`ukm_tv_tags`.`foreign_id` ) SEPARATOR '|') as result
+            FROM `ukm_tv_tags`
+            WHERE `tv_id` = '#filmId'
+            AND `cloudflare` = '1'",
+            [
+                'filmId' => $dataCF['id']
+            ]
+        );
+
+        $tags = $queryTags->run('array');
+        $dataCF['tags'] = $tags['result'];
+
         return new CloudflareFilm($dataCF);
     }
 

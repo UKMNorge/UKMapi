@@ -36,8 +36,6 @@ class CloudflareFilm implements FilmInterface {
             $this->constructFromData($data);
         }
         else {
-            $this->tag_string = !empty($data['tags']) ? $data['tags'] : '';
-
             $cfQuery = new Query(
                 "SELECT *
                 FROM `cloudflare_videos` 
@@ -64,7 +62,12 @@ class CloudflareFilm implements FilmInterface {
         $this->fylkeId = (int)$data['fylke'];
         $this->erSlettet = $data['deleted'] ? $data['deleted'] : false;
         $this->erReportasje = $data['erReportasje'] ? $data['erReportasje'] : false;
+        $this->tag_string = !empty($data['tags']) ? $data['tags'] : '';
         return $this;
+    }
+
+    private function fetchTags() {
+        $this->tag_string = '';
     }
 
     /**

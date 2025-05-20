@@ -9,6 +9,8 @@ use UKMNorge\Filmer\UKMTV\Tags\Tags;
 use UKMNorge\Filmer\UKMTV\Tags\Personer;
 use UKMNorge\Http\Curl;
 
+use Exception;
+
 class Film implements FilmInterface
 {
     var $id = 0;
@@ -66,7 +68,8 @@ class Film implements FilmInterface
     }
 
     public static function convertFromCloudflare(CloudflareFilm $cfFilm) : Film {
-        $filePath = 'ukmno/videos/migrated/' . $cfFilm->getCloudflareId() . '.mp4';
+        // Legger til 'cf_' fordi dette bruker for å idneitifere overførte Cloudflare filmer
+        $filePath = 'ukmno/videos/migrated/cf_' . $cfFilm->getCloudflareId() . '.mp4';
         $thumbnailPath = 'ukmno/videos/migrated/' . $cfFilm->getCloudflareId() . '.jpg';
 
         $film = new Film([], true);
@@ -375,6 +378,10 @@ class Film implements FilmInterface
     public function getFilename()
     {
         return $this->file_name;
+    }
+
+    public function getTagsString() : String {
+        return $this->tag_string;
     }
 
     /**
