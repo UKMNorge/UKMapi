@@ -11,14 +11,16 @@ use UKMNorge\Arrangement\Program\Hendelse;
 
 class HendelseGruppe
 {
-    private $hendelser = [];
     private $id = null;
     private $navn = null;
+    private $beskrivelse = null;
+    private $hendelser = [];
     private $arrangementId = null;
 
-    public function __construct(Int $id, String $navn, int $arrangementId) {
+    public function __construct(Int $id, String $navn, String $beskrivelse = '', int $arrangementId) {
         $this->id = $id;
         $this->navn = $navn;
+        $this->beskrivelse = $beskrivelse;
         $this->arrangementId = $arrangementId;
     }
 
@@ -39,6 +41,7 @@ class HendelseGruppe
             $retHendelseGrupper[] = new HendelseGruppe(
                 (int) $row['id'],
                 $row['navn'],
+                $row['beskrivelse'],
                 $row['arrangement_id']
             );
         }
@@ -71,6 +74,10 @@ class HendelseGruppe
 
     public function getNavn() {
         return $this->navn;
+    }
+
+    public function getBeskrivelse() {
+        return $this->beskrivelse;
     }
 
     public function getArrangement() : Arrangement {
