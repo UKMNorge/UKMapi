@@ -42,6 +42,7 @@ class Hendelse
     var $innslag = null;
     var $tag = null;
     var $bilde = null;
+    var $gruppe = null;
 
     var $collection_innslag = null;
 
@@ -70,6 +71,16 @@ class Hendelse
         $this->setFremhevet('true' == $data['c_fremhevet']);
         $this->setTag($data['c_tag'] ?? null);
         $this->setBilde($data['c_bilde'] ?? null);
+        $this->setGruppe($data['c_gruppe'] ?? null);
+    }
+
+    public function setGruppe($gruppe) {
+        $this->gruppe = $gruppe;
+        return $this;
+    }
+
+    public function getGruppe() {
+        return $this->gruppe;
     }
 
     public function erFremhevet()
