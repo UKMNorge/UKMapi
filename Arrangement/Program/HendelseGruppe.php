@@ -24,6 +24,28 @@ class HendelseGruppe
         $this->arrangementId = $arrangementId;
     }
 
+    public static function getById(Int $id) : HendelseGruppe {
+        $query = new Query(
+            "SELECT * FROM `hendelse_gruppe`
+            WHERE `id` = '#id'",
+            [
+                'id' => $id,
+            ]
+        );
+
+        $res = $query->run();
+        if ($row = Query::fetch($res)) {
+            return new HendelseGruppe(
+                (int) $row['id'],
+                $row['navn'],
+                $row['beskrivelse'],
+                (int) $row['arrangement_id']
+            );
+        }
+
+        throw new Exception('Hendelsegruppe med ID ' . $id . ' finnes ikke');
+    }
+
     public static function getAlleByArrangement(Arrangement $arrangement) : array /* HendelseGruppe[] */ {
         $retHendelseGrupper = [];
 
@@ -52,7 +74,7 @@ class HendelseGruppe
     private function fetchAlleHendelser() : array /* Hendelse[] */ {
         if (empty($this->hendelser)) {
             $query = new Query(
-                "SELECT c_id FROM `smartukm_concert`
+                "SELECT hendelse_id FROM `hendelse_gruppe_relation`
                 WHERE `gruppe_id` = '#hendelse_gruppe_id'",
                 [
                     'hendelse_gruppe_id' => $this->id,
@@ -61,7 +83,12 @@ class HendelseGruppe
 
             $res = $query->run();
             while ($row = Query::fetch($res)) {
-                $this->addHendelse(new Hendelse((int) $row['c_id']));
+                try{
+                    $this->addHendelse(new Hendelse((int) $row['hendelse_id']));
+                } catch(Exception $e) {
+                    // Hendelsen finnes ikke, eller er ikke aktiv
+                    // Vi ignorerer dette, da det kan skje at en hendelse er slettet
+                }
             }
         }
 
@@ -72,8 +99,16 @@ class HendelseGruppe
         return $this->id;
     }
 
+    public function setNavn(String $navn) {
+        $this->navn = $navn;
+    }
+
     public function getNavn() {
         return $this->navn;
+    }
+
+    public function setBeskrivelse(String $beskrivelse) {
+        $this->beskrivelse = $beskrivelse;
     }
 
     public function getBeskrivelse() {
