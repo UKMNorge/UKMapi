@@ -473,4 +473,110 @@ class Write
         }
         return true;
     }
+
+
+    public static function createOrUpdateHendelseGruppe(int $id, String $navn, String $beskrivelse, int $arrangementId, array $hendelser) : HendelseGruppe {
+        $hendelseGruppe = null;
+
+        if( $id > 0 ) {
+            $update = new Update(
+                'hendelse_gruppe',
+                [
+                    'id' => $id,
+                    'arrangement_id' => $arrangementId,
+                ]
+            );
+            // Save changes
+            $update->add('navn', $navn);
+            $update->add('beskrivelse', $beskrivelse ?? '');
+            $update->run();
+
+            $hendelseGruppe = HendelseGruppe::getById($id);
+        }
+        else {
+            // Opprett ny hendelse-gruppe
+            $sql = new Insert('hendelse_gruppe');
+            $sql->add('navn', $navn);
+            $sql->add('beskrivelse', $beskrivelse);
+            $sql->add('arrangement_id', $arrangementId);
+    
+            $id = $sql->run();
+    
+            if (!$id) {
+                throw new Exception(
+                    'Klarte ikke å opprette hendelse-gruppe',
+                    517010
+                );
+            }
+
+            $hendelseGruppe = HendelseGruppe::getById($id);
+        }
+
+        // Fjern alle hendelser i gruppen
+        static::updateHendelserIGruppe($hendelseGruppe, $hendelser);
+
+     
+
+        return $hendelseGruppe;
+    }
+
+    private static function updateHendelserIGruppe(HendelseGruppe $hendelseGruppe, array $hendelser) : void {
+        
+        // Slett alle hendelser koblet mot gruppen
+        $delete = new Delete(
+            'hendelse_gruppe_relation',
+            [
+                'gruppe_id' => $hendelseGruppe->getId(),
+            ]
+        );
+        $delete->run();
+
+        // Legg til alle hendelser i gruppen
+        foreach($hendelser as $hendelseId ) {
+            $insert = new Insert('hendelse_gruppe_relation');
+            $insert->add('gruppe_id', (int)$hendelseGruppe->getId());
+            $insert->add('hendelse_id', (int)$hendelseId);
+
+            try{
+                $insert->run();
+            }catch(Exception $e) {
+                // Metoden kaster exception fordi id er ikke brukt som primærnøkkel
+                // Vi ignorerer dette, da det er forventet at hendelsen allerede er lagt til i gruppen
+            }
+
+        }
+    }
+
+    public static function deleteHendelseGruppe(int $id, int $arrangementId) : bool {
+        if( $id <= 0 ) {
+            throw new Exception(
+                'Kan ikke slette hendelse-gruppe uten gyldig ID',
+                517011
+            );
+        }
+
+        $hendelseGruppe = HendelseGruppe::getById($id);
+
+        // Slett alle hendelser koblet mot gruppen
+        $delete = new Delete(
+            'hendelse_gruppe_relation',
+            [
+                'gruppe_id' => $hendelseGruppe->getId(),
+            ]
+        );
+        $delete->run();
+
+        // Slett hendelseGruppen
+        $delete = new Delete(
+            'hendelse_gruppe',
+            [
+                'id' => $id,
+                'arrangement_id' => $arrangementId
+            ]
+        );
+        $delete->run();
+
+
+        return true;
+    }
 }
