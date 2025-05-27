@@ -239,6 +239,7 @@ class Write
             'Fremhevet'                => ['c_fremhevet', 'Bool', 228],
             'Tag'                      => ['c_tag', 'String', 229],
             'Bilde'                    => ['c_bilde', 'String', 230],
+            'Visning'                  => ['c_visning', 'String', 231],
         ];
 
         // LOOP ALLE VERDIER, OG EVT LEGG TIL I SQL

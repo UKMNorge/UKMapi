@@ -42,6 +42,7 @@ class Hendelse
     var $innslag = null;
     var $tag = null;
     var $bilde = null;
+    var $visning = null;
 
     var $collection_innslag = null;
 
@@ -70,6 +71,17 @@ class Hendelse
         $this->setFremhevet('true' == $data['c_fremhevet']);
         $this->setTag($data['c_tag'] ?? null);
         $this->setBilde($data['c_bilde'] ?? null);
+        $this->setVisning($data['c_visning'] ?? null);
+
+    }
+
+    public function getVisning() {
+        return $this->visning;
+    }
+
+    public function setVisning($visning) {
+        $this->visning = $visning;
+        return $this;
     }
 
     public function erFremhevet()
