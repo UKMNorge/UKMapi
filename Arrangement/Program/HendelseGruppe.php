@@ -16,6 +16,7 @@ class HendelseGruppe
     private $beskrivelse = null;
     private $hendelser = [];
     private $arrangementId = null;
+    private $start = null;
 
     public function __construct(Int $id, String $navn, String $beskrivelse = '', int $arrangementId) {
         $this->id = $id;
@@ -107,6 +108,13 @@ class HendelseGruppe
         return $this->navn;
     }
 
+    public function getStart() {
+        if (is_null($this->start)) {
+            $this->fetchAlleHendelser();
+        }
+        return $this->start;
+    }
+
     public function setBeskrivelse(String $beskrivelse) {
         $this->beskrivelse = $beskrivelse;
     }
@@ -126,6 +134,15 @@ class HendelseGruppe
     private function addHendelse(Hendelse $hendelse) {
         if (!isset($this->hendelser[$hendelse->getId()])) {
             $this->hendelser[$hendelse->getId()] = $hendelse;
+        }
+
+        // Set eller oppdater start-tidspunktet for gruppen
+        foreach($this->hendelser as $h) {
+            if (is_null($this->start)) {
+                $this->start = $h->getStart();
+            } elseif ($h->getStart()->getTimestamp() < $this->start->getTimestamp()) {
+                $this->start = $h->getStart();
+            }
         }
     }
 
