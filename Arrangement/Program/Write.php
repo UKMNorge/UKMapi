@@ -512,10 +512,7 @@ class Write
             $hendelseGruppe = HendelseGruppe::getById($id);
         }
 
-        // Fjern alle hendelser i gruppen
         static::updateHendelserIGruppe($hendelseGruppe, $hendelser);
-
-     
 
         return $hendelseGruppe;
     }
@@ -534,8 +531,8 @@ class Write
         // Legg til alle hendelser i gruppen
         foreach($hendelser as $hendelseId ) {
             $insert = new Insert('hendelse_gruppe_relation');
-            $insert->add('gruppe_id', (int)$hendelseGruppe->getId());
-            $insert->add('hendelse_id', (int)$hendelseId);
+            $insert->add('gruppe_id', $hendelseGruppe->getId());
+            $insert->add('hendelse_id', $hendelseId);
 
             try{
                 $insert->run();
