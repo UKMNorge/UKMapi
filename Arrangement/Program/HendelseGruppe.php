@@ -17,12 +17,14 @@ class HendelseGruppe
     private $hendelser = [];
     private $arrangementId = null;
     private $start = null;
+    private $tag = null;
 
-    public function __construct(Int $id, String $navn, String $beskrivelse = '', int $arrangementId) {
+    public function __construct(Int $id, String $navn, String $beskrivelse = '', int $arrangementId, String $tag = null) {
         $this->id = $id;
         $this->navn = $navn;
         $this->beskrivelse = $beskrivelse;
         $this->arrangementId = $arrangementId;
+        $this->tag = $tag;
     }
 
     public static function getById(Int $id) : HendelseGruppe {
@@ -40,7 +42,8 @@ class HendelseGruppe
                 (int) $row['id'],
                 $row['navn'],
                 $row['beskrivelse'],
-                (int) $row['arrangement_id']
+                (int) $row['arrangement_id'],
+                $row['tag'] ?? null
             );
         }
 
@@ -65,7 +68,8 @@ class HendelseGruppe
                 (int) $row['id'],
                 $row['navn'],
                 $row['beskrivelse'],
-                $row['arrangement_id']
+                $row['arrangement_id'],
+                $row['tag'] ?? null
             );
         }
 
@@ -106,6 +110,14 @@ class HendelseGruppe
 
     public function getNavn() {
         return $this->navn;
+    }
+
+    public function setTag(String $tag) {
+        $this->tag = $tag;
+    }
+
+    public function getTag() {
+        return $this->tag;
     }
 
     public function getStart() {

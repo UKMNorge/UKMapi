@@ -476,7 +476,7 @@ class Write
     }
 
 
-    public static function createOrUpdateHendelseGruppe(int $id, String $navn, String $beskrivelse, int $arrangementId, array $hendelser) : HendelseGruppe {
+    public static function createOrUpdateHendelseGruppe(int $id, String $navn, String $beskrivelse, int $arrangementId, array $hendelser, String $tag) : HendelseGruppe {
         $hendelseGruppe = null;
 
         if( $id > 0 ) {
@@ -490,6 +490,7 @@ class Write
             // Save changes
             $update->add('navn', $navn);
             $update->add('beskrivelse', $beskrivelse ?? '');
+            $update->add('tag', $tag ?? '');
             $update->run();
 
             $hendelseGruppe = HendelseGruppe::getById($id);
@@ -500,6 +501,7 @@ class Write
             $sql->add('navn', $navn);
             $sql->add('beskrivelse', $beskrivelse);
             $sql->add('arrangement_id', $arrangementId);
+            $sql->add('tag', $tag ?? '');
     
             $id = $sql->run();
     
