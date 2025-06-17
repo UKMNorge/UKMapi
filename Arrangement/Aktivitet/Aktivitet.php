@@ -18,6 +18,7 @@ class Aktivitet implements AktivitetInterface {
     private int $plId;
     private string|null $image;
     private string|null $kursholder;
+    private bool $isProgramSynlig;
 
     private $tidspunkter = null; // SamlingTidspunkter
     private $tags = null; // SamlingTags
@@ -146,6 +147,7 @@ class Aktivitet implements AktivitetInterface {
         $this->plId = $row['pl_id'];
         $this->image = $row['image'];
         $this->kursholder = $row['kursholder'];
+        $this->isProgramSynlig = $row['is_program_synlig'] == 1 ? true : false;
     }
 
     public function getArrObj($tilPublikum = false) : array {
@@ -171,6 +173,7 @@ class Aktivitet implements AktivitetInterface {
             'plId' => $this->getPlId(),
             'tidspunkter' => $tidspunkter,
             'tags' => $tags,
+            'isProgramSynlig' => $this->isProgramSynlig
         ];
     }
 

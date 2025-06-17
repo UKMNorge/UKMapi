@@ -54,7 +54,8 @@ class Write {
         string $sted, 
         string $beskrivelse,
         string $beskrivelseLeder,
-        string $kursholder
+        string $kursholder,
+        bool $isProgramSynlig,
     ) {
 
         $sql = new Update(
@@ -68,6 +69,7 @@ class Write {
         $sql->add('beskrivelse', $beskrivelse);
         $sql->add('beskrivelseLeder', $beskrivelseLeder);
         $sql->add('kursholder', $kursholder);
+        $sql->add('is_program_synlig', $isProgramSynlig ? 1 : 0);
 
         try {
             $res = $sql->run(); 
@@ -591,10 +593,10 @@ class Write {
         
         if(UKM_HOSTNAME == 'ukm.dev') {
             $upload_dir = [
-                "path" => "/var/www/wordpress/wp-content/uploads/aktiviteter_bilder",
+                "path" => "/media/psf/dev-parellels/dev-html/wp-content/uploads/aktiviteter_bilder",
                 "url" => "http://". UKM_HOSTNAME ."/wp-content/uploads/aktiviteter_bilder",
                 "subdir" => "/aktiviteter_bilder",
-                "basedir" => "/var/www/wordpress/wp-content/uploads",
+                "basedir" => "/media/psf/dev-parellels/dev-html/wp-content/uploads",
                 "baseurl" => "http://". UKM_HOSTNAME ."/wp-content/uploads"
             ];
         }

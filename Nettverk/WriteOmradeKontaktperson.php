@@ -53,10 +53,10 @@ class WriteOmradeKontaktperson {
         
         if(UKM_HOSTNAME == 'ukm.dev') {
             $upload_dir = [
-                "path" => "/var/www/wordpress/wp-content/uploads/kontaktpersoner_bilder",
+                "path" => "/media/psf/dev-parellels/dev-html/wp-content/uploads/kontaktpersoner_bilder",
                 "url" => "http://". UKM_HOSTNAME ."/wp-content/uploads/kontaktpersoner_bilder",
                 "subdir" => "/kontaktpersoner_bilder",
-                "basedir" => "/var/www/wordpress/wp-content/uploads",
+                "basedir" => "/media/psf/dev-parellels/dev-html/wp-content/uploads",
                 "baseurl" => "http://". UKM_HOSTNAME ."/wp-content/uploads"
             ];
         }
