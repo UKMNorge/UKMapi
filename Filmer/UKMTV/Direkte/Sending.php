@@ -50,14 +50,12 @@ class Sending
         $hendelseStart->setTimestamp($hendelse->getStart()->getTimestamp());
 
         
-        $this->start = $hendelseStart->modify('-' . $this->getStartOffset() . ' minutes');
+        $this->start = $hendelseStart->modify('+' . $this->getStartOffset() . ' minutes');
         
         $hendelseStartStop = new DateTime();
         $hendelseStartStop->setTimestamp($this->start->getTimestamp());
         
         $this->stopp = $hendelseStartStop->modify('+' . $this->getVarighet() . ' minutes');
-        // Add offsett to stop time as plus
-        $this->stopp->modify('+' . $this->getStartOffset() . ' minutes');
 
         $this->arrangement_id = intval($data['arrangement_id']);
         $this->arrangement_navn = $data['arrangement_navn'];
