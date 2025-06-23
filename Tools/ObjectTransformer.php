@@ -3,9 +3,11 @@
 namespace UKMNorge\Tools;
 
 use UKMNorge\Arrangement\Arrangement;
+use UKMNorge\Arrangement\Program\Hendelse;
+use UKMNorge\Innslag\Innslag;
 
 class ObjectTransformer {
-    
+
     public static function arrangement(Arrangement $arrangement) : array{
         return [
             'id' => $arrangement->getId(),
@@ -15,4 +17,34 @@ class ObjectTransformer {
         ];
     }
 
+    public static function hendelse(Hendelse $hendelse) : array {
+        return [
+            'id' => $hendelse->getId(),
+            'navn' => $hendelse->getNavn(),
+            'start' => $hendelse->getStart()->getTimestamp(),
+            'synlig_i_rammeprogram' => $hendelse->erSynligRammeprogram(),
+            'synlig_detaljprogram' => $hendelse->erSynligDetaljprogram(),
+            'sted' => $hendelse->getSted(),
+        ];
+    }
+
+    public static function innslag(Innslag $innslag) : array {
+        $obj = [
+            'id' => $innslag->getId(),
+            'navn' => $innslag->getNavn(),
+            'type' => $innslag->getType() ? $innslag->getType()->getNavn() : 'Ukjent type',
+        ];
+        
+        // Legg til personer
+        $obj['personer'] = [];
+        foreach($innslag->getPersoner()->getAll() as $person) {
+            $obj['personer'][] = [
+                'id' => $person->getId(),
+                'navn' => $person->getNavn(),
+                'fornavn' => $person->getFornavn(),
+                'etternavn' => $person->getEtternavn(),
+            ];
+        }
+        return $obj;
+    }
 }
