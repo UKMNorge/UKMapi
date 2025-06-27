@@ -5,6 +5,11 @@ namespace UKMNorge\Tools;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Arrangement\Program\Hendelse;
 use UKMNorge\Innslag\Innslag;
+use UKMNorge\Innslag\Media\Bilder\Bilde;
+use UKMNorge\Filmer\UKMTV\FilmInterface;
+
+use Exception;
+use UKMNorge\Filmer\UKMTV\Film;
 
 class ObjectTransformer {
 
@@ -13,7 +18,7 @@ class ObjectTransformer {
             'id' => $arrangement->getId(),
             'navn' => $arrangement->getNavn(),
             'url' => $arrangement->getLink(),
-            'start' => $arrangement->getStart()->getTimestamp()
+            'start' => $arrangement->getStart()->getTimestamp(),
         ];
     }
 
@@ -46,5 +51,23 @@ class ObjectTransformer {
             ];
         }
         return $obj;
+    }
+
+    public static function bilde(Bilde $bilde) : array {
+        return [
+            'id' => $bilde->getId(),
+            'album_id' => $bilde->getAlbumId(),
+            'sizes' => $bilde->sizes,
+        ];
+    }
+
+    public static function film(FilmInterface $film) : array {
+        return [
+            'id' => $film->getId(),
+            'title' => $film->getTitle(),
+            'description' => $film->getDescription(),
+            'thumbnail_url' => $film->getImagePath(),
+            'embed_url' => $film->getEmbedUrl(),
+        ];
     }
 }
