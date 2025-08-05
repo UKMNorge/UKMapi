@@ -35,6 +35,7 @@ class ObjectTransformer {
             'synlig_i_rammeprogram' => $hendelse->erSynligRammeprogram(),
             'synlig_detaljprogram' => $hendelse->erSynligDetaljprogram(),
             'sted' => $hendelse->getSted(),
+            'innslag' => $hendelse->getInnslag(),
         ];
     }
 
