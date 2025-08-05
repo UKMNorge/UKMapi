@@ -10,10 +10,16 @@ use UKMNorge\Filmer\UKMTV\FilmInterface;
 
 use Exception;
 use UKMNorge\Filmer\UKMTV\Film;
+use UKMNorge\Geografi\Kommune;
 
 class ObjectTransformer {
 
     public static function arrangement(Arrangement $arrangement) : array{
+        $kommunerArr = [];
+        foreach($arrangement->getKommuner() as $kommune) {
+            $kommunerArr[] = self::kommune($kommune);
+        }
+
         return [
             'id' => $arrangement->getId(),
             'navn' => $arrangement->getNavn(),
@@ -22,8 +28,15 @@ class ObjectTransformer {
             'start' => $arrangement->getStart()->getTimestamp(),
             'stop' => $arrangement->getStop()->getTimestamp(),
             'path' => $arrangement->getPath(),
-            'kommuner' => $arrangement->getKommuner(),
+            'kommuner' => $kommunerArr,
             'fylke' => $arrangement->getFylke(),
+        ];
+    }
+
+    public static function kommune(Kommune $kommune) : array {
+        return [
+            'id' => $kommune->getId(),
+            'navn' => $kommune->getNavn(),
         ];
     }
 
