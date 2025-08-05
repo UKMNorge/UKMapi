@@ -18,7 +18,10 @@ class ObjectTransformer {
             'id' => $arrangement->getId(),
             'navn' => $arrangement->getNavn(),
             'url' => $arrangement->getLink(),
+            'sted' => $arrangement->getSted(),
             'start' => $arrangement->getStart()->getTimestamp(),
+            'stop' => $arrangement->getStop()->getTimestamp(),
+            'path' => $arrangement->getPath(),
         ];
     }
 
@@ -39,7 +42,7 @@ class ObjectTransformer {
             'navn' => $innslag->getNavn(),
             'type' => $innslag->getType() ? $innslag->getType()->getNavn() : 'Ukjent type',
         ];
-        
+
         // Legg til personer
         $obj['personer'] = [];
         foreach($innslag->getPersoner()->getAll() as $person) {
