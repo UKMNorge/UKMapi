@@ -28,6 +28,11 @@ class ObjectTransformer {
     }
 
     public static function hendelse(Hendelse $hendelse) : array {
+        $innslagArr = [];
+        foreach($hendelse->getInnslag()->getAll() as $innslag) {
+            $innslagArr[] = self::innslag($innslag);
+        }
+        
         return [
             'id' => $hendelse->getId(),
             'navn' => $hendelse->getNavn(),
@@ -35,7 +40,7 @@ class ObjectTransformer {
             'synlig_i_rammeprogram' => $hendelse->erSynligRammeprogram(),
             'synlig_detaljprogram' => $hendelse->erSynligDetaljprogram(),
             'sted' => $hendelse->getSted(),
-            'innslag' => $hendelse->getInnslag(),
+            'innslag' => $innslagArr,
         ];
     }
 
