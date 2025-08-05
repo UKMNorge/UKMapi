@@ -22,6 +22,8 @@ class ObjectTransformer {
             'start' => $arrangement->getStart()->getTimestamp(),
             'stop' => $arrangement->getStop()->getTimestamp(),
             'path' => $arrangement->getPath(),
+            'kommuner' => $arrangement->getKommuner(),
+            'fylke' => $arrangement->getFylke(),
         ];
     }
 
