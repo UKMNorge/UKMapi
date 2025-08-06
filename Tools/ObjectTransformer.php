@@ -10,19 +10,42 @@ use UKMNorge\Filmer\UKMTV\FilmInterface;
 
 use Exception;
 use UKMNorge\Filmer\UKMTV\Film;
+use UKMNorge\Geografi\Kommune;
 
 class ObjectTransformer {
 
     public static function arrangement(Arrangement $arrangement) : array{
+        $kommunerArr = [];
+        foreach($arrangement->getKommuner() as $kommune) {
+            $kommunerArr[] = self::kommune($kommune);
+        }
+
         return [
             'id' => $arrangement->getId(),
             'navn' => $arrangement->getNavn(),
             'url' => $arrangement->getLink(),
+            'sted' => $arrangement->getSted(),
             'start' => $arrangement->getStart()->getTimestamp(),
+            'stop' => $arrangement->getStop()->getTimestamp(),
+            'path' => $arrangement->getPath(),
+            'kommuner' => $kommunerArr,
+            'fylke' => $arrangement->getFylke(),
+        ];
+    }
+
+    public static function kommune(Kommune $kommune) : array {
+        return [
+            'id' => $kommune->getId(),
+            'navn' => $kommune->getNavn(),
         ];
     }
 
     public static function hendelse(Hendelse $hendelse) : array {
+        $innslagArr = [];
+        foreach($hendelse->getInnslag()->getAll() as $innslag) {
+            $innslagArr[] = self::innslag($innslag);
+        }
+        
         return [
             'id' => $hendelse->getId(),
             'navn' => $hendelse->getNavn(),
@@ -30,6 +53,7 @@ class ObjectTransformer {
             'synlig_i_rammeprogram' => $hendelse->erSynligRammeprogram(),
             'synlig_detaljprogram' => $hendelse->erSynligDetaljprogram(),
             'sted' => $hendelse->getSted(),
+            'innslag' => $innslagArr,
         ];
     }
 
@@ -39,7 +63,7 @@ class ObjectTransformer {
             'navn' => $innslag->getNavn(),
             'type' => $innslag->getType() ? $innslag->getType()->getNavn() : 'Ukjent type',
         ];
-        
+
         // Legg til personer
         $obj['personer'] = [];
         foreach($innslag->getPersoner()->getAll() as $person) {
