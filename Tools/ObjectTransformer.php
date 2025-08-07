@@ -34,9 +34,13 @@ class ObjectTransformer {
     }
 
     public static function kommune(Kommune $kommune) : array {
+        $fylke = $kommune->getFylke();
+
         return [
             'id' => $kommune->getId(),
             'navn' => $kommune->getNavn(),
+            'fylke_id' => $fylke ? $fylke->getId() : -1,
+            'fylke_navn' => $fylke ? $fylke->getNavn() : 'Ukjent fylke',
         ];
     }
 
