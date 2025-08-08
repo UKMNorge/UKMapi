@@ -11,6 +11,7 @@ use UKMNorge\Filmer\UKMTV\FilmInterface;
 use Exception;
 use UKMNorge\Filmer\UKMTV\Film;
 use UKMNorge\Geografi\Kommune;
+use UKMNorge\Nettverk\OmradeKontaktperson;
 
 class ObjectTransformer {
 
@@ -30,6 +31,18 @@ class ObjectTransformer {
             'path' => $arrangement->getPath(),
             'kommuner' => $kommunerArr,
             'fylke' => $arrangement->getFylke(),
+        ];
+    }
+
+    public static function kontaktperson(OmradeKontaktperson $kontaktperson) : array {
+        return [
+            'id' => $kontaktperson->getId(),
+            'fornavn' => $kontaktperson->getFornavn(),
+            'etternavn' => $kontaktperson->getEtternavn(),
+            'navn' => $kontaktperson->getNavn(),
+            'epost' => $kontaktperson->getEpost(),
+            'telefon' => $kontaktperson->getTelefon(),
+            'tittel' => $kontaktperson->getTittel(),
         ];
     }
 
