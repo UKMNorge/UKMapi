@@ -39,7 +39,6 @@ class ObjectTransformer {
             'id' => $kontaktperson->getId(),
             'fornavn' => $kontaktperson->getFornavn(),
             'etternavn' => $kontaktperson->getEtternavn(),
-            'navn' => $kontaktperson->getNavn(),
             'epost' => $kontaktperson->getEpost(),
             'telefon' => $kontaktperson->getTelefon(),
             'tittel' => $kontaktperson->getTittel(),
