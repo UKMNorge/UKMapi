@@ -37,11 +37,16 @@ class ObjectTransformer {
     public static function kontaktperson(OmradeKontaktperson $kontaktperson) : array {
         return [
             'id' => $kontaktperson->getId(),
-            'fornavn' => $kontaktperson->getFornavn(),
-            'etternavn' => $kontaktperson->getEtternavn(),
-            'epost' => $kontaktperson->getEpost(),
-            'telefon' => $kontaktperson->getTelefon(),
-            'tittel' => $kontaktperson->getTittel(),
+            'navn' => $kontaktperson->getFornavn() . ' ' . $kontaktperson->getEtternavn(),
+            'tel' => $kontaktperson->getTelefon(),
+        ];
+    }
+
+    public static function adminKontaktperson($adminKontaktperson) : array {
+        return [
+            'id' => -1,
+            'navn' => $adminKontaktperson['display_name'],
+            'tel' => $adminKontaktperson['user_phone'] ?? 'Ukjent telefon',
         ];
     }
 
