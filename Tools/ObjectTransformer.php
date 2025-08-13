@@ -39,14 +39,16 @@ class ObjectTransformer {
             'id' => $kontaktperson->getId(),
             'navn' => $kontaktperson->getFornavn() . ' ' . $kontaktperson->getEtternavn(),
             'tel' => $kontaktperson->getTelefon(),
+            'bilde' => $kontaktperson->getBilde() ?? '',
         ];
     }
 
-    public static function adminKontaktperson($adminKontaktperson) : array {
+    public static function adminKontaktperson($adminKontaktperson, $bilde) : array {
         return [
             'id' => -1,
             'navn' => $adminKontaktperson['display_name'],
             'tel' => $adminKontaktperson['user_phone'] ?? 'Ukjent telefon',
+            'bilde' => $bilde ?? '',
         ];
     }
 
