@@ -29,7 +29,7 @@ class ObjectTransformer {
             'start' => $arrangement->getStart()->getTimestamp(),
             'stop' => $arrangement->getStop()->getTimestamp(),
             'path' => $arrangement->getPath(),
-            'kommuner' => $kommunerArr,
+            'kommuner' => $arrangement->getType() == 'kommune' ? $kommunerArr : [],
             'fylke' => $arrangement->getFylke(),
         ];
     }
