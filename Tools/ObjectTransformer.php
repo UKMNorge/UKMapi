@@ -60,6 +60,7 @@ class ObjectTransformer {
             'navn' => $kommune->getNavn(),
             'fylke_id' => $fylke ? $fylke->getId() : -1,
             'fylke_navn' => $fylke ? $fylke->getNavn() : 'Ukjent fylke',
+            'path' => $kommune->getPath(),
         ];
     }
 
