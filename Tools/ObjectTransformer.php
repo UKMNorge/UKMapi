@@ -86,6 +86,8 @@ class ObjectTransformer {
             'id' => $innslag->getId(),
             'navn' => $innslag->getNavn(),
             'type' => $innslag->getType() ? $innslag->getType()->getNavn() : 'Ukjent type',
+            'sjanger' => $innslag->getSjanger(),
+            'beskrivelse' => $innslag->getBeskrivelse(),
         ];
 
         // Legg til personer
