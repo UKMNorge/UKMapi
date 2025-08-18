@@ -36,7 +36,7 @@ class ObjectTransformer {
 
     public static function kontaktperson(OmradeKontaktperson $kontaktperson) : array {
         return [
-            'id' => $kontaktperson->getId(),
+            'id' => self::generateKontaktpersonID($kontaktperson),
             'navn' => $kontaktperson->getFornavn() . ' ' . $kontaktperson->getEtternavn(),
             'tel' => $kontaktperson->getTelefon(),
             'bilde' => $kontaktperson->getBilde() ?? '',
@@ -45,11 +45,37 @@ class ObjectTransformer {
 
     public static function adminKontaktperson($adminKontaktperson, $bilde) : array {
         return [
-            'id' => -1,
+            'id' => self::generateKontaktpersonID($adminKontaktperson),
             'navn' => $adminKontaktperson['display_name'],
             'tel' => $adminKontaktperson['user_phone'] ?? 'Ukjent telefon',
             'bilde' => $bilde ?? '',
         ];
+    }
+
+    private static function generateKontaktpersonID($kontaktperson) : string {
+        $navn = '';
+        $telefon = '';
+
+        if($kontaktperson instanceof OmradeKontaktperson) {
+            // Hvis det er en OmradeKontaktperson, bruk id direkte
+            $navn = $kontaktperson->getFornavn() . $kontaktperson->getEtternavn();
+            $telefon = $kontaktperson->getTelefon();
+        } else {
+            $navn = $kontaktperson['display_name'] ?? '';
+            $telefon = $kontaktperson['user_phone'] ?? '';
+        }
+
+        if(empty($navn) && empty($telefon)) {
+            // Random text generation
+            $navn = 'ukjent_' . bin2hex(random_bytes(8));
+            $telefon = '0';
+        }
+
+        // make lowercase and remove spaces
+        $navn = strtolower(str_replace(' ', '', $navn));
+        $telefon = str_replace(' ', '', $telefon);
+
+        return md5($navn . '_' . $telefon);
     }
 
     public static function kommune(Kommune $kommune) : array {
