@@ -275,7 +275,7 @@ class statistikk {
 	 * @param (Innslag) $innslag
 	 * @return void
 	**/
-	public static function oppdater_innslag(Innslag $innslag, Arrangement $tilArrangement = null) {
+	public static function oppdater_innslag(Innslag $innslag, ?Arrangement $tilArrangement = null) {
 		/*
 			Oppdater innslag bare hvis arrangementet ikke er ferdig
 			Statistikk må ikke påvirkes av endringer som skjer etter at arrangementet ble utført. For eksempel, fjerning av deltakere senere skal ikke gjenspeilses i statistikk.
@@ -333,8 +333,11 @@ class statistikk {
 		$fylke = $isHomeArrangement ? $homeArrangement->getFylke()->getId() : $currentArrangement->getFylke()->getId();
 		
 		// if( $innslag->getStatus() == 8) {
-			foreach( $innslag->getPersoner()->getAll() as $person ) { // behandle hver person
-				if($videresending && !$person->erPameldt($currentArrangement->getId())) {
+			foreach( $innslag->getPersoner()->getAll() as $person ) { 
+				// behandle hver person og sjekk om de er videresendt
+				// hvis videresendt, sjekk at de er påmeldt det til arrangementet de videresendes til. Det er mulig å videresende et innslag uten at alle personene er påmeldt.
+				// Sjekker også at innslagtypen er ikke enkeltperson. Hvis det er enkeltperson, så skal personen alltid telles med.
+				if($videresending && !$innslag->getType()->erEnkeltPerson() && !$person->erPameldt($currentArrangement->getId())) {
 					continue;
 				}
 				
