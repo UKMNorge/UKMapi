@@ -42,6 +42,7 @@ class ObjectTransformer {
         return [
             'id' => self::generateKontaktpersonID($kontaktperson),
             'navn' => $kontaktperson->getFornavn() . ' ' . $kontaktperson->getEtternavn(),
+            'beskrivelse' => $kontaktperson->getBeskrivelse() ?? '',
             'epost' => $kontaktperson->getEpost() ?? '',
             'tel' => $kontaktperson->getTelefon(),
             'bilde' => $kontaktperson->getBilde() ?? '',
