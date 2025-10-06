@@ -31,6 +31,7 @@ class ObjectTransformer {
             'path' => $arrangement->getPath(),
             'kommuner' => $arrangement->getType() == 'kommune' ? $kommunerArr : [],
             'fylke' => $arrangement->getFylke(),
+            'paamelding_lenker' => $arrangement->getPaameldingsLenker(),
         ];
     }
 
