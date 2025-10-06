@@ -1809,6 +1809,45 @@ class Arrangement
     {
         return $this->subtype == 'arrangement';
     }
+
+    /**
+     * Hent lenker for påmelding til dette arrangementet
+     * 
+     * Returnerer en array med lenker for påmelding til alle kommuner i arrangementet
+     * Hvis det er fylkesmønstring, så er det en lenke til Påmeldingssystemet for å velge kommune
+     * Hvis det er landsfestival, så er det ingen lenker
+     * 
+     * @return array
+     */
+    public function getPaameldingsLenker() : array {
+        // Man kan ikke melde seg på direkte til landsfestivalen
+        if($this->getType() == 'land') {
+            return [];
+        }
+        
+        $lenker = [];
+
+        // Sjekk om påmelding er åpen og frist 1 eller 2 er ikke passert
+        if($this->harPamelding() && ( $this->erPameldingApen(1) || $this->erPameldingApen(2))) {           
+            // Hvis det er fylkesmønstring, så er det en lenke til påmelding for å velge kommune
+            if($this->getType() == 'fylke') {
+                $obj['id'] = $this->getFylke()->getId();
+                $obj['type'] = 'fylke';
+                $obj['lenke'] = 'https://delta.' . UKM_HOSTNAME . '/ukmid/pamelding/fylke-' . $this->getId() . '/';
+                $lenker[] = $obj;
+                return $lenker;
+            }
+            // Legg til alle kommuner i arrangementet (arrangementet kan være fellesmønstring)
+            foreach( $this->getKommuner()->getAll() as $kommune ) {
+                $obj['id'] = $kommune->getId();
+                $obj['type'] = 'kommune';
+                $obj['lenke'] = 'https://delta.' . UKM_HOSTNAME . '/ukmid/pamelding/' . $kommune->getId() . '-' . $this->getId() . '/';
+                $lenker[] = $obj;
+            }
+        }
+
+        return $lenker;
+    }
     
     /**
      * Er dette en mønstring som representerer et kunstgalleri?
