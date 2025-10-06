@@ -75,6 +75,8 @@ class Fylker {
         self::$fylker[32]	= new Fylke(32, 'akershus', 'Akershus', true);
 		self::$fylker[33]	= new Fylke(33, 'buskerud', 'Buskerud', true);
 
+        // UKM Norge as fylke
+        self::$fylker[9999]	= new Fylke(9999, 'ukmnorge', 'UKM Norge', false, false);
 
 
     }
@@ -152,6 +154,7 @@ class Fylker {
             case 'vestland':        return self::getById(46);
             case 'trondelag':       return self::getById(50);
             case 'tromsogfinnmark': return self::getById(54); // Deaktiveres fra 2024
+            case 'ukmnorge':        return self::getById(9999);
 		}
 
 		throw new Exception(
