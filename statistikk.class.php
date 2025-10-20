@@ -277,8 +277,10 @@ class statistikk {
 	**/
 	public static function oppdater_innslag(Innslag $innslag, ?Arrangement $tilArrangement = null) {
 		/*
-			Oppdater innslag bare hvis arrangementet ikke er ferdig
+			Oppdater (sletting) innslag bare hvis arrangementet ikke er ferdig. 
+			OBS: Innslag eller personer som blir lagt til etter at arrangementet er ferdig skal telles med i statistikk.
 			Statistikk må ikke påvirkes av endringer som skjer etter at arrangementet ble utført. For eksempel, fjerning av deltakere senere skal ikke gjenspeilses i statistikk.
+			OBS: Innslag og deltakere som legges til senere i et ferdig arrangement skal telles med i statistikk. Dette gjøres fordi noen av deltakere kan registreres etterpå pga videresending.
 		*/
 		$homeArrangement = $innslag->getHome();
 		$currentArrangement = null;
@@ -290,8 +292,11 @@ class statistikk {
 			try{
 				$currentArrangement = new Arrangement($innslag->getContext()->getMonstring()->getId());
 			}catch(Exception $e) {
-
+				$currentArrangement = $homeArrangement;
 			}
+		}
+		else {
+			$currentArrangement = $homeArrangement;
 		}
 		
 		// Innslag is being edited in another arrangement (videresending) or home arrangement
@@ -301,27 +306,46 @@ class statistikk {
 		} else {
 			$isHomeArrangement = $homeArrangement->getId() == $currentArrangement->getId();
 		}
+		
+		$nyDeltakerIFerdigArrangement = false;
 
 		// Hvis arrangementet er ferdig og det redigeres fra home arrangement, ikke oppdater statistikk
 		if($isHomeArrangement && $homeArrangement->erFerdig()) {
-			return;
+			// Sjekk hvis ny deltaker legges til i et ferdig arrangement
+			$nyDeltakerIFerdigArrangement = static::nyInnslagEllerPersonOppdagelse($innslag, $homeArrangement, $currentArrangement);
+
+			// Sjekk om det er et nytt innslag eller en ny person i et eksisterende innslag som er lagt til
+			if(!$nyDeltakerIFerdigArrangement) {
+				// Nytt innslag eller ny deltaker ikke funnet
+				return;
+			}
 		}
 		// Hvis arrangementet er ferdig og det redigeres fra et annet arrangement (videresending), ikke oppdater statistikk
 		if(!$isHomeArrangement && $currentArrangement->erFerdig()) {
-			return;
+			// Sjekk hvis ny deltaker legges til i et ferdig arrangement
+			$nyDeltakerIFerdigArrangement = static::nyInnslagEllerPersonOppdagelse($innslag, $homeArrangement, $currentArrangement);
+
+			if(!$nyDeltakerIFerdigArrangement) {
+				// Nytt innslag eller ny deltaker ikke funnet
+				return;
+			}
 		}
 
-		$dbArray = array(
-			'season' => $innslag->getSesong(),
-			'b_id' => $innslag->getId(),
-	   		'pl_id_home' => $homeArrangement->getId(),
-		);
-
-		if(!$isHomeArrangement) {
-			$dbArray['pl_id'] = $currentArrangement->getId();
+		// Hvis ny deltaker, slett er ikke nødvendig.
+		// Dette for å unngå å slette deltakere som har vært med i innslaget (og som potensielt har meldt seg av senere) og en ny deltaker legges til etter at arrangementet er ferdig.
+		// Ny deltaker i et ferdig arrangement - registreres
+		// Slettede deltakere i et ferdig arrangement - registreres IKKE
+		if(!$nyDeltakerIFerdigArrangement) {
+			$dbArray = array(
+				'season' => $innslag->getSesong(),
+				'b_id' => $innslag->getId(),
+				'pl_id' => $isHomeArrangement ? $homeArrangement->getId() : $currentArrangement->getId(), 
+				   'pl_id_home' => $homeArrangement->getId(),
+			);
+	
+			$delete = new Delete('ukm_statistics_from_2024', $dbArray);
+			$delete->run();
 		}
-		$delete = new Delete('ukm_statistics_from_2024', $dbArray);
-		$delete->run();
 
 		$videresending = $isHomeArrangement ? 0 : 1;
 		if($currentArrangement->erSingelmonstring()) {
@@ -363,7 +387,7 @@ class statistikk {
 					"pl_id_home" => $homeArrangement->getId(), // home pl_id
 					"pl_id" => $currentArrangement->getId(), // current pl_id
 					"videresending" => $videresending,
-					"innslag_status" => $innslag->getStatus(),
+					"innslag_status" => $innslag->getStatus() == 6 ? 8 : $innslag->getStatus(), // Hvis status er "6 - Påmeldt" bytt til "8 - Fullført" for statistikken. Status 6 innebarer at innslaget har påmeldte deltakere. Se Mangler.php 
 					"p_date_of_birth" => $person->getFodselsdato(),
 					"p_firstname" => $person->getFornavn(),
 				);
@@ -445,6 +469,53 @@ class statistikk {
 	
 	public function getTargetGroup($season) {
 		return rand(1000,3000);
+	}
+
+	// Sjekker hvis det er et nytt innslag eller en ny person i et eksisterende innslag som er lagt til
+	private static function nyInnslagEllerPersonOppdagelse($innslag, $homeArrangement, $currentArrangement) {
+		if($currentArrangement == null) {
+			// redigering skjer i home arrangement
+			$currentArrangement = $homeArrangement;
+		}
+		if($currentArrangement->erSingelmonstring()) {
+			$kommune = $currentArrangement->getKommune()->getId();
+		}else {
+			$kommune = $innslag->getKommune()->getId();
+		}		
+
+		$videresending = $homeArrangement->getId() == $currentArrangement->getId() ? 0 : 1;
+
+		$qry = "SELECT p_id FROM `ukm_statistics_from_2024`" .
+				" WHERE `b_id` = '" . $innslag->getId() . "'" .
+				" AND `k_id` = '" . $kommune . "'"  .
+				" AND `pl_id_home` = '" . $homeArrangement->getId() . "'"  .
+				" AND `pl_id` = '" . $currentArrangement->getId() . "'"  .
+				" AND `videresending` = '" . $videresending . "'";
+		$sql = new Query($qry);
+
+		$result = $sql->run();
+
+		// Sjekk om innslaget finnes i statistikken, hvis ikke, da er det et nytt innslag som kan legges til
+		if (Query::numRows($result) < 1) {
+			return true;
+		}
+
+		// Bygg sett med eksisterende p_id i statistikken
+		$eksisterende = [];
+		while ($r = Query::fetch($result)) {
+			$eksisterende[$r['p_id']] = true;
+		}
+		
+
+		// Finnes det en person i innslaget som ikke finnes i statistikken?
+		foreach ($innslag->getPersoner()->getAll() as $person) {
+			if (!isset($eksisterende[$person->getId()])) {
+				// die("FOUND NEW PERSON\n");
+				return true; // personen er ikke lagt til i statistikken enda
+			}
+		}
+
+		return false; // innslag finnes og ingen nye personer
 	}
 }
 ?>
