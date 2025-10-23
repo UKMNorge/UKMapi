@@ -117,7 +117,7 @@ class Innslag
             $homePlace->getType(),
             $homePlace->getSesong(),
             $homePlace->getFylke()->getId(),
-            $homePlace->getKommuner()->getIdArray()
+            $homePlace->getKommuner() ? $homePlace->getKommuner()->getIdArray() : []
         );
 
         $innslag = new Innslag($id, $also_if_incomplete);
