@@ -82,6 +82,7 @@ class Arrangement
     var $synlig = true;
     var $maksAntDeltagere = null;
     var $videresending_stenger = null;
+    var $gui_type = null;
     
     /** @var Venteliste */
     var $venteliste = null;
@@ -222,6 +223,7 @@ class Arrangement
         $this->setVideresendingApner( new DateTime($row['pl_forward_start']));
         $this->setVideresendingStenger( new DateTime($row['pl_forward_stop']));
         $this->setMaksAntallDeltagere($row['maks_antall_deltagere']);
+        $this->setGuiType($row['gui_type']);
         $this->har_skjema = $row['pl_has_form'] == 'true';
         $this->synlig = $row['pl_visible'] == 'true';
         $this->deleted = $row['pl_deleted'] == 'true';
@@ -1743,6 +1745,25 @@ class Arrangement
     public function erMonstring()
     {
         return $this->subtype == 'monstring';
+    }
+
+    /**
+     * GUI type for dette arrangementet
+     * Beskriver hvordan arrangementet skal vises i GUI
+     */
+    public function getGuiType() : int|null {
+        return $this->gui_type;
+    }
+
+    /**
+     * Angi GUI type for dette arrangementet
+     *
+     * @param int|null $guiType
+     * @return self
+     */
+    public function setGuiType(?int $guiType) {
+        $this->gui_type = $guiType ?? null;
+        return $this;
     }
 
     /**
