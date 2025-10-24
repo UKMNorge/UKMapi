@@ -226,7 +226,8 @@ class Write
             'Subtype'               => ['smartukm_place', 'pl_subtype', 131],
             'VideresendingApner'    => ['smartukm_place', 'pl_forward_start', 132],
             'VideresendingStenger'  => ['smartukm_place', 'pl_forward_stop', 133],
-            'MaksAntallDeltagere'   => ['smartukm_place', 'maks_antall_deltagere', 134]
+            'MaksAntallDeltagere'   => ['smartukm_place', 'maks_antall_deltagere', 134],
+            'GuiType'               => ['smartukm_place', 'gui_type', 135],
         ];
 
         // Eierfylke lagres for kommuner og fylker, men ikke land
