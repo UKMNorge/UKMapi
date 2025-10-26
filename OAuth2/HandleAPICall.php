@@ -174,4 +174,38 @@ class HandleAPICall {
         }
     }
 
+    /**
+     * Limit requests from the same IP address on a specific form to prevent abuse
+     * 
+     * The method stops the execution and returns a 429 error if the limit is exceeded
+     * 
+     * @param string|null $formIdentifier
+     * @return void
+     */
+    public function limitRequestsFromIP(?string $formIdentifier = null) {
+        $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+        $uri = $_SERVER['REQUEST_URI'] ?? 'unknown';
+
+        $formKey = $formIdentifier ?: $uri;
+
+        // Build a unique key per IP + form
+        $key = "rate_limit:{$ip}:{$formKey}";
+
+        $limit = 10;  // requests per minute per IP per form
+        $ttl   = 60;  // seconds
+
+        // Fetch or initialize
+        $count = apcu_fetch($key);
+
+        if ($count === false) {
+            apcu_store($key, 1, $ttl);
+        } elseif ($count >= $limit) {
+            http_response_code(429);
+            $this->sendToClient(['error' => 'Too many requests'], 429);
+            exit;
+        } else {
+            apcu_inc($key);
+        }
+    }
+
 }
