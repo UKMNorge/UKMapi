@@ -51,7 +51,7 @@ class Interesse {
         return $this->arrangorInteresse;
     }
 
-    public function getKommuner() : array {
-        return $this->kommuner;
+    public function getKommuner() : array /* of int */ {
+        return array_map('intval', $this->kommuner);
     }
 }
