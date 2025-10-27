@@ -5,6 +5,7 @@ namespace UKMNorge\Interesse;
 use Exception;
 use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Database\SQL\Update;
+use UKMNorge\Database\SQL\Delete;
 
 require_once('UKM/Autoloader.php');
 
@@ -36,6 +37,8 @@ class Write {
             
             $interesse_id = $sql->run();
         }
+        // Lagre kommuner
+        static::saveKommunerForInteresse($interesse_id, $interesse->getKommuner());
         return $interesse_id ?? false;
 	}
 
@@ -59,5 +62,32 @@ class Write {
         return $res ? $interesse->getId() : null;
     }
 
+    private static function saveKommunerForInteresse(int $interesse_id, array $kommuner) : void {
+        if(!$interesse_id || $interesse_id < 0 || empty($kommuner)) {
+            return;
+        }
+
+        // Slett gamle kommuner
+        $sqlDelete = new Delete('smartukm_interesse_kommune', [
+            'interesse_id' => $interesse_id
+        ]);
+        $sqlDelete->run();
+
+        // Legg til nye kommuner
+        foreach($kommuner as $kommune_id) {
+            // Kommune id må være integer (ikke float eller double)
+            if (filter_var($kommune_id, FILTER_VALIDATE_INT) === false) {
+                continue;
+            }
+            $sqlInsert = new Insert('smartukm_interesse_kommune');
+            $sqlInsert->add('interesse_id', $interesse_id);
+            $sqlInsert->add('kommune_id', $kommune_id);
+            try{
+                $sqlInsert->run();
+            } catch(Exception $e) {
+                var_dump($e->getMessage());
+            }
+        }
+    }
    
 }
