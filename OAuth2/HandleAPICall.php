@@ -180,9 +180,11 @@ class HandleAPICall {
      * The method stops the execution and returns a 429 error if the limit is exceeded
      * 
      * @param string|null $formIdentifier
+     * @param int $limit Number of allowed requests
+     * @param int $ttl Time to live in seconds for the rate limit
      * @return void
      */
-    public function limitRequestsFromIP(?string $formIdentifier = null) {
+    public function limitRequestsFromIP(int $limit, int $ttl, ?string $formIdentifier = null) {
         $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
         $uri = $_SERVER['REQUEST_URI'] ?? 'unknown';
 
@@ -190,9 +192,6 @@ class HandleAPICall {
 
         // Build a unique key per IP + form
         $key = "rate_limit:{$ip}:{$formKey}";
-
-        $limit = 10;  // requests per minute per IP per form
-        $ttl   = 60;  // seconds
 
         // Fetch or initialize
         $count = apcu_fetch($key);
