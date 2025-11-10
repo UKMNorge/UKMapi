@@ -104,6 +104,8 @@ class StatistikkSuper {
             WHERE k_id IN (#k_ids) 
                 AND season='#season'
                 AND innslag_status=8
+                AND fylke='false'
+                AND land='false'
             GROUP BY p_id, b_id";
         }
 
