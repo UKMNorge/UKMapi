@@ -39,11 +39,12 @@ class ObjectTransformer {
         ];
     }
 
-    public static function kontaktperson(OmradeKontaktperson $kontaktperson) : array {
+    // $erUKMKontakt brukes for å tilpasse data for UKM Norge nasjonalt nivå sine kontaktpersoner
+    public static function kontaktperson(OmradeKontaktperson $kontaktperson, bool $erUKMKontakt=false) : array {
         return [
             'id' => self::generateKontaktpersonID($kontaktperson),
             'navn' => $kontaktperson->getFornavn() . ' ' . $kontaktperson->getEtternavn(),
-            'beskrivelse' => $kontaktperson->getBeskrivelse() ?? '',
+            'beskrivelse' => $erUKMKontakt ? ($kontaktperson->getBeskrivelse() ?? '') : '',
             'epost' => $kontaktperson->getEpost() ?? '',
             'tel' => $kontaktperson->getTelefon(),
             'bilde' => $kontaktperson->getBilde() ?? '',
