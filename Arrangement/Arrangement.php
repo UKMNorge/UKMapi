@@ -48,6 +48,7 @@ class Arrangement
     var $id = null;
     var $type = null;
     var $navn = null;
+    var $beskrivelse = null;
     var $sted = null;
     var $googleMap = null;
     var $googleMapData = null;
@@ -208,6 +209,7 @@ class Arrangement
 
         $this->setId($row['pl_id']);
         $this->setNavn($row['pl_name']);
+        $this->setBeskrivelse($row['pl_description']);
         $this->setRegistrert($row['pl_registered'] == 'true');
         $this->setStart(new DateTime($row['pl_start']));
         $this->setStop(new DateTime($row['pl_stop']));
@@ -1747,8 +1749,27 @@ class Arrangement
         return $this->subtype == 'monstring';
     }
 
+    /**
+     * Beskrivelse av arrangementet
+     *
+     * @return String $beskrivelse
+     */
     public function getBeskrivelse() {
-        return '';
+        return $this->beskrivelse;
+    }
+
+    /**
+     * Angi beskrivelse av arrangementet
+     *
+     * @param String $beskrivelse
+     * @return self
+     */
+    public function setBeskrivelse($beskrivelse) {
+        if($beskrivelse === null) {
+            $beskrivelse = '';
+        }
+        $this->beskrivelse = $beskrivelse;
+        return $this;
     }
 
     /**

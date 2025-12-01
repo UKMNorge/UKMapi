@@ -208,6 +208,7 @@ class Write
         // VERDIER SOM KAN OPPDATERES
         $properties = [
             'Navn'                  => ['smartukm_place', 'pl_name', 100],
+            'Beskrivelse'           => ['smartukm_place', 'pl_description', 111],
             'Path'                  => ['smartukm_place', 'pl_link', 110],
             'Uregistrerte'          => ['smartukm_place', 'pl_missing', 108],
             'Publikum'              => ['smartukm_place', 'pl_public', 109],
