@@ -1747,6 +1747,10 @@ class Arrangement
         return $this->subtype == 'monstring';
     }
 
+    public function getBeskrivelse() {
+        return '';
+    }
+
     /**
      * GUI type for dette arrangementet
      * Beskriver hvordan arrangementet skal vises i GUI
