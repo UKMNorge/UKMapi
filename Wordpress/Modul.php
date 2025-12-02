@@ -121,7 +121,10 @@ abstract class Modul {
     }
 
     public static function getPluginUrl() {
-        return '//'. UKM_HOSTNAME . '/wp-content/plugins/'. basename(static::getPluginPath()) . '/';
+        if(UKM_HOSTNAME == 'ukm.dev') {
+            return '//'. UKM_HOSTNAME . '/wp-content/plugins/'. basename(static::getPluginPath()) . '/';
+        }
+        return '//sys.'. UKM_HOSTNAME . '/wp-content/plugins/'. basename(static::getPluginPath()) . '/';
     }
 
     /**
