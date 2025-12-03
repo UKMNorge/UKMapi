@@ -287,7 +287,7 @@ class Sending
      */
     public function getArrangementLenke()
     {
-        return 'https://' . UKM_HOSTNAME . '/' . $this->arrangement_lenke . '/';
+        return 'https://' . UKM_HOSTNAME_SUBDOMAIN . '/' . $this->arrangement_lenke . '/';
     }
 
     /**

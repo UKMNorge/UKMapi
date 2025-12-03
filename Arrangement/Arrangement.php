@@ -974,7 +974,7 @@ class Arrangement
      **/
     public function getLink()
     {
-        return 'https://' . UKM_HOSTNAME . '/' . $this->getPath() . '/';
+        return 'https://' . UKM_HOSTNAME_SUBDOMAIN . '/' . $this->getPath() . '/';
     }
 
     /**
