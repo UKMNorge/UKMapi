@@ -977,6 +977,10 @@ class Arrangement
         return 'https://' . UKM_HOSTNAME_SUBDOMAIN . '/' . $this->getPath() . '/';
     }
 
+    public function getArrangementNettsideURL() {
+        return 'https://' . UKM_HOSTNAME . '/arrangement/' . $this->getPath();
+    }
+
     /**
      * Hent hvilke innslagstyper som kan være påmeldt denne mønstringen
      *
