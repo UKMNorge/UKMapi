@@ -30,9 +30,9 @@ class Blog
     {
         $path = str_replace(
             [
-                'https://'.UKM_HOSTNAME,
-                'http://'. UKM_HOSTNAME,
-                '//'. UKM_HOSTNAME
+                'https://'.UKM_HOSTNAME_SUBDOMAIN,
+                'http://'. UKM_HOSTNAME_SUBDOMAIN,
+                '//'. UKM_HOSTNAME_SUBDOMAIN
             ],
             '',
             $path
