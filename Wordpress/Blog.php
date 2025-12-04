@@ -30,9 +30,9 @@ class Blog
     {
         $path = str_replace(
             [
-                'https://'.UKM_HOSTNAME_SUBDOMAIN,
-                'http://'. UKM_HOSTNAME_SUBDOMAIN,
-                '//'. UKM_HOSTNAME_SUBDOMAIN
+                'https://'.UKM_HOSTNAME,
+                'http://'. UKM_HOSTNAME,
+                '//'. UKM_HOSTNAME
             ],
             '',
             $path
@@ -65,9 +65,10 @@ class Blog
      */
     public static function getIdByPath(String $path)
     {
+
         static::_requiresWordpressFunctions();
         $path = static::controlPath($path);
-        $result = domain_exists(UKM_HOSTNAME, $path, 1);
+        $result = domain_exists(UKM_HOSTNAME_SUBDOMAIN, $path, 1);
 
         if( !is_numeric($result) ) {
             throw new Exception(
@@ -394,7 +395,7 @@ class Blog
         // Opprett tom blogg, og sjekk at vi får gyldig blogg-id tilbake
         $blog_id = wp_insert_site(
             [
-                'domain' => UKM_HOSTNAME,
+                'domain' => UKM_HOSTNAME_SUBDOMAIN,
                 'path' => $path,
                 'network_id' => 1,
                 'user_id' => 1,
