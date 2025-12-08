@@ -153,6 +153,28 @@ class Arrangement
         return new static( $id );
     }
 
+    /** 
+     * Hent arrangement fra url-path
+     * 
+     * @param String $path
+     * @return Arrangement|null
+     */
+    public static function getByPath(String $path) {
+        $qry = new Query(
+            "SELECT pl_id FROM smartukm_place 
+            WHERE pl_link = '#path'",
+            ['path' => $path]
+        );
+
+        $res = $qry->run('array');
+        if($res == null || !isset($res['pl_id'])) {
+            return null;
+        }
+
+        return new static( $res['pl_id'] );
+    }
+    
+
     public function __construct($id_or_row)
     {
         if (is_numeric($id_or_row)) {
