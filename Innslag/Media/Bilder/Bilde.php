@@ -491,7 +491,7 @@ class Bilde
             $basefolder = 'wp-content/uploads/sites/' . $this->getBlogId() . '/';
         }
         $data['path_int'] = $basefolder;
-        $data['path_ext'] = 'http://' . UKM_HOSTNAME . '/' . $basefolder;
+        $data['path_ext'] = 'http://' . UKM_HOSTNAME_SUBDOMAIN . '/' . $basefolder;
 
         // Opprett bilde
         if(isset($data['file'])) {
