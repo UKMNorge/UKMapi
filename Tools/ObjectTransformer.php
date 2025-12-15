@@ -102,8 +102,11 @@ class ObjectTransformer {
 
     public static function hendelse(Hendelse $hendelse) : array {
         $innslagArr = [];
-        foreach($hendelse->getInnslag()->getAll() as $innslag) {
-            $innslagArr[] = self::innslag($innslag);
+        // Kun hvis detaljprogram er synlig, skal innslagene legges til
+        if($hendelse->harSynligDetaljprogram()) {
+            foreach($hendelse->getInnslag()->getAll() as $innslag) {
+                $innslagArr[] = self::innslag($innslag);
+            }
         }
         
         return [
