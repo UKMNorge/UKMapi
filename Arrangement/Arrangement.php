@@ -49,6 +49,7 @@ class Arrangement
     var $type = null;
     var $navn = null;
     var $beskrivelse = null;
+    var $info_til_deltakere = null;
     var $sted = null;
     var $googleMap = null;
     var $googleMapData = null;
@@ -232,6 +233,7 @@ class Arrangement
         $this->setId($row['pl_id']);
         $this->setNavn($row['pl_name']);
         $this->setBeskrivelse($row['pl_description']);
+        $this->setInfoTilDeltakere($row['pl_info_til_deltakere']);
         $this->setRegistrert($row['pl_registered'] == 'true');
         $this->setStart(new DateTime($row['pl_start']));
         $this->setStop(new DateTime($row['pl_stop']));
@@ -1795,6 +1797,29 @@ class Arrangement
             $beskrivelse = '';
         }
         $this->beskrivelse = $beskrivelse;
+        return $this;
+    }
+
+    /**
+     * Hent info til deltakere
+     *
+     * @return String
+     */
+    public function getInfoTilDeltakere() {
+        return $this->info_til_deltakere;
+    }
+
+    /**
+     * Angi info til deltakere
+     *
+     * @param String $info
+     * @return self
+     */
+    public function setInfoTilDeltakere($info_til_deltakere) {
+        if($info_til_deltakere === null) {
+            $info_til_deltakere = '';
+        }
+        $this->info_til_deltakere = $info_til_deltakere;
         return $this;
     }
 
