@@ -230,6 +230,7 @@ class Write
             'MaksAntallDeltagere'   => ['smartukm_place', 'maks_antall_deltagere', 134],
             'GuiType'               => ['smartukm_place', 'gui_type', 135],
             'InfoTilDeltakere'      => ['smartukm_place', 'pl_info_til_deltakere', 136],
+            'LenkeTilDeltakere'     => ['smartukm_place', 'pl_lenke_til_deltakere', 137],
         ];
 
         // Eierfylke lagres for kommuner og fylker, men ikke land

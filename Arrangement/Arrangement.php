@@ -50,6 +50,7 @@ class Arrangement
     var $navn = null;
     var $beskrivelse = null;
     var $info_til_deltakere = null;
+    var $lenke_til_deltakere = null;
     var $sted = null;
     var $googleMap = null;
     var $googleMapData = null;
@@ -234,6 +235,7 @@ class Arrangement
         $this->setNavn($row['pl_name']);
         $this->setBeskrivelse($row['pl_description']);
         $this->setInfoTilDeltakere($row['pl_info_til_deltakere']);
+        $this->setLenkeTilDeltakere($row['pl_lenke_til_deltakere']);
         $this->setRegistrert($row['pl_registered'] == 'true');
         $this->setStart(new DateTime($row['pl_start']));
         $this->setStop(new DateTime($row['pl_stop']));
@@ -1820,6 +1822,31 @@ class Arrangement
             $info_til_deltakere = '';
         }
         $this->info_til_deltakere = $info_til_deltakere;
+        return $this;
+    }
+
+    /**
+     * Hent lenke til deltakere
+     * Lenke til deltakere er et felt hvor arrangøren kan legge inn en lenke til informasjon for deltakere
+     *
+     * @return String
+     */
+    public function getLenkeTilDeltakere() {
+        return $this->lenke_til_deltakere;
+    }
+
+    /**
+     * Angi lenke til deltakere
+     * Lenke til deltakere er et felt hvor arrangøren kan legge inn en lenke til informasjon for deltakere
+     *
+     * @param String $lenke
+     * @return self
+     */
+    public function setLenkeTilDeltakere($lenke_til_deltakere) {
+        if($lenke_til_deltakere === null) {
+            $lenke_til_deltakere = '';
+        }
+        $this->lenke_til_deltakere = $lenke_til_deltakere;
         return $this;
     }
 
