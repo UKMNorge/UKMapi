@@ -399,23 +399,27 @@ class Person
     /**
      * Sett e-post
      *
+     * @deprecated Brukes ikke lenger
+     * 
      * @param String $epost
      * @return self
      **/
     public function setEpost(String $epost)
     {
-        $this->epost = $epost;
+        // $this->epost = $epost;
         return $this;
     }
 
     /**
      * Hent e-post
      *
+     * @deprecated Brukes ikke lenger
+     * 
      * @return String $epost
      **/
     public function getEpost()
     {
-        return $this->epost;
+        return '';
     }
 
     /**
