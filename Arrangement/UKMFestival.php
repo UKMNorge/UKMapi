@@ -31,6 +31,15 @@ class UKMFestival extends Arrangement {
      * @return UKMFestival
      **/
     public static function getCurrentUKMFestival() {
+        try{
+            $currentYearUKMFestival = self::getUKMFestivalen(date('Y'));
+        } catch( Exception $e ) {
+            if( $e->getCode() != 1000 ) {
+                throw $e;
+            }
+            // If not found for current year, try last year
+            return static::getBySeason(date('Y')-1);
+        }
         return self::getUKMFestivalen(date('Y'));
     }
 
@@ -60,6 +69,6 @@ class UKMFestival extends Arrangement {
         if($res) {
             return new UKMFestival($res['pl_id']);
         }
-        throw new Exception('UKMFestivalen for '. $season .' er ikke definert');
+        throw new Exception('UKMFestivalen for '. $season .' er ikke definert', 1000);
     }
 }
