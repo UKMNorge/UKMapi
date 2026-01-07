@@ -20,7 +20,7 @@ class Mailchimp
     private static $api_url;
     private static $api_key;
     private static $audiences = null;
-    private static $pageSize = 1000;
+    private static $pageSize = 500; // set den til 100 og bruk pagination (sjekk pagination lenke fra MailChimp)
 
     public static function init()
     {
@@ -54,24 +54,41 @@ class Mailchimp
     /**
      * Sends the request to the correct mailchimp server and parses the response, including any errors.
      * @param String $resource - lists, total_subscribers, ping etc
-     * @param String $page pagination: page number
+     * @param String $key for real result data from api
      * @return Result
      */
-    public static function sendGetRequest(String $resource, Int $page = null)
+    public static function sendGetRequest(String $resource, $resource_key = null)
     {
+        $offset = 0;
+        $totalResults = 1;
+        $data = [];
+        $result = new stdClass;
+        
         static::init();
-        $url = static::_getUrl($resource);
-        if ($page != null) {
-            $url .= "?offset" . $page . "&count" . static::$pageSize * ($page + 1);
-        } else {
-            $url .= '?count='. static::$pageSize;
+
+        while($offset < $totalResults) {
+            $url = static::_getUrl($resource);
+            $url .= "?count=" . static::$pageSize . "&offset=" . $offset;
+            $curl = new UKMCURL();
+            $curl->requestType("GET");
+            $curl->user('userpwd:' . static::$api_key);
+            
+            $result = $curl->request($url);
+            
+            $totalResults = $result->total_items;
+            $offset += static::$pageSize;
+            
+            if( isset($result->$resource_key) && is_array($result->$resource_key) ) {
+                $data = array_merge( $data, $result->$resource_key);
+            }
         }
-
-        $curl = new UKMCURL();
-        $curl->requestType("GET");
-        $curl->user('userpwd:' . static::$api_key);
-
-        return new Result($curl->request($url), $page);
+        
+        # Kind of merging the data from all requests
+        # into the last performed request, faking one 
+        # huge result.
+        $result->$resource_key = $data;
+        
+        return new Result($result);
     }
 
     /**
@@ -81,7 +98,7 @@ class Mailchimp
      */
     public function ping(): bool
     {
-        $result = static::sendGetRequest("ping", null);
+        $result = static::sendGetRequest("ping");
 
         return is_object($result->getData());
     }
