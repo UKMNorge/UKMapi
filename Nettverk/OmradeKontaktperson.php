@@ -162,22 +162,6 @@ class OmradeKontaktperson implements KontaktInterface {
         return $this->profile_image_url;
     }
 
-    /*
-     * Hent profilbilde-URL, med fallback til WordPress-adminbilde hvis ikke satt
-     */
-    public function getProfileImageUrlWithWPFallback() {
-        if( $this->hasProfileImage() ) {
-            return $this->getProfileImageUrl();
-        }
-
-        $WPUserProfileImage = $this->getWPAdminImageUrl();
-        if($WPUserProfileImage) {
-            return $WPUserProfileImage;
-        }
-
-        return null;
-    }
-
     public function getWPAdminImageUrl() {
         $wpUser = $this->getWPUser();
         if( is_null($wpUser) ) {
@@ -232,7 +216,7 @@ class OmradeKontaktperson implements KontaktInterface {
     }
 
     public function getBilde() {
-        return $this->getProfileImageUrl();
+        return $this->getProfileImageUrl() ?? $this->getWPAdminImageUrl();
     }
 
     // WP user hentes basert på telefonnummer
