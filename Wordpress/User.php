@@ -352,6 +352,62 @@ class User
     }
 
     /**
+     * Hent inn WP user fra standalone-miljø via telefonnummer
+     *
+     * @param Int $id
+     * @return User
+     */
+    public static function loadByPhoneInStandaloneEnvironment(Int $phone) : User
+    {
+        $query = new Query(
+            "SELECT 
+                u.ID,
+                u.user_email,
+                um_phone.meta_value AS user_phone,
+                um_fn.meta_value AS first_name,
+                um_ln.meta_value AS last_name
+            FROM wpms2012_users u
+            LEFT JOIN wpms2012_usermeta um_phone 
+                ON um_phone.user_id = u.ID AND um_phone.meta_key = 'user_phone'
+            LEFT JOIN wpms2012_usermeta um_fn 
+                ON um_fn.user_id = u.ID AND um_fn.meta_key = 'first_name'
+            LEFT JOIN wpms2012_usermeta um_ln 
+                ON um_ln.user_id = u.ID AND um_ln.meta_key = 'last_name'
+            WHERE um_phone.meta_value = '#userPhone'",
+            [
+                'userPhone' => $phone
+            ],
+            'wordpress'
+        );
+        $data = $query->getArray();
+
+        $user = new User($data['ID'], false);
+
+        // Hent bilde
+        $sql = new Query(
+            "SELECT `bilde_url`
+            FROM `wp_user_bilde`
+            WHERE `wp_user` = '#userid'",
+            [
+                'userid' => $user->getId()
+            ]
+        );
+
+        $row = $sql->run('array');
+        if($row) {
+            $user->bilde = $row['bilde_url'];
+        }
+
+        $user->setPhone($data['user_phone']);
+        $user->setEmail($data['user_email']);
+        $user->setFirstName($data['first_name']);
+        $user->setLastName($data['last_name']);
+
+
+        return $user;
+    }
+
+    /**
      * Henter bruker ut fra gitt participant_id
      *
      * @throws Exception not found
