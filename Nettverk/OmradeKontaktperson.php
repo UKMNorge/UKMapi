@@ -159,7 +159,7 @@ class OmradeKontaktperson implements KontaktInterface {
     }
 
     public function getProfileImageUrl() {
-        return $this->profile_image_url;
+        return $this->profile_image_url ?? $this->getWPAdminImageUrl();
     }
 
     public function getWPAdminImageUrl() {
@@ -170,8 +170,12 @@ class OmradeKontaktperson implements KontaktInterface {
         return $wpUser->getBilde();
     }
 
-    public function hasProfileImage() {
+    public function hasProfileImageIOmradeKontaktperson() {
         return !is_null($this->profile_image_url) && $this->profile_image_url != '';
+    }
+    
+    public function hasProfileImage() {
+        return !is_null($this->profile_image_url) || ($this->getWPAdminImageUrl() != null && $this->getWPAdminImageUrl() != '');
     }
 
     public function setProfileImageUrl(string|null $url) {
@@ -216,7 +220,7 @@ class OmradeKontaktperson implements KontaktInterface {
     }
 
     public function getBilde() {
-        return $this->getProfileImageUrl() ?? $this->getWPAdminImageUrl();
+        return $this->getProfileImageUrl();
     }
 
     // WP user hentes basert på telefonnummer
