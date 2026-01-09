@@ -48,7 +48,7 @@ class ObjectTransformer {
             'beskrivelse' => $erUKMKontakt ? ($kontaktperson->getBeskrivelse() ?? '') : '',
             'epost' => $kontaktperson->getEpost() ?? '',
             'tel' => $kontaktperson->getTelefon(),
-            'bilde' => $kontaktperson->getBilde() ?? '',
+            'bilde' => $kontaktperson->getProfileImageUrlWithWPFallback() ?? '',
         ];
     }
 
