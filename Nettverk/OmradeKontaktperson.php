@@ -3,6 +3,9 @@
 namespace UKMNorge\Nettverk;
 
 use UKMNorge\Arrangement\Kontaktperson\KontaktInterface;
+use UKMNorge\Nettverk\Administratorer;
+use UKMNorge\Wordpress\User;
+
 
 use Exception;
 use DateTime;
@@ -22,6 +25,7 @@ class OmradeKontaktperson implements KontaktInterface {
     private string $eier_omrade_type;
     private int|null $wp_user_id;
     private string|null $profile_image_url;
+    private User|null $wp_admin = null;
 
     public function __construct(array $row) {
         // Når vi oppretter en kontaktperson, må vi ha en identifikator. Når id er -1, er det en ny kontaktperson som skal opprettes
@@ -143,6 +147,9 @@ class OmradeKontaktperson implements KontaktInterface {
         $this->epost = $epost ?? '';
     }
 
+    /**
+     * @deprecated - bruk getWPUser() ID i stedet
+     */
     public function getWpUserId() {
         return $this->wp_user_id;
     }
@@ -153,6 +160,30 @@ class OmradeKontaktperson implements KontaktInterface {
 
     public function getProfileImageUrl() {
         return $this->profile_image_url;
+    }
+
+    /*
+     * Hent profilbilde-URL, med fallback til WordPress-adminbilde hvis ikke satt
+     */
+    public function getProfileImageUrlWithWPFallback() {
+        if( $this->hasProfileImage() ) {
+            return $this->getProfileImageUrl();
+        }
+
+        $WPUserProfileImage = $this->getWPAdminImageUrl();
+        if($WPUserProfileImage) {
+            return $WPUserProfileImage;
+        }
+
+        return null;
+    }
+
+    public function getWPAdminImageUrl() {
+        $wpUser = $this->getWPUser();
+        if( is_null($wpUser) ) {
+            return null;
+        }
+        return $wpUser->getBilde();
     }
 
     public function hasProfileImage() {
@@ -202,5 +233,25 @@ class OmradeKontaktperson implements KontaktInterface {
 
     public function getBilde() {
         return $this->getProfileImageUrl();
+    }
+
+    // WP user hentes basert på telefonnummer
+    public function getWPUser() : User|null {
+        if( is_null( $this->wp_admin ) ) {
+            $this->wp_admin = $this->fetchWPAdmin();
+        }
+        return $this->wp_admin;
+    }
+
+    /**
+     * Henter en WordPress-bruker basert på telefonnummer hvis det finnes.
+     *
+     *
+     * @param string $phone_number Telefonnummeret til brukeren som skal hentes.
+     * @return User|false WP_User-objektet hvis en bruker blir funnet, ellers false.
+     */
+    private function fetchWPAdmin() : User|null {
+        $user = User::loadByPhoneInStandaloneEnvironment($this->getMobil());
+        return $user;
     }
 }
