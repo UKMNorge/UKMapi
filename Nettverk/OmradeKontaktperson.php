@@ -239,6 +239,9 @@ class OmradeKontaktperson implements KontaktInterface {
      * @return User|false WP_User-objektet hvis en bruker blir funnet, ellers false.
      */
     private function fetchWPAdmin() : User|null {
+        if( is_null( $this->getMobil() ) ) {
+            return null;
+        }
         $user = User::loadByPhoneInStandaloneEnvironment($this->getMobil());
         return $user;
     }
