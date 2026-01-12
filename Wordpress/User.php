@@ -357,7 +357,7 @@ class User
      * @param Int $id
      * @return User|null
      */
-    public static function loadByPhoneInStandaloneEnvironment(Int $phone) : User|null
+    public static function loadByPhoneInStandaloneEnvironment($phone) : User|null
     {
         $query = new Query(
             "SELECT 
