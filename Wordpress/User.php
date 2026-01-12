@@ -355,9 +355,9 @@ class User
      * Hent inn WP user fra standalone-miljø via telefonnummer
      *
      * @param Int $id
-     * @return User
+     * @return User|null
      */
-    public static function loadByPhoneInStandaloneEnvironment(Int $phone) : User
+    public static function loadByPhoneInStandaloneEnvironment(Int $phone) : User|null
     {
         $query = new Query(
             "SELECT 
@@ -380,7 +380,9 @@ class User
             'wordpress'
         );
         $data = $query->getArray();
-
+        if(!$data || !isset($data['ID'])) {
+            return null;
+        }
         $user = new User($data['ID'], false);
 
         // Hent bilde
