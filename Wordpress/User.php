@@ -404,7 +404,7 @@ class User
             $user->bilde = $row['bilde_url'];
         }
 
-        $user->setPhone($data['user_phone']);
+        $user->setPhone((int)$data['user_phone']);
         $user->setEmail($data['user_email']);
         $user->setFirstName($data['first_name']);
         $user->setLastName($data['last_name']);
