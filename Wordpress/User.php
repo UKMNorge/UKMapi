@@ -383,7 +383,11 @@ class User
         if(!$data || !isset($data['ID'])) {
             return null;
         }
-        $user = new User($data['ID'], false);
+        try{ 
+            $user = new User($data['ID'], false);
+        } catch(Exception $e) {
+            return null;
+        }
 
         // Hent bilde
         $sql = new Query(
