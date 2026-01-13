@@ -51,22 +51,22 @@ class WriteOmradeKontaktperson {
         $randomFilename = bin2hex(random_bytes(8)); // 16 characters of randomness
         $filename =  $randomFilename.time().'.'.$filetype['ext'];
         
-        if(UKM_HOSTNAME == 'ukm.dev') {
+        if(UKM_HOSTNAME_SUBDOMAIN == 'ukm.dev') {
             $upload_dir = [
                 "path" => "/media/psf/dev-parellels/dev-html/wp-content/uploads/kontaktpersoner_bilder",
-                "url" => "https://". UKM_HOSTNAME ."/wp-content/uploads/kontaktpersoner_bilder",
+                "url" => "https://". UKM_HOSTNAME_SUBDOMAIN ."/wp-content/uploads/kontaktpersoner_bilder",
                 "subdir" => "/kontaktpersoner_bilder",
                 "basedir" => "/media/psf/dev-parellels/dev-html/wp-content/uploads",
-                "baseurl" => "https://". UKM_HOSTNAME ."/wp-content/uploads"
+                "baseurl" => "https://". UKM_HOSTNAME_SUBDOMAIN ."/wp-content/uploads"
             ];
         }
         else {
             $upload_dir = [
                 "path" => "/home/ukmno/public_html/wp-content/uploads/kontaktpersoner_bilder",
-                "url" => "https://". UKM_HOSTNAME ."/wp-content/uploads/kontaktpersoner_bilder",
+                "url" => "https://". UKM_HOSTNAME_SUBDOMAIN ."/wp-content/uploads/kontaktpersoner_bilder",
                 "subdir" => "/kontaktpersoner_bilder",
                 "basedir" => "/home/ukmno/public_html/wp-content/uploads",
-                "baseurl" => "https://". UKM_HOSTNAME ."/wp-content/uploads"
+                "baseurl" => "https://". UKM_HOSTNAME_SUBDOMAIN ."/wp-content/uploads"
             ];
         }
 
