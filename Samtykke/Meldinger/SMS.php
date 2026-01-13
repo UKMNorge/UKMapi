@@ -10,8 +10,8 @@ use UKMNorge\Database\SQL\Insert;
  * Utsending av SMS ifbm samtykke
  */
 class SMS {
-	const LINK = 'https://personvern.ukm.no/pamelding/?id=%link_id';
-	const LINK_FORESATT = 'https://personvern.ukm.no/pamelding/?id=%link_id&foresatt=true';
+	const LINK = 'https://sys.ukm.no/personvern/pamelding/?id=%link_id';
+	const LINK_FORESATT = 'https://sys.ukm.no/personvern/pamelding/?id=%link_id&foresatt=true';
     
     /**
      * Send en melding til en person
