@@ -61,6 +61,10 @@ class TeamsUKMWebinar {
         return $this->dato_slutt;
     }
 
+    public function erFerdig() {
+        return $this->dato_slutt < new DateTime();
+    }
+
     public function isActive() : bool {
         return 
         (clone $this->dato_slutt)->modify('+2 days') > new DateTime() &&
