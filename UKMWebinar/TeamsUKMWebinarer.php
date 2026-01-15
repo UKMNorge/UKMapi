@@ -8,7 +8,7 @@ use UKMNorge\Collection;
 require_once('UKM/Autoloader.php');
 
 const GRAPH_BASE = "https://graph.microsoft.com/v1.0";
-const CACHE_FILE = __DIR__ . "/webinars_cache.json";
+const CACHE_FILE = '/var/cache/ukm' . "/webinars_cache.json";
 const CACHE_TTL_SECONDS = 3600; // 1 time
 // How many webinars to show
 const MAX_TO_SHOW = 50;
@@ -54,7 +54,6 @@ class TeamsUKMWebinarer extends Collection {
     private function _doLoad() {
         // Load cached data from file if available
         $cached = $this->loadCache(CACHE_FILE, CACHE_TTL_SECONDS);
-
         if (!$cached) {
             $token = $this->getAccessToken(TEAMS_TENANT_ID, TEAMS_CLIENT_ID, TEAMS_CLIENT_SECRET);
             $items = $this->fetchAllWebinars(GRAPH_BASE, $token, 500);
@@ -224,8 +223,13 @@ class TeamsUKMWebinarer extends Collection {
     }
 
     private function saveCache(string $cacheFile, array $data): void {
-        $tmp = $cacheFile . ".tmp";
+        $tmp = $cacheFile;
+        $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        if ($json === false) {
+            throw new \RuntimeException(json_last_error_msg());
+        }
+
         file_put_contents($tmp, json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-        rename($tmp, $cacheFile);
+        // rename($tmp, $cacheFile);
     }
 }
