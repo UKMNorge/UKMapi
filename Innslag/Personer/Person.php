@@ -401,10 +401,10 @@ class Person
      *
      * @deprecated Brukes ikke lenger
      * 
-     * @param String $epost
+     * @param $epost
      * @return self
      **/
-    public function setEpost(String $epost)
+    public function setEpost($epost)
     {
         // $this->epost = $epost;
         return $this;
