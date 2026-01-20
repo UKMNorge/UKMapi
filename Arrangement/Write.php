@@ -162,7 +162,9 @@ class Write
         if ($type == 'fylke') {
             return DateTime::createFromFormat('d.n.Y H:i:s', '01.03.' . $sesong . ' 23:59:59');
         }
-        return DateTime::createFromFormat('d.n.Y H:i:s', '01.01.' . $sesong . ' 23:59:59');
+        $date = new DateTime();
+        $date->modify('+3 months');
+        return $date;
     }
 
     /**
