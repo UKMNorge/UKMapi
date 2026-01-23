@@ -7,6 +7,8 @@ use stdClass;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Geografi\Fylke;
 use UKMNorge\Geografi\Kommune;
+use UKMNorge\Database\SQL\Query;
+use WPOO\WPOO_Post; // example — depends on what the package actually declares
 
 require_once('UKM/Autoloader.php');
 
@@ -77,6 +79,99 @@ class Blog
             );
         }
         return (int) $result;
+    }
+
+    /**
+     * Finn ID for en blogg fra gitt path utenfor Wordpress-miljø
+     *
+     * @param String $path
+     * @return Int|null $id
+     */
+    public static function getIdByPathOutsideWP(String $path) : Int|null {
+        // Check if path starts and ends with /
+        if( substr($path,0,1) !== '/' ) {
+            $path = '/'.$path;
+        }
+        if( substr($path,-1) !== '/' ) {
+            $path = $path.'/';
+        }
+
+        $sql = new Query("SELECT blog_id
+            FROM wpms2012_blogs
+            WHERE path = '#path'
+            AND deleted = 0
+            LIMIT 1;",
+            [
+                'path' => $path
+            ],
+            'wordpress'
+        );
+        $res = $sql->getArray();
+        if( !$res ) {
+            return null;
+        }
+        return $res['blog_id'] ? (int) $res['blog_id'] : null;
+    }
+
+    public static function getAllPostsOutsideWP(int $blogId) {
+        if(!is_numeric($blogId)) {
+            throw new Exception('Blog ID må være et tall.');
+        }
+        $sql = new Query("SELECT *
+            FROM wpms2012_#blog_id_posts p
+            WHERE p.post_type = 'post'
+            AND p.post_status = 'publish'
+            AND p.post_title != 'Hello world!'
+            AND p.post_title NOT LIKE 'Elementor #%'
+            ORDER BY p.post_date_gmt DESC;",
+            ['blog_id' => $blogId],
+            'wordpress'
+        );
+        
+        $res = $sql->run();
+        $posts = [];
+
+        while($row = Query::fetch($res)) {
+            $posts[] = new Infosak($row, $blogId);
+        }
+
+        return $posts;
+    }
+
+    /**
+     * Hent en post fra utenfor Wordpress-miljø
+     *
+     * @param Int $blogId
+     * @param Int $postId
+     * 
+     * @throws Exception ved ugyldig input eller post ikke funnet
+     * 
+     * @return Infosak
+     */
+    public static function getPostOutsideWP(int $blogId, int $postId) : Infosak {
+        if(!is_numeric($blogId) || !is_numeric($postId)) {
+            throw new Exception('Blog ID og post ID må være tall.');
+        }
+        $sql = new Query("SELECT *
+            FROM wpms2012_#blog_id_posts p
+            WHERE p.post_type = 'post'
+            AND p.ID = '#post_id'
+            AND p.post_status = 'publish'
+            AND p.post_title != 'Hello world!'
+            AND p.post_title NOT LIKE 'Elementor #%'
+            ORDER BY p.post_date_gmt DESC;",
+            ['blog_id' => $blogId, 'post_id' => $postId],
+            'wordpress'
+        );
+        
+        try{
+            $row = $sql->run('array');
+            $post = new Infosak($row, $blogId);
+        } catch(Exception $e) {
+            throw new Exception('Fant ikke post med ID '.$postId.' på blogg '.$blogId.'.');
+        }
+
+        return $post;
     }
 
     /**
