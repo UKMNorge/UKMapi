@@ -121,6 +121,7 @@ class Blog
             WHERE p.post_type = 'post'
             AND p.post_status = 'publish'
             AND p.post_title != 'Hello world!'
+            AND p.post_title != 'Hei, verden!'
             AND p.post_title NOT LIKE 'Elementor #%'
             ORDER BY p.post_date_gmt DESC;",
             ['blog_id' => $blogId],
