@@ -8,7 +8,6 @@ use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Geografi\Fylke;
 use UKMNorge\Geografi\Kommune;
 use UKMNorge\Database\SQL\Query;
-use WPOO\WPOO_Post; // example — depends on what the package actually declares
 
 require_once('UKM/Autoloader.php');
 
