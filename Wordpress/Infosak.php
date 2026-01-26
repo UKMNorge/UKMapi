@@ -70,4 +70,8 @@ class Infosak extends Nyhet {
     public function getArrangement(): Arrangement|null {
         return $this->arrangement;
     }
+
+    public function getDeltaLenke($arrangementId): string {
+        return 'https://delta.'. UKM_HOSTNAME .'/public/infosak/' . $arrangementId . '/' . $this->getId() . '/';
+    }
 }
