@@ -40,6 +40,9 @@ class Infosak extends Nyhet {
     }
 
     public function getTitle(): string {
+        if( strlen($this->title) < 1 ||  empty( $this->title ) ) {
+            return 'Info';
+        }
         return $this->title;
     }
 
