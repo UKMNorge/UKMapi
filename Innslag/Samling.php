@@ -531,6 +531,23 @@ class Samling {
 			$innslag = new Innslag( $row, true );
             $innslag->setContext( $this->getContext() );
             switch( $this->getContext()->getType() ) {
+				// Create context on deltauser basis
+				case 'deltauser':
+					if( is_null($innslag) || is_null($innslag->getFylke())) {
+						throw new Exception(
+							'Innslaget mangler fylke'
+						);
+					}
+					$innslag->getContext()->setMonstring(
+						new Monstring(
+							$innslag->getHomeId(),
+							'kommune',
+							$innslag->getSesong(),
+							$innslag->getFylke()->getId(),
+							null
+						)
+					);
+					break;
 				case 'kontaktperson':
 					// Hvis samlingen er opprettet fra kontaktperson (som i UKMdelta),
 					// har vi ikke tilgang på arrangementet, og dette må håndteres internt.
@@ -705,16 +722,18 @@ class Samling {
                 );
             case 'deltauser':
                 $qry = new Query(
-                    Innslag::getLoadQuery()."
-                    WHERE `b_password` = 'delta_#user_id' 
-                    AND `b_season` = '#sesong'
-                    AND `b_status` <= 8",
+                    Innslag::getLoadQuery().
+					"
+					JOIN smartukm_rel_pl_b AS rel_pl_b ON rel_pl_b.b_id=smartukm_band.b_id
+					JOIN smartukm_rel_b_p AS rel_b_p ON rel_b_p.b_id=smartukm_band.b_id
+					WHERE rel_b_p.p_id='#user_id'
+					AND `b_status` <= 8",
                     [
                         'user_id' => $this->getContext()->getDeltaUserId(),
-                        'sesong' => $this->getContext()->getSesong()
                     ]
                 );
-                throw new Exception("Loading deltausers via b_password is deprecated! Dette skal ikke skje og er en systemfeil. Kontakt UKM Support for hjelp.");
+
+                // throw new Exception("Loading deltausers via b_password is deprecated! Dette skal ikke skje og er en systemfeil. Kontakt UKM Support for hjelp.");
                 return $qry;
             case 'videresending':
                 return new Query(

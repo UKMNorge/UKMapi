@@ -176,10 +176,9 @@ class Context
      * @param Int $sesong
      * @return Context
      */
-    public static function createDeltaUser(Int $user_id, Int $sesong)
+    public static function createDeltaUser(Int $user_id)
     {
         $context = new Context('deltauser');
-        $context->sesong = $sesong;
         $context->delta_user_id = $user_id;
         return $context;
     }
