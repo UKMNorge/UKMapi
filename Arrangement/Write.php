@@ -147,6 +147,12 @@ class Write
 
         self::save($monstring);
 
+        try {
+            self::webhook($monstring, 'create');
+        } catch (Exception $e) {
+            // Ignorer feil her
+        }
+
         return $monstring;
     }
 
@@ -392,6 +398,12 @@ class Write
             }
         }
 
+        try {
+            self::webhook($monstring_save, 'update');
+        } catch (Exception $e) {
+            // Ignorer feil her
+        }
+        
         return $res;
     }
 
@@ -439,6 +451,12 @@ class Write
             foreach ($arrangement->getKommuner()->getAll() as $kommune) {
                 self::_fjernKommune($arrangement, $kommune);
             }
+        }
+
+        try{
+            self::webhook($arrangement, 'delete');
+        } catch( Exception $e ) {
+            // Ignorer feil her
         }
 
         return $arrangement;
@@ -1293,5 +1311,50 @@ class Write
                 get_class($object),
                 ['UKMNorge\Arrangement\Write', 'write_monstring']
             );
+    }
+
+    /**
+     * Send webhook til UKM Norge ved endring av arrangement
+     *
+     * @param Arrangement $arrangement
+     * @param string $action 'create', 'update' eller 'delete'
+     * @return void
+     * @throws \InvalidArgumentException
+     * @throws \Exception
+     */
+    private static function webhook(Arrangement $arrangement, string $action) : void {
+        $action = strtolower($action);
+        if (!in_array($action, ['create', 'update', 'delete'])) {
+            throw new \InvalidArgumentException('Invalid action for webhook: ' . $action);
+        }
+
+        $url = 'https://ukm.no/api/ukm/webhook';
+
+        $payload = json_encode([
+            'paths'  => [$arrangement->getPath()],
+            'action' => $action,
+        ]);
+
+        $ch = curl_init($url);
+
+        curl_setopt_array($ch, [
+            CURLOPT_POST           => true,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER     => [
+                'Content-Type: application/json',
+                'x-webhook-secret: ' . UKM_TRY_WEBHOOK_SECRET,
+                'Content-Length: ' . strlen($payload),
+            ],
+            CURLOPT_POSTFIELDS     => $payload,
+        ]);
+
+        $response = curl_exec($ch);
+
+        if ($response === false) {
+            throw new \Exception('cURL error: ' . curl_error($ch));
+        }
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        // curl_close($ch);
     }
 }
