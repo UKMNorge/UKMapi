@@ -726,7 +726,9 @@ class Samling {
 					"
 					JOIN smartukm_rel_pl_b AS rel_pl_b ON rel_pl_b.b_id=smartukm_band.b_id
 					JOIN smartukm_rel_b_p AS rel_b_p ON rel_b_p.b_id=smartukm_band.b_id
+					JOIN smartukm_place as place ON place.pl_id=smartukm_band.b_home_pl
 					WHERE rel_b_p.p_id='#user_id'
+					AND place.pl_deleted='false'
 					AND `b_status` <= 8",
                     [
                         'user_id' => $this->getContext()->getDeltaUserId(),
