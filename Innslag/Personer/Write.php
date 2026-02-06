@@ -44,9 +44,10 @@ class Write {
 	**/
 	public static function finnEksisterendePerson( String $firstname, String $lastname, $phone) {
 		$qry = new Query("SELECT `p_id` FROM `smartukm_participant` 
-						WHERE `p_firstname`='#firstname' 
-						AND `p_lastname`='#lastname' 
-						AND `p_phone`='#phone'", 
+						WHERE `p_firstname` like '#firstname' 
+						AND `p_lastname` like '#lastname' 
+						AND `p_phone`='#phone'
+						ORDER BY p_id DESC", 
 						array('firstname'=>$firstname, 
 							  'lastname'=>$lastname, 
 							  'phone'=>(Int)$phone));
