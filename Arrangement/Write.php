@@ -1328,7 +1328,7 @@ class Write
             throw new \InvalidArgumentException('Invalid action for webhook: ' . $action);
         }
 
-        $url = 'https://ukm.no/api/ukm/webhook';
+        $url = 'https://www.ukm.no/api/ukm/webhook';
 
         $payload = json_encode([
             'paths'  => [$arrangement->getPath()],
