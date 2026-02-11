@@ -244,7 +244,37 @@ class Filmer extends Collection
      */
     public static function getByArrangement(Int $arrangementId)
     {
-        return static::getByTag('arrangement', $arrangementId);
+        // Henter alle filmer som har tag'en 'arrangement' med verdi lik $arrangementId
+        // Tags har blitt brukt tidligere for å knytte filmer til arrangement.
+        $query = new Query(
+            Film::getLoadQuery() . "
+            JOIN `ukm_tv_tags` 
+            ON (
+                `ukm_tv_tags`.`tv_id` = `ukm_tv_files`.`tv_id` 
+                AND `ukm_tv_tags`.`type` = '#tagtype' 
+                AND `ukm_tv_tags`.`foreign_id` = '#foreignid'
+            )
+            WHERE `tv_deleted` = 'false'
+            GROUP BY `ukm_tv_files`.`tv_id`
+            ORDER BY `tv_title` ASC",
+            [
+                'tagtype' => 'arrangement',
+                'foreignid' => $arrangementId
+            ]
+        );
+
+        // Cloudflare filmer på arrangement
+        // Det brukes direkte kobling uten å gå via tags
+        $queryCF = new Query(
+            CloudflareFilm::getLoadQuery() . "
+            WHERE `cloudflare_videos`.`arrangement` = '#arrangementId'
+            AND `deleted` = 'false'",
+            [
+                'arrangementId' => $arrangementId
+            ]
+        );
+
+        return new Filmer($query, $queryCF);
     }
 
     /**
