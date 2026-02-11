@@ -528,7 +528,7 @@ class Bilde
 
     public function getAlt() {
         try {
-            return 'Arrangement: ' . $this->getMonstring()->getNavn() . ' | Innslag type: ' . $this->getInnslag()->getType()->getNavn();
+            return 'Arrangement ' . $this->getMonstring()->getNavn() . ' i ' . $this->getMonstring()->getSted() . ' | Innslag type: ' . $this->getInnslag()->getType()->getNavn();
         } catch (Exception $e) {
             return 'Ukjent arrangement eller innslag';
         }
