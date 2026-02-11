@@ -525,4 +525,12 @@ class Bilde
 
         return false;
     }
+
+    public function getAlt() {
+        try {
+            return 'Arrangement: ' . $this->getMonstring()->getNavn() . ' | Innslag type: ' . $this->getInnslag()->getType()->getNavn();
+        } catch (Exception $e) {
+            return 'Ukjent arrangement eller innslag';
+        }
+    }
 }

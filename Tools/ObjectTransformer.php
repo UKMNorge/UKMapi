@@ -145,6 +145,7 @@ class ObjectTransformer {
     public static function bilde(Bilde $bilde) : array {
         return [
             'id' => $bilde->getId(),
+            'alt' => $bilde->getAlt(),
             'album_id' => $bilde->getAlbumId(),
             'sizes' => $bilde->sizes,
         ];
