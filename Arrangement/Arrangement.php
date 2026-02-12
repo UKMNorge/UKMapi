@@ -1858,7 +1858,6 @@ class Arrangement
      * Beskriver hvordan arrangementet skal vises i GUI
      */
     public function getGuiType() : int|null {
-        return false; // Deaktivert for nå (desember 2025)
         // Kun mønstring har GUI type
         if(!$this->erMonstring()) {
             return false;
