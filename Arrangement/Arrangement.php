@@ -1004,6 +1004,9 @@ class Arrangement
     }
 
     public function getArrangementNettsideURL() {
+        if(UKM_HOSTNAME == 'ukm.dev') {
+            return 'https://' . UKM_HOSTNAME . '/' . $this->getPath() . '/';
+        }
         return 'https://' . UKM_HOSTNAME . '/arrangement/' . $this->getPath();
     }
 
