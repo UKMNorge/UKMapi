@@ -33,6 +33,7 @@ use UKMNorge\Nettverk\Proxy\Kontaktperson as AdminKontaktProxy;
 use UKMNorge\Innslag\Venteliste\Venteliste;
 use UKMNorge\Arrangement\Videresending\Request\RequestVideresendinger;
 
+use function Symfony\Component\Clock\now;
 
 require_once 'UKM/statistikk.class.php';
 
@@ -1789,6 +1790,23 @@ class Arrangement
      */
     public function getBeskrivelse() {
         return $this->beskrivelse;
+    }
+    
+    /**
+     * Hent beskrivelse av arrangementet, inkludert informasjon om livesending hvis det er relevant
+     *
+     * @return String
+     */
+    public function getBeskrivelseMedLivesending() {
+        foreach($this->getDirektesending()->getAll() as $sending) {
+            if($sending->erAktiv()) {
+                $beskrivelse = '';
+                $beskrivelse .= "Direktesending: " . $sending->getLink() . ' <br><br>';
+                $beskrivelse .= $this->getBeskrivelse();
+                return $beskrivelse;
+            }
+        }   
+        return $this->getBeskrivelse();
     }
 
     /**

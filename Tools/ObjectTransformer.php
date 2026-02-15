@@ -36,7 +36,7 @@ class ObjectTransformer {
             'fylke' => $arrangement->getFylke(),
             'paamelding_lenker' => $arrangement->getPaameldingsLenker(),
             'utvidet_gui' => $arrangement->getGuiType() == 1 ?? false,
-            'beskrivelse' => $arrangement->getBeskrivelse(),
+            'beskrivelse' => $arrangement->getBeskrivelseMedLivesending(),
         ];
     }
 
