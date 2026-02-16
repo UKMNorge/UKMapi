@@ -128,16 +128,28 @@ class ObjectTransformer {
             'sjanger' => $innslag->getSjanger(),
             'beskrivelse' => $innslag->getBeskrivelse(),
         ];
+                
+        try{
+            $homeArrangement = $innslag->getHome();
+        } catch(Exception $e) {
+            // No home arrangement, can be ignored
+            $homeArrangement = null;
+        }
+
 
         // Legg til personer
         $obj['personer'] = [];
-        foreach($innslag->getPersoner()->getAll() as $person) {
-            $obj['personer'][] = [
-                'id' => $person->getId(),
-                'navn' => $person->getNavn(),
-                'fornavn' => $person->getFornavn(),
-                'etternavn' => $person->getEtternavn(),
-            ];
+        
+        // ingen homeArrangement eller homeArrangement har deltakere synlig, da skal personene legges til
+        if($homeArrangement == null || $homeArrangement->erDeltakereSynlig()) {
+            foreach($innslag->getPersoner()->getAll() as $person) {
+                $obj['personer'][] = [
+                    'id' => $person->getId(),
+                    'navn' => $person->getNavn(),
+                    'fornavn' => $person->getFornavn(),
+                    'etternavn' => $person->getEtternavn(),
+                ];
+            }
         }
         return $obj;
     }
