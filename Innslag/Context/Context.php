@@ -20,6 +20,7 @@ class Context
     var $videresend_til = false;
     var $kontaktperson = null;
     var $delta_user_id = null;
+    var $delta_user = null;
 
 
     /**
@@ -176,10 +177,11 @@ class Context
      * @param Int $sesong
      * @return Context
      */
-    public static function createDeltaUser(Int $user_id)
+    public static function createDeltaUser($delta_user)
     {
         $context = new Context('deltauser');
-        $context->delta_user_id = $user_id;
+        $context->delta_user = $delta_user;
+        $context->delta_user_id = $delta_user->getId();
         return $context;
     }
 
@@ -306,6 +308,15 @@ class Context
     public function getDeltaUserId()
     {
         return $this->delta_user_id;
+    }
+
+    /**
+     * Hent Delt bruker
+     *
+     */
+    public function getDeltaUser()
+    {
+        return $this->delta_user;
     }
 
     /**

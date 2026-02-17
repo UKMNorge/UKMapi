@@ -721,19 +721,31 @@ class Samling {
                         ]
                 );
             case 'deltauser':
-                $qry = new Query(
-                    Innslag::getLoadQuery().
+				$deltaUser = $this->getContext()->getDeltaUser();
+
+				$qry = new Query(
+					Innslag::getLoadQuery().
 					"
 					JOIN smartukm_rel_pl_b AS rel_pl_b ON rel_pl_b.b_id=smartukm_band.b_id
 					JOIN smartukm_rel_b_p AS rel_b_p ON rel_b_p.b_id=smartukm_band.b_id
 					JOIN smartukm_place as place ON place.pl_id=smartukm_band.b_home_pl
-					WHERE rel_b_p.p_id='#user_id'
+					WHERE rel_b_p.p_id='#person_id'
+					AND place.pl_deleted='false'
+					AND `b_status` <= 8
+					UNION
+					" .
+					Innslag::getLoadQuery().
+					"
+					JOIN smartukm_rel_pl_b AS rel_pl_b ON rel_pl_b.b_id=smartukm_band.b_id
+					JOIN smartukm_place as place ON place.pl_id=smartukm_band.b_home_pl
+					WHERE b_password='delta_#user_id'
 					AND place.pl_deleted='false'
 					AND `b_status` <= 8",
-                    [
-                        'user_id' => $this->getContext()->getDeltaUserId(),
-                    ]
-                );
+					[
+						'user_id' => $deltaUser ? $deltaUser->getId() : -1,
+						'person_id' => $deltaUser ? $deltaUser->getPameldUser() : -1,
+					]
+				);
 
                 // throw new Exception("Loading deltausers via b_password is deprecated! Dette skal ikke skje og er en systemfeil. Kontakt UKM Support for hjelp.");
                 return $qry;
