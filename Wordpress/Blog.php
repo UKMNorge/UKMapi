@@ -112,29 +112,75 @@ class Blog
         return $res['blog_id'] ? (int) $res['blog_id'] : null;
     }
 
-    public static function getAllPostsOutsideWP(int $blogId) {
+
+    /**
+     * Hent alle publiserte poster utenfor Wordpress-miljoet for en gitt blogg.
+     *
+     *
+     * @param Int $blogId
+     * @param String|null $postType
+     *
+     * @throws Exception ved ugyldig input
+     *
+     * @return Infosak|Innlegg[]
+     */
+    public static function getAllPostsOutsideWP(int $blogId, string|null $postType) : array {
         if(!is_numeric($blogId)) {
             throw new Exception('Blog ID må være et tall.');
         }
-        $sql = new Query("SELECT *
+        $sql = new Query("SELECT p.*,
+            GROUP_CONCAT(DISTINCT t.term_id) AS category_ids,
+            GROUP_CONCAT(DISTINCT t.name) AS category_names,
+            GROUP_CONCAT(DISTINCT t.slug) AS category_slugs,
+            MAX(pm.meta_value) AS thumbnail_id,
+            MAX(imgm.meta_value) AS thumbnail_file,
+            b.path AS blog_path
             FROM wpms2012_#blog_id_posts p
-            WHERE p.post_type = 'post'
+            LEFT JOIN wpms2012_#blog_id_term_relationships tr
+                ON tr.object_id = p.ID
+            LEFT JOIN wpms2012_#blog_id_term_taxonomy tt
+                ON tt.term_taxonomy_id = tr.term_taxonomy_id
+                AND tt.taxonomy = 'category'
+            LEFT JOIN wpms2012_#blog_id_terms t
+                ON t.term_id = tt.term_id
+            LEFT JOIN wpms2012_#blog_id_postmeta pm
+                ON pm.post_id = p.ID
+                AND pm.meta_key = '_thumbnail_id'
+            LEFT JOIN wpms2012_#blog_id_posts img
+                ON img.ID = pm.meta_value
+            LEFT JOIN wpms2012_#blog_id_postmeta imgm
+                ON imgm.post_id = img.ID
+                AND imgm.meta_key = '_wp_attached_file'
+            LEFT JOIN wpms2012_blogs b
+                ON b.blog_id = '#blog_id'
+            WHERE p.post_type = '#post_type'
             AND p.post_status = 'publish'
             AND p.post_title != 'Hello world!'
             AND p.post_title != 'Hei, verden!'
             AND p.post_title NOT LIKE 'Elementor #%'
+            GROUP BY p.ID
             ORDER BY p.post_date_gmt DESC;",
-            ['blog_id' => $blogId],
+            [
+                'blog_id' => $blogId,
+                'post_type' => $postType ?? 'post'
+            ],
             'wordpress'
         );
-        
+
         $res = $sql->run();
         $posts = [];
 
         while($row = Query::fetch($res)) {
-            $posts[] = new Infosak($row, $blogId);
+            if($postType == 'post') {
+                // Infosak brukes på Delta
+                $posts[] = new Infosak($row, $blogId);
+            }
+            else {
+                // Innlegg brukes på arrangementssider
+                $posts[] = new Innlegg($row, $blogId);
+            }
         }
-
+        
         return $posts;
     }
 

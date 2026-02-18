@@ -7,6 +7,7 @@ use UKMNorge\Arrangement\Program\Hendelse;
 use UKMNorge\Innslag\Innslag;
 use UKMNorge\Innslag\Media\Bilder\Bilde;
 use UKMNorge\Filmer\UKMTV\FilmInterface;
+use UKMNorge\Wordpress\Innlegg;
 
 use Exception;
 use UKMNorge\Filmer\UKMTV\Film;
@@ -170,6 +171,26 @@ class ObjectTransformer {
             'description' => $film->getDescription(),
             'thumbnail_url' => $film->getImagePath(),
             'embed_url' => $film->getEmbedUrl(),
+        ];
+    }
+
+    public static function innlegg(Innlegg $innlegg) : array {
+        return [
+            'id' => $innlegg->getId(),
+            'title' => $innlegg->getTitle(),
+            'content' => $innlegg->getContent(),
+            'excerpt' => $innlegg->getExcerpt(),
+            'status' => $innlegg->getStatus(),
+            'date' => $innlegg->getDate()->format('Y-m-d H:i:s'),
+            'modified_date' => $innlegg->getModifiedDate()->format('Y-m-d H:i:s'),
+            'slug' => $innlegg->getSlug(),
+            'type' => $innlegg->getType(),
+            'author_id' => $innlegg->getAuthorId(),
+            'category_ids' => $innlegg->getCategoryIds(),
+            'category_names' => $innlegg->getCategoryNames(),
+            'category_slugs' => $innlegg->getCategorySlugs(),
+            'thumbnail_id' => $innlegg->getThumbnailId(),
+            'thumbnail_url' => $innlegg->getThumbnailUrl(),
         ];
     }
 }
