@@ -173,7 +173,7 @@ class Innlegg extends Nyhet {
             $path .= '/';
         }
 
-        return 'https://'. UKM_HOSTNAME . $path . 'wp-content/uploads/sites/' . $this->blog_id . '/' . ltrim($thumbnailFile, '/');
+        return 'https://'. UKM_HOSTNAME_SUBDOMAIN . $path . 'wp-content/uploads/sites/' . $this->blog_id . '/' . ltrim($thumbnailFile, '/');
     }
 
     private function parseCategoryIds(string $value): array {
