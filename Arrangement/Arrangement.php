@@ -1801,7 +1801,7 @@ class Arrangement
         foreach($this->getDirektesending()->getAll() as $sending) {
             if($sending->erAktiv()) {
                 $beskrivelse = '';
-                $beskrivelse .= "Direktesending: " . $sending->getLink() . '/iframe' . ' <br><br>';
+                $beskrivelse .= "DIREKTESENDING: " . '</br>' . $sending->getLink() . '/iframe' . ' </br></br>';
                 $beskrivelse .= $this->getBeskrivelse();
                 return $beskrivelse;
             }
