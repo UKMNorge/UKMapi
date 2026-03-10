@@ -4,11 +4,11 @@ namespace UKMNorge\Arrangement\Aktivitet;
 
 use Exception;
 use UKMNorge\Arrangement\Arrangement;
-use UKMNorge\Arrangement\Program\ProgramItemInterface;
+use UKMNorge\Arrangement\Program\HendelseItemInterface;
 use UKMNorge\Database\SQL\Query;
 
 
-class Aktivitet implements AktivitetInterface, ProgramItemInterface {
+class Aktivitet implements AktivitetInterface, HendelseItemInterface {
     public const TABLE = 'aktivitet';
     
     private int $aktivitetId;

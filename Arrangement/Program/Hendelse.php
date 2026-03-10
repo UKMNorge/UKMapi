@@ -236,7 +236,7 @@ class Hendelse
     /**
      * Hent items i denne hendelsen.
      *
-     * @return Array<ProgramItemInterface>
+     * @return Array<HendelseItemInterface>
      **/
     public function getItems() : Array {
         $items = [];
