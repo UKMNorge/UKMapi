@@ -4,10 +4,11 @@ namespace UKMNorge\Arrangement\Aktivitet;
 
 use Exception;
 use UKMNorge\Arrangement\Arrangement;
+use UKMNorge\Arrangement\Program\ProgramItemInterface;
 use UKMNorge\Database\SQL\Query;
 
 
-class Aktivitet implements AktivitetInterface {
+class Aktivitet implements AktivitetInterface, ProgramItemInterface {
     public const TABLE = 'aktivitet';
     
     private int $aktivitetId;
@@ -56,8 +57,39 @@ class Aktivitet implements AktivitetInterface {
         return $aktiviteter;
     }
 
+    /**
+     * Hent alle aktiviteter for en gitt hendelse
+     *
+     * @param int $hendelseId
+     * @return array<Aktivitet> with order as key
+     */
+    public static function getAllByHendelse(int $hendelseId) : array {
+        $sql = new Query(
+            "SELECT `aktivitet`.*, `rel`.`order` FROM `". Aktivitet::TABLE ."` AS `aktivitet`"
+            . " JOIN `smartukm_rel_aktivitet_c` AS `rel`"
+            . " ON `rel`.`b_id` = `aktivitet`.`aktivitet_id`"
+            . " WHERE `rel`.`c_id` = '#hendelseId'"
+            . " ORDER BY `rel`.`order` ASC",
+            ['hendelseId' => $hendelseId]
+        );
+
+        $res = $sql->run();
+
+        $aktiviteter = [];
+        while ($row = Query::fetch($res)) {
+            // Use the order as the key, and the Aktivitet object as the value
+            $order = (int) $row['order'];
+            $aktiviteter[$order] = new Aktivitet($row);
+        }
+        return $aktiviteter;
+    }
+
     public function getId() {
         return $this->aktivitetId;
+    }
+
+    public function getItemType() : string {
+        return 'aktivitet';
     }
 
     public function getNavn() {
