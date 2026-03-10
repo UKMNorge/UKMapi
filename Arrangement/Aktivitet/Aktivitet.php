@@ -195,6 +195,7 @@ class Aktivitet implements AktivitetInterface, HendelseItemInterface {
         }
     
         return [
+            'object_type' => 'aktivitet',
             'id' => $this->getId(),
             'navn' => $this->getNavn(),
             'sted' => $this->getSted(),

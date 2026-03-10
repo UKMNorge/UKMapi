@@ -8,6 +8,7 @@ use UKMNorge\Innslag\Innslag;
 use UKMNorge\Innslag\Media\Bilder\Bilde;
 use UKMNorge\Filmer\UKMTV\FilmInterface;
 use UKMNorge\Wordpress\Innlegg;
+use UKMNorge\Arrangement\Aktivitet\Aktivitet;
 
 use Exception;
 use UKMNorge\Filmer\UKMTV\Film;
@@ -102,11 +103,15 @@ class ObjectTransformer {
     }
 
     public static function hendelse(Hendelse $hendelse) : array {
-        $innslagArr = [];
+        $itemsArr = [];
         // Kun hvis detaljprogram er synlig, skal innslagene legges til
         if($hendelse->harSynligDetaljprogram()) {
-            foreach($hendelse->getInnslag()->getAll() as $innslag) {
-                $innslagArr[] = self::innslag($innslag);
+            foreach($hendelse->getItems() as $hendelseItem) {
+                if($hendelseItem->getItemType() == 'innslag') {
+                    $itemsArr[] = self::innslag($hendelseItem);
+                } elseif($hendelseItem->getItemType() == 'aktivitet') {
+                    $itemsArr[] = self::aktivitet($hendelseItem);
+                }
             }
         }
         
@@ -117,12 +122,17 @@ class ObjectTransformer {
             'synlig_i_rammeprogram' => $hendelse->erSynligRammeprogram(),
             'synlig_detaljprogram' => $hendelse->erSynligDetaljprogram(),
             'sted' => $hendelse->getSted(),
-            'innslag' => $innslagArr,
+            'items' => $itemsArr,
         ];
+    }
+
+    public static function aktivitet(Aktivitet $aktivitet) : array {
+        return $aktivitet->getArrObj();
     }
 
     public static function innslag(Innslag $innslag) : array {
         $obj = [
+            'object_type' => 'innslag',
             'id' => $innslag->getId(),
             'navn' => $innslag->getNavn(),
             'type' => $innslag->getType() ? $innslag->getType()->getNavn() : 'Ukjent type',
