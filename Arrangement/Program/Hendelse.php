@@ -7,6 +7,7 @@ use UKMNorge\Innslag\Samling;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\DesignWordpress\Environment\Posts;
 use UKMNorge\DesignWordpress\Environment\Post;
+use UKMNorge\Arrangement\Aktivitet\Aktivitet;
 
 
 
@@ -226,6 +227,42 @@ class Hendelse
             $this->innslag = new Samling($this->getContext());
         }
         return $this->innslag;
+    }
+
+    public function getAktiviteter() : array {
+        return Aktivitet::getAllByHendelse($this->getId());
+    }
+
+    /**
+     * Hent items i denne hendelsen.
+     *
+     * @return Array<ProgramItemInterface>
+     **/
+    public function getItems() : Array {
+        $items = [];
+
+        foreach ($this->getAktiviteter() as $order => $aktivitet) {
+            $items[$order] = $aktivitet;
+        }
+
+        $sql = new Query(
+            "SELECT `b_id`, `order` FROM `smartukm_rel_b_c`
+            WHERE `c_id` = '#hendelseId'",
+            ['hendelseId' => $this->getId()]
+        );
+        $res = $sql->run();
+        $innslagOrder = [];
+        while ($row = Query::fetch($res)) {
+            $innslagOrder[(int) $row['b_id']] = (int) $row['order'];
+        }
+
+        foreach ($this->getInnslag()->getAll() as $innslag) {
+            $order = $innslagOrder[$innslag->getId()] ?? 0;
+            $items[$order] = $innslag;
+        }
+
+        ksort($items);
+        return $items;
     }
 
     /**
