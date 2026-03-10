@@ -164,6 +164,15 @@ class Write
         );
         $res = $rel->run();
 
+        // Slett rekkefølgen i hendelsen for aktiviteter
+        $rel_aktiviteter = new Delete(
+            'smartukm_rel_aktivitet_c',
+            [
+                'c_id' => $hendelse->getId()
+            ]
+        );
+        $res_aktiviteter = $rel_aktiviteter->run();
+
         // Slett hendelsen
         $del = new Delete(
             'smartukm_concert',
@@ -451,24 +460,33 @@ class Write
      * Oppdater hendelsens rekkefølge ifølge gitt array
      *
      * @param Hendelse $hendelse
-     * @param Array $innslag_id
+     * @param Array<HendelseItemInterface> $items
      * @return Bool
      */
-    public static function redefineOrder( Hendelse $hendelse, Array $innslag_id ) {
-        $delete = new Delete(
+    public static function redefineOrder( Hendelse $hendelse, array $items ) : bool {
+        $deleteRelInnslag = new Delete(
             'smartukm_rel_b_c',
             [
                 'c_id' => $hendelse->getId()
             ]
         );
-        $delete = $delete->run();
+        $deleteRelInnslag = $deleteRelInnslag->run();
+        
+        $deleteRelAktiviteter = new Delete(
+            'smartukm_rel_aktivitet_c',
+            [
+                'c_id' => $hendelse->getId()
+            ]
+        );
+        $deleteRelAktiviteter = $deleteRelAktiviteter->run();
             
         $count = 0;
-        foreach( $innslag_id as $innslag ) {
+        foreach( $items as $item ) {
             $count++;
-            $insert = new Insert('smartukm_rel_b_c');
+            $dbTable = $item instanceof Innslag ? 'smartukm_rel_b_c' : 'smartukm_rel_aktivitet_c';
+            $insert = new Insert($dbTable);
             $insert->add('c_id', $hendelse->getId());
-            $insert->add('b_id', $innslag);
+            $insert->add('b_id', $item->getId());
             $insert->add('order', $count);
             $insert->run();
         }
