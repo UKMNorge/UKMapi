@@ -34,9 +34,10 @@ use UKMNorge\Innslag\Typer\Typer;
 use UKMNorge\Log\Samling as LogSamling;
 use UKMNorge\Samtykke\Innslag as InnslagSamtykke;
 use UKMNorge\Tid;
+use UKMNorge\Arrangement\Program\HendelseItemInterface;
 use UKMNorge\Tools\Sanitizer;
 
-class Innslag
+class Innslag implements HendelseItemInterface
 {
     var $context = null;
 
@@ -332,6 +333,10 @@ class Innslag
     public function getId()
     {
         return $this->id;
+    }
+
+    public function getItemType() : string {
+        return 'innslag';
     }
 
     /**
