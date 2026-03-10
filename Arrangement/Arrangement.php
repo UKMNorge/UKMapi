@@ -32,6 +32,7 @@ use UKMNorge\Log\Samling as LogSamling;
 use UKMNorge\Nettverk\Proxy\Kontaktperson as AdminKontaktProxy;
 use UKMNorge\Innslag\Venteliste\Venteliste;
 use UKMNorge\Arrangement\Videresending\Request\RequestVideresendinger;
+use UKMNorge\Arrangement\Aktivitet\Aktivitet;
 
 use function Symfony\Component\Clock\now;
 
@@ -1215,6 +1216,15 @@ class Arrangement
     public function erRegistrert()
     {
         return $this->registrert;
+    }
+
+    /**
+     * Hent alle aktiviteter for dette arrangementet
+     *
+     * @return array $aktiviteter
+     */
+    public function getAktiviteter() {
+        return Aktivitet::getAllByArrangement($this->getId());
     }
 
     /**
