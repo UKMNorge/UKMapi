@@ -108,7 +108,7 @@ class ObjectTransformer {
      * Bruk heller hendelse() dersom mulig.
      * hendelse() gir fullverdig og oppdatert programstruktur inkludert items, mens hendelseOld gir begrenset info.
      */
-    public static function hendelse(Hendelse $hendelse) : array {
+    public static function hendelseOld(Hendelse $hendelse) : array {
         $innslagArr = [];
         // Kun hvis detaljprogram er synlig, skal innslagene legges til
         if($hendelse->harSynligDetaljprogram()) {
@@ -128,7 +128,7 @@ class ObjectTransformer {
         ];
     }
 
-    public static function hendelseNew(Hendelse $hendelse) : array {
+    public static function hendelse(Hendelse $hendelse) : array {
         $itemsArr = [];
         // Kun hvis detaljprogram er synlig, skal innslagene legges til
         if($hendelse->harSynligDetaljprogram()) {
