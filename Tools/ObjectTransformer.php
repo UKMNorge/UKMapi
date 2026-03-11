@@ -102,6 +102,32 @@ class ObjectTransformer {
         ];
     }
 
+    // TODO: Fjern denne når vi har omskrevet hendelse til ny format
+    /**
+     * OBS! Denne funksjonen (hendelseOld) er midlertidig og skal fases ut til fordel for hendelse().
+     * Bruk heller hendelse() dersom mulig.
+     * hendelse() gir fullverdig og oppdatert programstruktur inkludert items, mens hendelseOld gir begrenset info.
+     */
+    public static function hendelseOld(Hendelse $hendelse) : array {
+        $innslagArr = [];
+        // Kun hvis detaljprogram er synlig, skal innslagene legges til
+        if($hendelse->harSynligDetaljprogram()) {
+            foreach($hendelse->getInnslag()->getAll() as $innslag) {
+                $innslagArr[] = self::innslag($innslag);
+            }
+        }
+        
+        return [
+            'id' => $hendelse->getId(),
+            'navn' => $hendelse->getNavn(),
+            'start' => $hendelse->getStart()->getTimestamp(),
+            'synlig_i_rammeprogram' => $hendelse->erSynligRammeprogram(),
+            'synlig_detaljprogram' => $hendelse->erSynligDetaljprogram(),
+            'sted' => $hendelse->getSted(),
+            'innslag' => $innslagArr,
+        ];
+    }
+
     public static function hendelse(Hendelse $hendelse) : array {
         $itemsArr = [];
         // Kun hvis detaljprogram er synlig, skal innslagene legges til
