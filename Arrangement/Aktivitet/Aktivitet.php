@@ -204,8 +204,8 @@ class Aktivitet implements AktivitetInterface, HendelseItemInterface {
             'kursholder' => $this->getkursholder(),
             'image' => $this->getImage(),
             'plId' => $this->getPlId(),
-            // 'tidspunkter' => $tidspunkter,
-            // 'tags' => $tags,
+            'tidspunkter' => [], // Deaktiverer tidspunkter i 2026 $tidspunkter,
+            'tags' => [] , // Deaktiverer tags i 2026 $tags,
             'isProgramSynlig' => $this->isProgramSynlig
         ];
     }
