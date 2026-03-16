@@ -74,47 +74,6 @@ class Samtykkeskjema {
     }
 
     /**
-     * Gi samtykke til samtykkeskjemaet
-     * @param int $userId
-     * @param bool $isForesatt
-     * @param string $ipAddress
-     * @return SamtykkeSvar
-     * @throws Exception hvis det finnes flere versjoner
-     * 
-     * OBS: Sjekk ALTID DENNE METODEN MED TRY/CATCH!
-     */
-    public function giSamtykke(int $userId, bool $isForesatt = false, string $ipAddress = 'auto') {
-        $versjoner = $this->getVersjoner();
-        
-        if(empty($versjoner)) {
-            throw new Exception('Kan ikke gi samtykke siden det ikke finnes noen versjoner');
-        }
-        if(count($versjoner) !== 1) {
-            throw new Exception('Kan ikke gi samtykke siden det finnes flere versjoner');
-        }
-
-        $versjoner[0]->giSamtykke($userId, $isForesatt, $ipAddress);
-    }
-
-    /**
-     * Gi samtykke til siste versjon av samtykkeskjemaet
-     * @param int $userId
-     * @param bool $isForesatt
-     * @param string $ipAddress
-     * @return SamtykkeSvar
-     * @throws Exception hvis det finnes flere versjoner
-     * 
-     * OBS: Sjekk ALTID DENNE METODEN MED TRY/CATCH!
-     */
-    public function giSamtykkeTilSisteVersjon(int $userId, bool $isForesatt = false, string $ipAddress = 'auto') {
-        $versjoner = $this->getVersjoner();
-        if(empty($versjoner)) {
-            throw new Exception('Kan ikke gi samtykke siden det ikke finnes noen versjoner');
-        }
-        $versjoner[count($versjoner) - 1]->giSamtykke($userId, $isForesatt, $ipAddress);
-    }
-
-    /**
      * Hent ID
      * @return int
      */
@@ -220,7 +179,7 @@ class Samtykkeskjema {
      * Det er kun versjoner som kan ha svar/samtykke fra brukere
      * @return SamtykkeVersjon[]
      */
-    public function getVersjoner() : array {
+    public function getVersjoner() {
         if( empty($this->versjoner) ) {
             $this->_loadVersjoner();
         }

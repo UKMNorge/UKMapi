@@ -21,7 +21,7 @@ class SamtykkeSvar
     protected $svar;
     protected $ipAddress;
     protected $user;
-    protected $signedAt;
+    protected $sif;
     protected $isSigned;
     protected $signedMethod;
     protected $isForesatt;
@@ -75,7 +75,7 @@ class SamtykkeSvar
         $this->svar         = $row['svar'];
         $this->ipAddress    = isset($row['ip_address']) ? $row['ip_address'] : null;
         $this->user         = isset($row['user']) ? $row['user'] : null;
-        $this->signedAt    = isset($row['created_at']) ? $row['created_at'] : null;
+        $this->sif    = isset($row['created_at']) ? $row['created_at'] : null;
         $this->isSigned     = isset($row['is_signed']) ? (bool)$row['is_signed'] : false;
         $this->signedMethod = isset($row['signed_method']) ? $row['signed_method'] : null;
         $this->isForesatt   = isset($row['is_foresatt']) ? (bool)$row['is_foresatt'] : false;
@@ -108,9 +108,9 @@ class SamtykkeSvar
         return $this->user;
     }
 
-    public function getsignedAt()
+    public function getsif()
     {
-        return $this->signedAt;
+        return $this->sif;
     }
 
     public function isSigned()
@@ -181,37 +181,98 @@ class SamtykkeSvar
     }
 
     /**
-     * Lag nytt SamtykkeSvar direkte
-     * @param int $version_id
-     * @param string $svar
-     * @param string|null $ip_address
-     * @param int|null $user
-     * @param bool $is_signed
-     * @param string|null $signed_method 'delta' eller 'arrsys'
-     * @param bool $is_foresatt
-     * @return static
+     * Opprett nytt SamtykkeSvar
+     * SamtykkeSvar representerer et individuelt svar på et samtykkeskjema uten å være signert. Signering kan skje senere.
+     * @param int $versionId
+     * @param int|null $userId
+     * @param bool $isForesatt
+     * @return SamtykkeSvar
      */
-    public static function create(
-        $version_id,
-        $svar,
-        $ip_address = null,
-        $user = null,
-        $is_signed = false,
-        $signed_method = null,
-        $is_foresatt = false
-    ) {
+    public static function createNewSamtykkeSvar($versionId, $userId, $isForesatt = false) {
         $obj = new self([
             'id'            => null,
-            'version_id'    => $version_id,
-            'svar'          => $svar,
-            'ip_address'    => $ip_address,
-            'user'          => $user,
-            'created_at'    => null,
-            'is_signed'     => $is_signed ? 1 : 0,
-            'signed_method' => $signed_method,
-            'is_foresatt'   => $is_foresatt ? 1 : 0
+            'version_id'    => $versionId,
+            'user'          => $userId,
+            'is_foresatt'   => $isForesatt ? 1 : 0
         ]);
         $obj->save();
         return $obj;
+    }
+
+    /**
+     * Registrer brukerens svar på samtykket.
+     * Kalles etter at SamtykkeSvar er opprettet med createNewSamtykkeSvar().
+     * Kan kun gjøres én gang — svaret kan ikke overskrives etter at det er satt.
+     *
+     * @param string $svar         Brukerens svar, f.eks. 'ja' eller 'nei'
+     * @param int $userId         Brukerens ID
+     * @param string|null $ipAddress IP-adressen til brukeren (valgfritt)
+     * @throws Exception hvis svaret ikke er lagret, eller allerede har et registrert svar
+     */
+    public function samtykk(string $svar, int $userId, ?string $ipAddress = null) : SamtykkeSvar
+    {
+        if (!$this->id) {
+            throw new Exception('Kan ikke gi samtykke på et SamtykkeSvar som ikke er lagret.');
+        }
+
+        if (!empty($this->svar)) {
+            throw new Exception('SamtykkeSvar med ID ' . $this->id . ' har allerede et registrert svar.');
+        }
+
+        $sql = new Query("
+            UPDATE `" . self::TABLE . "`
+            SET
+                `svar` = '#svar',
+                `ip_address` = '#ip_address',
+                `user` = '#user'
+            WHERE `id` = '#id' AND `user` = '#user'",
+            [
+                'svar'       => $svar,
+                'ip_address' => $ipAddress,
+                'user'       => $userId,
+                'id'         => $this->id,
+            ]
+        );
+        $sql->run();
+
+        new self($this->id);
+        return $this;
+    }
+
+    /**
+     * Registrer at brukeren avslår samtykket.
+     * Kan kun gjøres én gang — svaret kan ikke overskrives etter at det er satt.
+     *
+     * @param int $userId            Brukerens ID
+     * @param string|null $ipAddress IP-adressen til brukeren (valgfritt)
+     * @throws Exception hvis svaret ikke er lagret, eller allerede har et registrert svar
+     */
+    public function avsla(int $userId, ?string $ipAddress = null) : SamtykkeSvar
+    {
+        if (!$this->id) {
+            throw new Exception('Kan ikke avslå samtykke på et SamtykkeSvar som ikke er lagret.');
+        }
+
+        if (!empty($this->svar)) {
+            throw new Exception('SamtykkeSvar med ID ' . $this->id . ' har allerede et registrert svar.');
+        }
+
+        $sql = new Query("
+            UPDATE `" . self::TABLE . "`
+            SET
+                `svar` = 'nei',
+                `ip_address` = '#ip_address',
+                `user` = '#user'
+            WHERE `id` = '#id'",
+            [
+                'ip_address' => $ipAddress,
+                'user'       => $userId,
+                'id'         => $this->id,
+            ]
+        );
+        $sql->run();
+
+        new self($this->id);
+        return $this;
     }
 }

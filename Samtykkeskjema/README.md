@@ -31,18 +31,30 @@ Samtykkeskjema diagram
 use UKMNorge\Samtykkeskjema\Samtykkeskjema;
 
 // Last inn skjema fra prosjekt med ID 1
-$skjema = new Samtykkeskjema::getByProsjektId(1);
+$skjemaer = Samtykkeskjema::getByProsjektId(1);
 
-// Hent alle versjoner
-$versjoner = $skjema->getVersjoner();
+// Hent alle versjoner fra første skjema (som eksempel)
+$versjoner = $skjemaer[0]->getVersjoner();
 ```
 
-### Gi samtykke på et samtykkeskjema
+### Opprette og samtykke eller avslå et svar
+
+For å opprette et nytt svar på en gitt skjema-versjon, bruk `SamtykkeSvar::createNewSamtykkeSvar`, og deretter kan du enten samtykke (`samtykk()`) eller avslå (`avsla()`). Dette må gjøres på det enkelte svaret, ikke direkte på Samtykkeskjema.
 
 ```php
-$skjema->giSamtykke(1, false, '192.168.0.1');
-$skjema->giSamtykkeTilSisteVersjon(1, false, '192.168.0.1')
+use UKMNorge\Samtykkeskjema\SamtykkeSvar;
+
+// Opprett et nytt SamtykkeSvar for versjon med ID $versionId og bruker $userId
+$svar = SamtykkeSvar::createNewSamtykkeSvar($versionId, $userId, $isForesatt = false);
+
+// Gi samtykke
+$svar->samtykk('ja', $userId, $ipAddress = '192.168.0.1');
+
+// ...eller avslå samtykke
+$svar->avsla($userId, $ipAddress = '192.168.0.1');
 ```
+
+Merk: Svaret kan kun gis én gang per svarobjekt; det kan ikke overskrives.
 
 ## Relaterte filer
 
