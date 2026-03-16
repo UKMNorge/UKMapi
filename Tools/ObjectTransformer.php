@@ -146,6 +146,8 @@ class ObjectTransformer {
         return [
             'id' => $hendelse->getId(),
             'navn' => $hendelse->getNavn(),
+            'beskrivelse' => $hendelse->getBeskrivelse(),
+            'bilde' => $hendelse->getBilde(),
             'start' => $hendelse->getStart()->getTimestamp(),
             'synlig_i_rammeprogram' => $hendelse->erSynligRammeprogram(),
             'synlig_detaljprogram' => $hendelse->erSynligDetaljprogram(),
