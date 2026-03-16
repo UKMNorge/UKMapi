@@ -207,9 +207,10 @@ class SamtykkeSvar
      * @param string $svar         Brukerens svar, f.eks. 'ja' eller 'nei'
      * @param int $userId         Brukerens ID
      * @param string|null $ipAddress IP-adressen til brukeren (valgfritt)
+     * @param string|null $signedMethod Metoden som brukes for å signere samtykket (valgfritt)
      * @throws Exception hvis svaret ikke er lagret, eller allerede har et registrert svar
      */
-    public function samtykk(string $svar, int $userId, ?string $ipAddress = null) : SamtykkeSvar
+    public function samtykk(string $svar, int $userId, ?string $ipAddress = null, string $signedMethod = 'delta') : SamtykkeSvar
     {
         if (!$this->id) {
             throw new Exception('Kan ikke gi samtykke på et SamtykkeSvar som ikke er lagret.');
@@ -224,13 +225,17 @@ class SamtykkeSvar
             SET
                 `svar` = '#svar',
                 `ip_address` = '#ip_address',
-                `user` = '#user'
+                `user` = '#user',
+                `is_signed` = 1,
+                `signed_method` = '#signed_method',
+                `signed_at` = NOW()
             WHERE `id` = '#id' AND `user` = '#user'",
             [
                 'svar'       => $svar,
                 'ip_address' => $ipAddress,
                 'user'       => $userId,
                 'id'         => $this->id,
+                'signed_method' => $signedMethod,
             ]
         );
         $sql->run();

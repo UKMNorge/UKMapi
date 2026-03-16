@@ -45,6 +45,12 @@ class SamtykkeVersjon
         return $this->samtykkeSvar;
     }
 
+    public function getSamtykkeSvarForBruker($userId) : SamtykkeSvar | null {
+        return array_values(array_filter($this->getSamtykkeSvar(), function($svar) use ($userId) {
+            return $svar->getUser() == $userId;
+        }))[0] ?? null;
+    }
+
     public function createSamtykkeForBruker($userId) {
         return SamtykkeSvar::createNewSamtykkeSvar($this->id, $userId, false);
     }
@@ -52,6 +58,8 @@ class SamtykkeVersjon
     public function createSamtykkeForForesatt($userId) {
         return SamtykkeSvar::createNewSamtykkeSvar($this->id, $userId, true);
     }
+
+  
 
     /**
      * Laster inn SamtykkeSvar for denne versjonen via rel_samtykkeskjema_version_svar.
