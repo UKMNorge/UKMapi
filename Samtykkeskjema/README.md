@@ -1,4 +1,4 @@
-# "Samtykkeskjema
+# Samtykkeskjema
 
 Samtykkeskjema-modulen representerer et prosjekt som håndterer samtykkeskjemaer, deres versjoner, prosjekter knyttet til skjemaet, arrangementer, og tilhørende entiteter slik som bilder, filmer og innslag. Hvert skjema kan ha én eller flere versjoner, og hver versjon kan ha individuelle svar og digital signering.
 
