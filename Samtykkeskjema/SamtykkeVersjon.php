@@ -45,6 +45,14 @@ class SamtykkeVersjon
         return $this->samtykkeSvar;
     }
 
+    public function createSamtykkeForBruker($userId) {
+        return SamtykkeSvar::createNewSamtykkeSvar($this->id, $userId, false);
+    }
+
+    public function createSamtykkeForForesatt($userId) {
+        return SamtykkeSvar::createNewSamtykkeSvar($this->id, $userId, true);
+    }
+
     /**
      * Laster inn SamtykkeSvar for denne versjonen via rel_samtykkeskjema_version_svar.
      */

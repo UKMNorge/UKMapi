@@ -39,22 +39,39 @@ $versjoner = $skjemaer[0]->getVersjoner();
 
 ### Opprette og samtykke eller avslå et svar
 
-For å opprette et nytt svar på en gitt skjema-versjon, bruk `SamtykkeSvar::createNewSamtykkeSvar`, og deretter kan du enten samtykke (`samtykk()`) eller avslå (`avsla()`). Dette må gjøres på det enkelte svaret, ikke direkte på Samtykkeskjema.
+For å opprette et nytt svar (et svar som er åpen for å svare senere og er koblet mot en bruker) på en gitt skjema-versjon, bruk `SamtykkeSvar::createNewSamtykkeSvar`, og deretter kan brukeren enten samtykke (`samtykk()`) eller avslå (`avsla()`). Dette må gjøres på det enkelte svaret, ikke direkte på Samtykkeskjema.
 
 ```php
 use UKMNorge\Samtykkeskjema\SamtykkeSvar;
 
 // Opprett et nytt SamtykkeSvar for versjon med ID $versionId og bruker $userId
+// $isForesatt = true dersom det er en foresatt som svarer på vegne av en deltaker
 $svar = SamtykkeSvar::createNewSamtykkeSvar($versionId, $userId, $isForesatt = false);
 
-// Gi samtykke
+// Gi samtykke med valgfri streng (f.eks. 'ja') og IP-adresse
 $svar->samtykk('ja', $userId, $ipAddress = '192.168.0.1');
 
-// ...eller avslå samtykke
+// ...eller avslå samtykke (svar settes automatisk til 'nei')
 $svar->avsla($userId, $ipAddress = '192.168.0.1');
 ```
 
-Merk: Svaret kan kun gis én gang per svarobjekt; det kan ikke overskrives.
+Begge metodene returnerer `SamtykkeSvar`-objektet (fluent interface) og oppdaterer objektets in-memory tilstand (`svar`, `ipAddress`) i tillegg til databasen.
+
+Merk: Svaret kan kun gis én gang per svarobjekt — det kan ikke overskrives. Begge metodene kaster `Exception` hvis svaret allerede er registrert.
+
+### Tilgjengelige gettere på SamtykkeSvar
+
+| Metode              | Beskrivelse                                         |
+|---------------------|-----------------------------------------------------|
+| `getId()`           | ID til svaret                                       |
+| `getVersionId()`    | ID til skjema-versjonen svaret tilhører             |
+| `getSvar()`         | Brukerens svar (`'ja'`, `'nei'`, eller tomt)        |
+| `getIpAddress()`    | IP-adressen registrert ved svartidspunkt            |
+| `getUser()`         | Bruker-ID knyttet til svaret                        |
+| `getsif()`          | Tidsstempel for oppretting (`created_at`)           |
+| `isSigned()`        | Om svaret er digitalt signert (`bool`)              |
+| `getSignedMethod()` | Signeringsmetode: `'delta'`, `'arrsys'` eller null  |
+| `isForesatt()`      | Om svaret er avgitt av en foresatt (`bool`)         |
 
 ## Relaterte filer
 
