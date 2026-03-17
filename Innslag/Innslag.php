@@ -66,6 +66,7 @@ class Innslag implements HendelseItemInterface
     var $titler = null;
     var $home = null;
     var $home_id = null;
+    var $current_arrangement = null;
 
     var $delta_eier = null;
 
@@ -1106,6 +1107,41 @@ class Innslag implements HendelseItemInterface
     {
         return $this->delta_eier;
     }
+
+    /**
+     * Hent det nåværende arrangementet som innslaget er tilknyttet
+     * 
+     * OBS: Metoden returnerer siste arrangement som innslaget er tilknyttet basert på registreringstidspunkt.
+     * Hvis innslaget ikke er videresendt til noe arrangement, returneres hjemme-arrangementet
+     * 
+     * @return Arrangement
+     */
+    public function getCurrentArrangement() {
+        if(null !== $this->current_arrangement) {
+            return $this->current_arrangement;
+        }
+        
+        $query = new Query("SELECT `id`, `arrangement_id`
+            FROM `ukm_rel_arrangement_innslag`
+            WHERE `innslag_id` = #innslagId
+            ORDER BY `id` DESC
+            LIMIT 1",
+            [
+                'innslagId' => $this->getId()
+            ]
+        );
+
+        $res = $query->run('array');
+
+        if(empty($res)) {
+            $this->current_arrangement = new Arrangement($this->home_id);
+        } else {
+            $this->current_arrangement = new Arrangement($res['arrangement_id']);
+        }
+        
+        return $this->current_arrangement;
+    }
+
 
     /**
      * Hent innslagets hjemme-arrangement
