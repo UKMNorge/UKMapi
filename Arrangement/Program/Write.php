@@ -132,7 +132,7 @@ class Write
         $ny_hendelse->setOppmoteFor($hendelse->getOppmoteFor());
         $ny_hendelse->setOppmoteDelay($hendelse->getOppmoteDelay());
         $ny_hendelse->setSynligOppmotetid($hendelse->getSynligOppmotetid());
-
+        $ny_hendelse->setDeltakerprogram($hendelse->getDeltakerprogram());
         static::save($ny_hendelse);
 
         // Legg til alle innslag fra original hendelse.
@@ -249,6 +249,7 @@ class Write
             'Tag'                      => ['c_tag', 'String', 229],
             'Bilde'                    => ['c_bilde', 'String', 230],
             'Visning'                  => ['c_visning', 'String', 231],
+            'Deltakerprogram'          => ['c_deltakerprogram', 'Bool', 232],
         ];
 
         // LOOP ALLE VERDIER, OG EVT LEGG TIL I SQL

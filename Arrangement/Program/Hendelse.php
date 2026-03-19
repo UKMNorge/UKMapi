@@ -44,6 +44,7 @@ class Hendelse
     var $tag = null;
     var $bilde = null;
     var $visning = null;
+    var $deltakerprogram = false;
 
     var $collection_innslag = null;
 
@@ -73,7 +74,15 @@ class Hendelse
         $this->setTag($data['c_tag'] ?? null);
         $this->setBilde($data['c_bilde'] ?? null);
         $this->setVisning($data['c_visning'] ?? null);
+        $this->setDeltakerprogram('true' == $data['c_deltakerprogram']);
+    }
 
+    public function setDeltakerprogram($deltakerprogram) {
+        $this->deltakerprogram = $deltakerprogram;
+        return $this;
+    }
+    public function getDeltakerprogram() {
+        return $this->deltakerprogram;
     }
 
     public function getVisning() {
