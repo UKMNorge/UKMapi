@@ -129,6 +129,7 @@ class ObjectTransformer {
             'synlig_detaljprogram' => $hendelse->erSynligDetaljprogram(),
             'sted' => $hendelse->getSted(),
             'innslag' => $innslagArr,
+            'er_intern' => $hendelse->getDeltakerprogram(),
         ];
     }
 
@@ -155,6 +156,7 @@ class ObjectTransformer {
             'synlig_detaljprogram' => $hendelse->erSynligDetaljprogram(),
             'sted' => $hendelse->getSted(),
             'items' => $itemsArr,
+            'er_intern' => $hendelse->getDeltakerprogram(),
         ];
     }
 
