@@ -67,6 +67,7 @@ class Innslag implements HendelseItemInterface
     var $home = null;
     var $home_id = null;
     var $current_arrangement = null;
+    var $arrangementer_gruppert_på_nivå;
 
     var $delta_eier = null;
 
@@ -1142,6 +1143,87 @@ class Innslag implements HendelseItemInterface
         return $this->current_arrangement;
     }
 
+    public function getArrangementerGruppertPåNivå() : array {
+        if(null !== $this->arrangementer_gruppert_på_nivå) {
+            return $this->arrangementer_gruppert_på_nivå;
+        }
+
+        $this->arrangementer_gruppert_på_nivå = [
+            'kommune' => null,
+            'fylke' => null,
+            'land' => null,
+        ];
+
+        $query = new Query("SELECT `rel`.`id`, `rel`.`arrangement_id`, `place`.`pl_type`
+            FROM `ukm_rel_arrangement_innslag` AS `rel`
+            JOIN `smartukm_place` AS `place` ON `place`.`pl_id`=`rel`.`arrangement_id`
+            WHERE `innslag_id` = '#innslagId'",
+            [
+                'innslagId' => $this->getId()
+            ]
+        );
+
+        $res = $query->run();
+
+        while($row = Query::fetch($res)) {
+            $this->arrangementer_gruppert_på_nivå[$row['pl_type']] = new Arrangement($row['arrangement_id']);
+        }
+        
+        return $this->arrangementer_gruppert_på_nivå;
+    }
+
+    public function getArrangementKommune() : Arrangement {
+        return $this->getArrangementerGruppertPåNivå()['kommune'] ?? $this->getHome();
+    }
+
+    public function getArrangementFylke() : Arrangement|null {
+        return $this->getArrangementerGruppertPåNivå()['fylke'] ?? null;
+    }
+
+    public function getArrangementLand() : Arrangement|null {
+        return $this->getArrangementerGruppertPåNivå()['land'] ?? null;
+    }
+
+    /**
+     * Kommune > Fylke > Land
+     * Hent forrige arrangement
+     * Hvis innslaget videresendt til land, returner fylke-arrangementet hvis det finnes, ellers returner kommune-arrangementet
+     * Hvis innslaget videresendt til fylke, returner kommune-arrangementet
+     * Hvis innslaget er tilknyttet kommune, ble det ikke videresendt til noe arrangement, returner hjemme-arrangementet
+     * 
+     * @return Arrangement
+     */
+    public function getForrigeArrangement() : Arrangement {
+        // Er på land nivå, returner fylke
+        if($this->getArrangementLand() != null) {
+            return $this->getArrangementFylke() != null ? $this->getArrangementFylke() : $this->getArrangementKommune();
+        }
+        // Er på fylke nivå, returner kommune
+        else if($this->getArrangementFylke() != null) {
+            return $this->getArrangementKommune();
+        }
+        // Er på kommune nivå, ble ikke videresendt til noe arrangement, returner hjemme-arrangementet
+        return $this->getHome();
+    }
+  
+    public function getOmradeNavn() : string {
+        if($this->getKommune() == null) {
+            return '';
+        }
+        
+        try {
+            $arrangement = new Arrangement($this->getContext()->getMonstring()->getId());
+
+            if($arrangement->getType() == 'land') {
+                $kommune = $this->getKommune();
+                return $kommune->getFylke() ? $kommune->getFylke()->getNavn() : $kommune->getNavn();
+            }
+
+            return $this->getKommune()->getNavn();
+        } catch(Exception $e) {
+            return $this->getKommune()->getNavn() ?? '';
+        }
+    }
 
     /**
      * Hent innslagets hjemme-arrangement

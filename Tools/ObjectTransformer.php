@@ -9,6 +9,8 @@ use UKMNorge\Innslag\Media\Bilder\Bilde;
 use UKMNorge\Filmer\UKMTV\FilmInterface;
 use UKMNorge\Wordpress\Innlegg;
 use UKMNorge\Arrangement\Aktivitet\Aktivitet;
+use UKMNorge\Innslag\Context\Context;
+
 
 use Exception;
 use UKMNorge\Filmer\UKMTV\Film;
@@ -113,7 +115,7 @@ class ObjectTransformer {
         // Kun hvis detaljprogram er synlig, skal innslagene legges til
         if($hendelse->harSynligDetaljprogram()) {
             foreach($hendelse->getInnslag()->getAll() as $innslag) {
-                $innslagArr[] = self::innslag($innslag);
+                $innslagArr[] = self::innslag($innslag, $hendelse->getMonstring() ?? null);
             }
         }
         
@@ -136,7 +138,7 @@ class ObjectTransformer {
         if($hendelse->harSynligDetaljprogram()) {
             foreach($hendelse->getItems() as $hendelseItem) {
                 if($hendelseItem->getItemType() == 'innslag') {
-                    $itemsArr[] = self::innslag($hendelseItem);
+                    $itemsArr[] = self::innslag($hendelseItem, $hendelse->getMonstring() ?? null);
                 } elseif($hendelseItem->getItemType() == 'aktivitet') {
                     $itemsArr[] = self::aktivitet($hendelseItem);
                 }
@@ -160,7 +162,15 @@ class ObjectTransformer {
         return $aktivitet->getArrObj();
     }
 
-    public static function innslag(Innslag $innslag) : array {
+    public static function innslag(Innslag $innslag, ?Arrangement $arrangement = null) : array {
+        if($arrangement != null) {
+            $innslag->setContext(Context::createMonstring(
+                $arrangement->getId(),
+                $arrangement->getType(),
+                $arrangement->getSesong()
+            ));
+        }
+
         $obj = [
             'object_type' => 'innslag',
             'id' => $innslag->getId(),
@@ -168,6 +178,7 @@ class ObjectTransformer {
             'type' => $innslag->getType() ? $innslag->getType()->getNavn() : 'Ukjent type',
             'sjanger' => $innslag->getSjanger(),
             'beskrivelse' => $innslag->getBeskrivelse(),
+            'omrade_navn' => $innslag->getOmradeNavn(),
         ];
                 
         try{

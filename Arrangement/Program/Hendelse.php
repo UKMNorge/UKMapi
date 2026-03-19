@@ -356,7 +356,7 @@ class Hendelse
     /**
      * Hent mønstring (objektet)
      *
-     * @return monstring
+     * @return Arrangement
      **/
     public function getMonstring()
     {
