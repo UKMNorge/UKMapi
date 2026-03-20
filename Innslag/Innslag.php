@@ -67,7 +67,7 @@ class Innslag implements HendelseItemInterface
     var $home = null;
     var $home_id = null;
     var $current_arrangement = null;
-    var $arrangementer_gruppert_på_nivå;
+    var $arrangementer_gruppert_pa_niva = [];
 
     var $delta_eier = null;
 
@@ -1144,11 +1144,12 @@ class Innslag implements HendelseItemInterface
     }
 
     public function getArrangementerGruppertPåNivå() : array {
-        if(null !== $this->arrangementer_gruppert_på_nivå) {
-            return $this->arrangementer_gruppert_på_nivå;
+        if(!empty($this->arrangementer_gruppert_pa_niva)) {
+            return $this->arrangementer_gruppert_pa_niva;
         }
 
-        $this->arrangementer_gruppert_på_nivå = [
+
+        $this->arrangementer_gruppert_pa_niva = [
             'kommune' => null,
             'fylke' => null,
             'land' => null,
@@ -1166,10 +1167,10 @@ class Innslag implements HendelseItemInterface
         $res = $query->run();
 
         while($row = Query::fetch($res)) {
-            $this->arrangementer_gruppert_på_nivå[$row['pl_type']] = new Arrangement($row['arrangement_id']);
+            $this->arrangementer_gruppert_pa_niva[$row['pl_type']] = new Arrangement($row['arrangement_id']);
         }
         
-        return $this->arrangementer_gruppert_på_nivå;
+        return $this->arrangementer_gruppert_pa_niva;
     }
 
     public function getArrangementKommune() : Arrangement {
