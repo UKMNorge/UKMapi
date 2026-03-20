@@ -1143,7 +1143,7 @@ class Innslag implements HendelseItemInterface
         return $this->current_arrangement;
     }
 
-    public function getArrangementerGruppertPåNivå() : array {
+    public function getArrangementerGruppertPaaNivaa() : array {
         if(!empty($this->arrangementer_gruppert_pa_niva)) {
             return $this->arrangementer_gruppert_pa_niva;
         }
@@ -1174,15 +1174,15 @@ class Innslag implements HendelseItemInterface
     }
 
     public function getArrangementKommune() : Arrangement {
-        return $this->getArrangementerGruppertPåNivå()['kommune'] ?? $this->getHome();
+        return $this->getArrangementerGruppertPaaNivaa()['kommune'] ?? $this->getHome();
     }
 
     public function getArrangementFylke() : Arrangement|null {
-        return $this->getArrangementerGruppertPåNivå()['fylke'] ?? null;
+        return $this->getArrangementerGruppertPaaNivaa()['fylke'] ?? null;
     }
 
     public function getArrangementLand() : Arrangement|null {
-        return $this->getArrangementerGruppertPåNivå()['land'] ?? null;
+        return $this->getArrangementerGruppertPaaNivaa()['land'] ?? null;
     }
 
     /**
