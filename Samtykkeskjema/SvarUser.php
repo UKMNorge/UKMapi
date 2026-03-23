@@ -10,18 +10,19 @@ use Exception;
 require_once('UKM/Autoloader.php');
 
 /**
- * Representerer et individuelt svar på et enkelt samtykke i et skjema.
+ * Representerer et individuelt brukersvar på et skjema.
+ * Subklasser: SvarSamtykke og SvarSporreskjema.
  */
-class SamtykkeSvar
+class SvarUser
 {
-    const TABLE = 'samtykke_samtykkeskjema_svar';
+    const TABLE = 'skjema_svar';
 
     protected $id;
     protected $versionId;
     protected $svar;
     protected $ipAddress;
     protected $user;
-    protected $sif;
+    protected $createdAt;
     protected $isSigned;
     protected $signedMethod;
     protected $isForesatt;
@@ -38,7 +39,7 @@ class SamtykkeSvar
         } elseif (is_array($data)) {
             $this->_loadByRow($data);
         } else {
-            throw new Exception('Kan kun opprette SamtykkeSvar med numerisk ID eller rad fra database.');
+            throw new Exception('Kan kun opprette SkjemaUserSvar med numerisk ID eller rad fra database.');
         }
     }
 
@@ -59,7 +60,7 @@ class SamtykkeSvar
         );
         $row = $sql->run('array');
         if (!$row) {
-            throw new Exception("Fant ikke SamtykkeSvar med ID $id");
+            throw new Exception("Fant ikke SkjemaUserSvar med ID $id");
         }
         $this->_loadByRow($row);
     }
@@ -75,7 +76,7 @@ class SamtykkeSvar
         $this->svar         = $row['svar'];
         $this->ipAddress    = isset($row['ip_address']) ? $row['ip_address'] : null;
         $this->user         = isset($row['user']) ? $row['user'] : null;
-        $this->sif    = isset($row['created_at']) ? $row['created_at'] : null;
+        $this->createdAt = isset($row['created_at']) ? $row['created_at'] : null;
         $this->isSigned     = isset($row['is_signed']) ? (bool)$row['is_signed'] : false;
         $this->signedMethod = isset($row['signed_method']) ? $row['signed_method'] : null;
         $this->isForesatt   = isset($row['is_foresatt']) ? (bool)$row['is_foresatt'] : false;
@@ -108,9 +109,9 @@ class SamtykkeSvar
         return $this->user;
     }
 
-    public function getsif()
+    public function getCreatedAt()
     {
-        return $this->sif;
+        return $this->createdAt;
     }
 
     public function isSigned()
@@ -181,14 +182,14 @@ class SamtykkeSvar
     }
 
     /**
-     * Opprett nytt SamtykkeSvar
-     * SamtykkeSvar representerer et individuelt svar på et samtykkeskjema uten å være signert. Signering kan skje senere.
+     * Opprett nytt SkjemaUserSvar
+     * SvarUser representerer et individuelt svar på et samtykkeskjema uten å være signert. Signering kan skje senere.
      * @param int $versionId
      * @param int|null $userId
      * @param bool $isForesatt
-     * @return SamtykkeSvar
+     * @return static
      */
-    public static function createNewSamtykkeSvar($versionId, $userId, $isForesatt = false) {
+    public static function createNewSkjemaUserSvar($versionId, $userId, $isForesatt = false) {
         $obj = new self([
             'id'            => null,
             'version_id'    => $versionId,
@@ -201,7 +202,7 @@ class SamtykkeSvar
 
     /**
      * Registrer brukerens svar på samtykket.
-     * Kalles etter at SamtykkeSvar er opprettet med createNewSamtykkeSvar().
+     * Kalles etter at SkjemaUserSvar er opprettet med createNewSkjemaUserSvar().
      * Kan kun gjøres én gang — svaret kan ikke overskrives etter at det er satt.
      *
      * @param string $svar         Brukerens svar, f.eks. 'ja' eller 'nei'
@@ -210,14 +211,14 @@ class SamtykkeSvar
      * @param string|null $signedMethod Metoden som brukes for å signere samtykket (valgfritt)
      * @throws Exception hvis svaret ikke er lagret, eller allerede har et registrert svar
      */
-    public function samtykk(string $svar, int $userId, ?string $ipAddress = null, string $signedMethod = 'delta') : SamtykkeSvar
+    public function samtykk(string $svar, int $userId, ?string $ipAddress = null, string $signedMethod = 'delta') : SvarUser
     {
         if (!$this->id) {
-            throw new Exception('Kan ikke gi samtykke på et SamtykkeSvar som ikke er lagret.');
+            throw new Exception('Kan ikke gi samtykke på et SvarUser som ikke er lagret.');
         }
 
         if (!empty($this->svar)) {
-            throw new Exception('SamtykkeSvar med ID ' . $this->id . ' har allerede et registrert svar.');
+            throw new Exception('SvarUser med ID ' . $this->id . ' har allerede et registrert svar.');
         }
 
         $sql = new Query("
@@ -252,14 +253,14 @@ class SamtykkeSvar
      * @param string|null $ipAddress IP-adressen til brukeren (valgfritt)
      * @throws Exception hvis svaret ikke er lagret, eller allerede har et registrert svar
      */
-    public function avsla(int $userId, ?string $ipAddress = null) : SamtykkeSvar
+    public function avsla(int $userId, ?string $ipAddress = null) : SvarUser
     {
         if (!$this->id) {
-            throw new Exception('Kan ikke avslå samtykke på et SamtykkeSvar som ikke er lagret.');
+            throw new Exception('Kan ikke avslå samtykke på et SvarUser som ikke er lagret.');
         }
 
         if (!empty($this->svar)) {
-            throw new Exception('SamtykkeSvar med ID ' . $this->id . ' har allerede et registrert svar.');
+            throw new Exception('SvarUser med ID ' . $this->id . ' har allerede et registrert svar.');
         }
 
         $sql = new Query("

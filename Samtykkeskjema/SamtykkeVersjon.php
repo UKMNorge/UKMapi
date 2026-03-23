@@ -20,7 +20,7 @@ class SamtykkeVersjon
     protected $createdAt;
     protected $arrSysUser;
 
-    protected $samtykkeSvar = [];
+    protected array $svarSamtykke = [];
 
     /**
      * Constructor
@@ -38,37 +38,37 @@ class SamtykkeVersjon
         $this->arrSysUser = $data['arr_sys_user'] ?? null;
     }
 
-    public function getSamtykkeSvar() {
-        if( empty($this->samtykkeSvar) ) {
-            $this->loadSamtykkeSvar();
+    public function getSvarSamtykke() {
+        if( empty($this->svarSamtykke) ) {
+            $this->loadSvarSamtykke();
         }
-        return $this->samtykkeSvar;
+        return $this->svarSamtykke;
     }
 
-    public function getSamtykkeSvarForBruker($userId) : SamtykkeSvar | null {
-        return array_values(array_filter($this->getSamtykkeSvar(), function($svar) use ($userId) {
+    public function getSvarSamtykkeForBruker($userId) : SvarSamtykke | null {
+        return array_values(array_filter($this->getSvarSamtykke(), function($svar) use ($userId) {
             return $svar->getUser() == $userId;
         }))[0] ?? null;
     }
 
     public function createSamtykkeForBruker($userId) {
-        return SamtykkeSvar::createNewSamtykkeSvar($this->id, $userId, false);
+        return SvarSamtykke::createNewSkjemaUserSvar($this->id, $userId, false);
     }
 
     public function createSamtykkeForForesatt($userId) {
-        return SamtykkeSvar::createNewSamtykkeSvar($this->id, $userId, true);
+        return SvarSamtykke::createNewSkjemaUserSvar($this->id, $userId, true);
     }
 
   
 
     /**
-     * Laster inn SamtykkeSvar for denne versjonen via rel_samtykkeskjema_version_svar.
+     * Laster inn SvarSamtykke for denne versjonen via rel_samtykkeskjema_version_svar.
      */
-    private function loadSamtykkeSvar() {
+    private function loadSvarSamtykke() {
         $sql = new Query("
             SELECT s.*
             FROM `rel_samtykkeskjema_version_svar` AS r
-            INNER JOIN `" . SamtykkeSvar::TABLE . "` AS s
+            INNER JOIN `" . SvarSamtykke::TABLE . "` AS s
                 ON r.`svar_id` = s.`id`
             WHERE r.`skjema_version_id` = '#id'", 
             [
@@ -77,7 +77,7 @@ class SamtykkeVersjon
         );
         $res = $sql->run();
         while($row = Query::fetch($res)) {
-            $this->samtykkeSvar[] = new SamtykkeSvar($row);
+            $this->svarSamtykke[] = new SvarSamtykke($row);
         }
     }
 

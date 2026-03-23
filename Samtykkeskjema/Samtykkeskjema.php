@@ -22,7 +22,7 @@ require_once('UKM/Autoloader.php');
  * 
  * OBS: Samtykkeskjema har versjoner og versjoner kan ha svar/samtykke fra brukere.
  */
-class Samtykkeskjema {
+class SamtykkeSkjema {
     
     const TABLE = 'samtykkeskjema';
 
@@ -60,7 +60,6 @@ class Samtykkeskjema {
             SELECT s.*
             FROM `" . self::TABLE . "` AS s
             JOIN `" . SamtykkeProsjekt::TABLE . "` AS p ON s.id = p.skjema_id
-            FROM `" . self::TABLE . "`
             WHERE p.id = '#id'",
             [
                 'id' => $prosjektId
