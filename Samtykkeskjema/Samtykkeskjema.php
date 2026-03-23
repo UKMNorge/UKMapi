@@ -22,7 +22,7 @@ require_once('UKM/Autoloader.php');
  * 
  * OBS: Samtykkeskjema har versjoner og versjoner kan ha svar/samtykke fra brukere.
  */
-class SamtykkeSkjema {
+class SamtykkeSkjema extends SkjemaSuper {
     
     const TABLE = 'samtykkeskjema';
 
@@ -55,7 +55,51 @@ class SamtykkeSkjema {
         }
     }
 
+    /**
+     * Hent samtykkeskjemaer fra arrangement
+     * @param int $arrangementId
+     * @return SamtykkeSkjema[]
+     */
+    public static function getByArrangementId($arrangementId) : array {
+        $samtykkeskjemaer = [];
+        $sql = new Query("
+            SELECT s.*
+            FROM `" . self::TABLE . "` AS s
+            JOIN `rel_samtykkeskjema_arrangement` AS rel ON s.id = rel.skjema_id
+            WHERE rel.arrangement_id = '#id'",
+            [
+                'id' => $arrangementId
+            ]
+        );
+
+        $res = $sql->run();
+        while($row = Query::fetch($res)) {
+            $samtykkeskjemaer[] = new self($row);
+        }
+        return $samtykkeskjemaer;
+    }
+
+    // Override SkjemaSuper
+    public function isAnswered($userId) : bool {
+        foreach($this->getVersjoner() as $versjon) {
+            if($versjon->isAnswered($userId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function isGodkjent($userId) : bool {
+        return $this->getLastVersion()->isGodkjent($userId);
+    }
+
+    /**
+     * Hent samtykkeskjemaer fra prosjekt
+     * @param int $prosjektId
+     * @return SamtykkeSkjema[]
+     */
     public static function getByProsjektId($prosjektId) : array {
+        $samtykkeskjemaer = [];
         $sql = new Query("
             SELECT s.*
             FROM `" . self::TABLE . "` AS s
@@ -84,7 +128,7 @@ class SamtykkeSkjema {
      * Hent tittel
      * @return string
      */
-    public function getNavn() {
+    public function getNavn(): string {
         return $this->navn;
     }
 
@@ -183,6 +227,25 @@ class SamtykkeSkjema {
             $this->_loadVersjoner();
         }
         return $this->versjoner;
+    }
+
+    public function getLastVersion() : SamtykkeVersjon | null {
+        $versjoner = $this->getVersjoner();
+        if (empty($versjoner)) {
+            return null;
+        }
+
+        // Finn versjonen med høyest versjonsnummer
+        $lastVersion = null;
+        $maxVersjonNr = null;
+        foreach ($versjoner as $versjon) {
+            $currentNr = $versjon->getVersjonNr();
+            if ($maxVersjonNr === null || version_compare($currentNr, $maxVersjonNr, '>')) {
+                $maxVersjonNr = $currentNr;
+                $lastVersion = $versjon;
+            }
+        }
+        return $lastVersion;
     }
 
     /**

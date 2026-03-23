@@ -45,6 +45,28 @@ class SamtykkeVersjon
         return $this->svarSamtykke;
     }
 
+    /**
+     * Er samtykkeskjemaet godkjent for en gitt bruker?
+     * @param int $userId
+     * @return bool
+     */
+    public function isGodkjent($userId) : bool {
+        $svar = $this->getSvarSamtykkeForBruker($userId);
+        if (!$svar) {
+            return false;
+        }
+        return $svar->isSigned();
+    } 
+
+    public function isAnswered($userId) : bool {
+        $svar = $this->getSvarSamtykkeForBruker($userId);
+        if (!$svar) {
+            return false;
+        }
+        return $svar->getSvar() !== null || $svar->isSigned();
+
+    }
+
     public function getSvarSamtykkeForBruker($userId) : SvarSamtykke | null {
         return array_values(array_filter($this->getSvarSamtykke(), function($svar) use ($userId) {
             return $svar->getUser() == $userId;

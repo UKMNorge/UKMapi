@@ -5,15 +5,15 @@ namespace UKMNorge\Arrangement\Skjema;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Arrangement\Eier;
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Samtykkeskjema\SkjemaSuper;
 use Exception;
 use SporsmalColl;
 
 require_once('UKM/Autoloader.php');
 
-class Skjema
-{
+class Skjema extends SkjemaSuper {
 
-    private $id;
+    protected string $id;
     private $arrangement_id;
     private $eier;
     private $type;
@@ -21,6 +21,29 @@ class Skjema
     private $overskrifter;
     private $gruppert;
     private $respondenter;
+
+    // Override SkjemaSuper
+    /**
+     * Har skjemaet blitt besvart, har noen svart på skjemaet?
+     * 
+     * @return bool
+     * @override SkjemaSuper
+     */
+    public function isAnswered($userId) : bool {
+        // return $this->getRespondenter()->harRespondenter();
+        return false;
+    }
+
+    /**
+     * Er skjemaet besvart, er alle spørsmålene besvart og skjemaet godkjent?
+     * 
+     * @return bool
+     * @override SkjemaSuper
+     */
+    public function isGodkjent($userId) : bool {
+        // return $this->getRespondenter()->harGodkjent();
+        return false;
+    }
 
     /**
      * Hent skjema for arrangement
