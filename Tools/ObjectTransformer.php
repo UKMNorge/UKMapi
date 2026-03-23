@@ -190,12 +190,13 @@ class ObjectTransformer {
             $homeArrangement = null;
         }
 
+        $calledArrangement = $arrangement ?? $homeArrangement;
 
         // Legg til personer
         $obj['personer'] = [];
         
         // ingen homeArrangement eller homeArrangement har deltakere synlig, da skal personene legges til
-        if($homeArrangement == null || $homeArrangement->erDeltakereSynlig()) {
+        if($homeArrangement == null || $calledArrangement->erDeltakereSynlig()) {
             foreach($innslag->getPersoner()->getAll() as $person) {
                 $obj['personer'][] = [
                     'id' => $person->getId(),
