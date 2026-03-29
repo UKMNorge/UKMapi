@@ -125,6 +125,7 @@ class ObjectTransformer {
             'beskrivelse' => $hendelse->getBeskrivelse(),
             'bilde' => $hendelse->getBilde(),
             'start' => $hendelse->getStart()->getTimestamp(),
+            'start_date' => $hendelse->getStartWithTimezone(),
             'synlig_i_rammeprogram' => $hendelse->erSynligRammeprogram(),
             'synlig_detaljprogram' => $hendelse->erSynligDetaljprogram(),
             'sted' => $hendelse->getSted(),

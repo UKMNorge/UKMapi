@@ -422,8 +422,8 @@ class Hendelse
      *
      * @return DateTime $start
      **/
-    public function getStartTimestampUTC() {
-        return $this->getStart()->setTimezone(new DateTimeZone('UTC'))->getTimestamp();
+    public function getStartWithTimezone() {
+        return $this->getStart()->setTimezone(new DateTimeZone('Europe/Oslo'))->getTimestamp();
     }
 
 
