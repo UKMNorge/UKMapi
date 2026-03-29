@@ -423,7 +423,7 @@ class Hendelse
      * @return DateTime $start
      **/
     public function getStartWithTimezone() {
-        return $this->getStart()->setTimezone(new DateTimeZone('Europe/Oslo'))->getTimestamp();
+        return $this->getStart()->setTimezone(new DateTimeZone('Europe/Oslo'));
     }
 
 
