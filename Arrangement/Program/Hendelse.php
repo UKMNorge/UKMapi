@@ -12,7 +12,7 @@ use UKMNorge\Arrangement\Aktivitet\Aktivitet;
 
 
 use Exception;
-use DateTime, DateInterval;
+use DateTime, DateInterval, DateTimeZone;
 use UKMNorge\Filmer\UKMTV\Direkte\Sending;
 use UKMNorge\Filmer\UKMTV\Direkte\Sendinger;
 use UKMNorge\Tid;
@@ -415,6 +415,15 @@ class Hendelse
             $this->start_datetime->setTimestamp($this->start);
         }
         return $this->start_datetime;
+    }
+
+    /**
+     * Hent start-tidspunkt i UTC-format
+     *
+     * @return DateTime $start
+     **/
+    public function getStartTimestampUTC() {
+        return $this->getStart()->setTimezone(new DateTimeZone('UTC'))->getTimestamp();
     }
 
 
