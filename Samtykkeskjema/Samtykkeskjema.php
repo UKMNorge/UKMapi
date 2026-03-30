@@ -3,6 +3,7 @@
 namespace UKMNorge\Samtykkeskjema;
 
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Innslag\Media\Bilder\Bilde;
 use UKMNorge\Filmer\UKMTV\Film;
@@ -54,6 +55,48 @@ class SamtykkeSkjema extends SkjemaSuper {
             throw new Exception('Kan kun opprette Samtykkeskjema med numerisk ID eller rad fra database.');
         }
     }
+
+    /**
+     * Hent alle samtykkeskjemaer
+     * @return SamtykkeSkjema[]
+     */
+    public static function getAll(): array
+    {
+        $samtykkeskjemaer = [];
+        $sql = new Query(
+            "SELECT * FROM `" . self::TABLE . "` ORDER BY `id` DESC",
+            []
+        );
+        $res = $sql->run();
+        while ($row = Query::fetch($res)) {
+            $samtykkeskjemaer[] = new self($row);
+        }
+        return $samtykkeskjemaer;
+    }
+
+    /**
+     * Hent alle samtykkeskjemaer fra arrangement
+     * @param int $arrangementId
+     * @return SamtykkeSkjema[]
+     */
+    public static function getAllByArrangementId($arrangementId) : array {
+        $samtykkeskjemaer = [];
+        $sql = new Query("
+            SELECT s.*
+            FROM `" . self::TABLE . "` AS s
+            JOIN `rel_samtykkeskjema_arrangement` AS rel ON s.id = rel.skjema_id
+            WHERE rel.arrangement_id = '#id'",
+            [
+                'id' => $arrangementId
+            ]
+        );
+        $res = $sql->run();
+        while($row = Query::fetch($res)) {
+            $samtykkeskjemaer[] = new self($row);
+        }
+        return $samtykkeskjemaer;
+    }
+
 
     /**
      * Hent samtykkeskjemaer fra arrangement
@@ -114,6 +157,15 @@ class SamtykkeSkjema extends SkjemaSuper {
             $samtykkeskjemaer[] = new self($row);
         }
         return $samtykkeskjemaer;
+    }
+
+    /**
+     * Sett navn på samtykkeskjemaet
+     * @param string $navn
+     */
+    public function setNavn(string $navn): void
+    {
+        $this->navn = $navn;
     }
 
     /**
@@ -229,6 +281,21 @@ class SamtykkeSkjema extends SkjemaSuper {
         return $this->versjoner;
     }
 
+    /**
+     * Hent versjon av samtykkeskjemaet
+     * @param int $versjonId
+     * @return SamtykkeVersjon | null
+     */
+    public function getVersjon($versjonId) : SamtykkeVersjon | null {
+        $versjoner = $this->getVersjoner();
+        foreach($versjoner as $versjon) {
+            if($versjon->getId() == $versjonId) {
+                return $versjon;
+            }
+        }
+        return null;
+    }
+
     public function getLastVersion() : SamtykkeVersjon | null {
         $versjoner = $this->getVersjoner();
         if (empty($versjoner)) {
@@ -294,6 +361,33 @@ class SamtykkeSkjema extends SkjemaSuper {
                 // Ignore error, entiteten er ikke støttet
             }
         }
+    }
+
+    public function getJson() {
+        $ret = [];
+        $lastVersjon = $this->getLastVersion();
+
+        $prosjekter = array_map(function ($p) {
+            return [
+                'id'             => $p->getId(),
+                'navn'           => $p->getNavn(),
+                'beskrivelse'    => $p->getBeskrivelse(),
+                'arrangement_id' => $p->getArrangementId(),
+            ];
+        }, $this->getProsjekter());
+
+        return [
+            'id'         => $this->getId(),
+            'navn'       => $this->getNavn(),
+            'prosjekter' => $prosjekter,
+            'versjon'    => $lastVersjon ? [
+                'id'          => $lastVersjon->getId(),
+                'versjon_nr'  => $lastVersjon->getVersjonNr(),
+                'beskrivelse' => $lastVersjon->getBeskrivelse(),
+                'body_text'   => $lastVersjon->getBodyText(),
+                'file_path'   => $lastVersjon->getFilePath(),
+            ] : null,
+        ];
     }
 
 }

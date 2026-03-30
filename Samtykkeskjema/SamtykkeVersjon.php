@@ -3,6 +3,7 @@
 namespace UKMNorge\Samtykkeskjema;
 
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Database\SQL\Insert;
 
 /**
  * SamtykkeVersjon representerer en versjon av et Samtykkeskjema.
@@ -24,19 +25,104 @@ class SamtykkeVersjon
 
     /**
      * Constructor
-     * @param array $data - En database-rad med info om versjon
+     * @param int|array $data - ID (int) eller database-rad (array)
      */
     public function __construct($data)
     {
-        $this->id         = $data['id'];
-        $this->skjemaId   = $data['skjema_id'];
-        $this->versjonNr  = $data['versjon_nr'];
-        $this->beskrivelse = $data['beskrivelse'] ?? null;
-        $this->bodyText   = $data['body_text'] ?? null;
-        $this->filePath   = $data['file_path'] ?? null;
-        $this->createdAt  = $data['created_at'];
-        $this->arrSysUser = $data['arr_sys_user'] ?? null;
+        if (is_numeric($data)) {
+            $this->_loadById((int) $data);
+        } else {
+            $this->_loadByRow($data);
+        }
     }
+
+    /**
+     * Last inn fra ID
+     * @param int $id
+     * @throws \Exception
+     */
+    protected function _loadById(int $id): void
+    {
+        $sql = new Query(
+            "SELECT * FROM `" . self::TABLE . "` WHERE `id` = '#id'",
+            ['id' => $id]
+        );
+        $row = $sql->run('array');
+        if (!$row) {
+            throw new \Exception("Fant ikke SamtykkeVersjon med ID $id");
+        }
+        $this->_loadByRow($row);
+    }
+
+    /**
+     * Last inn fra rad-array
+     * @param array $row
+     */
+    protected function _loadByRow(array $row): void
+    {
+        $this->id         = $row['id'];
+        $this->skjemaId   = $row['skjema_id'];
+        $this->versjonNr  = $row['versjon_nr'];
+        $this->beskrivelse = $row['beskrivelse'] ?? null;
+        $this->bodyText   = $row['body_text'] ?? null;
+        $this->filePath   = $row['file_path'] ?? null;
+        $this->createdAt  = $row['created_at'] ?? null;
+        $this->arrSysUser = $row['arr_sys_user'] ?? null;
+    }
+
+    /**
+     * Opprett en ny versjon for et samtykkeskjema
+     * @param int $skjemaId
+     * @param string $versjonNr
+     * @param string|null $beskrivelse
+     * @param string|null $bodyText
+     * @param string|null $filePath
+     * @return static
+     */
+    public static function create(int $skjemaId, string $versjonNr, ?string $beskrivelse = null, ?string $bodyText = null, ?string $filePath = null): self
+    {
+        $sql = new Insert(self::TABLE);
+        $sql->add('skjema_id', $skjemaId);
+        $sql->add('versjon_nr', $versjonNr);
+        if ($beskrivelse !== null) $sql->add('beskrivelse', $beskrivelse);
+        if ($bodyText !== null) $sql->add('body_text', $bodyText);
+        if ($filePath !== null) $sql->add('file_path', $filePath);
+
+        var_dump($sql->debug());
+        $id = $sql->run();
+        return new self((int) $id);
+    }
+
+    /**
+     * Lagre endringer på denne versjonen
+     */
+    public function save(): void
+    {
+        $sql = new Query(
+            "UPDATE `" . self::TABLE . "`
+             SET `versjon_nr` = '#versjon_nr',
+                 `beskrivelse` = '#beskrivelse',
+                 `body_text` = '#body_text',
+                 `file_path` = '#file_path'
+             WHERE `id` = '#id'",
+            [
+                'versjon_nr'  => $this->versjonNr,
+                'beskrivelse' => $this->beskrivelse,
+                'body_text'   => $this->bodyText,
+                'file_path'   => $this->filePath,
+                'id'          => $this->id,
+            ]
+        );
+        $sql->run();
+    }
+
+    /**
+     * Setters
+     */
+    public function setVersjonNr(string $versjonNr): void { $this->versjonNr = $versjonNr; }
+    public function setBeskrivelse(?string $beskrivelse): void { $this->beskrivelse = $beskrivelse; }
+    public function setBodyText(?string $bodyText): void { $this->bodyText = $bodyText; }
+    public function setFilePath(?string $filePath): void { $this->filePath = $filePath; }
 
     public function getSvarSamtykke() {
         if( empty($this->svarSamtykke) ) {
