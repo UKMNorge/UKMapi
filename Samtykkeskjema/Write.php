@@ -76,6 +76,53 @@ class Write {
      * @throws Exception
      */
     public static function delete( SamtykkeSkjema $skjema ) : bool {
+        $id = $skjema->getId();
+
+        // Slett svar knyttet til alle versjoner
+        $sql = new Query(
+            "DELETE s FROM `" . SvarSamtykke::TABLE . "` s
+             JOIN `" . SamtykkeVersjon::TABLE . "` v ON s.versjon_id = v.id
+             WHERE v.skjema_id = '#id'",
+            ['id' => $id]
+        );
+        $sql->run();
+
+        // Slett versjoner
+        $sql = new Query(
+            "DELETE FROM `" . SamtykkeVersjon::TABLE . "` WHERE `skjema_id` = '#id'",
+            ['id' => $id]
+        );
+        $sql->run();
+
+        // Slett prosjekter
+        $sql = new Query(
+            "DELETE FROM `" . SamtykkeProsjekt::TABLE . "` WHERE `skjema_id` = '#id'",
+            ['id' => $id]
+        );
+        $sql->run();
+
+        // Slett entiteter
+        $sql = new Query(
+            "DELETE FROM `samtykkeskjema_entitet` WHERE `skjema_id` = '#id'",
+            ['id' => $id]
+        );
+        $sql->run();
+
+        // Slett arrangement-relasjoner
+        $sql = new Query(
+            "DELETE FROM `rel_samtykkeskjema_arrangement` WHERE `skjema_id` = '#id'",
+            ['id' => $id]
+        );
+        $sql->run();
+
+        // Slett selve skjemaet
+        $sql = new Query(
+            "DELETE FROM `" . SamtykkeSkjema::TABLE . "` WHERE `id` = '#id'",
+            ['id' => $id]
+        );
+        $sql->run();
+
+        return true;
     }
 
 
