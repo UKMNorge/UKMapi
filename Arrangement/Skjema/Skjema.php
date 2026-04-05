@@ -21,6 +21,7 @@ class Skjema extends SkjemaSuper {
     private $overskrifter;
     private $gruppert;
     private $respondenter;
+    protected string $navn;
 
     // Override SkjemaSuper
     /**
@@ -43,6 +44,42 @@ class Skjema extends SkjemaSuper {
     public function isGodkjent($userId) : bool {
         // return $this->getRespondenter()->harGodkjent();
         return false;
+    }
+
+    /**
+     * Hent alle oppgave-skjemaer for et arrangement
+     * 
+     * @param Int $pl_id
+     * @return Skjema[]
+     */
+    public static function getOppgaveSkjemaer(Int $pl_id)
+    {
+        $query = new Query(
+            "SELECT `id`
+            FROM `ukm_videresending_skjema`
+            WHERE `pl_id` = '#arrangement'
+            AND `type` = 'oppgave'",
+            [
+                'arrangement' => $pl_id
+            ]
+        );
+
+        $skjemaer = [];
+        $res = $query->run();
+        while ($row = Query::fetch($res)) {
+            $skjemaer[] = static::load(
+                new Query(
+                    "SELECT *
+                    FROM `ukm_videresending_skjema`
+                    WHERE `id` = '#id'",
+                    [
+                        'id' => $row['id']
+                    ]
+                ),
+                'oppgave'
+            );
+        }
+        return $skjemaer;
     }
 
     /**
@@ -97,6 +134,20 @@ class Skjema extends SkjemaSuper {
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNavn(): string {
+        return $this->navn;
+    }
+
+    /**
+     * @param string $navn
+     */
+    public function setNavn(string $navn): void {
+        $this->navn = $navn;
     }
 
     /**
@@ -207,12 +258,13 @@ class Skjema extends SkjemaSuper {
      * @see getArrangementSkjema or getDeltakerskjema
      * @return self
      */
-    public function __construct(Int $id, String $type, Int $pl_id, String $eier_type, Int $eier_id)
+    public function __construct(Int $id, String $type, Int $pl_id, String $eier_type, Int $eier_id, String $navn = "")
     {
         $this->id = $id;
         $this->arrangement_id = $pl_id;
         $this->eier = new Eier($eier_type, $eier_id);
         $this->type = $type;
+        $this->navn = $navn;
     }
 
     /**
@@ -237,14 +289,15 @@ class Skjema extends SkjemaSuper {
         $pl_id      = isset($skjema_data['pl_id'])      ? intval($skjema_data['pl_id']) : 0;
         $eier_type  = isset($skjema_data['eier_type'])  ? $skjema_data['eier_type'] : $eier_type;
         $eier_id    = isset($skjema_data['eier_id'])    ? intval($skjema_data['eier_id']) : 0;
-
+        $navn       = isset($skjema_data['name'])       ? $skjema_data['name'] : "";
 
         return new static(
             $id,
             $type,
             $pl_id,
             $eier_type,
-            $eier_id
+            $eier_id,
+            $navn
         );
     }
 }

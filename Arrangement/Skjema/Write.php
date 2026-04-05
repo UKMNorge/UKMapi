@@ -13,6 +13,18 @@ use UKMNorge\Database\SQL\Update;
 require_once('UKM/Autoloader.php');
 
 class Write {
+
+     /**
+     * Opprett et sporreskjema for en oppgave
+     * Lagres automatisk i databasen
+     *
+     * @param Arrangement $arrangement
+     * @return Skjema $skjema
+     * @throws Exception hvis database-persist feiler
+     */
+    public static function createForOppgave( Arrangement $arrangement ) {
+        return static::create($arrangement, 'oppgave');
+    }
     
     /**
      * Opprett et skjema
@@ -71,6 +83,31 @@ class Write {
             $arrangement->getEierObjekt()->getType(),
             $arrangement->getEierObjekt()->getId()
         );
+    }
+
+    /**
+     * Lagre visningsnavn (kolonnen `name` i databasen).
+     *
+     * @param Skjema $skjema
+     * @param String $navn
+     * @throws Exception
+     */
+    public static function saveSkjemaNavn(Skjema $skjema, String $navn) {
+        $navn = mb_substr($navn, 0, 200);
+        $query = new Update(
+            'ukm_videresending_skjema',
+            [
+                'id' => $skjema->getId(),
+            ]
+        );
+        $query->add('name', $navn);
+        $res = $query->run();
+        if ($res === false) {
+            throw new Exception(
+                'Kunne ikke lagre navn på skjema.',
+                551010
+            );
+        }
     }
 
     /**
