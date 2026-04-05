@@ -111,6 +111,24 @@ class Write {
     }
 
     /**
+     * Gyldige verdier for ukm_videresending_skjema_sporsmal.type (ENUM)
+     */
+    public static function normaliserSporsmalType($type): string {
+        $gyldige = ['overskrift', 'kontakt', 'janei', 'kort_tekst', 'lang_tekst'];
+        $t       = is_string($type) && $type !== '' ? $type : 'kort_tekst';
+        $alias   = [
+            'tekst'    => 'kort_tekst',
+            'textarea' => 'lang_tekst',
+            'ja_nei'   => 'janei',
+        ];
+        if (isset($alias[$t])) {
+            $t = $alias[$t];
+        }
+
+        return in_array($t, $gyldige, true) ? $t : 'kort_tekst';
+    }
+
+    /**
      * Opprett et nytt spørsmål
      *
      * @param Skjema $skjema
@@ -121,6 +139,7 @@ class Write {
      * @return Spørsmål $sporsmal
      */
     public static function createSporsmal( Skjema $skjema, Int $rekkefolge, String $type, String $tittel, String $tekst) {
+        $type = static::normaliserSporsmalType($type);
         $insert = new Insert('ukm_videresending_skjema_sporsmal');
         $insert->add('skjema', $skjema->getId());
         $insert->add('rekkefolge', $rekkefolge);
@@ -158,6 +177,7 @@ class Write {
                 551003
             );
         }
+        $sporsmal->setType(static::normaliserSporsmalType($sporsmal->getType()));
         $query = new Update(
             'ukm_videresending_skjema_sporsmal',
             [
