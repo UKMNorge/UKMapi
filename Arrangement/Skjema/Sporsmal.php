@@ -130,4 +130,14 @@ class Sporsmal {
 
         return $this;
     }
+
+    /**
+     * @return self
+     */
+    public function setRekkefolge($rekkefolge)
+    {
+        $this->rekkefolge = (int) $rekkefolge;
+
+        return $this;
+    }
 }
