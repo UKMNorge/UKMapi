@@ -202,4 +202,55 @@ class Write {
         }
         self::deleteOppgaveSkjema($rad);
     }
+
+    /**
+     * Sett kjedens rekkefølge ut fra `oppgave_skjema.id` (alle rader for oppgaven må være med, ingen ekstra).
+     * Oppdaterer `neste_type` / `neste_id` på hver rad.
+     *
+     * @param int[] $radIdsInOrder
+     */
+    public static function rekjorKjedeEtterRadIds(int $oppgaveId, array $radIdsInOrder): void {
+        $radIdsInOrder = array_map('intval', $radIdsInOrder);
+
+        $map = OppgaveSkjema::mapBySkjemaForOppgave($oppgaveId);
+        $fromDb = [];
+        foreach ($map as $node) {
+            $fromDb[] = $node->getId();
+        }
+        sort($fromDb);
+        $sortedSubmitted = $radIdsInOrder;
+        sort($sortedSubmitted);
+        if ($fromDb !== $sortedSubmitted) {
+            throw new Exception(
+                'Rekkefølgen må inneholde nøyaktig alle kjedeelementene for denne oppgaven.',
+                512006
+            );
+        }
+
+        $n = count($radIdsInOrder);
+        if ($n === 0) {
+            return;
+        }
+
+        for ($i = 0; $i < $n; $i++) {
+            $cur = new OppgaveSkjema($radIdsInOrder[$i]);
+            if ($cur->getOppgaveId() !== $oppgaveId) {
+                throw new Exception('Ugyldig oppgave_skjema for denne oppgaven.', 512007);
+            }
+            $nesteType = null;
+            $nesteId = null;
+            if ($i < $n - 1) {
+                $next = new OppgaveSkjema($radIdsInOrder[$i + 1]);
+                $nesteType = $next->getSkjemaType();
+                $nesteId = $next->getSkjemaId();
+            }
+            self::updateOppgaveSkjema(
+                $cur->getId(),
+                $cur->getSkjemaType(),
+                $cur->getSkjemaId(),
+                $nesteType,
+                $nesteId
+            );
+        }
+    }
 }
