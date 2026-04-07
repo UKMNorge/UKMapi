@@ -10,6 +10,8 @@ class Oppgave {
     public const TABLE = 'oppgave';
 
     public const TYPE_VIDERESENDING = 'videresending';
+    public const TYPE_REISELEDERE = 'reiseledere';
+    public const TYPE_FYLKESKONTAKTER = 'fylkeskontakter';
 
     private int $id;
     private string $name;
