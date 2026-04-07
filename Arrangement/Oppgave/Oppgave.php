@@ -18,6 +18,7 @@ class Oppgave {
     private ?string $type;
     private int $plId;
     private ?string $description;
+    private bool $locked = false;
 
     /** @var array<int, OppgaveSkjema>|null */
     private ?array $skjemaKjede = null;
@@ -57,6 +58,7 @@ class Oppgave {
             : null;
         $this->plId = (int) $row['pl_id'];
         $this->description = isset($row['description']) ? $row['description'] : null;
+        $this->locked = isset($row['locked']) ? ((int) $row['locked'] === 1) : false;
         $this->skjemaKjede = null;
     }
 
@@ -78,6 +80,10 @@ class Oppgave {
 
     public function getDescription(): ?string {
         return $this->description;
+    }
+
+    public function isLocked(): bool {
+        return $this->locked;
     }
 
     public function getArrangement(): Arrangement {

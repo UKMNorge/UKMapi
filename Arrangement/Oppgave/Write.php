@@ -77,6 +77,22 @@ class Write {
         return new Oppgave($id);
     }
 
+    public static function setLocked(int $oppgaveId, bool $locked): Oppgave {
+        $sql = new Update(
+            Oppgave::TABLE,
+            ['id' => $oppgaveId]
+        );
+        $sql->add('locked', $locked ? 1 : 0);
+
+        try {
+            $sql->run();
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage() . ' (' . $e->getCode() . ')');
+        }
+
+        return new Oppgave($oppgaveId);
+    }
+
     public static function deleteOppgave(Oppgave $oppgave): bool {
         $delete = new Delete(
             Oppgave::TABLE,
