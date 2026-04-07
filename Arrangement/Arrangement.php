@@ -33,6 +33,7 @@ use UKMNorge\Nettverk\Proxy\Kontaktperson as AdminKontaktProxy;
 use UKMNorge\Innslag\Venteliste\Venteliste;
 use UKMNorge\Arrangement\Videresending\Request\RequestVideresendinger;
 use UKMNorge\Arrangement\Aktivitet\Aktivitet;
+use UKMNorge\Arrangement\Oppgave\Oppgave;
 
 use function Symfony\Component\Clock\now;
 
@@ -812,6 +813,19 @@ class Arrangement
             return false;
         }
         return true;
+    }
+
+    /**
+     * Hent oppgavelister for arrangementet
+     * 
+     * @return Oppgave[]
+     */
+    public function getOppgavelister() {
+        $oppgavelister = Oppgave::getAllByArrangement($this->getId());
+        foreach ($oppgavelister as $oppgave) {
+            $oppgave->getSkjemaKjede();
+        }
+        return $oppgavelister;
     }
 
     /**
