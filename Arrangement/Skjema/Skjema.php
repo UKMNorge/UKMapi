@@ -22,16 +22,32 @@ class Skjema extends SkjemaSuper {
     private $gruppert;
     private $respondenter;
     protected string $navn;
-
-    // Override SkjemaSuper
+    
     /**
-     * Har skjemaet blitt besvart, har noen svart på skjemaet?
      * 
+     * Hent respondent by user id og sjekk om alle svar er besvart
+     * 
+     * Returnerer true KUN hvis alle svar er besvart, ellers false
+     * 
+     * @param Int $userId
      * @return bool
      * @override SkjemaSuper
      */
     public function isAnswered($userId) : bool {
-        // return $this->getRespondenter()->harRespondenter();
+        $respondenter = $this->getRespondenter()->getAll();
+        foreach($respondenter as $respondent) {
+            if($respondent->getId() == $userId) {
+                foreach($respondent->getSvar()->getAll() as $svar) {
+                    // If any answer is not answered, return false
+                    if(!$svar->isAnswered()) {
+                        return false;
+                    }
+                }
+                // Respondent found and all answers are answered
+                return true;
+            }
+        }
+        // No respondent found
         return false;
     }
 

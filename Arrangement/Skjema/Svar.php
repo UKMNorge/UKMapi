@@ -174,4 +174,27 @@ class Svar {
         $this->id = $id;
         return $this;
     }
+
+    /**
+     * Har svaret blitt besvart?
+     * 
+     * @return bool
+     */
+    public function isAnswered() {
+        if(is_object($this->getValue())) {
+            foreach($this->getValue() as $key => $value) {
+                if($value == null || $value == '') {
+                    return false;
+                }
+            }
+        }
+        
+        $valueRaw = trim($this->getValueRaw());
+
+        if (is_string($valueRaw) && strlen($valueRaw) == 0 || $valueRaw == '""') {
+            return false;
+        }
+
+        return true;
+    }
 }
