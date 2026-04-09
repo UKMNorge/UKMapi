@@ -104,6 +104,20 @@ class Skjema extends SkjemaSuper {
         );
     }
 
+    public static function getById(Int $id) : Skjema {
+        return static::load(
+            new Query(
+                "SELECT *
+                FROM `ukm_videresending_skjema`
+                WHERE `id` = '#id'",
+                [
+                    'id' => $id
+                ]
+            ),
+            'arrangement'
+        );
+    }
+
     /**
      * Hent skjema for deltakere (person)
      * 

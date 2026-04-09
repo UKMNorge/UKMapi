@@ -4,12 +4,15 @@ namespace UKMNorge\Arrangement\Oppgave;
 
 use Exception;
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Samtykkeskjema\SkjemaSuper;
+use UKMNorge\Samtykkeskjema\SamtykkeSkjema;
+use UKMNorge\Arrangement\Skjema\Skjema;
 
 class OppgaveSkjema {
     public const TABLE = 'oppgave_skjema';
 
     public const SKJEMA_SAMTYKKE = 'samtykkeskjema';
-    public const SKJEMA_VIDERESENDING = 'ukm_videresending_skjema';
+    public const SKJEMA_VIDERESENDING = 'ukm_videresending_skjema'; // TODO: Endre til 'sporreskjema' - Dette er engentlig ikke riktig navn
 
     private int $id;
     private int $oppgaveId;
@@ -76,6 +79,26 @@ class OppgaveSkjema {
 
     public function getSkjemaType(): string {
         return $this->skjemaType;
+    }
+
+    public function getSkjemaTypeLabel(): string {
+        if($this->skjemaType == self::SKJEMA_SAMTYKKE) {
+            return 'Samtykke';
+        }
+        else if($this->skjemaType == self::SKJEMA_VIDERESENDING) {
+            return 'Sporreskjema';
+        }
+        return 'Ukjent';
+    }
+
+    public function getSkjema() : SkjemaSuper {
+        if($this->skjemaType == self::SKJEMA_SAMTYKKE) {
+            return new SamtykkeSkjema($this->skjemaId);
+        }
+        else if($this->skjemaType == self::SKJEMA_VIDERESENDING) {
+            return Skjema::getById($this->skjemaId);
+        }
+        throw new Exception('OppgaveSkjema: Ugyldig skjema type ' . $this->skjemaType);
     }
 
     public function getSkjemaId(): int {

@@ -103,6 +103,8 @@ class Respondent
                 return $this->getArrangement()->getNavn();
             case 'person':
                 return $this->getPerson()->getNavn();
+            case 'oppgave':
+                return $this->getPerson()->getNavn();
         }
         throw new Exception(
             'Kan ikke hente navn for ukjent type ' . $this->getType(),
