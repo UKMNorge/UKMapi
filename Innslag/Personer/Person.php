@@ -11,6 +11,7 @@ use UKMNorge\Innslag\Typer\Typer;
 use UKMNorge\Sensitivt\Person as PersonSensitivt;
 use UKMNorge\Wordpress\User;
 use UKMNorge\Tools\Sanitizer;
+use UKMNorge\Videresending\VideresendingNominasjoner;
 
 require_once('UKM/Autoloader.php');
 
@@ -287,6 +288,28 @@ class Person
     public function erPameldt(Int $arrangement_id)
     {
         return in_array($arrangement_id, $this->getPameldt());
+    }
+
+    /**
+     * Er nominert til gitt arrangement?
+     *
+     * @param Int $arrangement_id
+     * @return Bool
+     **/
+    public function erNominert(Int $arrangement_id)
+    {
+        return count(VideresendingNominasjoner::getAlleByPersonId($this->getId(), $arrangement_id)->getAll()) > 0;
+    }
+
+    /**
+     * Hent alle nomineringer for personen til et gitt arrangement
+     *
+     * @param Int $arrangement_id
+     * @return array
+     */
+    public function getVideresendingNominasjoner(Int $arrangement_id) : array
+    {
+        return VideresendingNominasjoner::getAlleByPersonId($this->getId(), $arrangement_id)->getAll();
     }
 
     /**

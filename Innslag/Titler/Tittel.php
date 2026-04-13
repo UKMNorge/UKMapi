@@ -8,6 +8,7 @@ use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Arrangement\Write as WriteArrangement;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Innslag\Typer\Type;
+use UKMNorge\Videresending\VideresendingNominasjon;
 
 require_once('UKM/Autoloader.php');
 
@@ -273,6 +274,29 @@ abstract class Tittel
     public function erPameldt(Int $arrangement_id)
     {
         return in_array($arrangement_id, $this->getPameldt());
+    }
+
+    /**
+     * Er nominert til gitt arrangement?
+     *
+     * @param Int $arrangement_id
+     * @return Bool
+     **/
+    public function erNominert(Int $arrangement_id) : bool
+    {
+        return count($this->getVideresendingNominasjoner($arrangement_id)) > 0;
+   
+    }
+
+    /**
+     * Liste av alle nomineringer (personer) for tittelen til et gitt arrangement
+     *
+     * @param Int $arrangement_id
+     * @return array
+     */
+    public function getVideresendingNominasjoner(Int $arrangement_id) : array
+    {
+        return VideresendingNominasjon::getAlleByTittelId($this->getId(), $arrangement_id)->getAll();
     }
 
     /**

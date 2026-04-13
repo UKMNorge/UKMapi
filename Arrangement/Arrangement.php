@@ -2152,6 +2152,21 @@ class Arrangement
     }
 
     /**
+     * Dette gjelder nominasjon på alle innslag som videresendes til dette arrangementet
+     * 
+     * SEE: VideresendingNominasjon
+     *
+     * @return Bool
+     */
+    public function harVideresendingNominasjon() {
+        // Landsfestivalen har alltid nominasjon på alle innslag som videresendes til dette arrangementet
+        if($this->getEierType() == 'land') {
+            return true;
+        }
+        return true;
+    }
+
+    /**
      * Hent metadata
      * 
      * @param String $key

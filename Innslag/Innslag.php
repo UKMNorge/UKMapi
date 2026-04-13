@@ -36,6 +36,7 @@ use UKMNorge\Samtykke\Innslag as InnslagSamtykke;
 use UKMNorge\Tid;
 use UKMNorge\Arrangement\Program\HendelseItemInterface;
 use UKMNorge\Tools\Sanitizer;
+use UKMNorge\Videresending\VideresendingNominasjon;
 
 class Innslag implements HendelseItemInterface
 {
@@ -314,6 +315,47 @@ class Innslag implements HendelseItemInterface
             }
         }
         return $this->nominasjoner;
+    }
+
+    /**
+     * Hent nominasjon for dette innslaget til et gitt arrangement
+     *
+     * @param Int $arrangement_id
+     * @return VideresendingNominasjon
+     */
+    public function getVideresendingNominasjon() {
+        return VideresendingNominasjon::getAlleByInnslagId($this->getId());
+    }
+
+    /**
+     * Hent videresending for hver person som har nominasjon for dette innslaget til et gitt arrangement
+     *
+     * @param Int $arrangement_id
+     * @return array
+     */
+    public function getVideresendingNominasjonTil(Int $arrangement_id) : array{
+        $nominasjoner = [];
+        foreach(VideresendingNominasjon::getAlleByInnslagId($this->getId())->getAll() as $nominasjon) {
+            if($nominasjon->getArrangementTilId() == $arrangement_id) {
+                $nominasjoner[] = $nominasjon;
+            }
+        }
+        return $nominasjoner;
+    }
+
+    /**
+     * Er alle personer som har nominasjon for dette innslaget til et gitt arrangement godkjent?
+     *
+     * @param Int $arrangement_id
+     * @return bool
+     */
+    public function erAlleNominasjonerGodkjent(Int $arrangement_id) : bool {
+        foreach($this->getVideresendingNominasjonTil($arrangement_id) as $nominasjon) {
+            if(!$nominasjon->getGodkjent()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

@@ -10,6 +10,8 @@ use UKMNorge\Innslag\Typer\Type;
 class Nominasjoner extends Collection {
     private $innslag_id;
     private $innslag_type;
+    private $fra;
+    private $til;
 
     public function __construct( Int $innslag_id, Type $innslag_type )
     {
