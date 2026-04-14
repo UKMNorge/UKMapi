@@ -328,6 +328,53 @@ class Innslag implements HendelseItemInterface
     }
 
     /**
+     * Er innslaget nominert for et gitt arrangement?
+     *
+     * KUN innslag uten titler kan nomineres direkte uten tittel
+     * 
+     * @param Int $arrangement_id
+     * @return Bool
+     */
+    public function erNominertUtenTittel(Int $arrangement_id) : bool {
+        if($this->getType()->harTitler()) {
+            throw new Exception(
+                'Innslaget har titler og kan derfor ikke nomineres direkte uten tittel'
+            );
+        }
+        return count($this->getVideresendingNominasjonTil($arrangement_id)) > 0;
+    }
+
+    /**
+     * Er personen nominert for et gitt arrangement?
+     *
+     * @param Int $arrangement_id
+     * @return VideresendingNominasjon|null
+     */
+    public function getPersonNominasjon(Int $person_id, Int $arrangement_id) : ?VideresendingNominasjon {
+        $person = null;
+        foreach($this->getPersoner()->getAll() as $p) {
+            if($p->getId() == $person_id) {
+                $person = $p;
+            }
+        }
+
+        if(is_null($person)) {
+            throw new Exception(
+                'Personen med ID ' . $person_id . ' finnes ikke i innslaget',
+                105010
+            );
+        }
+
+        foreach($this->getVideresendingNominasjonTil($arrangement_id) as $nominasjon) {
+            if($nominasjon->getPId() == $person_id) {
+                return $nominasjon;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Hent videresending for hver person som har nominasjon for dette innslaget til et gitt arrangement
      *
      * @param Int $arrangement_id
