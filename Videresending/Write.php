@@ -32,13 +32,6 @@ class Write
         $inaktiv = VideresendingNominasjon::finnVedNokkel($arrangement_fra, $arrangement_til, $b_id, $p_id, $t_id, false);
         if ($inaktiv !== null && !$inaktiv->getActive()) {
             $inaktiv->setActive(true);
-            $inaktiv->setSeason($season);
-            $inaktiv->setInnslagType($innslag_type);
-            $inaktiv->setGodkjent($godkjent);
-            $inaktiv->setBeskrivelse($beskrivelse);
-            $status = VideresendingNominasjon::STATUS_HOS_ARRANGOR;
-            VideresendingNominasjon::krevGyldigStatus($status);
-            $inaktiv->setStatus($status);
             self::save($inaktiv);
             return $inaktiv;
         }
