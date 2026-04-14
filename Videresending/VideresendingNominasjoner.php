@@ -51,11 +51,11 @@ class VideresendingNominasjoner extends Collection
         return new self($query);
     }
 
-    public static function getAlleByPersonId(int $person_id, int $arrangement_id): VideresendingNominasjoner
+    public static function getAlleByPersonIdOgInnslagId(int $person_id, int $innslag_id, int $arrangement_til): VideresendingNominasjoner
     {
         $query = new Query(
-            "SELECT * FROM `" . VideresendingNominasjon::TABLE . "` WHERE `p_id` = '#person_id' AND `arrangement_til` = '#arrangement_id'" . VideresendingNominasjon::SQL_AND_KUN_AKTIVE,
-            ['person_id' => $person_id, 'arrangement_id' => $arrangement_id]
+            "SELECT * FROM `" . VideresendingNominasjon::TABLE . "` WHERE `p_id` = '#person_id' AND `b_id` = '#innslag_id' AND `arrangement_til` = '#arrangement_til'" . VideresendingNominasjon::SQL_AND_KUN_AKTIVE,
+            ['person_id' => $person_id, 'innslag_id' => $innslag_id, 'arrangement_til' => $arrangement_til]
         );
         return new VideresendingNominasjoner($query);
     }

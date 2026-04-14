@@ -231,9 +231,9 @@ class VideresendingNominasjon
         return $this->godkjent;
     }
 
-    public function getBeskrivelse(): ?string
+    public function getBeskrivelse(): string
     {
-        return $this->beskrivelse;
+        return $this->beskrivelse ?? '';
     }
 
     public function getStatus(): string
