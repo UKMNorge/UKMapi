@@ -2163,7 +2163,7 @@ class Arrangement
         if($this->getEierType() == 'land') {
             return true;
         }
-        return true;
+        return false;
     }
 
     /**

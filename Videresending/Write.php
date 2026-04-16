@@ -36,7 +36,7 @@ class Write
             return $inaktiv;
         }
 
-        $status = VideresendingNominasjon::STATUS_HOS_ARRANGOR;
+        $status = VideresendingNominasjon::STATUS_HOS_MOTTAKER;
         VideresendingNominasjon::krevGyldigStatus($status);
         $sql = new Insert(VideresendingNominasjon::TABLE);
         $sql->add('p_id', $p_id);

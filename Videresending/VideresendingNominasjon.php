@@ -15,8 +15,9 @@ class VideresendingNominasjon
     /** Brukes i alle listespørringer: kun synlige rader (active = 1). */
     public const SQL_AND_KUN_AKTIVE = ' AND `active` = 1';
 
-    public const STATUS_HOS_ARRANGOR = 'hos-arrangor';
-    public const STATUS_HOS_BRUKER = 'hos-bruker';
+    public const STATUS_HOS_AVSENDER = 'hos-avsender';
+    public const STATUS_HOS_MOTTAKER = 'hos-mottaker';
+    public const STATUS_HOS_DELTAKER = 'hos-deltaker';
     public const STATUS_GODKJENT = 'godkjent';
 
     protected int $id;
@@ -156,14 +157,26 @@ class VideresendingNominasjon
         $this->active = isset($row['active']) ? (bool) (int) $row['active'] : true;
     }
 
+
+    public static function getGyldigeStatuser(): array
+    {
+        return [
+            self::STATUS_HOS_AVSENDER,
+            self::STATUS_HOS_MOTTAKER,
+            self::STATUS_HOS_DELTAKER,
+            self::STATUS_GODKJENT,
+        ];
+    }
+
     public static function krevGyldigStatus(?string $status): void
     {
         if($status === null) {
             return;
         }
         static $gyldige = [
-            self::STATUS_HOS_ARRANGOR,
-            self::STATUS_HOS_BRUKER,
+            self::STATUS_HOS_AVSENDER,
+            self::STATUS_HOS_MOTTAKER,
+            self::STATUS_HOS_DELTAKER,
             self::STATUS_GODKJENT,
         ];
         if (!in_array($status, $gyldige, true)) {

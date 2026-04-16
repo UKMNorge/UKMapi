@@ -285,8 +285,50 @@ abstract class Tittel
     public function erNominert(Int $arrangement_id) : bool
     {
         return count($this->getVideresendingNominasjoner($arrangement_id)) > 0;
-   
     }
+
+    /**
+     * Hent status for nomineringen til gitt arrangement
+     * 
+     * Statusen kan være:
+     * - 'hos-avsender'
+     * - 'hos-mottaker'
+     * - 'hos-deltaker'
+     * - 'godkjent'
+     * - 'ukjent'
+     * 
+     * Hent den statusen som alle deltakere har i kombinasjon med hverandre
+     *
+     * @param Int $arrangement_id
+     * @return string
+     **/
+    public function getNominasjonStatus(Int $arrangement_id) : string {
+        $nominasjoner = $this->getVideresendingNominasjoner($arrangement_id);
+        $statusPrioritet = [
+            'hos-mottaker' => 0,
+            'hos-deltaker' => 1,
+            'hos-avsender' => 2,
+            'godkjent'     => 3,
+        ];
+
+        $lavesteStatus = 'ukjent';
+        $lavestePrioritet = PHP_INT_MAX;
+
+        foreach ($nominasjoner as $nominasjon) {
+            $status = $nominasjon->getStatus();
+            if (!isset($statusPrioritet[$status])) {
+                continue;
+            }
+
+            if ($statusPrioritet[$status] < $lavestePrioritet) {
+                $lavestePrioritet = $statusPrioritet[$status];
+                $lavesteStatus = $status;
+            }
+        }
+
+        return $lavesteStatus;
+    }
+
 
     /**
      * Liste av alle nomineringer (personer) for tittelen til et gitt arrangement
@@ -378,6 +420,7 @@ abstract class Tittel
             case 'scene':
                 return 'Annet';
             default:
+                
                 throw new Exception(
                     'Kan ikke konvertere innslag-type "'. $type .'" til tittel-klasse. '.
                     'Kontakt support@ukm.no'
