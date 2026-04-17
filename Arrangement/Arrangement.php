@@ -1829,7 +1829,19 @@ class Arrangement
                 $beskrivelse .= $this->getBeskrivelse();
                 return $beskrivelse;
             }
-        }   
+        }
+
+        if($this->getPaameldingsLenker() != []) {
+            $beskrivelse = '';
+            $beskrivelse .= "Påmelding: " . '</br>';
+            foreach($this->getPaameldingsLenker() as $lenke) {
+                $beskrivelse .= $lenke['lenke'] . " ";
+            }
+            $beskrivelse .= '</br></br>';
+            $beskrivelse .= $this->getBeskrivelse();
+            return $beskrivelse;
+        }
+
         return $this->getBeskrivelse();
     }
 
