@@ -12,6 +12,7 @@ use UKMNorge\Sensitivt\Person as PersonSensitivt;
 use UKMNorge\Wordpress\User;
 use UKMNorge\Tools\Sanitizer;
 
+
 require_once('UKM/Autoloader.php');
 
 class Person
