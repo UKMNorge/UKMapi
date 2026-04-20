@@ -79,6 +79,8 @@ class Write
         $sql->add('beskrivelse', $nominasjon->getBeskrivelse());
         $sql->add('status', $nominasjon->getStatus());
         $sql->add('active', $nominasjon->getActive() ? 1 : 0);
+        $sql->add('sporsmaal', $nominasjon->getSporsmal());
+        $sql->add('svar', $nominasjon->getSvar());
 
         $res = $sql->run();
         if ($res === false) {

@@ -32,6 +32,8 @@ class VideresendingNominasjon
     protected ?string $beskrivelse;
     protected ?string $status;
     protected bool $active;
+    protected ?string $sporsmal;
+    protected ?string $svar;
 
     /**
      * @param int|array $data ID eller rad fra databasen
@@ -155,6 +157,8 @@ class VideresendingNominasjon
         self::krevGyldigStatus($statusRaw);
         $this->status = $statusRaw;
         $this->active = isset($row['active']) ? (bool) (int) $row['active'] : true;
+        $this->sporsmal = isset($row['sporsmaal']) && $row['sporsmaal'] !== null && $row['sporsmaal'] !== '' ? (string) $row['sporsmaal'] : null;
+        $this->svar = isset($row['svar']) && $row['svar'] !== null && $row['svar'] !== '' ? (string) $row['svar'] : null;
     }
 
 
@@ -247,6 +251,26 @@ class VideresendingNominasjon
     public function getBeskrivelse(): string
     {
         return $this->beskrivelse ?? '';
+    }
+
+    public function getSporsmal(): string
+    {
+        return $this->sporsmal ?? '';
+    }
+
+    public function getSvar(): string
+    {
+        return $this->svar ?? '';
+    }
+
+    public function setSporsmal(?string $sporsmal): void
+    {
+        $this->sporsmal = $sporsmal;
+    }
+
+    public function setSvar(?string $svar): void
+    {
+        $this->svar = $svar;
     }
 
     public function getStatus(): string
