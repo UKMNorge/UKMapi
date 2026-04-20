@@ -6,6 +6,7 @@ use Exception;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Arrangement\Arrangement;
 
+
 require_once('UKM/Autoloader.php');
 
 class VideresendingNominasjon
@@ -335,5 +336,25 @@ class VideresendingNominasjon
     {
         self::krevGyldigStatus($status);
         $this->status = $status;
+    }
+
+    public function getArrObj(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'p_id' => $this->getPId(),
+            'b_id' => $this->getBId(),
+            't_id' => $this->getTId(),
+            'season' => $this->getSeason(),
+            'innslag_type' => $this->getInnslagType(),
+            'arrangement_fra' => $this->getArrangementFraId(),
+            'arrangement_til' => $this->getArrangementTilId(),
+            'godkjent' => $this->getGodkjent(),
+            'beskrivelse' => $this->getBeskrivelse(),
+            'status' => $this->getStatus(),
+            'active' => $this->getActive(),
+            'sporsmal' => $this->getSporsmal(),
+            'svar' => $this->getSvar(),
+        ];
     }
 }
