@@ -5,6 +5,7 @@ namespace UKMNorge\Videresending;
 use Exception;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Arrangement\Arrangement;
+use UKMNorge\Innslag\Personer\Person;
 
 
 require_once('UKM/Autoloader.php');
@@ -199,6 +200,11 @@ class VideresendingNominasjon
         return $this->p_id;
     }
 
+    public function getPerson(): ?Person
+    {
+        return new Person($this->p_id);
+    }
+
     public function getBId(): ?int
     {
         return $this->b_id;
@@ -338,8 +344,18 @@ class VideresendingNominasjon
         $this->status = $status;
     }
 
-    public function getArrObj(): array
-    {
+    public function getArrObj(): array {
+        $personObj = null;
+        if($this->getPId() !== null) {
+            $person = Person::loadFromId($this->getPId());
+            $personObj = [
+                'id' => $this->getPId(),
+                'fornavn' => $person->getFornavn(),
+                'etternavn' => $person->getEtternavn(),
+                'mobil' => $person->getMobil(),
+                'alder' => $person->getAlder(),
+            ];
+        }
         return [
             'id' => $this->getId(),
             'p_id' => $this->getPId(),
@@ -355,6 +371,7 @@ class VideresendingNominasjon
             'active' => $this->getActive(),
             'sporsmal' => $this->getSporsmal(),
             'svar' => $this->getSvar(),
+            'person' => $personObj,
         ];
     }
 }
