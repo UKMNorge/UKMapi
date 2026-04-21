@@ -353,7 +353,7 @@ class VideresendingNominasjon
                 'fornavn' => $person->getFornavn(),
                 'etternavn' => $person->getEtternavn(),
                 'mobil' => $person->getMobil(),
-                'alder' => $person->getAlder(),
+                'alder' => $person->getAlderTall(),
             ];
         }
         return [
