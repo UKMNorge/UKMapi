@@ -6,6 +6,7 @@ use Exception;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Innslag\Personer\Person;
+use UKMNorge\Videresending\Write;
 
 
 require_once('UKM/Autoloader.php');
@@ -342,6 +343,13 @@ class VideresendingNominasjon
     {
         self::krevGyldigStatus($status);
         $this->status = $status;
+    }
+
+    public function sendTilDeltaker(): void {
+        $this->setStatus(self::STATUS_HOS_DELTAKER);
+        Write::save($this);
+
+        // TODO: implement sending to deltaker
     }
 
     public function getArrObj(): array {
