@@ -1825,15 +1825,7 @@ class Arrangement
         foreach($this->getDirektesending()->getAll() as $sending) {
             if($sending->erAktiv()) {
                 $beskrivelse = '';
-                // $beskrivelse .= "DIREKTESENDING: " . '</br>' . $sending->getLink() . '/iframe' . ' </br></br>';
-                if($this->getGuiType() == 1) {
-                    $beskrivelse .= "DIREKTESENDING: " . $sending->getLink() . '/iframe';
-                    $beskrivelse .= ' ․ ․ ․ ․ ․ ';
-                    
-                }                
-                else {
-                    $beskrivelse .= "DIREKTESENDING: " . '</br>' . $sending->getLink() . '/iframe' . ' </br></br>';
-                }
+                $beskrivelse .= "DIREKTESENDING: " . '</br>' . $sending->getLink() . '/iframe' . ' </br></br>';
                 $beskrivelse .= $this->getBeskrivelse();
                 return $beskrivelse;
             }
