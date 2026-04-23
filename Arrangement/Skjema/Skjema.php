@@ -297,6 +297,10 @@ class Skjema extends SkjemaSuper {
         $this->navn = $navn;
     }
 
+    public function getEier() : Eier {
+        return $this->eier;
+    }
+
     /**
      * Last inn skjema fra Query
      * 
