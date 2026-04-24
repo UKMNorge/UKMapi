@@ -2,6 +2,10 @@
 
 namespace UKMNorge\Arrangement\Skjema;
 
+use UKMNorge\Database\SQL\Query;
+
+use Exception;
+
 class Sporsmal {
     private $id;
     private $skjema;
@@ -36,6 +40,22 @@ class Sporsmal {
         $this->type = $type;
         $this->tittel = $tittel;
         $this->tekst = $tekst;
+    }
+
+    public static function getById(Int $id) : Sporsmal {
+        $sql = new Query(
+            "SELECT *
+            FROM `ukm_videresending_skjema_sporsmal`
+            WHERE `id` = '#id'",
+            [
+                'id' => $id
+            ]
+        );
+        $data = $sql->getArray();
+        if ($data) {
+            return new Sporsmal($data['id'], $data['skjema'], $data['rekkefolge'], $data['type'], $data['tittel'], $data['tekst']);
+        }
+        throw new Exception('Could not find spørsmål with id: '. $id);
     }
 
     /**

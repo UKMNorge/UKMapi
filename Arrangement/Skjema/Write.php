@@ -292,6 +292,17 @@ class Write {
         }
         $query->add('svar', $svar->getValueRaw());
 
+        $sporsmal = Sporsmal::getById($svar->getSporsmalId());
+        if( $sporsmal->getType() == 'filopplasting' ) {
+            die('filopplasting');
+            // WritePlaybackFile::opprett(
+            //     $filename, 
+            //     $filename,
+            //     null,
+            //     null,
+            // );
+        }
+
         $res = $query->run();
 
         if( $res ) {
