@@ -15,8 +15,9 @@ class PlaybackFile
     private $navn = null; // pbf_name
     private $beskrivelse = null; // pbf_description
     private $fil = null; // pbf_file
+    private $file_location = null; // file_location
 
-    private $sprivate_id = null;
+    private $svar_id = null;
     private $samtykkeskjema_version_id = null;
     private $samtykkeskjema_id = null;
 
@@ -38,6 +39,7 @@ class PlaybackFile
         $this->navn = $data['pbf_name'] ?? null;
         $this->beskrivelse = $data['pbf_description'] ?? null;
         $this->fil = $data['pbf_file'] ?? null;
+        $this->file_location = $data['file_location'] ?? null;
 
         $this->svar_id = isset($data['svar_id']) ? (int) $data['svar_id'] : null;
         $this->samtykkeskjema_version_id = isset($data['samtykkeskjema_version_id']) ? (int) $data['samtykkeskjema_version_id'] : null;
@@ -170,6 +172,23 @@ class PlaybackFile
     {
         $this->fil = $fil;
 
+        return $this;
+    }
+
+    /**
+     * Hent hvor filen ligger (valgfritt)
+     */
+    public function getFileLocation() : ?string
+    {
+        return $this->file_location;
+    }
+
+    /**
+     * Sett hvor filen ligger (valgfritt)
+     */
+    public function setFileLocation(?string $file_location) : self
+    {
+        $this->file_location = $file_location;
         return $this;
     }
 

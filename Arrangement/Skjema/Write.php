@@ -10,6 +10,8 @@ use UKMNorge\Database\SQL\Delete;
 use Exception;
 use UKMNorge\Database\SQL\Update;
 
+use UKMNorge\Filer\Write as WritePlaybackFile;
+
 require_once('UKM/Autoloader.php');
 
 class Write {
