@@ -23,13 +23,17 @@ class Write
         ?int $svar_id = null,
         ?int $samtykkeskjema_version_id = null,
         ?int $samtykkeskjema_id = null,
-        ?string $file_location = null
+        ?string $file_location = null,
+        ?int $season = null
     ) : PlaybackFile {
         $sql = new Insert(PlaybackFile::TABLE);
         $sql->add('pbf_name', $name);
         $sql->add('pbf_file', $filnavn);
         if ($file_location !== null) {
             $sql->add('file_location', $file_location);
+        }
+        if ($season !== null) {
+            $sql->add('season', $season);
         }
         
         if ($arrangement != null) {
@@ -86,6 +90,7 @@ class Write
             'pbf_description' => 'getBeskrivelse',
             'pbf_file' => 'getFil',
             'file_location' => 'getFileLocation',
+            'season' => 'getSeason',
             'svar_id' => 'getSvarId',
             'samtykkeskjema_version_id' => 'getSamtykkeskjemaVersionId',
             'samtykkeskjema_id' => 'getSamtykkeskjemaId',

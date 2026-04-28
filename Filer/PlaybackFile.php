@@ -16,6 +16,7 @@ class PlaybackFile
     private $beskrivelse = null; // pbf_description
     private $fil = null; // pbf_file
     private $file_location = null; // file_location
+    private $season = null; // season (YEAR)
 
     private $svar_id = null;
     private $samtykkeskjema_version_id = null;
@@ -40,6 +41,7 @@ class PlaybackFile
         $this->beskrivelse = $data['pbf_description'] ?? null;
         $this->fil = $data['pbf_file'] ?? null;
         $this->file_location = $data['file_location'] ?? null;
+        $this->season = isset($data['season']) ? (int) $data['season'] : null;
 
         $this->svar_id = isset($data['svar_id']) ? (int) $data['svar_id'] : null;
         $this->samtykkeskjema_version_id = isset($data['samtykkeskjema_version_id']) ? (int) $data['samtykkeskjema_version_id'] : null;
@@ -189,6 +191,23 @@ class PlaybackFile
     public function setFileLocation(?string $file_location) : self
     {
         $this->file_location = $file_location;
+        return $this;
+    }
+
+    /**
+     * Hent sesong (YEAR) om satt
+     */
+    public function getSeason() : ?int
+    {
+        return $this->season;
+    }
+
+    /**
+     * Sett sesong (YEAR) (valgfritt)
+     */
+    public function setSeason(?int $season) : self
+    {
+        $this->season = $season;
         return $this;
     }
 
