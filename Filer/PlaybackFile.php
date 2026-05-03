@@ -22,6 +22,8 @@ class PlaybackFile
     private $samtykkeskjema_version_id = null;
     private $samtykkeskjema_id = null;
 
+    private $delta_user_id = null;
+
     private $file_extension = null;
     private $file_path = null;
     private $file_download = null;
@@ -46,6 +48,8 @@ class PlaybackFile
         $this->svar_id = isset($data['svar_id']) ? (int) $data['svar_id'] : null;
         $this->samtykkeskjema_version_id = isset($data['samtykkeskjema_version_id']) ? (int) $data['samtykkeskjema_version_id'] : null;
         $this->samtykkeskjema_id = isset($data['samtykkeskjema_id']) ? (int) $data['samtykkeskjema_id'] : null;
+
+        $this->delta_user_id = isset($data['delta_user_id']) ? (int) $data['delta_user_id'] : null;
     }
 
     public static function getById($playbackFileId) : PlaybackFile {
@@ -289,6 +293,15 @@ class PlaybackFile
 
     public function setSamtykkeskjemaId(?int $samtykkeskjema_id) : self {
         $this->samtykkeskjema_id = $samtykkeskjema_id;
+        return $this;
+    }
+
+    public function getDeltaUserId() : ?int {
+        return $this->delta_user_id;
+    }
+
+    public function setDeltaUserId(?int $delta_user_id) : self {
+        $this->delta_user_id = $delta_user_id;
         return $this;
     }
 }

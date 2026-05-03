@@ -24,7 +24,8 @@ class Write
         ?int $samtykkeskjema_version_id = null,
         ?int $samtykkeskjema_id = null,
         ?string $file_location = null,
-        ?int $season = null
+        ?int $season = null,
+        ?int $delta_user_id = null,
     ) : PlaybackFile {
         $sql = new Insert(PlaybackFile::TABLE);
         $sql->add('pbf_name', $name);
@@ -50,6 +51,9 @@ class Write
         }
         if ($samtykkeskjema_id !== null) {
             $sql->add('samtykkeskjema_id', $samtykkeskjema_id);
+        }
+        if ($delta_user_id !== null) {
+            $sql->add('delta_user_id', $delta_user_id);
         }
 
         try {
@@ -94,6 +98,7 @@ class Write
             'svar_id' => 'getSvarId',
             'samtykkeskjema_version_id' => 'getSamtykkeskjemaVersionId',
             'samtykkeskjema_id' => 'getSamtykkeskjemaId',
+            'delta_user_id' => 'getDeltaUserId',
         ];
 
         foreach ($fields as $felt => $funksjon) {
