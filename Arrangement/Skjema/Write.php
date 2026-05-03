@@ -116,13 +116,14 @@ class Write {
      * Gyldige verdier for ukm_videresending_skjema_sporsmal.type (ENUM)
      */
     public static function normaliserSporsmalType($type): string {
-        $gyldige = ['overskrift', 'kontakt', 'janei', 'kort_tekst', 'lang_tekst', 'filopplasting'];
+        $gyldige = ['overskrift', 'kontakt', 'janei', 'kort_tekst', 'lang_tekst', 'filopplasting', 'intoleranser'];
         $t       = is_string($type) && $type !== '' ? $type : 'kort_tekst';
         $alias   = [
             'tekst'    => 'kort_tekst',
             'textarea' => 'lang_tekst',
             'ja_nei'   => 'janei',
             'filopplasting' => 'filopplasting',
+            'intoleranser' => 'intoleranser',
         ];
         if (isset($alias[$t])) {
             $t = $alias[$t];
