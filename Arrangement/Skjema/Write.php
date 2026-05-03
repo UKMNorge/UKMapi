@@ -246,11 +246,11 @@ class Write {
      * @param SvarSett $svarSett
      * @return SvarSett
      */
-    public static function saveSvarSett( SvarSett $svarSett ) {
+    public static function saveSvarSett( SvarSett $svarSett, ?int $delta_user_id = null) {
         $errors = [];
         foreach( $svarSett->getAll() as $svar ) {
             try {
-                static::_saveSvar($svarSett, $svar);
+                static::_saveSvar($svarSett, $svar, $delta_user_id);
             } catch( Exception $e ) {
                 $errors[] = $e->getMessage();
             }
@@ -274,7 +274,7 @@ class Write {
      * @throws Exception
      * @return Bool
      */
-    public static function _saveSvar(SvarSett $svarSett, Svar $svar) {
+    public static function _saveSvar(SvarSett $svarSett, Svar $svar, ?int $delta_user_id = null) {
         if( !$svar->isChanged() ) {
             return true;
         }
@@ -295,19 +295,28 @@ class Write {
         $query->add('svar', $svar->getValueRaw());
 
         $sporsmal = Sporsmal::getById($svar->getSporsmalId());
-        if( $sporsmal->getType() == 'filopplasting' ) {
-            die('filopplasting');
-            // WritePlaybackFile::opprett(
-            //     $filename, 
-            //     $filename,
-            //     null,
-            //     null,
-            // );
-        }
-
         $res = $query->run();
 
         if( $res ) {
+
+            if( $sporsmal->getType() == 'filopplasting' ) {
+                $fileId = $svar->getValue();
+                $svarId = $res;
+                
+                WritePlaybackFile::opprett(
+                    $sporsmal->getTittel(),
+                    $fileId,
+                    null,
+                    null,
+                    $svarId,
+                    null,
+                    null,
+                    $fileId,
+                    date('Y'),
+                    $delta_user_id ?? null,
+                );
+            }
+
             if( get_class($query) == 'UKMNorge\Database\SQL\Insert') {
                 $svar->setId( $res );
             }
@@ -318,6 +327,7 @@ class Write {
             return true;//-ish
         }
         
+
         throw new Exception(
             'Kunne ikke lagre svar for "'. $svar->getSporsmalId() .'".',
             551009

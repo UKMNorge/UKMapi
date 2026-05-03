@@ -69,6 +69,22 @@ class PlaybackFile
         throw new Exception('Could not find playback file with id: '. $playbackFileId);
     }
 
+    public static function getByFileId($fileId) : PlaybackFile {
+        $sql = new Query(
+            static::getLoadQuery() . "
+                        WHERE `pbf_file` = '#fileId'",
+            [
+                'fileId' => $fileId
+            ]
+        );
+
+        $data = $sql->getArray();
+        if($data) {
+            return new static($data);
+        }
+        throw new Exception('Could not find playback file with file id: '. $fileId);
+    }
+
     /**
      * Sett playbackfilens ID
      * 
