@@ -1831,7 +1831,7 @@ class Arrangement
             }
         }
 
-        if($this->getPaameldingsLenker() != []) {
+/**        if($this->getPaameldingsLenker() != []) {
             $beskrivelse = '';
             $beskrivelse .= "Påmelding: " . '</br>';
             foreach($this->getPaameldingsLenker() as $lenke) {
@@ -1841,7 +1841,7 @@ class Arrangement
             $beskrivelse .= $this->getBeskrivelse();
             return $beskrivelse;
         }
-
+*/
         return $this->getBeskrivelse();
     }
 
