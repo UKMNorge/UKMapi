@@ -115,10 +115,13 @@ class Svar {
         }
         // Hvis vi leter etter en "underverdi" av verdien
         if( !is_null($value_key)) {
+            if( is_null( $this->value ) || !is_object( $this->value ) ) {
+                return null;
+            }
             if( isset( $this->value->$value_key ) ) {
                 return $this->value->$value_key;
             }
-            return $this->value;
+            return null;
         }
         return $this->value;
     }
