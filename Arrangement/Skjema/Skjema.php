@@ -35,6 +35,9 @@ class Skjema extends SkjemaSuper {
      */
     public function isAnswered($userId) : bool {
         $respondenter = $this->getRespondenter()->getAll();
+        if(empty($respondenter)) {
+            return false;
+        }
         foreach($respondenter as $respondent) {
             if($respondent->getId() == $userId) {
                 foreach($respondent->getSvar()->getAll() as $svar) {
