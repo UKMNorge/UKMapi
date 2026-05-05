@@ -83,6 +83,8 @@ class Innslag implements HendelseItemInterface
     var $videresendt_til = null;
     var $log = null;
 
+    var $er_redigering_mulig = null;
+
     /**
      * Finn et innslag uten å gå veien via arrangement
      * 
@@ -1415,5 +1417,25 @@ class Innslag implements HendelseItemInterface
             );
         }
         return intval( $this->getAttr('rekkefolge') );
+    }
+
+    public function erRedigeringMulig() {
+        // Hvis innslaget har blitt nominert og nominasjonen er godkjent, er redigering mulig
+        $nominasjoner = $this->getVideresendingNominasjon()->getAll();
+
+        foreach($nominasjoner as $nominasjon) {
+            // Hvis nominasjonen er hos deltaker eller godkjent, er redigering mulig
+            if($nominasjon->getStatus() == VideresendingNominasjon::STATUS_HOS_DELTAKER) {
+                // Arrangementet som innslaget er sendt videre må ikke være ferdig
+                if($nominasjon->getArrangementTil()->erFerdig()) {
+                    $this->er_redigering_mulig = false;
+                    return $this->er_redigering_mulig;
+                }
+                $this->er_redigering_mulig = true;
+                return $this->er_redigering_mulig;
+            }
+        }
+        $this->er_redigering_mulig = false;
+        return false;
     }
 }
