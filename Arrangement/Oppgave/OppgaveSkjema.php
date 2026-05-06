@@ -81,12 +81,22 @@ class OppgaveSkjema {
         return $this->skjemaType;
     }
 
-    public function getSkjemaTypeLabel(): string {
+    public function getSkjemaTypeLabelString(): string {
         if($this->skjemaType == self::SKJEMA_SAMTYKKE) {
             return 'Samtykkeskjema';
         }
         else if($this->skjemaType == self::SKJEMA_VIDERESENDING) {
             return 'Spørreskjema';
+        }
+        return 'ukjent';
+    }
+
+    public function getSkjemaTypeLabel(): string {
+        if($this->skjemaType == self::SKJEMA_SAMTYKKE) {
+            return 'Samtykkeskjema';
+        }
+        else if($this->skjemaType == self::SKJEMA_VIDERESENDING) {
+            return 'Sporreskjema';
         }
         return 'Ukjent';
     }
