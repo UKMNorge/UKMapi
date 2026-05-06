@@ -137,6 +137,9 @@ class SamtykkeSkjema extends SkjemaSuper {
     }
 
     public function isForesattGodkjent($userId, $personId) : bool {
+        if($this->getLastVersion() == null) {
+            return false;
+        }
         return $this->getLastVersion()->isForesattGodkjent($userId);
     }
 
