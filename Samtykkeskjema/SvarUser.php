@@ -236,26 +236,22 @@ class SvarUser
             throw new Exception('SvarUser med ID ' . $this->id . ' har allerede et registrert svar.');
         }
 
-        $sql = new Query("
-            UPDATE `" . self::TABLE . "`
-            SET
-                `svar` = '#svar',
-                `ip_address` = '#ip_address',
-                `user` = '#user',
-                `is_signed` = 1,
-                `signed_method` = '#signed_method',
-                `signed_at` = NOW(),
-                `kommentar` = '#kommentar'
-            WHERE `id` = '#id' AND `user` = '#user'",
+        $sql = new Update(
+            self::TABLE,
             [
-                'svar'       => $svar,
-                'ip_address' => $ipAddress,
-                'user'       => $userId,
-                'id'         => $this->id,
-                'signed_method' => $signedMethod,
-                'kommentar'    => $kommentar,
+                'id' => $this->id,
+                'user' => $userId,
             ]
         );
+        $sql->add('svar', $svar);
+        $sql->add('ip_address', $ipAddress);
+        $sql->add('user', $userId);
+        $sql->add('is_signed', 1);
+        $sql->add('signed_method', $signedMethod);
+        // Tidligere: signed_at = NOW()
+        $sql->add('signed_at', date('Y-m-d H:i:s'));
+        $sql->add('kommentar', $kommentar);
+
         $sql->run();
 
         new self($this->id);
@@ -280,19 +276,15 @@ class SvarUser
             throw new Exception('SvarUser med ID ' . $this->id . ' har allerede et registrert svar.');
         }
 
-        $sql = new Query("
-            UPDATE `" . self::TABLE . "`
-            SET
-                `svar` = 'nei',
-                `ip_address` = '#ip_address',
-                `user` = '#user'
-            WHERE `id` = '#id'",
+        $sql = new Update(
+            self::TABLE,
             [
-                'ip_address' => $ipAddress,
-                'user'       => $userId,
-                'id'         => $this->id,
+                'id' => $this->id,
             ]
         );
+        $sql->add('svar', 'nei');
+        $sql->add('ip_address', $ipAddress);
+        $sql->add('user', $userId);
         $sql->run();
 
         new self($this->id);
