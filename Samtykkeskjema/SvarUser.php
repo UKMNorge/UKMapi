@@ -4,6 +4,7 @@ namespace UKMNorge\Samtykkeskjema;
 
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Database\SQL\Insert;
+use UKMNorge\Database\SQL\Update;
 
 use Exception;
 
@@ -158,30 +159,21 @@ class SvarUser
     public function save()
     {
         if ($this->id) {
-            $sql = new Query("
-                UPDATE `" . self::TABLE . "`
-                SET 
-                    `version_id` = '#version_id',
-                    `svar` = '#svar',
-                    `kommentar` = '#kommentar',
-                    `ip_address` = '#ip_address',
-                    `user` = '#user',
-                    `is_signed` = '#is_signed',
-                    `signed_method` = '#signed_method',
-                    `is_foresatt` = '#is_foresatt'
-                WHERE `id` = '#id'",
+            $sql = new Update(
+                self::TABLE,
                 [
-                    'version_id'    => $this->versionId,
-                    'svar'          => $this->svar,
-                    'kommentar'     => $this->kommentar,
-                    'ip_address'    => $this->ipAddress,
-                    'user'          => $this->user,
-                    'is_signed'     => (int)$this->isSigned,
-                    'signed_method' => $this->signedMethod,
-                    'is_foresatt'   => (int)$this->isForesatt,
-                    'id'            => $this->id
+                    'id' => $this->id,
                 ]
             );
+            $sql->add('version_id', $this->versionId);
+            $sql->add('svar', $this->svar);
+            $sql->add('kommentar', $this->kommentar);
+            $sql->add('ip_address', $this->ipAddress);
+            $sql->add('user', $this->user);
+            $sql->add('is_signed', (int) $this->isSigned);
+            $sql->add('signed_method', $this->signedMethod);
+            $sql->add('is_foresatt', (int) $this->isForesatt);
+
             $sql->run();
         } else {
             $sql = new Insert(self::TABLE);
