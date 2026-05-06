@@ -63,6 +63,9 @@ class Skjema extends SkjemaSuper {
             if($respondent->getId() == $personId) {
                 foreach($respondent->getSvar()->getAll() as $svar) {
                     // If any answer is not answered, return false
+                    if($svar == null) {
+                        return false;
+                    }
                     if(!$svar->isForesattGodkjent()) {
                         return false;
                     }
