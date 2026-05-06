@@ -12,6 +12,7 @@ class Svar {
     private $value;
     private $value_raw;
     private $value_updated = false;
+    private $foresatt_godkjent = false;
 
     /**
      * Opprett objekt fra databasen
@@ -33,7 +34,8 @@ class Svar {
             intval($db_row['sporsmal']),
             $respondent_type,
             $respondent_id,
-            $db_row['svar']
+            $db_row['svar'],
+            !empty($db_row['foresatt_godkjent'])
         );
     }
 
@@ -51,7 +53,8 @@ class Svar {
             $sporsmal_id,
             $respondent_type,
             $respondent_id,
-            ''
+            '',
+            false
         );
     }
 
@@ -63,12 +66,13 @@ class Svar {
      * @param Int $pl_fra
      * @param String $json_string
      */
-    public function __construct( Int $id, Int $sporsmal_id, String $respondent_type, Int $respondent_id, String $json_string ) {
+    public function __construct( Int $id, Int $sporsmal_id, String $respondent_type, Int $respondent_id, String $json_string, Bool $foresatt_godkjent = false ) {
         $this->id = $id;
         $this->sporsmal_id = $sporsmal_id;
         $this->respondent_id = $respondent_id;
         $this->respondent_type = $respondent_type;
         $this->value_raw = $json_string;
+        $this->foresatt_godkjent = $foresatt_godkjent;
     }
 
     /**
@@ -100,7 +104,7 @@ class Svar {
      */ 
     public function getFra()
     {
-        return $this->fra;
+        return $this->respondent_id;
     }
 
     /**
@@ -175,6 +179,30 @@ class Svar {
      */
     public function setId( Int $id ) {
         $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * Har foresatt godkjent svaret?
+     *
+     * @return Bool
+     */
+    public function isForesattGodkjent() {
+        return (bool) $this->foresatt_godkjent;
+    }
+
+    /**
+     * Sett om foresatt har godkjent svaret
+     *
+     * @param Bool $foresatt_godkjent
+     * @return self
+     */
+    public function setForesattGodkjent( Bool $foresatt_godkjent ) {
+        $foresatt_godkjent = (bool) $foresatt_godkjent;
+        if ($this->foresatt_godkjent !== $foresatt_godkjent) {
+            $this->foresatt_godkjent = $foresatt_godkjent;
+            $this->value_updated = true;
+        }
         return $this;
     }
 

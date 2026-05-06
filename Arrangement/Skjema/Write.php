@@ -296,6 +296,7 @@ class Write {
             );
         }
         $query->add('svar', $svar->getValueRaw());
+        $query->add('foresatt_godkjent', $svar->isForesattGodkjent() ? 1 : 0);
 
         $sporsmal = Sporsmal::getById($svar->getSporsmalId());
         $res = $query->run();
@@ -306,18 +307,25 @@ class Write {
                 $fileId = $svar->getValue();
                 $svarId = $res;
                 
-                WritePlaybackFile::opprett(
-                    $sporsmal->getTittel(),
-                    $fileId,
-                    null,
-                    null,
-                    $svarId,
-                    null,
-                    null,
-                    $fileId,
-                    date('Y'),
-                    $delta_user_id ?? null,
-                );
+                try {
+                    WritePlaybackFile::opprett(
+                        $sporsmal->getTittel(),
+                        $fileId,
+                        null,
+                        null,
+                        $svarId,
+                        null,
+                        null,
+                        $fileId,
+                        date('Y'),
+                        $delta_user_id ?? null,
+                    );
+                } catch( Exception $e ) {
+                    // throw new Exception(
+                    //     'Kunne ikke opprette playback-fil for "'. $sporsmal->getTittel() .'".',
+                    //     551010
+                    // );
+                }
             }
 
             if( get_class($query) == 'UKMNorge\Database\SQL\Insert') {
