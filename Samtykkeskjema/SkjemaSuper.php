@@ -29,11 +29,15 @@ abstract class SkjemaSuper {
         return $this->navn;
     }
 
-    public function isAnswered($userId) : bool {
+    public function isAnswered($userId, $personId) : bool {
         return false;
     }
 
     public function isGodkjent($userId) : bool {
+        return false;
+    }
+
+    public function isForesattGodkjent($userId, $personId) : bool {
         return false;
     }
 

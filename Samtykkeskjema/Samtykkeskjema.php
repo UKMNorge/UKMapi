@@ -123,7 +123,7 @@ class SamtykkeSkjema extends SkjemaSuper {
     }
 
     // Override SkjemaSuper
-    public function isAnswered($userId) : bool {
+    public function isAnswered($userId, $personId) : bool {
         foreach($this->getVersjoner() as $versjon) {
             if($versjon->isAnswered($userId)) {
                 return true;
@@ -134,6 +134,10 @@ class SamtykkeSkjema extends SkjemaSuper {
 
     public function isGodkjent($userId) : bool {
         return $this->getLastVersion()->isGodkjent($userId);
+    }
+
+    public function isForesattGodkjent($userId, $personId) : bool {
+        return $this->getLastVersion()->isForesattGodkjent($userId);
     }
 
     /**

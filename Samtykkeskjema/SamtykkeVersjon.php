@@ -141,7 +141,20 @@ class SamtykkeVersjon
         if (!$svar) {
             return false;
         }
-        return $svar->isSigned();
+        return $svar->isSigned(); 
+    }
+
+    /**
+     * Er samtykkeskjemaet godkjent for en gitt bruker?
+     * @param int $userId
+     * @return bool
+     */
+    public function isForesattGodkjent($userId) : bool {
+        $svar = $this->getSvarSamtykkeForBruker($userId);
+        if (!$svar) {
+            return false;
+        }
+        return $svar->getForesattIdGodkjent() != null;
     } 
 
     public function isAnswered($userId) : bool {

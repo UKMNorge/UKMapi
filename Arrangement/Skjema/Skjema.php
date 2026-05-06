@@ -33,13 +33,13 @@ class Skjema extends SkjemaSuper {
      * @return bool
      * @override SkjemaSuper
      */
-    public function isAnswered($userId) : bool {
+    public function isAnswered($userId, $personId) : bool {
         $respondenter = $this->getRespondenter()->getAll();
         if(empty($respondenter)) {
             return false;
         }
         foreach($respondenter as $respondent) {
-            if($respondent->getId() == $userId) {
+            if($respondent->getId() == $personId) {
                 foreach($respondent->getSvar()->getAll() as $svar) {
                     // If any answer is not answered, return false
                     if(!$svar->isAnswered()) {
@@ -53,6 +53,26 @@ class Skjema extends SkjemaSuper {
         // No respondent found
         return false;
     }
+
+    public function isForesattGodkjent($userId, $personId) : bool {
+        $respondenter = $this->getRespondenter()->getAll();
+        if(empty($respondenter)) {
+            return false;
+        }
+        foreach($respondenter as $respondent) {
+            if($respondent->getId() == $personId) {
+                foreach($respondent->getSvar()->getAll() as $svar) {
+                    // If any answer is not answered, return false
+                    if(!$svar->isForesattGodkjent()) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     /**
      * Er skjemaet besvart, er alle spørsmålene besvart og skjemaet godkjent?
