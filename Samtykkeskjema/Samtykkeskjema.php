@@ -122,6 +122,7 @@ class SamtykkeSkjema extends SkjemaSuper {
         return $samtykkeskjemaer;
     }
 
+    
     // Override SkjemaSuper
     public function isAnswered($userId, $personId) : bool {
         foreach($this->getVersjoner() as $versjon) {
