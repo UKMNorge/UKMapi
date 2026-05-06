@@ -153,10 +153,28 @@ class SamtykkeVersjon
 
     }
 
+    // Siste svar for bruker, sortert etter opprettelsestidspunkt
     public function getSvarSamtykkeForBruker($userId) : SvarSamtykke | null {
-        return array_values(array_filter($this->getSvarSamtykke(), function($svar) use ($userId) {
+        $svarForBruker = array_values(array_filter($this->getSvarSamtykke(), function ($svar) use ($userId) {
             return $svar->getUser() == $userId;
-        }))[0] ?? null;
+        }));
+
+        if (empty($svarForBruker)) {
+            return null;
+        }
+
+        usort($svarForBruker, function (SvarSamtykke $a, SvarSamtykke $b) {
+            $aTime = strtotime((string) $a->getCreatedAt()) ?: 0;
+            $bTime = strtotime((string) $b->getCreatedAt()) ?: 0;
+
+            if ($aTime !== $bTime) {
+                return $aTime <=> $bTime;
+            }
+
+            return ((int) $a->getId()) <=> ((int) $b->getId());
+        });
+
+        return $svarForBruker[array_key_last($svarForBruker)] ?? null;
     }
 
     public function createSamtykkeForBruker($userId) {
@@ -174,15 +192,16 @@ class SamtykkeVersjon
      */
     private function loadSvarSamtykke() {
         $sql = new Query("
-            SELECT s.*
+            SELECT *
             FROM `rel_samtykkeskjema_version_svar` AS r
-            INNER JOIN `" . SvarSamtykke::TABLE . "` AS s
+            INNER JOIN `skjema_svar` AS s
                 ON r.`svar_id` = s.`id`
             WHERE r.`skjema_version_id` = '#id'", 
             [
             'id' => $this->id
             ]
         );
+
         $res = $sql->run();
         while($row = Query::fetch($res)) {
             $this->svarSamtykke[] = new SvarSamtykke($row);

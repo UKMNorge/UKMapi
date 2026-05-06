@@ -20,6 +20,7 @@ class SvarUser
     protected $id;
     protected $versionId;
     protected $svar;
+    protected $kommentar;
     protected $ipAddress;
     protected $user;
     protected $createdAt;
@@ -34,6 +35,9 @@ class SvarUser
      */
     public function __construct($data)
     {
+        if($data == null) {
+            return $this;
+        }
         if (is_numeric($data)) {
             $this->_loadById($data);
         } elseif (is_array($data)) {
@@ -41,6 +45,15 @@ class SvarUser
         } else {
             throw new Exception('Kan kun opprette SkjemaUserSvar med numerisk ID eller rad fra database.');
         }
+    }
+
+    public static function createEmpty($versionId, $userId, $isForesatt = false) {
+        $obj = new self(null);
+        $obj->versionId = $versionId;
+        $obj->user = $userId;
+        $obj->isForesatt = $isForesatt;
+        return $obj;
+
     }
 
     /**
@@ -72,8 +85,9 @@ class SvarUser
     protected function _loadByRow($row)
     {
         $this->id           = $row['id'];
-        $this->versionId    = $row['version_id'];
+        $this->versionId    = $row['version_id'] ?? $row['skjema_version_id'];
         $this->svar         = $row['svar'];
+        $this->kommentar    = $row['kommentar'] ?? null;
         $this->ipAddress    = isset($row['ip_address']) ? $row['ip_address'] : null;
         $this->user         = isset($row['user']) ? $row['user'] : null;
         $this->createdAt = isset($row['created_at']) ? $row['created_at'] : null;
@@ -97,6 +111,11 @@ class SvarUser
     public function getSvar()
     {
         return $this->svar;
+    }
+
+    public function getKommentar(): ?string
+    {
+        return $this->kommentar;
     }
 
     public function getIpAddress()
@@ -144,6 +163,7 @@ class SvarUser
                 SET 
                     `version_id` = '#version_id',
                     `svar` = '#svar',
+                    `kommentar` = '#kommentar',
                     `ip_address` = '#ip_address',
                     `user` = '#user',
                     `is_signed` = '#is_signed',
@@ -153,6 +173,7 @@ class SvarUser
                 [
                     'version_id'    => $this->versionId,
                     'svar'          => $this->svar,
+                    'kommentar'     => $this->kommentar,
                     'ip_address'    => $this->ipAddress,
                     'user'          => $this->user,
                     'is_signed'     => (int)$this->isSigned,
@@ -166,6 +187,7 @@ class SvarUser
             $sql = new Insert(self::TABLE);
             $sql->add('version_id', $this->versionId);
             $sql->add('svar', $this->svar);
+            $sql->add('kommentar', $this->kommentar);
             $sql->add('ip_address', $this->ipAddress);
             $sql->add('user', $this->user);
             $sql->add('is_signed', (int)$this->isSigned);
@@ -181,6 +203,12 @@ class SvarUser
         }
     }
 
+    public function setKommentar(?string $kommentar): self
+    {
+        $this->kommentar = $kommentar;
+        return $this;
+    }
+
     /**
      * Opprett nytt SkjemaUserSvar
      * SvarUser representerer et individuelt svar på et samtykkeskjema uten å være signert. Signering kan skje senere.
@@ -190,12 +218,7 @@ class SvarUser
      * @return static
      */
     public static function createNewSkjemaUserSvar($versionId, $userId, $isForesatt = false) {
-        $obj = new self([
-            'id'            => null,
-            'version_id'    => $versionId,
-            'user'          => $userId,
-            'is_foresatt'   => $isForesatt ? 1 : 0
-        ]);
+        $obj = self::createEmpty($versionId, $userId, $isForesatt);
         $obj->save();
         return $obj;
     }
@@ -211,7 +234,7 @@ class SvarUser
      * @param string|null $signedMethod Metoden som brukes for å signere samtykket (valgfritt)
      * @throws Exception hvis svaret ikke er lagret, eller allerede har et registrert svar
      */
-    public function samtykk(string $svar, int $userId, ?string $ipAddress = null, string $signedMethod = 'delta') : SvarUser
+    public function samtykk(string $svar, int $userId, ?string $ipAddress = null, string $signedMethod = 'delta', ?string $kommentar = null) : SvarUser
     {
         if (!$this->id) {
             throw new Exception('Kan ikke gi samtykke på et SvarUser som ikke er lagret.');
@@ -229,7 +252,8 @@ class SvarUser
                 `user` = '#user',
                 `is_signed` = 1,
                 `signed_method` = '#signed_method',
-                `signed_at` = NOW()
+                `signed_at` = NOW(),
+                `kommentar` = '#kommentar'
             WHERE `id` = '#id' AND `user` = '#user'",
             [
                 'svar'       => $svar,
@@ -237,6 +261,7 @@ class SvarUser
                 'user'       => $userId,
                 'id'         => $this->id,
                 'signed_method' => $signedMethod,
+                'kommentar'    => $kommentar,
             ]
         );
         $sql->run();
