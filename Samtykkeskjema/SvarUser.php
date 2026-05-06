@@ -28,6 +28,7 @@ class SvarUser
     protected $isSigned;
     protected $signedMethod;
     protected $isForesatt;
+    protected ?int $foresattIdGodkjent = null;
 
     /**
      * Opprett fra ID eller rad-array
@@ -95,6 +96,9 @@ class SvarUser
         $this->isSigned     = isset($row['is_signed']) ? (bool)$row['is_signed'] : false;
         $this->signedMethod = isset($row['signed_method']) ? $row['signed_method'] : null;
         $this->isForesatt   = isset($row['is_foresatt']) ? (bool)$row['is_foresatt'] : false;
+        $this->foresattIdGodkjent = isset($row['foresatt_id_godkjent']) && $row['foresatt_id_godkjent'] !== null
+            ? (int) $row['foresatt_id_godkjent']
+            : null;
     }
 
     // Gettere
@@ -152,6 +156,17 @@ class SvarUser
         return $this->isForesatt;
     }
 
+    public function getForesattIdGodkjent(): ?int
+    {
+        return $this->foresattIdGodkjent;
+    }
+
+    public function setForesattIdGodkjent(?int $foresattIdGodkjent): self
+    {
+        $this->foresattIdGodkjent = $foresattIdGodkjent;
+        return $this;
+    }
+
     /**
      * Lagre (sett at denne klassen har allerede data fylt inn!)
      * Lagres som ny rad hvis id mangler.
@@ -173,6 +188,7 @@ class SvarUser
             $sql->add('is_signed', (int) $this->isSigned);
             $sql->add('signed_method', $this->signedMethod);
             $sql->add('is_foresatt', (int) $this->isForesatt);
+            $sql->add('foresatt_id_godkjent', $this->foresattIdGodkjent);
 
             $sql->run();
         } else {
@@ -185,6 +201,7 @@ class SvarUser
             $sql->add('is_signed', (int)$this->isSigned);
             $sql->add('signed_method', $this->signedMethod);
             $sql->add('is_foresatt', (int)$this->isForesatt);
+            $sql->add('foresatt_id_godkjent', $this->foresattIdGodkjent);
 
             $this->id = $sql->run();
 
@@ -226,7 +243,7 @@ class SvarUser
      * @param string|null $signedMethod Metoden som brukes for å signere samtykket (valgfritt)
      * @throws Exception hvis svaret ikke er lagret, eller allerede har et registrert svar
      */
-    public function samtykk(string $svar, int $userId, ?string $ipAddress = null, string $signedMethod = 'delta', ?string $kommentar = null) : SvarUser
+    public function samtykk(string $svar, int $userId, ?string $ipAddress = null, string $signedMethod = 'delta', ?string $kommentar = null, ?int $foresattIdGodkjent = null) : SvarUser
     {
         if (!$this->id) {
             throw new Exception('Kan ikke gi samtykke på et SvarUser som ikke er lagret.');
@@ -251,6 +268,7 @@ class SvarUser
         // Tidligere: signed_at = NOW()
         $sql->add('signed_at', date('Y-m-d H:i:s'));
         $sql->add('kommentar', $kommentar);
+        $sql->add('foresatt_id_godkjent', $foresattIdGodkjent);
 
         $sql->run();
 
