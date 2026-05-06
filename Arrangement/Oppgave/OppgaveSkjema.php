@@ -86,7 +86,7 @@ class OppgaveSkjema {
             return 'Samtykkeskjema';
         }
         else if($this->skjemaType == self::SKJEMA_VIDERESENDING) {
-            return 'Sporreskjema';
+            return 'Spørreskjema';
         }
         return 'Ukjent';
     }
