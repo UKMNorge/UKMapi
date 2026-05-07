@@ -226,10 +226,6 @@ class Svar {
             return false;
         }
 
-        if(!$this->isForesattGodkjent()) {
-            return false;
-        }
-
         return true;
     }
 }
