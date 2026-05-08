@@ -214,6 +214,10 @@ class Svar {
     public function isAnswered() {
         if(is_object($this->getValue())) {
             foreach($this->getValue() as $key => $value) {
+                // Det betyr at bruker har besvart men det er ingenting å melde svare inn
+                if($key == 'ingen' && $value == 1) {
+                    return true;
+                }
                 if($value == null || $value == '') {
                     return false;
                 }
