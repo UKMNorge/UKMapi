@@ -284,7 +284,7 @@ class SvarUser
      * @param string|null $ipAddress IP-adressen til brukeren (valgfritt)
      * @throws Exception hvis svaret ikke er lagret, eller allerede har et registrert svar
      */
-    public function avsla(int $userId, ?string $ipAddress = null) : SvarUser
+    public function avsla(int $userId, ?string $ipAddress = null, ?int $foresattIdGodkjent = null) : SvarUser
     {
         if (!$this->id) {
             throw new Exception('Kan ikke avslå samtykke på et SvarUser som ikke er lagret.');
@@ -303,6 +303,7 @@ class SvarUser
         $sql->add('svar', 'nei');
         $sql->add('ip_address', $ipAddress);
         $sql->add('user', $userId);
+        $sql->add('foresatt_id_godkjent', $foresattIdGodkjent);
         $sql->run();
 
         new self($this->id);
