@@ -29,6 +29,7 @@ class SamtykkeSkjema extends SkjemaSuper {
 
     protected string $id;
     protected string $navn;
+    protected string $type = 'vanlig';
     protected array $versjoner = [];
     protected array $prosjekter = [];
     protected array $arrangementer = [];
@@ -176,6 +177,16 @@ class SamtykkeSkjema extends SkjemaSuper {
     }
 
     /**
+     * Sett type på samtykkeskjemaet
+     * @param string $type
+     */
+    public function setType(string $type): void
+    {
+        $allowed = ['vanlig', 'med-kommentar', 'janei'];
+        $this->type = in_array($type, $allowed, true) ? $type : 'vanlig';
+    }
+
+    /**
      * Hent ID
      * @return int
      */
@@ -189,6 +200,14 @@ class SamtykkeSkjema extends SkjemaSuper {
      */
     public function getNavn(): string {
         return $this->navn;
+    }
+
+    /**
+     * Hent type
+     * @return string
+     */
+    public function getType(): string {
+        return $this->type ?: 'vanlig';
     }
 
     /**
@@ -222,6 +241,7 @@ class SamtykkeSkjema extends SkjemaSuper {
     protected function _loadByRow($row) {
         $this->id         = $row['id'];
         $this->navn     = $row['navn'];
+        $this->type     = isset($row['type']) && !empty($row['type']) ? $row['type'] : 'vanlig';
     }
 
     public function getProsjekter() {
@@ -386,6 +406,7 @@ class SamtykkeSkjema extends SkjemaSuper {
         return [
             'id'         => $this->getId(),
             'navn'       => $this->getNavn(),
+            'type'       => $this->getType(),
             'prosjekter' => $prosjekter,
             'versjon'    => $lastVersjon ? [
                 'id'          => $lastVersjon->getId(),

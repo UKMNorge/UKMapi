@@ -24,9 +24,10 @@ class Write {
      * @return SamtykkeSkjema
      * @throws Exception
      */
-    public static function create(string $navn, ?Arrangement $arrangement = null): SamtykkeSkjema {
+    public static function create(string $navn, ?Arrangement $arrangement = null, string $type = 'vanlig'): SamtykkeSkjema {
         $sql = new Insert(SamtykkeSkjema::TABLE);
         $sql->add('navn', $navn);
+        $sql->add('type', $type);
         $id = $sql->run();
 
         if(!$id) {
@@ -51,9 +52,10 @@ class Write {
     public static function save( SamtykkeSkjema $skjema ): SamtykkeSkjema
     {
         $sql = new Query(
-            "UPDATE `" . SamtykkeSkjema::TABLE . "` SET `navn` = '#navn' WHERE `id` = '#id'",
+            "UPDATE `" . SamtykkeSkjema::TABLE . "` SET `navn` = '#navn', `type` = '#type' WHERE `id` = '#id'",
             [
                 'navn' => $skjema->getNavn(),
+                'type' => $skjema->getType(),
                 'id'   => $skjema->getId(),
             ]
         );
