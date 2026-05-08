@@ -152,6 +152,7 @@ class Write {
         $insert->add('type', $type);
         $insert->add('tittel', $tittel);
         $insert->add('tekst', $tekst);
+        $insert->add('is_required', 1);
 
         $res = $insert->run();
         if( !$res ) {
@@ -166,7 +167,8 @@ class Write {
             $rekkefolge,
             $type,
             $tittel,
-            $tekst
+            $tekst,
+            true
         );
     }
 
@@ -194,6 +196,7 @@ class Write {
         $query->add('type', $sporsmal->getType());
         $query->add('tittel', $sporsmal->getTittel());
         $query->add('tekst', $sporsmal->getTekst());
+        $query->add('is_required', $sporsmal->isRequired() ? 1 : 0);
 
         $res = $query->run();
 

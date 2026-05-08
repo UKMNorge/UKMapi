@@ -14,6 +14,7 @@ class Sporsmal {
     private $type;
     private $tittel;
     private $tekst;
+    private $is_required;
 
     /**
      * Opprett spørsmål fra databaserad
@@ -28,11 +29,12 @@ class Sporsmal {
             $db_row['rekkefolge'],
             $db_row['type'],
             $db_row['tittel'],
-            $db_row['tekst']
+            $db_row['tekst'],
+            isset($db_row['is_required']) ? (bool) $db_row['is_required'] : true
         );
     }
 
-    public function __construct( Int $id, Int $skjema_id, Int $rekkefolge, String $type, String $tittel, String $tekst )
+    public function __construct( Int $id, Int $skjema_id, Int $rekkefolge, String $type, String $tittel, String $tekst, bool $is_required = true )
     {
         $this->id = $id;
         $this->skjema = $skjema_id;
@@ -40,6 +42,7 @@ class Sporsmal {
         $this->type = $type;
         $this->tittel = $tittel;
         $this->tekst = $tekst;
+        $this->is_required = $is_required;
     }
 
     public static function getById(Int $id) : Sporsmal {
@@ -53,7 +56,15 @@ class Sporsmal {
         );
         $data = $sql->getArray();
         if ($data) {
-            return new Sporsmal($data['id'], $data['skjema'], $data['rekkefolge'], $data['type'], $data['tittel'], $data['tekst']);
+            return new Sporsmal(
+                $data['id'],
+                $data['skjema'],
+                $data['rekkefolge'],
+                $data['type'],
+                $data['tittel'],
+                $data['tekst'],
+                isset($data['is_required']) ? (bool) $data['is_required'] : true
+            );
         }
         throw new Exception('Could not find spørsmål with id: '. $id);
     }
@@ -113,6 +124,24 @@ class Sporsmal {
     public function getTekst()
     {
         return $this->tekst;
+    }
+
+    /**
+     * Er spørsmålet obligatorisk å svare på?
+     */
+    public function isRequired(): bool
+    {
+        return (bool) $this->is_required;
+    }
+
+    /**
+     * @return self
+     */
+    public function setIsRequired($is_required)
+    {
+        $this->is_required = (bool) $is_required;
+
+        return $this;
     }
 
     /**
