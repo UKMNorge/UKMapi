@@ -212,6 +212,11 @@ class Svar {
      * @return bool
      */
     public function isAnswered() {
+        $sporsmal = Sporsmal::getById($this->getSporsmalId());
+        if(!$sporsmal->isRequired()) {
+            return true;
+        }
+        
         if(is_object($this->getValue())) {
             foreach($this->getValue() as $key => $value) {
                 // Det betyr at bruker har besvart men det er ingenting å melde svare inn
