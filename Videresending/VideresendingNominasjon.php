@@ -62,6 +62,17 @@ class VideresendingNominasjon
         return VideresendingNominasjoner::getByInnslagId($innslag_id);
     }
 
+    public static function getAlleByMobil(string $mobil): VideresendingNominasjoner
+    {
+        $sql = 'SELECT `nom`.* FROM `' . self::TABLE . '` AS `nom`'
+            . ' INNER JOIN `smartukm_participant` AS `participant` ON (`nom`.`p_id` = `participant`.`p_id`)'
+            . " WHERE `participant`.`p_phone` = '#mobil'"
+            . self::SQL_AND_KUN_AKTIVE;
+        $query = new Query($sql, ['mobil' => $mobil]);
+
+        return new VideresendingNominasjoner($query);
+    }
+
     public static function getAlleByTittelId(int $tittel_id, int $arrangement_id): VideresendingNominasjoner
     {
         $query = new Query(

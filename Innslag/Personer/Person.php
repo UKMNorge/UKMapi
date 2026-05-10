@@ -67,7 +67,7 @@ class Person
     {
         $qry = new Query(
             self::getLoadQuery() . "
-            WHERE `p_phone` = '#phone'",
+            WHERE `p_phone` = '#phone' ORDER BY `p_id` DESC LIMIT 1",
             [
                 'phone' => $phone
             ]
