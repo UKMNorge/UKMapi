@@ -37,6 +37,8 @@ class VideresendingNominasjon
     protected bool $active;
     protected ?string $sporsmal;
     protected ?string $svar;
+    /** Varslingsflagg for forelder/foresatt (0 = ikke varslet). */
+    protected int $foresatt_notified;
 
     /**
      * @param int|array $data ID eller rad fra databasen
@@ -173,6 +175,9 @@ class VideresendingNominasjon
         $this->active = isset($row['active']) ? (bool) (int) $row['active'] : true;
         $this->sporsmal = isset($row['sporsmaal']) && $row['sporsmaal'] !== null && $row['sporsmaal'] !== '' ? (string) $row['sporsmaal'] : null;
         $this->svar = isset($row['svar']) && $row['svar'] !== null && $row['svar'] !== '' ? (string) $row['svar'] : null;
+        $this->foresatt_notified = isset($row['foresatt_notified']) && $row['foresatt_notified'] !== null && $row['foresatt_notified'] !== ''
+            ? (int) $row['foresatt_notified']
+            : 0;
     }
 
 
@@ -292,6 +297,16 @@ class VideresendingNominasjon
         $this->svar = $svar;
     }
 
+    public function getForesattNotified(): int
+    {
+        return $this->foresatt_notified;
+    }
+
+    public function setForesattNotified(int $foresatt_notified): void
+    {
+        $this->foresatt_notified = $foresatt_notified;
+    }
+
     public function getStatus(): string
     {
         if($this->status === null) {
@@ -390,6 +405,7 @@ class VideresendingNominasjon
             'active' => $this->getActive(),
             'sporsmal' => $this->getSporsmal(),
             'svar' => $this->getSvar(),
+            'foresatt_notified' => $this->getForesattNotified(),
             'person' => $personObj,
         ];
     }

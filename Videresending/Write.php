@@ -81,6 +81,7 @@ class Write
         $sql->add('active', $nominasjon->getActive() ? 1 : 0);
         $sql->add('sporsmaal', $nominasjon->getSporsmal());
         $sql->add('svar', $nominasjon->getSvar());
+        $sql->add('foresatt_notified', $nominasjon->getForesattNotified());
 
         $res = $sql->run();
         if ($res === false) {
