@@ -51,17 +51,15 @@ class Write {
      */
     public static function save( SamtykkeSkjema $skjema ): SamtykkeSkjema
     {
-        $sql = new Query(
-            "UPDATE `" . SamtykkeSkjema::TABLE . "` SET `navn` = '#navn', `type` = '#type' WHERE `id` = '#id'",
-            [
-                'navn' => $skjema->getNavn(),
-                'type' => $skjema->getType(),
-                'id'   => $skjema->getId(),
-            ]
+        $sql = new Update(
+            SamtykkeSkjema::TABLE,
+            ['id' => $skjema->getId()]
         );
-        try {
-            $sql->run();
-        } catch (Exception $e) {
+        $sql->add('navn', $skjema->getNavn());
+        $sql->add('type', $skjema->getType());
+
+        $res = $sql->run();
+        if ($res === false) {
             throw new Exception('Kunne ikke lagre samtykkeskjema');
         }
 
@@ -157,23 +155,20 @@ class Write {
      * @throws Exception
      */
     public static function saveVersjon(SamtykkeSkjema $skjema, SamtykkeVersjon $versjon): SamtykkeVersjon {
-        $sql = new Query(
-            "UPDATE `" . SamtykkeVersjon::TABLE . 
-            "` SET `beskrivelse` = '#beskrivelse', `body_text` = '#body_text', `file_path` = '#file_path' 
-            WHERE `id` = '#id'",
-            [
-                'beskrivelse' => $versjon->getBeskrivelse(),
-                'body_text' => $versjon->getBodyText(),
-                'file_path' => $versjon->getFilePath(),
-                'id' => $versjon->getId(),
-            ]
+        $sql = new Update(
+            SamtykkeVersjon::TABLE,
+            ['id' => $versjon->getId()]
         );
-        try {
-            $sql->run();
-        } catch (Exception $e) {
+        $sql->add('beskrivelse', $versjon->getBeskrivelse());
+        $sql->add('body_text', $versjon->getBodyText());
+        $sql->add('file_path', $versjon->getFilePath());
+
+        $res = $sql->run();
+        if ($res === false) {
             throw new Exception('Kunne ikke lagre versjon');
         }
-        return new SamtykkeVersjon((int) $sql->run());
+
+        return new SamtykkeVersjon($versjon->getId());
     }
 
     /**
