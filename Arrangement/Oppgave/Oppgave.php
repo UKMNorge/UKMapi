@@ -183,4 +183,44 @@ class Oppgave {
         }
         return $list;
     }
+
+    public static function getAllByArrangementVideresending(int $plId): array {
+        $alleOppgaver = static::getAllByArrangement($plId);
+        $videresendingSkjemaer = [];
+        foreach ($alleOppgaver as $oppgave) {
+            if ($oppgave->getType() === 'videresending') {
+                $videresendingSkjemaer[] = $oppgave;
+            }
+        }
+        return $videresendingSkjemaer;
+    }
+
+    /**
+     * Returnerer status for besvaring av oppgave-skjema-kjeden.
+     * 1 = Ikke alle skjema er besvart
+     * 2 = Alle skjema er besvart, men ikke alle er godkjent av foresatt (for under 18 år)
+     * 3 = Alle skjema er besvart, og (enten bruker er 18 år+, eller foresatt har godkjent alt)
+     */
+    public function getOppgaveBesvartStatus(int $deltaUserId, int $personId): int {
+        $skjemaKjede = $this->getSkjemaKjede();
+        $alleBesvart = true;
+        $alleForesattGodkjent = true;
+        foreach ($skjemaKjede as $skjemaItem) {
+            $skjema = $skjemaItem->getSkjema();
+            if (!$skjema->isAnswered($deltaUserId, $personId)) {
+                $alleBesvart = false;
+            }
+            if (!$skjema->isForesattGodkjent($deltaUserId, $personId)) {
+                $alleForesattGodkjent = false;
+            }
+        }
+
+        if (!$alleBesvart) {
+            return 1;
+        }
+        if (!$alleForesattGodkjent) {
+            return 2;
+        }
+        return 3;
+    }
 }
