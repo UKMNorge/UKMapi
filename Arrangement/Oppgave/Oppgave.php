@@ -197,17 +197,22 @@ class Oppgave {
 
     /**
      * Returnerer status for besvaring av oppgave-skjema-kjeden.
-     * 1 = Ikke alle skjema er besvart
-     * 2 = Alle skjema er besvart, men ikke alle er godkjent av foresatt (for under 18 år)
+     * 0 = Ikke påbegynt
+     * 1 = Påbegynt, men ikke alle skjema er besvart
+     * 2 = Påbegynt, og alle skjema er besvart, men ikke alle er godkjent av foresatt (for under 18 år)
      * 3 = Alle skjema er besvart, og (enten bruker er 18 år+, eller foresatt har godkjent alt)
      */
     public function getOppgaveBesvartStatus(int $deltaUserId, int $personId): int {
         $skjemaKjede = $this->getSkjemaKjede();
         $alleBesvart = true;
         $alleForesattGodkjent = true;
+        $harPaabegynt = false;
         foreach ($skjemaKjede as $skjemaItem) {
             $skjema = $skjemaItem->getSkjema();
-            if (!$skjema->isAnswered($deltaUserId, $personId)) {
+            if ($skjema->isAnswered($deltaUserId, $personId)) {
+                $harPaabegynt = true;
+            }
+            else {
                 $alleBesvart = false;
             }
             if (!$skjema->isForesattGodkjent($deltaUserId, $personId)) {
@@ -215,12 +220,14 @@ class Oppgave {
             }
         }
 
-        if (!$alleBesvart) {
+        if (!$harPaabegynt) {
+            return 0;
+        } elseif (!$alleBesvart) {
             return 1;
-        }
-        if (!$alleForesattGodkjent) {
+        } elseif (!$alleForesattGodkjent) {
             return 2;
+        } else {
+            return 3;
         }
-        return 3;
     }
 }
