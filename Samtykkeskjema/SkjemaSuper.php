@@ -3,6 +3,7 @@
 namespace UKMNorge\Samtykkeskjema;
 
 use UKMNorge\Innslag\Personer\Person;
+use UKMNorge\Database\SQL\Query;
 
 use Exception;
 
@@ -50,7 +51,7 @@ abstract class SkjemaSuper {
                 return true;
             }
             
-            if($this->getDeltaUserIdByMobil($person->getId())) {
+            if($this->getDeltaUserIdByMobil($person->getMobil())) {
                 return true;
             }
             return false;
@@ -60,22 +61,24 @@ abstract class SkjemaSuper {
         return false;
     }
 
-    protected function getDeltaUserIdByMobil($participantId) : bool {
+    protected function getDeltaUserIdByMobil($phone) : bool {
         if($phone) {
             $sql = new Query(
-                "SELECT birthdate, is_18_year from ukm_user WHERE pameld_user = '#participantId'",
-                ['participantId' => $participantId],
+                "SELECT birthdate, is_18_year from ukm_user WHERE phone = '#phone'",
+                ['phone' => $phone],
                 'ukmdelta'
             );
             $res = $sql->run('array');
             if($res && isset($res['birthdate'])) {
-                $birthdate = new DateTime($res['birthdate']);
-                $now = new DateTime();
+                $birthdate = new \DateTime($res['birthdate']);
+                $now = new \DateTime();
                 $age = $now->diff($birthdate)->y;
-                if($age >= 18) {
-                    return true;
+                $age = (int) $age;
+                
+                if($age < 17) {
+                    return false;
                 }
-                else if($age == 17) {
+                if($age == 17) {
                     if($res['is_18_year']) {
                         return true;
                     }
@@ -83,8 +86,7 @@ abstract class SkjemaSuper {
                         return false;
                     }
                 }
-
-                return false;
+                return true;
             }
             return false;
         }
