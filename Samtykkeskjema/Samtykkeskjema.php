@@ -138,6 +138,10 @@ class SamtykkeSkjema extends SkjemaSuper {
     }
 
     public function isForesattGodkjent($userId, $personId) : bool {
+        // 18 år+ deltakere trenger ikke samtykke fra foresatte/foreldre
+        if($this->isDeltaker18Plus($userId, $personId)) {
+            return true;
+        }
         if($this->getLastVersion() == null) {
             return false;
         }

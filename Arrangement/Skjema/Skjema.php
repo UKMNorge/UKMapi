@@ -34,6 +34,7 @@ class Skjema extends SkjemaSuper {
      * @override SkjemaSuper
      */
     public function isAnswered($userId, $personId) : bool {
+        // 18 år+ deltakere trenger ikke samtykke fra foresatte/foreldre
         $respondenter = $this->getRespondenter()->getAll();
         if(empty($respondenter)) {
             return false;
@@ -55,6 +56,9 @@ class Skjema extends SkjemaSuper {
     }
 
     public function isForesattGodkjent($userId, $personId) : bool {
+        if($this->isDeltaker18Plus($userId, $personId)) {
+            return true;
+        }
         $respondenter = $this->getRespondenter()->getAll();
         if(empty($respondenter)) {
             return false;
