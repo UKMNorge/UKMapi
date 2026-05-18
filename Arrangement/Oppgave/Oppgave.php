@@ -230,4 +230,41 @@ class Oppgave {
             return 3;
         }
     }
+
+    public function getOppgaveBesvartStatusByMobil($mobil): int {
+        $deltaUserId = $this->getDeltaUserIdByMobil($mobil);
+        $personIds = $this->getPersonIdsByMobil($mobil);
+        $maxStatus = 0;
+        foreach ($personIds as $personId) {
+            $status = $this->getOppgaveBesvartStatus($deltaUserId, $personId);
+            if ($status > $maxStatus) {
+                $maxStatus = $status;
+            }
+        }
+        return $maxStatus;
+    }
+
+    private function getPersonIdsByMobil(string $mobil): array {
+        $sql = new Query(
+            "SELECT p_id FROM `smartukm_participant`
+						WHERE `p_phone` = '#mobil'",
+            ['mobil' => $mobil],
+        );
+        $res = $sql->run();
+        $personIds = [];
+        while ($row = Query::fetch($res)) {
+            $personIds[] = $row['p_id'];
+        }
+        return $personIds;
+    }
+
+    private function getDeltaUserIdByMobil(string $mobil): int {
+        $sql = new Query(
+            "SELECT id from ukm_user WHERE phone = '#phone'",
+            ['phone' => $mobil],
+            'ukmdelta'
+        );
+        $res = $sql->run('array');
+        return $res['id'];
+    }
 }
