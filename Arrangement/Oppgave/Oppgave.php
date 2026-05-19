@@ -233,9 +233,6 @@ class Oppgave {
 
     public function getOppgaveBesvartStatusByMobil($mobil): int {
         $deltaUserId = $this->getDeltaUserIdByMobil($mobil);
-        if($deltaUserId === -1) {
-            return -1;
-        }
         $personIds = $this->getPersonIdsByMobil($mobil);
         $maxStatus = 0;
         foreach ($personIds as $personId) {
@@ -268,6 +265,6 @@ class Oppgave {
             'ukmdelta'
         );
         $res = $sql->run('array');
-        return $res['id'] ?? -1;
+        return $res['id'];
     }
 }
