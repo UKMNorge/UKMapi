@@ -13,7 +13,7 @@ use UKMNorge\Meta\Write as WriteMeta;
 use UKMNorge\Arrangement\Write as WriteArrangement;
 use UKMNorge\Innslag\Titler\Write as WriteTittel;
 use UKMNorge\Log\Logger;
-
+use UKMNorge\Arrangement\Oppgave\Oppgave;
 
 
 
@@ -462,6 +462,20 @@ class VideresendingNominasjon
         Write::save($this);
     }
 
+    public function getOppgaveBesvartStatus() : int { 
+        try {
+            $oppgave = Oppgave::getAllByArrangementVideresending($this->getArrangementTilId())[0];
+
+            if($this->getPerson()->getMobil()) {
+                return $oppgave->getOppgaveBesvartStatusByMobil($this->getPerson()->getMobil());
+            }
+            return -1;
+        }
+        catch( Exception $e ) {
+            return -1;
+        }
+    }
+
      /**
     * Beregn og lagre antall videresendte personer som metadata
     *
@@ -523,6 +537,7 @@ class VideresendingNominasjon
             'foresatt_notified' => $this->getForesattNotified(),
             'person' => $personObj,
             'er_deltakeren_videresendt' => $this->erDeltakerenVideresendt(),
+            'oppgave_besvart_status' => $this->getOppgaveBesvartStatus(),
         ];
     }
 }

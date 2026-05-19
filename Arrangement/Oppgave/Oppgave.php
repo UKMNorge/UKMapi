@@ -232,19 +232,26 @@ class Oppgave {
     }
 
     public function getOppgaveBesvartStatusByMobil($mobil): int {
+        $startTime = microtime(true);
         $deltaUserId = $this->getDeltaUserIdByMobil($mobil);
+        if($deltaUserId === -1) {
+            return -1;
+        }
         $personIds = $this->getPersonIdsByMobil($mobil);
         $maxStatus = 0;
+
         foreach ($personIds as $personId) {
             $status = $this->getOppgaveBesvartStatus($deltaUserId, $personId);
             if ($status > $maxStatus) {
                 $maxStatus = $status;
             }
         }
+        $endTime = microtime(true);
         return $maxStatus;
     }
 
     private function getPersonIdsByMobil(string $mobil): array {
+   
         $sql = new Query(
             "SELECT p_id FROM `smartukm_participant`
 						WHERE `p_phone` = '#mobil'",
@@ -265,6 +272,6 @@ class Oppgave {
             'ukmdelta'
         );
         $res = $sql->run('array');
-        return $res['id'];
+        return $res['id'] ?? -1;
     }
 }
