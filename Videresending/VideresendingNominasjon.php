@@ -553,7 +553,6 @@ class VideresendingNominasjon
             'foresatt_notified' => $this->getForesattNotified(),
             'person' => $personObj,
             'er_deltakeren_videresendt' => $this->erDeltakerenVideresendt(),
-            'oppgave_besvart_status' => $this->getOppgaveBesvartStatus(),
         ];
     }
 }
