@@ -230,6 +230,21 @@ class VideresendingNominasjon
         return new Person($this->p_id);
     }
 
+    public function getPersonMobil(): ?string
+    {
+        $sql = new Query(
+            "SELECT p_phone FROM `smartukm_participant`
+						WHERE `p_id` = '#p_id'",
+            ['p_id' => $this->p_id],
+        );
+
+        $res = $sql->run('array');
+        if($res && $res['p_phone']) {
+            return $res['p_phone'];
+        }
+        return null;
+    }
+
     public function getBId(): ?int
     {
         return $this->b_id;
@@ -466,8 +481,9 @@ class VideresendingNominasjon
         try {
             $oppgave = Oppgave::getAllByArrangementVideresending($this->getArrangementTilId())[0];
 
-            if($this->getPerson()->getMobil()) {
-                return $oppgave->getOppgaveBesvartStatusByMobil($this->getPerson()->getMobil());
+            $personMobil = $this->getPersonMobil();
+            if($personMobil) {
+                return $oppgave->getOppgaveBesvartStatusByMobil($personMobil);
             }
             return -1;
         }
