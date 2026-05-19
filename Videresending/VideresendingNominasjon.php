@@ -7,6 +7,14 @@ use UKMNorge\Database\SQL\Query;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Innslag\Personer\Person;
 use UKMNorge\Videresending\Write;
+use UKMNorge\Innslag\Innslag;
+use UKMNorge\Innslag\Personer\Write as WritePerson;
+use UKMNorge\Meta\Write as WriteMeta;
+use UKMNorge\Arrangement\Write as WriteArrangement;
+use UKMNorge\Innslag\Titler\Write as WriteTittel;
+use UKMNorge\Log\Logger;
+
+
 
 
 require_once('UKM/Autoloader.php');
@@ -377,6 +385,110 @@ class VideresendingNominasjon
 
         // TODO: implement sending to deltaker
     }
+    
+    public function erDeltakerenVideresendt(): bool {
+        try {
+            $tilArrangement = $this->getArrangementTil();
+            $innslag = $tilArrangement->getInnslag()->get($this->getBId());
+        } catch( Exception $e ) {
+            return false;
+        }
+        if($innslag === null) {
+            return false;
+        }
+        $person = $innslag->getPersoner()->get($this->getPId());
+        if($person === null) {
+            return false;
+        }
+        return $person->erPameldt( $this->getArrangementTilId() );
+    }
+
+    public function mottaVideresending($wordpress_user_id): void {
+
+        // Setter opp logger
+        $this->setupLogger($wordpress_user_id);
+        // Videresend innslaget
+        try {
+            $fraArrangement = $this->getArrangementFra();
+            $innslag = $fraArrangement->getInnslag()->get($this->getBId());
+            $person = $innslag->getPersoner()->get($this->getPId());
+            // $innslag = Innslag::getById($this->getBId());
+            // $innslag->setContext($this->getArrangementTil()->getContext());
+            
+            // Hvis innslaget ikke er påmeldt til til arrangementet, legger vi til det men uten personer
+            if(!$innslag->erPameldt($this->getArrangementTilId())) {
+                $innslag->setContext($this->getArrangementTil()->getContext());
+                WriteArrangement::leggTilInnslag($this->getArrangementTil(), $innslag, $fraArrangement);
+            }
+
+            // Legg til (videresend) personen i innslaget
+            $innslagTil = $this->getArrangementTil()->getInnslag()->get($this->getBId());
+            $person = $innslagTil->getPersoner()->get($this->getPId());
+            WritePerson::leggTil($person);
+
+        } catch( Exception $e ) {
+            /**
+             * Selv om innslaget er videresendt fra før, betyr ikke det
+             * nødvendigvis at tittelen er videresendt.
+             * Fortsett derfor, men dø på alle andre exceptions.
+             **/
+            if( $e->getCode() == 10404 ) {
+                // 10404: Innslag collection: innslaget er allerede lagt til
+                // fortsett til videresending av evt tittel
+            } else {
+                throw $e;
+            }
+        }
+
+        // Videresend evntuell tittel
+        if($this->getTId() != -1) {
+            try {
+                $innslagTil = $this->getArrangementTil()->getInnslag()->get($this->getBId());
+                $tittel = $innslagTil->getTitler()->get($this->getTId());
+                $innslag->getTitler()->leggTil( $tittel );
+                WriteTittel::leggtil( $tittel );
+            } catch( Exception $e ) {
+                if( $e->getCode() == 901001 ) {
+                    // 901001: Tittel collection: tittelen er allerede lagt til
+                } else {
+                    throw $e;
+                }
+            }
+        }
+
+        $this->beregnAntallVideresendtePersoner();
+    }
+
+     /**
+    * Beregn og lagre antall videresendte personer som metadata
+    *
+    * @throws Exception
+    * @return Bool
+    */
+    private function beregnAntallVideresendtePersoner() {
+        $fra = $this->getArrangementFra();
+        $til = $this->getArrangementTil();
+
+        $unike_personer = [];
+        foreach( $fra->getVideresendte( $til->getId() )->getAll() as $innslag ) {
+            foreach ($innslag->getPersoner()->getAll() as $person) {
+                $unike_personer[] = $person->getId();
+            }
+        }
+        $unike_personer = array_unique($unike_personer);
+        WriteMeta::set(
+            $fra->getMeta('antall_videresendte_personer_til_'. $til->getId())
+                ->set(
+                    sizeof($unike_personer)
+                )
+        );
+    
+        return true;
+    }
+
+    private function setupLogger($wordpress_user_id) {
+        Logger::setID( 'wordpress', $wordpress_user_id, $this->getArrangementTilId() );
+    }
 
     public function getArrObj(): array {
         $personObj = null;
@@ -407,6 +519,7 @@ class VideresendingNominasjon
             'svar' => $this->getSvar(),
             'foresatt_notified' => $this->getForesattNotified(),
             'person' => $personObj,
+            'er_deltakeren_videresendt' => $this->erDeltakerenVideresendt(),
         ];
     }
 }
