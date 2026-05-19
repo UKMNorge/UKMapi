@@ -457,6 +457,9 @@ class VideresendingNominasjon
         }
 
         $this->beregnAntallVideresendtePersoner();
+
+        $this->setStatus(self::STATUS_GODKJENT);
+        Write::save($this);
     }
 
      /**
