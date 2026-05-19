@@ -458,7 +458,7 @@ class VideresendingNominasjon
 
         $this->beregnAntallVideresendtePersoner();
 
-        $this->setStatus(self::STATUS_GODKJENT);
+        $this->setGodkjent(true);
         Write::save($this);
     }
 
