@@ -72,6 +72,11 @@ class VideresendingNominasjon
         return VideresendingNominasjoner::getByInnslagId($innslag_id);
     }
 
+    public static function getAllenForArrangementInnslagPerson(int $arrangement_id, int $innslag_id, int $person_id): VideresendingNominasjoner
+    {
+        return VideresendingNominasjoner::getNominasjonForArrangementInnslagPerson($arrangement_id, $innslag_id, $person_id);
+    }
+
     public static function getAlleByMobil(string $mobil): VideresendingNominasjoner
     {
         $sql = 'SELECT `nom`.* FROM `' . self::TABLE . '` AS `nom`'
@@ -435,8 +440,9 @@ class VideresendingNominasjon
             
             // Hvis innslaget ikke er påmeldt til til arrangementet, legger vi til det men uten personer
             if(!$innslag->erPameldt($this->getArrangementTilId())) {
-                $innslag->setContext($this->getArrangementTil()->getContext());
-                WriteArrangement::leggTilInnslag($this->getArrangementTil(), $innslag, $fraArrangement);
+                $innslagTil = Innslag::getById($this->getBId());
+                $innslagTil->setContext($this->getArrangementTil()->getContext());
+                WriteArrangement::leggTilInnslag($this->getArrangementTil(), $innslagTil, $fraArrangement);
             }
 
             // Legg til (videresend) personen i innslaget
