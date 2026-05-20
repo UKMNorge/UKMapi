@@ -24,6 +24,16 @@ class VideresendingNominasjoner extends Collection
         }
     }
 
+    public static function getNominasjonForArrangementInnslagPerson(int $arrangement_id, int $innslag_id, int $person_id): VideresendingNominasjoner
+    {
+        $query = new Query(
+            "SELECT * FROM `" . VideresendingNominasjon::TABLE . "` WHERE `arrangement_til` = '#arrangement_id' AND `b_id` = '#innslag_id' AND `p_id` = '#person_id'" . VideresendingNominasjon::SQL_AND_KUN_AKTIVE,
+            ['arrangement_id' => $arrangement_id, 'innslag_id' => $innslag_id, 'person_id' => $person_id]
+        );
+        
+        return new self($query);
+    }
+
     public static function getAlleFraArrangement(int $arrangement_fra): self
     {
         $query = new Query(
