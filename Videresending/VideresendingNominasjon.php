@@ -332,6 +332,9 @@ class VideresendingNominasjon
 
     public function getStatus(): string
     {
+        if($this->getGodkjent()) {
+            return 'godkjent';
+        }
         if($this->status === null) {
             return 'Ukjent';
         }
