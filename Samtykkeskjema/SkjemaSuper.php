@@ -18,6 +18,11 @@ abstract class SkjemaSuper {
     protected string $id;
     protected string $navn = '';
     
+
+    public function getAlleRespondenter(): array {
+        return [];
+    }
+
     /**
      * @return int
      */
@@ -51,7 +56,7 @@ abstract class SkjemaSuper {
                 return true;
             }
             
-            if($this->getDeltaUserIdByMobil($person->getMobil())) {
+            if($this->isDeltaUser18Plus($person->getMobil())) {
                 return true;
             }
             return false;
@@ -61,7 +66,17 @@ abstract class SkjemaSuper {
         return false;
     }
 
-    protected function getDeltaUserIdByMobil($phone) : bool {
+    protected function getDeltaUserIdByMobil(string $mobil): int {
+        $sql = new Query(
+            "SELECT id from ukm_user WHERE phone = '#phone'",
+            ['phone' => $mobil],
+            'ukmdelta'
+        );
+        $res = $sql->run('array');
+        return $res['id'] ?? -1;
+    }
+
+    protected function isDeltaUser18Plus($phone) : bool {
         if($phone) {
             $sql = new Query(
                 "SELECT birthdate, is_18_year from ukm_user WHERE phone = '#phone'",

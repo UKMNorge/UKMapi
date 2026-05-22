@@ -8,6 +8,8 @@ use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Innslag\Media\Bilder\Bilde;
 use UKMNorge\Filmer\UKMTV\Film;
 use UKMNorge\Innslag\Innslag;
+use UKMNorge\Arrangement\Skjema\DeltaRespondent;
+
 use Exception;
 
 require_once('UKM/Autoloader.php');
@@ -73,6 +75,28 @@ class SamtykkeSkjema extends SkjemaSuper {
             $samtykkeskjemaer[] = new self($row);
         }
         return $samtykkeskjemaer;
+    }
+
+    public function getAlleRespondenter(): array {
+        $query = new Query(
+            "SELECT user as user_id FROM skjema_svar svar 
+            JOIN samtykkeskjema_version as version on version.id=svar.version_id
+            WHERE version.skjema_id='#skjema_id'",
+            [
+                'skjema_id' => $this->getId()
+            ]
+        );
+        
+        $res = $query->run();
+        $personer = [];
+        $deltaRespondenter = [];
+        while ($row = Query::fetch($res)) {
+            $deltaRespondent = DeltaRespondent::loadById($row['user_id']);
+            if($deltaRespondent) {
+                $deltaRespondenter[$deltaRespondent->getId()] = $deltaRespondent;
+            }
+        }
+        return $deltaRespondenter;
     }
 
     /**

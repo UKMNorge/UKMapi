@@ -91,6 +91,20 @@ class Oppgave {
     }
 
     /**
+     * Returnerer alle respondenter for alle skjemaer i oppgaven
+     * @return array<int, DeltaRespondent> - Delta-bruker-id som nøkkel, DeltaRespondent som verdi
+     */
+    public function getAlleRespondenter(): array {
+        $respondenter = [];
+        foreach ($this->getSkjemaKjede() as $skjema) {
+            foreach ($skjema->getSkjema()->getAlleRespondenter() as $respondentId => $respondent) {
+                $respondenter[$respondentId] = $respondent;
+            }
+        }
+        return $respondenter;
+    }
+
+    /**
      * Alle oppgave_skjema-rader for denne oppgaven, i rekkefølge fra hode til hale.
      * Kjeden bygges via neste_type/neste_id som peker på neste skjema (type+id).
      *
@@ -232,7 +246,6 @@ class Oppgave {
     }
 
     public function getOppgaveBesvartStatusByMobil($mobil): int {
-        $startTime = microtime(true);
         $deltaUserId = $this->getDeltaUserIdByMobil($mobil);
         if($deltaUserId === -1) {
             return -1;
@@ -246,7 +259,6 @@ class Oppgave {
                 $maxStatus = $status;
             }
         }
-        $endTime = microtime(true);
         return $maxStatus;
     }
 

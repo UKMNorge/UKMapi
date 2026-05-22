@@ -6,6 +6,8 @@ use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Arrangement\Eier;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Samtykkeskjema\SkjemaSuper;
+use UKMNorge\Arrangement\Skjema\DeltaRespondent;
+
 use Exception;
 use SporsmalColl;
 
@@ -23,6 +25,7 @@ class Skjema extends SkjemaSuper {
     private $respondenter;
     protected string $navn;
     
+
     /**
      * 
      * Hent respondent by user id og sjekk om alle svar er besvart
@@ -126,6 +129,37 @@ class Skjema extends SkjemaSuper {
             );
         }
         return $skjemaer;
+    }
+
+
+    public function getAlleRespondenter(): array {
+        $query = new Query(
+            "SELECT p.p_phone FROM ukm_videresending_skjema_svar AS svar
+            JOIN smartukm_participant AS p on p.p_id=svar.p_fra
+            WHERE svar.skjema=#skjema_id",
+            [
+                'skjema_id' => $this->getId()
+            ]
+        );
+
+        $res = $query->run();
+        $personer = [];
+        while ($row = Query::fetch($res)) {
+            $personer[] = $row['p_phone'];
+        }
+        
+        $deltaRespondenter = [];
+        foreach(array_unique($personer) as $person) {
+            try {
+                $deltaRespondent = DeltaRespondent::loadByMobil($person);
+                if($deltaRespondent) {
+                    $deltaRespondenter[$deltaRespondent->getId()] = $deltaRespondent;
+                }
+            } catch(Exception $e) {
+                continue;
+            }
+        }
+        return $deltaRespondenter;
     }
 
     /**
