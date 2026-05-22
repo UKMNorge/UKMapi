@@ -4,6 +4,7 @@ namespace UKMNorge\Arrangement\Oppgave;
 
 use Exception;
 use UKMNorge\Allergener\Allergener;
+use UKMNorge\Arrangement\Skjema\DeltaRespondent;
 use UKMNorge\Arrangement\Skjema\Skjema;
 use UKMNorge\Arrangement\Skjema\Svar;
 use UKMNorge\Arrangement\Skjema\SvarSett;
@@ -16,7 +17,9 @@ use UKMNorge\Samtykkeskjema\SkjemaSuper;
  * Serialiserer oppgaveliste + svar for én respondent (admin, kun visning).
  */
 class OppgaveRespondentVisning {
-    public static function forRespondent(Oppgave $oppgave, int $deltaUserId, string $mobil): array {
+    public static function forRespondent(Oppgave $oppgave, DeltaRespondent $respondent): array {
+        $deltaUserId = (int) $respondent->getId();
+        $mobil = $respondent->getMobil();
         $personId = $oppgave->getBestPersonIdForRespondent($deltaUserId, $mobil);
         $is18 = self::isDeltaUser18Plus($deltaUserId, $personId);
 
@@ -48,7 +51,12 @@ class OppgaveRespondentVisning {
                 'description' => $oppgave->getDescription(),
             ],
             'respondent' => [
+                'id'            => $deltaUserId,
                 'delta_user_id' => $deltaUserId,
+                'navn'          => $respondent->getNavn(),
+                'etternavn'     => $respondent->getEtternavn(),
+                'mobil'         => $mobil,
+                'navn_fullt'    => $respondent->getNavnFullt(),
                 'is_18'         => $is18,
             ],
             'person_id' => $personId,

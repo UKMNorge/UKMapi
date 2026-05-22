@@ -302,8 +302,8 @@ class Oppgave {
     /**
      * Oppgaveliste + svar for én respondent (admin, kun visning).
      */
-    public function getRespondentOppgaveliste(int $deltaUserId, string $mobil): array {
-        return OppgaveRespondentVisning::forRespondent($this, $deltaUserId, $mobil);
+    public function getRespondentOppgaveliste(DeltaRespondent $respondent): array {
+        return OppgaveRespondentVisning::forRespondent($this, $respondent);
     }
 
     private function getPersonIdsByMobil(string $mobil): array {
