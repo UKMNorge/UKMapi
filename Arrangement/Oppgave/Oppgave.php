@@ -279,6 +279,33 @@ class Oppgave {
         return $maxStatus;
     }
 
+    /**
+     * Velger person_id med høyest besvaringsstatus (samme logikk som status-endepunkt).
+     */
+    public function getBestPersonIdForRespondent(int $deltaUserId, string $mobil): int {
+        $personIds = $this->getPersonIdsByMobil($mobil);
+        if (count($personIds) === 0) {
+            return 0;
+        }
+        $bestPersonId = (int) $personIds[0];
+        $maxStatus = $this->getOppgaveBesvartStatus($deltaUserId, $bestPersonId);
+        foreach ($personIds as $personId) {
+            $status = $this->getOppgaveBesvartStatus($deltaUserId, (int) $personId);
+            if ($status > $maxStatus) {
+                $maxStatus = $status;
+                $bestPersonId = (int) $personId;
+            }
+        }
+        return $bestPersonId;
+    }
+
+    /**
+     * Oppgaveliste + svar for én respondent (admin, kun visning).
+     */
+    public function getRespondentOppgaveliste(int $deltaUserId, string $mobil): array {
+        return OppgaveRespondentVisning::forRespondent($this, $deltaUserId, $mobil);
+    }
+
     private function getPersonIdsByMobil(string $mobil): array {
    
         $sql = new Query(
