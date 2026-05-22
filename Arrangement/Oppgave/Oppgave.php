@@ -114,6 +114,7 @@ class Oppgave {
                 $deltaRespondent = DeltaRespondent::loadByMobil($respondent->getMobil());
                 if($deltaRespondent) {
                     $respondenter[$deltaRespondent->getId()] = $deltaRespondent;
+                    $deltaRespondent->videresending_nominasjon = true;
                 }
             }
         }

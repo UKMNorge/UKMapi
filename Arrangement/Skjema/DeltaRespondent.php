@@ -11,13 +11,15 @@ class DeltaRespondent
     public $navn;
     public $etternavn;
     public $mobil;
-
+    public $videresending_nominasjon;
+    
     public function __construct($id, $navn, $etternavn, $mobil)
     {
         $this->id = $id;
         $this->navn = $navn;
         $this->etternavn = $etternavn;
         $this->mobil = $mobil;
+        $this->videresending_nominasjon = false;
     }
 
 
