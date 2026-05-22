@@ -234,10 +234,17 @@ class OppgaveRespondentVisning {
             case 'intoleranser':
                 return self::formatIntoleranser($value);
 
+            case 'innslagdatabekreftelse':
+                return [
+                    [
+                        'label' => 'Bekreftelse',
+                        'value' => self::boolLabel(self::fieldToString($value, 'bekrefter_innslagsdata')),
+                    ],
+                ];
+
             default:
                 if (is_object($value) || is_array($value)) {
-                    $encoded = json_encode($value, JSON_UNESCAPED_UNICODE);
-                    return [['label' => '', 'value' => $encoded !== false ? $encoded : '—']];
+                    return self::formatObjectAsLinjer($value);
                 }
                 return [['label' => '', 'value' => self::scalarToString($value)]];
         }
@@ -314,5 +321,27 @@ class OppgaveRespondentVisning {
             return 'Nei';
         }
         return $raw;
+    }
+
+    /**
+     * @return array<int, array{label: string, value: string}>
+     */
+    private static function formatObjectAsLinjer($value): array {
+        $obj = (object) (is_array($value) ? $value : (array) $value);
+        $linjer = [];
+        foreach ((array) $obj as $key => $felt) {
+            if ($felt === null || $felt === '') {
+                continue;
+            }
+            $label = ucfirst(str_replace('_', ' ', (string) $key));
+            $linjer[] = [
+                'label' => $label,
+                'value' => self::boolLabel(self::scalarToString($felt)),
+            ];
+        }
+        if (count($linjer) === 0) {
+            $linjer[] = ['label' => '', 'value' => '—'];
+        }
+        return $linjer;
     }
 }
