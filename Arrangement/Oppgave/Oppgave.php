@@ -5,6 +5,8 @@ namespace UKMNorge\Arrangement\Oppgave;
 use Exception;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Videresending\VideresendingNominasjoner;
+use UKMNorge\Arrangement\Skjema\DeltaRespondent;
 
 class Oppgave {
     public const TABLE = 'oppgave';
@@ -94,11 +96,25 @@ class Oppgave {
      * Returnerer alle respondenter for alle skjemaer i oppgaven
      * @return array<int, DeltaRespondent> - Delta-bruker-id som nøkkel, DeltaRespondent som verdi
      */
-    public function getAlleRespondenter(): array {
+    public function getAlleRespondenter($withVideresending = true): array {
         $respondenter = [];
         foreach ($this->getSkjemaKjede() as $skjema) {
             foreach ($skjema->getSkjema()->getAlleRespondenter() as $respondentId => $respondent) {
                 $respondenter[$respondentId] = $respondent;
+            }
+        }
+
+        if($withVideresending && $this->getType() === self::TYPE_VIDERESENDING) {
+            $videresendingNominasjoner = VideresendingNominasjoner::getAlleTilArrangement($this->getArrangement()->getId())->getAll();
+            foreach($videresendingNominasjoner as $videresendingNominasjon) {
+                $respondent = $videresendingNominasjon->getPerson();
+                if(!$respondent) {
+                    continue;
+                }
+                $deltaRespondent = DeltaRespondent::loadByMobil($respondent->getMobil());
+                if($deltaRespondent) {
+                    $respondenter[$deltaRespondent->getId()] = $deltaRespondent;
+                }
             }
         }
         return $respondenter;
