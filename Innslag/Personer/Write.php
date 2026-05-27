@@ -67,10 +67,10 @@ class Write {
 	 * @param String $fornavn
 	 * @param String $etternavn
 	 * @param Int $mobil
-	 * @param Kommune $kommune_id
+	 * @param Kommune|null $kommune
 	 * @return Person
 	 */
-	public static function create( String $fornavn, String $etternavn, Int $mobil, Kommune $kommune, String $epost = null) {
+	public static function create( String $fornavn, String $etternavn, Int $mobil, Kommune|null $kommune = null, String $epost = null) {
 		// Valider logger
 		if( !Logger::ready() ) {
 			throw new Exception(
@@ -97,7 +97,7 @@ class Write {
 			$sql->add('p_firstname', Sanitizer::sanitizeNavn($fornavn));
 			$sql->add('p_lastname', Sanitizer::sanitizeEtternavn($etternavn));
 			$sql->add('p_phone', $mobil);
-			$sql->add('p_kommune', $kommune->getId());
+			$sql->add('p_kommune', $kommune ? $kommune->getId() : 0);
 			// Epost er valgfritt
 			if( !is_null($epost) && filter_var($epost, FILTER_VALIDATE_EMAIL) ) {
 				$sql->add('p_email', $epost);
@@ -119,7 +119,7 @@ class Write {
                 "smartukm_participant",
                 ['p_id' => $p_id]
             );
-			$sql->add('p_kommune', $kommune->getId());
+			$sql->add('p_kommune', $kommune ? $kommune->getId() : 0);
 			$res = $sql->run(); 
 		}
 		
@@ -744,7 +744,7 @@ class Write {
 	 *
 	 * @see create()
 	**/
-	private static function _validerCreate( $fornavn, $etternavn, $mobil, $kommune ) {
+	private static function _validerCreate( $fornavn, $etternavn, $mobil, Kommune|null $kommune = null ) {
 		if(!is_string($fornavn) || empty($fornavn) || !is_string($etternavn) || empty($etternavn) ) {
 			throw new Exception(
 				"Fornavn og etternavn må være en streng.",
@@ -757,7 +757,7 @@ class Write {
 				506006
 			);
 		}
-		if( !Kommune::validateClass($kommune) ) {
+		if( $kommune && !Kommune::validateClass($kommune) ) {
 			throw new Exception(
 				"Kommune må være kommune-objekt.",
 				506005
