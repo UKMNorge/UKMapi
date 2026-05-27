@@ -115,6 +115,9 @@ class Oppgave {
                 if($deltaRespondent) {
                     $respondenter[$deltaRespondent->getId()] = $deltaRespondent;
                     $deltaRespondent->videresending_nominasjon = true;
+                    $arrangementFra = $videresendingNominasjon->getArrangementFra();
+                    $deltaRespondent->fylke = $arrangementFra->getFylke()->getNavn();
+                    $deltaRespondent->arrangement = $arrangementFra->getNavn();
                 }
             }
         }

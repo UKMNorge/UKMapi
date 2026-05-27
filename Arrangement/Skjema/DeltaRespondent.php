@@ -12,7 +12,13 @@ class DeltaRespondent
     public $etternavn;
     public $mobil;
     public $videresending_nominasjon;
-    
+    /** Fylkesnavn fra avsender-arrangement (videresending). */
+    public ?string $fylke = null;
+    /** Navn på avsender-arrangement (videresending). */
+    public ?string $arrangement = null;
+    /** Foresatts mobilnummer fra ukm_user (Delta). */
+    public ?string $foresatt_mobil = null;
+
     public function __construct($id, $navn, $etternavn, $mobil)
     {
         $this->id = $id;
@@ -26,12 +32,15 @@ class DeltaRespondent
     public static function loadByMobil($mobil) : DeltaRespondent|null{
         try {
             $query = new Query(
-                "SELECT id, first_name AS navn, last_name AS etternavn, phone AS mobil FROM ukm_user WHERE phone = '#mobil'",
+                "SELECT id, first_name AS navn, last_name AS etternavn, phone AS mobil, foresatt_mobil FROM ukm_user WHERE phone = '#mobil'",
                 ['mobil' => $mobil],
                 'ukmdelta'
             );
             $res = $query->run('array');
-            return new DeltaRespondent($res['id'], $res['navn'], $res['etternavn'], $res['mobil']);
+            if(!$res) {
+                return null;
+            }
+            return self::fromDeltaRow($res);
         } catch(Exception $e) {
             return null;
         }
@@ -40,16 +49,35 @@ class DeltaRespondent
     public static function loadById($id) : DeltaRespondent|null{
         try {
             $query = new Query(
-                "SELECT id, first_name AS navn, last_name AS etternavn, phone AS mobil FROM ukm_user WHERE id = '#id'",
+                "SELECT id, first_name AS navn, last_name AS etternavn, phone AS mobil, foresatt_mobil FROM ukm_user WHERE id = '#id'",
                 ['id' => $id],
                 'ukmdelta'
             );
             $res = $query->run('array');
-            return new DeltaRespondent($res['id'], $res['navn'], $res['etternavn'], $res['mobil']);
+            if(!$res) {
+                return null;
+            }
+            return self::fromDeltaRow($res);
         }
         catch(Exception $e) {
             return null;
         }
+    }
+
+    private static function fromDeltaRow(array $row): DeltaRespondent
+    {
+        $respondent = new DeltaRespondent($row['id'], $row['navn'], $row['etternavn'], $row['mobil']);
+        $respondent->foresatt_mobil = self::formatForesattMobil($row['foresatt_mobil'] ?? null);
+        return $respondent;
+    }
+
+    private static function formatForesattMobil($raw): ?string
+    {
+        if ($raw === null || $raw === '') {
+            return null;
+        }
+        $digits = preg_replace('/\D/', '', (string) $raw);
+        return $digits !== '' ? $digits : null;
     }
 
 
@@ -71,6 +99,11 @@ class DeltaRespondent
     public function getMobil()
     {
         return $this->mobil;
+    }
+
+    public function getForesattMobil(): ?string
+    {
+        return $this->foresatt_mobil;
     }
 
     public function getNavnFullt()
