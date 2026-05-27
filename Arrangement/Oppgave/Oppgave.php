@@ -7,7 +7,6 @@ use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Videresending\VideresendingNominasjoner;
 use UKMNorge\Arrangement\Skjema\DeltaRespondent;
-use UKMNorge\Arrangement\Videresending\Ledere\Ledere;
 
 class Oppgave {
     public const TABLE = 'oppgave';
@@ -223,7 +222,7 @@ class Oppgave {
         $alleOppgaver = static::getAllByArrangement($plId);
         $videresendingSkjemaer = [];
         foreach ($alleOppgaver as $oppgave) {
-            if ($oppgave->getType() === self::TYPE_VIDERESENDING) {
+            if ($oppgave->getType() === 'videresending') {
                 $videresendingSkjemaer[] = $oppgave;
             }
         }
@@ -301,41 +300,6 @@ class Oppgave {
             }
         }
         return $bestPersonId;
-    }
-
-    /**
-     * Sjekker om en person identifisert med mobilnummer har tilgang til å besvare oppgaven
-     *
-     * @param string $phone
-     * @return boolean
-     */
-    public function isRespondentAllowedToAccessOppgave(string $phone): bool {
-        $alleVideresendteArrangementer = $this->getArrangement()->getVideresending()->getAvsendere();
-        // Oppgaven er for videresending, sjekk om respondenten er videresendt til dette arrangementet
-        if($this->getType() === self::TYPE_VIDERESENDING) {
-            foreach($alleVideresendteArrangementer as $fraArrangement) {
-                $videresendingNominasjoner = VideresendingNominasjoner::getAlleTilArrangement($fraArrangement->getId())->getAll();
-                foreach($videresendingNominasjoner as $videresendingNominasjon) {
-                    $respondent = $videresendingNominasjon->getPerson();
-                    if($respondent->getMobil() === $phone) {
-                        return true;
-                    }
-                }
-            }
-        } 
-        // Oppgaven er for reiseledere, sjekk om mobilen til respondenten er i listen av reiseledere for dette arrangementet
-        elseif($this->getType() === self::TYPE_REISELEDERE) {
-            foreach($alleVideresendteArrangementer as $fraArrangement) {
-                $reiseledere = new Ledere($fraArrangement->getId(), $this->getArrangement()->getId());
-                foreach($reiseledere->getAll() as $reiseleder) {
-                    
-                    if($reiseleder->getMobil() == $phone) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
     }
 
     /**
