@@ -66,6 +66,82 @@ class OppgaveRespondentVisning {
         ];
     }
 
+    /**
+     * Alle spørsmål i oppgavens spørreskjema-kjede (for spørsmålsvelger i admin).
+     *
+     * @return array<int, array{skjema_id: int, skjema_navn: string, sporsmal_id: int, tittel: string, label: string}>
+     */
+    public static function sporsmalListeForOppgave(Oppgave $oppgave): array {
+        $liste = [];
+        foreach ($oppgave->getSkjemaKjede() as $ledd) {
+            if ($ledd->getSkjemaType() !== OppgaveSkjema::SKJEMA_VIDERESENDING) {
+                continue;
+            }
+            $skjema = $ledd->getSkjema();
+            if (!($skjema instanceof Skjema)) {
+                continue;
+            }
+            $skjemaNavn = $skjema->getNavn();
+            foreach ($skjema->getSporsmal()->getAll() as $sporsmalObj) {
+                $tittel = $sporsmalObj->getTittel();
+                $liste[] = [
+                    'skjema_id'   => $ledd->getSkjemaId(),
+                    'skjema_navn' => $skjemaNavn,
+                    'sporsmal_id' => $sporsmalObj->getId(),
+                    'tittel'      => $tittel,
+                    'label'       => $skjemaNavn . ': ' . $tittel,
+                ];
+            }
+        }
+        return $liste;
+    }
+
+    /**
+     * Svar på ett spørsmål for én respondent.
+     *
+     * @return array{sporsmal_id: int, tittel: string, linjer: array<int, array{label: string, value: string}>, foresatt_godkjent: bool|null}
+     */
+    public static function sporsmalSvarForRespondent(
+        Oppgave $oppgave,
+        DeltaRespondent $respondent,
+        int $skjemaId,
+        int $sporsmalId
+    ): array {
+        $deltaUserId = (int) $respondent->getId();
+        $personId = $oppgave->getBestPersonIdForRespondent($deltaUserId, $respondent->getMobil());
+
+        foreach ($oppgave->getSkjemaKjede() as $ledd) {
+            if ($ledd->getSkjemaType() !== OppgaveSkjema::SKJEMA_VIDERESENDING || $ledd->getSkjemaId() !== $skjemaId) {
+                continue;
+            }
+            $skjema = $ledd->getSkjema();
+            if (!($skjema instanceof Skjema)) {
+                throw new Exception('Fant ikke spørreskjema', 404);
+            }
+            foreach ($skjema->getSporsmal()->getAll() as $sporsmalObj) {
+                if ($sporsmalObj->getId() !== $sporsmalId) {
+                    continue;
+                }
+                $svarsett = self::getSvarSett($skjema, $personId);
+                $svar = null;
+                try {
+                    $svar = $svarsett->get($sporsmalId);
+                } catch (Exception $e) {
+                    // placeholder or missing
+                }
+
+                return [
+                    'sporsmal_id'         => $sporsmalId,
+                    'tittel'              => $sporsmalObj->getTittel(),
+                    'linjer'              => self::formatSvarLinjer($sporsmalObj->getType(), $svar),
+                    'foresatt_godkjent'   => $svar !== null ? $svar->isForesattGodkjent() : null,
+                ];
+            }
+            throw new Exception('Fant ikke spørsmålet i skjemaet', 404);
+        }
+        throw new Exception('Fant ikke skjemaet i oppgaven', 404);
+    }
+
     private static function indicatorForSkjema(bool $besvart, bool $foresattGodkjent, bool $is18): string {
         if (!$besvart) {
             return 'danger';
