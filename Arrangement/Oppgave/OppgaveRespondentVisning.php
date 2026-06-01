@@ -70,44 +70,63 @@ class OppgaveRespondentVisning {
     }
 
     /**
-     * Alle spørsmål i oppgavens spørreskjema-kjede (for spørsmålsvelger i admin).
+     * Alle svarbare elementer i oppgavens skjema-kjede (spørreskjema-spørsmål og samtykkeversjoner).
      *
-     * @return array<int, array{skjema_id: int, skjema_navn: string, sporsmal_id: int, tittel: string, type: string, label: string}>
+     * @return array<int, array{skjema_type: string, skjema_id: int, skjema_navn: string, sporsmal_id: int, tittel: string, type: string, label: string}>
      */
     public static function sporsmalListeForOppgave(Oppgave $oppgave): array {
         $liste = [];
         foreach ($oppgave->getSkjemaKjede() as $ledd) {
-            if ($ledd->getSkjemaType() !== OppgaveSkjema::SKJEMA_VIDERESENDING) {
-                continue;
-            }
+            $skjemaType = $ledd->getSkjemaType();
             $skjema = $ledd->getSkjema();
-            if (!($skjema instanceof Skjema)) {
+            $skjemaNavn = $skjema->getNavn();
+
+            if ($skjemaType === OppgaveSkjema::SKJEMA_SAMTYKKE && $skjema instanceof SamtykkeSkjema) {
+                foreach ($skjema->getVersjoner() as $versjon) {
+                    $beskrivelse = trim((string) ($versjon->getBeskrivelse() ?? ''));
+                    $tittel = $beskrivelse !== ''
+                        ? $beskrivelse
+                        : 'Versjon ' . $versjon->getVersjonNr();
+                    $liste[] = [
+                        'skjema_type' => $skjemaType,
+                        'skjema_id'   => $ledd->getSkjemaId(),
+                        'skjema_navn' => $skjemaNavn,
+                        'sporsmal_id' => $versjon->getId(),
+                        'tittel'      => $tittel,
+                        'type'        => 'samtykkeskjema',
+                        'label'       => $skjemaNavn . ': ' . $tittel,
+                    ];
+                }
                 continue;
             }
-            $skjemaNavn = $skjema->getNavn();
-            foreach ($skjema->getSporsmal()->getAll() as $sporsmalObj) {
-                $tittel = $sporsmalObj->getTittel();
-                $liste[] = [
-                    'skjema_id'   => $ledd->getSkjemaId(),
-                    'skjema_navn' => $skjemaNavn,
-                    'sporsmal_id' => $sporsmalObj->getId(),
-                    'tittel'      => $tittel,
-                    'type'        => $sporsmalObj->getType(),
-                    'label'       => $skjemaNavn . ': ' . $tittel,
-                ];
+
+            if ($skjemaType === OppgaveSkjema::SKJEMA_VIDERESENDING && $skjema instanceof Skjema) {
+                foreach ($skjema->getSporsmal()->getAll() as $sporsmalObj) {
+                    $tittel = $sporsmalObj->getTittel();
+                    $liste[] = [
+                        'skjema_type' => $skjemaType,
+                        'skjema_id'   => $ledd->getSkjemaId(),
+                        'skjema_navn' => $skjemaNavn,
+                        'sporsmal_id' => $sporsmalObj->getId(),
+                        'tittel'      => $tittel,
+                        'type'        => $sporsmalObj->getType(),
+                        'label'       => $skjemaNavn . ': ' . $tittel,
+                    ];
+                }
             }
         }
         return $liste;
     }
 
     /**
-     * Svar på ett spørsmål for én respondent.
+     * Svar på ett spørsmål/versjon for én respondent.
      *
      * @return array{sporsmal_id: int, tittel: string, linjer: array<int, array{label: string, value: string}>, foresatt_godkjent: bool|null}
      */
     public static function sporsmalSvarForRespondent(
         Oppgave $oppgave,
         DeltaRespondent $respondent,
+        string $skjemaType,
         int $skjemaId,
         int $sporsmalId
     ): array {
@@ -115,35 +134,114 @@ class OppgaveRespondentVisning {
         $personId = $oppgave->getBestPersonIdForRespondent($deltaUserId, $respondent->getMobil());
 
         foreach ($oppgave->getSkjemaKjede() as $ledd) {
-            if ($ledd->getSkjemaType() !== OppgaveSkjema::SKJEMA_VIDERESENDING || $ledd->getSkjemaId() !== $skjemaId) {
+            if ($ledd->getSkjemaType() !== $skjemaType || $ledd->getSkjemaId() !== $skjemaId) {
                 continue;
             }
             $skjema = $ledd->getSkjema();
-            if (!($skjema instanceof Skjema)) {
-                throw new Exception('Fant ikke spørreskjema', 404);
-            }
-            foreach ($skjema->getSporsmal()->getAll() as $sporsmalObj) {
-                if ($sporsmalObj->getId() !== $sporsmalId) {
-                    continue;
-                }
-                $svarsett = self::getSvarSett($skjema, $personId);
-                $svar = null;
-                try {
-                    $svar = $svarsett->get($sporsmalId);
-                } catch (Exception $e) {
-                    // placeholder or missing
-                }
 
-                return [
-                    'sporsmal_id'         => $sporsmalId,
-                    'tittel'              => $sporsmalObj->getTittel(),
-                    'linjer'              => self::formatSvarLinjer($sporsmalObj->getType(), $svar),
-                    'foresatt_godkjent'   => $svar !== null ? $svar->isForesattGodkjent() : null,
-                ];
+            if ($skjemaType === OppgaveSkjema::SKJEMA_SAMTYKKE && $skjema instanceof SamtykkeSkjema) {
+                return self::sporsmalSvarForSamtykkeVersjon($skjema, $deltaUserId, $sporsmalId);
             }
-            throw new Exception('Fant ikke spørsmålet i skjemaet', 404);
+
+            if ($skjemaType === OppgaveSkjema::SKJEMA_VIDERESENDING && $skjema instanceof Skjema) {
+                return self::sporsmalSvarForSporreskjemaSporsmal($skjema, $personId, $sporsmalId);
+            }
+
+            throw new Exception('Ukjent skjematype', 400);
         }
         throw new Exception('Fant ikke skjemaet i oppgaven', 404);
+    }
+
+    /**
+     * @return array{sporsmal_id: int, tittel: string, linjer: array<int, array{label: string, value: string}>, foresatt_godkjent: bool|null}
+     */
+    private static function sporsmalSvarForSamtykkeVersjon(
+        SamtykkeSkjema $skjema,
+        int $deltaUserId,
+        int $versjonId
+    ): array {
+        $versjon = $skjema->getVersjon($versjonId);
+        if ($versjon === null) {
+            throw new Exception('Fant ikke samtykkeversjonen i skjemaet', 404);
+        }
+
+        $beskrivelse = trim((string) ($versjon->getBeskrivelse() ?? ''));
+        $tittel = $beskrivelse !== ''
+            ? $beskrivelse
+            : 'Versjon ' . $versjon->getVersjonNr();
+
+        $svar = $versjon->getSvarSamtykkeForBruker($deltaUserId);
+
+        return [
+            'sporsmal_id'       => $versjonId,
+            'tittel'            => $tittel,
+            'linjer'            => self::formatSamtykkeSvarLinjer($svar, $skjema->getType()),
+            'foresatt_godkjent' => $svar !== null ? $versjon->isForesattGodkjent($deltaUserId) : null,
+        ];
+    }
+
+    /**
+     * @return array{sporsmal_id: int, tittel: string, linjer: array<int, array{label: string, value: string}>, foresatt_godkjent: bool|null}
+     */
+    private static function sporsmalSvarForSporreskjemaSporsmal(
+        Skjema $skjema,
+        int $personId,
+        int $sporsmalId
+    ): array {
+        foreach ($skjema->getSporsmal()->getAll() as $sporsmalObj) {
+            if ($sporsmalObj->getId() !== $sporsmalId) {
+                continue;
+            }
+            $svarsett = self::getSvarSett($skjema, $personId);
+            $svar = null;
+            try {
+                $svar = $svarsett->get($sporsmalId);
+            } catch (Exception $e) {
+                // placeholder or missing
+            }
+
+            return [
+                'sporsmal_id'       => $sporsmalId,
+                'tittel'            => $sporsmalObj->getTittel(),
+                'linjer'            => self::formatSvarLinjer($sporsmalObj->getType(), $svar),
+                'foresatt_godkjent' => $svar !== null ? $svar->isForesattGodkjent() : null,
+            ];
+        }
+        throw new Exception('Fant ikke spørsmålet i skjemaet', 404);
+    }
+
+    /**
+     * @return array<int, array{label: string, value: string}>
+     */
+    private static function formatSamtykkeSvarLinjer($svar, string $samtykkeType): array {
+        if ($svar === null) {
+            return [['label' => '', 'value' => '—']];
+        }
+
+        $svarVal = strtolower(trim((string) ($svar->getSvar() ?? '')));
+        $linjer = [];
+
+        if ($svarVal === 'nei') {
+            $linjer[] = ['label' => '', 'value' => 'Nei'];
+        } elseif ($svarVal === 'ja' || $svar->isSigned()) {
+            $linjer[] = ['label' => '', 'value' => 'Ja'];
+        } else {
+            $linjer[] = ['label' => '', 'value' => '—'];
+        }
+
+        if ($samtykkeType === 'med-kommentar') {
+            $kommentar = trim((string) ($svar->getKommentar() ?? ''));
+            if ($kommentar !== '') {
+                $linjer[] = ['label' => 'Kommentar', 'value' => $kommentar];
+            }
+        }
+
+        $createdAt = trim((string) ($svar->getCreatedAt() ?? ''));
+        if ($createdAt !== '') {
+            $linjer[] = ['label' => 'Tidspunkt', 'value' => $createdAt];
+        }
+
+        return $linjer;
     }
 
     /**
