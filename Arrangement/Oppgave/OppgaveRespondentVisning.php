@@ -56,6 +56,7 @@ class OppgaveRespondentVisning {
                 'navn'          => $respondent->getNavn(),
                 'etternavn'     => $respondent->getEtternavn(),
                 'mobil'          => $mobil,
+                'foresatt_navn'  => $respondent->getForesattNavn(),
                 'foresatt_mobil' => $respondent->getForesattMobil(),
                 'navn_fullt'     => $respondent->getNavnFullt(),
                 'is_18'          => $is18,

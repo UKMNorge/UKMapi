@@ -16,6 +16,8 @@ class DeltaRespondent
     public ?string $fylke = null;
     /** Navn på avsender-arrangement (videresending). */
     public ?string $arrangement = null;
+    /** Foresatts navn fra ukm_user (Delta). */
+    public ?string $foresatt_navn = null;
     /** Foresatts mobilnummer fra ukm_user (Delta). */
     public ?string $foresatt_mobil = null;
 
@@ -32,7 +34,7 @@ class DeltaRespondent
     public static function loadByMobil($mobil) : DeltaRespondent|null{
         try {
             $query = new Query(
-                "SELECT id, first_name AS navn, last_name AS etternavn, phone AS mobil, foresatt_mobil FROM ukm_user WHERE phone = '#mobil'",
+                "SELECT id, first_name AS navn, last_name AS etternavn, phone AS mobil, foresatt_navn, foresatt_mobil FROM ukm_user WHERE phone = '#mobil'",
                 ['mobil' => $mobil],
                 'ukmdelta'
             );
@@ -49,7 +51,7 @@ class DeltaRespondent
     public static function loadById($id) : DeltaRespondent|null{
         try {
             $query = new Query(
-                "SELECT id, first_name AS navn, last_name AS etternavn, phone AS mobil, foresatt_mobil FROM ukm_user WHERE id = '#id'",
+                "SELECT id, first_name AS navn, last_name AS etternavn, phone AS mobil, foresatt_navn, foresatt_mobil FROM ukm_user WHERE id = '#id'",
                 ['id' => $id],
                 'ukmdelta'
             );
@@ -67,6 +69,8 @@ class DeltaRespondent
     private static function fromDeltaRow(array $row): DeltaRespondent
     {
         $respondent = new DeltaRespondent($row['id'], $row['navn'], $row['etternavn'], $row['mobil']);
+        $foresattNavn = isset($row['foresatt_navn']) ? trim((string) $row['foresatt_navn']) : '';
+        $respondent->foresatt_navn = $foresattNavn !== '' ? $foresattNavn : null;
         $respondent->foresatt_mobil = self::formatForesattMobil($row['foresatt_mobil'] ?? null);
         return $respondent;
     }
@@ -99,6 +103,11 @@ class DeltaRespondent
     public function getMobil()
     {
         return $this->mobil;
+    }
+
+    public function getForesattNavn(): ?string
+    {
+        return $this->foresatt_navn;
     }
 
     public function getForesattMobil(): ?string
