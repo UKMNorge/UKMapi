@@ -12,6 +12,9 @@ use UKMNorge\Database\SQL\Query;
 use UKMNorge\Innslag\Personer\Person;
 use UKMNorge\Samtykkeskjema\SamtykkeSkjema;
 use UKMNorge\Samtykkeskjema\SkjemaSuper;
+use UKMNorge\Sensitivt\Requester;
+use UKMNorge\Sensitivt\Sensitivt;
+use UKMNorge\Sensitivt\Write\Intoleranse as WriteIntoleranse;
 
 /**
  * Serialiserer oppgaveliste + svar for én respondent (admin, kun visning).
@@ -69,7 +72,7 @@ class OppgaveRespondentVisning {
     /**
      * Alle spørsmål i oppgavens spørreskjema-kjede (for spørsmålsvelger i admin).
      *
-     * @return array<int, array{skjema_id: int, skjema_navn: string, sporsmal_id: int, tittel: string, label: string}>
+     * @return array<int, array{skjema_id: int, skjema_navn: string, sporsmal_id: int, tittel: string, type: string, label: string}>
      */
     public static function sporsmalListeForOppgave(Oppgave $oppgave): array {
         $liste = [];
@@ -89,6 +92,7 @@ class OppgaveRespondentVisning {
                     'skjema_navn' => $skjemaNavn,
                     'sporsmal_id' => $sporsmalObj->getId(),
                     'tittel'      => $tittel,
+                    'type'        => $sporsmalObj->getType(),
                     'label'       => $skjemaNavn . ': ' . $tittel,
                 ];
             }
@@ -140,6 +144,102 @@ class OppgaveRespondentVisning {
             throw new Exception('Fant ikke spørsmålet i skjemaet', 404);
         }
         throw new Exception('Fant ikke skjemaet i oppgaven', 404);
+    }
+
+    /**
+     * Importer intoleranser/allergier fra skjemasvar til personens sensitive data (hele systemet).
+     */
+    public static function importIntoleranserTilSensitivt(
+        Oppgave $oppgave,
+        DeltaRespondent $respondent,
+        int $skjemaId,
+        int $sporsmalId
+    ): void {
+        $personId = $oppgave->getBestPersonIdForRespondent((int) $respondent->getId(), $respondent->getMobil());
+        if ($personId < 1) {
+            throw new Exception('Fant ingen person å importere til for denne respondenten', 404);
+        }
+
+        $sporsmalObj = null;
+        $svar = null;
+
+        foreach ($oppgave->getSkjemaKjede() as $ledd) {
+            if ($ledd->getSkjemaType() !== OppgaveSkjema::SKJEMA_VIDERESENDING || $ledd->getSkjemaId() !== $skjemaId) {
+                continue;
+            }
+            $skjema = $ledd->getSkjema();
+            if (!($skjema instanceof Skjema)) {
+                throw new Exception('Fant ikke spørreskjema', 404);
+            }
+            foreach ($skjema->getSporsmal()->getAll() as $candidate) {
+                if ($candidate->getId() !== $sporsmalId) {
+                    continue;
+                }
+                if ($candidate->getType() !== 'intoleranser') {
+                    throw new Exception('Spørsmålet er ikke av typen intoleranser/allergier', 400);
+                }
+                $sporsmalObj = $candidate;
+                $svarsett = self::getSvarSett($skjema, $personId);
+                try {
+                    $svar = $svarsett->get($sporsmalId);
+                } catch (Exception $e) {
+                    // placeholder or missing
+                }
+                break 2;
+            }
+            throw new Exception('Fant ikke spørsmålet i skjemaet', 404);
+        }
+
+        if ($sporsmalObj === null) {
+            throw new Exception('Fant ikke skjemaet i oppgaven', 404);
+        }
+
+        if ($svar === null || !$svar->isAnswered()) {
+            throw new Exception('Respondenten har ikke besvart spørsmålet ennå', 400);
+        }
+
+        [$liste, $tekst] = self::parseIntoleranserSvarVerdi($svar->getValue());
+
+        Sensitivt::setRequester(
+            new Requester(
+                'wordpress',
+                (int) wp_get_current_user()->ID,
+                (int) get_option('pl_id')
+            )
+        );
+
+        $write = new WriteIntoleranse($personId);
+        $resTekst = $write->saveTekst($tekst);
+        $resListe = $write->saveListe($liste);
+
+        if (!$resTekst && $resTekst !== 0) {
+            throw new Exception('Kunne ikke lagre intoleranse-tekst', 500);
+        }
+        if (!$resListe && $resListe !== 0) {
+            throw new Exception('Kunne ikke lagre intoleranse-liste', 500);
+        }
+    }
+
+    /**
+     * @return array{0: array<int, string>, 1: string}
+     */
+    private static function parseIntoleranserSvarVerdi($value): array {
+        $obj = (object) (is_array($value) ? $value : (array) $value);
+
+        if (!empty($obj->ingen)) {
+            return [[], ''];
+        }
+
+        $liste = [];
+        if (isset($obj->liste) && is_array($obj->liste)) {
+            foreach ($obj->liste as $id) {
+                $liste[] = (string) $id;
+            }
+        }
+
+        $tekst = isset($obj->tekst) ? trim((string) $obj->tekst) : '';
+
+        return [$liste, $tekst];
     }
 
     private static function indicatorForSkjema(bool $besvart, bool $foresattGodkjent, bool $is18): string {
