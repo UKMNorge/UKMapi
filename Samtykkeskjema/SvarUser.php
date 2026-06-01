@@ -89,18 +89,33 @@ class SvarUser
         $this->id           = $row['id'];
         $this->versionId    = $row['version_id'] ?? $row['skjema_version_id'];
         $this->svar         = $row['svar'];
-        $this->kommentar    = $row['kommentar'] ?? null;
-        $this->ipAddress    = isset($row['ip_address']) ? $row['ip_address'] : null;
         $this->user         = isset($row['user']) ? $row['user'] : null;
+        $this->ipAddress    = isset($row['ip_address']) ? $row['ip_address'] : null;
         $this->createdAt = isset($row['created_at']) ? $row['created_at'] : null;
         $this->isSigned     = isset($row['is_signed']) ? (bool)$row['is_signed'] : false;
         $this->signedMethod = isset($row['signed_method']) ? $row['signed_method'] : null;
         $this->isForesatt   = isset($row['is_foresatt']) ? (bool)$row['is_foresatt'] : false;
+        $this->kommentar = $this->fetchKommentarFromBruker();
         $this->foresattIdGodkjent = isset($row['foresatt_id_godkjent']) && $row['foresatt_id_godkjent'] !== null
             ? (int) $row['foresatt_id_godkjent']
             : null;
     }
 
+    protected function fetchKommentarFromBruker() {
+        $sql = new Query("
+            SELECT `kommentar`
+            FROM `skjema_svar`
+            WHERE `user` = '#user'
+            AND `version_id` = '#version_id'
+            AND `is_foresatt` = 0",
+            [
+                'user' => $this->user,
+                'version_id' => $this->versionId
+            ]
+        );
+        $result = $sql->run('array');
+        return $result['kommentar'] ?? null;
+    }
     // Gettere
 
     public function getId()
