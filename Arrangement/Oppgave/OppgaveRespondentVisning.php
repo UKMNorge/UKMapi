@@ -298,24 +298,40 @@ class OppgaveRespondentVisning {
 
         [$liste, $tekst] = self::parseIntoleranserSvarVerdi($svar->getValue());
 
-        Sensitivt::setRequester(
-            new Requester(
-                'wordpress',
-                (int) wp_get_current_user()->ID,
-                (int) get_option('pl_id')
-            )
+        foreach(self::getAllPersonIdsByPhone($respondent->getMobil()) as $personId) {
+            Sensitivt::setRequester(
+                new Requester(
+                    'wordpress',
+                    (int) wp_get_current_user()->ID,
+                    (int) get_option('pl_id')
+                )
+            );
+
+
+            $write = new WriteIntoleranse($personId);
+            $resTekst = $write->saveTekst($tekst);
+            $resListe = $write->saveListe($liste);
+
+            if (!$resTekst && $resTekst !== 0) {
+                throw new Exception('Kunne ikke lagre intoleranse-tekst', 500);
+            }
+            if (!$resListe && $resListe !== 0) {
+                throw new Exception('Kunne ikke lagre intoleranse-liste', 500);
+            }
+        }
+    }
+
+    private static function getAllPersonIdsByPhone(string $phone): array {
+        $sql = new Query(
+            "SELECT p_id FROM `smartukm_participant` WHERE `p_phone` = '#phone'",
+            ['phone' => $phone],
         );
-
-        $write = new WriteIntoleranse($personId);
-        $resTekst = $write->saveTekst($tekst);
-        $resListe = $write->saveListe($liste);
-
-        if (!$resTekst && $resTekst !== 0) {
-            throw new Exception('Kunne ikke lagre intoleranse-tekst', 500);
+        $res = $sql->run();
+        $personIds = [];
+        while ($row = Query::fetch($res)) {
+            $personIds[] = $row['p_id'];
         }
-        if (!$resListe && $resListe !== 0) {
-            throw new Exception('Kunne ikke lagre intoleranse-liste', 500);
-        }
+        return $personIds;
     }
 
     /**
