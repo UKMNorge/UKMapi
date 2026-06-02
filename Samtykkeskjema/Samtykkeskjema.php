@@ -32,6 +32,7 @@ class SamtykkeSkjema extends SkjemaSuper {
     protected string $id;
     protected string $navn;
     protected string $type = 'vanlig';
+    protected ?string $subtype = null;
     protected array $versjoner = [];
     protected array $prosjekter = [];
     protected array $arrangementer = [];
@@ -215,6 +216,20 @@ class SamtykkeSkjema extends SkjemaSuper {
     }
 
     /**
+     * Sett undertype på samtykkeskjemaet
+     * @param string|null $subtype
+     */
+    public function setSubtype(?string $subtype): void
+    {
+        $allowed = ['standard', 'bilde_film'];
+        if ($subtype === null || $subtype === '') {
+            $this->subtype = null;
+            return;
+        }
+        $this->subtype = in_array($subtype, $allowed, true) ? $subtype : null;
+    }
+
+    /**
      * Hent ID
      * @return int
      */
@@ -236,6 +251,14 @@ class SamtykkeSkjema extends SkjemaSuper {
      */
     public function getType(): string {
         return $this->type ?: 'vanlig';
+    }
+
+    /**
+     * Hent undertype (standard, bilde_film, eller null)
+     * @return string|null
+     */
+    public function getSubtype(): ?string {
+        return $this->subtype;
     }
 
     /**
@@ -270,6 +293,7 @@ class SamtykkeSkjema extends SkjemaSuper {
         $this->id         = $row['id'];
         $this->navn     = $row['navn'];
         $this->type     = isset($row['type']) && !empty($row['type']) ? $row['type'] : 'vanlig';
+        $this->subtype  = isset($row['subtype']) && $row['subtype'] !== '' ? $row['subtype'] : null;
     }
 
     public function getProsjekter() {
@@ -435,6 +459,7 @@ class SamtykkeSkjema extends SkjemaSuper {
             'id'         => $this->getId(),
             'navn'       => $this->getNavn(),
             'type'       => $this->getType(),
+            'subtype'    => $this->getSubtype(),
             'prosjekter' => $prosjekter,
             'versjon'    => $lastVersjon ? [
                 'id'          => $lastVersjon->getId(),

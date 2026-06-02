@@ -431,10 +431,11 @@ class OppgaveRespondentVisning {
         }
 
         return [
-            'type'           => 'samtykkeskjema',
-            'samtykke_type'  => $skjema->getType(),
-            'versjoner'      => $versjoner,
-            'svar'           => $svarData,
+            'type'              => 'samtykkeskjema',
+            'samtykke_type'     => $skjema->getType(),
+            'samtykke_subtype'  => $skjema->getSubtype(),
+            'versjoner'         => $versjoner,
+            'svar'              => $svarData,
         ];
     }
 

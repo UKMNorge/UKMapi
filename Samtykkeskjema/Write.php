@@ -24,10 +24,18 @@ class Write {
      * @return SamtykkeSkjema
      * @throws Exception
      */
-    public static function create(string $navn, ?Arrangement $arrangement = null, string $type = 'vanlig'): SamtykkeSkjema {
+    public static function create(
+        string $navn,
+        ?Arrangement $arrangement = null,
+        string $type = 'vanlig',
+        ?string $subtype = null
+    ): SamtykkeSkjema {
         $sql = new Insert(SamtykkeSkjema::TABLE);
         $sql->add('navn', $navn);
         $sql->add('type', $type);
+        if ($subtype !== null && $subtype !== '') {
+            $sql->add('subtype', $subtype);
+        }
         $id = $sql->run();
 
         if(!$id) {
@@ -57,6 +65,7 @@ class Write {
         );
         $sql->add('navn', $skjema->getNavn());
         $sql->add('type', $skjema->getType());
+        $sql->add('subtype', $skjema->getSubtype());
 
         $res = $sql->run();
         if ($res === false) {
