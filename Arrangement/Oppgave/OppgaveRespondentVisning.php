@@ -88,13 +88,14 @@ class OppgaveRespondentVisning {
                         ? $beskrivelse
                         : 'Versjon ' . $versjon->getVersjonNr();
                     $liste[] = [
-                        'skjema_type' => $skjemaType,
-                        'skjema_id'   => $ledd->getSkjemaId(),
-                        'skjema_navn' => $skjemaNavn,
-                        'sporsmal_id' => $versjon->getId(),
-                        'tittel'      => $tittel,
-                        'type'        => 'samtykkeskjema',
-                        'label'       => $skjemaNavn . ': ' . $tittel,
+                        'skjema_type'    => $skjemaType,
+                        'skjema_id'      => $ledd->getSkjemaId(),
+                        'skjema_navn'    => $skjemaNavn,
+                        'skjema_subtype' => $skjema->getSubtype(),
+                        'sporsmal_id'    => $versjon->getId(),
+                        'tittel'         => $tittel,
+                        'type'           => 'samtykkeskjema',
+                        'label'          => $skjemaNavn . ': ' . $tittel,
                     ];
                 }
                 continue;
@@ -242,6 +243,58 @@ class OppgaveRespondentVisning {
         }
 
         return $linjer;
+    }
+
+    /**
+     * Importer film-/fotosamtykke fra samtykkeskjema (undertype bilde_film) til personvern for alle
+     * person-rader knyttet til respondentens mobilnummer.
+     *
+     * @return string Status-id (godkjent, ikke_godkjent, ikke_sendt)
+     */
+    public static function getStatusForImportBildeFilmSamtykkeTilPersonvern(
+        Oppgave $oppgave,
+        DeltaRespondent $respondent,
+        string $skjemaType,
+        int $skjemaId,
+        int $sporsmalId
+    ): string {
+        $deltaUserId = (int) $respondent->getId();
+
+        foreach ($oppgave->getSkjemaKjede() as $ledd) {
+            if ($ledd->getSkjemaType() !== $skjemaType || $ledd->getSkjemaId() !== $skjemaId) {
+                continue;
+            }
+            $skjema = $ledd->getSkjema();
+
+            if ($skjemaType !== OppgaveSkjema::SKJEMA_SAMTYKKE || !($skjema instanceof SamtykkeSkjema)) {
+                throw new Exception('Spørsmålet tilhører ikke et samtykkeskjema', 400);
+            }
+            if ($skjema->getSubtype() !== 'bilde_film') {
+                throw new Exception('Samtykkeskjemaet er ikke av undertypen bilde og film', 400);
+            }
+
+            $versjon = $skjema->getVersjon($sporsmalId);
+            if ($versjon === null) {
+                throw new Exception('Fant ikke samtykkeversjonen i skjemaet', 404);
+            }
+
+            $svarSamtykke = $versjon->getSvarSamtykkeForBruker($deltaUserId);
+            if ($svarSamtykke === null) {
+                throw new Exception('Respondenten har ikke besvart spørsmålet ennå', 400);
+            }
+
+            $svarVal = strtolower(trim((string) ($svarSamtykke->getSvar() ?? '')));
+            if ($svarVal === 'nei') {
+                return 'ikke_godkjent';
+            }
+            if ($svarVal === 'ja' || $svarSamtykke->isSigned()) {
+                return 'godkjent';
+            }
+
+            throw new Exception('Respondenten har ikke besvart spørsmålet ennå', 400);
+        }
+
+        throw new Exception('Fant ikke skjemaet i oppgaven', 404);
     }
 
     /**
