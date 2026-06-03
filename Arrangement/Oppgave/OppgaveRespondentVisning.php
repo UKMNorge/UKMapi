@@ -11,7 +11,9 @@ use UKMNorge\Arrangement\Skjema\SvarSett;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Innslag\Personer\Person;
 use UKMNorge\Samtykkeskjema\SamtykkeSkjema;
+use UKMNorge\Samtykkeskjema\SamtykkeVersjon;
 use UKMNorge\Samtykkeskjema\SkjemaSuper;
+use UKMNorge\Samtykkeskjema\SvarSamtykke;
 use UKMNorge\Sensitivt\Requester;
 use UKMNorge\Sensitivt\Sensitivt;
 use UKMNorge\Sensitivt\Write\Intoleranse as WriteIntoleranse;
@@ -246,10 +248,13 @@ class OppgaveRespondentVisning {
     }
 
     /**
-     * Importer film-/fotosamtykke fra samtykkeskjema (undertype bilde_film) til personvern for alle
-     * person-rader knyttet til respondentens mobilnummer.
+     * Status for import av film-/fotosamtykke til personvern (samtykke_deltaker).
      *
-     * @return string Status-id (godkjent, ikke_godkjent, ikke_sendt)
+     * @return array{
+     *     user_status: string,
+     *     foresatt_status: string|null,
+     *     foresatt_godkjent: bool
+     * }
      */
     public static function getStatusForImportBildeFilmSamtykkeTilPersonvern(
         Oppgave $oppgave,
@@ -257,8 +262,9 @@ class OppgaveRespondentVisning {
         string $skjemaType,
         int $skjemaId,
         int $sporsmalId
-    ): string {
+    ): array {
         $deltaUserId = (int) $respondent->getId();
+        $personId = $oppgave->getBestPersonIdForRespondent($deltaUserId, $respondent->getMobil());
 
         foreach ($oppgave->getSkjemaKjede() as $ledd) {
             if ($ledd->getSkjemaType() !== $skjemaType || $ledd->getSkjemaId() !== $skjemaId) {
@@ -278,23 +284,119 @@ class OppgaveRespondentVisning {
                 throw new Exception('Fant ikke samtykkeversjonen i skjemaet', 404);
             }
 
-            $svarSamtykke = $versjon->getSvarSamtykkeForBruker($deltaUserId);
-            if ($svarSamtykke === null) {
-                throw new Exception('Respondenten har ikke besvart spørsmålet ennå', 400);
-            }
-
-            $svarVal = strtolower(trim((string) ($svarSamtykke->getSvar() ?? '')));
-            if ($svarVal === 'nei') {
-                return 'ikke_godkjent';
-            }
-            if ($svarVal === 'ja' || $svarSamtykke->isSigned()) {
-                return 'godkjent';
-            }
-
-            throw new Exception('Respondenten har ikke besvart spørsmålet ennå', 400);
+            return self::resolveBildeFilmPersonvernStatus($versjon, $skjema, $deltaUserId, $personId);
         }
 
         throw new Exception('Fant ikke skjemaet i oppgaven', 404);
+    }
+
+    /**
+     * @return array{user_status: string, foresatt_status: string|null, foresatt_godkjent: bool}
+     */
+    private static function resolveBildeFilmPersonvernStatus(
+        SamtykkeVersjon $versjon,
+        SamtykkeSkjema $skjema,
+        int $deltaUserId,
+        int $personId
+    ): array {
+        [$deltakerSvar, $foresattSvar] = self::getDeltakerOgForesattSamtykkeSvar($versjon, $deltaUserId);
+
+        if ($deltakerSvar === null && $foresattSvar === null) {
+            throw new Exception('Respondenten har ikke besvart spørsmålet ennå', 400);
+        }
+
+        if ($deltakerSvar === null) {
+            $deltakerSvar = $versjon->getSvarSamtykkeForBruker($deltaUserId);
+        }
+        if ($deltakerSvar === null) {
+            throw new Exception('Respondenten har ikke besvart spørsmålet ennå', 400);
+        }
+
+        $userStatus = self::mapSamtykkeSvarTilPersonvernStatus($deltakerSvar);
+        if ($userStatus === 'ikke_sendt') {
+            throw new Exception('Respondenten har ikke besvart spørsmålet ennå', 400);
+        }
+
+        $er18Plus = self::isDeltaUser18Plus($deltaUserId, $personId);
+        $foresattGodkjent = $er18Plus
+            || $versjon->isForesattGodkjent($deltaUserId)
+            || ($foresattSvar !== null && self::mapSamtykkeSvarTilPersonvernStatus($foresattSvar) !== 'ikke_sendt');
+
+        $foresattStatus = null;
+        if (!$er18Plus) {
+            if ($foresattSvar !== null) {
+                $foresattStatus = self::mapSamtykkeSvarTilPersonvernStatus($foresattSvar);
+            } elseif ($deltakerSvar->getForesattIdGodkjent() !== null) {
+                // Foresatt har godkjent/bekreftet via deltakerens svar-rad
+                $foresattStatus = 'godkjent';
+            } else {
+                $foresattStatus = 'ikke_sendt';
+            }
+
+            if ($foresattStatus === 'ikke_sendt') {
+                $foresattGodkjent = false;
+            }
+        }
+
+        return [
+            'user_status'       => $userStatus,
+            'foresatt_status'   => $foresattStatus,
+            'foresatt_godkjent' => $foresattGodkjent,
+        ];
+    }
+
+    /**
+     * @return array{0: SvarSamtykke|null, 1: SvarSamtykke|null} [deltaker, foresatt]
+     */
+    private static function getDeltakerOgForesattSamtykkeSvar(SamtykkeVersjon $versjon, int $deltaUserId): array
+    {
+        $deltakerSvar = null;
+        $foresattSvar = null;
+
+        foreach ($versjon->getSvarSamtykke() as $svar) {
+            if ((int) $svar->getUser() !== $deltaUserId) {
+                continue;
+            }
+            if ($svar->isForesatt()) {
+                if ($foresattSvar === null || self::isNyereSamtykkeSvar($svar, $foresattSvar)) {
+                    $foresattSvar = $svar;
+                }
+            } elseif ($deltakerSvar === null || self::isNyereSamtykkeSvar($svar, $deltakerSvar)) {
+                $deltakerSvar = $svar;
+            }
+        }
+
+        return [$deltakerSvar, $foresattSvar];
+    }
+
+    private static function isNyereSamtykkeSvar(SvarSamtykke $a, SvarSamtykke $b): bool
+    {
+        $aTime = strtotime((string) $a->getCreatedAt()) ?: 0;
+        $bTime = strtotime((string) $b->getCreatedAt()) ?: 0;
+        if ($aTime !== $bTime) {
+            return $aTime > $bTime;
+        }
+        return ((int) $a->getId()) > ((int) $b->getId());
+    }
+
+    /**
+     * Mapper skjema-svar til personvern-status (samtykke_deltaker).
+     */
+    private static function mapSamtykkeSvarTilPersonvernStatus(?SvarSamtykke $svar): string
+    {
+        if ($svar === null) {
+            return 'ikke_sendt';
+        }
+
+        $svarVal = strtolower(trim((string) ($svar->getSvar() ?? '')));
+        if ($svarVal === 'nei') {
+            return 'ikke_godkjent';
+        }
+        if ($svarVal === 'ja' || $svar->isSigned()) {
+            return 'godkjent';
+        }
+
+        return 'ikke_sendt';
     }
 
     /**
