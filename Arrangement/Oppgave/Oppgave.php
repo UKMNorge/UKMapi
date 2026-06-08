@@ -97,12 +97,15 @@ class Oppgave {
      * Returnerer alle respondenter for alle skjemaer i oppgaven
      * @return array<int, DeltaRespondent> - Delta-bruker-id som nøkkel, DeltaRespondent som verdi
      */
-    public function getAlleRespondenter($withVideresending = true): array {
+    public function getAlleRespondenter($withVideresending = true, $arrangementId = null): array {
         $respondenter = [];
 
         if($this->getType() === self::TYPE_REISELEDERE) {
             $alleVideresendteArrangementer = $this->getArrangement()->getVideresending()->getAvsendere();
             foreach($alleVideresendteArrangementer as $fraArrangement) {
+                if($arrangementId && ($fraArrangement->getId() !== $arrangementId)) {
+                    continue;
+                }
                 $reiseledere = new Ledere($fraArrangement->getId(), $this->getArrangement()->getId());
                 foreach($reiseledere->getAll() as $reiseleder) {
                     $respondent = DeltaRespondent::loadByMobil($reiseleder->getMobil());
@@ -118,6 +121,9 @@ class Oppgave {
         if($withVideresending && $this->getType() === self::TYPE_VIDERESENDING) {
             $videresendingNominasjoner = VideresendingNominasjoner::getAlleTilArrangement($this->getArrangement()->getId())->getAll();
             foreach($videresendingNominasjoner as $videresendingNominasjon) {
+                if($arrangementId && ($videresendingNominasjon->getArrangementFra()->getId() !== $arrangementId)) {
+                    continue;
+                }
                 $respondent = $videresendingNominasjon->getPerson();
                 if(!$respondent) {
                     continue;
