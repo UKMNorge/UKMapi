@@ -21,6 +21,8 @@ class DeltaRespondent
     /** Foresatts mobilnummer fra ukm_user (Delta). */
     public ?string $foresatt_mobil = null;
 
+    public bool $is_real = true;
+
     public function __construct($id, $navn, $etternavn, $mobil)
     {
         $this->id = $id;
@@ -46,6 +48,17 @@ class DeltaRespondent
         } catch(Exception $e) {
             return null;
         }
+    }
+
+    public static function getWithoutExisting(?string $fornavn, ?string $etternavn, string $mobil) : DeltaRespondent {
+        $id = (int)$mobil < 1 ? static::generateRandomId() : $mobil.'5555777';
+        $respondent = new DeltaRespondent($id, $fornavn, $etternavn, $mobil);
+        $respondent->is_real = false;
+        return $respondent;
+    }
+
+    private static function generateRandomId() : int {
+        return rand(10000000000000, 999999999999999);
     }
 
     public static function loadById($id) : DeltaRespondent|null{
@@ -82,6 +95,11 @@ class DeltaRespondent
         }
         $digits = preg_replace('/\D/', '', (string) $raw);
         return $digits !== '' ? $digits : null;
+    }
+
+    public function isReal() : bool
+    {
+        return $this->is_real;
     }
 
 

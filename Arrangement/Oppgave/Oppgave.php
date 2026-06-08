@@ -101,7 +101,21 @@ class Oppgave {
         $respondenter = [];
         foreach ($this->getSkjemaKjede() as $skjema) {
             foreach ($skjema->getSkjema()->getAlleRespondenter() as $respondentId => $respondent) {
-                $respondenter[$respondentId] = $respondent;
+                $respondenter[$respondent->getMobil()] = $respondent;
+            }
+        }
+
+        if($this->getType() === self::TYPE_REISELEDERE) {
+            $alleVideresendteArrangementer = $this->getArrangement()->getVideresending()->getAvsendere();
+            foreach($alleVideresendteArrangementer as $fraArrangement) {
+                $reiseledere = new Ledere($fraArrangement->getId(), $this->getArrangement()->getId());
+                foreach($reiseledere->getAll() as $reiseleder) {
+                    $respondent = DeltaRespondent::loadByMobil($reiseleder->getMobil());
+                    if(!$respondent) {
+                        $respondent = DeltaRespondent::getWithoutExisting($reiseleder->getNavn(), '', $reiseleder->getMobil());
+                    }
+                    $respondenter[$reiseleder->getMobil()] = $respondent;
+                }
             }
         }
 
@@ -229,6 +243,113 @@ class Oppgave {
         }
         return $videresendingSkjemaer;
     }
+
+    /**
+     * Alle oppgaver (uavhengig av opprettelses-arrangement) der minst én respondent
+     * har besvart og har et innslag (smartukm_band) påmeldt `$plId`.
+     *
+     * @return self[]
+     */
+    public static function getAlleByRespondentArrangement(int $plId): array {
+        $oppgaveIdMap = [];
+
+        $sporreskjemaSql = new Query(
+            "SELECT DISTINCT `oppgave_skjema`.`oppgave_id`
+            FROM `oppgave_skjema`
+            JOIN `ukm_videresending_skjema_svar` AS `svar`
+                ON `svar`.`skjema` = `oppgave_skjema`.`skjema_id`
+            JOIN `smartukm_rel_b_p` AS `rbp`
+                ON `rbp`.`p_id` = `svar`.`p_fra`
+            JOIN `ukm_rel_arrangement_innslag` AS `rai`
+                ON `rai`.`innslag_id` = `rbp`.`b_id`
+            JOIN `smartukm_band` AS `band`
+                ON `band`.`b_id` = `rai`.`innslag_id`
+                AND `band`.`b_status` = 8
+            WHERE `oppgave_skjema`.`skjema_type` = '#sporreskjemaType'
+            AND `rai`.`arrangement_id` = '#plId'",
+            [
+                'plId' => $plId,
+                'sporreskjemaType' => OppgaveSkjema::SKJEMA_VIDERESENDING,
+            ]
+        );
+        $res = $sporreskjemaSql->run();
+        while ($row = Query::fetch($res)) {
+            $oppgaveIdMap[(int) $row['oppgave_id']] = true;
+        }
+
+        $phoneSql = new Query(
+            "SELECT DISTINCT `p`.`p_phone`
+            FROM `ukm_rel_arrangement_innslag` AS `rai`
+            JOIN `smartukm_band` AS `band`
+                ON `band`.`b_id` = `rai`.`innslag_id`
+                AND `band`.`b_status` = 8
+            JOIN `smartukm_rel_b_p` AS `rbp`
+                ON `rbp`.`b_id` = `band`.`b_id`
+            JOIN `smartukm_participant` AS `p`
+                ON `p`.`p_id` = `rbp`.`p_id`
+            WHERE `rai`.`arrangement_id` = '#plId'
+            AND `p`.`p_phone` IS NOT NULL
+            AND `p`.`p_phone` != ''",
+            ['plId' => $plId]
+        );
+        $res = $phoneSql->run();
+        $phones = [];
+        while ($row = Query::fetch($res)) {
+            $phones[] = $row['p_phone'];
+        }
+
+        if ($phones !== []) {
+            $deltaSql = new Query(
+                "SELECT `id` FROM `ukm_user` WHERE `phone` IN (#phones)",
+                ['phones' => "'" . implode("','", $phones) . "'"],
+                'ukmdelta'
+            );
+            $res = $deltaSql->run();
+            $deltaUserIds = [];
+            while ($row = Query::fetch($res)) {
+                $deltaUserIds[] = (int) $row['id'];
+            }
+
+            if ($deltaUserIds !== []) {
+                $samtykkeSql = new Query(
+                    "SELECT DISTINCT `oppgave_skjema`.`oppgave_id`
+                    FROM `oppgave_skjema`
+                    JOIN `samtykkeskjema_version` AS `version`
+                        ON `version`.`skjema_id` = `oppgave_skjema`.`skjema_id`
+                    JOIN `skjema_svar` AS `svar`
+                        ON `svar`.`version_id` = `version`.`id`
+                    WHERE `oppgave_skjema`.`skjema_type` = '#samtykkeType'
+                    AND `svar`.`user` IN (#userIds)",
+                    [
+                        'samtykkeType' => OppgaveSkjema::SKJEMA_SAMTYKKE,
+                        'userIds' => implode(',', $deltaUserIds),
+                    ]
+                );
+                $res = $samtykkeSql->run();
+                while ($row = Query::fetch($res)) {
+                    $oppgaveIdMap[(int) $row['oppgave_id']] = true;
+                }
+            }
+        }
+
+        if ($oppgaveIdMap === []) {
+            return [];
+        }
+
+        $sql = new Query(
+            self::getLoadSql() . "
+            WHERE `oppgave`.`id` IN (#oppgaveIds)
+            ORDER BY `oppgave`.`id` ASC",
+            ['oppgaveIds' => implode(',', array_keys($oppgaveIdMap))]
+        );
+        $res = $sql->run();
+        $result = [];
+        while ($row = Query::fetch($res)) {
+            $result[] = new self($row);
+        }
+        return $result;
+    }
+
 
     /**
      * Returnerer status for besvaring av oppgave-skjema-kjeden.
