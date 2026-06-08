@@ -105,12 +105,9 @@ class Oppgave {
             foreach($alleVideresendteArrangementer as $fraArrangement) {
                 $reiseledere = new Ledere($fraArrangement->getId(), $this->getArrangement()->getId());
                 foreach($reiseledere->getAll() as $reiseleder) {
-                    if(isset($respondenter[$reiseleder->getMobil()])) {
-                        continue;
-                    }
                     $respondent = DeltaRespondent::loadByMobil($reiseleder->getMobil());
                     if(!$respondent) {
-                        $respondent[$reiseleder->getMobil()] = DeltaRespondent::getWithoutExisting($reiseleder->getNavn(), '', $reiseleder->getMobil());
+                        $respondenter[$reiseleder->getMobil()] = DeltaRespondent::getWithoutExisting($reiseleder->getNavn(), '', $reiseleder->getMobil());
                     }
                     else {
                         $respondenter[$reiseleder->getMobil()] = $respondent;
