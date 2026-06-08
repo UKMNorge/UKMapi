@@ -99,26 +99,25 @@ class Oppgave {
      */
     public function getAlleRespondenter($withVideresending = true): array {
         $respondenter = [];
-        foreach ($this->getSkjemaKjede() as $skjema) {
-            foreach ($skjema->getSkjema()->getAlleRespondenter() as $respondentId => $respondent) {
-                $respondenter[$respondent->getMobil()] = $respondent;
-            }
-        }
 
         if($this->getType() === self::TYPE_REISELEDERE) {
             $alleVideresendteArrangementer = $this->getArrangement()->getVideresending()->getAvsendere();
             foreach($alleVideresendteArrangementer as $fraArrangement) {
                 $reiseledere = new Ledere($fraArrangement->getId(), $this->getArrangement()->getId());
                 foreach($reiseledere->getAll() as $reiseleder) {
+                    if(isset($respondenter[$reiseleder->getMobil()])) {
+                        continue;
+                    }
                     $respondent = DeltaRespondent::loadByMobil($reiseleder->getMobil());
                     if(!$respondent) {
-                        $respondent = DeltaRespondent::getWithoutExisting($reiseleder->getNavn(), '', $reiseleder->getMobil());
+                        $respondent[$reiseleder->getMobil()] = DeltaRespondent::getWithoutExisting($reiseleder->getNavn(), '', $reiseleder->getMobil());
                     }
-                    $respondenter[$reiseleder->getMobil()] = $respondent;
+                    else {
+                        $respondenter[$reiseleder->getMobil()] = $respondent;
+                    }
                 }
             }
         }
-
         if($withVideresending && $this->getType() === self::TYPE_VIDERESENDING) {
             $videresendingNominasjoner = VideresendingNominasjoner::getAlleTilArrangement($this->getArrangement()->getId())->getAll();
             foreach($videresendingNominasjoner as $videresendingNominasjon) {
@@ -136,6 +135,14 @@ class Oppgave {
                 }
             }
         }
+        else {
+            foreach ($this->getSkjemaKjede() as $skjema) {
+                foreach ($skjema->getSkjema()->getAlleRespondenter() as $respondentId => $respondent) {
+                    $respondenter[$respondent->getMobil()] = $respondent;
+                }
+            }
+        }
+
         return $respondenter;
     }
 
