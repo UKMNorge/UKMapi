@@ -118,7 +118,7 @@ class Oppgave {
                 }
             }
         }
-        if($withVideresending && $this->getType() === self::TYPE_VIDERESENDING) {
+        else if($withVideresending && $this->getType() === self::TYPE_VIDERESENDING) {
             $videresendingNominasjoner = VideresendingNominasjoner::getAlleTilArrangement($this->getArrangement()->getId())->getAll();
             foreach($videresendingNominasjoner as $videresendingNominasjon) {
                 if($arrangementId && ($videresendingNominasjon->getArrangementFra()->getId() !== $arrangementId)) {
