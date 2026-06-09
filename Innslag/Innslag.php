@@ -268,11 +268,19 @@ class Innslag implements HendelseItemInterface
         return $this->bilder_collection;
     }
 
-    public function getRepresentasjonBilde() {
-        return null;
+    public function getRepresentasjonBilde() : string|null {
+        // Kun på landsfestivalen
+        if($this->getContext()->getMonstring()->getType() !== 'land') {
+            return null;
+        }
+
         $bilde = $this->getBilder()->getAll();
         if(count($bilde) > 0) {
-            return $bilde[0];
+            try {
+                return $bilde[0]->getSize('thumbnail', 'medium')->getUrl();
+            } catch(Exception $e) {
+                return null;
+            }
         }
 
         return null;
