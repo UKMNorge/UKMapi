@@ -268,6 +268,16 @@ class Innslag implements HendelseItemInterface
         return $this->bilder_collection;
     }
 
+    public function getRepresentasjonBilde() {
+        return null;
+        $bilde = $this->getBilder()->getAll();
+        if(count($bilde) > 0) {
+            return $bilde[0];
+        }
+
+        return null;
+    }
+
     /**
      * Hent alle filmer fra UKM-TV (tilknyttet innslaget)
      *

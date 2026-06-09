@@ -187,7 +187,7 @@ class ObjectTransformer {
             'sjanger' => $innslag->getSjanger(),
             'beskrivelse' => $innslag->getBeskrivelse(),
             'omrade_navn' => $innslag->getOmradeNavn(),
-            'bilde' => null,
+            'bilde' => $innslag->getRepresentasjonBilde(),
         ];
                 
         try{
