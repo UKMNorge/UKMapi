@@ -11,10 +11,10 @@ use UKMNorge\Wordpress\Innlegg;
 use UKMNorge\Arrangement\Aktivitet\Aktivitet;
 use UKMNorge\Innslag\Context\Context;
 
-
 use Exception;
 use UKMNorge\Filmer\UKMTV\Film;
 use UKMNorge\Geografi\Kommune;
+use UKMNorge\Geografi\Fylke;
 use UKMNorge\Nettverk\OmradeKontaktperson;
 
 class ObjectTransformer {
@@ -94,6 +94,13 @@ class ObjectTransformer {
         $telefon = str_replace(' ', '', $telefon);
 
         return md5($navn . '_' . $telefon);
+    }
+
+    public static function fylke(Fylke $fylke) : array {
+        return [
+            'id' => $fylke->getId(),
+            'navn' => $fylke->getNavn(),
+        ];
     }
 
     public static function kommune(Kommune $kommune) : array {
