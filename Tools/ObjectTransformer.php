@@ -16,6 +16,8 @@ use UKMNorge\Filmer\UKMTV\Film;
 use UKMNorge\Geografi\Kommune;
 use UKMNorge\Geografi\Fylke;
 use UKMNorge\Nettverk\OmradeKontaktperson;
+use UKMNorge\Nettverk\OmradeKontaktpersoner;
+
 
 class ObjectTransformer {
 
@@ -52,7 +54,12 @@ class ObjectTransformer {
     public static function kontaktperson(OmradeKontaktperson $kontaktperson, bool $erUKMKontakt=false) : array {
         try {
             $beskrivelse = $erUKMKontakt ? ($kontaktperson->getBeskrivelse() ?? '') : '';
-        } catch(Exception $e) { 
+
+            if($beskrivelse == '') {
+                $omradeKontaktperson = OmradeKontaktpersoner::getByMobil($kontaktperson->getTelefon());
+                $beskrivelse = $omradeKontaktperson->getBeskrivelse();
+            }
+        } catch(Exception $e) {
             $beskrivelse = '';
         }
 
