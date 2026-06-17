@@ -46,6 +46,8 @@ class Hendelse
     var $visning = null;
     var $deltakerprogram = false;
 
+    var $place_url = null;
+
     var $collection_innslag = null;
 
     public function __construct($data){
@@ -58,6 +60,7 @@ class Hendelse
         $this->setNavn($data['c_name']);
         $this->setStart($data['c_start']);
         $this->setSted($data['c_place']);
+        $this->setPlaceUrl($data['c_place_url'] ?? null);
         $this->setMonstringId($data['pl_id']);
         $this->setSynligRammeprogram('true' == $data['c_visible_program']);
         $this->setSynligDetaljprogram('true' == $data['c_visible_detail']);
@@ -339,6 +342,28 @@ class Hendelse
     public function getSted()
     {
         return $this->sted;
+    }
+
+    /**
+     * Sett URL til sted for hendelsen
+     *
+     * @param string|null $place_url
+     * @return $this
+     **/
+    public function setPlaceUrl($place_url)
+    {
+        $this->place_url = $place_url;
+        return $this;
+    }
+
+    /**
+     * Hent URL til sted for hendelsen
+     *
+     * @return string|null $place_url
+     **/
+    public function getPlaceUrl()
+    {
+        return $this->place_url;
     }
 
     /**

@@ -120,6 +120,7 @@ class Write
         
         // Sett verdier fra original hendelse til ny hendelse
         $ny_hendelse->setSted($hendelse->getSted());
+        $ny_hendelse->setPlaceUrl($hendelse->getPlaceUrl());
         $ny_hendelse->setSynligDetaljprogram($hendelse->getSynligDetaljprogram());
         $ny_hendelse->setType($hendelse->getType());
         $ny_hendelse->setSynligRammeProgram($hendelse->getSynligRammeProgram());
@@ -233,6 +234,7 @@ class Write
         $properties = [
             'Navn'                     => ['c_name', 'String', 206],
             'Sted'                    => ['c_place', 'String', 207],
+            'PlaceUrl'                => ['c_place_url', 'String', 233],
             'Start'                    => ['c_start', 'DateTime', 208],
             'OppmoteFor'            => ['c_before', 'Int', 214],
             'OppmoteDelay'            => ['c_delay', 'Int', 215],
