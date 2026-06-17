@@ -153,6 +153,7 @@ class ObjectTransformer {
             'synlig_i_rammeprogram' => $hendelse->erSynligRammeprogram(),
             'synlig_detaljprogram' => $hendelse->erSynligDetaljprogram(),
             'sted' => $hendelse->getSted(),
+            'sted_url' => $hendelse->getPlaceUrl(),
             'er_intern' => $hendelse->getDeltakerprogram(),
             'innslag' => $innslagArr,
         ];
@@ -181,6 +182,7 @@ class ObjectTransformer {
             'synlig_i_rammeprogram' => $hendelse->erSynligRammeprogram(),
             'synlig_detaljprogram' => $hendelse->erSynligDetaljprogram(),
             'sted' => $hendelse->getSted(),
+            'sted_url' => $hendelse->getPlaceUrl(),
             'er_intern' => $hendelse->getDeltakerprogram(),
             'items' => $itemsArr,
         ];
