@@ -1,4 +1,4 @@
-`<?php
+<?php
 
 namespace UKMNorge\Samtykkeskjema;
 
@@ -405,4 +405,3 @@ class Write {
     public static function deleteSvar( SvarSamtykke $svar ) : bool {
     }
 }
-`
