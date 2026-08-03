@@ -1,11 +1,10 @@
-<?php
+`<?php
 
 namespace UKMNorge\Samtykkeskjema;
 
 use UKMNorge\Database\SQL\Insert;
 use UKMNorge\Database\SQL\Update;
 use UKMNorge\Database\SQL\Delete;
-use UKMNorge\Database\SQL\Query;
 
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Innslag\Media\Bilder\Bilde;
@@ -88,48 +87,48 @@ class Write {
         $id = $skjema->getId();
 
         // Slett svar knyttet til alle versjoner
-        $sql = new Query(
-            "DELETE s FROM `" . SvarSamtykke::TABLE . "` s
-             JOIN `" . SamtykkeVersjon::TABLE . "` v ON s.versjon_id = v.id
-             WHERE v.skjema_id = '#id'",
-            ['id' => $id]
-        );
-        $sql->run();
+        foreach ($skjema->getVersjoner() as $versjon) {
+            $delete = new Delete(
+                SvarSamtykke::TABLE,
+                ['skjema_version_id' => $versjon->getId()]
+            );
+            $delete->run();
+        }
 
         // Slett versjoner
-        $sql = new Query(
-            "DELETE FROM `" . SamtykkeVersjon::TABLE . "` WHERE `skjema_id` = '#id'",
-            ['id' => $id]
+        $delete = new Delete(
+            SamtykkeVersjon::TABLE,
+            ['skjema_id' => $id]
         );
-        $sql->run();
+        $delete->run();
 
         // Slett prosjekter
-        $sql = new Query(
-            "DELETE FROM `" . SamtykkeProsjekt::TABLE . "` WHERE `skjema_id` = '#id'",
-            ['id' => $id]
+        $delete = new Delete(
+            SamtykkeProsjekt::TABLE,
+            ['skjema_id' => $id]
         );
-        $sql->run();
+        $delete->run();
 
         // Slett entiteter
-        $sql = new Query(
-            "DELETE FROM `samtykkeskjema_entitet` WHERE `skjema_id` = '#id'",
-            ['id' => $id]
+        $delete = new Delete(
+            'samtykkeskjema_entitet',
+            ['skjema_id' => $id]
         );
-        $sql->run();
+        $delete->run();
 
         // Slett arrangement-relasjoner
-        $sql = new Query(
-            "DELETE FROM `rel_samtykkeskjema_arrangement` WHERE `skjema_id` = '#id'",
-            ['id' => $id]
+        $delete = new Delete(
+            'rel_samtykkeskjema_arrangement',
+            ['skjema_id' => $id]
         );
-        $sql->run();
+        $delete->run();
 
         // Slett selve skjemaet
-        $sql = new Query(
-            "DELETE FROM `" . SamtykkeSkjema::TABLE . "` WHERE `id` = '#id'",
+        $delete = new Delete(
+            SamtykkeSkjema::TABLE,
             ['id' => $id]
         );
-        $sql->run();
+        $delete->run();
 
         return true;
     }
@@ -406,3 +405,4 @@ class Write {
     public static function deleteSvar( SvarSamtykke $svar ) : bool {
     }
 }
+`
