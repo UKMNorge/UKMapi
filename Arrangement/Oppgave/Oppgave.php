@@ -5,6 +5,7 @@ namespace UKMNorge\Arrangement\Oppgave;
 use Exception;
 use UKMNorge\Arrangement\Arrangement;
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Innslag\Personer\Person;
 use UKMNorge\Videresending\VideresendingNominasjoner;
 use UKMNorge\Arrangement\Skjema\DeltaRespondent;
 use UKMNorge\Arrangement\Videresending\Ledere\Ledere;
@@ -15,6 +16,7 @@ class Oppgave {
     public const TYPE_VIDERESENDING = 'videresending';
     public const TYPE_REISELEDERE = 'reiseledere';
     public const TYPE_FYLKESKONTAKTER = 'fylkeskontakter';
+    public const TYPE_DELTAKERE = 'deltakere';
 
     private int $id;
     private string $name;
@@ -136,6 +138,21 @@ class Oppgave {
                     $deltaRespondent->fylke = $arrangementFra->getFylke()->getNavn();
                     $deltaRespondent->arrangement = $arrangementFra->getNavn();
                 }
+            }
+        }
+        else if($this->getType() === self::TYPE_DELTAKERE) {
+            $plId = $arrangementId ?? $this->getPlId();
+            foreach (self::getPameldtePersonerMedMobilForArrangement($plId) as $person) {
+                $mobil = (string) $person->getMobil();
+                $deltaRespondent = DeltaRespondent::loadByMobil($mobil);
+                if (!$deltaRespondent) {
+                    $deltaRespondent = DeltaRespondent::getWithoutExisting(
+                        (string) $person->getFornavn(),
+                        (string) $person->getEtternavn(),
+                        $mobil
+                    );
+                }
+                $respondenter[$mobil] = $deltaRespondent;
             }
         }
         else {
@@ -342,6 +359,17 @@ class Oppgave {
             }
         }
 
+        if (self::harPameldtePersonerMedMobilForArrangement($plId)) {
+            $deltakereSql = new Query(
+                self::getLoadSql() . " WHERE `oppgave`.`type` = '#deltakereType'",
+                ['deltakereType' => self::TYPE_DELTAKERE]
+            );
+            $res = $deltakereSql->run();
+            while ($row = Query::fetch($res)) {
+                $oppgaveIdMap[(int) $row['id']] = true;
+            }
+        }
+
         if ($oppgaveIdMap === []) {
             return [];
         }
@@ -440,7 +468,7 @@ class Oppgave {
      * @param string $phone
      * @return boolean
      */
-    public function isRespondentAllowedToAccessOppgave(string $phone): bool {
+    public function isRespondentAllowedToAccessOppgave(string $phone, ?int $arrangementId = null): bool {
         // Oppgaven er for videresending, sjekk om respondenten er videresendt til dette arrangementet
         if($this->getType() === self::TYPE_VIDERESENDING) {
             $videresendingNominasjoner = VideresendingNominasjoner::getAlleTilArrangement($this->getArrangement()->getId())->getAll();
@@ -465,6 +493,11 @@ class Oppgave {
                 }
             }
         }
+        // Oppgaven er for deltakere, sjekk om mobilen tilhører en påmeldt deltaker på arrangementet
+        elseif($this->getType() === self::TYPE_DELTAKERE) {
+            $plId = $arrangementId ?? $this->getPlId();
+            return $this->erPameldDeltakerPaArrangement($phone, $plId);
+        }
         return false;
     }
 
@@ -473,6 +506,51 @@ class Oppgave {
      */
     public function getRespondentOppgaveliste(DeltaRespondent $respondent): array {
         return OppgaveRespondentVisning::forRespondent($this, $respondent);
+    }
+
+    /**
+     * @return Person[]
+     */
+    private static function getPameldtePersonerMedMobilForArrangement(int $plId): array {
+        $arrangement = new Arrangement($plId);
+        $personer = [];
+        $settMobil = [];
+        foreach ($arrangement->getInnslag()->getAll() as $innslag) {
+            foreach ($innslag->getPersoner()->getAll() as $person) {
+                $mobil = (string) $person->getMobil();
+                if ($mobil === '' || $mobil === '0') {
+                    continue;
+                }
+                if (isset($settMobil[$mobil])) {
+                    continue;
+                }
+                $settMobil[$mobil] = true;
+                $personer[] = $person;
+            }
+        }
+        return $personer;
+    }
+
+    private static function harPameldtePersonerMedMobilForArrangement(int $plId): bool {
+        $arrangement = new Arrangement($plId);
+        foreach ($arrangement->getInnslag()->getAll() as $innslag) {
+            foreach ($innslag->getPersoner()->getAll() as $person) {
+                $mobil = (string) $person->getMobil();
+                if ($mobil !== '' && $mobil !== '0') {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private function erPameldDeltakerPaArrangement(string $phone, int $plId): bool {
+        foreach (self::getPameldtePersonerMedMobilForArrangement($plId) as $person) {
+            if ((string) $person->getMobil() === $phone) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private function getPersonIdsByMobil(string $mobil): array {
