@@ -383,7 +383,12 @@ class Oppgave {
         $res = $sql->run();
         $result = [];
         while ($row = Query::fetch($res)) {
-            $result[] = new self($row);
+            $oppgave = new self($row);
+            if($oppgave->getType() === self::TYPE_DELTAKERE) {
+                continue;
+            }
+            $result[] = $oppgave;
+            
         }
         return $result;
     }
