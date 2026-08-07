@@ -384,11 +384,16 @@ class Oppgave {
         $result = [];
         while ($row = Query::fetch($res)) {
             $oppgave = new self($row);
+            $avsendere = $oppgave->getArrangement()->getVideresending()->getAvsendere();
+            // Dersom oppgaven er for deltakere, så skal vi ikke ha med den i resultatet siden andre skal ikke ha tilgang til denne oppgaven
             if($oppgave->getType() === self::TYPE_DELTAKERE) {
                 continue;
             }
-            $result[] = $oppgave;
-            
+            foreach($avsendere as $avsender) {
+                if($avsender->getId() === $plId) {
+                    $result[] = $oppgave;
+                }
+            }
         }
         return $result;
     }
