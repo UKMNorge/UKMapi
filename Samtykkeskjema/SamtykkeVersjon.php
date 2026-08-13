@@ -88,7 +88,6 @@ class SamtykkeVersjon
         if ($bodyText !== null) $sql->add('body_text', $bodyText);
         if ($filePath !== null) $sql->add('file_path', $filePath);
 
-        var_dump($sql->debug());
         $id = $sql->run();
         return new self((int) $id);
     }
