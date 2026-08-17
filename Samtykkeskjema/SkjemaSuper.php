@@ -4,6 +4,7 @@ namespace UKMNorge\Samtykkeskjema;
 
 use UKMNorge\Innslag\Personer\Person;
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Arrangement\Oppgave\OppgaveSkjema;
 
 use Exception;
 
@@ -35,6 +36,15 @@ abstract class SkjemaSuper {
      */
     public function getNavn(): string {
         return $this->navn;
+    }
+
+    /**
+     * Verdien som brukes i oppgave_skjema.skjema_type.
+     */
+    abstract public function getOppgaveSkjemaType(): string;
+
+    public function erDelAvOppgave(): bool {
+        return OppgaveSkjema::existsFor($this->getOppgaveSkjemaType(), (int) $this->getId());
     }
 
     public function isAnswered($userId, $personId) : bool {

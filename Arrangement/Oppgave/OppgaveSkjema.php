@@ -115,6 +115,18 @@ class OppgaveSkjema {
         return $this->skjemaId;
     }
 
+    public static function existsFor(string $skjemaType, int $skjemaId): bool {
+        $sql = new Query(
+            self::getLoadSql() . ' WHERE `oppgave_skjema`.`skjema_type` = \'#skjemaType\' AND `oppgave_skjema`.`skjema_id` = \'#skjemaId\' LIMIT 1',
+            [
+                'skjemaType' => $skjemaType,
+                'skjemaId' => $skjemaId,
+            ]
+        );
+        $res = $sql->run('array');
+        return !empty($res);
+    }
+
     public function getNesteType(): ?string {
         return $this->nesteType;
     }

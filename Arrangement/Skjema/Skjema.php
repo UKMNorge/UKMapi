@@ -7,6 +7,7 @@ use UKMNorge\Arrangement\Eier;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Samtykkeskjema\SkjemaSuper;
 use UKMNorge\Arrangement\Skjema\DeltaRespondent;
+use UKMNorge\Arrangement\Oppgave\OppgaveSkjema;
 
 use Exception;
 use SporsmalColl;
@@ -253,6 +254,11 @@ class Skjema extends SkjemaSuper {
     {
         return $this->type;
     }
+
+    public function getOppgaveSkjemaType(): string {
+        return OppgaveSkjema::SKJEMA_VIDERESENDING;
+    }
+
     /**
      * Hent arrangement-ID (pl_id)
      *

@@ -9,6 +9,7 @@ use UKMNorge\Innslag\Media\Bilder\Bilde;
 use UKMNorge\Filmer\UKMTV\Film;
 use UKMNorge\Innslag\Innslag;
 use UKMNorge\Arrangement\Skjema\DeltaRespondent;
+use UKMNorge\Arrangement\Oppgave\OppgaveSkjema;
 
 use Exception;
 
@@ -251,6 +252,10 @@ class SamtykkeSkjema extends SkjemaSuper {
      */
     public function getType(): string {
         return $this->type ?: 'vanlig';
+    }
+
+    public function getOppgaveSkjemaType(): string {
+        return OppgaveSkjema::SKJEMA_SAMTYKKE;
     }
 
     /**
