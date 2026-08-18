@@ -16,4 +16,8 @@ class SvarSamtykke extends SvarUser {
     public function __construct($data) {
         parent::__construct($data);
     }
+
+    public function erSamtykkeGitt(): bool {
+        return $this->getSvar() == 'ja';
+    }
 }

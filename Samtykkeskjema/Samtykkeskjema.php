@@ -30,6 +30,8 @@ class SamtykkeSkjema extends SkjemaSuper {
     
     const TABLE = 'samtykkeskjema';
 
+    private const PERSONVERN_PROSJEKT_ID = 1; // Personvernsamtykke-prosjektet (samtykke_forside)
+
     protected string $id;
     protected string $navn;
     protected string $type = 'vanlig';
@@ -99,6 +101,52 @@ class SamtykkeSkjema extends SkjemaSuper {
             }
         }
         return $deltaRespondenter;
+    }
+
+    /**
+     * Hent samtykkeskjemaet ved ID
+     * @param int $id
+     * @return SamtykkeSkjema|null
+     */
+    public static function getById(int $id): ?self
+    {
+        $sql = new Query("
+            SELECT *
+            FROM `" . self::TABLE . "`
+            WHERE `id` = '#id'",
+            [
+                'id' => $id
+            ]
+        );
+        $row = $sql->run('array');
+        return $row ? new self($row) : null;
+    }
+
+    /**
+     * Hent personvernsamtykkeskjemaet (samtykke_forside) for en Delta-bruker.
+     * Skjemaet finnes via samtykkeskjema_prosjekt id 1.
+     * Svar lagres mot ukm_user.id (Delta), ikke p_id (pameld_user).
+     *
+     * @param int $userId Delta-bruker-ID (ukm_user.id)
+     * @return SamtykkeSkjema|null
+     */
+    public static function getPersonvernSamtykkeskjema(int $userId): ?self
+    {
+        $sql = new Query(
+            "SELECT DISTINCT s.*
+            FROM `" . self::TABLE . "` AS s
+            JOIN `" . SamtykkeProsjekt::TABLE . "` AS p ON s.id = p.skjema_id
+            JOIN `samtykkeskjema_version` AS version ON version.skjema_id = s.id
+            JOIN `skjema_svar` AS svar ON svar.version_id = version.id
+            WHERE p.id = '#prosjekt_id'
+            AND svar.user = '#user_id'",
+            [
+                'prosjekt_id' => self::PERSONVERN_PROSJEKT_ID,
+                'user_id' => $userId
+            ]
+        );
+        $row = $sql->run('array');
+        return $row ? new self($row) : null;
     }
 
     /**
