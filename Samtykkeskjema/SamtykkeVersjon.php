@@ -17,6 +17,7 @@ class SamtykkeVersjon
     protected $versjonNr;
     protected $beskrivelse;
     protected $bodyText;
+    protected $bodyHtml;
     protected $filePath;
     protected $createdAt;
     protected $arrSysUser;
@@ -65,6 +66,7 @@ class SamtykkeVersjon
         $this->versjonNr  = $row['versjon_nr'];
         $this->beskrivelse = $row['beskrivelse'] ?? null;
         $this->bodyText   = $row['body_text'] ?? null;
+        $this->bodyHtml   = $row['body_html'] ?? null;
         $this->filePath   = $row['file_path'] ?? null;
         $this->createdAt  = $row['created_at'] ?? null;
         $this->arrSysUser = $row['arr_sys_user'] ?? null;
@@ -77,15 +79,17 @@ class SamtykkeVersjon
      * @param string|null $beskrivelse
      * @param string|null $bodyText
      * @param string|null $filePath
+     * @param string|null $bodyHtml
      * @return static
      */
-    public static function create(int $skjemaId, string $versjonNr, ?string $beskrivelse = null, ?string $bodyText = null, ?string $filePath = null): self
+    public static function create(int $skjemaId, string $versjonNr, ?string $beskrivelse = null, ?string $bodyText = null, ?string $filePath = null, ?string $bodyHtml = null): self
     {
         $sql = new Insert(self::TABLE);
         $sql->add('skjema_id', $skjemaId);
         $sql->add('versjon_nr', $versjonNr);
         if ($beskrivelse !== null) $sql->add('beskrivelse', $beskrivelse);
         if ($bodyText !== null) $sql->add('body_text', $bodyText);
+        if ($bodyHtml !== null) $sql->add('body_html', $bodyHtml);
         if ($filePath !== null) $sql->add('file_path', $filePath);
 
         $id = $sql->run();
@@ -102,12 +106,14 @@ class SamtykkeVersjon
              SET `versjon_nr` = '#versjon_nr',
                  `beskrivelse` = '#beskrivelse',
                  `body_text` = '#body_text',
+                 `body_html` = '#body_html',
                  `file_path` = '#file_path'
              WHERE `id` = '#id'",
             [
                 'versjon_nr'  => $this->versjonNr,
                 'beskrivelse' => $this->beskrivelse,
                 'body_text'   => $this->bodyText,
+                'body_html'   => $this->bodyHtml,
                 'file_path'   => $this->filePath,
                 'id'          => $this->id,
             ]
@@ -121,6 +127,7 @@ class SamtykkeVersjon
     public function setVersjonNr(string $versjonNr): void { $this->versjonNr = $versjonNr; }
     public function setBeskrivelse(?string $beskrivelse): void { $this->beskrivelse = $beskrivelse; }
     public function setBodyText(?string $bodyText): void { $this->bodyText = $bodyText; }
+    public function setBodyHtml(?string $bodyHtml): void { $this->bodyHtml = $bodyHtml; }
     public function setFilePath(?string $filePath): void { $this->filePath = $filePath; }
 
     public function getSvarSamtykke() {
@@ -263,6 +270,15 @@ class SamtykkeVersjon
     public function getBodyText(): ?string
     {
         return $this->bodyText;
+    }
+
+    /**
+     * Hent HTML-innhold i samtykkeskjemaet (brukes når satt, i stedet for body_text)
+     * @return string|null
+     */
+    public function getBodyHtml(): ?string
+    {
+        return $this->bodyHtml;
     }
 
     /**

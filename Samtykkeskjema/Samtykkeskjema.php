@@ -519,6 +519,7 @@ class SamtykkeSkjema extends SkjemaSuper {
                 'versjon_nr'  => $lastVersjon->getVersjonNr(),
                 'beskrivelse' => $lastVersjon->getBeskrivelse(),
                 'body_text'   => $lastVersjon->getBodyText(),
+                'body_html'   => $lastVersjon->getBodyHtml(),
                 'file_path'   => $lastVersjon->getFilePath(),
             ] : null,
         ];

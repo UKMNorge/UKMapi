@@ -568,6 +568,7 @@ class OppgaveRespondentVisning {
             $versjoner[] = [
                 'beskrivelse' => $versjon->getBeskrivelse(),
                 'body_text'   => $versjon->getBodyText(),
+                'body_html'   => $versjon->getBodyHtml(),
             ];
         }
 
