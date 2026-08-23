@@ -11,6 +11,8 @@ class DeltaRespondent
     public $navn;
     public $etternavn;
     public $mobil;
+    public $is_18_year;
+    public $date_of_birth;
     public $videresending_nominasjon;
     /** Fylkesnavn fra avsender-arrangement (videresending). */
     public ?string $fylke = null;
@@ -23,12 +25,14 @@ class DeltaRespondent
 
     public bool $is_real = true;
 
-    public function __construct($id, $navn, $etternavn, $mobil)
+    public function __construct($id, $navn, $etternavn, $mobil, $date_of_birth, $is_18_year)
     {
         $this->id = $id;
         $this->navn = $navn;
         $this->etternavn = $etternavn;
         $this->mobil = $mobil;
+        $this->is_18_year = $is_18_year;
+        $this->date_of_birth = $date_of_birth;
         $this->videresending_nominasjon = false;
     }
 
@@ -36,10 +40,11 @@ class DeltaRespondent
     public static function loadByMobil($mobil) : DeltaRespondent|null{
         try {
             $query = new Query(
-                "SELECT id, first_name AS navn, last_name AS etternavn, phone AS mobil, foresatt_navn, foresatt_mobil FROM ukm_user WHERE phone = '#mobil'",
+                "SELECT id, first_name AS navn, last_name AS etternavn, phone AS mobil, birthdate AS birthdate, is_18_year as is_18_year, foresatt_navn, foresatt_mobil FROM ukm_user WHERE phone = '#mobil'",
                 ['mobil' => $mobil],
                 'ukmdelta'
             );
+
             $res = $query->run('array');
             if(!$res) {
                 return null;
@@ -50,9 +55,21 @@ class DeltaRespondent
         }
     }
 
-    public static function getWithoutExisting(?string $fornavn, ?string $etternavn, string $mobil) : DeltaRespondent {
+    public function is18YearNow() : bool
+    {
+        // Check date to see if they are 18 years old now
+        $date_of_birth = new \DateTime($this->date_of_birth);
+        $now = new \DateTime();
+        $age = $now->diff($date_of_birth)->y;
+        if($age == 17 && $this->is_18_year) {
+            return true;
+        }
+        return $age >= 18;
+    }
+
+    public static function getWithoutExisting(?string $fornavn, ?string $etternavn, string $mobil, string $date_of_birth, bool $is_18_year) : DeltaRespondent {
         $id = (int)$mobil < 1 ? static::generateRandomId() : $mobil.'5555777';
-        $respondent = new DeltaRespondent($id, $fornavn, $etternavn, $mobil);
+        $respondent = new DeltaRespondent($id, $fornavn, $etternavn, $mobil, $date_of_birth, $is_18_year);
         $respondent->is_real = false;
         return $respondent;
     }
@@ -64,7 +81,7 @@ class DeltaRespondent
     public static function loadById($id) : DeltaRespondent|null{
         try {
             $query = new Query(
-                "SELECT id, first_name AS navn, last_name AS etternavn, phone AS mobil, foresatt_navn, foresatt_mobil FROM ukm_user WHERE id = '#id'",
+                "SELECT id, first_name AS navn, last_name AS etternavn, phone AS mobil, birthdate AS date_of_birth, is_18_year as is_18_year, foresatt_navn, foresatt_mobil FROM ukm_user WHERE id = '#id'",
                 ['id' => $id],
                 'ukmdelta'
             );
@@ -81,10 +98,13 @@ class DeltaRespondent
 
     private static function fromDeltaRow(array $row): DeltaRespondent
     {
-        $respondent = new DeltaRespondent($row['id'], $row['navn'], $row['etternavn'], $row['mobil']);
+        $respondent = new DeltaRespondent($row['id'], $row['navn'], $row['etternavn'], $row['mobil'], $row['birthdate'], $row['is_18_year']);
         $foresattNavn = isset($row['foresatt_navn']) ? trim((string) $row['foresatt_navn']) : '';
         $respondent->foresatt_navn = $foresattNavn !== '' ? $foresattNavn : null;
         $respondent->foresatt_mobil = self::formatForesattMobil($row['foresatt_mobil'] ?? null);
+        $respondent->date_of_birth = $row['birthdate'] ?? null;
+        $respondent->is_18_year = $row['is_18_year'] ?? false;
+
         return $respondent;
     }
 
