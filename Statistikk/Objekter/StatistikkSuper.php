@@ -17,10 +17,17 @@ class StatistikkSuper {
             return "SELECT p_id, b_id ". ($withPDateOfBirth ? ', p_date_of_birth as p_dob ' : '') .
                 "FROM ukm_statistics_from_2024
                 WHERE (pl_id='#plId' OR pl_id_home='#plId')
-                AND p_id NOT IN (
-                    SELECT p_id FROM ukm_statistics_from_2024
-                    WHERE (pl_id='#plId' OR pl_id_home='#plId')
-                    AND innslag_status = 8
+                AND p_id IN (
+                    SELECT s.p_id
+                    FROM ukm_statistics_from_2024 s
+                    WHERE (s.pl_id='#plId' OR s.pl_id_home='#plId')
+                    GROUP BY s.p_id
+                    HAVING
+                        SUM(s.innslag_status_original = 8) = 0
+                        AND SUM(
+                            s.innslag_status_original != 8
+                            AND s.innslag_status_original != 77
+                        ) > 0
                 )
                 GROUP BY p_id, b_id";
         }
@@ -53,7 +60,7 @@ class StatistikkSuper {
             $retQuery .= " UNION SELECT p_id, b_id ". ($withPDateOfBirth ? ', p_date_of_birth as p_dob ' : '') .
             "FROM ukm_statistics_from_2024
             WHERE (pl_id='#plId' OR pl_id_home='#plId')
-            AND (innslag_status = 8 AND innslag_status_original == 8)
+            AND (innslag_status = 8 AND innslag_status_original = 8)
             GROUP BY p_id, b_id";
         }
 
