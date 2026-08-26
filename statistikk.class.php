@@ -388,6 +388,7 @@ class statistikk {
 					"pl_id" => $currentArrangement->getId(), // current pl_id
 					"videresending" => $videresending,
 					"innslag_status" => $innslag->getStatus() == 6 ? 8 : $innslag->getStatus(), // Hvis status er "6 - Påmeldt" bytt til "8 - Fullført" for statistikken. Status 6 innebarer at innslaget har påmeldte deltakere. Se Mangler.php 
+					"innslag_status_original" => $innslag->getStatus(), // original innslag status
 					"p_date_of_birth" => $person->getFodselsdato(),
 					"p_firstname" => $person->getFornavn(),
 				);
@@ -413,6 +414,7 @@ class statistikk {
 						"videresending" => $stats_info["videresending"], // er innslaget videresendt?
 						"season" => $stats_info["season"], // kommune-id
 						"innslag_status" => $stats_info["innslag_status"],
+						"innslag_status_original" => $stats_info["innslag_status_original"],
 						"date_of_birth" => $stats_info["p_date_of_birth"],
 					) );
 				} else {
