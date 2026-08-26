@@ -26,8 +26,8 @@ class StatistikkArrangement extends StatistikkSuper {
     *
     * @return int antall unike deltakere.
     */
-    public function getAntallUnikeDeltakere() : int {
-        return $this->runAntall(true);
+    public function getAntallUnikeDeltakere(bool $kunUfullforte = false) : int {
+        return $this->runAntall(true, $kunUfullforte);
     }
 
     /**
@@ -35,16 +35,16 @@ class StatistikkArrangement extends StatistikkSuper {
     *
     * @return int antall deltakere.
     */
-    public function getAntallDeltakere() : int {
-        return $this->runAntall();
+    public function getAntallDeltakere(bool $kunUfullforte = false) : int {
+        return $this->runAntall(false, $kunUfullforte);
     }
 
-    private function runAntall($unique = false) : int {
+    private function runAntall($unique = false, bool $kunUfullforte = false) : int {
         $select = $unique ? "COUNT(DISTINCT p_id)" : "COUNT(p_id)";
         $sql = new Query(
             "SELECT " . $select . " as antall
             FROM (
-                " . $this->getQueryArrangement($this->season) . "
+                " . $this->getQueryArrangement($this->season, false, $kunUfullforte) . "
             ) AS subquery;",
             [
                 'plId' => $this->arrangementId

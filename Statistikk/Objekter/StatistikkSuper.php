@@ -11,7 +11,7 @@ class StatistikkSuper {
 
     }
 
-    protected function getQueryArrangement(int $season, bool $withPDateOfBirth = false) : String {
+    protected function getQueryArrangement(int $season, bool $withPDateOfBirth = false, bool $kunUfullforte = false) : String {
         $retQuery = '';
         if($season > 2019) {
             $retQuery = "SELECT person_id as p_id, innslag_id as b_id ". ($withPDateOfBirth ? ', p.p_dob as p_dob ' : '') .
@@ -40,7 +40,7 @@ class StatistikkSuper {
             $retQuery .= " UNION SELECT p_id, b_id ". ($withPDateOfBirth ? ', p_date_of_birth as p_dob ' : '') .
             "FROM ukm_statistics_from_2024
             WHERE (pl_id='#plId' OR pl_id_home='#plId')
-            AND innslag_status = 8
+            AND ".($kunUfullforte ? "innslag_status = 8 AND innslag_status_original = 8" : "innslag_status = 8")."
             GROUP BY p_id, b_id";
         }
 
