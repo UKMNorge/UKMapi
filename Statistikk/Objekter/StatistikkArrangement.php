@@ -41,35 +41,15 @@ class StatistikkArrangement extends StatistikkSuper {
 
     private function runAntall($unique = false, bool $kunUfullforte = false) : int {
         $select = $unique ? "COUNT(DISTINCT p_id)" : "COUNT(p_id)";
-
-        // Ufullførte: ekskluder personer som allerede finnes blant fullførte
-        if($kunUfullforte) {
-            $sql = new Query(
-                "SELECT " . $select . " as antall
-                FROM (
-                    " . $this->getQueryArrangement($this->season, false, true) . "
-                ) AS ufullforte
-                WHERE ufullforte.p_id NOT IN (
-                    SELECT fullforte.p_id
-                    FROM (
-                        " . $this->getQueryArrangement($this->season, false, false) . "
-                    ) AS fullforte
-                );",
-                [
-                    'plId' => $this->arrangementId
-                ]
-            );
-        } else {
-            $sql = new Query(
-                "SELECT " . $select . " as antall
-                FROM (
-                    " . $this->getQueryArrangement($this->season, false, false) . "
-                ) AS subquery;",
-                [
-                    'plId' => $this->arrangementId
-                ]
-            );
-        }
+        $sql = new Query(
+            "SELECT " . $select . " as antall
+            FROM (
+                " . $this->getQueryArrangement($this->season, false, $kunUfullforte) . "
+            ) AS subquery;",
+            [
+                'plId' => $this->arrangementId
+            ]
+        );
 
         $res = $sql->run('array');
         return (int) intval($res['antall']);

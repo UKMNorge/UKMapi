@@ -12,6 +12,19 @@ class StatistikkSuper {
     }
 
     protected function getQueryArrangement(int $season, bool $withPDateOfBirth = false, bool $kunUfullforte = false) : String {
+        // Kun ufullførte: deltakere som ikke har noen rad med innslag_status=8 (per p_id)
+        if($kunUfullforte && $season > 2023) {
+            return "SELECT p_id, b_id ". ($withPDateOfBirth ? ', p_date_of_birth as p_dob ' : '') .
+                "FROM ukm_statistics_from_2024
+                WHERE (pl_id='#plId' OR pl_id_home='#plId')
+                AND p_id NOT IN (
+                    SELECT p_id FROM ukm_statistics_from_2024
+                    WHERE (pl_id='#plId' OR pl_id_home='#plId')
+                    AND innslag_status = 8
+                )
+                GROUP BY p_id, b_id";
+        }
+
         $retQuery = '';
         if($season > 2019) {
             $retQuery = "SELECT person_id as p_id, innslag_id as b_id ". ($withPDateOfBirth ? ', p.p_dob as p_dob ' : '') .
@@ -20,7 +33,7 @@ class StatistikkSuper {
                 ON `innslag`.`b_id` = `statistics_before_2024_ukm_rel_arrangement_person`.`innslag_id`
                 JOIN `statistics_before_2024_smartukm_participant` AS p on p.p_id = `statistics_before_2024_ukm_rel_arrangement_person`.`person_id`
                 WHERE `arrangement_id` = '#plId'
-                AND ". ($kunUfullforte ? "`b_status` != 8 AND `b_status` != 77" : "`b_status` = 8") ."
+                AND `b_status` = 8
                 GROUP BY p_id, b_id"; // Fordi en person kan ikke delta 2 ganger i samme innslag (b_id)
         }
         else {
@@ -31,7 +44,7 @@ class StatistikkSuper {
                 JOIN statistics_before_2024_smartukm_place arrangement ON arrangement.pl_id = pl_b.pl_id
                 JOIN statistics_before_2024_smartukm_participant AS p ON p.p_id = b_p.p_id
                 WHERE pl_b.pl_id='#plId' 
-                AND ". ($kunUfullforte ? "(b.b_status != 8 AND b.b_status != 99)" : "(b.b_status = 8 OR b.b_status = 99)") ."
+                AND (b.b_status = 8 OR b.b_status = 99)
                 GROUP BY b_p.b_id, b_p.p_id";
         }
 
@@ -40,7 +53,7 @@ class StatistikkSuper {
             $retQuery .= " UNION SELECT p_id, b_id ". ($withPDateOfBirth ? ', p_date_of_birth as p_dob ' : '') .
             "FROM ukm_statistics_from_2024
             WHERE (pl_id='#plId' OR pl_id_home='#plId')
-            AND ".($kunUfullforte ? "innslag_status != 8 AND innslag_status != 77" : "innslag_status = 8")."
+            AND (innslag_status = 8 AND innslag_status_original == 8)
             GROUP BY p_id, b_id";
         }
 
