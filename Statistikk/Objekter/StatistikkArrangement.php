@@ -40,10 +40,6 @@ class StatistikkArrangement extends StatistikkSuper {
     }
 
     private function runAntall($unique = false, bool $kunUfullforte = false) : int {
-        // Vi har ikke riktig data før 2024 for ufullførte deltakere
-        if($kunUfullforte && $this->season < 2024) {
-            return 0;
-        }
 
         $select = $unique ? "COUNT(DISTINCT p_id)" : "COUNT(p_id)";
         $sql = new Query(

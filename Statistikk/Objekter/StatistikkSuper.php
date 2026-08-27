@@ -40,7 +40,7 @@ class StatistikkSuper {
                 ON `innslag`.`b_id` = `statistics_before_2024_ukm_rel_arrangement_person`.`innslag_id`
                 JOIN `statistics_before_2024_smartukm_participant` AS p on p.p_id = `statistics_before_2024_ukm_rel_arrangement_person`.`person_id`
                 WHERE `arrangement_id` = '#plId'
-                AND `b_status` = 8
+                " . ($kunUfullforte ? "AND `b_status` != 8 AND `b_status` != 77" : "AND `b_status` = 8") . "
                 GROUP BY p_id, b_id"; // Fordi en person kan ikke delta 2 ganger i samme innslag (b_id)
         }
         else {
@@ -51,7 +51,7 @@ class StatistikkSuper {
                 JOIN statistics_before_2024_smartukm_place arrangement ON arrangement.pl_id = pl_b.pl_id
                 JOIN statistics_before_2024_smartukm_participant AS p ON p.p_id = b_p.p_id
                 WHERE pl_b.pl_id='#plId' 
-                AND (b.b_status = 8 OR b.b_status = 99)
+                " . ($kunUfullforte ? "AND b.b_status != 8 AND b.b_status != 77" : "AND (b.b_status = 8 OR b.b_status = 99)") . "
                 GROUP BY b_p.b_id, b_p.p_id";
         }
 
@@ -119,8 +119,8 @@ class StatistikkSuper {
             WHERE
                 (innslag.b_kommune IN (#k_ids) OR participant.p_kommune IN (#k_ids)) AND 
                 kommune.id IN (#k_ids) AND 
-                arrangement.season='#season' AND
-                innslag.b_status = 8
+                arrangement.season='#season' 
+                AND " . ($kunUfullforte ? "innslag.b_status != 8 AND innslag.b_status != 77" : "innslag.b_status = 8") . "
             GROUP BY 
                 p_id, b_id";
         }
@@ -139,7 +139,7 @@ class StatistikkSuper {
                 (innslag.b_kommune IN (#k_ids) OR participant.p_kommune IN (#k_ids)) AND
                 arr_kommune.`k_id` IN (#k_ids) AND 
                 arrangement.season='#season' AND 
-                (innslag.b_status = 8 OR innslag.b_status = 99)
+                " . ($kunUfullforte ? "innslag.b_status != 8 AND innslag.b_status != 77" : "(innslag.b_status = 8 OR innslag.b_status = 99)") . "
             GROUP BY arr_innslag.b_id, p_id";
         }
 
