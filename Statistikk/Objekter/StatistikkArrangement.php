@@ -66,25 +66,26 @@ class StatistikkArrangement extends StatistikkSuper {
     public function getAldersfordeling() : array {
         $arrangementDate = new DateTime($this->season.'-12-31');
         
+        // GROUP BY p_id først: samme person kan dukke opp flere ganger i UNION
+        // (før/etter 2024) med ulik p_dob, og DISTINCT p_id,p_dob telle dem dobbelt.
         $sql = new Query(
             "SELECT 
                 age, 
                 COUNT(*) AS participant_count 
-            FROM (SELECT 
-                DISTINCT p_id, 
-                p_dob,
-                TIMESTAMPDIFF(YEAR, 
-                    FROM_UNIXTIME(p_dob),
-                    FROM_UNIXTIME(#arrangementDate))
-                AS age
             FROM (
-                " . $this->getQueryArrangement($this->season, true) . "
-            ) AS subquery
-                ) AS age_subquery
-                GROUP BY 
-                    age
-                ORDER BY 
-                    age;
+                SELECT 
+                    p_id,
+                    TIMESTAMPDIFF(YEAR, 
+                        FROM_UNIXTIME(MAX(p_dob)),
+                        FROM_UNIXTIME(#arrangementDate))
+                    AS age
+                FROM (
+                    " . $this->getQueryArrangement($this->season, true) . "
+                ) AS subquery
+                GROUP BY p_id
+            ) AS age_subquery
+            GROUP BY age
+            ORDER BY age;
                 ",
                 [
                     'plId' => $this->arrangementId,
@@ -105,6 +106,7 @@ class StatistikkArrangement extends StatistikkSuper {
 
         return $retArr;
     }
+
 
     /**
      * Returnerer antall innslag i arrangementet fordelt på sjanger
