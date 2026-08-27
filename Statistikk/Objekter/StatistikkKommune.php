@@ -31,7 +31,7 @@ class StatistikkKommune extends StatistikkSuper {
     * @return int antall unike deltakere.
     */
     public function getAntallUnikeDeltakere(bool $kunUfullforte = false) : int {
-        return $this->runAntall(true);
+        return $this->runAntall(true, $kunUfullforte);
     }  
 
     /**
@@ -40,7 +40,7 @@ class StatistikkKommune extends StatistikkSuper {
     * @return int antall deltakere.
     */
     public function getAntallDeltakere(bool $kunUfullforte = false) : int {
-        return $this->runAntall();
+        return $this->runAntall(false, $kunUfullforte);
     }  
 
     private function runAntall($unique = false, bool $kunUfullforte = false) : int {
