@@ -30,7 +30,7 @@ class StatistikkKommune extends StatistikkSuper {
     *
     * @return int antall unike deltakere.
     */
-    public function getAntallUnikeDeltakere() : int {
+    public function getAntallUnikeDeltakere(bool $kunUfullforte = false) : int {
         return $this->runAntall(true);
     }  
 
@@ -39,16 +39,21 @@ class StatistikkKommune extends StatistikkSuper {
     *
     * @return int antall deltakere.
     */
-    public function getAntallDeltakere() : int {
+    public function getAntallDeltakere(bool $kunUfullforte = false) : int {
         return $this->runAntall();
     }  
 
-    private function runAntall($unique = false) : int {
+    private function runAntall($unique = false, bool $kunUfullforte = false) : int {
+        // Vi har ikke riktig data før 2024 for ufullførte deltakere
+        if($kunUfullforte && $this->season < 2024) {
+            return 0;
+        }
+
         $select = $unique ? "COUNT(DISTINCT p_id)" : "COUNT(p_id)";
         $sql = new Query(
             "SELECT " . $select . " as antall
             FROM (
-                " . $this->getQueryKommune($this->season) . "
+                " . $this->getQueryKommune($this->season, $kunUfullforte) . "
             ) AS subquery;",
             [
                 'k_ids' => $this->getAlleKommuneIds(),
