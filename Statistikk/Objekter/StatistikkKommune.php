@@ -63,27 +63,26 @@ class StatistikkKommune extends StatistikkSuper {
     public function getAldersfordeling() : array {
         $seasonDate = new DateTime($this->season.'-12-31');
 
+        // GROUP BY p_id først: samme person kan dukke opp flere ganger i UNION
+        // (før/etter 2024) med ulik p_dob, og DISTINCT p_id,p_dob telle dem dobbelt.
         $sql = new Query(
             "SELECT 
                 age, 
                 COUNT(*) AS participant_count 
-            FROM (SELECT 
-                DISTINCT participant.p_id, 
-                participant.p_dob,
-                TIMESTAMPDIFF(YEAR, 
-                    FROM_UNIXTIME(participant.p_dob),
-                    FROM_UNIXTIME(#dateSeas))
-                AS age
             FROM (
-                " . $this->getQueryKommune($this->season, true) . "
-            ) AS subquery
-                JOIN statistics_before_2024_smartukm_participant AS participant
-                ON subquery.p_id = participant.p_id
-                ) AS age_subquery
-                GROUP BY 
-                    age
-                ORDER BY 
-                    age;
+                SELECT 
+                    p_id,
+                    TIMESTAMPDIFF(YEAR, 
+                        FROM_UNIXTIME(MAX(p_dob)),
+                        FROM_UNIXTIME(#dateSeas))
+                    AS age
+                FROM (
+                    " . $this->getQueryKommune($this->season, true) . "
+                ) AS subquery
+                GROUP BY p_id
+            ) AS age_subquery
+            GROUP BY age
+            ORDER BY age;
                 ",
                 [
                     'k_ids' => $this->getAlleKommuneIds(),
