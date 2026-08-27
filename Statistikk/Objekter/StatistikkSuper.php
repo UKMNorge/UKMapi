@@ -67,10 +67,10 @@ class StatistikkSuper {
         return $retQuery;
     }
     
-    protected function getQueryKommune(int $season, bool $kunUfullforte = false) : String {
+    protected function getQueryKommune(int $season, bool $withPDateOfBirth = false, bool $kunUfullforte = false) : String {
         if($kunUfullforte && $season > 2023) {
-            return "SELECT p_id, b_id
-                FROM ukm_statistics_from_2024
+            return "SELECT p_id, b_id ". ($withPDateOfBirth ? ', p_date_of_birth as p_dob ' : '') .
+                "FROM ukm_statistics_from_2024
                 WHERE k_id IN (#k_ids)
                     AND season='#season'
                     AND fylke='false'
@@ -98,8 +98,9 @@ class StatistikkSuper {
         if($season > 2019) {
             $retQuery = "SELECT 
                 arrang_person.person_id as p_id, 
-                innslag.b_id as b_id
-            FROM 
+                innslag.b_id as b_id "
+                . ($withPDateOfBirth ? ', participant.p_dob as p_dob ' : '') .
+            "FROM 
                 statistics_before_2024_ukm_rel_arrangement_person AS arrang_person
             JOIN 
                 statistics_before_2024_smartukm_band AS innslag 
@@ -126,8 +127,9 @@ class StatistikkSuper {
         }
         // <= 2019
         else {
-            $retQuery = "SELECT participant.p_id, arr_innslag.b_id as b_id
-            FROM statistics_before_2024_smartukm_rel_pl_k AS arr_kommune
+            $retQuery = "SELECT participant.p_id, arr_innslag.b_id as b_id "
+                . ($withPDateOfBirth ? ', participant.p_dob as p_dob ' : '') .
+            "FROM statistics_before_2024_smartukm_rel_pl_k AS arr_kommune
             JOIN statistics_before_2024_smartukm_place AS arrangement ON arrangement.pl_id=arr_kommune.pl_id
             JOIN statistics_before_2024_smartukm_rel_pl_b AS arr_innslag ON arr_innslag.pl_id=arrangement.pl_id
             JOIN statistics_before_2024_smartukm_rel_b_p AS innslag_person ON innslag_person.b_id = arr_innslag.b_id
@@ -139,14 +141,15 @@ class StatistikkSuper {
                 (innslag.b_kommune IN (#k_ids) OR participant.p_kommune IN (#k_ids)) AND
                 arr_kommune.`k_id` IN (#k_ids) AND 
                 arrangement.season='#season' AND 
-                " . ($kunUfullforte ? "innslag.b_status != 8 AND innslag.b_status != 77" : "(innslag.b_status = 8 OR innslag.b_status = 99)") . "
+                (innslag.b_status = 8 OR innslag.b_status = 99)
             GROUP BY arr_innslag.b_id, p_id";
         }
 
         // If season er fra 2024
         if($season > 2023) {
             $retQuery .= " UNION SELECT p_id, b_id
-            FROM ukm_statistics_from_2024
+                " . ($withPDateOfBirth ? ', p_date_of_birth as p_dob ' : '') .
+            "FROM ukm_statistics_from_2024
             WHERE k_id IN (#k_ids) 
                 AND season='#season'
                 AND innslag_status = 8 

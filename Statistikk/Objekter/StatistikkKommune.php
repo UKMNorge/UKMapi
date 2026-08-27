@@ -48,7 +48,7 @@ class StatistikkKommune extends StatistikkSuper {
         $sql = new Query(
             "SELECT " . $select . " as antall
             FROM (
-                " . $this->getQueryKommune($this->season, $kunUfullforte) . "
+                " . $this->getQueryKommune($this->season, false, $kunUfullforte) . "
             ) AS subquery;",
             [
                 'k_ids' => $this->getAlleKommuneIds(),
@@ -75,7 +75,7 @@ class StatistikkKommune extends StatistikkSuper {
                     FROM_UNIXTIME(#dateSeas))
                 AS age
             FROM (
-                " . $this->getQueryKommune($this->season) . "
+                " . $this->getQueryKommune($this->season, true) . "
             ) AS subquery
                 JOIN statistics_before_2024_smartukm_participant AS participant
                 ON subquery.p_id = participant.p_id
