@@ -67,7 +67,33 @@ class StatistikkSuper {
         return $retQuery;
     }
     
-    protected function getQueryKommune(int $season) : String {
+    protected function getQueryKommune(int $season, bool $kunUfullforte = false) : String {
+        if($kunUfullforte && $season > 2023) {
+            return "SELECT p_id, b_id
+                FROM ukm_statistics_from_2024
+                WHERE k_id IN (#k_ids)
+                    AND season='#season'
+                    AND fylke='false'
+                    AND land='false'
+                AND p_id IN (
+                    SELECT s.p_id
+                    FROM ukm_statistics_from_2024 s
+                    WHERE s.k_id IN (#k_ids)
+                        AND s.season='#season'
+                        AND s.fylke='false'
+                        AND s.land='false'
+                    GROUP BY s.p_id
+                    HAVING
+                        SUM(s.innslag_status_original = 8) = 0
+                        AND SUM(
+                            s.innslag_status_original != 8
+                            AND s.innslag_status_original != 77
+                        ) > 0
+                )
+                GROUP BY p_id, b_id";
+        }
+
+
         $retQuery = '';
         if($season > 2019) {
             $retQuery = "SELECT 
