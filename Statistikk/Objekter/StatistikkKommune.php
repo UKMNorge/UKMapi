@@ -192,10 +192,15 @@ class StatistikkKommune extends StatistikkSuper {
     /**
      * Returnerer kjønnsfordeling i kommune
      * 
-     * @param int $season
      * @return string SQL spørring
      */
     public function getKjonnsfordeling() {
+        if($this->season > 2023) {
+            $joinQuery = "JOIN ukm_statistics_from_2024 AS statOut ON statOut.p_id = subquery.p_id AND statOut.b_id = subquery.b_id";
+        } else {
+            $joinQuery = "JOIN statistics_before_2024_smartukm_participant AS statOut ON statOut.p_id = subquery.p_id";
+        }
+
         $sql = new Query(
             "SELECT *
             FROM (
@@ -203,8 +208,7 @@ class StatistikkKommune extends StatistikkSuper {
                 FROM (
                     " . $this->getQueryKommune($this->season) . "
                     ) AS subquery
-                JOIN ukm_statistics_from_2024 AS statOut
-                    ON statOut.p_id = subquery.p_id AND statOut.b_id = subquery.b_id
+                " . $joinQuery . "
             ) AS subqueryout;
             ",
             [
@@ -235,65 +239,33 @@ class StatistikkKommune extends StatistikkSuper {
      * @return array[] An array of arrays with keys 'antall' and 'type_navn'.
     */
     public function getSjangerFordeling() : array {
-        // > 2019 innslag fra ukm_rel_arrangement_person og fra juli 2024 brukes tabellen ukm_statistics_from_2024
-        if($this->season > 2019) {
-            $sql = new Query("SELECT 
-                DISTINCT innslag.b_id, 
-                innslag.bt_id, 
-                innslag.b_kategori, 
-                arrpers.arrangement_id
-            FROM statistics_before_2024_ukm_rel_arrangement_person AS arrpers 
-            JOIN statistics_before_2024_smartukm_band AS innslag ON innslag.b_id=arrpers.innslag_id 
-            JOIN statistics_before_2024_smartukm_place AS place ON place.pl_id=arrpers.arrangement_id
-            JOIN statistics_before_2024_smartukm_rel_pl_k AS rel_kommune ON rel_kommune.pl_id=place.pl_id
-            JOIN smartukm_kommune AS kommune ON kommune.id=rel_kommune.k_id
-            WHERE kommune.id IN (#k_ids) AND 
-                innslag.b_kommune IN (#k_ids) AND
-                place.season='#season' AND 
-                innslag.b_status = 8
-
-            UNION 
-
-            SELECT DISTINCT 
-                stat.b_id as b_id, 
-                stat.bt_id as bt_id, 
-                stat.b_kategori as b_kategori, 
-                stat.pl_id as arrangement_id
-            FROM ukm_statistics_from_2024 AS stat 
-            WHERE 
-                stat.k_id IN (#k_ids)
-                AND stat.fylke='false'
-                AND stat.season='#season' 
-                AND stat.innslag_status = 8",
-                [
-                    'k_ids' => $this->getAlleKommuneIds(),
-                    'season' => $this->season
-                ]
-            );
+        if($this->season > 2023) {
+            $joinQuery = "JOIN ukm_statistics_from_2024 AS stat ON stat.b_id = subquery.b_id GROUP BY subquery.b_id";
+        } else {
+            $joinQuery = "JOIN statistics_before_2024_smartukm_band AS stat ON stat.b_id = subquery.b_id";
         }
-        // Before 2019 brukes statistics_before_2024_smartukm_rel_pl_b tabell
-        else {
-            $sql = new Query("SELECT
-                    DISTINCT innslag.b_id,
-                    innslag.bt_id,
-                    innslag.b_kategori,
-                    rel_pl_b.pl_id
-                FROM 
-                    statistics_before_2024_smartukm_band AS innslag
-                JOIN statistics_before_2024_smartukm_rel_pl_b AS rel_pl_b ON rel_pl_b.b_id = innslag.b_id
-                JOIN statistics_before_2024_smartukm_place as place on place.pl_id=rel_pl_b.pl_id
-                JOIN statistics_before_2024_smartukm_rel_pl_k AS rel_kommune ON rel_kommune.pl_id=place.pl_id
-                JOIN smartukm_kommune AS kommune ON kommune.id=rel_kommune.k_id
-                WHERE kommune.id IN (#k_ids) AND 
-                    innslag.b_kommune IN (#k_ids) AND 
-                    (innslag.b_status = 8 OR innslag.b_status = 99) AND 
-                    place.season='#season'",
-                    [
-                    'k_ids' => $this->getAlleKommuneIds(),
-                    'season' => $this->season
-                ]
-            );
-        }
+        
+        $sql = new Query("
+            SELECT
+                DISTINCT subqueryOut.b_id,
+                subqueryOut.b_kategori,
+                subqueryOut.bt_id
+            FROM (
+                SELECT
+                    subquery.b_id AS b_id,
+                    stat.b_kategori AS b_kategori,
+                    stat.bt_id AS bt_id
+                FROM (
+                " . $this->getQueryKommune($this->season) . "
+                ) AS subquery
+                " . $joinQuery . "
+            ) AS subqueryOut
+            ",
+            [
+                'k_ids' => $this->getAlleKommuneIds(),
+                'season' => $this->season
+            ]
+        );
 
         $retArr = [];
         $innslagArr = [];
