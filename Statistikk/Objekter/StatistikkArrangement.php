@@ -111,60 +111,36 @@ class StatistikkArrangement extends StatistikkSuper {
 
     /**
      * Returnerer antall innslag i arrangementet fordelt på sjanger
-     * 
-     * OBS: det brukes sesong år og 31. desember som dato når deltakere deltok i arrangementet.
      *
-     * @return array[]
+     * @return array[] An array of arrays with keys 'antall' and 'type_navn'.
     */
     public function getSjangerfordeling() : array {
-
-        // > 2019 innslag fra ukm_rel_arrangement_person og fra juli 2024 brukes tabellen ukm_statistics_from_2024
-        if($this->season > 2019) {
-            $sql = new Query("SELECT 
-                        DISTINCT innslag.b_id,
-                        innslag.bt_id,
-                        innslag.b_kategori,
-                        arrpers.arrangement_id
-                    FROM statistics_before_2024_ukm_rel_arrangement_person AS arrpers
-                    JOIN statistics_before_2024_smartukm_band AS innslag ON innslag.b_id=arrpers.innslag_id
-                    WHERE arrpers.arrangement_id='#plId' AND innslag.b_status = 8
-                    
-                    UNION
-            
-                    SELECT 
-                        DISTINCT b_id,
-                        bt_id,
-                        b_kategori,
-                        pl_id
-                    FROM 
-                        ukm_statistics_from_2024 AS stat
-                    WHERE 
-                        pl_id='#plId' OR pl_id_home='#plId'
-                        AND innslag_status = 8",
-                [
-                    'plId' => $this->arrangementId,
-                ]
-            );
-        }
-        // Before 2019 brukes statistics_before_2024_smartukm_rel_pl_b tabell
-        else {
-            $sql = new Query("SELECT
-                    DISTINCT innslag.b_id,
-                    innslag.bt_id,
-                    innslag.b_kategori,
-                    rel_pl_b.pl_id
-                    FROM 
-                        statistics_before_2024_smartukm_band AS innslag
-                    JOIN statistics_before_2024_smartukm_rel_pl_b AS rel_pl_b ON rel_pl_b.b_id = innslag.b_id
-                    WHERE rel_pl_b.pl_id='#plId' AND (innslag.b_status = 8 OR innslag.b_status = 99)
-                ",
-                [
-                    'plId' => $this->arrangementId,
-                ]
-            );
+        if($this->season > 2023) {
+            $joinQuery = "JOIN ukm_statistics_from_2024 AS stat ON stat.b_id = subquery.b_id GROUP BY subquery.b_id";
+        } else {
+            $joinQuery = "JOIN statistics_before_2024_smartukm_band AS stat ON stat.b_id = subquery.b_id";
         }
 
-
+        $sql = new Query("
+            SELECT
+                DISTINCT subqueryOut.b_id,
+                subqueryOut.b_kategori,
+                subqueryOut.bt_id
+            FROM (
+                SELECT
+                    subquery.b_id AS b_id,
+                    stat.b_kategori AS b_kategori,
+                    stat.bt_id AS bt_id
+                FROM (
+                " . $this->getQueryArrangement($this->season) . "
+                ) AS subquery
+                " . $joinQuery . "
+            ) AS subqueryOut
+            ",
+            [
+                'plId' => $this->arrangementId,
+            ]
+        );
 
         $retArr = [];
         $innslagArr = [];
