@@ -197,14 +197,15 @@ class StatistikkKommune extends StatistikkSuper {
      */
     public function getKjonnsfordeling() {
         $sql = new Query(
-            "SELECT p_id, firstname  
+            "SELECT *
             FROM (
-                SELECT participant.p_id, participant.p_firstname as firstname
+                SELECT DISTINCT subquery.p_id, statOut.p_firstname as firstname
                 FROM (
                     " . $this->getQueryKommune($this->season) . "
                     ) AS subquery
-                JOIN statistics_before_2024_smartukm_participant AS participant ON participant.p_id=subquery.p_id
-            ) AS subqueryOut GROUP BY p_id;
+                JOIN ukm_statistics_from_2024 AS statOut
+                    ON statOut.p_id = subquery.p_id AND statOut.b_id = subquery.b_id
+            ) AS subqueryout;
             ",
             [
                 'k_ids' => $this->getAlleKommuneIds(),
