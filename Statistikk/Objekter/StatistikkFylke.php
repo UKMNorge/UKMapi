@@ -192,44 +192,59 @@ class StatistikkFylke extends StatistikkSuper {
     /**
      * Gjennomsnitt deltaekre per fylke
      * 
-     * Eksempel: 120 deltakere i Agder
      * 
      * @return string SQL spørring
      */
-    public function getGjennomsnittDeltakereIFylke($season) : int {
-        $sql = new Query("
-            SELECT COUNT(distinct p_id) as antall
-            FROM (
-                SELECT 
-                    innslag_person.p_id AS p_id
-                FROM
-                    statistics_before_2024_smartukm_rel_pl_k AS arr_kommune
-                    JOIN statistics_before_2024_smartukm_place AS arrangement ON arrangement.pl_id = arr_kommune.pl_id
-                    JOIN statistics_before_2024_smartukm_rel_pl_b AS arr_innslag ON arr_innslag.pl_id = arrangement.pl_id
-                    JOIN statistics_before_2024_smartukm_rel_b_p AS innslag_person ON innslag_person.b_id = arr_innslag.b_id
-                    JOIN statistics_before_2024_smartukm_band AS innslag ON innslag.b_id = arr_innslag.b_id
-                    JOIN smartukm_kommune AS kommune ON kommune.id = arr_kommune.k_id
-                WHERE 
-                    kommune.idfylke = '#fylke_id' 
-                    AND arrangement.season = '#season' 
-                    AND (innslag.b_status = 8 OR innslag.b_status = 99)
-          
-                
-                UNION ALL
-                
-                SELECT 
-                    usf.p_id AS p_id
-                FROM
-                    ukm_statistics_from_2024 AS usf
-                    JOIN smartukm_kommune AS kommune ON kommune.id = usf.k_id
-                WHERE 
-                    kommune.idfylke = '#fylke_id' 
-                    AND usf.season = '#season'
-            ) as sub
-        ", [
-            'fylke_id' => $this->fylke->getId(),
-            'season' => $season
-        ]);
+    public function getGjennomsnittDeltakereIAlleFylker($season) : int {
+        if($this->season > 2023) {
+            // Do not include test fylke og digital fylke i gjennomsnittet
+            $sql = new Query("
+            SELECT AVG(antall) AS gjennomsnitt
+                FROM (
+                    SELECT
+                        f_id,
+                        COUNT(DISTINCT p_id) AS antall
+                    FROM ukm_statistics_from_2024
+                    WHERE season = '#season'
+                    AND innslag_status = 8
+                    AND innslag_status_original = 8
+                    AND fylke = 'false'
+                    AND land = 'false'
+                    AND f_id != 92
+                    AND f_id != 21
+                    GROUP BY f_id
+                ) AS per_fylke;
+            ", [
+                'season' => $season
+            ]);
+
+            $res = $sql->run('array');
+            return (int) intval($res['gjennomsnitt']);
+        } else {
+            // Innenfor sesong 2023 og tidligere må gjennomsnittet implementeres her
+            return 0;
+            // $sql = new Query("
+            //     SELECT COUNT(distinct p_id) as antall
+            //     FROM (
+            //         SELECT 
+            //             innslag_person.p_id AS p_id
+            //         FROM
+            //             statistics_before_2024_smartukm_rel_pl_k AS arr_kommune
+            //             JOIN statistics_before_2024_smartukm_place AS arrangement ON arrangement.pl_id = arr_kommune.pl_id
+            //             JOIN statistics_before_2024_smartukm_rel_pl_b AS arr_innslag ON arr_innslag.pl_id = arrangement.pl_id
+            //             JOIN statistics_before_2024_smartukm_rel_b_p AS innslag_person ON innslag_person.b_id = arr_innslag.b_id
+            //             JOIN statistics_before_2024_smartukm_band AS innslag ON innslag.b_id = arr_innslag.b_id
+            //             JOIN smartukm_kommune AS kommune ON kommune.id = arr_kommune.k_id
+            //         WHERE 
+            //             kommune.idfylke = '#fylke_id' 
+            //             AND arrangement.season = '#season' 
+            //             AND (innslag.b_status = 8 OR innslag.b_status = 99)
+            //     ) as sub
+            // ", [
+            //     'fylke_id' => $this->fylke->getId(),
+            //     'season' => $season
+            // ]);
+        }
 
         $res = $sql->run('array');
         return (int) intval($res['antall']);
