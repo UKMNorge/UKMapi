@@ -165,14 +165,40 @@ class StatistikkSuper {
 
     // FYLKE
     // OBS: Det hentes innslag fra kommuner i fylke og ikke fylke arrangerte arrangementer. Dette gjøres fordi kommuner videresender innslag til fylke, derfor representerer kommuner best hvilke innslag som er fra fylket.
-    protected function getQueryFylke(int $season) : String {
+    protected function getQueryFylke(int $season, bool $withPDateOfBirth = false, bool $kunUfullforte = false) : String {
+        if($kunUfullforte && $season > 2023) {
+            return "SELECT p_id, b_id ". ($withPDateOfBirth ? ', p_date_of_birth as p_dob ' : '') .
+                "FROM ukm_statistics_from_2024
+                WHERE f_id='#fylke_id'
+                    AND season='#season'
+                    AND fylke='false'
+                    AND land='false'
+                AND p_id IN (
+                    SELECT s.p_id
+                    FROM ukm_statistics_from_2024 s
+                    WHERE s.f_id='#fylke_id'
+                        AND s.season='#season'
+                        AND s.fylke='false'
+                        AND s.land='false'
+                    GROUP BY s.p_id
+                    HAVING
+                        SUM(s.innslag_status_original = 8) = 0
+                        AND SUM(
+                            s.innslag_status_original != 8
+                            AND s.innslag_status_original != 77
+                        ) > 0
+                )
+                GROUP BY p_id, b_id";
+        }
+        
         $retQuery = '';
         // >2019
         if($season > 2019) {
             $retQuery = "SELECT 
                 arrang_person.person_id as p_id, 
-                innslag.b_id as b_id
-            FROM 
+                innslag.b_id as b_id " 
+                . ($withPDateOfBirth ? ', participant.p_dob as p_dob ' : '') .
+            "FROM 
                 statistics_before_2024_ukm_rel_arrangement_person AS arrang_person
             JOIN 
                 statistics_before_2024_smartukm_band AS innslag 
@@ -186,17 +212,21 @@ class StatistikkSuper {
             JOIN 
                 statistics_before_2024_smartukm_place AS arrangement 
                 ON arrangement.pl_id = arrang_person.arrangement_id
+            JOIN 
+                statistics_before_2024_smartukm_participant AS participant
+                ON participant.p_id = arrang_person.person_id
             WHERE 
                 kommune.id IN (#kommuner_ids) AND 
                 arrangement.season='#season' AND
-                innslag.b_status = 8
+                " . ($kunUfullforte ? "innslag.b_status != 8 AND innslag.b_status != 77" : "innslag.b_status = 8") . "
             GROUP BY 
                 p_id, b_id";
         }
         // <= 2019
         else {
-            $retQuery = "SELECT p_id, arr_innslag.b_id as b_id
-            FROM statistics_before_2024_smartukm_rel_pl_k AS arr_kommune
+            $retQuery = "SELECT p_id, arr_innslag.b_id as b_id " 
+            . ($withPDateOfBirth ? ', participant.p_dob as p_dob ' : '') .
+            "FROM statistics_before_2024_smartukm_rel_pl_k AS arr_kommune
             JOIN statistics_before_2024_smartukm_place AS arrangement ON arrangement.pl_id=arr_kommune.pl_id
             JOIN statistics_before_2024_smartukm_rel_pl_b AS arr_innslag ON arr_innslag.pl_id=arrangement.pl_id
             JOIN statistics_before_2024_smartukm_rel_b_p AS innslag_person ON innslag_person.b_id = arr_innslag.b_id
@@ -204,10 +234,13 @@ class StatistikkSuper {
             JOIN 
                 smartukm_kommune AS kommune 
                 ON kommune.id = arr_kommune.k_id
+            JOIN 
+                statistics_before_2024_smartukm_participant AS participant
+                ON participant.p_id = innslag_person.p_id
             WHERE kommune.id IN (#kommuner_ids) AND 
             arrangement.season='#season' AND 
-            (innslag.b_status = 8 OR innslag.b_status = 99)
-            GROUP BY arr_innslag.b_id, p_id";
+            " . ($kunUfullforte ? "innslag.b_status != 8 AND innslag.b_status != 77" : "(innslag.b_status = 8 OR innslag.b_status = 99)") . "
+            GROUP BY participant.p_id, arr_innslag.b_id";
         }
 
         // If season er fra 2024
@@ -218,7 +251,8 @@ class StatistikkSuper {
             WHERE f_id='#fylke_id' 
             AND fylke='false'
             AND land='false'
-            AND innslag_status=8
+            AND innslag_status = 8 
+            AND innslag_status_original = 8
             AND season='#season'";
         }
 
