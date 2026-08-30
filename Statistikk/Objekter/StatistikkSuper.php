@@ -141,8 +141,8 @@ class StatistikkSuper {
                 (innslag.b_kommune IN (#k_ids) OR participant.p_kommune IN (#k_ids)) AND
                 arr_kommune.`k_id` IN (#k_ids) AND 
                 arrangement.season='#season' AND 
-                (innslag.b_status = 8 OR innslag.b_status = 99)
-            GROUP BY arr_innslag.b_id, p_id";
+                " . ($kunUfullforte ? "innslag.b_status != 8 AND innslag.b_status != 77" : "(innslag.b_status = 8 OR innslag.b_status = 99)") . "
+            GROUP BY participant.p_id, arr_innslag.b_id";
         }
 
         // If season er fra 2024
