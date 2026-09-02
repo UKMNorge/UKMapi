@@ -201,11 +201,13 @@ class ObjectTransformer {
             ));
         }
 
+        $type = $innslag->getType() ? $innslag->getType()->getNavn() : 'Ukjent type';
+        
         $obj = [
             'object_type' => 'innslag',
             'id' => $innslag->getId(),
-            'navn' => $innslag->getNavn(),
-            'type' => $innslag->getType() ? $innslag->getType()->getNavn() : 'Ukjent type',
+            'navn' => $arrangement && !$arrangement->erDeltakereSynlig() ? $type . ' innslag' : $innslag->getNavn(),
+            'type' => $type,
             'sjanger' => $innslag->getSjanger(),
             'beskrivelse' => $innslag->getBeskrivelse(),
             'omrade_navn' => $innslag->getOmradeNavn(),
