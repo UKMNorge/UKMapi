@@ -67,7 +67,7 @@ class DeltaRespondent
         return $age >= 18;
     }
 
-    public static function getWithoutExisting(?string $fornavn, ?string $etternavn, string $mobil, string $date_of_birth, bool $is_18_year) : DeltaRespondent {
+    public static function getWithoutExisting(?string $fornavn, ?string $etternavn, string $mobil, ?string $date_of_birth = '0', bool $is_18_year = false) : DeltaRespondent {
         $id = (int)$mobil < 1 ? static::generateRandomId() : $mobil.'5555777';
         $respondent = new DeltaRespondent($id, $fornavn, $etternavn, $mobil, $date_of_birth, $is_18_year);
         $respondent->is_real = false;
