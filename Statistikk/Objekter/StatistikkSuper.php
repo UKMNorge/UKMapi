@@ -359,7 +359,7 @@ class StatistikkSuper {
             SELECT p_id, b_id
             FROM ukm_statistics_from_2024
             WHERE season='#season' AND ".
-            ($kunUfullforte ? "innslag_status != 8 AND innslag_status != 77" : "innslag_status = 8");
+            ($kunUfullforte ? "innslag_status != 8 AND innslag_status != 77" : "innslag_status = 8 && innslag_status_original = 8");
         }
 
         return $retQuery;
