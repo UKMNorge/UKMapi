@@ -2,9 +2,9 @@
 namespace UKMNorge\Samtykke;
 
 class Status {
-	var $id = null;
-	var $timestamp = null;
-	var $ip = null;
+	public $id = null;
+	public $timestamp = null;
+	public $ip = null;
 	
 	public function __construct( $id, $timestamp, $ip ) {
 		$this->id = $id;
