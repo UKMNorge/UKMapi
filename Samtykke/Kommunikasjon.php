@@ -81,6 +81,7 @@ class Kommunikasjon {
         switch( $melding_type ) {
             case 'samtykke':
             case 'samtykke_foresatt':
+            case 'ombestemtsamtykkeskjemadelta':
             case 'ombestemt':
                 if( $this->har( $melding_type ) ) {
                     $melding = $this->get( $melding_type);

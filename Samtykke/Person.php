@@ -150,26 +150,26 @@ class Person {
     public function getMobil() {
         return $this->mobil;
     }
+    
+    public function erSamtykkeGittFult() {
+        $samtykkeSvar = $this->getSvarSamtykke();
+
+        // Bruker ikke den nye løsningen, sjekk om brukeren har svart nei til samtykket eller foresatten har svart nei til samtykket.
+        if($samtykkeSvar == null) {
+            if( $this->getStatus()->getId() == 'ikke_godkjent' ) {
+                return true;
+            }
+            if( $this->harForesatt() && $this->getForesatt()->getStatus()->getId() == 'ikke_godkjent' ) {
+                return true;
+            }
+        }
+        // Den nye løsningen
+        return $samtykkeSvar->erSamtykkeGittMedForesattSjekk();
+    }
+
     public function getStatus() {
         if($this->getSvarSamtykke() != null) {
-            if($this->getKategori()->getId() == 'o18') {
-                return new StatusDeltaUser($this->getSvarSamtykke()->erSamtykkeGitt() ? 'godkjent' : 'ikke_godkjent', 0, $this->getSvarSamtykke()->getIpAddress());
-            }
-            // Under 18 år, sjekk om foresatten har godkjent samtykket
-            else {
-                $deltaUserSamtykke = $this->getSvarSamtykke()->erSamtykkeGitt() ? 'godkjent' : 'ikke_godkjent';
-                $foresattSamtykke = $this->getSvarSamtykke()->getForesattIdGodkjent() != null ? 'godkjent' : 'ikke_godkjent';
-
-                if($deltaUserSamtykke == 'godkjent' && $foresattSamtykke == 'godkjent') {
-                    return new StatusDeltaUser('godkjent', 0, $this->getSvarSamtykke()->getIpAddress());
-                }
-                else if($deltaUserSamtykke == 'ikke_godkjent' || $foresattSamtykke == 'ikke_godkjent') {
-                    return new StatusDeltaUser('ikke_godkjent', 0, $this->getSvarSamtykke()->getIpAddress());
-                }
-                else {
-                    return new StatusDeltaUser('ikke_sendt', 0, $this->getSvarSamtykke()->getIpAddress());
-                }
-            }
+            return $this->getSvarSamtykke()->erSamtykkeGittMedForesattSjekk() ? 'godkjent' : 'ikke_godkjent';
         }
         return $this->status;
     }
