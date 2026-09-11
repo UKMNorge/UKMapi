@@ -11,9 +11,6 @@ use UKMNorge\Database\SQL\Update;
 use UKMNorge\Innslag\Context\Innslag as InnslagContext;
 use UKMNorge\Innslag\Innslag;
 use UKMNorge\Innslag\Personer\Person as InnslagPerson;
-use UKMNorge\Arrangement\Skjema\DeltaRespondent;
-use UKMNorge\Samtykkeskjema\SamtykkeSkjema;
-use UKMNorge\Samtykkeskjema\SvarSamtykke;
 
 require_once('UKM/Autoloader.php');
 
@@ -35,35 +32,25 @@ class Person {
     var $kommunikasjon = null;
     
     var $attr = null;
-    private $svarSamtykke = null; // SvarSamtykke fra nytt samtykkeskjema-system.
     
     public function __construct( $person, $innslag, $year=null ) {
-        // Sjekk hvis brukeren bruker har brukt ny samtykkeskjema-løsning. Fra slutten av 2026, brukes en ny løsning. Se SkjemaSuper.php for mer informasjon.
-        // Den nye løsningen bruker ikke innslag siden samtykkeskjemaet ikke er knyttet til innslag.
-        $svarSamtykke = $this->getPersonvernSamtykkeskjemaSvar($person);
-        if($svarSamtykke != null) {
-            $this->svarSamtykke = $svarSamtykke;
-        }
-        else {
-            if( $innslag != false ) {
-                if( !Innslag::validateClass( $innslag ) && !InnslagContext::validateClass($innslag) ) {
-                    throw new Exception(
-                        'Samtykke\Person krever Innslag eller Context\Innslag som parameter 2',
-                        113001
-                    );
-                }
-                if( Innslag::validateClass( $innslag ) ) {
-                    $year = $innslag->getSesong();
-                }
-                if( empty($year) ) {
-                    throw new Exception(
-                        'Samtykke\Person krever sesong som 3. parameter når innslag er Context\Innslag',
-                        113002
-                    );
-                }
+        if( $innslag != false ) {
+            if( !Innslag::validateClass( $innslag ) && !InnslagContext::validateClass($innslag) ) {
+                throw new Exception(
+                    'Samtykke\Person krever Innslag eller Context\Innslag som parameter 2',
+                    113001
+                );
+            }
+            if( Innslag::validateClass( $innslag ) ) {
+                $year = $innslag->getSesong();
+            }
+            if( empty($year) ) {
+                throw new Exception(
+                    'Samtykke\Person krever sesong som 3. parameter når innslag er Context\Innslag',
+                    113002
+                );
             }
         }
-    
         $this->attr = [];
         $this->person = $person;
         $row = $this->_createIfNotExists( $person, $year );
@@ -72,34 +59,6 @@ class Person {
         if( $innslag != false ) {
             $this->leggTilInnslag( $innslag->getId() );
         }
-    }
-
-    public function getSvarSamtykke() : null|SvarSamtykke {
-        if($this->svarSamtykke == null) {
-            $this->svarSamtykke = $this->getPersonvernSamtykkeskjemaSvar($this->person);
-        }
-        return $this->svarSamtykke;
-    }
-
-    private function getPersonvernSamtykkeskjemaSvar($person) : null|SvarSamtykke {
-        $deltaRespondent = DeltaRespondent::loadByMobil($person->getMobil());
-        
-        if( $deltaRespondent == null ) {
-            return null;
-        }
-        
-        $deltaUserId = $deltaRespondent->getId();
-
-        $samtykkeSkjema = SamtykkeSkjema::getPersonvernSamtykkeskjema($deltaRespondent->getId());
-
-        if($samtykkeSkjema == null) {
-            return null;
-        }
-
-        $versjon = $samtykkeSkjema->getLastVersion();
-        $svar = $versjon->getSvarSamtykkeForBruker($deltaUserId);
-
-        return $svar;
     }
     
     public static function getById( $samtykke_id ) {
@@ -150,27 +109,7 @@ class Person {
     public function getMobil() {
         return $this->mobil;
     }
-    
-    public function erSamtykkeGittFult() {
-        $samtykkeSvar = $this->getSvarSamtykke();
-
-        // Bruker ikke den nye løsningen, sjekk om brukeren har svart nei til samtykket eller foresatten har svart nei til samtykket.
-        if($samtykkeSvar == null) {
-            if( $this->getStatus()->getId() == 'ikke_godkjent' ) {
-                return true;
-            }
-            if( $this->harForesatt() && $this->getForesatt()->getStatus()->getId() == 'ikke_godkjent' ) {
-                return true;
-            }
-        }
-        // Den nye løsningen
-        return $samtykkeSvar->erSamtykkeGittMedForesattSjekk();
-    }
-
     public function getStatus() {
-        if($this->getSvarSamtykke() != null) {
-            return $this->getSvarSamtykke()->erSamtykkeGittMedForesattSjekk() ? 'godkjent' : 'ikke_godkjent';
-        }
         return $this->status;
     }
     public function getForesatt() {

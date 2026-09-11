@@ -12,7 +12,6 @@ use UKMNorge\Database\SQL\Insert;
 class SMS {
 	const LINK = 'https://sys.ukm.no/personvern/pamelding/?id=%link_id';
 	const LINK_FORESATT = 'https://sys.ukm.no/personvern/pamelding/?id=%link_id&foresatt=true';
-	const LINK_DELTA = 'https://delta.ukm.no/ukmid/samtykkeskjema/'. PERSONVERN_PROSJEKT_ID .'/';
     
     /**
      * Send en melding til en person
@@ -67,9 +66,6 @@ class SMS {
             case 'purring_foresatt':
                 $melding_id = 'purring_foresatt';
                 break;
-			case 'ombestemtsamtykkeskjemadelta':
-				$melding_id = 'ombestemtsamtykkeskjemadelta';
-				break;
             case 'ombestemt':
                 $melding_id = 'ombestemt';
                 break;

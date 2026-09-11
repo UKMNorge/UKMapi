@@ -11,15 +11,16 @@ class Innslag {
 
     public function __construct( $innslag ) {
         foreach( $innslag->getPersoner()->getAll() as $person ) {
-            $samtykkePerson = new Person( $person, $innslag );
+            $samtykke = new Person( $person, $innslag );
 
-            if($samtykkePerson->erSamtykkeGittFult()) {
-                $this->countJa++;
-            } else {
+            if( $samtykke->getStatus()->getId() == 'ikke_godkjent' ) {
+                $this->countNei++;
+            }
+            if( $samtykke->harForesatt() && $samtykke->getForesatt()->getStatus()->getId() == 'ikke_godkjent' ) {
                 $this->countNei++;
             }
 
-            $this->samtykker[] = $samtykkePerson;
+            $this->samtykker[] = $samtykke;
         }
     }
 
