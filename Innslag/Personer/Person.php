@@ -11,7 +11,9 @@ use UKMNorge\Innslag\Typer\Typer;
 use UKMNorge\Sensitivt\Person as PersonSensitivt;
 use UKMNorge\Wordpress\User;
 use UKMNorge\Tools\Sanitizer;
-
+use UKMNorge\Arrangement\Skjema\DeltaRespondent;
+use UKMNorge\Samtykkeskjema\SamtykkeSkjema;
+use UKMNorge\Samtykkeskjema\SvarSamtykke;
 
 require_once('UKM/Autoloader.php');
 
@@ -755,6 +757,31 @@ class Person
             );
         }
     }
+
+    /**
+     * Hent samtykke for bilder og filmer
+     *
+     * @return SvarSamtykke|null
+     */
+    public function getPersonvernSamtykkeskjemaSvar() : ?SvarSamtykke {
+        $deltaUser = DeltaRespondent::loadByMobil($this->getMobil());
+        if ($deltaUser === null) {
+            return null;
+        }
+
+        $samtykkeSkjema = SamtykkeSkjema::getPersonvernSamtykkeskjema((int) $deltaUser->getId());
+        if ($samtykkeSkjema === null) {
+            return null;
+        }
+
+        $versjon = $samtykkeSkjema->getLastVersion();
+        if ($versjon === null) {
+            return null;
+        }
+
+        return $versjon->getSvarSamtykkeForBruker($deltaUser->getId());
+    }
+
 
     /**
      * Last inn info fra databasen

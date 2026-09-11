@@ -57,7 +57,10 @@ class DeltaRespondent
 
     public function is18YearNow() : bool
     {
-        // Check date to see if they are 18 years old now
+        if (empty($this->date_of_birth) || $this->date_of_birth === '0') {
+            return (bool) $this->is_18_year;
+        }
+
         $date_of_birth = new \DateTime($this->date_of_birth);
         $now = new \DateTime();
         $age = $now->diff($date_of_birth)->y;
@@ -98,11 +101,12 @@ class DeltaRespondent
 
     private static function fromDeltaRow(array $row): DeltaRespondent
     {
-        $respondent = new DeltaRespondent($row['id'], $row['navn'], $row['etternavn'], $row['mobil'], $row['birthdate'], $row['is_18_year']);
+        $birthdate = $row['birthdate'] ?? $row['date_of_birth'] ?? null;
+        $respondent = new DeltaRespondent($row['id'], $row['navn'], $row['etternavn'], $row['mobil'], $birthdate, $row['is_18_year'] ?? false);
         $foresattNavn = isset($row['foresatt_navn']) ? trim((string) $row['foresatt_navn']) : '';
         $respondent->foresatt_navn = $foresattNavn !== '' ? $foresattNavn : null;
         $respondent->foresatt_mobil = self::formatForesattMobil($row['foresatt_mobil'] ?? null);
-        $respondent->date_of_birth = $row['birthdate'] ?? null;
+        $respondent->date_of_birth = $birthdate;
         $respondent->is_18_year = $row['is_18_year'] ?? false;
 
         return $respondent;
