@@ -155,6 +155,11 @@ class SvarBeskjed
         return $this->createdAt;
     }
 
+    public function getCreatedAtTimestamp(): int
+    {
+        return $this->createdAt ? strtotime($this->createdAt) : 0;
+    }
+
     public function getRolle(): string
     {
         return $this->rolle;
