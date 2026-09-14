@@ -11,6 +11,8 @@ require_once('UKM/Autoloader.php');
 class Meldinger {
     public static function getById( $melding_id ) {
         switch( $melding_id ) {
+            case 'ombestemtsamtykkeskjemadelta':
+                return new Ombestemtsamtykkeskjemadelta();
             case 'ombestemt':
                 return new Ombestemt();
             case 'deltaker':

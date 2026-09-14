@@ -176,6 +176,10 @@ class SvarUser
         return $this->foresattIdGodkjent;
     }
 
+    public function hasForesattGodkjent(): bool {
+        return $this->foresattIdGodkjent != null;
+    }
+
     public function setForesattIdGodkjent(?int $foresattIdGodkjent): self
     {
         $this->foresattIdGodkjent = $foresattIdGodkjent;
