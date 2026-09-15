@@ -10,6 +10,7 @@ use UKMNorge\Arrangement\Skjema\Svar;
 use UKMNorge\Arrangement\Skjema\SvarSett;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Innslag\Personer\Person;
+use UKMNorge\Samtykkeskjema\BeskjedSuper;
 use UKMNorge\Samtykkeskjema\OppgaveBeskjed;
 use UKMNorge\Samtykkeskjema\SamtykkeSkjema;
 use UKMNorge\Samtykkeskjema\SamtykkeVersjon;
@@ -56,34 +57,49 @@ class OppgaveRespondentVisning {
                 'name'        => $oppgave->getName(),
                 'description' => $oppgave->getDescription(),
             ],
-            'respondent' => [
-                'id'            => $deltaUserId,
-                'delta_user_id' => $deltaUserId,
-                'navn'          => $respondent->getNavn(),
-                'etternavn'     => $respondent->getEtternavn(),
-                'mobil'          => $mobil,
-                'foresatt_navn'  => $respondent->getForesattNavn(),
-                'foresatt_mobil' => $respondent->getForesattMobil(),
-                'navn_fullt'     => $respondent->getNavnFullt(),
-                'is_18'          => $is18,
-                'siste_beskjed'  => self::sisteBeskjedForRespondent($oppgave, $respondent),
-            ],
+            'respondent' => array_merge(
+                [
+                    'id'            => $deltaUserId,
+                    'delta_user_id' => $deltaUserId,
+                    'navn'          => $respondent->getNavn(),
+                    'etternavn'     => $respondent->getEtternavn(),
+                    'mobil'          => $mobil,
+                    'foresatt_navn'  => $respondent->getForesattNavn(),
+                    'foresatt_mobil' => $respondent->getForesattMobil(),
+                    'navn_fullt'     => $respondent->getNavnFullt(),
+                    'is_18'          => $is18,
+                ],
+                self::beskjederForRespondent($oppgave, $respondent)
+            ),
             'person_id' => $personId,
             'kjede'     => $kjede,
         ];
     }
 
     /**
-     * @return array{id: int, melding: string, rolle: string, phone: string, created_at: string|null, created_at_ts: int, sendt_siste_dogn: bool}|null
+     * @return array{
+     *     siste_beskjed: array{id: int, melding: string, rolle: string, phone: string, created_at: string|null, created_at_ts: int, sendt_siste_dogn: bool}|null,
+     *     siste_beskjed_deltaker: array{id: int, melding: string, rolle: string, phone: string, created_at: string|null, created_at_ts: int, sendt_siste_dogn: bool}|null,
+     *     siste_beskjed_foresatt: array{id: int, melding: string, rolle: string, phone: string, created_at: string|null, created_at_ts: int, sendt_siste_dogn: bool}|null
+     * }
      */
-    private static function sisteBeskjedForRespondent(Oppgave $oppgave, DeltaRespondent $respondent): ?array
+    private static function beskjederForRespondent(Oppgave $oppgave, DeltaRespondent $respondent): array
     {
-        $beskjed = OppgaveBeskjed::velgSisteForTelefoner(
-            OppgaveBeskjed::getSistePerTelefonForOppgave($oppgave),
-            [(string) $respondent->getMobil(), (string) $respondent->getForesattMobil()]
+        $etterRolle = OppgaveBeskjed::getSistePerTelefonEtterRolleForOppgave($oppgave);
+        $deltaker = OppgaveBeskjed::velgSisteForTelefoner(
+            $etterRolle[BeskjedSuper::ROLLE_DELTAKER] ?? [],
+            [(string) $respondent->getMobil()]
+        );
+        $foresatt = OppgaveBeskjed::velgSisteForTelefoner(
+            $etterRolle[BeskjedSuper::ROLLE_FORESATT] ?? [],
+            [(string) $respondent->getForesattMobil()]
         );
 
-        return $beskjed?->toArray();
+        return [
+            'siste_beskjed'          => OppgaveBeskjed::velgNyeste($deltaker, $foresatt)?->toArray(),
+            'siste_beskjed_deltaker' => $deltaker?->toArray(),
+            'siste_beskjed_foresatt' => $foresatt?->toArray(),
+        ];
     }
 
     /**

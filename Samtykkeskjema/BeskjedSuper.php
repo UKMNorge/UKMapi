@@ -158,6 +158,51 @@ abstract class BeskjedSuper implements BeskjedInterface
     }
 
     /**
+     * Siste beskjed per telefonnummer, gruppert på rolle.
+     *
+     * @param int|object $parent
+     * @return array{deltaker: array<string, static>, foresatt: array<string, static>}
+     */
+    public static function getSistePerTelefonEtterRolle($parent): array
+    {
+        $siste = [
+            self::ROLLE_DELTAKER => [],
+            self::ROLLE_FORESATT => [],
+        ];
+        foreach (static::getAllFor($parent) as $beskjed) {
+            $rolle = $beskjed->getRolle();
+            if (!isset($siste[$rolle])) {
+                continue;
+            }
+            $key = static::normalizePhone($beskjed->getPhone());
+            if ($key === '' || isset($siste[$rolle][$key])) {
+                continue;
+            }
+            $siste[$rolle][$key] = $beskjed;
+        }
+
+        return $siste;
+    }
+
+    public static function velgNyeste(?self $a, ?self $b): ?static
+    {
+        if ($a === null) {
+            return $b;
+        }
+        if ($b === null) {
+            return $a;
+        }
+        if (
+            $b->getCreatedAtTimestamp() > $a->getCreatedAtTimestamp()
+            || ($b->getCreatedAtTimestamp() === $a->getCreatedAtTimestamp() && $b->getId() > $a->getId())
+        ) {
+            return $b;
+        }
+
+        return $a;
+    }
+
+    /**
      * @param array<string, static> $sistePerTelefon
      * @param string[] $telefoner
      */

@@ -60,4 +60,13 @@ class OppgaveBeskjed extends BeskjedSuper
     {
         return parent::getSistePerTelefon($oppgave, $rolle);
     }
+
+    /**
+     * @param int|Oppgave $oppgave
+     * @return array{deltaker: array<string, self>, foresatt: array<string, self>}
+     */
+    public static function getSistePerTelefonEtterRolleForOppgave($oppgave): array
+    {
+        return parent::getSistePerTelefonEtterRolle($oppgave);
+    }
 }

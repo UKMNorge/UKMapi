@@ -452,6 +452,14 @@ class Oppgave {
         return $maxStatus;
     }
 
+    public function erOppgaveFulfort($mobil): bool {
+        return $this->getOppgaveBesvartStatusByMobil($mobil) === 3;
+    }
+
+    public function erVenterForesatt($mobil): bool {
+        return $this->getOppgaveBesvartStatusByMobil($mobil) === 2;
+    }
+
     /**
      * Velger person_id med høyest besvaringsstatus (samme logikk som status-endepunkt).
      */
