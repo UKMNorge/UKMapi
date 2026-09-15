@@ -10,6 +10,7 @@ use UKMNorge\Arrangement\Skjema\Svar;
 use UKMNorge\Arrangement\Skjema\SvarSett;
 use UKMNorge\Database\SQL\Query;
 use UKMNorge\Innslag\Personer\Person;
+use UKMNorge\Samtykkeskjema\OppgaveBeskjed;
 use UKMNorge\Samtykkeskjema\SamtykkeSkjema;
 use UKMNorge\Samtykkeskjema\SamtykkeVersjon;
 use UKMNorge\Samtykkeskjema\SkjemaSuper;
@@ -65,10 +66,24 @@ class OppgaveRespondentVisning {
                 'foresatt_mobil' => $respondent->getForesattMobil(),
                 'navn_fullt'     => $respondent->getNavnFullt(),
                 'is_18'          => $is18,
+                'siste_beskjed'  => self::sisteBeskjedForRespondent($oppgave, $respondent),
             ],
             'person_id' => $personId,
             'kjede'     => $kjede,
         ];
+    }
+
+    /**
+     * @return array{id: int, melding: string, rolle: string, phone: string, created_at: string|null, created_at_ts: int, sendt_siste_dogn: bool}|null
+     */
+    private static function sisteBeskjedForRespondent(Oppgave $oppgave, DeltaRespondent $respondent): ?array
+    {
+        $beskjed = OppgaveBeskjed::velgSisteForTelefoner(
+            OppgaveBeskjed::getSistePerTelefonForOppgave($oppgave),
+            [(string) $respondent->getMobil(), (string) $respondent->getForesattMobil()]
+        );
+
+        return $beskjed?->toArray();
     }
 
     /**

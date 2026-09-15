@@ -17,6 +17,7 @@ abstract class BeskjedSuper implements BeskjedInterface
 {
     const ROLLE_DELTAKER = 'deltaker';
     const ROLLE_FORESATT = 'foresatt';
+    const VENTETID_SEKUNDER = 86400;
 
     protected $id;
     protected $parentId;
@@ -134,6 +135,81 @@ abstract class BeskjedSuper implements BeskjedInterface
         }
 
         return new static($row);
+    }
+
+    /**
+     * Siste beskjed per telefonnummer (kun siffer). Nyeste først fra getAllFor.
+     *
+     * @param int|object $parent
+     * @return array<string, static>
+     */
+    public static function getSistePerTelefon($parent, ?string $rolle = null): array
+    {
+        $siste = [];
+        foreach (static::getAllFor($parent, $rolle) as $beskjed) {
+            $key = static::normalizePhone($beskjed->getPhone());
+            if ($key === '' || isset($siste[$key])) {
+                continue;
+            }
+            $siste[$key] = $beskjed;
+        }
+
+        return $siste;
+    }
+
+    /**
+     * @param array<string, static> $sistePerTelefon
+     * @param string[] $telefoner
+     */
+    public static function velgSisteForTelefoner(array $sistePerTelefon, array $telefoner): ?static
+    {
+        $valgt = null;
+        foreach ($telefoner as $phone) {
+            $key = static::normalizePhone((string) $phone);
+            if ($key === '' || !isset($sistePerTelefon[$key])) {
+                continue;
+            }
+            $kandidat = $sistePerTelefon[$key];
+            if (
+                $valgt === null
+                || $kandidat->getCreatedAtTimestamp() > $valgt->getCreatedAtTimestamp()
+                || (
+                    $kandidat->getCreatedAtTimestamp() === $valgt->getCreatedAtTimestamp()
+                    && $kandidat->getId() > $valgt->getId()
+                )
+            ) {
+                $valgt = $kandidat;
+            }
+        }
+
+        return $valgt;
+    }
+
+    public static function normalizePhone(string $phone): string
+    {
+        return (string) preg_replace('/\D/', '', $phone);
+    }
+
+    public function erSendtSisteDogn(): bool
+    {
+        $ts = $this->getCreatedAtTimestamp();
+        return $ts > 0 && $ts > (time() - self::VENTETID_SEKUNDER);
+    }
+
+    /**
+     * @return array{id: int, melding: string, rolle: string, phone: string, created_at: string|null, created_at_ts: int, sendt_siste_dogn: bool}
+     */
+    public function toArray(): array
+    {
+        return [
+            'id'               => $this->getId(),
+            'melding'          => $this->getMessage(),
+            'rolle'            => $this->getRolle(),
+            'phone'            => $this->getPhone(),
+            'created_at'       => $this->getCreatedAt(),
+            'created_at_ts'    => $this->getCreatedAtTimestamp(),
+            'sendt_siste_dogn' => $this->erSendtSisteDogn(),
+        ];
     }
 
     public function getId(): int
