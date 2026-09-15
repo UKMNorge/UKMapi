@@ -404,4 +404,52 @@ class Write {
      */
     public static function deleteSvar( SvarSamtykke $svar ) : bool {
     }
+
+
+    /********************************************************************************
+     *
+     * BESKJED / SMS
+     *
+     ********************************************************************************/
+
+    /**
+     * Registrer at en SMS er sendt til deltaker eller foresatt.
+     *
+     * @param SvarUser $svar
+     * @param string $rolle 'deltaker' eller 'foresatt'
+     * @param string $message
+     * @param string $phone
+     * @return SvarBeskjed
+     * @throws Exception
+     */
+    public static function registrerBeskjed(SvarUser $svar, string $rolle, string $message, string $phone): SvarBeskjed
+    {
+        $skjemaSvarId = (int) $svar->getId();
+        $rolle = SvarBeskjed::validateRolle($rolle);
+        $message = trim($message);
+        $phone = trim($phone);
+
+        if ($skjemaSvarId < 1) {
+            throw new Exception('Kan ikke registrere SMS uten gyldig skjema_svar_id.');
+        }
+        if ($message === '') {
+            throw new Exception('Kan ikke registrere SMS uten melding.');
+        }
+        if ($phone === '') {
+            throw new Exception('Kan ikke registrere SMS uten telefonnummer.');
+        }
+
+        $sql = new Insert(SvarBeskjed::TABLE);
+        $sql->add('skjema_svar_id', $skjemaSvarId);
+        $sql->add('rolle', $rolle);
+        $sql->add('message', $message);
+        $sql->add('phone', $phone);
+
+        $id = $sql->run();
+        if (!$id) {
+            throw new Exception('Kunne ikke registrere SMS-beskjed.');
+        }
+
+        return new SvarBeskjed((int) $id);
+    }
 }
