@@ -7,6 +7,7 @@ use UKMNorge\Database\SQL\Update;
 use UKMNorge\Database\SQL\Delete;
 
 use UKMNorge\Arrangement\Arrangement;
+use UKMNorge\Arrangement\Oppgave\Oppgave;
 use UKMNorge\Innslag\Media\Bilder\Bilde;
 use UKMNorge\Filmer\UKMTV\Film;
 use UKMNorge\Innslag\Innslag;
@@ -413,7 +414,7 @@ class Write {
      ********************************************************************************/
 
     /**
-     * Registrer at en SMS er sendt til deltaker eller foresatt.
+     * Registrer at en beskjed (SMS) er sendt til deltaker eller foresatt for et skjema-svar.
      *
      * @param SvarUser $svar
      * @param string $rolle 'deltaker' eller 'foresatt'
@@ -422,15 +423,38 @@ class Write {
      * @return SvarBeskjed
      * @throws Exception
      */
-    public static function registrerBeskjed(SvarUser $svar, string $rolle, string $message, string $phone): SvarBeskjed
+    public static function registrerSvarBeskjed(SvarUser $svar, string $rolle, string $message, string $phone): SvarBeskjed
     {
-        $skjemaSvarId = (int) $svar->getId();
-        $rolle = SvarBeskjed::validateRolle($rolle);
+        return self::insertBeskjed(SvarBeskjed::class, $svar->getId(), $rolle, $message, $phone);
+    }
+
+    /**
+     * Registrer at en beskjed (SMS) er sendt til deltaker eller foresatt for en oppgave.
+     *
+     * @param Oppgave $oppgave
+     * @param string $rolle 'deltaker' eller 'foresatt'
+     * @param string $message
+     * @param string $phone
+     * @return OppgaveBeskjed
+     * @throws Exception
+     */
+    public static function registrerOppgaveBeskjed(Oppgave $oppgave, string $rolle, string $message, string $phone): OppgaveBeskjed
+    {
+        return self::insertBeskjed(OppgaveBeskjed::class, $oppgave->getId(), $rolle, $message, $phone);
+    }
+
+    /**
+     * @param class-string<BeskjedSuper> $beskjedClass
+     * @return BeskjedSuper
+     */
+    private static function insertBeskjed(string $beskjedClass, int $parentId, string $rolle, string $message, string $phone)
+    {
+        $rolle = $beskjedClass::validateRolle($rolle);
         $message = trim($message);
         $phone = trim($phone);
 
-        if ($skjemaSvarId < 1) {
-            throw new Exception('Kan ikke registrere SMS uten gyldig skjema_svar_id.');
+        if ($parentId < 1) {
+            throw new Exception('Kan ikke registrere SMS uten gyldig ' . $beskjedClass::getParentIdColumn() . '.');
         }
         if ($message === '') {
             throw new Exception('Kan ikke registrere SMS uten melding.');
@@ -439,8 +463,8 @@ class Write {
             throw new Exception('Kan ikke registrere SMS uten telefonnummer.');
         }
 
-        $sql = new Insert(SvarBeskjed::TABLE);
-        $sql->add('skjema_svar_id', $skjemaSvarId);
+        $sql = new Insert($beskjedClass::getTable());
+        $sql->add($beskjedClass::getParentIdColumn(), $parentId);
         $sql->add('rolle', $rolle);
         $sql->add('message', $message);
         $sql->add('phone', $phone);
@@ -450,6 +474,6 @@ class Write {
             throw new Exception('Kunne ikke registrere SMS-beskjed.');
         }
 
-        return new SvarBeskjed((int) $id);
+        return new $beskjedClass((int) $id);
     }
 }
