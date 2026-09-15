@@ -31,26 +31,19 @@ class Kategorier {
     public static function getFromPerson( $person ) {
         self::_init();
         
-        if($person->getAlderTall() < 18) {
-            $id = 'u18';
-        }
-        else {
-            $id = 'o18';
-        }
 
         // Under 13 år (tom 12)
-		// if( $person->getAlderTall() < 13 ) {
-        //     $id = 'u13';
-        // }
-		// // Under 15 år (fom 13 tom 14)
-		// elseif( $person->getAlderTall() < 15 ) {
-        //     $id = 'u15';
-		// }
-		// // 15 og opp (fom 15)
-		// else {
-        //     $id = '15o';
-        // }
-        
+		if( $person->getAlderTall() < 13 ) {
+            $id = 'u13';
+        }
+		// Under 15 år (fom 13 tom 14)
+		elseif( $person->getAlderTall() < 15 ) {
+            $id = 'u15';
+		}
+		// 15 og opp (fom 15)
+		else {
+            $id = '15o';
+        }
         return self::getById( $id );
     }
 
@@ -62,8 +55,6 @@ class Kategorier {
      */
     public static function getById( $id ) {
         self::_init();
-        // var_dump(self::$kategorier);
-        // var_dump($id);
         if( !isset( self::$kategorier[ $id ] ) ) {
             throw new Exception('Støtter ikke kategori med ID '. $id );
         }
@@ -92,29 +83,23 @@ class Kategorier {
     private static function _getKategoriDefinisjoner() {
         return [
             [
-                'id' => 'u18', // under 18
-                'navn' => 'Under 18 år',
+                'id' => 'u13', // tom 12
+                'navn' => 'Under 13 år',
                 'krav' => 'Bes om å oppgi forelder/foresatt, og det er ønskelig at foresatt har sett informasjonen.',
                 'sms' => Meldinger::getById('deltaker_u15')
             ],
             [
-                'id' => 'o18', // over 18
-                'navn' => 'Over 18 år',
+                'id' => 'u15', // fom 13 tom 14
+                'navn' => 'Under 15 år',
+                'krav' => 'Bes om å oppgi forelder/foresatt, men bør kunne ta valget selv.',
+                'sms' => Meldinger::getById('deltaker_u15')
+            ],
+            [
+                'id' => '15o', // fom15
+                'navn' => '15 år eller eldre',
                 'krav' => 'Deltakeren kan selv forholde seg til personvern og datalagring og har fått informasjon om hvor dette er.',
                 'sms' => Meldinger::getById('deltaker')
-            ],
-            // [
-            //     'id' => 'u15', // fom 13 tom 14
-            //     'navn' => 'Under 15 år',
-            //     'krav' => 'Bes om å oppgi forelder/foresatt, men bør kunne ta valget selv.',
-            //     'sms' => Meldinger::getById('deltaker_u15')
-            // ],
-            // [
-            //     'id' => '15o', // fom15
-            //     'navn' => '15 år eller eldre',
-            //     'krav' => 'Deltakeren kan selv forholde seg til personvern og datalagring og har fått informasjon om hvor dette er.',
-            //     'sms' => Meldinger::getById('deltaker')
-            // ]
+            ]
         ];
     }
 }
