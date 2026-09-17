@@ -18,11 +18,15 @@ class Oppgave {
     public const TYPE_FYLKESKONTAKTER = 'fylkeskontakter';
     public const TYPE_DELTAKERE = 'deltakere';
 
+    public const CONSENT_AGE_REQUIREMENT_U15 = 'u15';
+    public const CONSENT_AGE_REQUIREMENT_U18 = 'u18';
+
     private int $id;
     private string $name;
     private ?string $type;
     private int $plId;
     private ?string $description;
+    private ?string $consentAgeRequirement = null;
     private bool $locked = false;
 
     /** @var array<int, OppgaveSkjema>|null */
@@ -63,6 +67,9 @@ class Oppgave {
             : null;
         $this->plId = (int) $row['pl_id'];
         $this->description = isset($row['description']) ? $row['description'] : null;
+        $this->consentAgeRequirement = isset($row['consent_age_requirement']) && $row['consent_age_requirement'] !== null && $row['consent_age_requirement'] !== ''
+            ? (string) $row['consent_age_requirement']
+            : null;
         $this->locked = isset($row['locked']) ? ((int) $row['locked'] === 1) : false;
         $this->skjemaKjede = null;
     }
@@ -85,6 +92,21 @@ class Oppgave {
 
     public function getDescription(): ?string {
         return $this->description;
+    }
+
+    public function getConsentAgeRequirement(): ?string {
+        return $this->consentAgeRequirement;
+    }
+
+    /**
+     * @return string[]
+     */
+    public static function getConsentAgeRequirementValues(): array {
+        return [self::CONSENT_AGE_REQUIREMENT_U15, self::CONSENT_AGE_REQUIREMENT_U18];
+    }
+
+    public static function isValidConsentAgeRequirement(?string $consentAgeRequirement): bool {
+        return $consentAgeRequirement === null || in_array($consentAgeRequirement, self::getConsentAgeRequirementValues(), true);
     }
 
     public function isLocked(): bool {

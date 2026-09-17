@@ -13,13 +13,19 @@ class Write {
         string $name,
         int $plId,
         ?string $type = null,
-        ?string $description = null
+        ?string $description = null,
+        ?string $consentAgeRequirement = null
     ): Oppgave {
+        if (!Oppgave::isValidConsentAgeRequirement($consentAgeRequirement)) {
+            throw new Exception('Ugyldig alderskrav for samtykke.', 400);
+        }
+
         $sql = new Insert(Oppgave::TABLE);
         $sql->add('name', $name);
         $sql->add('pl_id', $plId);
         $sql->add('type', $type);
         $sql->add('description', $description);
+        $sql->add('consent_age_requirement', $consentAgeRequirement);
 
         try {
             $id = $sql->run();
@@ -75,6 +81,26 @@ class Write {
         }
 
         return new Oppgave($id);
+    }
+
+    public static function setConsentAgeRequirement(int $oppgaveId, ?string $consentAgeRequirement): Oppgave {
+        if (!Oppgave::isValidConsentAgeRequirement($consentAgeRequirement)) {
+            throw new Exception('Ugyldig alderskrav for samtykke.', 400);
+        }
+
+        $sql = new Update(
+            Oppgave::TABLE,
+            ['id' => $oppgaveId]
+        );
+        $sql->add('consent_age_requirement', $consentAgeRequirement);
+
+        try {
+            $sql->run();
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage() . ' (' . $e->getCode() . ')');
+        }
+
+        return new Oppgave($oppgaveId);
     }
 
     public static function setLocked(int $oppgaveId, bool $locked): Oppgave {
