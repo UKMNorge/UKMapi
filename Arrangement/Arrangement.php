@@ -821,7 +821,8 @@ class Arrangement
      * @return Oppgave[]
      */
     public function getOppgavelister() {
-        $oppgavelister = Oppgave::getAllByArrangement($this->getId());
+        // Henter kun oppgavelister som er klare til å besvares
+        $oppgavelister = Oppgave::getAllByArrangementKunKlareTilBesvarelse($this->getId());
         foreach ($oppgavelister as $oppgave) {
             $oppgave->getSkjemaKjede();
         }

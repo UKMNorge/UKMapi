@@ -99,6 +99,14 @@ class Oppgave {
     }
 
     /**
+     * Returnerer true hvis oppgaven er klar til å besvares
+     */
+    public function isReady(): bool {
+        // Når oppgaven ikke er låst betyr det at arrangøren er ikk ferdig med å sette opp oppgaven
+        return $this->isLocked();
+    }
+
+    /**
      * @return string[]
      */
     public static function getConsentAgeRequirementValues(): array {
@@ -264,6 +272,17 @@ class Oppgave {
 
     public function harOppgaveSkjema(): bool {
         return count($this->getSkjemaKjede()) > 0;
+    }
+
+    public static function getAllByArrangementKunKlareTilBesvarelse(int $plId): array {
+        $alleOppgaver = static::getAllByArrangement($plId);
+        $oppgaverKunKlareTilBesvarelse = [];
+        foreach($alleOppgaver as $oppgave) {
+            if($oppgave->isReady()) {
+                $oppgaverKunKlareTilBesvarelse[] = $oppgave;
+            }
+        }
+        return $oppgaverKunKlareTilBesvarelse;
     }
 
     /**
