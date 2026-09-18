@@ -4,6 +4,7 @@ namespace UKMNorge\Samtykkeskjema;
 
 use UKMNorge\Innslag\Personer\Person;
 use UKMNorge\Database\SQL\Query;
+use UKMNorge\Arrangement\Oppgave\Oppgave;
 use UKMNorge\Arrangement\Oppgave\OppgaveSkjema;
 
 use Exception;
@@ -47,6 +48,11 @@ abstract class SkjemaSuper {
         return OppgaveSkjema::existsFor($this->getOppgaveSkjemaType(), (int) $this->getId());
     }
 
+    public function getOppgave(): ?Oppgave {
+        $ledd = OppgaveSkjema::loadFor($this->getOppgaveSkjemaType(), (int) $this->getId());
+        return $ledd ? new Oppgave($ledd->getOppgaveId()) : null;
+    }
+
     public function isAnswered($userId, $personId) : bool {
         return false;
     }
@@ -55,7 +61,31 @@ abstract class SkjemaSuper {
         return false;
     }
 
+    // Sjekker om skjemaet er godkjent, basert på consent age requirement definert for oppgaven
     public function isForesattGodkjent($userId, $personId) : bool {
+        // Deltaker er 18 år eller eldre derfor trenger ikke samtykke fra foresatte/foreldre
+        if($this->isDeltaker18Plus($userId, $personId)) {
+            return true;
+        }
+
+        $consentAgeRequirement = null;
+        $oppgave = $this->getOppgave();
+        // Oppgave eksisterer for skjema og har en consent age requirement definert
+        if($oppgave != null && $oppgave->getConsentAgeRequirement() != null) {
+            $consentAgeRequirement = $oppgave->getConsentAgeRequirement() == Oppgave::CONSENT_AGE_REQUIREMENT_U15 ? 14 : 17;
+        }
+
+        // Ingen consent age requirement definert for oppgave, skjemaet er godkjent
+        if($oppgave != null && $consentAgeRequirement == null) {
+            return true;
+        }
+
+        $person = Person::loadFromId($personId);
+        // Deltaker er eldre enn consent age requirement, skjemaet er godkjent
+        if($person->getAlderTall() > $consentAgeRequirement) {
+            return true;
+        }
+
         return false;
     }
 

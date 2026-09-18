@@ -115,7 +115,7 @@ class OppgaveSkjema {
         return $this->skjemaId;
     }
 
-    public static function existsFor(string $skjemaType, int $skjemaId): bool {
+    public static function loadFor(string $skjemaType, int $skjemaId): ?self {
         $sql = new Query(
             self::getLoadSql() . ' WHERE `oppgave_skjema`.`skjema_type` = \'#skjemaType\' AND `oppgave_skjema`.`skjema_id` = \'#skjemaId\' LIMIT 1',
             [
@@ -124,7 +124,11 @@ class OppgaveSkjema {
             ]
         );
         $res = $sql->run('array');
-        return !empty($res);
+        return !empty($res) ? new self($res) : null;
+    }
+
+    public static function existsFor(string $skjemaType, int $skjemaId): bool {
+        return self::loadFor($skjemaType, $skjemaId) !== null;
     }
 
     public function getNesteType(): ?string {

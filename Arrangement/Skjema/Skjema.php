@@ -8,6 +8,8 @@ use UKMNorge\Database\SQL\Query;
 use UKMNorge\Samtykkeskjema\SkjemaSuper;
 use UKMNorge\Arrangement\Skjema\DeltaRespondent;
 use UKMNorge\Arrangement\Oppgave\OppgaveSkjema;
+use UKMNorge\Arrangement\Oppgave\Oppgave;
+use UKMNorge\Innslag\Personer\Person;
 
 use Exception;
 use SporsmalColl;
@@ -60,9 +62,10 @@ class Skjema extends SkjemaSuper {
     }
 
     public function isForesattGodkjent($userId, $personId) : bool {
-        if($this->isDeltaker18Plus($userId, $personId)) {
+        if(parent::isForesattGodkjent($userId, $personId)) {
             return true;
         }
+        
         $respondenter = $this->getRespondenter()->getAll();
         if(empty($respondenter)) {
             return false;
