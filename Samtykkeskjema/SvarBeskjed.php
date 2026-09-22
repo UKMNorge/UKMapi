@@ -10,27 +10,27 @@ require_once('UKM/Autoloader.php');
 class SvarBeskjed extends BeskjedSuper
 {
     const TABLE = 'skjema_svar_beskjed';
-    const PARENT_ID_COLUMN = 'skjema_svar_id';
-    const PARENT_CLASS = SvarUser::class;
+    const OWNER_ID_COLUMN = 'skjema_svar_id';
+    const OWNER_CLASS = SvarUser::class;
 
     public static function getTable(): string
     {
         return self::TABLE;
     }
 
-    public static function getParentIdColumn(): string
+    public static function getOwnerIdColumn(): string
     {
-        return self::PARENT_ID_COLUMN;
+        return self::OWNER_ID_COLUMN;
     }
 
-    public static function getParentClass(): string
+    public static function getOwnerClass(): string
     {
-        return self::PARENT_CLASS;
+        return self::OWNER_CLASS;
     }
 
     public function getSkjemaSvarId(): int
     {
-        return $this->getParentId();
+        return $this->getOwnerId();
     }
 
     /**

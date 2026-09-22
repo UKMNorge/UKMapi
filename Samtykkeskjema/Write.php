@@ -447,14 +447,14 @@ class Write {
      * @param class-string<BeskjedSuper> $beskjedClass
      * @return BeskjedSuper
      */
-    private static function insertBeskjed(string $beskjedClass, int $parentId, string $rolle, string $message, string $phone)
+    private static function insertBeskjed(string $beskjedClass, int $ownerId, string $rolle, string $message, string $phone)
     {
         $rolle = $beskjedClass::validateRolle($rolle);
         $message = trim($message);
         $phone = trim($phone);
 
-        if ($parentId < 1) {
-            throw new Exception('Kan ikke registrere SMS uten gyldig ' . $beskjedClass::getParentIdColumn() . '.');
+        if ($ownerId < 1) {
+            throw new Exception('Kan ikke registrere SMS uten gyldig ' . $beskjedClass::getOwnerIdColumn() . '.');
         }
         if ($message === '') {
             throw new Exception('Kan ikke registrere SMS uten melding.');
@@ -464,7 +464,7 @@ class Write {
         }
 
         $sql = new Insert($beskjedClass::getTable());
-        $sql->add($beskjedClass::getParentIdColumn(), $parentId);
+        $sql->add($beskjedClass::getOwnerIdColumn(), $ownerId);
         $sql->add('rolle', $rolle);
         $sql->add('message', $message);
         $sql->add('phone', $phone);

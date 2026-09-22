@@ -11,7 +11,7 @@ require_once('UKM/Autoloader.php');
 /**
  * Superklasse for SMS/beskjed knyttet til et skjema-svar eller en oppgave.
  *
- * Subklasser må implementere getTable(), getParentIdColumn() og getParentClass().
+ * Subklasser må implementere getTable(), getOwnerIdColumn() og getOwnerClass().
  */
 abstract class BeskjedSuper implements BeskjedInterface
 {
@@ -20,7 +20,7 @@ abstract class BeskjedSuper implements BeskjedInterface
     const VENTETID_SEKUNDER = 86400;
 
     protected $id;
-    protected $parentId;
+    protected $ownerId;
     protected $createdAt;
     protected $rolle;
     protected $message;
@@ -65,7 +65,7 @@ abstract class BeskjedSuper implements BeskjedInterface
     protected function _loadByRow(array $row): void
     {
         $this->id        = (int) $row['id'];
-        $this->parentId  = (int) $row[static::getParentIdColumn()];
+        $this->ownerId   = (int) $row[static::getOwnerIdColumn()];
         $this->createdAt = $row['created_at'] ?? null;
         $this->rolle     = $row['rolle'];
         $this->message   = $row['message'];
@@ -73,15 +73,15 @@ abstract class BeskjedSuper implements BeskjedInterface
     }
 
     /**
-     * Hent alle beskjeder for parent, nyeste først.
+     * Hent alle beskjeder for eieren, nyeste først.
      *
-     * @param int|object $parent
+     * @param int|object $owner oppgave eller skjema-svar
      * @return static[]
      */
-    public static function getAllFor($parent, ?string $rolle = null): array
+    public static function getAllFor($owner, ?string $rolle = null): array
     {
-        $parentCol = static::getParentIdColumn();
-        $params = [$parentCol => static::resolveParentId($parent)];
+        $ownerCol = static::getOwnerIdColumn();
+        $params = [$ownerCol => static::resolveOwnerId($owner)];
         $rolleFilter = '';
 
         if ($rolle !== null) {
@@ -92,7 +92,7 @@ abstract class BeskjedSuper implements BeskjedInterface
         $sql = new Query(
             "SELECT *
              FROM `" . static::getTable() . "`
-             WHERE `" . $parentCol . "` = '#" . $parentCol . "'" . $rolleFilter . "
+             WHERE `" . $ownerCol . "` = '#" . $ownerCol . "'" . $rolleFilter . "
              ORDER BY `created_at` DESC, `id` DESC",
             $params
         );
@@ -107,24 +107,24 @@ abstract class BeskjedSuper implements BeskjedInterface
     }
 
     /**
-     * Hent siste beskjed for parent og en rolle.
+     * Hent siste beskjed for eieren og en rolle.
      *
-     * @param int|object $parent
+     * @param int|object $owner oppgave eller skjema-svar
      * @return static|null
      */
-    public static function getSisteFor($parent, string $rolle): ?static
+    public static function getSisteFor($owner, string $rolle): ?static
     {
-        $parentCol = static::getParentIdColumn();
+        $ownerCol = static::getOwnerIdColumn();
 
         $sql = new Query(
             "SELECT *
              FROM `" . static::getTable() . "`
-             WHERE `" . $parentCol . "` = '#" . $parentCol . "'
+             WHERE `" . $ownerCol . "` = '#" . $ownerCol . "'
                AND `rolle` = '#rolle'
              ORDER BY `created_at` DESC, `id` DESC
              LIMIT 1",
             [
-                $parentCol => static::resolveParentId($parent),
+                $ownerCol => static::resolveOwnerId($owner),
                 'rolle' => static::validateRolle($rolle),
             ]
         );
@@ -140,13 +140,13 @@ abstract class BeskjedSuper implements BeskjedInterface
     /**
      * Siste beskjed per telefonnummer (kun siffer). Nyeste først fra getAllFor.
      *
-     * @param int|object $parent
+     * @param int|object $owner oppgave eller skjema-svar
      * @return array<string, static>
      */
-    public static function getSistePerTelefon($parent, ?string $rolle = null): array
+    public static function getSistePerTelefon($owner, ?string $rolle = null): array
     {
         $siste = [];
-        foreach (static::getAllFor($parent, $rolle) as $beskjed) {
+        foreach (static::getAllFor($owner, $rolle) as $beskjed) {
             $key = static::normalizePhone($beskjed->getPhone());
             if ($key === '' || isset($siste[$key])) {
                 continue;
@@ -158,18 +158,35 @@ abstract class BeskjedSuper implements BeskjedInterface
     }
 
     /**
+     * Hent siste beskjed for eieren, et telefonnummer og en rolle.
+     *
+     * @param int|object $owner oppgave eller skjema-svar
+     */
+    public static function getSisteForTelefon($owner, string $phone, string $rolle): ?static
+    {
+        $key = static::normalizePhone($phone);
+        if ($key === '') {
+            return null;
+        }
+
+        $siste = static::getSistePerTelefon($owner, $rolle);
+
+        return $siste[$key] ?? null;
+    }
+
+    /**
      * Siste beskjed per telefonnummer, gruppert på rolle.
      *
-     * @param int|object $parent
+     * @param int|object $owner oppgave eller skjema-svar
      * @return array{deltaker: array<string, static>, foresatt: array<string, static>}
      */
-    public static function getSistePerTelefonEtterRolle($parent): array
+    public static function getSistePerTelefonEtterRolle($owner): array
     {
         $siste = [
             self::ROLLE_DELTAKER => [],
             self::ROLLE_FORESATT => [],
         ];
-        foreach (static::getAllFor($parent) as $beskjed) {
+        foreach (static::getAllFor($owner) as $beskjed) {
             $rolle = $beskjed->getRolle();
             if (!isset($siste[$rolle])) {
                 continue;
@@ -262,9 +279,9 @@ abstract class BeskjedSuper implements BeskjedInterface
         return (int) $this->id;
     }
 
-    public function getParentId(): int
+    public function getOwnerId(): int
     {
-        return (int) $this->parentId;
+        return (int) $this->ownerId;
     }
 
     public function getCreatedAt(): ?string
@@ -303,20 +320,20 @@ abstract class BeskjedSuper implements BeskjedInterface
     }
 
     /**
-     * @param int|object $parent
+     * @param int|object $owner oppgave eller skjema-svar
      */
-    protected static function resolveParentId($parent): int
+    protected static function resolveOwnerId($owner): int
     {
-        $parentClass = static::getParentClass();
-        if ($parent instanceof $parentClass) {
-            return (int) $parent->getId();
+        $ownerClass = static::getOwnerClass();
+        if ($owner instanceof $ownerClass) {
+            return (int) $owner->getId();
         }
-        if (is_numeric($parent)) {
-            return (int) $parent;
+        if (is_numeric($owner)) {
+            return (int) $owner;
         }
 
         throw new Exception(
-            static::getParentIdColumn() . ' må være numerisk ID eller ' . $parentClass . '.'
+            static::getOwnerIdColumn() . ' må være numerisk ID eller ' . $ownerClass . '.'
         );
     }
 

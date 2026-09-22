@@ -12,27 +12,27 @@ require_once('UKM/Autoloader.php');
 class OppgaveBeskjed extends BeskjedSuper
 {
     const TABLE = 'skjema_oppgave_beskjed';
-    const PARENT_ID_COLUMN = 'oppgave_id';
-    const PARENT_CLASS = Oppgave::class;
+    const OWNER_ID_COLUMN = 'oppgave_id';
+    const OWNER_CLASS = Oppgave::class;
 
     public static function getTable(): string
     {
         return self::TABLE;
     }
 
-    public static function getParentIdColumn(): string
+    public static function getOwnerIdColumn(): string
     {
-        return self::PARENT_ID_COLUMN;
+        return self::OWNER_ID_COLUMN;
     }
 
-    public static function getParentClass(): string
+    public static function getOwnerClass(): string
     {
-        return self::PARENT_CLASS;
+        return self::OWNER_CLASS;
     }
 
     public function getOppgaveId(): int
     {
-        return $this->getParentId();
+        return $this->getOwnerId();
     }
 
     /**
@@ -59,6 +59,24 @@ class OppgaveBeskjed extends BeskjedSuper
     public static function getSistePerTelefonForOppgave($oppgave, ?string $rolle = null): array
     {
         return parent::getSistePerTelefon($oppgave, $rolle);
+    }
+
+    /**
+     * @param int|Oppgave $oppgave
+     */
+    /**
+     * Hent siste beskjed for en oppgave, et telefonnummer og en rolle.
+     * 
+     * $rolle kan være BeskjedSuper::ROLLE_DELTAKER eller BeskjedSuper::ROLLE_FORESATT
+     *
+     * @param int|Oppgave $oppgave
+     * @param string $phone
+     * @param string $rolle BeskjedSuper::ROLLE_DELTAKER eller BeskjedSuper::ROLLE_FORESATT
+     * @return self|null
+     */
+    public static function getSisteByTelefonForOppgave($oppgave, string $phone, string $rolle): ?self
+    {   
+        return parent::getSisteForTelefon($oppgave, $phone, $rolle);
     }
 
     /**
