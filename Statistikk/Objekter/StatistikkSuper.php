@@ -224,7 +224,7 @@ class StatistikkSuper {
         }
         // <= 2019
         else {
-            $retQuery = "SELECT p_id, arr_innslag.b_id as b_id " 
+            $retQuery = "SELECT participant.p_id, arr_innslag.b_id as b_id " 
             . ($withPDateOfBirth ? ', participant.p_dob as p_dob ' : '') .
             "FROM statistics_before_2024_smartukm_rel_pl_k AS arr_kommune
             JOIN statistics_before_2024_smartukm_place AS arrangement ON arrangement.pl_id=arr_kommune.pl_id
