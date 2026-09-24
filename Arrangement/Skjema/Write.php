@@ -302,19 +302,31 @@ class Write {
         $query->add('foresatt_godkjent', $svar->isForesattGodkjent() ? 1 : 0);
 
         $sporsmal = Sporsmal::getById($svar->getSporsmalId());
+  
         $res = $query->run();
-
         if( $res ) {
-
+            
             if( $sporsmal->getType() == 'filopplasting' ) {
-                $fileId = $svar->getValue();
-                $svarId = $res;
+                $skjema = $svarSett->getSkjema();
                 
+                $fileValue = $svar->getValue();
+                // This checks if $fileValue is not a scalar value (i.e., not an integer, float, string, or boolean).
+                if (!is_scalar($fileValue)) {
+                    throw new Exception(
+                        'Kunne ikke opprette playback-fil for "'. $sporsmal->getTittel() .'".',
+                        551010
+                    );
+                }
+
+                $fileId = (string) $fileValue;
+                $svarId = $svar->getId() ?? $res;
+                $arrangement = $skjema->getArrangementId() ? new Arrangement($skjema->getArrangementId()) : null;
+
                 try {
                     WritePlaybackFile::opprett(
                         $sporsmal->getTittel(),
                         $fileId,
-                        null,
+                        $arrangement,
                         null,
                         $svarId,
                         null,
