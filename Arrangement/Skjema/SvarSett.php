@@ -66,6 +66,16 @@ class SvarSett
     }
 
     /**
+     * Hent skjema
+     * 
+     * @return Skjema
+     */
+    public function getSkjema() 
+    {
+        return Skjema::getById($this->getSkjemaId());
+    }
+
+    /**
      * Get the value of svar
      * 
      * @return Array $svar for denne respondenten
