@@ -110,7 +110,7 @@ class Svar {
     /**
      * Hent den faktiske verdien
      * 
-     * @return Any $svar
+     * @return mixed
      */ 
     public function getValue( $value_key = null)
     {
