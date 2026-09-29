@@ -36,6 +36,7 @@ class SamtykkeSkjema extends SkjemaSuper {
     protected string $navn;
     protected string $type = 'vanlig';
     protected ?string $subtype = null;
+    protected ?string $parentConsentRequirement = null;
     protected array $versjoner = [];
     protected array $prosjekter = [];
     protected array $arrangementer = [];
@@ -279,6 +280,22 @@ class SamtykkeSkjema extends SkjemaSuper {
     }
 
     /**
+     * Sett krav om foresattesamtykke (u15, u18, eller null)
+     * @param string|null $parentConsentRequirement
+     */
+    public function setParentConsentRequirement(?string $parentConsentRequirement): void
+    {
+        $allowed = ['u15', 'u18'];
+        if ($parentConsentRequirement === null || $parentConsentRequirement === '') {
+            $this->parentConsentRequirement = null;
+            return;
+        }
+        $this->parentConsentRequirement = in_array($parentConsentRequirement, $allowed, true)
+            ? $parentConsentRequirement
+            : null;
+    }
+
+    /**
      * Hent ID
      * @return int
      */
@@ -315,6 +332,14 @@ class SamtykkeSkjema extends SkjemaSuper {
     }
 
     /**
+     * Hent krav om foresattesamtykke (u15, u18, eller null)
+     * @return string|null
+     */
+    public function getParentConsentRequirement(): ?string {
+        return $this->parentConsentRequirement;
+    }
+
+    /**
      * Hent data fra database ved ID
      * @param int $id
      * @throws Exception
@@ -347,6 +372,9 @@ class SamtykkeSkjema extends SkjemaSuper {
         $this->navn     = $row['navn'];
         $this->type     = isset($row['type']) && !empty($row['type']) ? $row['type'] : 'vanlig';
         $this->subtype  = isset($row['subtype']) && $row['subtype'] !== '' ? $row['subtype'] : null;
+        $this->setParentConsentRequirement(
+            isset($row['parent_consent_requirement']) ? $row['parent_consent_requirement'] : null
+        );
     }
 
     public function getProsjekter() {
@@ -513,6 +541,7 @@ class SamtykkeSkjema extends SkjemaSuper {
             'navn'       => $this->getNavn(),
             'type'       => $this->getType(),
             'subtype'    => $this->getSubtype(),
+            'parent_consent_requirement' => $this->getParentConsentRequirement(),
             'prosjekter' => $prosjekter,
             'versjon'    => $lastVersjon ? [
                 'id'          => $lastVersjon->getId(),

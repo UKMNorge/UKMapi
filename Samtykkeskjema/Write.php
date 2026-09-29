@@ -28,13 +28,17 @@ class Write {
         string $navn,
         ?Arrangement $arrangement = null,
         string $type = 'vanlig',
-        ?string $subtype = null
+        ?string $subtype = null,
+        ?string $parentConsentRequirement = null
     ): SamtykkeSkjema {
         $sql = new Insert(SamtykkeSkjema::TABLE);
         $sql->add('navn', $navn);
         $sql->add('type', $type);
         if ($subtype !== null && $subtype !== '') {
             $sql->add('subtype', $subtype);
+        }
+        if (in_array($parentConsentRequirement, ['u15', 'u18'], true)) {
+            $sql->add('parent_consent_requirement', $parentConsentRequirement);
         }
         $id = $sql->run();
 
@@ -66,6 +70,7 @@ class Write {
         $sql->add('navn', $skjema->getNavn());
         $sql->add('type', $skjema->getType());
         $sql->add('subtype', $skjema->getSubtype());
+        $sql->add('parent_consent_requirement', $skjema->getParentConsentRequirement());
 
         $res = $sql->run();
         if ($res === false) {
