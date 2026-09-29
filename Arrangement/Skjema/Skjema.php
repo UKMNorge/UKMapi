@@ -27,6 +27,7 @@ class Skjema extends SkjemaSuper {
     private $gruppert;
     private $respondenter;
     protected string $navn;
+    private ?string $parentConsentRequirement = null;
     
 
     /**
@@ -176,7 +177,7 @@ class Skjema extends SkjemaSuper {
     {
         return static::load(
             new Query(
-                "SELECT `id`
+                "SELECT *
             FROM `ukm_videresending_skjema`
             WHERE `pl_id` = '#arrangement'
             AND `type` = 'arrangement'",
@@ -212,7 +213,7 @@ class Skjema extends SkjemaSuper {
     {
         return static::load(
             new Query(
-                "SELECT `id`
+                "SELECT *
                 FROM `ukm_videresending_skjema`
                 WHERE `pl_id` = '#arrangement'
                 AND `type` = 'person'",
@@ -246,6 +247,30 @@ class Skjema extends SkjemaSuper {
      */
     public function setNavn(string $navn): void {
         $this->navn = $navn;
+    }
+
+    /**
+     * Sett krav om foresattesamtykke (u15, u18, eller null)
+     * @param string|null $parentConsentRequirement
+     */
+    public function setParentConsentRequirement(?string $parentConsentRequirement): void
+    {
+        $allowed = ['u15', 'u18'];
+        if ($parentConsentRequirement === null || $parentConsentRequirement === '') {
+            $this->parentConsentRequirement = null;
+            return;
+        }
+        $this->parentConsentRequirement = in_array($parentConsentRequirement, $allowed, true)
+            ? $parentConsentRequirement
+            : null;
+    }
+
+    /**
+     * Hent krav om foresattesamtykke (u15, u18, eller null)
+     * @return string|null
+     */
+    public function getParentConsentRequirement(): ?string {
+        return $this->parentConsentRequirement;
     }
 
     /**
@@ -361,13 +386,14 @@ class Skjema extends SkjemaSuper {
      * @see getArrangementSkjema or getDeltakerskjema
      * @return self
      */
-    public function __construct(Int $id, String $type, Int $pl_id, String $eier_type, Int $eier_id, String $navn = "")
+    public function __construct(Int $id, String $type, Int $pl_id, String $eier_type, Int $eier_id, String $navn = "", ?string $parentConsentRequirement = null)
     {
         $this->id = $id;
         $this->arrangement_id = $pl_id;
         $this->eier = new Eier($eier_type, $eier_id);
         $this->type = $type;
         $this->navn = $navn;
+        $this->setParentConsentRequirement($parentConsentRequirement);
     }
 
     public function getEier() : Eier {
@@ -397,6 +423,9 @@ class Skjema extends SkjemaSuper {
         $eier_type  = isset($skjema_data['eier_type'])  ? $skjema_data['eier_type'] : $eier_type;
         $eier_id    = isset($skjema_data['eier_id'])    ? intval($skjema_data['eier_id']) : 0;
         $navn       = isset($skjema_data['name'])       ? $skjema_data['name'] : "";
+        $parentConsentRequirement = isset($skjema_data['parent_consent_requirement'])
+            ? $skjema_data['parent_consent_requirement']
+            : null;
 
         return new static(
             $id,
@@ -404,7 +433,8 @@ class Skjema extends SkjemaSuper {
             $pl_id,
             $eier_type,
             $eier_id,
-            $navn
+            $navn,
+            $parentConsentRequirement
         );
     }
 }

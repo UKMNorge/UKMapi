@@ -113,6 +113,32 @@ class Write {
     }
 
     /**
+     * Lagre krav om foresattesamtykke (kolonnen `parent_consent_requirement`).
+     * Gyldige verdier er u15, u18, eller null.
+     *
+     * @param Skjema $skjema
+     * @param string|null $parentConsentRequirement
+     * @throws Exception
+     */
+    public static function saveParentConsentRequirement(Skjema $skjema, ?string $parentConsentRequirement) {
+        $skjema->setParentConsentRequirement($parentConsentRequirement);
+        $query = new Update(
+            'ukm_videresending_skjema',
+            [
+                'id' => $skjema->getId(),
+            ]
+        );
+        $query->add('parent_consent_requirement', $skjema->getParentConsentRequirement());
+        $res = $query->run();
+        if ($res === false) {
+            throw new Exception(
+                'Kunne ikke lagre krav om foresattesamtykke.',
+                551011
+            );
+        }
+    }
+
+    /**
      * Gyldige verdier for ukm_videresending_skjema_sporsmal.type (ENUM)
      */
     public static function normaliserSporsmalType($type): string {
