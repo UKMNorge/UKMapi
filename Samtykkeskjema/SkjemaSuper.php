@@ -64,7 +64,9 @@ abstract class SkjemaSuper {
     /**
      * Krav om foresattesamtykke lagret på skjemaet (u15, u18, eller null).
      */
-    abstract public function getParentConsentRequirement(): ?string;
+    protected function getParentConsentRequirement(): ?string {
+        return null;
+    }
 
     // Sjekker om skjemaet er godkjent, basert på parentConsentRequirement på skjemaet
     public function isForesattGodkjent($userId, $personId) : bool {
