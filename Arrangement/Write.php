@@ -43,9 +43,10 @@ class Write
      * @param String $navn
      * @param Array[Kommune] $geografi
      * @param String $path
+     * @param bool $utvided_gui = false - Utvided GUI på nettsiden
      * @return Arrangement $created_monstring
      */
-    public static function create(String $type, Int $eier_id, Int $sesong, String $navn, array $geografi, String $path)
+    public static function create(String $type, Int $eier_id, Int $sesong, String $navn, array $geografi, String $path, bool $utvided_gui = false)
     {
         // Oppdater loggeren til å bruke riktig PL_ID
         Logger::setPlId(0);
@@ -101,6 +102,10 @@ class Write
         $place->add('pl_deadline2', static::getStandardFrist($sesong, $type));
         $place->add('pl_forward_start', static::getStandardFrist($sesong, $type));
         $place->add('pl_forward_stop', static::getStandardFrist($sesong, $type));
+        if($utvided_gui === true) {
+            $place->add('gui_type', 1);
+        }
+            
 
         switch ($type) {
             case 'kommune':
