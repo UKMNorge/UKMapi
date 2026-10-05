@@ -689,6 +689,7 @@ class OppgaveRespondentVisning {
 
             case 'kort_tekst':
             case 'lang_tekst':
+            case 'epost_respondent':
                 return [['label' => '', 'value' => self::scalarToString($value)]];
 
             case 'kontakt':
