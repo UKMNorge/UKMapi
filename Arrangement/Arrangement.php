@@ -820,9 +820,13 @@ class Arrangement
      * 
      * @return Oppgave[]
      */
-    public function getOppgavelister() {
+    public function getOppgavelister($includeNotPublished = false) {
         // Henter kun oppgavelister som er klare til å besvares
-        $oppgavelister = Oppgave::getAllByArrangementKunKlareTilBesvarelse($this->getId());
+        if($includeNotPublished) {
+            $oppgavelister = Oppgave::getAllByArrangement($this->getId());
+        } else {
+            $oppgavelister = Oppgave::getAllByArrangementKunKlareTilBesvarelse($this->getId());
+        }
         foreach ($oppgavelister as $oppgave) {
             $oppgave->getSkjemaKjede();
         }
