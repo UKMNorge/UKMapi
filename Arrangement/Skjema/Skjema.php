@@ -71,12 +71,37 @@ class Skjema extends SkjemaSuper {
         if(empty($respondenter)) {
             return false;
         }
+
+        $alder = null;
+        $er18 = false;
+        try {
+            $person = Person::loadFromId($personId);
+            $deltaRespondent = DeltaRespondent::loadByMobil($person->getMobil());
+            if ($deltaRespondent) {
+                $er18 = $deltaRespondent->is18YearNow();
+                if ($deltaRespondent->date_of_birth) {
+                    $alder = (int) (new \DateTime())->diff(new \DateTime($deltaRespondent->date_of_birth))->y;
+                }
+            }
+        } catch (Exception $e) {
+            $alder = null;
+            $er18 = false;
+        }
+
+        $kreverForesatt = [];
+        foreach ($this->getSporsmal()->getAll() as $sporsmal) {
+            $kreverForesatt[$sporsmal->getId()] = $sporsmal->requiresParentConsentForAge($alder, $er18);
+        }
+
         foreach($respondenter as $respondent) {
             if($respondent->getId() == $personId) {
                 foreach($respondent->getSvar()->getAll() as $svar) {
-                    // If any answer is not answered, return false
                     if($svar == null) {
                         return false;
+                    }
+                    // Spørsmål utenfor aldersgrensen trenger ikke foresattgodkjenning
+                    if (empty($kreverForesatt[$svar->getSporsmalId()])) {
+                        continue;
                     }
                     if(!$svar->isForesattGodkjent()) {
                         return false;
@@ -86,6 +111,25 @@ class Skjema extends SkjemaSuper {
             }
         }
         return false;
+    }
+
+    /**
+     * Er alle lagrede svar som krever foresattgodkjenning for denne alderen godkjent?
+     */
+    public function erRelevanteSvarForesattGodkjent(SvarSett $svarsett, ?int $alder, bool $er18): bool
+    {
+        $svar = $svarsett->getAll();
+        foreach ($this->getSporsmal()->getAll() as $sporsmal) {
+            if (!$sporsmal->requiresParentConsentForAge($alder, $er18)) {
+                continue;
+            }
+            $id = $sporsmal->getId();
+            if (isset($svar[$id]) && !$svar[$id]->isForesattGodkjent()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 
@@ -280,7 +324,6 @@ class Skjema extends SkjemaSuper {
                 }
             }
         }
-        var_dump($ageReq);
         return $ageReq;
     }
 

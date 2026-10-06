@@ -179,6 +179,33 @@ class Sporsmal {
     }
 
     /**
+     * Om spørsmålet skal godkjennes av foresatt for en deltaker i gitt alder.
+     *
+     * u15: foresatt kreves til og med 14 år.
+     * u18: foresatt kreves til og med 17 år.
+     * null: ingen krav, foresatt skal ikke godkjenne.
+     *
+     * Ukjent alder behandles som under terskelen. Deltakere som er 18 år,
+     * eller har bekreftet at de er 18, krever ikke foresattesamtykke.
+     */
+    public function requiresParentConsentForAge(?int $age, bool $is18Year = false): bool
+    {
+        $requirement = $this->getParentConsentRequirement();
+        if ($requirement === null || $is18Year) {
+            return false;
+        }
+
+        if ($age === null) {
+            return true;
+        }
+
+        // Samme terskel som SkjemaSuper::isForesattGodkjent / isParentConsentRequired.
+        $consentAgeRequirement = $requirement === 'u15' ? 14 : 17;
+
+        return $age <= $consentAgeRequirement;
+    }
+
+    /**
      * Set the value of tekst
      *
      * @return  self
