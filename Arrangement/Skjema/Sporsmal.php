@@ -15,6 +15,7 @@ class Sporsmal {
     private $tittel;
     private $tekst;
     private $is_required;
+    private $parent_consent_requirement = null;
 
     /**
      * Opprett spørsmål fra databaserad
@@ -30,11 +31,12 @@ class Sporsmal {
             $db_row['type'],
             $db_row['tittel'],
             $db_row['tekst'],
-            isset($db_row['is_required']) ? (bool) $db_row['is_required'] : true
+            isset($db_row['is_required']) ? (bool) $db_row['is_required'] : true,
+            isset($db_row['parent_consent_requirement']) ? $db_row['parent_consent_requirement'] : null
         );
     }
 
-    public function __construct( Int $id, Int $skjema_id, Int $rekkefolge, String $type, String $tittel, String $tekst, bool $is_required = true )
+    public function __construct( Int $id, Int $skjema_id, Int $rekkefolge, String $type, String $tittel, String $tekst, bool $is_required = true, ?string $parent_consent_requirement = null )
     {
         $this->id = $id;
         $this->skjema = $skjema_id;
@@ -43,6 +45,7 @@ class Sporsmal {
         $this->tittel = $tittel;
         $this->tekst = $tekst;
         $this->is_required = $is_required;
+        $this->setParentConsentRequirement($parent_consent_requirement);
     }
 
     public static function getById(Int $id) : Sporsmal {
@@ -63,7 +66,8 @@ class Sporsmal {
                 $data['type'],
                 $data['tittel'],
                 $data['tekst'],
-                isset($data['is_required']) ? (bool) $data['is_required'] : true
+                isset($data['is_required']) ? (bool) $data['is_required'] : true,
+                isset($data['parent_consent_requirement']) ? $data['parent_consent_requirement'] : null
             );
         }
         throw new Exception('Could not find spørsmål with id: '. $id);
@@ -140,6 +144,36 @@ class Sporsmal {
     public function setIsRequired($is_required)
     {
         $this->is_required = (bool) $is_required;
+
+        return $this;
+    }
+
+    /**
+     * Hent krav om foresattesamtykke (u15, u18, eller null)
+     *
+     * @return string|null
+     */
+    public function getParentConsentRequirement(): ?string
+    {
+        return $this->parent_consent_requirement;
+    }
+
+    /**
+     * Sett krav om foresattesamtykke (u15, u18, eller null)
+     *
+     * @param string|null $parent_consent_requirement
+     * @return self
+     */
+    public function setParentConsentRequirement(?string $parent_consent_requirement)
+    {
+        $allowed = ['u15', 'u18'];
+        if ($parent_consent_requirement === null || $parent_consent_requirement === '') {
+            $this->parent_consent_requirement = null;
+            return $this;
+        }
+        $this->parent_consent_requirement = in_array($parent_consent_requirement, $allowed, true)
+            ? $parent_consent_requirement
+            : null;
 
         return $this;
     }

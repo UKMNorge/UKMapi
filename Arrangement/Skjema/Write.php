@@ -169,10 +169,21 @@ class Write {
      * @param String $type
      * @param String $tittel
      * @param String $tekst
+     * @param string|null $parent_consent_requirement u15, u18, eller null
      * @return Spørsmål $sporsmal
      */
-    public static function createSporsmal( Skjema $skjema, Int $rekkefolge, String $type, String $tittel, String $tekst) {
+    public static function createSporsmal( Skjema $skjema, Int $rekkefolge, String $type, String $tittel, String $tekst, ?string $parent_consent_requirement = null) {
         $type = static::normaliserSporsmalType($type);
+        $sporsmal = new Sporsmal(
+            0,
+            $skjema->getId(),
+            $rekkefolge,
+            $type,
+            $tittel,
+            $tekst,
+            true,
+            $parent_consent_requirement
+        );
         $insert = new Insert('ukm_videresending_skjema_sporsmal');
         $insert->add('skjema', $skjema->getId());
         $insert->add('rekkefolge', $rekkefolge);
@@ -180,6 +191,7 @@ class Write {
         $insert->add('tittel', $tittel);
         $insert->add('tekst', $tekst);
         $insert->add('is_required', 1);
+        $insert->add('parent_consent_requirement', $sporsmal->getParentConsentRequirement());
 
         $res = $insert->run();
         if( !$res ) {
@@ -195,7 +207,8 @@ class Write {
             $type,
             $tittel,
             $tekst,
-            true
+            true,
+            $sporsmal->getParentConsentRequirement()
         );
     }
 
@@ -224,6 +237,7 @@ class Write {
         $query->add('tittel', $sporsmal->getTittel());
         $query->add('tekst', $sporsmal->getTekst());
         $query->add('is_required', $sporsmal->isRequired() ? 1 : 0);
+        $query->add('parent_consent_requirement', $sporsmal->getParentConsentRequirement());
 
         $res = $query->run();
 

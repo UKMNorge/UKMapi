@@ -266,11 +266,21 @@ class Skjema extends SkjemaSuper {
     }
 
     /**
-     * Hent krav om foresattesamtykke (u15, u18, eller null)
+     * Hent krav om foresattesamtykke (u15, u18, eller null) fra spørsmålene
      * @return string|null
      */
     public function getParentConsentRequirement(): ?string {
-        return $this->parentConsentRequirement;
+        // return $this->parentConsentRequirement;
+        
+        $lowestAgeRequirement = null;
+        foreach($this->getSporsmal()->getAll() as $sporsmal) {
+            if($sporsmal->getParentConsentRequirement()) {
+                if($lowestAgeRequirement === null || $sporsmal->getParentConsentRequirement() < $lowestAgeRequirement) {
+                    $lowestAgeRequirement = $sporsmal->getParentConsentRequirement();
+                }
+            }
+        }
+        return $lowestAgeRequirement;
     }
 
     /**
