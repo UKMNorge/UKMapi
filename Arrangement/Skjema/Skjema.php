@@ -272,15 +272,16 @@ class Skjema extends SkjemaSuper {
     public function getParentConsentRequirement(): ?string {
         // return $this->parentConsentRequirement;
         
-        $lowestAgeRequirement = null;
+        $ageReq = null;
         foreach($this->getSporsmal()->getAll() as $sporsmal) {
             if($sporsmal->getParentConsentRequirement()) {
-                if($lowestAgeRequirement === null || $sporsmal->getParentConsentRequirement() < $lowestAgeRequirement) {
-                    $lowestAgeRequirement = $sporsmal->getParentConsentRequirement();
+                if($ageReq === null || $sporsmal->getParentConsentRequirement() > $ageReq) {
+                    $ageReq = $sporsmal->getParentConsentRequirement();
                 }
             }
         }
-        return $lowestAgeRequirement;
+        var_dump($ageReq);
+        return $ageReq;
     }
 
     /**
