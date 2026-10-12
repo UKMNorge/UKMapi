@@ -206,10 +206,10 @@ class SMS {
 	}
 	
 	private function _length() {
-		if(strlen($this->message) <= 160)
+		if(mb_strlen($this->message) <= 160)
 			$this->num_textmessages = -1;
 		else
-			$this->num_textmessages = -1 * round(strlen($this->message) / 154);
+			$this->num_textmessages = -1 * ceil(mb_strlen($this->message) / 153);
 	}
 	
 	private function _clean($string, $allowed='A-Za-z0-9-') {
