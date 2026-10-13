@@ -39,6 +39,27 @@ class Kommune {
             ) AS `overtatt_av`
             FROM `smartukm_kommune`";
     }
+
+    /**
+     * Hent Kommune-objekt basert på kommunes navn
+     *
+     * @param String $navn
+     * @return Kommune|null
+     */
+    public static function getByKommuneNavn(String $navn) {
+        $sql = new Query(
+            "SELECT * FROM `smartukm_kommune`
+            WHERE `name` = '#navn'",
+            [
+                'navn' => $navn
+            ]
+        );
+        $res = $sql->run('array');
+        if( !is_array( $res ) ) {
+            return null;
+        }
+        return new Kommune($res);
+    }
     
     /**
      * Hent kommune-data fra database basert på gitt ID
