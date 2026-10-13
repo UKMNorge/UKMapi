@@ -46,7 +46,7 @@ class Kommune {
      * @param String $navn
      * @return Kommune|null
      */
-    public static function getByNavn(String $navn) {
+    public static function getByNavn(String $navn) : ?Kommune {
         $sql = new Query(
             "SELECT * FROM `smartukm_kommune`
             WHERE `name` = '#navn'
