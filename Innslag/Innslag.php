@@ -1136,7 +1136,9 @@ class Innslag implements HendelseItemInterface
         }
         // Innslaget har en varighet over 5 min
         if ($this->getType()->harTitler() && (5 * 60) < $this->getVarighet()->getSekunder()) {
-            $advarsler->add(Advarsel::ny('titler', 'Innslaget er lengre enn 5 minutter '));
+            if($this->getType()->getKey() != 'video') {
+                $advarsler->add(Advarsel::ny('titler', 'Innslaget er lengre enn 5 minutter '));
+            }
         }
         return $advarsler;
     }
