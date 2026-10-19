@@ -351,7 +351,7 @@ class User
         return $user;
     }
 
-    public static function loadByEmailInStandaloneEnvironment(String $email) : User|null {
+    public static function loadByWPIDInStandaloneEnvironment(Int $wp_id) : User|null {
         $query = new Query(
             "SELECT 
                 u.ID,
@@ -366,9 +366,9 @@ class User
                 ON um_fn.user_id = u.ID AND um_fn.meta_key = 'first_name'
             LEFT JOIN wpms2012_usermeta um_ln 
                 ON um_ln.user_id = u.ID AND um_ln.meta_key = 'last_name'
-            WHERE u.user_email = '#email'",
+            WHERE u.ID = '#wp_id'",
             [
-                'email' => $email
+                'wp_id' => $wp_id
             ],
             'wordpress'
         );
