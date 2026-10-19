@@ -351,6 +351,52 @@ class User
         return $user;
     }
 
+    public static function loadByEmailInStandaloneEnvironment(String $email) : User|null {
+        $query = new Query(
+            "SELECT 
+                u.ID,
+                u.user_email,
+                um_phone.meta_value AS user_phone,
+                um_fn.meta_value AS first_name,
+                um_ln.meta_value AS last_name
+            FROM wpms2012_users u
+            LEFT JOIN wpms2012_usermeta um_phone 
+                ON um_phone.user_id = u.ID AND um_phone.meta_key = 'user_phone'
+            LEFT JOIN wpms2012_usermeta um_fn 
+                ON um_fn.user_id = u.ID AND um_fn.meta_key = 'first_name'
+            LEFT JOIN wpms2012_usermeta um_ln 
+                ON um_ln.user_id = u.ID AND um_ln.meta_key = 'last_name'
+            WHERE u.user_email = '#email'",
+            [
+                'email' => $email
+            ],
+            'wordpress'
+        );
+        $data = $query->getArray();
+        if(!$data || !isset($data['ID'])) {
+            return null;
+        }
+        try{ 
+            $user = new User($data['ID'], false);
+        } catch(Exception $e) {
+            return null;
+        }
+
+        // Hent bilde
+        $row = static::loadBildeInStandaloneEnvironment($user->getId());
+        if($row && isset($row['bilde_url'])) {
+            $user->bilde = $row['bilde_url'] ?? null;
+        }
+
+        $user->setPhone((int)$data['user_phone']);
+        $user->setEmail($data['user_email']);
+        $user->setFirstName($data['first_name']);
+        $user->setLastName($data['last_name']);
+
+
+        return $user;
+    }
+
     /**
      * Hent inn WP user fra standalone-miljø via telefonnummer
      *
@@ -390,18 +436,9 @@ class User
         }
 
         // Hent bilde
-        $sql = new Query(
-            "SELECT `bilde_url`
-            FROM `wp_user_bilde`
-            WHERE `wp_user` = '#userid'",
-            [
-                'userid' => $user->getId()
-            ]
-        );
-
-        $row = $sql->run('array');
-        if($row) {
-            $user->bilde = $row['bilde_url'];
+        $row = static::loadBildeInStandaloneEnvironment($user->getId());
+        if($row && isset($row['bilde_url'])) {
+            $user->bilde = $row['bilde_url'] ?? null;
         }
 
         $user->setPhone((int)$data['user_phone']);
@@ -411,6 +448,23 @@ class User
 
 
         return $user;
+    }
+
+    private static function loadBildeInStandaloneEnvironment(Int $userId) : String|null {
+        $query = new Query(
+            "SELECT `bilde_url`
+            FROM `wp_user_bilde`
+            WHERE `wp_user` = '#userid'",
+            [
+                'userid' => $userId
+            ],
+            'wordpress'
+        );
+        $row = $query->getArray();
+        if($row) {
+            return $row['bilde_url'];
+        }
+        return null;
     }
 
     /**
