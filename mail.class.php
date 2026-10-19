@@ -24,7 +24,9 @@ use Misd\Linkify\LinkifyInterface;
 class UKMmail {
 	var $reply_to = null;
     var $send_from = null;
-    var $bcc = [];
+    var $cc = [];
+	var $bcc = [];
+
 
 	public function __construct() {
 		$this->reply_to = new stdClass();
@@ -50,6 +52,10 @@ class UKMmail {
     public function addBlindcopy( $mail, $name ) {
         $this->bcc[] = ['mail' => $mail, 'name' => $name];
     }
+
+	public function addCC( $mail, $name ) {
+		$this->cc[] = ['mail' => $mail, 'name' => $name];
+	}
 	
 	public function text( $text ) {
 	
@@ -128,6 +134,10 @@ class UKMmail {
             foreach( $this->bcc as $blindcopy ) {
                 $mail->addBCC( $blindcopy['mail'], $blindcopy['name'] );
             }
+
+			foreach( $this->cc as $cc ) {
+				$mail->addCC( $cc['mail'], $cc['name'] );
+			}
 			
 			if( $supportIsRecipient ) {
 				$mail->AddReplyTo( $this->send_from->mail, $this->send_from->name );
